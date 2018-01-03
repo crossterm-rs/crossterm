@@ -1,0 +1,15 @@
+[package]
+name = "crossterm"
+version = "0.1.0"
+authors = ["T <timonpost@hotmail.nl>"]
+
+[dependencies]
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = "0.2.8"
+kernel32-sys = "0.2.1"
+
+[[bin]]
+name="a"
+path="examples\\bin.rs"
+
+
