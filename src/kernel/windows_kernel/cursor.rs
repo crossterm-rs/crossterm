@@ -1,13 +1,11 @@
-extern crate winapi;
-extern crate kernel32;
+use winapi;
+use kernel32;
+use super::{handle, kernel};
+use shared::functions;
 
-use self::winapi::{COORD};
-use super::{handle,kernel};
-
-/// These are the movement directions of an cursor 
+/// These are the movement directions of an cursor
 #[derive(Debug)]
-pub enum CursorDirection
-{
+pub enum CursorDirection {
     Top,
     Right,
     Down,
@@ -15,79 +13,48 @@ pub enum CursorDirection
 }
 
 /// Set the cursor position to an coordinate (x,y).
-pub fn set(x: u16, y:u16)
-{
-    set_cursor_pos(x as i16,y as i16);
+pub fn set(x: u16, y: u16) {
+    set_cursor_pos(x as i16, y as i16);
 }
 
 /// Get the current cursor x position.
-pub fn xpos() -> u16
-{
-    if let Some(csbi) = kernel::get_console_screen_buffer_info() 
-    {        
-        csbi.dwCursorPosition.Y as u16
-    }else{
-        println!("xpos verkeerd");
-        0 
-    }
+pub fn xpos() -> u16 {
+    let csbi = kernel::get_console_screen_buffer_info();
+    csbi.dwCursorPosition.X as u16
 }
 
 /// Get the current cursor y position.
-pub fn ypos() -> u16
-{
-    if let Some(csbi) = kernel::get_console_screen_buffer_info() 
-    {        
-        csbi.dwCursorPosition.Y as u16
-    }else{
-        println!("ypos verkeerd");
-        0 
+pub fn ypos() -> u16 {
+    let csbi = kernel::get_console_screen_buffer_info();
+    csbi.dwCursorPosition.Y as u16
+}
+
+pub fn move_down(count: u16) {
+    let csbi = kernel::get_console_screen_buffer_info();
+    unsafe {
+        let output_handle = handle::get_output_handle();
+        kernel32::SetConsoleCursorPosition(
+            output_handle,
+            winapi::COORD {
+                X: csbi.dwCursorPosition.X,
+                Y: csbi.dwCursorPosition.Y + count as i16,
+            },
+        );
     }
 }
 
-pub fn move_down(count: u16)
-{
-    if let Some(buffer) = kernel::get_console_screen_buffer_info() 
-    {        
-        unsafe
-        {
-             let handle = kernel32::GetStdHandle(winapi::STD_OUTPUT_HANDLE);
-             kernel32::SetConsoleCursorPosition(handle, COORD {
-                X: buffer.dwCursorPosition.X,
-                Y: buffer.dwCursorPosition.Y + count as i16,
-            });
-        }
-    }  
-}
-
-
-// pub fn move_direction(count: i16, cursor_direction: CursorDirection)
-// {
-//      
-        
-//       println!("{}, {}, {:?}",x,y, cursor_direction);
-
-//         match cursor_direction 
-//         {
-//             CursorDirection::Top => set_cursor_pos(x,y - count) ,
-//             CursorDirection::Right => set_cursor_pos(x + count, y) ,
-//             CursorDirection::Down => set_cursor_pos(x, y + count),
-//             CursorDirection::Left => set_cursor_pos(x - count,y),
-//         };
-//     }else{
-//         println!("{}", "Not found");
-//     }
-      
-// }
-
 /// Set the cursor position to an coordinate (x,y).
-fn set_cursor_pos(x: i16, y: i16)
-{
-    if let Some(handle) = handle::get_output_handle()
-    {
-        unsafe 
-        {
-            let position = COORD{X: x, Y:y};
-            kernel32::SetConsoleCursorPosition(handle, position);        
+fn set_cursor_pos(x: i16, y: i16) {
+    functions::is_cursor_out_of_range(x, y);
+
+    let output_handle = handle::get_output_handle();
+    let position = winapi::COORD { X: x, Y: y };
+
+    unsafe {
+        let success = kernel32::SetConsoleCursorPosition(output_handle, position);
+
+        if success == 0 {
+            panic!("Cannot set console cursor position");
         }
     }
 }

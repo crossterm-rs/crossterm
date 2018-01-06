@@ -1,26 +1,41 @@
 extern crate crossterm;
 
-use self::crossterm::terminal_style::{paint,Color};
-use self::crossterm::terminal_cursor::cursor;
-use std::io::Write;
+use self::crossterm::terminal_style::*;
+use self::crossterm::terminal_cursor::*;
+use self::crossterm::terminal::*;
+use std::io::{stdin, stdout, Write};
 
+fn main() {
+    terminal::get().clear(ClearType::All);
 
-fn main()
-{      
-    cursor::get().move_down(1);
-    print!("2");
-    std::io::stdout().flush().expect("asdf"); 
+    for y in 0..21 {
+        for x in 0..21 {
+            if (x == 0 || y == 0) || (x == 20 || y == 20) {
+                print!("{}", paint("■").with(Color::Red));
+            } else {
+                print!("{}", paint(" ").with(Color::Blue).on(Color::Blue));
+            }
+        }
+        println!();
+    }
 
-    cursor::get().move_down(1);
-    print!("3");    
-    std::io::stdout().flush().expect("asdf"); 
+    let mut curs = cursor::get();
+    {
+        curs.goto(10, 10);
+        curs.print("@");
+        curs.move_up(1);
+        curs.print("1");
 
-    cursor::get().move_down(1);
-    print!("4");    
-    std::io::stdout().flush().expect("asdf"); 
+        curs.move_right(1);
+        curs.print("2");
 
-    cursor::get().move_down(1);
-    print!("5");    
-    std::io::stdout().flush().expect("asdf"); 
+        curs.move_down(1);
+        curs.print("3");
 
+        curs.move_left(2);
+        curs.print("4");
+
+        curs.goto(0, 30);
+        println!("{:?}", curs.pos());
+    }
 }
