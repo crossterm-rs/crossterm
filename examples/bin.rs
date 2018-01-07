@@ -21,21 +21,11 @@ fn main() {
 
     let mut curs = cursor::get();
     {
-        curs.goto(10, 10);
-        curs.print("@");
-        curs.move_up(1);
-        curs.print("1");
-
-        curs.move_right(1);
-        curs.print("2");
-
-        curs.move_down(1);
-        curs.print("3");
-
-        curs.move_left(2);
-        curs.print("4");
-
-        curs.goto(0, 30);
-        println!("{:?}", curs.pos());
+        curs.goto(4, 1).print("@");
+        
     }
+
+    terminal::get().clear(ClearType::UntilNewLine);
+
+    cursor::get().goto(0,30);
 }

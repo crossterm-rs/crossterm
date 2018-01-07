@@ -17,11 +17,10 @@ impl ITerminal for WinApiTerminal {
         match clear_type
         {
             ClearType::All => terminal::clear_entire_screen(),
-            ClearType::AfterCursor => terminal::clear_after_cursor(),
-            _ => print!("")
-            // ClearType::BeforeCursor => format!(csi!("1J")),
-            // ClearType::CurrentLine => format!(csi!("2K")),
-            // ClearType::UntilNewLine => format!(csi!("K")),
+            ClearType::AfterCursor => terminal::clear_after_cursor(),            
+            ClearType::BeforeCursor => terminal::clear_before_cursor(),
+            ClearType::CurrentLine => terminal::clear_current_line(),
+            ClearType::UntilNewLine => terminal::clear_until_line(),
         };
     }
 

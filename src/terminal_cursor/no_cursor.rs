@@ -14,7 +14,7 @@ impl Construct for NoCursor {
 impl ITerminalCursor for NoCursor {
     fn goto(&self, x: u16, y: u16) {}
 
-    fn pos(&self) -> (u16, u16) {
+    fn pos(&self) -> (i16, i16) {
         (0, 0)
     }
 

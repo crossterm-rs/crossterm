@@ -13,20 +13,20 @@ pub enum CursorDirection {
 }
 
 /// Set the cursor position to an coordinate (x,y).
-pub fn set(x: u16, y: u16) {
+pub fn set(x: i16, y: i16) {
     set_cursor_pos(x as i16, y as i16);
 }
 
 /// Get the current cursor x position.
-pub fn xpos() -> u16 {
+pub fn xpos() -> i16 {
     let csbi = kernel::get_console_screen_buffer_info();
-    csbi.dwCursorPosition.X as u16
+    csbi.dwCursorPosition.X 
 }
 
 /// Get the current cursor y position.
-pub fn ypos() -> u16 {
+pub fn ypos() -> i16 {
     let csbi = kernel::get_console_screen_buffer_info();
-    csbi.dwCursorPosition.Y as u16
+    csbi.dwCursorPosition.Y
 }
 
 pub fn move_down(count: u16) {

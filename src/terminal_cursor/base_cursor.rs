@@ -9,7 +9,7 @@
 pub trait ITerminalCursor {
     /// Goto some location (x,y) in the terminal.
     fn goto(&self, x: u16, y: u16);
-    fn pos(&self) -> (u16, u16);
+    fn pos(&self) -> (i16, i16);
     fn move_up(&self, count: u16);
     fn move_right(&self, count: u16);
     fn move_down(&self, count: u16);

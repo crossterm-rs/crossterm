@@ -15,7 +15,7 @@ impl ITerminalCursor for AnsiCursor {
         format!(csi!("{};{}H"), x, y);
     }
 
-    fn pos(&self) -> (u16, u16) {
+    fn pos(&self) -> (i16, i16) {
         (0, 0)
     }
 

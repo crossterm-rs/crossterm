@@ -42,7 +42,7 @@ impl TerminalCursor {
         self
     }
 
-    pub fn pos(mut self) -> (u16, u16) {
+    pub fn pos(mut self) -> (i16, i16) {
         &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.pos()

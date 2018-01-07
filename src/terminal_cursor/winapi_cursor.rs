@@ -15,10 +15,10 @@ impl Construct for WinApiCursor {
 
 impl ITerminalCursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16) {
-        cursor::set(x, y);
+        cursor::set(x as i16, y as i16);
     }
 
-    fn pos(&self) -> (u16, u16) {
+    fn pos(&self) -> (i16, i16) {
         (cursor::xpos(), cursor::ypos())
     }
 
@@ -26,27 +26,27 @@ impl ITerminalCursor for WinApiCursor {
         let xpos = cursor::xpos();
         let ypos = cursor::ypos();
 
-        cursor::set(xpos, ypos - 1);
+        cursor::set(xpos, ypos - count as i16);
     }
 
     fn move_right(&self, count: u16) {
         let xpos = cursor::xpos();
         let ypos = cursor::ypos();
 
-        cursor::set(xpos + 1, ypos);
+        cursor::set(xpos + count as i16, ypos);
     }
 
     fn move_down(&self, count: u16) {
         let xpos = cursor::xpos();
         let ypos = cursor::ypos();
 
-        cursor::set(xpos, ypos + count);
+        cursor::set(xpos, ypos + count as i16);
     }
 
     fn move_left(&self, count: u16) {
         let xpos = cursor::xpos();
         let ypos = cursor::ypos();
 
-        cursor::set(xpos - 1, ypos);
+        cursor::set(xpos - count as i16, ypos);
     }
 }
