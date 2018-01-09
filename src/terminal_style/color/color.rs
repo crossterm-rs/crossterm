@@ -41,34 +41,12 @@ pub enum ColorType {
     Foreground,
 }
 
-/// Enables an user to pass in an color as str.
-/// *Default color if cannot be parsed will be white.*
-///
-/// # Example
-///
-/// ``` rust
-/// let fg_color = Color::from("red");
-/// let bg_color = Color::from("blue");
-///
-/// println!("{}",paint("■").with(fg_color).on(bg_color));
-/// ```
 impl<'a> From<&'a str> for Color {
     fn from(src: &str) -> Self {
         src.parse().unwrap_or(Color::White)
     }
 }
 
-/// Enables an user to pass in an color as String.
-/// *Default color if cannot be parsed will be white.*
-///
-/// # Example
-///
-/// ``` rust
-/// let fg_color = Color::from(String::from("red"));
-/// let bg_color = Color::from(String::from("blue"));
-///
-/// println!("{}",paint("■").with(fg_color).on(bg_color));
-/// ```
 impl From<String> for Color {
     fn from(src: String) -> Self {
         src.parse().unwrap_or(Color::White)
@@ -102,7 +80,7 @@ impl FromStr for Color {
     }
 }
 
-/// Struct on wits the color realated actions can be performed.
+/// Struct on wits color realated actions can be performed.
 pub struct TerminalColor {
     terminal_color: Option<Box<ITerminalColor>>,
 }
@@ -149,7 +127,7 @@ impl TerminalColor {
         }
     }
 
-    /// Reset the terminal colors to default.
+    /// Reset the terminal colors and attributes to default.
     /// # Example
     ///
     /// ```rust
@@ -166,7 +144,7 @@ impl TerminalColor {
     }
 }
 
-/// Get the concrete ITerminalColor implementation based on the current operating system.
+/// Get an concrete ITerminalColor implementation based on the current operating system.
 fn get_color_options() -> Option<Box<ITerminalColor>> {
     if cfg!(target_os = "linux") {
         Some(ANSIColor::new())

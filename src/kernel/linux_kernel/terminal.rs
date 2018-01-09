@@ -20,7 +20,7 @@ pub fn terminal_size() -> Option<(u16, u16)> {
         let mut winsize: libc::winsize = mem::zeroed();
         libc::ioctl(libc::STDOUT_FILENO, libc::TIOCGWINSZ, &mut winsize);
         if winsize.ws_row > 0 && winsize.ws_col > 0 {
-            Some((winsize.ws_row as u16, winsize.ws_col as u16))
+            Some((winsize.ws_col as u16, winsize.ws_row as u16))
         } else {
             None
         }

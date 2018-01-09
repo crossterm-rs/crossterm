@@ -18,7 +18,7 @@ impl Default for ObjectStyle {
 }
 
 impl ObjectStyle {
-    /// Get an `StyledObject` from the passed displayable object.
+    /// Apply an `StyledObject` to the passed displayable object.
     pub fn apply_to<D>(&self, val: D) -> StyledObject<D>
     where
         D: Display,
@@ -29,7 +29,7 @@ impl ObjectStyle {
         }
     }
 
-    /// Get an instance of `ObjectStyle`
+    /// Get an new instance of `ObjectStyle`
     pub fn new() -> ObjectStyle {
         return ObjectStyle {
             fg_color: None,

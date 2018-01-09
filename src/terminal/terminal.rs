@@ -15,6 +15,26 @@ impl Terminal {
         }
     }
 
+    /// Clear the current cursor by specifying the clear type
+    /// 
+    /// #Example
+    ///
+    /// ```rust
+    /// 
+    /// let mut terminal = terminal::get();
+    /// 
+    /// // clear all cells in terminal.
+    /// terminal.clear(ClearType::All);
+    ///  //clear all cells after the cursor position in terminal.
+    /// terminal.clear(ClearType::AfterCursor);
+    /// // clear all cells before cursor in terminal.
+    /// terminal.clear(ClearType::BeforeCursor);
+    /// // clear current line cells in terminal.
+    /// terminal.clear(ClearType::CurrentLine);
+    /// // clear all cells from cursor position until new line in terminal.
+    /// terminal.clear(ClearType::UntilNewLine);
+    /// 
+    /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
         &self.init();
         if let Some(ref terminal) = self.terminal {
@@ -22,6 +42,18 @@ impl Terminal {
         }
     }
 
+    /// Get the terminal size (x,y).
+    /// 
+    /// #Example
+    ///
+    /// ```rust
+    /// 
+    /// let mut terminal = terminal::get();
+    /// 
+    /// let size = terminal.terminal_size();
+    /// println!("{:?}", size);
+    /// 
+    /// ```
     pub fn terminal_size(&mut self) -> Option<(u16, u16)> {
         &self.init();
         if let Some(ref terminal) = self.terminal {
@@ -32,6 +64,7 @@ impl Terminal {
         }
     }
 
+    /// Scroll `n` lines up in the current terminal.
     pub fn scroll_up(&mut self, count: i16) {
         for i in 0..100 {
             println!("Ik ben timon en dit is een test {}", i)
@@ -43,6 +76,7 @@ impl Terminal {
         }
     }
 
+    /// Scroll `n` lines up in the current terminal.
     pub fn scroll_down(&self) {}
 }
 
