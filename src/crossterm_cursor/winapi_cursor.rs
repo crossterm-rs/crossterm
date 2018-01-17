@@ -2,7 +2,7 @@ use Construct;
 use kernel::windows_kernel::cursor;
 use super::base_cursor::ITerminalCursor;
 
-/// This struct will be used for cursor actions in windows terminals performed by winapi.
+/// This struct is an windows implementation for cursor related actions.
 pub struct WinApiCursor {
     has_moved: bool,
 }

@@ -12,6 +12,7 @@ pub fn enable_ansi_support() {
 /// Set the console mode of the windows terminal.
 fn set_console_mode(handle: winapi::HANDLE, console_mode: u32) {
     unsafe {
+        winapi::SW_HIDE;
         kernel32::SetConsoleMode(handle, console_mode);
     }
 }

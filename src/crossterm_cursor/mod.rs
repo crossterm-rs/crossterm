@@ -1,11 +1,15 @@
 mod base_cursor;
-mod no_cursor;
-mod ansi_cursor;
-mod winapi_cursor;
-pub mod cursor;
+mod cursor;
 
-use self::no_cursor::NoCursor;
+#[cfg(unix)]
+mod ansi_cursor;
+#[cfg(windows)]
+mod winapi_cursor;
+
+#[cfg(unix)]
 use self::ansi_cursor::AnsiCursor;
+#[cfg(windows)]
 use self::winapi_cursor::WinApiCursor;
 
-pub use cursor::{get, TerminalCursor};
+pub use self::cursor::{ get, TerminalCursor };
+

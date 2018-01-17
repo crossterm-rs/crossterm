@@ -1,9 +1,9 @@
 use Construct;
 use super::base_terminal::{ClearType, ITerminal};
 
-#[cfg(windows)]
 use kernel::windows_kernel::terminal;
-/// This struct will be used for ansi terminals and unix systems.
+
+/// This struct is an windows implementation for terminal related actions.
 pub struct WinApiTerminal;
 
 impl Construct for WinApiTerminal {
@@ -17,8 +17,8 @@ impl ITerminal for WinApiTerminal {
         match clear_type
         {
             ClearType::All => terminal::clear_entire_screen(),
-            ClearType::AfterCursor => terminal::clear_after_cursor(),            
-            ClearType::BeforeCursor => terminal::clear_before_cursor(),
+            ClearType::FromCursorDown => terminal::clear_after_cursor(),            
+            ClearType::FromCursorUp => terminal::clear_before_cursor(),
             ClearType::CurrentLine => terminal::clear_current_line(),
             ClearType::UntilNewLine => terminal::clear_until_line(),
         };

@@ -2,16 +2,16 @@ use std;
 use std::fmt;
 use std::io::Write;
 
-use terminal_style::{Color, ObjectStyle};
+use crossterm_style::{Color, ObjectStyle};
 
-/// Struct that contains both the style and the content wits is styled.
+/// Struct that contains both the style and the content wits will be styled.
 pub struct StyledObject<D> {
     pub object_style: ObjectStyle,
     pub content: D,
 }
 
 impl<D> StyledObject<D> {
-    /// Paints the foreground color with the passed `Color`
+    /// Sets the foreground of the styled object to the passed `Color`
     ///
     /// #Example
     ///
@@ -33,7 +33,7 @@ impl<D> StyledObject<D> {
         self
     }
 
-    /// Paints the background color with the passed `Color`
+    /// Sets the background of the styled object to the passed `Color`
     ///
     /// #Example
     ///
@@ -65,7 +65,7 @@ macro_rules! impl_fmt
         impl<D: fmt::$name> fmt::$name for StyledObject<D> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
             {
-                let mut colored_terminal = super::super::colored_terminal();
+                let mut colored_terminal = super::super::get();
                 let mut reset = true;
 
                 if let Some(bg) = self.object_style.bg_color

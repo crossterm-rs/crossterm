@@ -1,10 +1,8 @@
-extern crate winapi;
 use Construct;
 use super::color::{Color, ColorType};
 use super::base_color::ITerminalColor;
-use kernel::windows_kernel::{color, kernel};
 
-/// This struct will be used for coloring windows terminals with winapi.
+/// This struct is an windows implementation for color related actions.
 #[derive(Debug)]
 pub struct WinApiColor {
     original_console_color: u16,

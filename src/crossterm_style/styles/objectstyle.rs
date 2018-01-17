@@ -1,7 +1,7 @@
-use terminal_style::{Color, StyledObject};
+use crossterm_style::{Color, StyledObject};
 use std::fmt::Display;
 
-/// This struct contains the style properties that can be applied to an displayable object.
+/// Struct that contains the style properties that can be applied to an displayable object.
 #[derive(Clone)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,

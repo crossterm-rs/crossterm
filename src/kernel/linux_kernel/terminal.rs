@@ -1,28 +1,34 @@
-use std::{io, mem};
+use libc;
 
-use super::cvt;
-use super::libc;
+use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort};
+use self::libc::ioctl;
 
+/// A representation of the size of the current terminal
 #[repr(C)]
-struct TermSize {
-    row: libc::c_ushort,
-    col: libc::c_ushort,
-    _x: libc::c_ushort,
-    _y: libc::c_ushort,
+#[derive(Debug)]
+pub struct UnixSize {
+    /// number of rows
+    pub rows: c_ushort,
+    /// number of columns
+    pub cols: c_ushort,
+    x: c_ushort,
+    y: c_ushort,
 }
 
-pub fn terminal_size() -> Option<(u16, u16)> {
-    unsafe {
-        if libc::isatty(libc::STDOUT_FILENO) != 1 {
-            return None;
-        }
-
-        let mut winsize: libc::winsize = mem::zeroed();
-        libc::ioctl(libc::STDOUT_FILENO, libc::TIOCGWINSZ, &mut winsize);
-        if winsize.ws_row > 0 && winsize.ws_col > 0 {
-            Some((winsize.ws_col as u16, winsize.ws_row as u16))
-        } else {
-            None
-        }
+/// Gets the current terminal size
+pub fn terminal_size() -> Option<(u16,u16)> {
+    // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
+    let us = UnixSize {
+        rows: 0,
+        cols: 0,
+        x: 0,
+        y: 0,
+    };
+    let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &us) };
+    if r == 0 {
+        // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
+        Some((us.cols -1, us.rows -1))
+    } else {
+        None
     }
 }
