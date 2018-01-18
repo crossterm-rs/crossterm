@@ -2,6 +2,12 @@
 name = "crossterm"
 version = "0.1.0"
 authors = ["T <timonpost@hotmail.nl>"]
+description = "An crossplarform terminal library for manipulating terminals."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://atcentra.com/crossterm/"
+license = "MIT"
+keywords = ["console", "color", "terminal", "term", "winconsole", "colors", "crossplarform", "linuxconsole","unixconsole","cli"]
+exclude = ["target", "Cargo.lock"]
 
 [dependencies]
 [target.'cfg(windows)'.dependencies]
