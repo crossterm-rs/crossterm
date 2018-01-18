@@ -6,7 +6,7 @@ description = "An crossplarform terminal library for manipulating terminals."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://atcentra.com/crossterm/"
 license = "MIT"
-keywords = ["console", "color", "terminal", "term", "winconsole", "colors", "crossplarform", "linuxconsole","unixconsole","cli"]
+keywords = ["console", "color", "cursor", "terminal", "cli"]
 exclude = ["target", "Cargo.lock"]
 
 [dependencies]
