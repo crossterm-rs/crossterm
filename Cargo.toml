@@ -1,7 +1,7 @@
 [package]
 name = "crossterm"
 version = "0.1.0"
-authors = ["T <timonpost@hotmail.nl>"]
+authors = ["T Post <timonpost@hotmail.nl>"]
 description = "An crossplarform terminal library for manipulating terminals."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://atcentra.com/crossterm/"
