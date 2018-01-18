@@ -1,11 +1,8 @@
 # Crossterm | crossplatform terminal library written in rust.
 
-Ever got disappointed when a terminal library for rust was only written for unix systems? 
-Crossterm provides the same terminal functionality for both windows and unix systems.
+Ever got disappointed when a terminal library for rust was only written for unix systems? Crossterm provides the same terminal functionality for both windows and unix systems.
 
-Crossterm aims to be simple and easy to call in code. 
-True the simplicty of crossterm you do not have to worry about the platform your working with.
-You can just call some module and unther water it will check what to do based on the current platform.
+Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call some module and unther water it will check what to do based on the current platform.
 
 ## Getting Started
 
@@ -51,7 +48,7 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
     // Or you can print it directly.
     println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));     
     println!("{}", paint("Red font on default background color").with(Color::Red));
-    println!("{}", paint("Default font color and Blue background color").on(Color::Blue));
+    println!("{}", paint("Default font color on Blue background color").on(Color::Blue));
 ```
 ### Cursor
 ```rust 
@@ -81,7 +78,7 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
 
 ### Terminal
 ```rust 
-    use crossterm_terminal::get;
+    use crossterm_terminal::{get,ClearType};
     
     let mut cursor = get();
     
@@ -121,7 +118,7 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
     - Scrolling
     - Size
 - Detailed documentation on every item.
-- Full examples for every call.
+- Examples for every client callable code.
 
 ## Tested terminals
 
@@ -133,15 +130,13 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
     - Ubuntu 17.10
 
 
-The above terminals have been tested.
-Crossterm should works also for windows 7, 8 consoles and all ansi suportable consoles. 
-But these are yet to be tested.
+The above terminals have been tested. Crossterm should works also for windows 7, 8 consoles and all ansi supportable consoles.
+But these are yet to be tested. 
 If you have used this library for an terminal other than the above list without issues feel free to add it to the above list.
     
 
 ## Notice 
-This library is not totaly stable **yet**. There will not be changed mutch in the code design so do not worry to mutch. 
-If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to new version.
+This library is not totally stable **yet**. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to new version.
 
 ## Todo crossterm 0.2
 
@@ -149,22 +144,21 @@ If there are any changes that affect previous versions I will describe what to c
 - Inplementing 256 colors for terminals that support those colors.
 - Handling key events
 - Tests
+- Storing and resetting cursor position. 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+If you would like to contribute to crossterm, than please design the code as it is now. Each module contains the same structures so we can easely extend to multible platforms. As you study the code you will quiqly see what the architecture is. Maybe later there will be an documentation for how crossterm is design.
 
 ## Versioning
 
-The current version is crossterm 0.1, every merge I do the version go's up like 0.1.0 -> 0.1.1 -> 0.1.2. 
+The current version is crossterm 0.1, every commit I merge the version go's up like 0.1.0 -> 0.1.1 -> 0.1.2.
 
-When new features arive the packages will go up like 0.1 -> 0.2 -> 0.3
+When new features arrives the packages will go up like 0.1 -> 0.2 -> 0.3
 
 ## Authors
 
-* **Timon Post** - *Project Owner*
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Timon Post** - *Project Owner & creator*
 
 ## License
 
