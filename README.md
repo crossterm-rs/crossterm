@@ -41,17 +41,72 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
 
 ### Styled font
 ```rust    
-    // Crossterm provides method chaining so that the methods can be inlined.
-    println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));
+    use crossterm_style::{paint, Color};
     
-    // Crossterm provides method chaining so that the methods can be inlined.
+    // Crossterm provides method chaining so that you can style the font nicely.
+    // You can either store the styled font.
+    let mut styledobject = paint("Stored styled font").with(Color::Red).on(Color::Blue);
+    println!("{}",styledobject);
+    
+    // Or you can print it directly.
+    println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));     
     println!("{}", paint("Red font on default background color").with(Color::Red));
+    println!("{}", paint("Default font color and Blue background color").on(Color::Blue));
 ```
 ### Cursor
-
+```rust 
+    use crossterm_cursor::get;
+    
+    let mut cursor = get();
+    
+    // Set the cursor to position X: 10, Y: 5 in the terminal
+    cursor.goto(10,5);   
+    
+    // Move the cursor to position 3 times to the up in the terminal
+    cursor.move_up(3)
+    
+     // Move the cursor to position 3 times to the right in the terminal
+    cursor.move_right(3);
+    
+    // Move the cursor to position 3 times to the down in the terminal
+    cursor.move_down(3);
+    
+     // Move the cursor to position 3 times to the left in the terminal
+    cursor.move_left(3);
+    
+    // Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
+    cursor.goto(10,5).print("@");    
+    
+```
 
 ### Terminal
-
+```rust 
+    use crossterm_terminal::get;
+    
+    let mut cursor = get();
+    
+    // Clear all lines in terminal;
+    terminal.clear(ClearType::All);  
+    // Clear all cells from current cursor position down.
+    terminal.clear(ClearType::FromCursorDown);
+    // Clear all cells from current cursor position down.
+    terminal.clear(ClearType::FromCursorUp);
+     // Clear current line cells.
+    terminal.clear(ClearType::CurrentLine);
+    // Clear all the cells until next line.
+    terminal.clear(ClearType::UntilNewLine);
+    
+    // Get terminal size
+    let terminal_size = terminal.terminal_size().unwrap();
+    // Print results
+    print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
+     
+    // Scroll down 10 lines.
+    terminal.scroll_down(10);
+    
+    // Scroll up 10 lines.
+    terminal.scroll_up(10);
+```
 
 ## Features crossterm 0.1
 
