@@ -1,5 +1,6 @@
-use winapi;
-use kernel32;
+use winapi::shared::ntdef::HANDLE;
+use winapi::um::consoleapi::SetConsoleMode;
+
 use super::handle;
 
 /// Enables ansi for windows terminals.
@@ -10,9 +11,8 @@ pub fn enable_ansi_support() {
 }
 
 /// Set the console mode of the windows terminal.
-fn set_console_mode(handle: winapi::HANDLE, console_mode: u32) {
+fn set_console_mode(handle: HANDLE, console_mode: u32) {
     unsafe {
-        winapi::SW_HIDE;
-        kernel32::SetConsoleMode(handle, console_mode);
+        SetConsoleMode(handle, console_mode);
     }
 }

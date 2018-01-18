@@ -103,6 +103,7 @@ impl TerminalCursor {
     ///
     /// use self::crossterm::crossterm_cursor;
     ///
+    ///
     /// // move 1 time right
     /// crossterm_cursor::get().move_right(1);
     /// 

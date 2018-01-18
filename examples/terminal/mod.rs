@@ -5,7 +5,7 @@
 extern crate crossterm;
 
 use crossterm::crossterm_terminal::{get, Terminal, ClearType};
-use crossterm::terminal_cursor;
+use crossterm::crossterm_cursor;
 
 fn print_test_data()
 {
@@ -35,8 +35,8 @@ pub fn clear_from_cursor_down()
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    terminal_cursor::get().goto(4,4);
-    
+    crossterm_cursor::get().goto(4,8);
+
     // Clear all cells from current cursor position down.
     terminal.clear(ClearType::FromCursorDown);
 }
@@ -50,7 +50,7 @@ pub fn clear_from_cursor_up()
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    terminal_cursor::get().goto(4,4);
+    crossterm_cursor::get().goto(4,8);
 
     // Clear all cells from current cursor position down.
     terminal.clear(ClearType::FromCursorUp);
@@ -65,7 +65,7 @@ pub fn clear_current_line()
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    terminal_cursor::get().goto(4,4);
+    crossterm_cursor::get().goto(4,4);
 
     // Clear current line cells.
     terminal.clear(ClearType::CurrentLine);
@@ -80,7 +80,7 @@ pub fn clear_until_new_line()
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    terminal_cursor::get().goto(4,4);
+    crossterm_cursor::get().goto(4,4);
 
     // Clear all the cells until next line.
     terminal.clear(ClearType::UntilNewLine);

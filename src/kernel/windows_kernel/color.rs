@@ -1,7 +1,8 @@
-use winapi;
-use kernel32;
+use winapi::um::wincon;
 use super::{handle, kernel};
-use terminal_style as style;
+use crossterm_style as style;
+
+use winapi::um::wincon::{SetConsoleTextAttribute};
 
 /// This will set the forground color by the given winapi color value parsed to u16.
 pub fn set_fg_color(fg_color: u16) {
@@ -16,8 +17,8 @@ pub fn set_fg_color(fg_color: u16) {
 
     // background intensity is a seperate value in attrs,
     // wee need to check if this was applied to the current bg color.
-    if (attrs & winapi::BACKGROUND_INTENSITY as u16) != 0 {
-        color = color | winapi::BACKGROUND_INTENSITY as u16;
+    if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
+        color = color | wincon::BACKGROUND_INTENSITY as u16;
     }
 
     set_console_text_attribute(color);
@@ -35,8 +36,8 @@ pub fn set_bg_color(bg_color: u16) {
 
     // foreground intensity is a seperate value in attrs,
     // wee need to check if this was applied to the current fg color.
-    if (attrs & winapi::FOREGROUND_INTENSITY as u16) != 0 {
-        color = color | winapi::FOREGROUND_INTENSITY as u16;
+    if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
+        color = color | wincon::FOREGROUND_INTENSITY as u16;
     }
 
     set_console_text_attribute(color);
@@ -49,19 +50,19 @@ pub fn reset(original_color: u16) {
 
 /// This will get the winapi color value from the Color struct
 pub fn winapi_color_val(color: style::Color, color_type: style::ColorType) -> u16 {
-    use terminal_style::{Color, ColorType};
+    use crossterm_style::{Color, ColorType};
 
-    let winapi_color: u32;
+    let winapi_color: u16;
 
-    let fg_green = winapi::FOREGROUND_GREEN;
-    let fg_red = winapi::FOREGROUND_RED;
-    let fg_blue = winapi::FOREGROUND_BLUE;
-    let fg_intensity = winapi::FOREGROUND_INTENSITY;
+    let fg_green = wincon::FOREGROUND_GREEN;
+    let fg_red = wincon::FOREGROUND_RED;
+    let fg_blue = wincon::FOREGROUND_BLUE;
+    let fg_intensity = wincon::FOREGROUND_INTENSITY;
 
-    let bg_green = winapi::BACKGROUND_GREEN;
-    let bg_red = winapi::BACKGROUND_RED;
-    let bg_blue = winapi::BACKGROUND_BLUE;
-    let bg_intensity = winapi::BACKGROUND_INTENSITY;
+    let bg_green = wincon::BACKGROUND_GREEN;
+    let bg_red = wincon::BACKGROUND_RED;
+    let bg_blue = wincon::BACKGROUND_BLUE;
+    let bg_intensity = wincon::BACKGROUND_INTENSITY;
 
     match color_type {
         ColorType::Foreground => {
@@ -112,6 +113,6 @@ fn set_console_text_attribute(value: u16) {
     let output_handle = handle::get_output_handle();
 
     unsafe {
-        kernel32::SetConsoleTextAttribute(output_handle, value);
+        SetConsoleTextAttribute(output_handle, value);
     }
 }

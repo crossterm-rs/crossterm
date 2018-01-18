@@ -32,7 +32,7 @@ impl ITerminal for WinApiTerminal {
         // yet to be inplemented
     }
 
-    fn scroll_down(&self, count: u16) {
+    fn scroll_down(&self, count: i16) {
         terminal::scroll_down(count as i16);
     }
 }

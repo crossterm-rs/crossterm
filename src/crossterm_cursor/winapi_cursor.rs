@@ -3,13 +3,11 @@ use kernel::windows_kernel::cursor;
 use super::base_cursor::ITerminalCursor;
 
 /// This struct is an windows implementation for cursor related actions.
-pub struct WinApiCursor {
-    has_moved: bool,
-}
+pub struct WinApiCursor;
 
 impl Construct for WinApiCursor {
     fn new() -> Box<WinApiCursor> {
-        Box::from(WinApiCursor { has_moved: false })
+        Box::from(WinApiCursor { })
     }
 }
 

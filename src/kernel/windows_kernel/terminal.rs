@@ -1,6 +1,8 @@
+use super::{cursor, handle, kernel};
+
 use winapi;
-use kernel32;
-use super::{cursor, handle, kernel, Empty};
+use winapi::shared::ntdef::TRUE;
+use winapi::um::wincon::{SetConsoleWindowInfo,FillConsoleOutputCharacterA, FillConsoleOutputAttribute, COORD, CONSOLE_SCREEN_BUFFER_INFO};
 
 /// Get the terminal size (y,x)
 pub fn terminal_size() -> Option<(u16, u16)> {
@@ -27,7 +29,7 @@ pub fn scroll_down(rows: i16) {
         srct_window.Bottom += rows; // move bottom down
 
         unsafe {
-            if kernel32::SetConsoleWindowInfo(output_handle, winapi::TRUE, &mut srct_window) != 1 {
+            if SetConsoleWindowInfo(output_handle, TRUE as i32, &mut srct_window) != 1 {
                 panic!("Something whent wrong when scrolling down");
             }
         }
@@ -39,7 +41,7 @@ pub fn clear_after_cursor() {
     let csbi = kernel::get_console_screen_buffer_info();
 
     // one cell after cursor position
-    let mut x = cursor::xpos() as i16 + 1;
+    let mut x = cursor::xpos() as i16 ;
     // one at row of cursor position
     let mut y = cursor::ypos() as i16;
 
@@ -51,7 +53,7 @@ pub fn clear_after_cursor() {
     }
 
     // location where to start clearing
-    let start_loaction = winapi::COORD { X: x, Y: y };
+    let start_loaction = COORD { X: x, Y: y };
     // get sum cells before cursor
     let cells_to_write = csbi.dwSize.X as u32  * csbi.dwSize.Y as u32;
 
@@ -68,9 +70,9 @@ pub fn clear_before_cursor() {
     let y = 0;
 
     // location where to start clearing
-    let start_loaction = winapi::COORD { X: x, Y: y };
+    let start_loaction = COORD { X: x, Y: y };
      // get sum cells before cursor
-    let cells_to_write = (csbi.dwSize.X as u32  * cursor::ypos() as u32) + (cursor::xpos() -1) as u32;
+    let cells_to_write = (csbi.dwSize.X as u32  * cursor::ypos() as u32) + (cursor::xpos()) as u32;
 
     // println!("{:?}", (csbi.dwSize.X as u32  * (cursor::ypos() - 1) as u32));
     clear(output_handle, csbi, start_loaction, cells_to_write);
@@ -86,7 +88,7 @@ pub fn clear_entire_screen() {
     let y = 0;
 
     // location where to start clearing
-    let start_loaction = winapi::COORD { X: x, Y: y };
+    let start_loaction = COORD { X: x, Y: y };
     // get sum cells before cursor
     
     let cells_to_write = csbi.dwSize.X as u32 * csbi.dwSize.Y as u32;
@@ -108,7 +110,7 @@ pub fn clear_current_line()
     let y = cursor::ypos();
 
     // location where to start clearing
-    let start_loaction = winapi::COORD { X: x, Y: y };
+    let start_loaction = COORD { X: x, Y: y };
     // get sum cells before cursor
     
     let cells_to_write = csbi.dwSize.X as u32;
@@ -130,28 +132,28 @@ pub fn clear_until_line()
     let y = cursor::ypos();
 
     // location where to start clearing
-    let start_loaction = winapi::COORD { X: x -1, Y: y };
+    let start_loaction = COORD { X: x -1, Y: y };
     // get sum cells before cursor    
     let cells_to_write = (csbi.dwSize.X - x) as u32 - 1;
 
     clear(output_handle, csbi, start_loaction, cells_to_write);
-    print!("{:?}",start_loaction);
+
     // put the cursor back at (0, 0)
     cursor::set(x, y);
 }
 
 fn clear(
-    handle: winapi::HANDLE,
-    csbi: winapi::CONSOLE_SCREEN_BUFFER_INFO,
-    start_loaction: winapi::COORD,
+    handle: winapi::um::winnt::HANDLE,
+    csbi: CONSOLE_SCREEN_BUFFER_INFO,
+    start_loaction: COORD,
     cells_to_write: u32
 ) {
     let mut cells_written = 0;
     let mut success;
 
     unsafe {
-        // fill the cetain cells in console with blanks
-        success = kernel32::FillConsoleOutputCharacterA(
+        // fill the cells in console with blanks
+        success = FillConsoleOutputCharacterA (
             handle,
             ' ' as i8,
             cells_to_write,
@@ -167,7 +169,7 @@ fn clear(
     cells_written = 0;
 
     unsafe {
-        success = kernel32::FillConsoleOutputAttribute(
+        success = FillConsoleOutputAttribute (
             handle,
             csbi.wAttributes,
             cells_to_write,

@@ -9,7 +9,6 @@
 ///! so that the color related actions can be preformed on both unix and windows systems.
 ///!
 
-use std::fmt;
 use super::color::{Color, ColorType};
 
 pub trait ITerminalColor {

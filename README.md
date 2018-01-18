@@ -17,7 +17,7 @@ crossterm = "*"
 Add the crate to your solution.
 And use the crossterm modules withs you want to use.
 
-```
+```rust  
 extern crate crossterm;
 
 // this module is used for styling the terminal
@@ -30,15 +30,15 @@ use self::crossterm::crossterm_terminal::*;
 ```
 ## Documentation
 
-Documentation for the code can be found here ...
+Documentation for the code can be found [here](https://atcentra.com/crossterm/index.html)
 
 ## Examples
 
-For detailed examples of all crossterm functionalities check the `./examples/` direcory.
+For detailed examples of all crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) direcory.
 
 ### Styled font
 ```rust    
-    use crossterm_style::{paint, Color};
+    use crossterm::crossterm_style::{paint, Color};
     
     // Crossterm provides method chaining so that you can style the font nicely.
     // You can either store the styled font.
@@ -52,57 +52,58 @@ For detailed examples of all crossterm functionalities check the `./examples/` d
 ```
 ### Cursor
 ```rust 
-    use crossterm_cursor::get;
+
+     use crossterm::crossterm_cursor::get;
     
-    let mut cursor = get();
+     let mut cursor = get();
     
-    // Set the cursor to position X: 10, Y: 5 in the terminal
-    cursor.goto(10,5);   
+     // Set the cursor to position X: 10, Y: 5 in the terminal
+     cursor.goto(10,5);
     
-    // Move the cursor to position 3 times to the up in the terminal
-    cursor.move_up(3)
+     // Move the cursor to position 3 times to the up in the terminal
+     cursor.move_up(3);
     
      // Move the cursor to position 3 times to the right in the terminal
-    cursor.move_right(3);
+     cursor.move_right(3);
     
-    // Move the cursor to position 3 times to the down in the terminal
-    cursor.move_down(3);
+     // Move the cursor to position 3 times to the down in the terminal
+     cursor.move_down(3);
     
      // Move the cursor to position 3 times to the left in the terminal
-    cursor.move_left(3);
+        cursor.move_left(3);
     
-    // Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
-    cursor.goto(10,5).print("@");    
+     // Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
+     // cursor.goto(10,5).print("@");    
     
 ```
 
 ### Terminal
 ```rust 
-    use crossterm_terminal::{get,ClearType};
-    
-    let mut cursor = get();
-    
-    // Clear all lines in terminal;
-    terminal.clear(ClearType::All);  
-    // Clear all cells from current cursor position down.
-    terminal.clear(ClearType::FromCursorDown);
-    // Clear all cells from current cursor position down.
-    terminal.clear(ClearType::FromCursorUp);
-     // Clear current line cells.
-    terminal.clear(ClearType::CurrentLine);
-    // Clear all the cells until next line.
-    terminal.clear(ClearType::UntilNewLine);
-    
-    // Get terminal size
-    let terminal_size = terminal.terminal_size().unwrap();
-    // Print results
-    print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
-     
-    // Scroll down 10 lines.
-    terminal.scroll_down(10);
-    
-    // Scroll up 10 lines.
-    terminal.scroll_up(10);
+   use crossterm::crossterm_terminal::{get,ClearType};
+   
+   let mut cursor = get();
+
+   // Clear all lines in terminal;
+   terminal.clear(ClearType::All);
+   // Clear all cells from current cursor position down.
+   terminal.clear(ClearType::FromCursorDown);
+   // Clear all cells from current cursor position down.
+   terminal.clear(ClearType::FromCursorUp);
+   // Clear current line cells.
+   terminal.clear(ClearType::CurrentLine);
+   // Clear all the cells until next line.
+   terminal.clear(ClearType::UntilNewLine);
+
+   // Get terminal size
+   let terminal_size = terminal.terminal_size().unwrap();
+   // Print results
+   print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
+
+   // Scroll down 10 lines.
+   terminal.scroll_down(10);
+
+   // Scroll up 10 lines.
+   terminal.scroll_up(10);
 ```
 
 ## Features crossterm 0.1
@@ -138,7 +139,7 @@ If you have used this library for an terminal other than the above list without 
 ## Notice 
 This library is not totally stable **yet**. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to new version.
 
-## Todo crossterm 0.2
+## Todo features crossterm 0.2
 
 - Handling mouse events 
 - Inplementing 256 colors for terminals that support those colors.

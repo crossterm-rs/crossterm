@@ -1,18 +1,17 @@
-use winapi;
-use kernel32;
+use winapi::um::wincon::{GetConsoleScreenBufferInfo,CONSOLE_SCREEN_BUFFER_INFO};
 use super::{handle, Empty};
 
 /// Get console screen buffer info.
-pub fn get_console_screen_buffer_info() -> winapi::CONSOLE_SCREEN_BUFFER_INFO {
+pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     let output_handle = handle::get_output_handle();
-    let mut csbi = winapi::CONSOLE_SCREEN_BUFFER_INFO::empty();
+    let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
     if handle::is_valid_handle(&output_handle) {
-        return winapi::CONSOLE_SCREEN_BUFFER_INFO::empty();
+        return CONSOLE_SCREEN_BUFFER_INFO::empty();
     }
 
-    unsafe { success = kernel32::GetConsoleScreenBufferInfo(output_handle, &mut csbi) }
+    unsafe { success = GetConsoleScreenBufferInfo(output_handle, &mut csbi) }
 
     if success == 0 {
         panic!("Cannot get console screen buffer info");

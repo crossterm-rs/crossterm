@@ -5,10 +5,10 @@ authors = ["T <timonpost@hotmail.nl>"]
 
 [dependencies]
 [target.'cfg(windows)'.dependencies]
-winapi = "0.2.8"
-kernel32-sys = "0.2.1"
+winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+
 
 
