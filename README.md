@@ -40,19 +40,12 @@ Documentation for the code can be found here ...
 For detailed examples of all crossterm functionalities check the `./examples/` direcory.
 
 ### Styled font
-```
-    // Pass an string to the `paint()` method with you want to paint. 
-    // This will give you an object back wits can be styled and displayed.
-    let mut styledobject = paint("Red font on blue background color");
-    // Set the foreground color.
-    styledobject = styledobject.with(Color::Red);
-    // Set the background color.
-    styledobject = styledobject.on(Color::Blue);
-    // Print the styled object with the foregroundcolor `Red` and backgroundcolor `Blue` 
-    println!("{}", styledobject);
-
-    // Crossterm provides method chaining so that the above points can be inlined.
+```rust    
+    // Crossterm provides method chaining so that the methods can be inlined.
     println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));
+    
+    // Crossterm provides method chaining so that the methods can be inlined.
+    println!("{}", paint("Red font on default background color").with(Color::Red));
 ```
 ### Cursor
 
