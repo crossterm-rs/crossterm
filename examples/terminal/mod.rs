@@ -96,7 +96,7 @@ pub fn print_terminal_size()
     print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
 }
 
-// scroll down 10 linexs
+// scroll down 10 lines
 pub fn scroll_down()
 {
     print_test_data();
@@ -106,7 +106,7 @@ pub fn scroll_down()
     let terminal_size = terminal.scroll_down(10);
 }
 
-// scroll down 10 linexs
+// scroll down 10 lines
 pub fn scroll_up()
 {
     print_test_data();
@@ -114,5 +114,5 @@ pub fn scroll_up()
     // Get terminal 
     let mut terminal = get();
     // Scroll up 10 lines.
-    let terminal_size = terminal.scroll_up(2);
+    let terminal_size = terminal.scroll_up(10);
 }
