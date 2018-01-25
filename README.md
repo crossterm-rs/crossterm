@@ -146,6 +146,7 @@ This library is not totally stable **yet**. There will not be changed mutch in t
 - Handling key events
 - Tests
 - Storing and resetting cursor position. 
+- Text Attributes like: bold,italic, undescore and crossed word.
 
 ## Contributing
 
