@@ -28,9 +28,11 @@ use self::crossterm::crossterm_cursor::*;
 use self::crossterm::crossterm_terminal::*;
 
 ```
-## Documentation
+## Links
 
 Documentation for the code can be found [here](https://atcentra.com/crossterm/index.html)
+Documentation for the code can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
+The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
 
 ## Examples
 
