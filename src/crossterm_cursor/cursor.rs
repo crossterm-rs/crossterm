@@ -209,6 +209,52 @@ impl TerminalCursor {
         std::io::stdout().flush();
         self
     }
+
+    /// Save cursor position for recall later.
+    ///
+    /// Note that this position is stored program based not per instance of the `Cursor` struct.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    ///
+    /// use self::crossterm::crossterm_cursor::get;
+    ///
+    /// get().safe_position();
+    ///
+    /// ```
+    pub fn safe_position(&mut self)
+    {
+        &self.init();
+        if let Some(ref mut terminal_cursor) = self.terminal_cursor {
+            terminal_cursor.safe_position();
+        }
+    }
+
+    /// Return to saved cursor position
+    ///
+    /// Note that this method reset to the position set by `safe_position()` and that this position is stored program based not per instance of the `Cursor` struct.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    ///
+    /// use self::crossterm::crossterm_cursor::get;
+    ///
+    /// get().reset_position();
+    ///
+    /// ```
+    pub fn reset_position(&mut self)
+    {
+        &self.init();
+        if let Some(ref terminal_cursor) = self.terminal_cursor {
+            terminal_cursor.reset_position();
+        }
+    }
 }
 
 /// Get the concrete ITerminalCursor implementation based on the current operating system.

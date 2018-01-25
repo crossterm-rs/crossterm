@@ -1,6 +1,7 @@
 use std;
 use std::fmt;
 use std::io::Write;
+use super::super::Attribute;
 
 use crossterm_style::{Color, ObjectStyle};
 
@@ -55,6 +56,29 @@ impl<D> StyledObject<D> {
         self.object_style = self.object_style.bg(background_color);
         self
     }
+
+    pub fn attrs(mut self, attrs: Vec<Attribute>) -> StyledObject<D>
+    {
+        for attr in attrs.iter() {
+            self.attr(attr);
+        }
+
+        self
+    }
+
+    pub fn attr(mut self, attr: Attribute) -> StyledObject<D>
+    {
+        self.object_style.add_attr(attr);
+        self
+    }
+
+    #[inline(always)] pub fn bold(self) -> StyledObject<D> { self.attr(Attribute::Bold) }
+    #[inline(always)] pub fn dim(self) -> StyledObject<D> { self.attr(Attribute::Dim) }
+    #[inline(always)] pub fn italic(self) -> StyledObject<D> { self.attr(Attribute::Italic) }
+    #[inline(always)] pub fn underlined(self) -> StyledObject<D> { self.attr(Attribute::Underlined) }
+    #[inline(always)] pub fn blink(self) -> StyledObject<D> { self.attr(Attribute::Blink) }
+    #[inline(always)] pub fn reverse(self) -> StyledObject<D> { self.attr(Attribute::Reverse) }
+    #[inline(always)] pub fn hidden(self) -> StyledObject<D> { self.attr(Attribute::Hidden) }
 }
 
 /// This is used to make StyledObject able to be displayed.
@@ -78,6 +102,13 @@ macro_rules! impl_fmt
                    colored_terminal.set_fg(fg);
                    reset = true;
                 }
+
+                #[cfg(unix)]
+                 for attr in &self.object_style.attrs.iter() {
+                    write!(f, csi!("{}m"), attr as i16);
+                    reset = true;
+                 }
+
                 fmt::$name::fmt(&self.content, f)?;
                 std::io::stdout().flush().expect("Flush stdout failed");
 

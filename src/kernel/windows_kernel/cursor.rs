@@ -1,53 +1,35 @@
-use winapi::um::wincon::COORD;
-use super::{handle, kernel};
-use shared::functions;
+use super::kernel;
 
-use winapi::um::wincon::{SetConsoleCursorPosition};
+/// This stores the cursor pos, at program level. So it can be recalled later.
+static  mut SAVED_CURSOR_POS:(i16,i16) = (0,0);
 
-
-/// Set the cursor position to an coordinate (x,y).
-pub fn set(x: i16, y: i16) {
-    set_cursor_pos(x as i16, y as i16);
+/// Set the current cursor position to X and Y
+pub fn set(x: i16, y: i16)
+{
+    kernel::set_console_cursor_position(x, y );
 }
 
-/// Get the current cursor x position.
-pub fn xpos() -> i16 {
-    let csbi = kernel::get_console_screen_buffer_info();
-    csbi.dwCursorPosition.X 
-}
-
-/// Get the current cursor y position.
-pub fn ypos() -> i16 {
-    let csbi = kernel::get_console_screen_buffer_info();
-    csbi.dwCursorPosition.Y
-}
-
-pub fn move_down(count: u16) {
-    let csbi = kernel::get_console_screen_buffer_info();
+/// Reset to saved cursor position
+pub fn reset_to_saved_position()
+{
     unsafe {
-        let output_handle = handle::get_output_handle();
-        SetConsoleCursorPosition(
-            output_handle,
-            COORD {
-                X: csbi.dwCursorPosition.X,
-                Y: csbi.dwCursorPosition.Y + count as i16,
-            },
-        );
+        kernel::set_console_cursor_position(SAVED_CURSOR_POS.0, SAVED_CURSOR_POS.1);
     }
 }
 
-/// Set the cursor position to an coordinate (x,y).
-fn set_cursor_pos(x: i16, y: i16) {
-    functions::is_cursor_out_of_range(x, y);
-
-    let output_handle = handle::get_output_handle();
-    let position = COORD { X: x, Y: y };
+/// Save current cursor position to recall later.
+pub fn save_cursor_pos()
+{
+    let position = pos();
 
     unsafe {
-        let success = SetConsoleCursorPosition(output_handle, position);
-
-        if success == 0 {
-            panic!("Cannot set console cursor position");
-        }
+        SAVED_CURSOR_POS = (position.0, position.1);
     }
+}
+
+/// Get current cursor position (X,Y)
+pub fn pos() -> (i16,i16)
+{
+    let csbi = kernel::get_console_screen_buffer_info();
+    ( csbi.dwCursorPosition.X ,  csbi.dwCursorPosition.Y )
 }

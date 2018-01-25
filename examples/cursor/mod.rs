@@ -76,6 +76,18 @@ pub fn print()
     get().goto(10,5).print("@");    
 }
 
+/// Save cursor position for recall later
+pub fn safe_position()
+{
+    get().safe_position();
+}
+
+/// Save cursor position for recall later
+pub fn reset_position()
+{
+    get().reset_position();
+}
+
 
 
 

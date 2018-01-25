@@ -120,6 +120,17 @@ impl Terminal {
             terminal.scroll_down(count);
         }
     }
+
+    /// Set the terminal size.
+    pub fn set_size(&mut self, width: i16, height: i16)
+    {
+        &self.init();
+
+        if let Some (ref terminal) = self.terminal
+        {
+            terminal.set_size(width,height);
+        }
+    }
 }
 
 /// Get the concrete ITerminal implementation based on the current operating system.

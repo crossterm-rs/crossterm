@@ -1,1 +1,5 @@
 Windows logic clear aan passen before after cursor
+
+ideas:
+
+https://apple.stackexchange.com/questions/33736/can-a-terminal-window-be-resized-with-a-terminal-command

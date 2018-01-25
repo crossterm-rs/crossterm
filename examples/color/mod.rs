@@ -28,7 +28,7 @@ pub fn paint_background()
     // This will give you an object back wits can be styled and displayed.
     let mut styledobject = paint("Red background color");
     // Call the method `on()` on the object given by `paint()` and pass in an Color from the Color enum.
-    styledobject = styledobject.on(Color::Blue);
+    styledobject = styledobject.on(Color::Red);
     // Print the object to the console and check see the result    
     println!("{}", styledobject);
 

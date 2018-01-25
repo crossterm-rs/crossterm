@@ -80,7 +80,7 @@ pub fn clear_until_new_line()
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    crossterm_cursor::get().goto(4,4);
+    crossterm_cursor::get().goto(4,7);
 
     // Clear all the cells until next line.
     terminal.clear(ClearType::UntilNewLine);
@@ -94,6 +94,14 @@ pub fn print_terminal_size()
     let terminal_size = terminal.terminal_size().unwrap();
     // Print results
     print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
+}
+
+/// Set the terminal size to width 10, height: 10.
+pub fn set_terminal_size()
+{
+    let mut terminal = get();
+
+    terminal.set_size(10,10);
 }
 
 // scroll down 10 lines
@@ -115,4 +123,13 @@ pub fn scroll_up()
     let mut terminal = get();
     // Scroll up 10 lines.
     let terminal_size = terminal.scroll_up(10);
+}
+
+// Resize the terminal to X: 10, Y: 10
+pub fn resize_terminal()
+{
+    // Get terminal
+    let mut terminal = get();
+    // Get terminal size
+    terminal.set_size(2,2);
 }

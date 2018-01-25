@@ -9,7 +9,7 @@
 ///! so that the color related actions can be preformed on both unix and windows systems.
 ///!
 
-use super::color::{Color, ColorType};
+use super::super::{Color, ColorType};
 
 pub trait ITerminalColor {
     /// Set the forground color to the given color.

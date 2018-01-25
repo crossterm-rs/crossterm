@@ -1,8 +1,5 @@
-use super::{cursor, handle, kernel};
-
-use winapi;
-use winapi::shared::ntdef::TRUE;
-use winapi::um::wincon::{SetConsoleWindowInfo,FillConsoleOutputCharacterA, FillConsoleOutputAttribute, COORD, CONSOLE_SCREEN_BUFFER_INFO};
+use super::{cursor, kernel};
+use winapi::um::wincon::{SMALL_RECT, COORD};
 
 /// Get the terminal size (y,x)
 pub fn terminal_size() -> Option<(u16, u16)> {
@@ -16,7 +13,6 @@ pub fn terminal_size() -> Option<(u16, u16)> {
 
 /// Scroll down `n` rows
 pub fn scroll_down(rows: i16) {
-    let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
     let mut srct_window;
 
@@ -28,22 +24,16 @@ pub fn scroll_down(rows: i16) {
         srct_window.Top += rows; // move top down
         srct_window.Bottom += rows; // move bottom down
 
-        unsafe {
-            if SetConsoleWindowInfo(output_handle, TRUE as i32, &mut srct_window) != 1 {
-                panic!("Something whent wrong when scrolling down");
+            let success = kernel::set_console_info(true, &mut srct_window);
+            if success {
+                panic!("Something went wrong when scrolling down");
             }
-        }
     }
 }
 
 pub fn clear_after_cursor() {
-    let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
-
-    // one cell after cursor position
-    let mut x = cursor::xpos() as i16 ;
-    // one at row of cursor position
-    let mut y = cursor::ypos() as i16;
+    let (mut x,mut y) = cursor::pos();
 
     // if cursor position is at the outer right position
     if x > csbi.dwSize.X
@@ -53,16 +43,16 @@ pub fn clear_after_cursor() {
     }
 
     // location where to start clearing
-    let start_loaction = COORD { X: x, Y: y };
+    let start_location = COORD { X: x, Y: y };
     // get sum cells before cursor
     let cells_to_write = csbi.dwSize.X as u32  * csbi.dwSize.Y as u32;
 
-    clear(output_handle, csbi, start_loaction,cells_to_write);
+    clear(start_location,cells_to_write);
 }
 
 pub fn clear_before_cursor() {
-    let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
+    let (xpos,ypos) = cursor::pos();
 
     // one cell after cursor position
     let x = 0;
@@ -70,30 +60,27 @@ pub fn clear_before_cursor() {
     let y = 0;
 
     // location where to start clearing
-    let start_loaction = COORD { X: x, Y: y };
+    let start_location = COORD { X: x, Y: y };
      // get sum cells before cursor
-    let cells_to_write = (csbi.dwSize.X as u32  * cursor::ypos() as u32) + (cursor::xpos()) as u32;
+    let cells_to_write = (csbi.dwSize.X as u32  * ypos as u32) + (xpos as u32 + 1);
 
-    // println!("{:?}", (csbi.dwSize.X as u32  * (cursor::ypos() - 1) as u32));
-    clear(output_handle, csbi, start_loaction, cells_to_write);
+    clear(start_location, cells_to_write);
 }
 
 pub fn clear_entire_screen() {
-    let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
-
     // position x at start
     let x = 0;
     // position y at start
     let y = 0;
 
     // location where to start clearing
-    let start_loaction = COORD { X: x, Y: y };
+    let start_location = COORD { X: x, Y: y };
     // get sum cells before cursor
     
     let cells_to_write = csbi.dwSize.X as u32 * csbi.dwSize.Y as u32;
 
-    clear(output_handle, csbi, start_loaction, cells_to_write);
+    clear( start_location, cells_to_write);
 
     // put the cursor back at (0, 0)
     cursor::set(0, 0);
@@ -101,21 +88,19 @@ pub fn clear_entire_screen() {
 
 pub fn clear_current_line()
 {
-     let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
-
     // position x at start
     let x = 0;
     // position y at start
-    let y = cursor::ypos();
+    let y = cursor::pos().1;
 
     // location where to start clearing
-    let start_loaction = COORD { X: x, Y: y };
+    let start_location = COORD { X: x, Y: y };
     // get sum cells before cursor
     
     let cells_to_write = csbi.dwSize.X as u32;
 
-    clear(output_handle, csbi, start_loaction, cells_to_write);
+    clear(start_location, cells_to_write);
 
     // put the cursor back at (0, 0)
     cursor::set(x, y);
@@ -123,62 +108,114 @@ pub fn clear_current_line()
 
 pub fn clear_until_line()
 {
-     let output_handle = handle::get_output_handle();
     let csbi = kernel::get_console_screen_buffer_info();
-
-    // position x at start
-    let x = cursor::xpos();
-    // position y at start
-    let y = cursor::ypos();
+    let (x,y) = cursor::pos();
 
     // location where to start clearing
-    let start_loaction = COORD { X: x -1, Y: y };
+    let start_location = COORD { X: x, Y: y };
     // get sum cells before cursor    
-    let cells_to_write = (csbi.dwSize.X - x) as u32 - 1;
+    let cells_to_write = (csbi.dwSize.X - x) as u32;
 
-    clear(output_handle, csbi, start_loaction, cells_to_write);
+    clear(start_location, cells_to_write);
 
     // put the cursor back at (0, 0)
     cursor::set(x, y);
 }
 
+pub fn resize_terminal(width: i16, height: i16)
+{
+    if width <= 0
+        {
+            panic!("Cannot set the terminal width lower than 1");
+        }
+
+    if height <= 0
+        {
+            panic!("Cannot set the terminal height lower then 1")
+        }
+
+    // Get the position of the current console window
+    let csbi = kernel::get_console_screen_buffer_info();
+    let mut success = false;
+
+    // If the buffer is smaller than this new window size, resize the
+    // buffer to be large enough.  Include window position.
+    let mut resize_buffer = false;
+    let mut size = COORD { X: csbi.dwSize.X, Y: csbi.dwSize.Y };
+
+    if csbi.dwSize.X < csbi.srWindow.Left + width
+    {
+        if csbi.srWindow.Left >= i16::max_value() - width
+        {
+            panic!("Argument out of range when setting terminal width.");
+        }
+
+        size.X = csbi.srWindow.Left + width;
+        resize_buffer = true;
+    }
+    if csbi.dwSize.Y < csbi.srWindow.Top + height {
+        if csbi.srWindow.Top >= i16::max_value() - height
+        {
+            panic!("Argument out of range when setting terminal height");
+        }
+
+        size.Y = csbi.srWindow.Top + height;
+        resize_buffer = true;
+    }
+
+    if resize_buffer {
+        success = kernel::set_console_screen_buffer_size(size);
+
+        if !success
+            {
+                panic!("Something went wrong when setting screen buffer size.");
+            }
+    }
+
+    let mut fsr_window: SMALL_RECT = csbi.srWindow;
+    // Preserve the position, but change the size.
+    fsr_window.Bottom = fsr_window.Top + height;
+    fsr_window.Right = fsr_window.Left + width;
+
+    let success = kernel::set_console_info(true, &fsr_window);
+
+    if success {
+        // If we resized the buffer, un-resize it.
+        if resize_buffer {
+            kernel::set_console_screen_buffer_size(csbi.dwSize);
+        }
+
+        let bounds = kernel::get_largest_console_window_size();
+
+        if width > bounds.X
+        {
+            panic!("Argument width: {} out of range when setting terminal width.", width);
+        }
+        if height > bounds.Y
+        {
+            panic!("Argument height: {} out of range when setting terminal height", height);
+        }
+    }
+}
+
 fn clear(
-    handle: winapi::um::winnt::HANDLE,
-    csbi: CONSOLE_SCREEN_BUFFER_INFO,
     start_loaction: COORD,
     cells_to_write: u32
 ) {
     let mut cells_written = 0;
-    let mut success;
+    let mut success = false;
 
-    unsafe {
-        // fill the cells in console with blanks
-        success = FillConsoleOutputCharacterA (
-            handle,
-            ' ' as i8,
-            cells_to_write,
-            start_loaction,
-            &mut cells_written,
-        );
-    }
+    success = kernel::fill_console_output_character(&mut cells_written,start_loaction,cells_to_write);
 
-    if success == 0 {
-        panic!("Couldnot clear screen after cursor");
+    if !success {
+        panic!("Could not clear screen after cursor");
     }
 
     cells_written = 0;
 
-    unsafe {
-        success = FillConsoleOutputAttribute (
-            handle,
-            csbi.wAttributes,
-            cells_to_write,
-            start_loaction,
-            &mut cells_written,
-        );
-    }
+    success = kernel::fill_console_output_attribute(&mut cells_written,start_loaction, cells_to_write);
 
-    if success == 0 {
+    if !success {
         panic!("Couldnot reset attributes after cursor");
     }
 }

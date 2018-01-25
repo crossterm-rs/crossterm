@@ -35,4 +35,6 @@ impl ITerminal for WinApiTerminal {
     fn scroll_down(&self, count: i16) {
         terminal::scroll_down(count as i16);
     }
+
+    fn set_size(&self, width: i16, height: i16) { terminal::resize_terminal(width,height); }
 }

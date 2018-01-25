@@ -1,5 +1,5 @@
 use Construct;
-use super::color::{ColorType, Color};
+use super::super::{ColorType, Color};
 use super::base_color::ITerminalColor;
 use kernel::windows_kernel;
 
