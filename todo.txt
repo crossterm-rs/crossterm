@@ -1,1 +1,15 @@
 Windows logic clear aan passen before after cursor
+
+ideas:
+
+https://apple.stackexchange.com/questions/33736/can-a-terminal-window-be-resized-with-a-terminal-command
+
+
+
+new inplemented:
+
+Safe and restore cursor
+Resize terminal
+Styling font with attributes
+RGB color option added for unix
+ANSI cutom color value input added for unix

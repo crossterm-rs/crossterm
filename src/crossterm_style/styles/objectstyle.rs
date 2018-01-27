@@ -1,11 +1,16 @@
 use crossterm_style::{Color, StyledObject};
 use std::fmt::Display;
 
+use super::super::Attribute;
+
 /// Struct that contains the style properties that can be applied to an displayable object.
 #[derive(Clone)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,
+
+    #[cfg(unix)]
+    pub attrs: Vec<Attribute>
 }
 
 impl Default for ObjectStyle {
@@ -13,6 +18,8 @@ impl Default for ObjectStyle {
         ObjectStyle {
             fg_color: Some(Color::White),
             bg_color: Some(Color::Black),
+            #[cfg(unix)]
+            attrs: Vec::new()
         }
     }
 }
@@ -34,6 +41,8 @@ impl ObjectStyle {
         return ObjectStyle {
             fg_color: None,
             bg_color: None,
+            #[cfg(unix)]
+            attrs: Vec::new()
         };
     }
 
@@ -47,5 +56,11 @@ impl ObjectStyle {
     pub fn fg(mut self, color: Color) -> ObjectStyle {
         self.fg_color = Some(color);
         self
+    }
+
+    #[cfg(unix)]
+    pub fn add_attr(&mut self, attr: Attribute)
+    {
+        self.attrs.push(attr);
     }
 }

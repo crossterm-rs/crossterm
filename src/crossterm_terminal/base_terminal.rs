@@ -16,4 +16,6 @@ pub trait ITerminal {
     fn scroll_up(&self, count: i16);
     /// Scroll `n` lines down in the current terminal.
     fn scroll_down(&self, count: i16);
+    /// Resize terminal to the given width and height.
+    fn set_size(&self,width: i16, height: i16);
 }

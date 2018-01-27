@@ -17,34 +17,40 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn pos(&self) -> (i16, i16) {
-        (cursor::xpos(), cursor::ypos())
+        cursor::pos()
     }
 
     fn move_up(&self, count: u16) {
-        let xpos = cursor::xpos();
-        let ypos = cursor::ypos();
-
+        let (xpos,ypos) = cursor::pos();
         cursor::set(xpos, ypos - count as i16);
     }
 
     fn move_right(&self, count: u16) {
-        let xpos = cursor::xpos();
-        let ypos = cursor::ypos();
+        let (xpos,ypos) = cursor::pos();
 
         cursor::set(xpos + count as i16, ypos);
     }
 
     fn move_down(&self, count: u16) {
-        let xpos = cursor::xpos();
-        let ypos = cursor::ypos();
+        let (xpos,ypos) = cursor::pos();
 
         cursor::set(xpos, ypos + count as i16);
     }
 
     fn move_left(&self, count: u16) {
-        let xpos = cursor::xpos();
-        let ypos = cursor::ypos();
+        let (xpos,ypos) = cursor::pos();
 
         cursor::set(xpos - count as i16, ypos);
+    }
+
+
+    fn safe_position(&mut self)
+    {
+        cursor::save_cursor_pos();
+    }
+
+    fn reset_position(&self)
+    {
+        cursor::reset_to_saved_position();
     }
 }

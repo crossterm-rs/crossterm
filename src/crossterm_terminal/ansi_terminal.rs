@@ -50,4 +50,9 @@ impl ITerminal for UnixTerminal {
         let mut some_writer = io::stdout();
         write!(&mut some_writer, csi!("{}T"), count);
     }
+
+    fn set_size(&self, width: i16, height: i16) {
+        let mut some_writer = io::stdout();
+        write!(&mut some_writer, csi!("8;{};{}t"), width, height);
+    }
 }

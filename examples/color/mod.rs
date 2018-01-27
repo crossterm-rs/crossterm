@@ -28,7 +28,7 @@ pub fn paint_background()
     // This will give you an object back wits can be styled and displayed.
     let mut styledobject = paint("Red background color");
     // Call the method `on()` on the object given by `paint()` and pass in an Color from the Color enum.
-    styledobject = styledobject.on(Color::Blue);
+    styledobject = styledobject.on(Color::Red);
     // Print the object to the console and check see the result    
     println!("{}", styledobject);
 
@@ -97,4 +97,33 @@ pub fn print_all_background_colors()
     println!("Dark Cyan : \t {}", paint("  ").on(Color::DarkCyan));
     println!("Grey : \t\t {}", paint("  ").on(Color::Grey));
     println!("White : \t {}", paint("  ").on(Color::White));
+}
+
+/// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely.
+#[cfg(unix)]
+pub fn print_font_with_attributes()
+{
+    println!("{}", paint("Normal text"));
+    println!("{}", paint("Bold text").bold());
+    println!("{}", paint("Italic text").italic());
+    println!("{}", paint("Slow blinking text").slow_blink());
+    println!("{}", paint("Rapid blinking text").rapid_blink());
+    println!("{}", paint("Hidden text").hidden());
+    println!("{}", paint("Underlined text").underlined());
+    println!("{}", paint("Reversed color").reverse());
+    println!("{}", paint("Dim text color").dim());
+    println!("{}", paint("Crossed out font").crossed_out());
+}
+
+/// Print all supported rgb colors 
+#[cfg(unix)]#[cfg(unix)]
+pub fn print_supported_colors()
+{   
+    let count = crossterm::crossterm_style::get().get_available_color_count().unwrap();
+
+    for i in 0..count
+    {
+        println!("{}", paint(format!("Color: {}",i)).with(Color::AnsiValue(i as u8)));
+
+    }
 }

@@ -6,7 +6,7 @@ pub trait Construct {
         Self: Sized;
 }
 
-/// This trait is used to create an empty instance of an struct.
+/// This trait can be used to create an empty instance of an struct.
 pub trait Empty {
     fn empty() -> Self;
 }

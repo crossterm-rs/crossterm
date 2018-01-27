@@ -1,10 +1,9 @@
 use winapi::um::wincon;
-use super::{handle, kernel};
+
+use super::{kernel};
 use crossterm_style as style;
 
-use winapi::um::wincon::{SetConsoleTextAttribute};
-
-/// This will set the forground color by the given winapi color value parsed to u16.
+/// This will set the foreground color by the given winapi color.
 pub fn set_fg_color(fg_color: u16) {
     let csbi = kernel::get_console_screen_buffer_info();
 
@@ -21,10 +20,10 @@ pub fn set_fg_color(fg_color: u16) {
         color = color | wincon::BACKGROUND_INTENSITY as u16;
     }
 
-    set_console_text_attribute(color);
+    kernel::set_console_text_attribute(color);
 }
 
-/// This will set the forground color by the given winapi color value parsed to u16.
+/// This will set the background color by the given winapi color value.
 pub fn set_bg_color(bg_color: u16) {
     let csbi = kernel::get_console_screen_buffer_info();
     // Notice that the color values are stored in wAttribute.
@@ -34,21 +33,21 @@ pub fn set_bg_color(bg_color: u16) {
     let fg_color = attrs & 0x0007;
     color = fg_color | bg_color;
 
-    // foreground intensity is a seperate value in attrs,
+    // foreground intensity is a separate value in attrs,
     // wee need to check if this was applied to the current fg color.
     if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
         color = color | wincon::FOREGROUND_INTENSITY as u16;
     }
 
-    set_console_text_attribute(color);
+    kernel::set_console_text_attribute(color);
 }
 
-/// This will reset the colors to the value given in u16.
+/// This will reset the colors to the given winapi color value.
 pub fn reset(original_color: u16) {
-    set_console_text_attribute(original_color);
+    kernel::set_console_text_attribute(original_color);
 }
 
-/// This will get the winapi color value from the Color struct
+/// This will get the winapi color value from the Color and ColorType struct
 pub fn winapi_color_val(color: style::Color, color_type: style::ColorType) -> u16 {
     use crossterm_style::{Color, ColorType};
 
@@ -106,13 +105,4 @@ pub fn winapi_color_val(color: style::Color, color_type: style::ColorType) -> u1
     };
 
     winapi_color as u16
-}
-
-/// This will set the console attributes by the given value
-fn set_console_text_attribute(value: u16) {
-    let output_handle = handle::get_output_handle();
-
-    unsafe {
-        SetConsoleTextAttribute(output_handle, value);
-    }
 }
