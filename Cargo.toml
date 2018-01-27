@@ -8,6 +8,7 @@ documentation = "https://atcentra.com/crossterm/"
 license = "MIT"
 keywords = ["console", "color", "cursor", "terminal", "cli"]
 exclude = ["target", "Cargo.lock"]
+readme = "README.md"
 
 [dependencies]
 [target.'cfg(windows)'.dependencies]
