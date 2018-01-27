@@ -1,8 +1,8 @@
 # Crossterm | crossplatform terminal library written in rust.
 
-Ever got disappointed when a terminal library for rust was only written for unix systems? Crossterm provides the same terminal functionality for both windows and unix systems.
+Ever got disappointed when a terminal library for rust was only written for unix systems? Crossterm provides the same core functionalities for both windows and unix systems. 
 
-Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call some module and unther water it will check what to do based on the current platform.
+Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call the action you want to preform and unther water it will check what to do based on the current platform.
 
 ## Getting Started
 
@@ -45,6 +45,7 @@ For detailed examples of all crossterm functionalities check the [examples](http
     use crossterm::crossterm_style::{paint, Color};
     
     // Crossterm provides method chaining so that you can style the font nicely.
+    // the `with()` methods sets the foreground color and the `on()` methods sets the background color
     // You can either store the styled font.
     let mut styledobject = paint("Stored styled font").with(Color::Red).on(Color::Blue);
     println!("{}",styledobject);
@@ -53,6 +54,25 @@ For detailed examples of all crossterm functionalities check the [examples](http
     println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));     
     println!("{}", paint("Red font on default background color").with(Color::Red));
     println!("{}", paint("Default font color on Blue background color").on(Color::Blue));
+    
+    /// The following code can only be used for unix systems:
+    // Set background Color from RGB
+    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
+     // Set background Color from RGB
+    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::AnsiValue(50)));
+    
+    // Use attributes to syle the font.
+    println!("{}", paint("Normal text"));
+    println!("{}", paint("Bold text").bold());
+    println!("{}", paint("Italic text").italic());
+    println!("{}", paint("Slow blinking text").slow_blink());
+    println!("{}", paint("Rapid blinking text").rapid_blink());
+    println!("{}", paint("Hidden text").hidden());
+    println!("{}", paint("Underlined text").underlined());
+    println!("{}", paint("Reversed color").reverse());
+    println!("{}", paint("Dim text color").dim());
+    println!("{}", paint("Crossed out font").crossed_out());
+    
 ```
 ### Cursor
 ```rust 
@@ -61,6 +81,7 @@ For detailed examples of all crossterm functionalities check the [examples](http
     
      let mut cursor = get();
     
+     /// Moving the cursor
      // Set the cursor to position X: 10, Y: 5 in the terminal
      cursor.goto(10,5);
     
@@ -77,15 +98,28 @@ For detailed examples of all crossterm functionalities check the [examples](http
         cursor.move_left(3);
     
      // Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
-     // cursor.goto(10,5).print("@");    
-    
+     // cursor.goto(10,5).print("@");   
+     
+     /// Safe the current cursor position to recall later     
+     // Goto X: 5 Y: 5
+     cursor.goto(5,5);
+     // Safe cursor position: X: 5 Y: 5
+     cursor.safe_position();
+     // Goto X: 5 Y: 20
+     cursor.goto(5,20);
+     // Print at X: 5 Y: 20.
+     print!("Yea!");
+     // Reset back to X: 5 Y: 5.
+     cursor.reset_position();
+     // Print 'Back' at X: 5 Y: 5.
+     print!("Back");    
 ```
 
 ### Terminal
 ```rust 
    use crossterm::crossterm_terminal::{get,ClearType};
    
-   let mut cursor = get();
+   let mut terminal = get();
 
    // Clear all lines in terminal;
    terminal.clear(ClearType::All);
@@ -108,6 +142,9 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
    // Scroll up 10 lines.
    terminal.scroll_up(10);
+   
+   // Set terminal size
+    terminal.set_size(10,10);
 ```
 
 ## Features crossterm 0.1
@@ -125,6 +162,14 @@ For detailed examples of all crossterm functionalities check the [examples](http
 - Detailed documentation on every item.
 - Examples for every client callable code.
 
+## Features crossterm 0.2
+
+- Implementing 256 colors for terminals that support those colors for unix. 
+- Text Attributes like: bold, italic, underscore and crossed word ect for unix. 
+- Allow user to input an custom ANSI color code to set the fore- backgound for unix.
+- Storing the current cursor position and resetting to that sored cursor position. 
+- Resizing the terminal.
+
 ## Tested terminals
 
 - Windows Powershell
@@ -139,18 +184,18 @@ The above terminals have been tested. Crossterm should works also for windows 7,
 But these are yet to be tested. 
 If you have used this library for an terminal other than the above list without issues feel free to add it to the above list.
     
+## How it works
+
+Crossterm is using `WINAPI` for windows systems and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client calls some action and the module will deside what to do based on the current platform. And it will execute that action.
 
 ## Notice 
-This library is not totally stable **yet**. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to new version.
+This library is library is stable. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to an newer version.
 
-## Todo features crossterm 0.2
+## Todo
 
 - Handling mouse events 
-- Inplementing 256 colors for terminals that support those colors.
 - Handling key events
 - Tests
-- Storing and resetting cursor position. 
-- Text Attributes like: bold,italic, undescore and crossed word.
 
 ## Contributing
 
