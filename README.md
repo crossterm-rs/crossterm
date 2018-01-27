@@ -59,7 +59,7 @@ For detailed examples of all crossterm functionalities check the [examples](http
     // Set background Color from RGB
     println!("RGB (10,10,10): \t {}", paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
      // Set background Color from RGB
-    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::AnsiValue(50)));
+    println!("ANSI value (50): \t {}", paint("  ").on(Color::AnsiValue(50)));
     
     // Use attributes to syle the font.
     println!("{}", paint("Normal text"));
