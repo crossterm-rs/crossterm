@@ -76,16 +76,25 @@ pub fn print()
     get().goto(10,5).print("@");    
 }
 
-/// Save cursor position for recall later
-pub fn safe_position()
+/// Save and reset cursor position.
+pub fn safe_and_reset_position()
 {
-    get().safe_position();
-}
+    let mut cursor = get();
+    
+    // Goto X: 5 Y: 5
+    cursor.goto(5,5);
+    // Safe cursor position: X: 5 Y: 5
+    cursor.safe_position();
+    // Goto X: 5 Y: 20
+    cursor.goto(5,20);
+    // Print at X: 5 Y: 20.
+    print!("Yea!");
+    // Reset back to X: 5 Y: 5.
+    cursor.reset_position();
+    // Print Back at X: 5 Y: 5.
+    print!("Back");
 
-/// Save cursor position for recall later
-pub fn reset_position()
-{
-    get().reset_position();
+    println!()
 }
 
 

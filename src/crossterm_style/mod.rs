@@ -16,9 +16,11 @@ pub enum Attribute {
     Dim = 2,
     Italic = 3,
     Underlined = 4,
-    Blink = 5,
+    SlowBlink = 5,
+    RapidBlink = 6,
     Reverse = 7,
     Hidden = 8,
+    CrossedOut = 9
 }
 
 /// Colors that are available for coloring the termainal font.
@@ -46,6 +48,11 @@ pub enum Color {
 
     Grey,
     White,
+
+    #[cfg(unix)]
+    Rgb { r: u8, g: u8, b:u8 },
+    #[cfg(unix)]
+    AnsiValue(u8)
 }
 
 /// Color types that can be used to determine if the Color enum is an Fore- or Background Color

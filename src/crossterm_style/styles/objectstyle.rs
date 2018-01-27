@@ -55,7 +55,7 @@ impl ObjectStyle {
         self
     }
 
-    pub fn add_attr(mut self, attr: Attribute)
+    pub fn add_attr(&mut self, attr: Attribute)
     {
         self.attrs.push(attr);
     }

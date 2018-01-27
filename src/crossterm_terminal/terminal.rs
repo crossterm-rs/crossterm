@@ -121,7 +121,21 @@ impl Terminal {
         }
     }
 
-    /// Set the terminal size.
+    /// Set the terminal size. Note that not all terminals can be set to a very small scale.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use crossterm::crossterm_terminal;
+    ///
+    /// let mut term = crossterm_terminal::get();
+    /// 
+    /// // Set of the size to X: 10 and Y: 10
+    /// let size = term.set_size(10,10);
+    /// 
+    /// ```
     pub fn set_size(&mut self, width: i16, height: i16)
     {
         &self.init();

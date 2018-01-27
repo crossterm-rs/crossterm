@@ -1,6 +1,7 @@
 #[macro_use]
 mod shared;
 mod kernel;
+
 pub mod crossterm_cursor;
 pub mod crossterm_style;
 pub mod crossterm_terminal;

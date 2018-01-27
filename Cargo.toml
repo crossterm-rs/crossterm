@@ -17,7 +17,7 @@ winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","proces
 libc = "0.2"
 
 [[bin]]
-name = "a"
+name = "example_bin"
 path = "./examples/bin.rs"
 
 

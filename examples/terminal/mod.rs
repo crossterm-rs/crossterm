@@ -111,7 +111,7 @@ pub fn scroll_down()
     // Get terminal 
     let mut terminal = get();
     // Scroll down 10 lines.
-    let terminal_size = terminal.scroll_down(10);
+    terminal.scroll_down(10);
 }
 
 // scroll down 10 lines
@@ -122,7 +122,7 @@ pub fn scroll_up()
     // Get terminal 
     let mut terminal = get();
     // Scroll up 10 lines.
-    let terminal_size = terminal.scroll_up(10);
+    terminal.scroll_up(10);
 }
 
 // Resize the terminal to X: 10, Y: 10
@@ -131,5 +131,5 @@ pub fn resize_terminal()
     // Get terminal
     let mut terminal = get();
     // Get terminal size
-    terminal.set_size(2,2);
+    terminal.set_size(1,1);
 }

@@ -2,10 +2,12 @@
 //! Like styling the font, foreground color and background color.
 
 use std::fmt;
+use std::io;
 
 use Construct;
 use crossterm_style::{ObjectStyle, StyledObject};
 use super::base_color::ITerminalColor;
+use super::super::Color;
 
 #[cfg(unix)]
 use super::ANSIColor;
@@ -95,6 +97,23 @@ impl TerminalColor {
         if let Some(ref terminal_color) = self.terminal_color {
             terminal_color.reset();
         }
+    }
+
+    /// Get available color count.
+    pub fn get_available_color_count(&self) -> io::Result<u16>
+    {
+        use std::env;
+        
+        Ok(match env::var_os("TERM") {
+            Some(val) => {
+                if val.to_str().unwrap_or("").contains("256color") {
+                    256
+                } else {
+                    8
+                }
+            }
+            None => 8,
+        })
     }
 }
 
