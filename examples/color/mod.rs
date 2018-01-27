@@ -97,6 +97,10 @@ pub fn print_all_background_colors()
     println!("Dark Cyan : \t {}", paint("  ").on(Color::DarkCyan));
     println!("Grey : \t\t {}", paint("  ").on(Color::Grey));
     println!("White : \t {}", paint("  ").on(Color::White));
+    #[cfg(unix)]
+    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
+    #[cfg(unix)]
+    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::AnsiValue(50)));
 }
 
 /// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely.
