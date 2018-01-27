@@ -81,7 +81,6 @@ pub fn winapi_color_val(color: style::Color, color_type: style::ColorType) -> u1
                 Color::DarkCyan => fg_green | fg_blue,
                 Color::Grey => fg_intensity,
                 Color::White => fg_intensity | fg_red | fg_green | fg_blue,
-                _ => Color::White
             };
         }
         ColorType::Background => {
@@ -101,7 +100,6 @@ pub fn winapi_color_val(color: style::Color, color_type: style::ColorType) -> u1
                 Color::DarkCyan => bg_green | bg_blue,
                 Color::Grey => bg_intensity,
                 Color::White => bg_intensity | bg_red | bg_green | bg_blue,
-                _ => Color::White
             };
         }
     };

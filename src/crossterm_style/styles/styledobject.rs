@@ -1,6 +1,7 @@
 use std;
 use std::fmt;
 use std::io::Write;
+
 use super::super::Attribute;
 
 use crossterm_style::{Color, ObjectStyle};

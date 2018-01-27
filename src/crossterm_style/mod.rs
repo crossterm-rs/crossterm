@@ -9,7 +9,6 @@ pub use self::styles::styledobject::StyledObject;
 use std::convert::From;
 use std::str::FromStr;
 
-#[cfg(unix)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum Attribute {
     Bold = 1,

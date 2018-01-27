@@ -151,7 +151,7 @@ pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: CO
     let csbi = get_console_screen_buffer_info();
     let output_handle = get_output_handle();
 
-    let mut success;
+    let success;
 
     unsafe {
         success = FillConsoleOutputAttribute (
