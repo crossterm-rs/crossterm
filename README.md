@@ -191,6 +191,8 @@ This library is library is stable. There will not be changed mutch in the code d
 
 ## Todo
 
+- This library does not support any kind of raw terminal. When an terminal changes some core state of the terminal this state should be revered when the process ends from this library. Currently there are not made any changed to the core state of the terminal with this library. But when some fearures in the furure will be inplemented this will be the case. So there should come an kind of raw state for the terminal and reversable options to redo all the changes made to the core state when the process ends. More information can be found at this [thread](https://www.reddit.com/r/rust/comments/7tg6n2/looking_for_feedback_onmy_cross_platform_terminal/dtf4ilo/)
+
 - Handling mouse events 
 - Handling key events
 - Tests
