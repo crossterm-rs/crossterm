@@ -45,7 +45,7 @@ impl ITerminalCursor for AnsiCursor {
         write!(&mut some_writer, csi!("{}D"), count);
     }
 
-    fn safe_position(&mut self)
+    fn save_position(&mut self)
     {
         let mut some_writer = io::stdout();
         write!(&mut some_writer, csi!("s"));

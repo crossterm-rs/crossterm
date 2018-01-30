@@ -15,11 +15,17 @@ pub struct Terminal {
 }
 
 impl Terminal {
-    /// Instantiate an color implementation whereon color related actions can be performed.
-    pub fn init(&mut self) {
-        if let None = self.terminal {
-            self.terminal = get_terminal();
-        }
+    /// Create new terminal instance whereon terminal related actions can be performed.
+    pub fn new() -> Terminal {
+        let term: Option<Box<ITerminal>> =
+        {
+            #[cfg(unix)]
+            Some(UnixTerminal::new());
+            #[cfg(windows)]
+            Some(WinApiTerminal::new())
+        };
+
+        Terminal { terminal: term }
     }
 
     /// Clear the current cursor by specifying the clear type
@@ -31,13 +37,13 @@ impl Terminal {
     /// extern crate crossterm;
     /// use crossterm::crossterm_terminal;
     ///
-    /// let mut term = crossterm_terminal::get();
+    /// let mut term = crossterm_terminal::terminal();
     /// 
     /// // clear all cells in terminal.
     /// term.clear(crossterm_terminal::ClearType::All);
-    /// //clear all cells from the cursor position downwards in terminal.
+    /// // clear all cells from the cursor position downwards in terminal.
     /// term.clear(crossterm_terminal::ClearType::FromCursorDown);
-    /// //clear all cells from the cursor position upwards in terminal.
+    /// // clear all cells from the cursor position upwards in terminal.
     /// term.clear(crossterm_terminal::ClearType::FromCursorUp);
     /// // clear current line cells in terminal.
     /// term.clear(crossterm_terminal::ClearType::CurrentLine);
@@ -46,7 +52,6 @@ impl Terminal {
     /// 
     /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
-        &self.init();
         if let Some(ref terminal) = self.terminal {
             terminal.clear(clear_type);
         }
@@ -61,14 +66,13 @@ impl Terminal {
     /// extern crate crossterm;
     /// use crossterm::crossterm_terminal;
     ///
-    /// let mut term = crossterm_terminal::get();
+    /// let mut term = crossterm_terminal::terminal();
     /// 
     /// let size = term.terminal_size();
     /// println!("{:?}", size);
     /// 
     /// ```
     pub fn terminal_size(&mut self) -> Option<(u16, u16)> {
-        &self.init();
         if let Some(ref terminal) = self.terminal {
             let a = terminal.terminal_size();
             a
@@ -86,14 +90,13 @@ impl Terminal {
     /// extern crate crossterm;
     /// use crossterm::crossterm_terminal;
     ///
-    /// let mut term = crossterm_terminal::get();
+    /// let mut term = crossterm_terminal::terminal();
     /// 
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
     /// 
     /// ```
     pub fn scroll_up(&mut self, count: i16) {
-        &self.init();
         if let Some(ref terminal) = self.terminal {
             terminal.scroll_up(count);
         }
@@ -108,14 +111,13 @@ impl Terminal {
     /// extern crate crossterm;
     /// use crossterm::crossterm_terminal;
     ///
-    /// let mut term = crossterm_terminal::get();
+    /// let mut term = crossterm_terminal::terminal();
     /// 
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
     /// 
     /// ```
     pub fn scroll_down(&mut self, count: i16) {
-        &self.init();
         if let Some(ref terminal) = self.terminal {
             terminal.scroll_down(count);
         }
@@ -130,7 +132,7 @@ impl Terminal {
     /// extern crate crossterm;
     /// use crossterm::crossterm_terminal;
     ///
-    /// let mut term = crossterm_terminal::get();
+    /// let mut term = crossterm_terminal::terminal();
     /// 
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
@@ -138,21 +140,10 @@ impl Terminal {
     /// ```
     pub fn set_size(&mut self, width: i16, height: i16)
     {
-        &self.init();
-
-        if let Some (ref terminal) = self.terminal
-        {
+        if let Some (ref terminal) = self.terminal {
             terminal.set_size(width,height);
         }
     }
-}
-
-/// Get the concrete ITerminal implementation based on the current operating system.
-fn get_terminal() -> Option<Box<ITerminal>> {
-    #[cfg(unix)]
-    return Some(UnixTerminal::new());
-    #[cfg(windows)]
-    return Some(WinApiTerminal::new());
 }
 
 /// Get an Terminal implementation whereon terminal related actions can be performed.
@@ -166,14 +157,13 @@ fn get_terminal() -> Option<Box<ITerminal>> {
 /// extern crate crossterm;
 /// use crossterm::crossterm_terminal;
 ///
-/// let mut term = crossterm_terminal::get();
-/// 
+/// let mut term = crossterm_terminal::terminal();
+///
 /// // scroll down by 5 lines
 /// let size = term.scroll_down(5);
-/// 
+///
 /// ```
-pub fn get() -> Box<Terminal> {
-    Box::from(Terminal {
-        terminal: get_terminal(),
-    })
+///
+pub fn terminal() -> Box<Terminal> {
+    Box::from(Terminal::new())
 }

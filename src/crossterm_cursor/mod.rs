@@ -11,5 +11,5 @@ use self::ansi_cursor::AnsiCursor;
 #[cfg(windows)]
 use self::winapi_cursor::WinApiCursor;
 
-pub use self::cursor::{ get, TerminalCursor };
+pub use self::cursor::{ cursor, TerminalCursor };
 

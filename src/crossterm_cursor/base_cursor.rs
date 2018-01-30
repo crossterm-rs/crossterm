@@ -21,7 +21,7 @@ pub trait ITerminalCursor {
     /// Move the cursor `n` times left.
     fn move_left(&self, count: u16);
     /// Save cursor position for recall later. Note that this position is stored program based not per instance of the cursor struct.
-    fn safe_position(&mut self);
+    fn save_position(&mut self);
     /// Return to saved cursor position
     fn reset_position(&self);
 }

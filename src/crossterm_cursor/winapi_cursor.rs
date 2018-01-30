@@ -44,7 +44,7 @@ impl ITerminalCursor for WinApiCursor {
     }
 
 
-    fn safe_position(&mut self)
+    fn save_position(&mut self)
     {
         cursor::save_cursor_pos();
     }

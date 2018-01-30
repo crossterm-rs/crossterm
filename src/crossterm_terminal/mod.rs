@@ -12,4 +12,4 @@ use self::ansi_terminal::UnixTerminal;
 use self::winapi_terminal::WinApiTerminal;
 
 pub use self::base_terminal::ClearType;
-pub use self::terminal::{ get, Terminal };
+pub use self::terminal::{ Terminal, terminal };

@@ -110,7 +110,7 @@ macro_rules! impl_fmt
         impl<D: fmt::$name> fmt::$name for StyledObject<D> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
             {
-                let mut colored_terminal = super::super::get();
+                let mut colored_terminal = super::super::color();
                 let mut reset = true;
 
                 if let Some(bg) = self.object_style.bg_color

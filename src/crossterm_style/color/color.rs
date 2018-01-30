@@ -20,11 +20,16 @@ pub struct TerminalColor {
 }
 
 impl TerminalColor {
-    /// Instantiate an color implementation whereon color related actions can be performed.
-    pub fn init(&mut self) {
-        if let None = self.terminal_color {
-            self.terminal_color = get_color_options();
-        }
+    /// Create new instance whereon color related actions can be performed.
+    pub fn new() -> TerminalColor {
+        let color: Option<Box<ITerminalColor>> = {
+            #[cfg(unix)]
+            Some(ANSIColor::new());
+            #[cfg(windows)]
+            Some(WinApiColor::new())
+        };
+
+        TerminalColor { terminal_color: color }
     }
 
     /// Set the forground color to the given color.
@@ -34,10 +39,10 @@ impl TerminalColor {
     /// ```rust
     /// extern crate crossterm;
     ///
-    /// use self::crossterm::crossterm_style::{ get, Color};
+    /// use self::crossterm::crossterm_style::{ color, Color};
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = get();
+    /// let mut colored_terminal = color();
     /// 
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
@@ -46,7 +51,6 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_fg(&mut self, color: Color) {
-        &self.init();
         if let Some(ref terminal_color) = self.terminal_color {
             terminal_color.set_fg(color);
         }
@@ -60,10 +64,10 @@ impl TerminalColor {
     ///
     /// extern crate crossterm;
     ///
-    /// use self::crossterm::crossterm_style::{ get, Color};
+    /// use self::crossterm::crossterm_style::{ color, Color};
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = get();
+    /// let mut colored_terminal = color();
     /// 
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
@@ -72,7 +76,6 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_bg(&mut self, color: Color) {
-        &self.init();
         if let Some(ref terminal_color) = self.terminal_color {
             terminal_color.set_bg(color);
         }
@@ -84,16 +87,15 @@ impl TerminalColor {
     /// ```rust
     /// extern crate crossterm;
     ///
-    /// use self::crossterm::crossterm_style::get;
+    /// use self::crossterm::crossterm_style::color;
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = get();
+    /// let mut colored_terminal = color();
     /// 
     /// colored_terminal.reset();
     ///
     /// ```
     pub fn reset(&mut self) {
-        &self.init();
         if let Some(ref terminal_color) = self.terminal_color {
             terminal_color.reset();
         }
@@ -117,14 +119,6 @@ impl TerminalColor {
     }
 }
 
-/// Get an concrete ITerminalColor implementation based on the current operating system.
-fn get_color_options() -> Option<Box<ITerminalColor>> {
-    #[cfg(unix)]
-    return Some(ANSIColor::new());
-    #[cfg(windows)]
-    return Some(WinApiColor::new());
-}
-
 /// Get an TerminalColor implementation whereon color related actions can be performed.
 ///
 /// # Example
@@ -132,20 +126,18 @@ fn get_color_options() -> Option<Box<ITerminalColor>> {
 /// ```rust
 /// extern crate crossterm;
 ///
-/// use self::crossterm::crossterm_style::{get, Color};
+/// use self::crossterm::crossterm_style::{color, Color};
 /// 
 /// // Get colored terminal instance
-/// let mut colored_terminal = get();
+/// let mut colored_terminal = color();
 ///
 /// // preform some actions on the colored terminal
 /// colored_terminal.set_fg(Color::Red);
 /// colored_terminal.set_bg(Color::Blue);
 /// colored_terminal.reset();
 /// ```
-pub fn get() -> Box<TerminalColor> {
-    Box::from(TerminalColor {
-        terminal_color: get_color_options(),
-    })
+pub fn color() -> Box<TerminalColor> {
+    Box::from(TerminalColor::new())
 }
 
 /// Wraps an displayable object so it can be formatted with colors and attributes.

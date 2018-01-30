@@ -17,11 +17,16 @@ pub struct TerminalCursor {
 }
 
 impl TerminalCursor {
-    /// Instantiates an platform specific cursor implementation whereon cursor related actions can be performed.
-    pub fn init(&mut self) {
-        if let None = self.terminal_cursor {
-            self.terminal_cursor = get_cursor_options();
-        }
+    /// Create new cursor instance whereon cursor related actions can be performed.
+    pub fn new() -> TerminalCursor {
+        let cursor: Option<Box<ITerminalCursor>> = {
+            #[cfg(unix)]
+            Some(AnsiCursor::new());
+            #[cfg(windows)]
+            Some(WinApiCursor::new())
+        };
+
+        TerminalCursor { terminal_cursor: cursor }
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -34,11 +39,10 @@ impl TerminalCursor {
     ///
     /// use self::crossterm::crossterm_cursor;
     ///     
-    /// crossterm_cursor::get().goto(10,10);
+    /// crossterm_cursor::cursor().goto(10,10);
     /// 
     /// ```
     pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.goto(x, y);
         }
@@ -55,12 +59,11 @@ impl TerminalCursor {
     ///
     /// use self::crossterm::crossterm_cursor;
     ///          
-    /// let pos = crossterm_cursor::get().pos();
+    /// let pos = crossterm_cursor::cursor().pos();
     /// println!("{:?}", pos);
     /// 
     /// ```
     pub fn pos(&mut self) -> (i16, i16) {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.pos()
         } else {
@@ -79,14 +82,13 @@ impl TerminalCursor {
     /// use self::crossterm::crossterm_cursor;
     ///      
     /// // Move 1 time up
-    /// crossterm_cursor::get().move_up(1);
+    /// crossterm_cursor::cursor().move_up(1);
     /// 
     /// // Move 2 times up
-    /// crossterm_cursor::get().move_up(2);   
+    /// crossterm_cursor::cursor().move_up(2);
     /// 
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.move_up(count);
         }
@@ -105,14 +107,13 @@ impl TerminalCursor {
     ///
     ///
     /// // move 1 time right
-    /// crossterm_cursor::get().move_right(1);
+    /// crossterm_cursor::cursor().move_right(1);
     /// 
     /// // move 2 times right
-    /// crossterm_cursor::get().move_right(2);
+    /// crossterm_cursor::cursor().move_right(2);
     /// 
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.move_right(count);
         }
@@ -130,14 +131,13 @@ impl TerminalCursor {
     /// use self::crossterm::crossterm_cursor;
     /// 
     /// // move 1 time down 
-    /// crossterm_cursor::get().move_down(1);
+    /// crossterm_cursor::cursor().move_down(1);
     /// 
     /// // move 2 times down
-    /// crossterm_cursor::get().move_down(2);
+    /// crossterm_cursor::cursor().move_down(2);
     ///
     /// ```
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.move_down(count);
         }
@@ -155,14 +155,13 @@ impl TerminalCursor {
     /// use self::crossterm::crossterm_cursor;
     /// 
     /// // move 1 time left
-    /// crossterm_cursor::get().move_left(1);
+    /// crossterm_cursor::cursor().move_left(1);
     /// 
     /// // move 2 time left
-    /// crossterm_cursor::get().move_left(2);
+    /// crossterm_cursor::cursor().move_left(2);
     /// 
     /// ```
     pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.move_left(count);
         }
@@ -191,12 +190,12 @@ impl TerminalCursor {
     /// use std::io::Write;
     ///
     /// // of course we can just do this.
-    /// crossterm_cursor::get().goto(10,10);
+    /// crossterm_cursor::cursor().goto(10,10);
     /// print!("@");
     /// std::io::stdout().flush();
     /// 
     /// // but now we can chain the methods so it looks cleaner and it automatically flushes the buffer.  
-    /// crossterm_cursor::get()
+    /// crossterm_cursor::cursor()
     /// .goto(10,10)
     /// .print("@");
     /// 
@@ -220,22 +219,21 @@ impl TerminalCursor {
     ///
     /// extern crate crossterm;
     ///
-    /// use self::crossterm::crossterm_cursor::get;
+    /// use self::crossterm::crossterm_cursor::cursor;
     ///
-    /// get().safe_position();
+    /// cursor().safe_position();
     ///
     /// ```
-    pub fn safe_position(&mut self)
+    pub fn save_position(&mut self)
     {
-        &self.init();
         if let Some(ref mut terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.safe_position();
+            terminal_cursor.save_position();
         }
     }
 
     /// Return to saved cursor position
     ///
-    /// Note that this method reset to the position set by `safe_position()` and that this position is stored program based not per instance of the `Cursor` struct.
+    /// Note that this method reset to the position set by `save_position()` and that this position is stored program based not per instance of the `Cursor` struct.
     ///
     /// #Example
     ///
@@ -243,27 +241,17 @@ impl TerminalCursor {
     ///
     /// extern crate crossterm;
     ///
-    /// use self::crossterm::crossterm_cursor::get;
+    /// use self::crossterm::crossterm_cursor::cursor;
     ///
-    /// get().reset_position();
+    /// cursor().reset_position();
     ///
     /// ```
     pub fn reset_position(&mut self)
     {
-        &self.init();
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.reset_position();
         }
     }
-}
-
-/// Get the concrete ITerminalCursor implementation based on the current operating system.
-fn get_cursor_options() -> Option<Box<ITerminalCursor>> {
-    #[cfg(unix)]
-    return Some(AnsiCursor::new());
-        
-    #[cfg(windows)]
-    return Some(WinApiCursor::new());
 }
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
@@ -279,15 +267,13 @@ fn get_cursor_options() -> Option<Box<ITerminalCursor>> {
 /// use self::crossterm::crossterm_cursor;
 /// 
 /// // Get cursor and goto pos X: 5, Y: 10
-/// let mut cursor = crossterm_cursor::get();
+/// let mut cursor = crossterm_cursor::cursor();
 /// cursor.goto(5,10);
 ///     
 /// //Or you can do it in one line.
-/// crossterm_cursor::get().goto(5,10);
+/// crossterm_cursor::cursor().goto(5,10);
 ///
 /// ```
-pub fn get() -> Box<TerminalCursor> {
-    Box::from(TerminalCursor {
-        terminal_cursor: get_cursor_options(),
-    })
+pub fn cursor() -> Box<TerminalCursor> {
+    Box::from(TerminalCursor::new())
 }

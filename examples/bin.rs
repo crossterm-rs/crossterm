@@ -15,7 +15,7 @@
 extern crate crossterm;
 
 // Add the usings for the crossterms modules to play with crossterm
-use self::crossterm::crossterm_style;
+use self::crossterm::crossterm_style::{paint, Color };
 use self::crossterm::crossterm_cursor;
 use self::crossterm::crossterm_terminal;
 
@@ -25,5 +25,6 @@ pub mod cursor;
 pub mod terminal;
 
 fn main() {
-  
+   terminal::clear_all_lines();
+    cursor::print();
 }

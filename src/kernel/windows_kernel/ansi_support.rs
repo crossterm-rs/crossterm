@@ -1,3 +1,5 @@
+///! Notice that this feature is not used. But will be implemented later.
+
 use super::kernel;
 
 /// Enables ansi for windows terminals.
