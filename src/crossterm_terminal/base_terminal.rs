@@ -11,7 +11,7 @@ pub trait ITerminal {
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType);
     /// Get the terminal size (x,y)
-    fn terminal_size(&self) -> Option<(u16, u16)>;
+    fn terminal_size(&self) -> (u16, u16);
     /// Scroll `n` lines up in the current terminal.
     fn scroll_up(&self, count: i16);
     /// Scroll `n` lines down in the current terminal.

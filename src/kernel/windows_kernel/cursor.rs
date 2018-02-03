@@ -7,6 +7,7 @@ static  mut SAVED_CURSOR_POS:(i16,i16) = (0,0);
 pub fn set(x: i16, y: i16)
 {
     kernel::set_console_cursor_position(x, y );
+
 }
 
 /// Reset to saved cursor position

@@ -9,15 +9,15 @@ use super::base_color::ITerminalColor;
 
 /// This struct is an ansi implementation for color related actions.
 #[derive(Debug)]
-pub struct ANSIColor;
+pub struct AnsiColor;
 
-impl Construct for ANSIColor {
-    fn new() -> Box<ANSIColor> {
-        Box::from(ANSIColor {})
+impl Construct for AnsiColor {
+    fn new() -> Box<AnsiColor> {
+        Box::from(AnsiColor {})
     }
 }
 
-impl ITerminalColor for ANSIColor {
+impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color) {
             let mut some_writer = io::stdout();
             write!(&mut some_writer, csi!("{}m"), self.color_value(fg_color, ColorType::Foreground));
@@ -47,7 +47,7 @@ impl ITerminalColor for ANSIColor {
             },
         }
         
-        let rgb_val;
+        let rgb_val: String;
         
         let color_val = match color {
             Color::Black => "5;0",
@@ -65,7 +65,9 @@ impl ITerminalColor for ANSIColor {
             Color::DarkCyan => "5;6",
             Color::Grey =>  "5;15",
             Color::White => "5;7",
+            #[cfg(unix)]
             Color::Rgb{r,g,b} => { rgb_val = format!("2;{};{};{}", r,g,b); rgb_val.as_str()},
+            #[cfg(unix)]
             Color::AnsiValue(val) => { rgb_val = format!("5;{}",val); rgb_val.as_str() }
         };
         

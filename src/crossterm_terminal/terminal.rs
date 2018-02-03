@@ -1,12 +1,11 @@
 //! With this module you can perform actions that are terminal related.
 //! Like clearing and scrolling in the terminal or getting the size of the terminal.
 
+
 use Construct;
 use super::base_terminal::{ClearType, ITerminal};
 
-#[cfg(unix)]
-use super::UnixTerminal;
-#[cfg(windows)]
+use super::AnsiTerminal;
 use super::WinApiTerminal;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
@@ -17,13 +16,25 @@ pub struct Terminal {
 impl Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new() -> Terminal {
-        let term: Option<Box<ITerminal>> =
+        let mut term: Option<Box<ITerminal>> = None;
+
+        let mut does_support = true;
+        if cfg!(target_os = "windows") {
+            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+
+            does_support = try_enable_ansi_support();
+            // this returns an bool if the current windows console supports ansi.
+            if !does_support
+            {
+                term = Some(WinApiTerminal::new());
+            }
+        }
+
+        if does_support
         {
-            #[cfg(unix)]
-            Some(UnixTerminal::new());
-            #[cfg(windows)]
-            Some(WinApiTerminal::new())
-        };
+            println!("This console does support ansi");
+            term = Some(AnsiTerminal::new());
+        }
 
         Terminal { terminal: term }
     }
@@ -72,13 +83,11 @@ impl Terminal {
     /// println!("{:?}", size);
     /// 
     /// ```
-    pub fn terminal_size(&mut self) -> Option<(u16, u16)> {
+    pub fn terminal_size(&mut self) -> (u16, u16) {
         if let Some(ref terminal) = self.terminal {
-            let a = terminal.terminal_size();
-            a
-        } else {
-            None
+            return terminal.terminal_size()
         }
+        (0,0)
     }
 
     /// Scroll `n` lines up in the current terminal.

@@ -1,17 +1,19 @@
+use winapi::shared::minwindef::DWORD;
 use winapi::um::winnt::HANDLE;
-use winapi::um::winbase::STD_OUTPUT_HANDLE;
+use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
-use winapi::um::consoleapi::{SetConsoleMode};
+use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode};
 use winapi::um::wincon::{ SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize,
                           GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
-                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD
+                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute, ENABLE_VIRTUAL_TERMINAL_PROCESSING,ENABLE_VIRTUAL_TERMINAL_INPUT,
+                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, DISABLE_NEWLINE_AUTO_RETURN
 };
 
 use super::{Empty};
 
 static mut CONSOLE_OUTPUT_HANDLE: Option<HANDLE> = None;
+static mut CONSOLE_INPUT_HANDLE: Option<HANDLE> = None;
 
 /// Get the std_output_handle of the console
 pub fn get_output_handle() -> HANDLE {
@@ -20,7 +22,32 @@ pub fn get_output_handle() -> HANDLE {
             handle
         } else {
             let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+            if !is_valid_handle(&handle)
+            {
+                panic!("Cannot get output handle")
+            }
+
             CONSOLE_OUTPUT_HANDLE = Some(handle);
+            handle
+        }
+    }
+}
+
+/// Get the std_input_handle of the console
+pub fn get_input_handle() -> HANDLE {
+    unsafe {
+        if let Some(handle) = CONSOLE_INPUT_HANDLE {
+            handle
+        } else {
+            let handle = GetStdHandle(STD_INPUT_HANDLE);
+
+            if !is_valid_handle(&handle)
+            {
+                panic!("Cannot get input handle")
+            }
+
+            CONSOLE_INPUT_HANDLE = Some(handle);
             handle
         }
     }
@@ -29,9 +56,9 @@ pub fn get_output_handle() -> HANDLE {
 /// Checks if the console handle is an invalid handle value.
 pub fn is_valid_handle(handle: &HANDLE) -> bool {
     if *handle == INVALID_HANDLE_VALUE {
-        true
-    } else {
         false
+    } else {
+        true
     }
 }
 
@@ -50,6 +77,26 @@ pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     csbi
 }
 
+/// Enables ansi for windows terminals.
+pub fn try_enable_ansi_support() -> bool {
+
+    let output_handle = get_output_handle();
+
+    let mut dw_mode: DWORD = 0;
+    if !get_console_mode(&output_handle, &mut dw_mode)
+    {
+       return false;
+    }
+
+    dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if !set_console_mode(&output_handle, dw_mode)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 pub fn get_largest_console_window_size() -> COORD
 {
     let output_handle = get_output_handle();
@@ -64,12 +111,19 @@ pub fn get_original_console_color() -> u16 {
     console_buffer_info.wAttributes as u16
 }
 
-pub fn set_console_mode(console_mode: u32)
+pub fn set_console_mode(handle: &HANDLE, console_mode: u32) -> bool
 {
-    let output_handle = get_output_handle();
-
     unsafe {
-        SetConsoleMode(output_handle, console_mode);
+        let success = SetConsoleMode(*handle, console_mode);
+        return is_true(success);
+    }
+}
+
+pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool
+{
+    unsafe {
+        let success = GetConsoleMode(*handle, &mut *current_mode);
+        return is_true(success);
     }
 }
 
@@ -170,9 +224,9 @@ pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: CO
 fn is_true(value: i32) -> bool
 {
     if value == 0{
-        false
+        return false;
     }
     else{
-        true
+        return true;
     }
 }

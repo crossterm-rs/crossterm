@@ -25,6 +25,7 @@ pub mod cursor;
 pub mod terminal;
 
 fn main() {
-   terminal::clear_all_lines();
-    cursor::print();
+    color::paint_background();
+    color::paint_foreground();
+    color::paint_foreground_and_background();
 }

@@ -16,7 +16,7 @@ pub struct UnixSize {
 }
 
 /// Gets the current terminal size
-pub fn terminal_size() -> Option<(u16,u16)> {
+pub fn terminal_size() -> (u16,u16) {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let us = UnixSize {
         rows: 0,
@@ -29,6 +29,6 @@ pub fn terminal_size() -> Option<(u16,u16)> {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         Some((us.cols -1, us.rows -1))
     } else {
-        None
+        (0,0)
     }
 }

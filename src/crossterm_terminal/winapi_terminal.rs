@@ -14,6 +14,7 @@ impl Construct for WinApiTerminal {
 
 impl ITerminal for WinApiTerminal {
     fn clear(&self, clear_type: ClearType) {
+        println! ("Windows!!!");
         match clear_type
         {
             ClearType::All => terminal::clear_entire_screen(),
@@ -24,7 +25,7 @@ impl ITerminal for WinApiTerminal {
         };
     }
 
-    fn terminal_size(&self) -> Option<(u16, u16)> {
+    fn terminal_size(&self) -> (u16, u16) {
         terminal::terminal_size()
     }
 

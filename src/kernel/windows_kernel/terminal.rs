@@ -2,13 +2,13 @@ use super::{cursor, kernel};
 use winapi::um::wincon::{SMALL_RECT, COORD};
 
 /// Get the terminal size (y,x)
-pub fn terminal_size() -> Option<(u16, u16)> {
+pub fn terminal_size() -> (u16, u16) {
     let csbi = kernel::get_console_screen_buffer_info();
 
-    Some((
+    (
         (csbi.srWindow.Right - csbi.srWindow.Left) as u16,
         (csbi.srWindow.Bottom - csbi.srWindow.Top) as u16,
-    ))
+    )
 }
 
 /// Scroll down `n` rows

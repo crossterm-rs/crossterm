@@ -6,9 +6,7 @@ use std::fmt::Display;
 use Construct;
 use super::base_cursor::ITerminalCursor;
 
-#[cfg(unix)]
 use super::AnsiCursor;
-#[cfg(windows)]
 use super::WinApiCursor;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
@@ -19,12 +17,25 @@ pub struct TerminalCursor {
 impl TerminalCursor {
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor {
-        let cursor: Option<Box<ITerminalCursor>> = {
-            #[cfg(unix)]
-            Some(AnsiCursor::new());
+        let mut cursor: Option<Box<ITerminalCursor>> = None;
+
+        let mut does_support = true;
+        if cfg!(target_os = "windows") {
             #[cfg(windows)]
-            Some(WinApiCursor::new())
-        };
+            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+
+            does_support = try_enable_ansi_support();
+            // this returns an bool if the current windows console supports ansi.
+            if !does_support
+            {
+                cursor = Some(WinApiCursor::new());
+            }
+        }
+
+        if does_support
+        {
+            cursor = Some(AnsiCursor::new());
+        }
 
         TerminalCursor { terminal_cursor: cursor }
     }

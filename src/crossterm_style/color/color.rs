@@ -9,9 +9,7 @@ use crossterm_style::{ObjectStyle, StyledObject};
 use super::base_color::ITerminalColor;
 use super::super::Color;
 
-#[cfg(unix)]
-use super::ANSIColor;
-#[cfg(windows)]
+use super::AnsiColor;
 use super::WinApiColor;
 
 /// Struct that stores an specific platform implementation for color related actions. 
@@ -22,12 +20,25 @@ pub struct TerminalColor {
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
     pub fn new() -> TerminalColor {
-        let color: Option<Box<ITerminalColor>> = {
-            #[cfg(unix)]
-            Some(ANSIColor::new());
+        let mut color: Option<Box<ITerminalColor>> = None;
+
+        let mut does_support = true;
+        if cfg!(target_os = "windows") {
             #[cfg(windows)]
-            Some(WinApiColor::new())
-        };
+            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+
+            does_support = try_enable_ansi_support();
+            // this returns an bool if the current windows console supports ansi.
+            if !does_support
+            {
+                color = Some(WinApiColor::new());
+            }
+        }
+
+        if does_support
+        {
+            color = Some(AnsiColor::new());
+        }
 
         TerminalColor { terminal_color: color }
     }
