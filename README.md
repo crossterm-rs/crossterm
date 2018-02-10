@@ -168,6 +168,12 @@ For detailed examples of all crossterm functionalities check the [examples](http
 - Storing the current cursor position and resetting to that stored cursor position later. 
 - Resizing the terminal.
 
+## TODO Features crossterm 0.3
+- Raw state implementation [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
+- The terminal state will be set to its orginal state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
+- Default ANSI escape codes for windows machienes, if windows does not support ANSI switsh back to WINAPI.
+- Some Refacrorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
+
 ## Tested terminals
 
 - Windows Powershell
