@@ -10,14 +10,21 @@ keywords = ["console", "color", "cursor", "terminal", "cli"]
 exclude = ["target", "Cargo.lock"]
 
 [dependencies]
+rand = "0.4.2"
+
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi"] }
 
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+termios = "0.3.0"
+
+
 
 [[bin]]
-name = "example_bin"
-path = "./examples/bin.rs"
+name = "a"
+path = "examples//bin.rs"
+
 
 

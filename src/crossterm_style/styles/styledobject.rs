@@ -2,6 +2,7 @@ use std;
 use std::fmt;
 use std::io::Write;
 
+#[cfg(unix)]
 use super::super::Attribute;
 
 use crossterm_style::{Color, ObjectStyle};

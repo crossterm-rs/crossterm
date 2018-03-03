@@ -10,3 +10,4 @@ pub trait Construct {
 pub trait Empty {
     fn empty() -> Self;
 }
+

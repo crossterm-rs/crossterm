@@ -3,6 +3,7 @@ use std::io::Write;
 
 use Construct;
 use super::base_cursor::ITerminalCursor;
+use shared::functions;
 
 /// This struct is an ansi implementation for cursor related actions.
 pub struct AnsiCursor;
@@ -20,8 +21,8 @@ impl ITerminalCursor for AnsiCursor {
         write!(&mut some_writer, csi!("{};{}H"), y + 1, x +1);
     }
 
-    fn pos(&self) -> (i16, i16) {
-        (0, 0)
+    fn pos(&self) -> (u16, u16) {
+        functions::get_cursor_position()
     }
 
     fn move_up(&self, count: u16) {

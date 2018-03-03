@@ -11,7 +11,7 @@ pub trait ITerminalCursor {
     /// Goto some location (x,y) in the terminal.
     fn goto(&self, x: u16, y: u16);
     /// Get the location (x,y) of the current curor in the terminal
-    fn pos(&self) -> (i16, i16);
+    fn pos(&self) -> (u16, u16);
     /// Move cursor n times up
     fn move_up(&self, count: u16);
     /// Move the cursor `n` times to the right.

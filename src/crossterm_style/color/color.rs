@@ -1,12 +1,14 @@
 //! With this module you can perform actions that are color related.
 //! Like styling the font, foreground color and background color.
 
+use std::ops::Drop;
 use std::fmt;
 use std::io;
 
-use Construct;
+use {Construct, Context };
 use crossterm_style::{ObjectStyle, StyledObject};
 use super::base_color::ITerminalColor;
+use shared::functions::get_module;
 use super::super::Color;
 
 use super::AnsiColor;
@@ -15,35 +17,24 @@ use super::WinApiColor;
 /// Struct that stores an specific platform implementation for color related actions. 
 pub struct TerminalColor {
     terminal_color: Option<Box<ITerminalColor>>,
+    context: Context
 }
 
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
     pub fn new() -> TerminalColor {
-        let mut color: Option<Box<ITerminalColor>> = None;
+        let mut context = Context::new();
 
-        let mut does_support = true;
-        if cfg!(target_os = "windows") {
-            #[cfg(windows)]
-            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+        #[cfg(target_os = "windows")]
+        let color = get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new(), &mut context);
 
-            does_support = try_enable_ansi_support();
-            // this returns an bool if the current windows console supports ansi.
-            if !does_support
-            {
-                color = Some(WinApiColor::new());
-            }
-        }
+        #[cfg(not(target_os = "windows"))]
+        let color = Some(AnsiColor::new());
 
-        if does_support
-        {
-            color = Some(AnsiColor::new());
-        }
-
-        TerminalColor { terminal_color: color }
+        TerminalColor { terminal_color: color, context: context}
     }
 
-    /// Set the forground color to the given color.
+    /// Set the foreground color to the given color.
     ///
     /// #Example
     ///

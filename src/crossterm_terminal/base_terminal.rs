@@ -7,7 +7,7 @@ pub enum ClearType {
     UntilNewLine,
 }
 
-pub trait ITerminal {
+pub trait ITerminal{
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType);
     /// Get the terminal size (x,y)

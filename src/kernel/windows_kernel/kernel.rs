@@ -1,13 +1,15 @@
-use winapi::shared::minwindef::DWORD;
 use winapi::um::winnt::HANDLE;
 use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
-use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode};
-use winapi::um::wincon::{ SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize,
+use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
+
+use winapi::um::wincon;
+use winapi::shared::minwindef::{TRUE};
+use winapi::um::wincon::{ SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer,
                           GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute, ENABLE_VIRTUAL_TERMINAL_PROCESSING,ENABLE_VIRTUAL_TERMINAL_INPUT,
-                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, DISABLE_NEWLINE_AUTO_RETURN
+                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
+                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT
 };
 
 use super::{Empty};
@@ -62,7 +64,6 @@ pub fn is_valid_handle(handle: &HANDLE) -> bool {
     }
 }
 
-/// Get console screen buffer info.
 pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     let output_handle = get_output_handle();
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
@@ -75,26 +76,6 @@ pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     }
 
     csbi
-}
-
-/// Enables ansi for windows terminals.
-pub fn try_enable_ansi_support() -> bool {
-
-    let output_handle = get_output_handle();
-
-    let mut dw_mode: DWORD = 0;
-    if !get_console_mode(&output_handle, &mut dw_mode)
-    {
-       return false;
-    }
-
-    dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    if !set_console_mode(&output_handle, dw_mode)
-    {
-        return false;
-    }
-
-    return true;
 }
 
 pub fn get_largest_console_window_size() -> COORD
@@ -218,6 +199,90 @@ pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: CO
     }
 
     is_true(success)
+}
+
+pub fn create_console_screen_buffer() -> HANDLE
+{
+    use winapi::shared::ntdef::NULL;
+    use winapi::um::wincon::CONSOLE_TEXTMODE_BUFFER;
+    use winapi::um::winnt::{GENERIC_READ, GENERIC_WRITE, FILE_SHARE_READ, FILE_SHARE_WRITE};
+    use winapi::um::minwinbase::SECURITY_ATTRIBUTES;
+    use std::mem::size_of;
+
+    unsafe
+    {
+        let mut security_attr: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
+        {
+            nLength: size_of::<SECURITY_ATTRIBUTES>() as u32,
+            lpSecurityDescriptor: NULL,
+            bInheritHandle: TRUE
+        };
+
+        let new_screen_buffer = CreateConsoleScreenBuffer(
+            GENERIC_READ |           // read/write access
+                GENERIC_WRITE,
+            FILE_SHARE_READ |
+                FILE_SHARE_WRITE,        // shared
+            &mut security_attr,                    // default security attributes
+            CONSOLE_TEXTMODE_BUFFER, // must be TEXTMODE
+            NULL
+        );
+        new_screen_buffer
+    }
+}
+
+pub fn set_active_screen_buffer(new_buffer: HANDLE)
+{
+    unsafe
+    {
+        if !is_true(SetConsoleActiveScreenBuffer(new_buffer))
+        {
+            panic!("Cannot set active screen buffer");
+        }
+    }
+}
+
+pub fn read_console_output(read_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
+{
+    use self::wincon::ReadConsoleOutputA;
+
+    unsafe
+    {
+        if !is_true(ReadConsoleOutputA(
+            *read_buffer,   // screen buffer to read from
+            copy_buffer.as_mut_ptr(),    // buffer to copy into
+            buffer_size,    // col-row size of chiBuffer
+            buffer_coord,  // top left dest. cell in chiBuffer
+            source_buffer) // screen buffer source rectangle
+        ){
+
+            panic!("Cannot read console output");
+        }
+    }
+}
+
+pub fn write_console()
+{
+
+}
+
+pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
+{
+    use self::wincon::WriteConsoleOutputA;
+
+    unsafe
+        {
+            if !is_true(WriteConsoleOutputA(
+                *write_buffer,        // screen buffer to write to
+                copy_buffer.as_mut_ptr(),      // buffer to copy into
+                buffer_size,   // col-row size of chiBuffer
+                buffer_coord,  // top left dest. cell in chiBuffer
+                source_buffer)// screen buffer source rectangle
+            ){
+
+                panic!("Cannot write to console output");
+            }
+        }
 }
 
 /// Parse integer to an bool

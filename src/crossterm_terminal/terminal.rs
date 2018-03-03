@@ -1,9 +1,11 @@
 //! With this module you can perform actions that are terminal related.
 //! Like clearing and scrolling in the terminal or getting the size of the terminal.
 
+use std::ops::Drop;
 
-use Construct;
+use {Construct, Context};
 use super::base_terminal::{ClearType, ITerminal};
+use shared::functions::get_module;
 
 use super::AnsiTerminal;
 use super::WinApiTerminal;
@@ -11,32 +13,21 @@ use super::WinApiTerminal;
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal {
     terminal: Option<Box<ITerminal>>,
+    context: Context
 }
 
-impl Terminal {
+impl  Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new() -> Terminal {
-        let mut term: Option<Box<ITerminal>> = None;
 
-        let mut does_support = true;
-        if cfg!(target_os = "windows") {
-            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+        let mut context = Context::new();
+        #[cfg(target_os = "windows")]
+        let terminal = get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new(), &mut context);
 
-            does_support = try_enable_ansi_support();
-            // this returns an bool if the current windows console supports ansi.
-            if !does_support
-            {
-                term = Some(WinApiTerminal::new());
-            }
-        }
+        #[cfg(not(target_os = "windows"))]
+        let terminal = Some(AnsiTerminal::new());
 
-        if does_support
-        {
-            println!("This console does support ansi");
-            term = Some(AnsiTerminal::new());
-        }
-
-        Terminal { terminal: term }
+        Terminal { terminal: terminal, context: context }
     }
 
     /// Clear the current cursor by specifying the clear type
@@ -173,6 +164,7 @@ impl Terminal {
 ///
 /// ```
 ///
-pub fn terminal() -> Box<Terminal> {
+pub fn terminal() -> Box<Terminal>
+{
     Box::from(Terminal::new())
 }

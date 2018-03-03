@@ -3,7 +3,8 @@ use std::io::Write;
 
 use Construct;
 use super::base_terminal::{ClearType, ITerminal};
-use shared::functions::resize_terminal;
+
+use shared::functions::get_terminal_size;
 
 /// This struct is an ansi implementation for terminal related actions.
 pub struct AnsiTerminal  ;
@@ -37,7 +38,7 @@ impl ITerminal for AnsiTerminal {
     }
 
     fn terminal_size(&self) -> (u16, u16) {
-        resize_terminal()
+        get_terminal_size()
     }
 
     fn scroll_up(&self, count: i16) {

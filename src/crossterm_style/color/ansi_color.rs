@@ -46,7 +46,8 @@ impl ITerminalColor for AnsiColor {
                 ansi_value.push_str("48;")
             },
         }
-        
+
+        #[cfg(unix)]
         let rgb_val: String;
         
         let color_val = match color {

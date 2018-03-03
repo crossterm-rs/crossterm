@@ -23,9 +23,35 @@ use self::crossterm::crossterm_terminal;
 pub mod color;
 pub mod cursor;
 pub mod terminal;
+use std::io::{Error, ErrorKind, Write};
+use std::io;
+use std::{time, thread};
+
+use self::crossterm_terminal::screen::AlternateScreen;
+use crossterm::crossterm_terminal::IntoRawMode;
+
+use crossterm::Context;
 
 fn main() {
-    color::paint_background();
-    color::paint_foreground();
-    color::paint_foreground_and_background();
+    let mut context = Context::new();
+//
+    let mut screen = io::stdout().into_raw_mode(&mut context).unwrap();
+    {
+//        let mut screen = io::stdout();
+        crossterm_cursor::cursor().goto(10, 10);
+
+        let mut curs = crossterm::crossterm_cursor::cursor();
+        curs.move_up(1);
+//        print!("1");
+        write!(screen, "{}", "1");
+        curs.move_right(1);
+//        print!("2");
+        write!(screen, "{}", "2");
+        curs.move_down(1);
+//        print!("3");
+        write!(screen, "{}", "3");
+        curs.move_left(1);
+//        write!()!("4");
+        write!(screen, "{}", "4");
+    }
 }

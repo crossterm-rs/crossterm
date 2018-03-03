@@ -1,6 +1,7 @@
 use Construct;
-use kernel::windows_kernel::cursor;
 use super::base_cursor::ITerminalCursor;
+use kernel::windows_kernel::{kernel, cursor};
+
 
 /// This struct is an windows implementation for cursor related actions.
 pub struct WinApiCursor;
@@ -12,37 +13,39 @@ impl Construct for WinApiCursor {
 }
 
 impl ITerminalCursor for WinApiCursor {
+
+    /// Set the current cursor position to X and Y
     fn goto(&self, x: u16, y: u16) {
-        cursor::set(x as i16, y as i16);
+        kernel::set_console_cursor_position(x as i16, y as i16);
     }
 
-    fn pos(&self) -> (i16, i16) {
+    /// Get current cursor position (X,Y)
+    fn pos(&self) -> (u16, u16) {
         cursor::pos()
     }
 
     fn move_up(&self, count: u16) {
-        let (xpos,ypos) = cursor::pos();
-        cursor::set(xpos, ypos - count as i16);
+        let (xpos,ypos) = self.pos();
+        self.goto(xpos, ypos - count);
     }
 
     fn move_right(&self, count: u16) {
-        let (xpos,ypos) = cursor::pos();
+        let (xpos,ypos) = self.pos();
 
-        cursor::set(xpos + count as i16, ypos);
+        self.goto(xpos + count, ypos);
     }
 
     fn move_down(&self, count: u16) {
-        let (xpos,ypos) = cursor::pos();
+        let (xpos,ypos) = self.pos();
 
-        cursor::set(xpos, ypos + count as i16);
+        self.goto(xpos, ypos + count);
     }
 
     fn move_left(&self, count: u16) {
-        let (xpos,ypos) = cursor::pos();
+        let (xpos,ypos) = self.pos();
 
-        cursor::set(xpos - count as i16, ypos);
+        self.goto(xpos - count, ypos);
     }
-
 
     fn save_position(&mut self)
     {

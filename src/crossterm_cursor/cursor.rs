@@ -1,43 +1,33 @@
 //! With this module you can perform actions that are cursor related.
 //! Like changing and displaying the position of the cursor in terminal.
-
+//!
 use std::fmt::Display;
+use std::ops::Drop;
 
-use Construct;
+use {Construct, Context};
+use shared::functions::get_module;
 use super::base_cursor::ITerminalCursor;
-
 use super::AnsiCursor;
 use super::WinApiCursor;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 pub struct TerminalCursor {
     terminal_cursor: Option<Box<ITerminalCursor>>,
+    context: Context
 }
-
-impl TerminalCursor {
+impl TerminalCursor
+ {
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor {
-        let mut cursor: Option<Box<ITerminalCursor>> = None;
+        let mut context = Context::new();
 
-        let mut does_support = true;
-        if cfg!(target_os = "windows") {
-            #[cfg(windows)]
-            use kernel::windows_kernel::kernel::try_enable_ansi_support;
+        #[cfg(target_os = "windows")]
+        let cursor = get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(), &mut context);
 
-            does_support = try_enable_ansi_support();
-            // this returns an bool if the current windows console supports ansi.
-            if !does_support
-            {
-                cursor = Some(WinApiCursor::new());
-            }
-        }
+        #[cfg(not(target_os = "windows"))]
+        let cursor = Some(AnsiCursor::new());
 
-        if does_support
-        {
-            cursor = Some(AnsiCursor::new());
-        }
-
-        TerminalCursor { terminal_cursor: cursor }
+        TerminalCursor { terminal_cursor: cursor, context: context }
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -74,7 +64,7 @@ impl TerminalCursor {
     /// println!("{:?}", pos);
     /// 
     /// ```
-    pub fn pos(&mut self) -> (i16, i16) {
+    pub fn pos(&mut self) -> (u16, u16) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.pos()
         } else {
