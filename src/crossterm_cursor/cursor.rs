@@ -7,7 +7,9 @@ use std::ops::Drop;
 use {Construct, Context};
 use shared::functions::get_module;
 use super::base_cursor::ITerminalCursor;
+
 use super::AnsiCursor;
+#[cfg(target_os = "windows")]
 use super::WinApiCursor;
 
 /// Struct that stores an specific platform implementation for cursor related actions.

@@ -5,9 +5,13 @@ mod terminal;
 pub mod screen;
 
 mod ansi_terminal;
+
+#[cfg(target_os = "windows")]
 mod winapi_terminal;
 
 use self::ansi_terminal::AnsiTerminal;
+
+#[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;
 
 pub use self::base_terminal::ClearType;

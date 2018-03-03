@@ -2,9 +2,10 @@ use std::io::{self, Write};
 use std::ops;
 use std::any::Any;
 
-use crossterm_state::commands::{shared_commands,win_commands,ICommand, CommandType};
-use crossterm_state::commands::IContextCommand;
+use shared::functions::get_module;
+use crossterm_state::commands::*;
 use shared::traits::Construct;
+use Context;
 
 use std::fmt;
 
@@ -45,12 +46,13 @@ impl fmt::Display for ToAlternateScreen
 pub struct AlternateScreen<W: Write> {
     /// The output target.
     output: W,
+    context: Context
 }
 
 impl<W: Write> AlternateScreen< W> {
     pub fn from(mut output: W) -> Self {
         write!(output, "{}", ToAlternateScreen);
-        AlternateScreen { output: output }
+        AlternateScreen { output: output, context: Context::new()}
     }
 }
 
@@ -82,37 +84,20 @@ impl<W: Write> Drop for AlternateScreen<W>
 {
     fn drop(&mut self)
     {
+        this
         write!(self, "{}", ToMainScreen).expect("switch to main screen");
     }
 }
 
 fn get_to_alternate_screen_command() -> Box<ICommand>
 {
-//    let mut does_support = true;
-    let mut command: Option<Box<ICommand>> = None;
-//
-//    let succeeded = false;
-//
-//    if cfg!(target_os = "windows")
-//    {
-//        #[cfg(windows)]
-//        use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
-//
-//        // Try to enable ansi on windows if not than use WINAPI.
-//        does_support = try_enable_ansi_support();
-//
-//        println!("does support: {}", does_support);
-//        if !does_support
-//        {
-            command = Some(win_commands::ToAlternateScreenBufferCommand::new());
-            command.unwrap()
-//        }
-//    }
-//
-//    if does_support
-//    {
-//        command = Some(shared_commands::ToAlternateScreenBufferCommand::new().0);
-//    }
-//
-//    command.unwrap()
+    let mut context = Context::new();
+
+    #[cfg(target_os = "windows")]
+    let command = get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), &mut context).unwrap();
+
+    #[cfg(not(target_os = "windows"))]
+    let command = shared_commands::ToAlternateScreenBufferCommand::new();
+    
+    command
 }

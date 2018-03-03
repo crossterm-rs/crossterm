@@ -1,7 +1,9 @@
 use libc;
 use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl};
 pub use self::libc::termios as Termios;
+use crossterm_state::commands::{NoncanonicaModeCommand, IContextCommand};
 use std::io;
+use std::mem;
 
 
 /// A representation of the size of the current terminal
@@ -37,14 +39,14 @@ pub fn terminal_size() -> (u16,u16) {
 /// Get the current cursor position
 pub fn pos() -> (u16,u16)
 {
-    use std::io::{Write,Read};
     use std::io::Error;
+    use std::io::{ Write,Read };
 
     let command = NoncanonicalModeCommand::new();
     command.execute();
 
     // This code is original written by term_cursor credits to them.
-    let mut stdout = std::io::stdout();
+    let mut stdout = io::stdout();
 
     // Write command
     stdout.write(b"\x1B[6n")?;
@@ -53,7 +55,7 @@ pub fn pos() -> (u16,u16)
     // Read back result
     let mut buf = [0u8; 2];
     // Expect `ESC[`
-    std::io::stdin().read_exact(&mut buf)?;
+    io::stdin().read_exact(&mut buf)?;
     if buf[0] != 0x1B || buf[1] as char != '[' {
         return (0,0);
     }
@@ -65,7 +67,7 @@ pub fn pos() -> (u16,u16)
 
         loop {
             let mut buf = [0u8; 1];
-            std::io::stdin().read_exact(&mut buf)?;
+            io::stdin().read_exact(&mut buf)?;
             c = buf[0] as char;
             if let Some(d) = c.to_digit(10) {
                 num = if num == 0 { 0 } else { num * 10 };

@@ -8,6 +8,8 @@ use super::base_terminal::{ClearType, ITerminal};
 use shared::functions::get_module;
 
 use super::AnsiTerminal;
+
+#[cfg(target_os = "windows")]
 use super::WinApiTerminal;
 
 /// Struct that stores an specific platform implementation for terminal related actions.

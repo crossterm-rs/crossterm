@@ -12,6 +12,8 @@ use shared::functions::get_module;
 use super::super::Color;
 
 use super::AnsiColor;
+
+#[cfg(target_os = "windows")]
 use super::WinApiColor;
 
 /// Struct that stores an specific platform implementation for color related actions. 
