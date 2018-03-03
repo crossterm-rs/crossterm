@@ -23,6 +23,7 @@ pub fn get_cursor_position() -> (u16,u16)
    pos()
 }
 
+#[cfg(windows)]
 /// Get the module specific implementation based on the current platform
 pub fn get_module<T>(winapi_impl: T, unix_impl: T, context: &mut Context) -> Option<T>
 {
@@ -34,6 +35,7 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T, context: &mut Context) -> Opt
         use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
         // Try to enable ansi on windows if not than use WINAPI.
+        #[cfg(windows)]
         does_support = try_enable_ansi_support(context);
 
         if !does_support

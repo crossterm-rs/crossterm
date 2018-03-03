@@ -5,6 +5,7 @@ use std::ops::Drop;
 
 use {Construct, Context};
 use super::base_terminal::{ClearType, ITerminal};
+#[cfg(target_os = "windows")]
 use shared::functions::get_module;
 
 use super::AnsiTerminal;

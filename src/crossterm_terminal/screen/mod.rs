@@ -2,6 +2,7 @@ use std::io::{self, Write};
 use std::ops;
 use std::any::Any;
 
+#[cfg(target_os = "windows")]
 use shared::functions::get_module;
 use crossterm_state::commands::*;
 use shared::traits::Construct;
@@ -84,7 +85,6 @@ impl<W: Write> Drop for AlternateScreen<W>
 {
     fn drop(&mut self)
     {
-        this
         write!(self, "{}", ToMainScreen).expect("switch to main screen");
     }
 }

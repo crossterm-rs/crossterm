@@ -1,23 +1,24 @@
 use crossterm_state::{Context};
 use super::IContextCommand;
-
-use kernel::unix_kernel::terminal::Termios;
 use kernel::unix_kernel::terminal;
+use termios::{Termios, tcsetattr, TCSAFLUSH, ICANON, ECHO, CREAD};
+
+const FD_STDIN: ::std::os::unix::io::RawFd = 1;
 
 #[derive(Clone, Copy)]
-pub struct NoncanonicaModeCommand
+pub struct NoncanonicalModeCommand
 {
     key: i16
 }
 
 impl IContextCommand for NoncanonicalModeCommand
 {
-    fn new(context: &mut Context) -> (Box<NoncanonicalModeCommand>) {
+    fn new(context: &mut Context) -> (Box<NoncanonicalModeCommand>, i16) {
 //        println!("new new NoncanonicalModeCommand unix");
         let key = super::generate_key();
-        let command = NoncanonicaModeCommand{ key: key };
-        context.register_change(command,key);
-        (Box::from(NoncanonicalModeCommand {}), key)
+        let command = NoncanonicalModeCommand { key: key };
+        context.register_change(Box::from(command), key);
+        (Box::from(command),key)
     }
 
     fn execute(&mut self) -> bool
@@ -63,7 +64,7 @@ pub struct EnableRawModeCommand
 
 impl IContextCommand for EnableRawModeCommand
 {
-    fn new(context: &Context) -> (Box<EnableRawModeCommand>, i16) {
+    fn new(context: &mut Context) -> (Box<EnableRawModeCommand>, i16) {
 //        println!("new EnableRawModeCommand unix");
         let key = super::generate_key();
         let command = EnableRawModeCommand { original_mode: None, key: key };

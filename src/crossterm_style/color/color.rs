@@ -8,6 +8,8 @@ use std::io;
 use {Construct, Context };
 use crossterm_style::{ObjectStyle, StyledObject};
 use super::base_color::ITerminalColor;
+
+#[cfg(target_os = "windows")]
 use shared::functions::get_module;
 use super::super::Color;
 

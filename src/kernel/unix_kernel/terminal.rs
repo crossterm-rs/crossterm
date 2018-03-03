@@ -1,7 +1,9 @@
 use libc;
-use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl};
-pub use self::libc::termios as Termios;
-use crossterm_state::commands::{NoncanonicaModeCommand, IContextCommand};
+use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
+pub use self::libc::{termios, cvt};
+use termios::Termios;
+use crossterm_state::commands::{NoncanonicalModeCommand, IContextCommand};
+use Context;
 use std::io;
 use std::mem;
 
@@ -30,7 +32,7 @@ pub fn terminal_size() -> (u16,u16) {
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &us) };
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
-        Some((us.cols -1, us.rows -1))
+        (us.cols -1, us.rows -1)
     } else {
         (0,0)
     }
@@ -42,66 +44,68 @@ pub fn pos() -> (u16,u16)
     use std::io::Error;
     use std::io::{ Write,Read };
 
-    let command = NoncanonicalModeCommand::new();
-    command.execute();
+    let mut context = Context::new();
+    {
+        let command = NoncanonicalModeCommand::new(&mut context);
+        command.0.execute();
 
-    // This code is original written by term_cursor credits to them.
-    let mut stdout = io::stdout();
+        // This code is original written by term_cursor credits to them.
+        let mut stdout = io::stdout();
 
-    // Write command
-    stdout.write(b"\x1B[6n")?;
-    stdout.flush()?;
+        // Write command
+        stdout.write(b"\x1B[6n");
+        stdout.flush();
 
-    // Read back result
-    let mut buf = [0u8; 2];
-    // Expect `ESC[`
-    io::stdin().read_exact(&mut buf)?;
-    if buf[0] != 0x1B || buf[1] as char != '[' {
-        return (0,0);
-    }
-
-    // Read rows and cols through a ad-hoc integer parsing function
-    let read_num = || -> Result<(i32, char), Error> {
-        let mut num = 0;
-        let mut c;
-
-        loop {
-            let mut buf = [0u8; 1];
-            io::stdin().read_exact(&mut buf)?;
-            c = buf[0] as char;
-            if let Some(d) = c.to_digit(10) {
-                num = if num == 0 { 0 } else { num * 10 };
-                num += d as i32;
-            } else {
-                break;
-            }
+        // Read back result
+        let mut buf = [0u8; 2];
+        // Expect `ESC[`
+        io::stdin().read_exact(&mut buf);
+        if buf[0] != 0x1B || buf[1] as char != '[' {
+            return (0, 0);
         }
 
-        Ok((num, c))
-    };
+        // Read rows and cols through a ad-hoc integer parsing function
+        let read_num = || -> Result<(i32, char), Error> {
+            let mut num = 0;
+            let mut c;
 
-    // Read rows and expect `;`
-    let (rows, c) = read_num()?;
-    if c != ';' {
-        return (0,0);
+            loop {
+                let mut buf = [0u8; 1];
+                io::stdin().read_exact(&mut buf);
+                c = buf[0] as char;
+                if let Some(d) = c.to_digit(10) {
+                    num = if num == 0 { 0 } else { num * 10 };
+                    num += d as i32;
+                } else {
+                    break;
+                }
+            }
+
+            Ok((num, c))
+        };
+
+        // Read rows and expect `;`
+        let (rows, c) = read_num();
+        if c != ';' {
+            return (0, 0);
+        }
+
+        // Read cols
+        let (cols, c) = read_num();
+
+        // Expect `R`
+        let res = if c == 'R' { Ok((cols, rows)) } else { return Ok((0, 0)); };
+
+        res
     }
-
-    // Read cols
-    let (cols, c) = read_num()?;
-
-    // Expect `R`
-    let res = if c == 'R' { Ok((cols, rows)) } else { return (0,0); };
-
-    command.undo();
-    res
 }
 
-pub fn set_terminal_mode(terminal: &Termios) -> io::Result<()>
+pub fn set_terminal_mode(termios: &Termios) -> io::Result<()>
 {
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
-    cvt(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
+    unsafe { tcsetattr(0, 0, termios) }
 }
 
 pub fn get_terminal_mode() -> io::Result<Termios>

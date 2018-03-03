@@ -5,7 +5,10 @@ use std::fmt::Display;
 use std::ops::Drop;
 
 use {Construct, Context};
+
+#[cfg(target_os = "windows")]
 use shared::functions::get_module;
+
 use super::base_cursor::ITerminalCursor;
 
 use super::AnsiCursor;
