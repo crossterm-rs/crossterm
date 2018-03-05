@@ -1,17 +1,10 @@
 //! With this module you can perform actions that are terminal related.
 //! Like clearing and scrolling in the terminal or getting the size of the terminal.
+use super::*;
+use shared::functions;
+use {Construct, Context};
 
 use std::ops::Drop;
-
-use {Construct, Context};
-use super::base_terminal::{ClearType, ITerminal};
-#[cfg(target_os = "windows")]
-use shared::functions::get_module;
-
-use super::AnsiTerminal;
-
-#[cfg(target_os = "windows")]
-use super::WinApiTerminal;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal {
@@ -25,10 +18,10 @@ impl  Terminal {
 
         let mut context = Context::new();
         #[cfg(target_os = "windows")]
-        let terminal = get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new(), &mut context);
+        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new(), &mut context);
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = Some(AnsiTerminal::new());
+        let terminal = Some(AnsiTerminal::new() as Box<ITerminal>);
 
         Terminal { terminal: terminal, context: context }
     }
@@ -146,6 +139,14 @@ impl  Terminal {
         if let Some (ref terminal) = self.terminal {
             terminal.set_size(width,height);
         }
+    }
+}
+
+impl Drop for Terminal
+{
+    fn drop(&mut self)
+    {
+        self.context.restore_changes();
     }
 }
 

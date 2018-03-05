@@ -1,14 +1,9 @@
-use std::io::{self, Write};
-use std::ops;
-use std::any::Any;
-
-#[cfg(target_os = "windows")]
-use shared::functions::get_module;
+use shared::functions;
+use { Context, Construct };
 use crossterm_state::commands::*;
-use shared::traits::Construct;
-use Context;
 
-use std::fmt;
+use std::{ fmt, ops };
+use std::io::{self, Write};
 
 /// let context = ScreenContext::new();
 /// ToMainScreen {}.execute(&mut context);
@@ -94,7 +89,7 @@ fn get_to_alternate_screen_command() -> Box<ICommand>
     let mut context = Context::new();
 
     #[cfg(target_os = "windows")]
-    let command = get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), &mut context).unwrap();
+    let command = functions::get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), &mut context).unwrap();
 
     #[cfg(not(target_os = "windows"))]
     let command = shared_commands::ToAlternateScreenBufferCommand::new();

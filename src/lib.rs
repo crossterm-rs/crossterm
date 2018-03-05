@@ -18,3 +18,14 @@ extern crate libc;
 extern crate termios;
 
 extern crate rand;
+
+
+// private mod
+//
+// public mod
+//
+// own usings
+//
+// std usings
+//
+// extern crate

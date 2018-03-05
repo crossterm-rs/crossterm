@@ -123,7 +123,7 @@ pub fn print_font_with_attributes()
 #[cfg(unix)]#[cfg(unix)]
 pub fn print_supported_colors()
 {   
-    let count = crossterm::crossterm_style::get().get_available_color_count().unwrap();
+    let count = crossterm::crossterm_style::color().get_available_color_count().unwrap();
 
     for i in 0..count
     {

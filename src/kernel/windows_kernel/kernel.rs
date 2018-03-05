@@ -3,17 +3,17 @@ use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
 use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
-
-use winapi::um::wincon;
 use winapi::shared::minwindef::{TRUE};
-use winapi::um::wincon::{ SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer,
-                          GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
-                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT
+use winapi::um::wincon;
+use winapi::um::wincon::
+{
+    SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer,
+    GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
+    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
+    CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT
 };
 
 use super::{Empty};
-
 static mut CONSOLE_OUTPUT_HANDLE: Option<HANDLE> = None;
 static mut CONSOLE_INPUT_HANDLE: Option<HANDLE> = None;
 
@@ -259,11 +259,6 @@ pub fn read_console_output(read_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;16
             panic!("Cannot read console output");
         }
     }
-}
-
-pub fn write_console()
-{
-
 }
 
 pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)

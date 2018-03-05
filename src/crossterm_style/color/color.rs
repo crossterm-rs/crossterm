@@ -1,24 +1,14 @@
 //! With this module you can perform actions that are color related.
 //! Like styling the font, foreground color and background color.
+use super::*;
+use shared::functions;
+use { Construct, Context };
+use crossterm_style::{Color, ObjectStyle, StyledObject};
 
 use std::ops::Drop;
-use std::fmt;
-use std::io;
+use std::{ fmt, io };
 
-use {Construct, Context };
-use crossterm_style::{ObjectStyle, StyledObject};
-use super::base_color::ITerminalColor;
-
-#[cfg(target_os = "windows")]
-use shared::functions::get_module;
-use super::super::Color;
-
-use super::AnsiColor;
-
-#[cfg(target_os = "windows")]
-use super::WinApiColor;
-
-/// Struct that stores an specific platform implementation for color related actions. 
+/// Struct that stores an specific platform implementation for color related actions.
 pub struct TerminalColor {
     terminal_color: Option<Box<ITerminalColor>>,
     context: Context
@@ -30,10 +20,10 @@ impl TerminalColor {
         let mut context = Context::new();
 
         #[cfg(target_os = "windows")]
-        let color = get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new(), &mut context);
+        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new(), &mut context);
 
         #[cfg(not(target_os = "windows"))]
-        let color = Some(AnsiColor::new());
+        let color = Some(AnsiColor::new() as Box<ITerminalColor>);
 
         TerminalColor { terminal_color: color, context: context}
     }
@@ -122,6 +112,14 @@ impl TerminalColor {
             }
             None => 8,
         })
+    }
+}
+
+impl Drop for TerminalColor
+{
+    fn drop(&mut self)
+    {
+        self.context.restore_changes();
     }
 }
 

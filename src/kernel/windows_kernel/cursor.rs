@@ -1,5 +1,4 @@
-use super::kernel;
-use crossterm_cursor::cursor;
+use super::{ kernel, cursor };
 
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static  mut SAVED_CURSOR_POS:(u16,u16) = (0,0);
@@ -15,7 +14,7 @@ pub fn reset_to_saved_position()
 /// Save current cursor position to recall later.
 pub fn save_cursor_pos()
 {
-    let position = cursor().pos();
+    let position = pos();
 
     unsafe {
         SAVED_CURSOR_POS = (position.0, position.1);
@@ -25,5 +24,5 @@ pub fn save_cursor_pos()
 pub fn pos() -> (u16,u16)
 {
     let csbi = kernel::get_console_screen_buffer_info();
-    ( csbi.dwCursorPosition.X as u16, csbi.dwCursorPosition.Y as u16)
+    ( csbi.dwCursorPosition.X as u16, csbi.dwCursorPosition.Y as u16 )
 }

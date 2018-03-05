@@ -1,9 +1,8 @@
-use std::io;
-use std::io::Write;
-
 use Construct;
-use super::base_cursor::ITerminalCursor;
 use shared::functions;
+use super::ITerminalCursor;
+
+use std::io::{ self, Write };
 
 /// This struct is an ansi implementation for cursor related actions.
 pub struct AnsiCursor;

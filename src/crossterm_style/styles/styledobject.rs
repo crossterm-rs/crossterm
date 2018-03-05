@@ -1,5 +1,4 @@
-use std;
-use std::fmt;
+use std::{ fmt, self };
 use std::io::Write;
 
 #[cfg(unix)]

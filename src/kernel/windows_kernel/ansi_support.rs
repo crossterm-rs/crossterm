@@ -1,10 +1,9 @@
-use crossterm_state::Context;
+use { Context, Contstruct };
 use crossterm_state::commands::IContextCommand;
-use shared::traits::Construct;
 
-static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
-static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
 static mut HAS_BEEN_TRYED_TO_ENABLE: bool = false;
+static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
+static mut DOES_WINDOWS_SUPPORT_ANSI:  Option<bool>  = None;
 
 /// Try enable ANSI escape codes and return the result.
 pub fn try_enable_ansi_support(context: &mut Context) -> bool

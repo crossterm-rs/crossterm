@@ -1,11 +1,8 @@
-use std::io;
-use std::io::Write;
-use std::string::String;
-
 use Construct;
+use super::ITerminalColor;
 use super::super::{Color, ColorType};
-use super::base_color::ITerminalColor;
 
+use std::io::{self, Write};
 
 /// This struct is an ansi implementation for color related actions.
 #[derive(Debug)]

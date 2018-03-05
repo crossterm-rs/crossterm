@@ -1,9 +1,8 @@
 use Construct;
+use super::ITerminalColor;
 use super::super::{ColorType, Color};
-use super::base_color::ITerminalColor;
-
-use kernel::windows_kernel::kernel;
 use winapi::um::wincon;
+use kernel::windows_kernel::kernel;
 
 /// This struct is an windows implementation for color related actions.
 #[derive(Debug)]

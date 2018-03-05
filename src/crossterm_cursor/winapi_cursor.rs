@@ -1,7 +1,6 @@
 use Construct;
-use super::base_cursor::ITerminalCursor;
+use super::ITerminalCursor;
 use kernel::windows_kernel::{kernel, cursor};
-
 
 /// This struct is an windows implementation for cursor related actions.
 pub struct WinApiCursor;

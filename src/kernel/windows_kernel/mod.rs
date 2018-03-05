@@ -1,12 +1,11 @@
-extern crate winapi;
-
-use winapi::um::wincon::{COORD, CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT};
-use shared::traits::Empty;
-
 pub mod kernel;
 pub mod cursor;
 pub mod terminal;
 pub mod ansi_support;
+
+use winapi;
+use shared::traits::Empty;
+use self::winapi::um::wincon::{COORD, CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT};
 
 impl Empty for COORD {
     fn empty() -> COORD {

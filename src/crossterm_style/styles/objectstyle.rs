@@ -1,5 +1,5 @@
-use crossterm_style::{Color, StyledObject};
 use std::fmt::Display;
+use crossterm_style::{Color, StyledObject};
 
 #[cfg(unix)]
 use super::super::Attribute;

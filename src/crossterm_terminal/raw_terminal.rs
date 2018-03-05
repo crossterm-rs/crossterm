@@ -3,13 +3,11 @@ use crossterm_state::commands::unix_command::EnableRawModeCommand;
 #[cfg(windows)]
 use crossterm_state::commands::win_commands::EnableRawModeCommand;
 
-use crossterm_state::commands::IContextCommand;
+use { Construct, Context };
+use crossterm_state::commands::{ICommand, IContextCommand};
 
-use shared::traits::Construct;
-use crossterm_state::{ Context };
-use crossterm_state::commands::ICommand;
+use std::io::{ self, Write};
 
-use std::io::{self, Write};
 
 pub struct RawTerminal<'a, W: Write>
 {

@@ -1,27 +1,21 @@
 //! With this module you can perform actions that are cursor related.
 //! Like changing and displaying the position of the cursor in terminal.
 //!
-use std::fmt::Display;
-use std::ops::Drop;
-
+use super::*;
+use shared::functions;
 use {Construct, Context};
 
-#[cfg(target_os = "windows")]
-use shared::functions::get_module;
-
-use super::base_cursor::ITerminalCursor;
-
-use super::AnsiCursor;
-#[cfg(target_os = "windows")]
-use super::WinApiCursor;
+use std::fmt::Display;
+use std::ops::Drop;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 pub struct TerminalCursor {
     terminal_cursor: Option<Box<ITerminalCursor>>,
     context: Context
 }
+
 impl TerminalCursor
- {
+{
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor {
         let mut context = Context::new();
@@ -30,7 +24,7 @@ impl TerminalCursor
         let cursor = get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(), &mut context);
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = Some(AnsiCursor::new());
+        let cursor = Some(AnsiCursor::new() as Box<ITerminalCursor>);
 
         TerminalCursor { terminal_cursor: cursor, context: context }
     }
@@ -257,6 +251,14 @@ impl TerminalCursor
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.reset_position();
         }
+    }
+}
+
+impl Drop for TerminalCursor
+{
+    fn drop(&mut self)
+    {
+        self.context.restore_changes();
     }
 }
 

@@ -1,7 +1,7 @@
 //! Some actions need to preformed platform independently.
 //!
-use Context;
-use shared::traits::Construct;
+use {Context, Construct};
+
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::terminal_size;
 #[cfg(unix)]

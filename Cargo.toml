@@ -21,10 +21,10 @@ libc = "0.2"
 termios = "0.3.0"
 
 
+[lib]
+name = "crossterm"
+path = "src/lib.rs"
 
 [[bin]]
-name = "a"
-path = "examples//bin.rs"
-
-
-
+name = "crosstermexamples"
+path = "examples/bin.rs"

@@ -1,12 +1,11 @@
-use libc;
-use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
-pub use self::libc::{termios, cvt};
+use { libc, Context };
 use termios::Termios;
-use crossterm_state::commands::{NoncanonicalModeCommand, IContextCommand};
-use Context;
-use std::io;
-use std::mem;
+pub use self::libc::{termios};
+use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
+use crossterm_state::commands::{ NoncanonicalModeCommand, IContextCommand} ;
 
+use std::{ io, mem };
+use std::io::Error;
 
 /// A representation of the size of the current terminal
 #[repr(C)]
@@ -46,7 +45,7 @@ pub fn pos() -> (u16,u16)
 
     let mut context = Context::new();
     {
-        let command = NoncanonicalModeCommand::new(&mut context);
+        let mut command = NoncanonicalModeCommand::new(&mut context);
         command.0.execute();
 
         // This code is original written by term_cursor credits to them.
@@ -65,7 +64,7 @@ pub fn pos() -> (u16,u16)
         }
 
         // Read rows and cols through a ad-hoc integer parsing function
-        let read_num = || -> Result<(i32, char), Error> {
+        let read_num = || -> (i32, char) {
             let mut num = 0;
             let mut c;
 
@@ -81,11 +80,12 @@ pub fn pos() -> (u16,u16)
                 }
             }
 
-            Ok((num, c))
+            (num, c)
         };
 
         // Read rows and expect `;`
         let (rows, c) = read_num();
+
         if c != ';' {
             return (0, 0);
         }
@@ -94,7 +94,7 @@ pub fn pos() -> (u16,u16)
         let (cols, c) = read_num();
 
         // Expect `R`
-        let res = if c == 'R' { Ok((cols, rows)) } else { return Ok((0, 0)); };
+        let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
 
         res
     }
@@ -105,7 +105,14 @@ pub fn set_terminal_mode(termios: &Termios) -> io::Result<()>
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
-    unsafe { tcsetattr(0, 0, termios) }
+    is_true(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
+}
+
+pub fn make_raw(termios: &mut Termios) {
+    extern "C" {
+        pub fn cfmakeraw(termptr: *mut Termios);
+    }
+    unsafe { cfmakeraw(termios) }
 }
 
 pub fn get_terminal_mode() -> io::Result<Termios>
@@ -115,7 +122,17 @@ pub fn get_terminal_mode() -> io::Result<Termios>
     }
     unsafe {
         let mut termios = mem::zeroed();
-        cvt(tcgetattr(0, &mut termios))?;
+        is_true(tcgetattr(0, &mut termios))?;
         Ok(termios)
+    }
+}
+
+fn is_true(value: i32) -> Result<(), Error>
+{
+    match value
+    {
+        -1 => Err(io::Error::last_os_error()),
+        0 => Ok(()),
+        _ => Err(io::Error::last_os_error()),
     }
 }
