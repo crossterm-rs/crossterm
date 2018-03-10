@@ -1,3 +1,5 @@
+//! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
+
 use winapi::um::winnt::HANDLE;
 use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;

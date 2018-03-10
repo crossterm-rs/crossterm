@@ -1,13 +1,15 @@
+//! This module contains all `unix` specific terminal related logic.
+
 use { libc, Context };
 use termios::Termios;
 pub use self::libc::{termios};
 use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
-use crossterm_state::commands::{ NoncanonicalModeCommand, IContextCommand} ;
+use state::commands::{ NoncanonicalModeCommand, IContextCommand} ;
 
 use std::{ io, mem };
 use std::io::Error;
 
-/// A representation of the size of the current terminal
+/// A representation of the size of the current terminal.
 #[repr(C)]
 #[derive(Debug)]
 pub struct UnixSize {
@@ -19,7 +21,7 @@ pub struct UnixSize {
     y: c_ushort,
 }
 
-/// Gets the current terminal size
+/// Get the current terminal size.
 pub fn terminal_size() -> (u16,u16) {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let us = UnixSize {
@@ -37,7 +39,7 @@ pub fn terminal_size() -> (u16,u16) {
     }
 }
 
-/// Get the current cursor position
+/// Get the current cursor position.
 pub fn pos() -> (u16,u16)
 {
     use std::io::Error;
@@ -100,6 +102,7 @@ pub fn pos() -> (u16,u16)
     }
 }
 
+/// Set the terminal mode to the given mode.
 pub fn set_terminal_mode(termios: &Termios) -> io::Result<()>
 {
     extern "C" {
@@ -108,6 +111,7 @@ pub fn set_terminal_mode(termios: &Termios) -> io::Result<()>
     is_true(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
 }
 
+/// Transform the given mode into an raw mode (non-canonical) mode.
 pub fn make_raw(termios: &mut Termios) {
     extern "C" {
         pub fn cfmakeraw(termptr: *mut Termios);
@@ -115,6 +119,7 @@ pub fn make_raw(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
+/// Get the current terminal mode.
 pub fn get_terminal_mode() -> io::Result<Termios>
 {
     extern "C" {
@@ -127,6 +132,7 @@ pub fn get_terminal_mode() -> io::Result<Termios>
     }
 }
 
+/// Is the return value true?
 fn is_true(value: i32) -> Result<(), Error>
 {
     match value

@@ -1,4 +1,6 @@
-use super::{ kernel, cursor };
+//! This module handles some logic for cursor interaction in the windows console.
+
+use super::kernel;
 
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static  mut SAVED_CURSOR_POS:(u16,u16) = (0,0);

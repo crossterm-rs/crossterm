@@ -4,7 +4,7 @@
 
 extern crate crossterm;
 
-use self::crossterm::crossterm_cursor::{cursor, TerminalCursor};
+use self::crossterm::cursor::{cursor, TerminalCursor};
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto()

@@ -1,3 +1,5 @@
+//! This module contains the `windows` specific (unsafe) logic.
+
 pub mod kernel;
 pub mod cursor;
 pub mod terminal;

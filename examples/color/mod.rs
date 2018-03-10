@@ -4,7 +4,7 @@
 
 extern crate crossterm;
 
-use self::crossterm::crossterm_style::{paint, Color};
+use self::crossterm::style::{paint, Color};
 
 /// print some red font | demonstration.
 pub fn paint_foreground()
@@ -120,14 +120,13 @@ pub fn print_font_with_attributes()
 }
 
 /// Print all supported rgb colors  | demonstration.
-#[cfg(unix)]#[cfg(unix)]
+#[cfg(unix)]
 pub fn print_supported_colors()
 {   
-    let count = crossterm::crossterm_style::color().get_available_color_count().unwrap();
+    let count = crossterm::style::color().get_available_color_count().unwrap();
 
     for i in 0..count
     {
         println!("{}", paint(format!("Color: {}",i)).with(Color::AnsiValue(i as u8)));
-
     }
 }

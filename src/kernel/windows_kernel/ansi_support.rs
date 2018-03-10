@@ -1,15 +1,17 @@
-use { Context, Contstruct };
-use crossterm_state::commands::IContextCommand;
+//! This module handles the enabling `ANSI escape codes` for windows terminals.
+
+use Context;
+use state::commands::ICommand;
 
 static mut HAS_BEEN_TRYED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI:  Option<bool>  = None;
 
-/// Try enable ANSI escape codes and return the result.
-pub fn try_enable_ansi_support(context: &mut Context) -> bool
+/// Try enable `ANSI escape codes` and return the result.
+pub fn try_enable_ansi_support() -> bool
 {
-    use crossterm_state::commands::win_commands::EnableAnsiCommand;
-    let (mut command, key) = EnableAnsiCommand::new(context);
+    use state::commands::win_commands::EnableAnsiCommand;
+    let mut command = EnableAnsiCommand::new();
     let success = command.execute();
 
     set_is_windows_ansi_supportable(success);

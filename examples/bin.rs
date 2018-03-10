@@ -11,36 +11,18 @@
 //!   
 //! - Run program with: `cargo run`
 
-// Import crossterm crate.
 extern crate crossterm;
-//
-//// Add the usings for the crossterms modules to play with crossterm
-//use self::crossterm::crossterm_style::{paint, Color };
-use self::crossterm::crossterm_cursor::cursor;
-use self::crossterm::crossterm_terminal;
-//
-//// Import the example modules.
-//pub mod color;
-//pub mod cursor;
-//pub mod terminal;
-use std::io::{self, Error, ErrorKind, Write, stdout, stdin, BufRead};
 
-//use std::{time, thread};
-//
-use crossterm::crossterm_terminal::screen::{AlternateScreen, ToMainScreen, ToAlternateScreen};
-use crossterm::crossterm_terminal::IntoRawMode;
+mod terminal;
 
+use terminal::alternate_screen;
 use crossterm::Context;
+use std::io::{Write, stdout};
 
-
-use std::{time, thread};
+use crossterm::cursor;
 
 fn main() {
-    let mut context = Context::new();
-    let mut screen = stdout();
-    write!(screen, "{}", ToAlternateScreen);
-    write!(screen, "Welcome to the alternate screen.\n\nPlease wait patiently until we arrive back at the main screen in a about three seconds.").unwrap();
-    //screen.flush().unwrap();
+    alternate_screen::manually_switch_to_alternate_screen();
+//    cursor::cursor().goto(10,10).print("@");
 
-    thread::sleep(time::Duration::from_secs(3));
 }
