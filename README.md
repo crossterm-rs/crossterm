@@ -4,7 +4,7 @@ Ever got disappointed when a terminal library for rust was only written for unix
 
 Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call the action you want to preform and unther water it will check what to do based on the current platform.
 
-In this week (3 - 4 march) or next week (5 - 10 march) an major comit is coming with features like raw terminal alternate screen and the solved issues that are in the issue list.
+Currently working on the alternatescreen and raw terminal features.
 
 ## Getting Started
 
