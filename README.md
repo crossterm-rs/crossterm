@@ -6,6 +6,8 @@ Crossterm aims to be simple and easy to call in code. True the simplicity of cro
 
 ## Getting Started
 
+This documentation is only for the newest version of crossterm. See the [Upgrade manual for more info](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual)
+
 Add the crossterm package to your `Cargo.toml` file.
 
 ```
@@ -21,18 +23,17 @@ And use the crossterm modules withs you want to use.
 extern crate crossterm;
 
 // this module is used for styling the terminal
-use self::crossterm::crossterm_style::*;
+use self::crossterm::style::*;
 // this module is used for cursor related actions
-use self::crossterm::crossterm_cursor::*;
+use self::crossterm::cursor::*;
 // this mudule is used for terminal related actions
-use self::crossterm::crossterm_terminal::*;
+use self::crossterm::terminal::*;
 
 ```
 ## Links
 
-Documentation for the code can be found [here](https://atcentra.com/crossterm/index.html)
-
-Documentation for the code can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
+Documentation for the code version 0.1 can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
+Documentation for the code version 0.2 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
 
 The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
 
@@ -42,7 +43,7 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
 ### Styled font
 ```rust    
-    use crossterm::crossterm_style::{paint, Color};
+    use crossterm::style::{paint, Color};
     
     // Crossterm provides method chaining so that you can style the font nicely.
     // the `with()` methods sets the foreground color and the `on()` methods sets the background color
@@ -77,9 +78,9 @@ For detailed examples of all crossterm functionalities check the [examples](http
 ### Cursor
 ```rust 
 
-     use crossterm::crossterm_cursor::get;
+     use crossterm::cursor::cursor();
     
-     let mut cursor = get();
+     let mut cursor = cursor();
     
      /// Moving the cursor
      // Set the cursor to position X: 10, Y: 5 in the terminal
@@ -117,9 +118,9 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
 ### Terminal
 ```rust 
-   use crossterm::crossterm_terminal::{get,ClearType};
+   use crossterm::terminal::{terminal,ClearType};
    
-   let mut terminal = get();
+   let mut terminal = terminal();
 
    // Clear all lines in terminal;
    terminal.clear(ClearType::All);
@@ -169,6 +170,16 @@ For detailed examples of all crossterm functionalities check the [examples](http
 - Custom ANSI color code input to set fore- and background color for unix.
 - Storing the current cursor position and resetting to that stored cursor position later. 
 - Resizing the terminal.
+
+### fixes in crossterm 0.2.1
+
+- Default ansi escape codes enabled. If not supported than use WINAPI
+- Some method refacoring
+- Namespace refactoring (issue 4)
+- Get position unix fixed
+- Removed bin refrence from crate
+- method grammer mistake fixed
+
 
 ## Tested terminals
 
