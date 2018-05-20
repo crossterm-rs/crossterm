@@ -8,7 +8,7 @@ Currently working on the alternatescreen and raw terminal features.
 
 ## Getting Started
 
-This documentation is only for the newest version of crossterm. See the [Upgrade manual for more info](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual)
+This documentation is only for crossterm version `0.2.1` check the [Upgrade manual](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual) for more info
 
 Add the crossterm package to your `Cargo.toml` file.
 
