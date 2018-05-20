@@ -17,7 +17,6 @@ pub struct NoncanonicalModeCommand
 impl IContextCommand for NoncanonicalModeCommand
 {
     fn new(context: &mut Context) -> (Box<NoncanonicalModeCommand>, i16) {
-//        println!("new new NoncanonicalModeCommand unix");
         let key = super::generate_key();
         let command = NoncanonicalModeCommand { key: key };
         context.register_change(Box::from(command), key);
@@ -26,7 +25,6 @@ impl IContextCommand for NoncanonicalModeCommand
 
     fn execute(&mut self) -> bool
     {
-//        println!("execute NoncanonicalModeCommand uxix");
         // Set noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
         {
@@ -46,8 +44,6 @@ impl IContextCommand for NoncanonicalModeCommand
 
     fn undo(&mut self) -> bool
     {
-
-//        println!("undo NoncanonicalModeCommand unix");
         // Disable noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
             {
@@ -78,7 +74,6 @@ pub struct EnableRawModeCommand
 impl IContextCommand for EnableRawModeCommand
 {
     fn new(context: &mut Context) -> (Box<EnableRawModeCommand>, i16) {
-//        println!("new EnableRawModeCommand unix");
         let key = super::generate_key();
         let command = EnableRawModeCommand { original_mode: None, key: key };
         context.register_change(Box::from(command), key);
@@ -87,7 +82,6 @@ impl IContextCommand for EnableRawModeCommand
 
     fn execute(&mut self) -> bool
     {
-//        println!("execute EnableRawModeCommand unix");
         if let Ok(original_mode) = terminal::get_terminal_mode()
         {
             self.original_mode = Some(original_mode);
@@ -103,7 +97,6 @@ impl IContextCommand for EnableRawModeCommand
 
     fn undo(&mut self) -> bool
     {
-//        println!("undo EnableRawModeCommand unix");
         if let Ok(original_mode) = terminal::get_terminal_mode()
         {
             let result = terminal::set_terminal_mode(&self.original_mode.unwrap());

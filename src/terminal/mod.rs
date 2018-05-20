@@ -11,8 +11,8 @@ mod terminal;
 mod winapi_terminal;
 mod ansi_terminal;
 
-pub mod screen;
-pub mod raw;
+mod screen;
+mod raw;
 
 #[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;

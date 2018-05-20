@@ -20,7 +20,6 @@ pub struct EnableAnsiCommand
 impl ICommand for EnableAnsiCommand
 {
     fn new() -> Box<EnableAnsiCommand> {
-//        println!("new EnableRawModeCommand winapi");
         let key = super::generate_key();
         let command = EnableAnsiCommand { mask: ENABLE_VIRTUAL_TERMINAL_PROCESSING };
         Box::from(command)
@@ -28,7 +27,6 @@ impl ICommand for EnableAnsiCommand
 
     fn execute(&mut self) -> bool
     {
-//        println!("exucute EnableAnsiCommand winapi");
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled()
             {
@@ -57,7 +55,6 @@ impl ICommand for EnableAnsiCommand
 
     fn undo(&mut self) -> bool
     {
-//        println!("undo EnableAnsiCommand winapi");
         if ansi_support::ansi_enabled()
         {
             let output_handle = kernel::get_output_handle();
@@ -94,7 +91,6 @@ impl IContextCommand for EnableRawModeCommand
     fn new(context: &mut Context) -> (Box<EnableRawModeCommand>, i16) {
         use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_PROCESSED_OUTPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_ECHO_INPUT};
 
-//        println!("new EnableRawModeCommand winapi");
         let key = super::generate_key();
         let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT, key: key };
         context.register_change(Box::from(command), key);
@@ -105,7 +101,6 @@ impl IContextCommand for EnableRawModeCommand
     {
         use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_ECHO_INPUT};
 
-//        println!("execute EnableRawModeCommand winapi");
         let input_handle = kernel::get_input_handle();
 
         let mut dw_mode: DWORD = 0;
@@ -126,7 +121,6 @@ impl IContextCommand for EnableRawModeCommand
 
     fn undo(&mut self) -> bool
     {
-//        println!("undo EnableRawModeCommand winapi");
         let output_handle = kernel::get_output_handle();
 
         let mut dw_mode: DWORD = 0;
@@ -160,7 +154,6 @@ impl ICommand for ToAlternateScreenBufferCommand
 
     fn execute(&mut self) -> bool
     {
-//        println!("executte ToAlternateScreenBufferCommand winapi");
         let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
 
         let handle = kernel::get_output_handle();
@@ -215,7 +208,6 @@ impl ICommand for ToAlternateScreenBufferCommand
 
     fn undo(&mut self) -> bool
     {
-//        println!("undo ToAlternateScreenBufferCommand winapi");
         let handle = kernel::get_output_handle();
         kernel::set_active_screen_buffer(handle);
         true

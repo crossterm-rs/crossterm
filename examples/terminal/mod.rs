@@ -1,3 +1,5 @@
-pub mod alternate_screen;
-pub mod raw_mode;
+mod alternate_screen;
+mod raw_mode;
+
+
 pub mod terminal;
