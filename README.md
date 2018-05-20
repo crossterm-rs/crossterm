@@ -8,6 +8,8 @@ Currently working on the alternatescreen and raw terminal features.
 
 ## Getting Started
 
+This documentation is only for the newest version of crossterm. See the [Upgrade manual for more info](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual)
+
 Add the crossterm package to your `Cargo.toml` file.
 
 ```
@@ -23,18 +25,18 @@ And use the crossterm modules withs you want to use.
 extern crate crossterm;
 
 // this module is used for styling the terminal
-use self::crossterm::crossterm_style::*;
+use self::crossterm::style::*;
 // this module is used for cursor related actions
-use self::crossterm::crossterm_cursor::*;
+use self::crossterm::cursor::*;
 // this mudule is used for terminal related actions
-use self::crossterm::crossterm_terminal::*;
+use self::crossterm::terminal::*;
 
 ```
 ## Links
 
-Documentation version 0.1.0 can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
+Documentation for the code version 0.1 can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
 
-Documentation version 0.2.0 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
+Documentation for the code version 0.2 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
 
 The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
 
@@ -44,7 +46,7 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
 ### Styled font
 ```rust    
-    use crossterm::crossterm_style::{paint, Color};
+    use crossterm::style::{paint, Color};
     
     // Crossterm provides method chaining so that you can style the font nicely.
     // the `with()` methods sets the foreground color and the `on()` methods sets the background color
@@ -79,9 +81,9 @@ For detailed examples of all crossterm functionalities check the [examples](http
 ### Cursor
 ```rust 
 
-     use crossterm::crossterm_cursor::get;
+     use crossterm::cursor::cursor();
     
-     let mut cursor = get();
+     let mut cursor = cursor();
     
      /// Moving the cursor
      // Set the cursor to position X: 10, Y: 5 in the terminal
@@ -119,9 +121,9 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
 ### Terminal
 ```rust 
-   use crossterm::crossterm_terminal::{get,ClearType};
+   use crossterm::terminal::{terminal,ClearType};
    
-   let mut terminal = get();
+   let mut terminal = terminal();
 
    // Clear all lines in terminal;
    terminal.clear(ClearType::All);
@@ -172,11 +174,20 @@ For detailed examples of all crossterm functionalities check the [examples](http
 - Storing the current cursor position and resetting to that stored cursor position later. 
 - Resizing the terminal.
 
+### fixes in crossterm 0.2.1
+
+- Default ANSI escape codes for windows machines, if windows does not support ANSI switsh back to WINAPI.
+- method grammer mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
+- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
+- Removed bin refrence from crate [Issue 6](https://github.com/TimonPost/crossterm/issues/6)
+- The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
+- Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
+
+
 ## TODO Features crossterm 0.3
 - Raw state implementation [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
-- The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
-- Default ANSI escape codes for windows machines, if windows does not support ANSI switsh back to WINAPI.
-- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
+- Alternate screen implementation.
+- Tests
 
 ## Tested terminals
 

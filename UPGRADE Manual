@@ -1,0 +1,24 @@
+Upgrade crossterm 0.2 to 0.2.1
+
+Namespaces:
+I have changed the namespaces. I found the namsespaces to long so I have shoted them like the followin:
+
+Old: crossterm::crosster_style 
+New: crossterm::style
+
+Old: crossterm::crosster_terminal
+New: crossterm::terminal
+
+Old: crossterm::crosster_cursor 
+New: crossterm::cursor
+
+Method names that changed [Issue 4](https://github.com/TimonPost/crossterm/issues/4): 
+
+Old:  crossterm::crossterm_cursor::get();
+New:  use crossterm::cursor::cursor();
+
+Old:  crossterm::crossterm_terminal::get();
+New:  use crossterm::terminal::terminal();
+
+Old:  crossterm::crossterm_style::color::get();
+New:  use crossterm::style::color::color();

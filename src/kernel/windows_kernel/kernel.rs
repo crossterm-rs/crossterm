@@ -1,17 +1,23 @@
+//! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
+
 use winapi::um::winnt::HANDLE;
-use winapi::um::winbase::STD_OUTPUT_HANDLE;
+use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
-use winapi::um::consoleapi::{SetConsoleMode};
-use winapi::um::wincon::{ SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize,
-                          GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-                          FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
-                          CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD
+use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
+use winapi::shared::minwindef::{TRUE};
+use winapi::um::wincon;
+use winapi::um::wincon::
+{
+    SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer,
+    GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
+    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
+    CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT
 };
 
 use super::{Empty};
-
 static mut CONSOLE_OUTPUT_HANDLE: Option<HANDLE> = None;
+static mut CONSOLE_INPUT_HANDLE: Option<HANDLE> = None;
 
 /// Get the std_output_handle of the console
 pub fn get_output_handle() -> HANDLE {
@@ -20,7 +26,32 @@ pub fn get_output_handle() -> HANDLE {
             handle
         } else {
             let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+            if !is_valid_handle(&handle)
+            {
+                panic!("Cannot get output handle")
+            }
+
             CONSOLE_OUTPUT_HANDLE = Some(handle);
+            handle
+        }
+    }
+}
+
+/// Get the std_input_handle of the console
+pub fn get_input_handle() -> HANDLE {
+    unsafe {
+        if let Some(handle) = CONSOLE_INPUT_HANDLE {
+            handle
+        } else {
+            let handle = GetStdHandle(STD_INPUT_HANDLE);
+
+            if !is_valid_handle(&handle)
+            {
+                panic!("Cannot get input handle")
+            }
+
+            CONSOLE_INPUT_HANDLE = Some(handle);
             handle
         }
     }
@@ -29,13 +60,12 @@ pub fn get_output_handle() -> HANDLE {
 /// Checks if the console handle is an invalid handle value.
 pub fn is_valid_handle(handle: &HANDLE) -> bool {
     if *handle == INVALID_HANDLE_VALUE {
-        true
-    } else {
         false
+    } else {
+        true
     }
 }
 
-/// Get console screen buffer info.
 pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     let output_handle = get_output_handle();
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
@@ -64,12 +94,19 @@ pub fn get_original_console_color() -> u16 {
     console_buffer_info.wAttributes as u16
 }
 
-pub fn set_console_mode(console_mode: u32)
+pub fn set_console_mode(handle: &HANDLE, console_mode: u32) -> bool
 {
-    let output_handle = get_output_handle();
-
     unsafe {
-        SetConsoleMode(output_handle, console_mode);
+        let success = SetConsoleMode(*handle, console_mode);
+        return is_true(success);
+    }
+}
+
+pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool
+{
+    unsafe {
+        let success = GetConsoleMode(*handle, &mut *current_mode);
+        return is_true(success);
     }
 }
 
@@ -166,13 +203,92 @@ pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: CO
     is_true(success)
 }
 
+pub fn create_console_screen_buffer() -> HANDLE
+{
+    use winapi::shared::ntdef::NULL;
+    use winapi::um::wincon::CONSOLE_TEXTMODE_BUFFER;
+    use winapi::um::winnt::{GENERIC_READ, GENERIC_WRITE, FILE_SHARE_READ, FILE_SHARE_WRITE};
+    use winapi::um::minwinbase::SECURITY_ATTRIBUTES;
+    use std::mem::size_of;
+
+    unsafe
+    {
+        let mut security_attr: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
+        {
+            nLength: size_of::<SECURITY_ATTRIBUTES>() as u32,
+            lpSecurityDescriptor: NULL,
+            bInheritHandle: TRUE
+        };
+
+        let new_screen_buffer = CreateConsoleScreenBuffer(
+            GENERIC_READ |           // read/write access
+                GENERIC_WRITE,
+            FILE_SHARE_READ |
+                FILE_SHARE_WRITE,        // shared
+            &mut security_attr,                    // default security attributes
+            CONSOLE_TEXTMODE_BUFFER, // must be TEXTMODE
+            NULL
+        );
+        new_screen_buffer
+    }
+}
+
+pub fn set_active_screen_buffer(new_buffer: HANDLE)
+{
+    unsafe
+    {
+        if !is_true(SetConsoleActiveScreenBuffer(new_buffer))
+        {
+            panic!("Cannot set active screen buffer");
+        }
+    }
+}
+
+pub fn read_console_output(read_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
+{
+    use self::wincon::ReadConsoleOutputA;
+
+    unsafe
+    {
+        if !is_true(ReadConsoleOutputA(
+            *read_buffer,   // screen buffer to read from
+            copy_buffer.as_mut_ptr(),    // buffer to copy into
+            buffer_size,    // col-row size of chiBuffer
+            buffer_coord,  // top left dest. cell in chiBuffer
+            source_buffer) // screen buffer source rectangle
+        ){
+
+            panic!("Cannot read console output");
+        }
+    }
+}
+
+pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
+{
+    use self::wincon::WriteConsoleOutputA;
+
+    unsafe
+        {
+            if !is_true(WriteConsoleOutputA(
+                *write_buffer,        // screen buffer to write to
+                copy_buffer.as_mut_ptr(),      // buffer to copy into
+                buffer_size,   // col-row size of chiBuffer
+                buffer_coord,  // top left dest. cell in chiBuffer
+                source_buffer)// screen buffer source rectangle
+            ){
+
+                panic!("Cannot write to console output");
+            }
+        }
+}
+
 /// Parse integer to an bool
 fn is_true(value: i32) -> bool
 {
     if value == 0{
-        false
+        return false;
     }
     else{
-        true
+        return true;
     }
 }

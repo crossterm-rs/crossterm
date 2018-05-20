@@ -11,19 +11,9 @@
 //!   
 //! - Run program with: `cargo run`
 
-// Import crossterm crate.
 extern crate crossterm;
 
-// Add the usings for the crossterms modules to play with crossterm
-use self::crossterm::crossterm_style;
-use self::crossterm::crossterm_cursor;
-use self::crossterm::crossterm_terminal;
-
-// Import the example modules.
-pub mod color;
-pub mod cursor;
-pub mod terminal;
+use crossterm::cursor;
 
 fn main() {
-  
 }
