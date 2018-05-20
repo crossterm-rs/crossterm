@@ -4,6 +4,8 @@ Ever got disappointed when a terminal library for rust was only written for unix
 
 Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call the action you want to preform and unther water it will check what to do based on the current platform.
 
+Currently working on the alternatescreen and raw terminal features.
+
 ## Getting Started
 
 This documentation is only for the newest version of crossterm. See the [Upgrade manual for more info](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual)
@@ -33,6 +35,7 @@ use self::crossterm::terminal::*;
 ## Links
 
 Documentation for the code version 0.1 can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
+
 Documentation for the code version 0.2 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
 
 The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
@@ -173,13 +176,18 @@ For detailed examples of all crossterm functionalities check the [examples](http
 
 ### fixes in crossterm 0.2.1
 
-- Default ansi escape codes enabled. If not supported than use WINAPI
-- Some method refacoring
-- Namespace refactoring (issue 4)
-- Get position unix fixed
-- Removed bin refrence from crate
-- method grammer mistake fixed
+- Default ANSI escape codes for windows machines, if windows does not support ANSI switsh back to WINAPI.
+- method grammer mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
+- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
+- Removed bin refrence from crate [Issue 6](https://github.com/TimonPost/crossterm/issues/6)
+- The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
+- Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
 
+
+## TODO Features crossterm 0.3
+- Raw state implementation [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
+- Alternate screen implementation.
+- Tests
 
 ## Tested terminals
 
@@ -203,6 +211,8 @@ Crossterm is using `WINAPI` for windows systems and `ANSI escape codes` for unix
 This library is library is stable. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to an newer version.
 
 ## Todo
+
+- This library does not support any kind of raw terminal. When an terminal changes some core state of the terminal this state should be revered when the process ends from this library. Currently there are not made any changed to the core state of the terminal with this library. But when some fearures in the furure will be inplemented this will be the case. So there should come an kind of raw state for the terminal and reversable options to redo all the changes made to the core state when the process ends. More information can be found at this [thread](https://www.reddit.com/r/rust/comments/7tg6n2/looking_for_feedback_onmy_cross_platform_terminal/dtf4ilo/)
 
 - Handling mouse events 
 - Handling key events
