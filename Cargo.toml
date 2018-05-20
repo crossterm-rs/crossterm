@@ -2,12 +2,13 @@
 name = "crossterm"
 version = "0.2.0"
 authors = ["T Post <timonpost@hotmail.nl>"]
-description = "An crossplarform terminal library for manipulating terminals."
+description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/TimonPost/crossterm"
-documentation = "https://atcentra.com/crossterm/"
+documentation = "https://docs.rs/crossterm/0.2.0/crossterm/"
 license = "MIT"
 keywords = ["console", "color", "cursor", "terminal", "cli"]
 exclude = ["target", "Cargo.lock"]
+readme = "README.md"
 
 [dependencies]
 rand = "0.4.2"
@@ -15,16 +16,10 @@ rand = "0.4.2"
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi"] }
 
-
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 termios = "0.3.0"
 
-
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
-
-[[bin]]
-name = "crosstermexamples"
-path = "examples/bin.rs"
