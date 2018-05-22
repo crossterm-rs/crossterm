@@ -38,6 +38,8 @@ Documentation for the code version 0.1 can be found [here](https://docs.rs/cross
 
 Documentation for the code version 0.2 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
 
+Documentation for the code version 0.2.1 can be found [here](https://docs.rs/crossterm/0.2.1/crossterm/)
+
 The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
 
 ## Examples
