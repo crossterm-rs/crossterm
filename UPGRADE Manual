@@ -1,7 +1,7 @@
 Upgrade crossterm 0.2 to 0.2.1
 
 Namespaces:
-I have changed the namespaces. I found the namsespaces to long so I have shoted them like the followin:
+I have changed the namespaces. I found the namsespaces to long so I have shortened them like the following:
 
 Old: crossterm::crossterm_style 
 New: crossterm::style
