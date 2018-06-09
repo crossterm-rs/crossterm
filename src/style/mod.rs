@@ -4,7 +4,7 @@
 mod color;
 mod styles;
 
-pub use self::color::color::{color, paint, TerminalColor };
+pub use self::color::color::{color, TerminalColor };
 
 pub use self::styles::objectstyle::ObjectStyle;
 pub use self::styles::styledobject::StyledObject;

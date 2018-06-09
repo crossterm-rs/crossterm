@@ -3,25 +3,28 @@
 
 use super::*;
 use shared::functions;
-use {Construct, Context};
+use { Construct, Context };
+use super::super::manager::terminal;
 
 use std::ops::Drop;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
-pub struct Terminal {
+pub struct Terminal<'terminal> {
     terminal: Option<Box<ITerminal>>,
+    term: &'terminal terminal::Terminal
 }
 
-impl  Terminal {
+impl<'terminal>  Terminal<'terminal> {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new() -> Terminal {
+    pub fn new(term: &'terminal  terminal::Terminal) -> Terminal<'terminal> {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new());
 
         #[cfg(not(target_os = "windows"))]
         let terminal = Some(AnsiTerminal::new() as Box<ITerminal>);
 
-        Terminal { terminal: terminal }
+        Terminal { terminal, term }
+
     }
 
     /// Clear the current cursor by specifying the clear type
@@ -49,7 +52,7 @@ impl  Terminal {
     /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
         if let Some(ref terminal) = self.terminal {
-            terminal.clear(clear_type);
+            terminal.clear(clear_type, &self.term);
         }
     }
 
@@ -70,7 +73,7 @@ impl  Terminal {
     /// ```
     pub fn terminal_size(&mut self) -> (u16, u16) {
         if let Some(ref terminal) = self.terminal {
-            return terminal.terminal_size()
+            return terminal.terminal_size(&self.term)
         }
         (0,0)
     }
@@ -92,7 +95,7 @@ impl  Terminal {
     /// ```
     pub fn scroll_up(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
-            terminal.scroll_up(count);
+            terminal.scroll_up(count,&self.term);
         }
     }
 
@@ -113,7 +116,7 @@ impl  Terminal {
     /// ```
     pub fn scroll_down(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
-            terminal.scroll_down(count);
+            terminal.scroll_down(count, &self.term);
         }
     }
 
@@ -135,7 +138,7 @@ impl  Terminal {
     pub fn set_size(&mut self, width: i16, height: i16)
     {
         if let Some (ref terminal) = self.terminal {
-            terminal.set_size(width,height);
+            terminal.set_size(width,height,&self.term);
         }
     }
 }
@@ -158,7 +161,8 @@ impl  Terminal {
 ///
 /// ```
 ///
-pub fn terminal() -> Box<Terminal>
-{
-    Box::from(Terminal::new())
+///
+
+pub fn terminal<'terminal>(terminal: &'terminal terminal::Terminal) -> Box<Terminal<'terminal>> {
+    Box::from(Terminal::new(&terminal))
 }

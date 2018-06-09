@@ -5,12 +5,15 @@
 extern crate crossterm;
 
 use self::crossterm::cursor::{cursor, TerminalCursor};
+use self::crossterm::{Context, Terminal };
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto()
 {
+    let context = Terminal::new();
+
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10,5);    
 }
@@ -18,8 +21,9 @@ pub fn goto()
 /// Move the cursor 3 up | demonstration.
 pub fn move_up()
 {
+    let context = Terminal::new();
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Move the cursor to position 3 times to the up in the terminal
     cursor.move_up(3);
 }
@@ -27,8 +31,9 @@ pub fn move_up()
 /// Move the cursor 3 to the right | demonstration.
 pub fn move_right()
 {
+    let context = Terminal::new();
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Move the cursor to position 3 times to the right in the terminal
     cursor.move_right(3);
 }
@@ -36,8 +41,9 @@ pub fn move_right()
 /// Move the cursor 3 down | demonstration.
 pub fn move_down()
 {
+    let context = Terminal::new();
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Move the cursor to position 3 times to the down in the terminal
     cursor.move_down(3);
 }
@@ -45,8 +51,9 @@ pub fn move_down()
 /// Move the cursor 3 to the left | demonstration.
 pub fn move_left()
 {
+    let context = Terminal::new();
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Move the cursor to position 3 times to the left in the terminal
     cursor.move_left(3);
 }
@@ -54,10 +61,11 @@ pub fn move_left()
 /// Print character at X: 10 Y: 5 | demonstration.
 pub fn print()
 {
+    let context = Terminal::new();
     // To print an some displayable content on an certain position.  
     
     // Get the cursor
-    let mut cursor = cursor();
+    let mut cursor = cursor(&context);
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10,5);
     // Print the @ symbol at position X: 10, Y: 5 in the terminal
@@ -79,7 +87,8 @@ pub fn print()
 /// Save and reset cursor position | demonstration..
 pub fn safe_and_reset_position()
 {
-    let mut cursor = cursor();
+    let context = Terminal::new();
+    let mut cursor = cursor(&context);
     
     // Goto X: 5 Y: 5
     cursor.goto(5,5);

@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for both unix and windows systems.
-
-use super::ICommand;
+use { Context, Terminal };
+use super::{ ICommand, IContextCommand };
 use std::io;
 use std::io::Write;
 
@@ -11,26 +11,24 @@ pub struct ToAlternateScreenBufferCommand;
 impl ICommand for ToAlternateScreenBufferCommand
 {
     fn new() -> Box<ToAlternateScreenBufferCommand> {
-        Box::from(ToAlternateScreenBufferCommand { })
+        Box::from(ToAlternateScreenBufferCommand {})
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, terminal: &Terminal) -> bool
     {
-        let mut some_writer = io::stdout();
-        match write!(some_writer, csi!("?1049h"))
+        let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            Ok(_) => true,
-            Err(_) => false
+            screen.write_ansi_str(csi!("?1049h"));
+            return true;
         }
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, terminal: &Terminal) -> bool
     {
-        let mut some_writer = io::stdout();
-        match write!(some_writer, csi!("?1049l"))
+        let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            Ok(_) => true,
-            Err(_) => false
+            screen.write_ansi_str(csi!("?1049l"));
+            return true;
         }
     }
 }

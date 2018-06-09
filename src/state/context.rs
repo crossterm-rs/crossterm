@@ -2,12 +2,16 @@
 
 use std::ops::Drop;
 use std::collections::HashMap;
-use super::commands::IContextCommand;
+use std::io::Write;
+use std::sync::Mutex;
+
+use super::commands::{ ICommand, IContextCommand};
+use super::super::manager::ScreenManager;
 
 /// Struct that stores the changed states of the terminal.
 pub struct Context
 {
-    changed_states:  HashMap<i16, (Box<IContextCommand>) >,
+    changed_states: HashMap<i16, Box<IContextCommand>>,
 }
 
 impl Context
@@ -15,17 +19,27 @@ impl Context
     /// Create new Context where the terminals states can be handled.
     pub fn new() -> Context
     {
-        println!("Context has been created");
-        Context { changed_states: HashMap::new() }
+        Context {
+            changed_states: HashMap::new(),
+        }
     }
 
     /// Restore all changes that are made to the terminal.
     pub fn restore_changes(&mut self)
     {
-        for (x, state) in self.changed_states.iter_mut()
-        {
-            state.undo();
-        }
+//        use std::iter::FromIterator;
+//
+//        let mut buffer = Vec::new();
+//
+//        for i in 0..self.changed_states.len()
+//        {
+//            buffer[i] = self.changed_states.iter().nth(i).unwrap();
+//        }
+//
+//        for i in 0..buffer.len()
+//        {
+//            buffer[i].1.undo(self);
+//        }
     }
 
     /// Register new changed state with the given key.

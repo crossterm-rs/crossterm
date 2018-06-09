@@ -3,27 +3,30 @@
 
 use super::*;
 use shared::functions;
-use { Construct, Context };
+use { Construct, Context, Terminal };
 use style::{Color, ObjectStyle, StyledObject};
 
 use std::ops::Drop;
 use std::{ fmt, io };
+use std::rc::Rc;
+use std::sync::Mutex;
 
 /// Struct that stores an specific platform implementation for color related actions.
 pub struct TerminalColor {
-    terminal_color: Option<Box<ITerminalColor>>,
+    color: Option<Box<ITerminalColor>>,
+    screen_manager: Rc<Mutex<ScreenManager>>
 }
 
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new() -> TerminalColor {
+    pub fn new(screen_manager: Rc<Mutex<ScreenManager>> ) -> TerminalColor {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new());
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new() as Box<ITerminalColor>);
 
-        TerminalColor { terminal_color: color }
+        TerminalColor { color: color, screen_manager: screen_manager.clone() }
     }
 
     /// Set the foreground color to the given color.
@@ -45,8 +48,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_fg(&mut self, color: Color) {
-        if let Some(ref terminal_color) = self.terminal_color {
-            terminal_color.set_fg(color);
+        if let Some(ref terminal_color) = self.color {
+            terminal_color.set_fg(color, self.screen_manager.clone());
         }
     }
 
@@ -70,8 +73,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_bg(&mut self, color: Color) {
-        if let Some(ref terminal_color) = self.terminal_color {
-            terminal_color.set_bg(color);
+        if let Some(ref terminal_color) = self.color {
+            terminal_color.set_bg(color, self.screen_manager.clone());
         }
     }
 
@@ -90,8 +93,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn reset(&mut self) {
-        if let Some(ref terminal_color) = self.terminal_color {
-            terminal_color.reset();
+        if let Some(ref terminal_color) = self.color {
+            terminal_color.reset(self.screen_manager.clone());
         }
     }
 
@@ -113,59 +116,6 @@ impl TerminalColor {
     }
 }
 
-/// Get an TerminalColor implementation whereon color related actions can be performed.
-///
-/// # Example
-///
-/// ```rust
-/// extern crate crossterm;
-///
-/// use self::crossterm::style::{color, Color};
-/// 
-/// // Get colored terminal instance
-/// let mut colored_terminal = color();
-///
-/// // preform some actions on the colored terminal
-/// colored_terminal.set_fg(Color::Red);
-/// colored_terminal.set_bg(Color::Blue);
-/// colored_terminal.reset();
-/// ```
-pub fn color() -> Box<TerminalColor> {
-    Box::from(TerminalColor::new())
+pub fn color(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<TerminalColor> {
+    Box::from(TerminalColor::new(screen_manager.clone()))
 }
-
-/// Wraps an displayable object so it can be formatted with colors and attributes.
-///
-/// Check `/examples/color` in the libary for more spesific examples.
-/// 
-/// #Example
-///
-/// ```rust
-/// extern crate crossterm;
-///
-/// use self::crossterm::style::{paint,Color};
-///
-/// fn main()
-/// {
-///     // Create an styledobject object from the text 'Unstyled font' 
-///     // Currently it has the default foregroundcolor and backgroundcolor.
-///     println!("{}",paint("Unstyled font"));
-///
-///     // Create an displayable object from the text 'Colored font', 
-///     // Paint this with the `Red` foreground color and `Blue` backgroundcolor.
-///     // Print the result.
-///     let styledobject = paint("Colored font").with(Color::Red).on(Color::Blue);
-///     println!("{}", styledobject);
-///    
-///     // Or all in one line
-///     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
-/// }
-/// ```
-pub fn paint<D>(val: D) -> StyledObject<D>
-where
-    D: fmt::Display,
-{
-    ObjectStyle::new().apply_to(val)
-}
-
-

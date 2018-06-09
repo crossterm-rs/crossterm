@@ -1,9 +1,11 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use {Context};
+use std::sync::Mutex;
+use {Context, ScreenManager, Terminal};
 
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::terminal_size;
+
 #[cfg(unix)]
 use kernel::unix_kernel::terminal::terminal_size;
 
@@ -19,9 +21,13 @@ pub fn get_terminal_size() -> (u16, u16)
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position() -> (u16,u16)
+pub fn get_cursor_position(screen: &Terminal) -> (u16,u16)
 {
-   pos()
+    #[cfg(unix)]
+    return pos(&screen);
+
+    #[cfg(windows)]
+    return pos();
 }
 
 #[cfg(windows)]
@@ -38,7 +44,6 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T>
         // Try to enable ansi on windows if not than use WINAPI.
         does_support = try_enable_ansi_support();
 
-//        println!("does support = {}", does_support);
         if !does_support
         {
             term = Some(winapi_impl);

@@ -5,27 +5,31 @@
 
 use super::*;
 use shared::functions;
-use {Construct, Context};
+use { Construct, Context,  ScreenManager, Terminal };
 
 use std::fmt::Display;
 use std::ops::Drop;
 
+use std;
+use std::io::Write;
+
 /// Struct that stores an specific platform implementation for cursor related actions.
-pub struct TerminalCursor {
+pub struct TerminalCursor<'term> {
+    terminal: &'term Terminal,
     terminal_cursor: Option<Box<ITerminalCursor>>,
 }
 
-impl TerminalCursor
+impl <'term> TerminalCursor<'term>
 {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new() -> TerminalCursor {
+    pub fn new(terminal: &'term Terminal) -> TerminalCursor<'term> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new());
 
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new() as Box<ITerminalCursor>);
 
-        TerminalCursor { terminal_cursor: cursor }
+        TerminalCursor { terminal_cursor: cursor , terminal: terminal}
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -41,9 +45,9 @@ impl TerminalCursor
     /// cursor::cursor().goto(10,10);
     /// 
     /// ```
-    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor {
+    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor<'term> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.goto(x, y);
+            terminal_cursor.goto(x, y, &self.terminal);
         }
         self
     }
@@ -64,7 +68,7 @@ impl TerminalCursor
     /// ```
     pub fn pos(&mut self) -> (u16, u16) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.pos()
+            terminal_cursor.pos(&self.terminal)
         } else {
             (0, 0)
         }
@@ -87,9 +91,9 @@ impl TerminalCursor
     /// cursor::cursor().move_up(2);
     /// 
     /// ```
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'term> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_up(count);
+            terminal_cursor.move_up(count, &self.terminal);
         }
         self
     }
@@ -112,9 +116,9 @@ impl TerminalCursor
     /// cursor::cursor().move_right(2);
     /// 
     /// ```
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'term> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_right(count);
+            terminal_cursor.move_right(count, &self.terminal);
         }
         self
     }
@@ -136,9 +140,9 @@ impl TerminalCursor
     /// cursor::cursor().move_down(2);
     ///
     /// ```
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'term> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_down(count);
+            terminal_cursor.move_down(count, &self.terminal);
         }
         self
     }
@@ -160,9 +164,9 @@ impl TerminalCursor
     /// cursor::cursor().move_left(2);
     /// 
     /// ```
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'term> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_left(count);
+            terminal_cursor.move_left(count, &self.terminal);
         }
         self
     }
@@ -199,12 +203,13 @@ impl TerminalCursor
     /// .print("@");
     /// 
     /// ```
-    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
-        print!("{}", value);
-        use std;
-        use std::io::Write;
-        // rust is line buffered so we need to flush the buffer in order to print it at the current cursor position. 
-        std::io::stdout().flush();
+    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor<'term> {
+        let mut screen = self.terminal.screen_manager.lock().unwrap();
+        {
+            write!(screen.stdout(), "{}", value);
+            // rust is line buffered so we need to flush the buffer in order to print it at the current cursor position.
+            screen.stdout().flush();
+        }
         self
     }
 
@@ -226,7 +231,7 @@ impl TerminalCursor
     pub fn save_position(&mut self)
     {
         if let Some(ref mut terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.save_position();
+            terminal_cursor.save_position(&self.terminal);
         }
     }
 
@@ -248,7 +253,7 @@ impl TerminalCursor
     pub fn reset_position(&mut self)
     {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.reset_position();
+            terminal_cursor.reset_position(&self.terminal);
         }
     }
 }
@@ -273,6 +278,6 @@ impl TerminalCursor
 /// cursor::cursor().goto(5,10);
 ///
 /// ```
-pub fn cursor() -> Box<TerminalCursor> {
-    Box::from(TerminalCursor::new())
+pub fn cursor<'term>(terminal: &'term Terminal) -> Box<TerminalCursor<'term>> {
+    Box::from(TerminalCursor::new(&terminal))
 }

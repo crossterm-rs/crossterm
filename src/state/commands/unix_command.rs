@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for unix systems.
 
-use Context;
+use {Terminal, Context};
 use super::IContextCommand;
 use kernel::unix_kernel::terminal;
 use termios::{Termios, tcsetattr, TCSAFLUSH, ICANON, ECHO, CREAD};
@@ -23,7 +23,7 @@ impl IContextCommand for NoncanonicalModeCommand
         (Box::from(command),key)
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, terminal: &Terminal) -> bool
     {
         // Set noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
@@ -42,7 +42,7 @@ impl IContextCommand for NoncanonicalModeCommand
         }
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, terminal: &Terminal) -> bool
     {
         // Disable noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
@@ -80,7 +80,7 @@ impl IContextCommand for EnableRawModeCommand
         (Box::from(command),key)
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, terminal: &Terminal) -> bool
     {
         if let Ok(original_mode) = terminal::get_terminal_mode()
         {
@@ -95,7 +95,7 @@ impl IContextCommand for EnableRawModeCommand
         }
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, terminal: &Terminal) -> bool
     {
         if let Ok(original_mode) = terminal::get_terminal_mode()
         {

@@ -11,9 +11,12 @@ mod state;
 pub mod cursor;
 pub mod style;
 pub mod terminal;
+pub mod manager;
 
 use shared::traits::{Construct};
-pub use state::{ Context};
+pub use state::{ Context };
+pub use manager::manager::{ ScreenManager };
+pub use manager::terminal::{ Terminal };
 
 #[cfg(windows)]
 extern crate winapi;

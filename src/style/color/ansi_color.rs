@@ -1,11 +1,13 @@
 //! This is an ANSI specific implementation for styling related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use Construct;
+use { Construct, Terminal, ScreenManager };
 use super::ITerminalColor;
 use super::super::{Color, ColorType};
 
 use std::io::{self, Write};
+use std::rc::Rc;
+use std::sync::Mutex;
 
 /// This struct is an ansi implementation for color related actions.
 #[derive(Debug)]
@@ -18,19 +20,26 @@ impl Construct for AnsiColor {
 }
 
 impl ITerminalColor for AnsiColor {
-    fn set_fg(&self, fg_color: Color) {
-            let mut some_writer = io::stdout();
-            write!(&mut some_writer, csi!("{}m"), self.color_value(fg_color, ColorType::Foreground));
+    fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
+
+        let mut screen = screen_manager.lock().unwrap();
+        {
+            screen.write_ansi(format!(csi!("{}m"),self.color_value(fg_color, ColorType::Foreground)));
+        }
     }
 
-    fn set_bg(&self, bg_color: Color) {
-            let mut some_writer = io::stdout();
-            write!(&mut some_writer, csi!("{}m"), self.color_value(bg_color, ColorType::Background));
+    fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
+        let mut screen = screen_manager.lock().unwrap();
+        {
+            screen.write_ansi(format!(csi!("{}m"),self.color_value(bg_color, ColorType::Background)));
+        }
     }
 
-    fn reset(&self) {
-        let mut some_writer = io::stdout();
-        write!(&mut some_writer, csi!("0m"));
+    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
+        let mut screen = screen_manager.lock().unwrap();
+        {
+            screen.write_ansi_str(csi!("0m"));
+        }
     }
 
     fn color_value(&self, color: Color, color_type: ColorType) -> String {

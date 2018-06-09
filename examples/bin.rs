@@ -11,9 +11,11 @@
 //!   
 //! - Run program with: `cargo run`
 
-extern crate crossterm;
+mod cursor;
+mod terminal;
 
-use crossterm::cursor;
+use terminal::alternate_screen;
 
 fn main() {
+    alternate_screen::t();
 }

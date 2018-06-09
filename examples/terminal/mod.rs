@@ -1,4 +1,4 @@
-mod alternate_screen;
+pub mod alternate_screen;
 mod raw_mode;
 
 

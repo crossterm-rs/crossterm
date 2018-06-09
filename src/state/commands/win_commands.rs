@@ -97,7 +97,7 @@ impl IContextCommand for EnableRawModeCommand
         (Box::from(command),key)
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, terminal: &Terminal) -> bool
     {
         use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_ECHO_INPUT};
 
@@ -119,7 +119,7 @@ impl IContextCommand for EnableRawModeCommand
         true
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, terminal: &Terminal) -> bool
     {
         let output_handle = kernel::get_output_handle();
 
@@ -152,7 +152,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         Box::from(ToAlternateScreenBufferCommand {})
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, context: &Context) -> bool
     {
         let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
 
@@ -206,7 +206,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         true
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, context: &Context) -> bool
     {
         let handle = kernel::get_output_handle();
         kernel::set_active_screen_buffer(handle);

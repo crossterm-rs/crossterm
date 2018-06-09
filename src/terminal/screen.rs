@@ -1,32 +1,32 @@
 //! This module contains all the logic for switching between alternate screen and main screen.
 
 use shared::functions;
-use Context;
+use { Context, Terminal };
 use state::commands::*;
 
 use std::{ fmt, ops };
 use std::io::{self, Write};
 
-pub struct ToMainScreen;
-
-impl fmt::Display for ToMainScreen
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        get_to_alternate_screen_command().undo();
-        Ok(())
-    }
-}
-
-/// Struct that switches to alternate screen buffer on display.
-pub struct ToAlternateScreen;
-
-impl fmt::Display for ToAlternateScreen
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        get_to_alternate_screen_command().execute();
-        Ok(())
-    }
-}
+//pub struct ToMainScreen;
+//
+//impl fmt::Display for ToMainScreen
+//{
+//    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//        get_to_alternate_screen_command().undo();
+//        Ok(())
+//    }
+//}
+//
+///// Struct that switches to alternate screen buffer on display.
+//pub struct ToAlternateScreen;
+//
+//impl fmt::Display for ToAlternateScreen
+//{
+//    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//        get_to_alternate_screen_command().execute();
+//        Ok(())
+//    }
+//}
 
 /// Struct that can be used for writing to an alternate screen.
 ///
@@ -51,52 +51,57 @@ impl fmt::Display for ToAlternateScreen
 ///    ...
 ///
 /// ```
-pub struct AlternateScreen<W: Write> {
-    /// The output target.
-    output: W,
-    context: Context
+pub struct AlternateScreen<'term> {
+    term: &'term Terminal
 }
 
-impl<W: Write>  AlternateScreen<W> {
-    pub fn from(mut output: W) -> Self {
-        write!(output, "{}", ToAlternateScreen);
-        AlternateScreen { output: output, context: Context::new()}
+impl<'term> AlternateScreen<'term> {
+    pub fn from(output: &'term Terminal) -> Self {
+        get_to_alternate_screen_command().execute(&output);
+//
+//        let mut screen = output.screen_manager.lock().unwrap();
+//        {
+//            screen.register_output(Box::from(o), true);
+//        }
+        AlternateScreen { term: output }
+    }
+
+    pub fn to_main(&self)
+    {
+        get_to_alternate_screen_command().undo(&self.term);
+    }
+
+    pub fn to_alternate(&self)
+    {
+        get_to_alternate_screen_command().execute(&self.term);
     }
 }
 
-impl<W: Write> ops::Deref for AlternateScreen<W> {
-    type Target = W;
-
-    fn deref(&self) -> &W {
-        &self.output
-    }
-}
-
-impl<W: Write> ops::DerefMut for AlternateScreen<W> {
-    fn deref_mut(&mut self) -> &mut W {
-        &mut self.output
-    }
-}
-
-impl<W: Write> Write for AlternateScreen<W> {
+impl<'term> Write for AlternateScreen<'term> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.output.write(buf)
+        let mut screen = self.term.screen_manager.lock().unwrap();
+        {
+            screen.stdout().write(buf)
+        }
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        self.output.flush()
+        let mut screen = self.term.screen_manager.lock().unwrap();
+        {
+            screen.stdout().flush()
+        }
     }
 }
 
-impl<W: Write> Drop for AlternateScreen<W>
+impl<'term> Drop for AlternateScreen<'term>
 {
     fn drop(&mut self)
     {
-        write!(self, "{}", ToMainScreen).expect("switch to main screen");
+        get_to_alternate_screen_command().undo(&self.term);
     }
 }
 
-/// Get the alternate screen command to enable and disable alternate screen based on the current platform
+// Get the alternate screen command to enable and disable alternate screen based on the current platform
 fn get_to_alternate_screen_command() -> Box<ICommand>
 {
     #[cfg(target_os = "windows")]
@@ -104,6 +109,6 @@ fn get_to_alternate_screen_command() -> Box<ICommand>
 
     #[cfg(not(target_os = "windows"))]
     let command = shared_commands::ToAlternateScreenBufferCommand::new();
-    
+
     command
 }

@@ -1,6 +1,6 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use { libc, Context };
+use { libc, Context, Terminal };
 use termios::Termios;
 pub use self::libc::{termios};
 use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
@@ -40,7 +40,7 @@ pub fn terminal_size() -> (u16,u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos() -> (u16,u16)
+pub fn pos(terminal: &Terminal) -> (u16,u16)
 {
     use std::io::Error;
     use std::io::{ Write,Read };
@@ -48,14 +48,15 @@ pub fn pos() -> (u16,u16)
     let mut context = Context::new();
     {
         let mut command = NoncanonicalModeCommand::new(&mut context);
-        command.0.execute();
+        command.0.execute(&terminal);
 
         // This code is original written by term_cursor credits to them.
-        let mut stdout = io::stdout();
 
+        use std::io;
+        let mut std = io::stdout();
         // Write command
-        stdout.write(b"\x1B[6n");
-        stdout.flush();
+        std.write(b"\x1B[6n");
+        std.flush();
 
         // Read back result
         let mut buf = [0u8; 2];

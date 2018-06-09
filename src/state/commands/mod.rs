@@ -24,23 +24,24 @@ pub use self::unix_command::*;
 #[cfg(windows)]
 pub use self::win_commands::*;
 
-use super::Context;
+use { Context, Terminal };
 
 /// This command can be used for simple commands witch just have an `undo()` and an `execute()`
 pub trait ICommand
 {
     fn new() -> Box<Self> where Self: Sized;
-    fn execute(&mut self) -> bool;
-    fn undo(&mut self) -> bool;
+    fn execute(&mut self, terminal: &Terminal) -> bool;
+    fn undo(&mut self, terminal: &Terminal) -> bool;
 }
 
 /// This command is used for complex commands whits change the terminal state.
 /// By passing an `Context` instance this command will register it self to notify the terminal state change.
+
 pub trait IContextCommand
 {
     fn new(context: &mut Context) -> (Box<Self>, i16) where Self: Sized;
-    fn execute(&mut self) -> bool;
-    fn undo(&mut self) -> bool;
+    fn execute(&mut self, terminal: &Terminal) -> bool;
+    fn undo(&mut self, terminal: &Terminal) -> bool;
 }
 
 /// This generates an random key for the `ContextCommand`.
