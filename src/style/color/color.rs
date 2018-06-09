@@ -2,12 +2,10 @@
 //! Like styling the font, foreground color and background.
 
 use super::*;
-use shared::functions;
-use { Construct, Context, Terminal };
-use style::{Color, ObjectStyle, StyledObject};
+use Construct;
+use style::Color;
 
-use std::ops::Drop;
-use std::{ fmt, io };
+use std::{ io };
 use std::rc::Rc;
 use std::sync::Mutex;
 

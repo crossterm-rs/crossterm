@@ -4,7 +4,7 @@
 
 extern crate crossterm;
 
-use self::crossterm::style::{paint, Color};
+use self::crossterm::style::{ Color };
 
 /// print some red font | demonstration.
 pub fn paint_foreground()

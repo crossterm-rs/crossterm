@@ -1,11 +1,10 @@
 //! This is an ANSI specific implementation for styling related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use { Construct, Terminal, ScreenManager };
+use { Construct, ScreenManager };
 use super::ITerminalColor;
 use super::super::{Color, ColorType};
 
-use std::io::{self, Write};
 use std::rc::Rc;
 use std::sync::Mutex;
 

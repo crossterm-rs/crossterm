@@ -2,11 +2,8 @@
 //! Like clearing and scrolling in the terminal or getting the size of the terminal.
 
 use super::*;
-use shared::functions;
-use { Construct, Context };
+use Construct;
 use super::super::manager::terminal;
-
-use std::ops::Drop;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal<'terminal> {

@@ -5,12 +5,7 @@ use {Construct, Terminal};
 use shared::functions;
 use super::{ClearType, ITerminal};
 
-use std::io;
 use std::io::Write;
-use std::sync::Mutex;
-use std::cell::RefCell;
-
-use ScreenManager;
 
 /// This struct is an ansi implementation for terminal related actions.
 pub struct AnsiTerminal;
@@ -26,7 +21,7 @@ impl ITerminal for AnsiTerminal {
 
         let mut screen_manager = terminal.screen_manager.lock().unwrap();
         {
-            let mut stdout = screen_manager.stdout();
+            let stdout = screen_manager.stdout();
 
             match clear_type {
                 ClearType::All => {

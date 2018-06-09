@@ -26,4 +26,4 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "a"
-path = "examples/bin.rs"
+path = "examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs"

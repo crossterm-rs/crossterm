@@ -9,7 +9,6 @@ mod ansi_manager;
 use self::win_manager::WinApiScreenManager;
 use self::ansi_manager::AnsiScreenManager;
 
-use { Context, Terminal };
 pub use self::manager::{ ScreenManager };
 
 pub trait IScreenManager<Output>

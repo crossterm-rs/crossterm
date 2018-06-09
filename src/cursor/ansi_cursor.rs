@@ -1,11 +1,9 @@
 //! This is an ANSI specific implementation for cursor related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use std::sync::Mutex;
-use { Context, ScreenManager, Terminal };
+use Terminal ;
 use shared::functions;
 use super::ITerminalCursor;
-use std::io::{ self, Write };
 
 
 /// This struct is an ansi implementation for cursor related actions.
@@ -37,28 +35,28 @@ impl<'term> ITerminalCursor for AnsiCursor {
     fn move_up(&self, count: u16, terminal: &Terminal) {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("{}A"));
+            screen.write_ansi(format!(csi!("{}A"), count));
         }
     }
 
     fn move_right(&self, count: u16, terminal: &Terminal) {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("{}C"));
+            screen.write_ansi(format!(csi!("{}C"), count));
         }
     }
 
     fn move_down(&self, count: u16, terminal: &Terminal) {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("{}B"));
+            screen.write_ansi(format!(csi!("{}B"), count));
         }
     }
 
     fn move_left(&self, count: u16, terminal: &Terminal) {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("{}D"));
+            screen.write_ansi(format!(csi!("{}D"), count));
         }
     }
 

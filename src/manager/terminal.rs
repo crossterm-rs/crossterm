@@ -1,14 +1,11 @@
-use std::io::Write;
-use std::io;
 use std::sync::Mutex;
-use std::cell::RefCell;
 use std::rc::Rc;
 
 use { Context };
 use super::super::manager::ScreenManager;
 
-use super::super::terminal;
-use super::super::cursor;
+//use super::super::terminal;
+//use super::super::cursor;
 use super::super::style;
 
 use std::fmt;

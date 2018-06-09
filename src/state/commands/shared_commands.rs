@@ -1,8 +1,6 @@
 //! This module contains the commands that can be used for both unix and windows systems.
-use { Context, Terminal };
-use super::{ ICommand, IContextCommand };
-use std::io;
-use std::io::Write;
+use Terminal ;
+use super::ICommand;
 
 /// This command is used for switching to alternate screen and back to main screen.
 #[derive(Clone, Copy)]

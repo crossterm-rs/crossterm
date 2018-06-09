@@ -1,8 +1,6 @@
 use std::io::{self, Write};
-use { Context, Terminal };
+
 use super::IScreenManager;
-use super::super::state::commands::ICommand;
-use super::super::state::commands::shared_commands::ToAlternateScreenBufferCommand;
 
 pub struct AnsiScreenManager<Output:Write>
 {

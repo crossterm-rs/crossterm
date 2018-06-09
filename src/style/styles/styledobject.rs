@@ -1,10 +1,10 @@
 //! This module contains the logic to style an object that contains some context witch can be styled.
 
-use std::{ self, fmt };
+use std::fmt;
 use std::io::Write;
 use std::sync::Mutex;
 use std::rc::Rc;
-use { Terminal, ScreenManager };
+use ScreenManager;
 
 #[cfg(unix)]
 use super::super::Attribute;
@@ -138,7 +138,7 @@ macro_rules! impl_fmt
 
                 fmt::$name::fmt(&self.content, f)?;
 
-                let mut mutex = &self.screen_manager;
+                let mutex = &self.screen_manager;
                 {
                     let mut screen = mutex.lock().unwrap();
                      screen.stdout().flush().expect("Flush stdout failed");

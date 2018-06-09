@@ -1,12 +1,7 @@
 //! This module is used for registering, storing an restoring the terminal state changes.
 
-use std::ops::Drop;
 use std::collections::HashMap;
-use std::io::Write;
-use std::sync::Mutex;
-
-use super::commands::{ ICommand, IContextCommand};
-use super::super::manager::ScreenManager;
+use super::commands::IContextCommand;
 
 /// Struct that stores the changed states of the terminal.
 pub struct Context

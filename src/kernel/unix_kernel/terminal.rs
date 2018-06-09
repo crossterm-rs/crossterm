@@ -6,8 +6,8 @@ pub use self::libc::{termios};
 use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
 use state::commands::{ NoncanonicalModeCommand, IContextCommand} ;
 
-use std::{ io, mem };
 use std::io::Error;
+use std::{ io, mem };
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -42,7 +42,6 @@ pub fn terminal_size() -> (u16,u16) {
 /// Get the current cursor position.
 pub fn pos(terminal: &Terminal) -> (u16,u16)
 {
-    use std::io::Error;
     use std::io::{ Write,Read };
 
     let mut context = Context::new();

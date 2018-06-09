@@ -4,13 +4,9 @@
 //! Note that positions of the cursor are 0 -based witch means that the coordinates starts counting from 0
 
 use super::*;
-use shared::functions;
-use { Construct, Context,  ScreenManager, Terminal };
+use Terminal;
 
 use std::fmt::Display;
-use std::ops::Drop;
-
-use std;
 use std::io::Write;
 
 /// Struct that stores an specific platform implementation for cursor related actions.

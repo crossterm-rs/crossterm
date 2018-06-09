@@ -1,10 +1,8 @@
 //! This module contains all the logic for switching between alternate screen and main screen.
 
-use shared::functions;
-use { Context, Terminal };
+use Terminal;
 use state::commands::*;
 
-use std::{ fmt, ops };
 use std::io::{self, Write};
 
 //pub struct ToMainScreen;

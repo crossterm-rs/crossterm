@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 use style::{Color, StyledObject};
-use { Terminal, ScreenManager };
+use ScreenManager;
 use std::sync::Mutex;
 use std::rc::Rc;
 #[cfg(unix)]

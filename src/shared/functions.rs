@@ -1,7 +1,6 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use std::sync::Mutex;
-use {Context, ScreenManager, Terminal};
+use Terminal;
 
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::terminal_size;

@@ -17,12 +17,8 @@ mod ansi_cursor;
 use self::winapi_cursor::WinApiCursor;
 use self::ansi_cursor::AnsiCursor;
 
-use { Context, Terminal };
+use Terminal;
 pub use self::cursor::{ cursor, TerminalCursor };
-
-use std::sync::Mutex;
-
-use ScreenManager;
 
 ///! This trait defines the actions that can be preformed with the terminal cursor.
 ///! This trait can be implemented so that an concrete implementation of the ITerminalCursor can forfill

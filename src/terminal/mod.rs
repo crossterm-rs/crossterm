@@ -5,13 +5,13 @@
 //! - raw mode
 //! - clearing resizing scrolling the terminal.
 
-use {Context, ScreenManager, Terminal};
+use Terminal;
 use self::ansi_terminal::AnsiTerminal;
+
 pub use self::terminal::{ terminal};
 #[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;
-use std::cell::RefCell;
-use std::sync::Mutex;
+
 
 pub mod terminal;
 

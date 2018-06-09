@@ -1,6 +1,5 @@
 use std::io::Write;
 
-use { Context, Terminal };
 use super::IScreenManager;
 use super::ansi_manager::AnsiScreenManager;
 
