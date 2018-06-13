@@ -1,8 +1,7 @@
 use std::sync::Mutex;
 use std::rc::Rc;
 
-use { Context };
-use super::super::manager::ScreenManager;
+use { Context, ScreenManager};
 
 //use super::super::terminal;
 //use super::super::cursor;
@@ -13,7 +12,7 @@ use std::fmt;
 pub struct Terminal
 {
     pub screen_manager: Rc<Mutex<ScreenManager>>,
-    context: Context
+    pub context: Mutex<Context>
 }
 
 impl Terminal
@@ -22,7 +21,7 @@ impl Terminal
     {
         Terminal {
             screen_manager: Rc::new(Mutex::new(ScreenManager::new())),
-            context: Context::new()
+            context: Mutex::new(Context::new())
         }
     }
 

@@ -19,9 +19,6 @@ pub mod terminal;
 mod winapi_terminal;
 mod ansi_terminal;
 
-pub mod screen;
-mod raw;
-
 /// Enum that can be used for the kind of clearing that can be done in the terminal.
 pub enum ClearType {
     All,

@@ -13,7 +13,15 @@
 
 extern crate crossterm;
 
+mod terminal;
+
+use terminal::alternate_screen;
+use terminal::raw_mode;
+
 use crossterm::cursor;
 
+
 fn main() {
+
+    raw_mode::print_wait_screen_on_alternate_window();
 }

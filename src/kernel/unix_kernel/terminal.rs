@@ -44,62 +44,64 @@ pub fn pos(terminal: &Terminal) -> (u16,u16)
 {
     use std::io::{ Write,Read };
 
-    let mut context = Context::new();
-    {
-        let mut command = NoncanonicalModeCommand::new(&mut context);
+
+        let mut command = NoncanonicalModeCommand::new(&terminal.context);
         command.0.execute(&terminal);
 
-        // This code is original written by term_cursor credits to them.
+    // This code is original written by term_cursor credits to them.
 
-        use std::io;
-        let mut std = io::stdout();
-        // Write command
-        std.write(b"\x1B[6n");
-        std.flush();
+    use std::io;
+    let mut std = io::stdout();
+    // Write command
+    std.write(b"\x1B[6n");
+    std.flush();
 
-        // Read back result
-        let mut buf = [0u8; 2];
-        // Expect `ESC[`
-        io::stdin().read_exact(&mut buf);
-        if buf[0] != 0x1B || buf[1] as char != '[' {
-            return (0, 0);
-        }
-
-        // Read rows and cols through a ad-hoc integer parsing function
-        let read_num = || -> (i32, char) {
-            let mut num = 0;
-            let mut c;
-
-            loop {
-                let mut buf = [0u8; 1];
-                io::stdin().read_exact(&mut buf);
-                c = buf[0] as char;
-                if let Some(d) = c.to_digit(10) {
-                    num = if num == 0 { 0 } else { num * 10 };
-                    num += d as i32;
-                } else {
-                    break;
-                }
-            }
-
-            (num, c)
-        };
-
-        // Read rows and expect `;`
-        let (rows, c) = read_num();
-
-        if c != ';' {
-            return (0, 0);
-        }
-
-        // Read cols
-        let (cols, c) = read_num();
-
-        // Expect `R`
-        let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
-
-        res
+    // Read back result
+    let mut buf = [0u8; 2];
+    // Expect `ESC[`
+    io::stdin().read_exact(&mut buf);
+    if buf[0] != 0x1B || buf[1] as char != '[' {
+        return (0, 0);
     }
+
+    // Read rows and cols through a ad-hoc integer parsing function
+    let read_num = || -> (i32, char) {
+        let mut num = 0;
+        let mut c;
+
+        loop {
+            let mut buf = [0u8; 1];
+            io::stdin().read_exact(&mut buf);
+            c = buf[0] as char;
+            if let Some(d) = c.to_digit(10) {
+                num = if num == 0 { 0 } else { num * 10 };
+                num += d as i32;
+            } else {
+                break;
+            }
+        }
+
+        (num, c)
+    };
+
+    // Read rows and expect `;`
+    let (rows, c) = read_num();
+
+    if c != ';' {
+        return (0, 0);
+    }
+
+    // Read cols
+    let (cols, c) = read_num();
+
+    // Expect `R`
+    let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
+
+    let mut context = terminal.context.lock().unwrap();
+    {
+        context.undo_state(command.1, terminal);
+    }
+    res
 }
 
 /// Set the terminal mode to the given mode.

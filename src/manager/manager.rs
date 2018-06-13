@@ -27,9 +27,9 @@ impl ScreenManager
         self.screen_manager.stdout()
     }
 
-    pub fn register_output(&mut self, output: Box<Write>, is_alternate_screen: bool)
+    pub fn toggle_is_alternate_screen(&mut self,is_alternate_screen: bool)
     {
-        self.screen_manager.register_output(output,is_alternate_screen);
+        self.screen_manager.toggle_is_alternate_screen(is_alternate_screen);
     }
 
     pub fn write_ansi(&mut self, string: String)

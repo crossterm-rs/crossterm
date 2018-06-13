@@ -4,3 +4,6 @@
 pub mod macros;
 pub mod traits;
 pub mod functions;
+pub mod terminal;
+pub mod screen;
+pub mod raw;

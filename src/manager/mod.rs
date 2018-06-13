@@ -1,5 +1,4 @@
 pub mod manager;
-pub mod terminal;
 
 #[cfg(target_os = "windows")]
 mod win_manager;
@@ -14,7 +13,7 @@ pub use self::manager::{ ScreenManager };
 pub trait IScreenManager<Output>
 {
     fn stdout(&mut self) -> &mut Output;
-    fn register_output(&mut self, output: Output, is_alternate_screen: bool);
+    fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool);
     fn write_ansi(&mut self, string: String);
     fn write_ansi_str(&mut self, string: &str);
 }

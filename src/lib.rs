@@ -13,10 +13,13 @@ pub mod style;
 pub mod terminal;
 pub mod manager;
 
+pub use shared::{screen, raw};
+
 use shared::traits::{Construct};
 pub use state::{ Context };
 pub use manager::manager::{ ScreenManager };
-pub use manager::terminal::{ Terminal };
+pub use shared::terminal::Terminal;
+
 
 #[cfg(windows)]
 extern crate winapi;

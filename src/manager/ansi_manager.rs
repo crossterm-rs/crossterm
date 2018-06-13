@@ -4,7 +4,7 @@ use super::IScreenManager;
 
 pub struct AnsiScreenManager<Output:Write>
 {
-    is_alternate_screen: bool,
+    pub is_alternate_screen: bool,
     output: Output,
 }
 
@@ -15,28 +15,33 @@ impl<Output :Write> IScreenManager<Output> for AnsiScreenManager<Output>
         return &mut self.output
     }
 
-    fn register_output(&mut self, output: Output, is_alternate_screen: bool)
+    fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool)
     {
-        self.output = output;
         self.is_alternate_screen = is_alternate_screen;
     }
 
     fn write_ansi(&mut self, string: String)
     {
-        match self.is_alternate_screen
-        {
-            true =>  write!(self.output, "{}", string),
-            false => write!(io::stdout(), "{}", string),
-        };
+        write!(self.output, "{}", string);
+        self.flush();
+//        println!("test");
+//        match self.is_alternate_screen
+//        {
+//            true =>  ,
+//            false => write!(io::stdout(), "{}", string),
+//        };
     }
 
     fn write_ansi_str(&mut self, string: &str)
     {
-        match self.is_alternate_screen
-            {
-                true =>  write!(self.output, "{}", string),
-                false => write!(io::stdout(), "{}", string),
-            };
+        write!(self.output, "{}", string);
+        self.flush();
+//        println!("test");
+//        match self.is_alternate_screen
+//            {
+//                true =>  write!(self.output, "{}", string),
+//                false => write!(io::stdout(), "{}", string),
+//            };
     }
 }
 

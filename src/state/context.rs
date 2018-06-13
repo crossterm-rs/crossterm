@@ -2,11 +2,11 @@
 
 use std::collections::HashMap;
 use super::commands::IContextCommand;
-
+use Terminal;
 /// Struct that stores the changed states of the terminal.
 pub struct Context
 {
-    changed_states: HashMap<i16, Box<IContextCommand>>,
+    changed_states: HashMap<u16, Box<IContextCommand>>,
 }
 
 impl Context
@@ -19,9 +19,9 @@ impl Context
         }
     }
 
-    /// Restore all changes that are made to the terminal.
-    pub fn restore_changes(&mut self)
-    {
+//    /// Restore all changes that are made to the terminal.
+//    pub fn restore_changes(&mut self)
+//    {
 //        use std::iter::FromIterator;
 //
 //        let mut buffer = Vec::new();
@@ -35,10 +35,10 @@ impl Context
 //        {
 //            buffer[i].1.undo(self);
 //        }
-    }
+//    }
 
     /// Register new changed state with the given key.
-    pub fn register_change(&mut self, change: Box<IContextCommand>, key: i16)
+    pub fn register_change(&mut self, change: Box<IContextCommand>, key: u16)
     {
         if !self.changed_states.contains_key(&key)
         {
@@ -47,11 +47,16 @@ impl Context
     }
 
     /// Undo an specific state by the given state key.
-    pub fn undo_state(&mut self, state_key: i16)
+    pub fn undo_state(&mut self, state_key: u16, terminal: &Terminal)
     {
         if self.changed_states.contains_key(&state_key)
         {
-            self.changed_states.remove(&state_key);
+            {
+                let mut command = self.changed_states.get_mut(&state_key).unwrap();
+                command.undo(&terminal);
+            }
+            &self.changed_states.remove(&state_key);
+
         }
     }
 }

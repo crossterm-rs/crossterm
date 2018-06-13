@@ -21,7 +21,6 @@ impl<'term> ITerminalCursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16, terminal: &Terminal)
     {
         // ANSI codes are one-based. I want 0 based so we just need to increment and x,y.
-
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{};{}H"), y + 1, x +1));

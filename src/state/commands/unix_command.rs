@@ -7,20 +7,26 @@ use termios::{Termios, tcsetattr, TCSAFLUSH, ICANON, ECHO, CREAD};
 
 const FD_STDIN: ::std::os::unix::io::RawFd = 1;
 
+use std::sync::Mutex;
+
 /// This command is used for switching to NoncanonicalMode.
-#[derive(Clone, Copy)]
+#[derive(Copy, Clone)]
 pub struct NoncanonicalModeCommand
 {
-    key: i16
+    key: u16
 }
 
 impl IContextCommand for NoncanonicalModeCommand
 {
-    fn new(context: &mut Context) -> (Box<NoncanonicalModeCommand>, i16) {
-        let key = super::generate_key();
-        let command = NoncanonicalModeCommand { key: key };
-        context.register_change(Box::from(command), key);
-        (Box::from(command),key)
+    fn new(context: &Mutex<Context>) -> (Box<NoncanonicalModeCommand>, u16) {
+        let key = 1;
+
+        let mut context = context.lock().unwrap();
+        {
+            let command = NoncanonicalModeCommand { key: key };
+            context.register_change(Box::from(command), key);
+            (Box::from(command),key)
+        }
     }
 
     fn execute(&mut self, terminal: &Terminal) -> bool
@@ -64,28 +70,35 @@ impl IContextCommand for NoncanonicalModeCommand
 }
 
 /// This command is used for enabling and disabling raw mode for the terminal.
-#[derive(Clone, Copy)]
+#[derive(Copy, Clone)]
 pub struct EnableRawModeCommand
 {
     original_mode: Option<Termios>,
-    key: i16
+    command_id: u16
 }
 
 impl IContextCommand for EnableRawModeCommand
 {
-    fn new(context: &mut Context) -> (Box<EnableRawModeCommand>, i16) {
-        let key = super::generate_key();
-        let command = EnableRawModeCommand { original_mode: None, key: key };
-        context.register_change(Box::from(command), key);
-        (Box::from(command),key)
+    fn new(context: &Mutex<Context>) -> (Box<EnableRawModeCommand>, u16) {
+        let key = 2;
+
+        let mut context = context.lock().unwrap();
+        {
+            let command = EnableRawModeCommand { original_mode: None, command_id: key };
+            context.register_change(Box::from(command), key);
+            (Box::from(command), key)
+        }
     }
 
     fn execute(&mut self, terminal: &Terminal) -> bool
     {
-        if let Ok(original_mode) = terminal::get_terminal_mode()
+        let original_mode = terminal::get_terminal_mode();
+
+        if let Ok(original_mode) = original_mode
         {
+            panic!("setting {:?}", original_mode);
             self.original_mode = Some(original_mode);
-            let mut new_mode = self.original_mode.unwrap();
+            let mut new_mode = original_mode;
             terminal::make_raw(&mut new_mode);
             terminal::set_terminal_mode(&new_mode);
             true
@@ -97,9 +110,11 @@ impl IContextCommand for EnableRawModeCommand
 
     fn undo(&mut self, terminal: &Terminal) -> bool
     {
-        if let Ok(original_mode) = terminal::get_terminal_mode()
+        panic!("undoing {:?}", self.original_mode);
+        if let Some(original_mode) = self.original_mode
         {
-            let result = terminal::set_terminal_mode(&self.original_mode.unwrap());
+
+            let result = terminal::set_terminal_mode(&original_mode);
 
             match result
             {

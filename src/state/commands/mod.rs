@@ -9,7 +9,7 @@
 //!
 //! See the `Context` struct where we store the commands for more info.
 
-use rand;
+use std::sync::Mutex;
 
 #[cfg(unix)]
 pub mod unix_command;
@@ -39,13 +39,7 @@ pub trait ICommand
 
 pub trait IContextCommand
 {
-    fn new(context: &mut Context) -> (Box<Self>, i16) where Self: Sized;
+    fn new(context: &Mutex<Context>) -> (Box<Self>, u16) where Self: Sized;
     fn execute(&mut self, terminal: &Terminal) -> bool;
     fn undo(&mut self, terminal: &Terminal) -> bool;
-}
-
-/// This generates an random key for the `ContextCommand`.
-/// So that we can identify the `ContextCommand` in an list of commands.
-fn generate_key() -> i16 {
-    rand::random::<i16>()
 }

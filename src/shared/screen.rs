@@ -56,11 +56,6 @@ pub struct AlternateScreen<'term> {
 impl<'term> AlternateScreen<'term> {
     pub fn from(output: &'term Terminal) -> Self {
         get_to_alternate_screen_command().execute(&output);
-//
-//        let mut screen = output.screen_manager.lock().unwrap();
-//        {
-//            screen.register_output(Box::from(o), true);
-//        }
         AlternateScreen { term: output }
     }
 

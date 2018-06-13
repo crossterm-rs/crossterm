@@ -3,7 +3,7 @@
 
 use super::*;
 use Construct;
-use super::super::manager::terminal;
+use super::super::shared::terminal;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal<'terminal> {
