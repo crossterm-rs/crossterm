@@ -38,14 +38,12 @@ impl ICommand for EnableAnsiCommand
             let mut dw_mode: DWORD = 0;
             if !kernel::get_console_mode(&output_handle, &mut dw_mode)
                 {
-                    panic!("Cannot get console mode");
                     return false;
                 }
 
             dw_mode |= self.mask;
             if !kernel::set_console_mode(&output_handle, dw_mode)
                 {
-                    panic!("Cannot get console mode");
                     return false;
                 }
 
