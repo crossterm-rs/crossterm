@@ -1,3 +1,5 @@
+# This is the development branch do not use this in production. This code can be broken and contains code that could not function correctly.
+
 # Crossterm | crossplatform terminal library written in rust.
 
 Ever got disappointed when a terminal library for rust was only written for unix systems? Crossterm provides the same core functionalities for both windows and unix systems. 
