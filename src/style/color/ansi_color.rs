@@ -1,7 +1,7 @@
 //! This is an ANSI specific implementation for styling related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use { Construct, ScreenManager };
+use ScreenManager;
 use super::ITerminalColor;
 use super::super::{Color, ColorType};
 
@@ -12,8 +12,8 @@ use std::sync::Mutex;
 #[derive(Debug)]
 pub struct AnsiColor;
 
-impl Construct for AnsiColor {
-    fn new() -> Box<AnsiColor> {
+impl AnsiColor {
+    pub fn new() -> Box<AnsiColor> {
         Box::from(AnsiColor {})
     }
 }

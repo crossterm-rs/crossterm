@@ -1,7 +1,7 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use {Construct, Terminal};
+use Context;
 use shared::functions;
 use super::{ClearType, ITerminal};
 
@@ -10,16 +10,16 @@ use std::io::Write;
 /// This struct is an ansi implementation for terminal related actions.
 pub struct AnsiTerminal;
 
-impl Construct for AnsiTerminal {
-    fn new() -> Box<AnsiTerminal> {
+impl AnsiTerminal {
+    pub fn new() -> Box<AnsiTerminal> {
         Box::from(AnsiTerminal {})
     }
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType, terminal: &Terminal) {
+    fn clear(&self, clear_type: ClearType, context: &Context) {
 
-        let mut screen_manager = terminal.screen_manager.lock().unwrap();
+        let mut screen_manager = context.screen_manager.lock().unwrap();
         {
             let stdout = screen_manager.stdout();
 
@@ -43,26 +43,26 @@ impl ITerminal for AnsiTerminal {
         }
     }
 
-    fn terminal_size(&self, terminal: &Terminal) -> (u16, u16) {
+    fn terminal_size(&self, context: &Context) -> (u16, u16) {
         functions::get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, terminal: &Terminal) {
-        let mut screen = terminal.screen_manager.lock().unwrap();
+    fn scroll_up(&self, count: i16, context: &Context) {
+        let mut screen = context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{}S"), count));
         }
     }
 
-    fn scroll_down(&self, count: i16, terminal: &Terminal) {
-        let mut screen = terminal.screen_manager.lock().unwrap();
+    fn scroll_down(&self, count: i16, context: &Context) {
+        let mut screen = context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{}T"), count));
         }
     }
 
-    fn set_size(&self, width: i16, height: i16, terminal: &Terminal) {
-        let mut screen = terminal.screen_manager.lock().unwrap();
+    fn set_size(&self, width: i16, height: i16, context: &Context) {
+        let mut screen = context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("8;{};{}t"), width, height));
         }

@@ -4,20 +4,20 @@
 //! - alternate screen
 //! - raw mode
 //! - clearing resizing scrolling the terminal.
-
-use Terminal;
-use self::ansi_terminal::AnsiTerminal;
-
-pub use self::terminal::{ terminal};
-#[cfg(target_os = "windows")]
-use self::winapi_terminal::WinApiTerminal;
-
+//!
 
 pub mod terminal;
 
 #[cfg(target_os = "windows")]
 mod winapi_terminal;
 mod ansi_terminal;
+
+#[cfg(target_os = "windows")]
+use self::winapi_terminal::WinApiTerminal;
+use self::ansi_terminal::AnsiTerminal;
+
+use Context;
+pub use self::terminal::{ terminal};
 
 /// Enum that can be used for the kind of clearing that can be done in the terminal.
 pub enum ClearType {
@@ -38,13 +38,13 @@ pub enum ClearType {
 ///! so that cursor related actions can be preformed on both unix and windows systems.
 pub trait ITerminal {
     /// Clear the current cursor by specifying the clear type
-    fn clear(&self, clear_type: ClearType, terminal: &Terminal);
+    fn clear(&self, clear_type: ClearType, context: &Context);
     /// Get the terminal size (x,y)
-    fn terminal_size(&self, terminal: &Terminal) -> (u16, u16);
+    fn terminal_size(&self, context: &Context) -> (u16, u16);
     /// Scroll `n` lines up in the current terminal.
-    fn scroll_up(&self, count: i16, terminal: &Terminal);
+    fn scroll_up(&self, count: i16, context: &Context);
     /// Scroll `n` lines down in the current terminal.
-    fn scroll_down(&self, count: i16, terminal: &Terminal);
+    fn scroll_down(&self, count: i16, context: &Context);
     /// Resize terminal to the given width and height.
-    fn set_size(&self,width: i16, height: i16, terminal: &Terminal);
+    fn set_size(&self,width: i16, height: i16, context: &Context);
 }

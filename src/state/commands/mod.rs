@@ -7,9 +7,10 @@
 //! So where do whe use the `Commands` for? This is so that we can push all or terminal state changes into list.
 //! When we do not need those changes we can revert all the changes by looping true the list and undo all the action.
 //!
-//! See the `Context` struct where we store the commands for more info.
+//! See the `StateManager` struct where we store the commands for more info.
 
 use std::sync::Mutex;
+use std::rc::Rc;
 
 #[cfg(unix)]
 pub mod unix_command;
@@ -24,22 +25,21 @@ pub use self::unix_command::*;
 #[cfg(windows)]
 pub use self::win_commands::*;
 
-use { Context, Terminal };
+use {StateManager, Context};
 
 /// This command can be used for simple commands witch just have an `undo()` and an `execute()`
 pub trait ICommand
 {
     fn new() -> Box<Self> where Self: Sized;
-    fn execute(&mut self, terminal: &Terminal) -> bool;
-    fn undo(&mut self, terminal: &Terminal) -> bool;
+    fn execute(&mut self, terminal: &Context) -> bool;
+    fn undo(&mut self, terminal: &Context) -> bool;
 }
 
 /// This command is used for complex commands whits change the terminal state.
 /// By passing an `Context` instance this command will register it self to notify the terminal state change.
 
-pub trait IContextCommand
+pub trait IStateCommand
 {
-    fn new(context: &Mutex<Context>) -> (Box<Self>, u16) where Self: Sized;
-    fn execute(&mut self, terminal: &Terminal) -> bool;
-    fn undo(&mut self, terminal: &Terminal) -> bool;
+    fn execute(&mut self, terminal: &Context) -> bool;
+    fn undo(&mut self, terminal: &Context) -> bool;
 }

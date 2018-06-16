@@ -1,7 +1,7 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{ICommand, IContextCommand};
-use super::super::Context;
+use super::{ICommand, IStateCommand};
+use super::super::StateManager;
 
 use kernel::windows_kernel::{kernel, ansi_support};
 use winapi::shared::minwindef::DWORD;
@@ -9,6 +9,7 @@ use winapi::um::wincon;
 use winapi::um::wincon::{ENABLE_VIRTUAL_TERMINAL_PROCESSING ,SMALL_RECT, COORD, CHAR_INFO};
 use std::mem;
 
+use std::rc::Rc;
 use std::sync::Mutex;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
@@ -88,15 +89,17 @@ pub struct EnableRawModeCommand
     key: i16
 }
 
-impl IContextCommand for EnableRawModeCommand
+impl IStateCommand for EnableRawModeCommand
 {
-    fn new(context: &mut Context) -> (Box<EnableRawModeCommand>, i16) {
+    fn new(state: &mut StateManager) -> (Box<EnableRawModeCommand>, i16) {
         use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_PROCESSED_OUTPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_ECHO_INPUT};
 
         let key = super::generate_key();
         let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT, key: key };
-        context.register_change(Box::from(command), key);
-        (Box::from(command),key)
+        let rc = Rc::new(command);
+
+        state.register_change(rc.clone(), key);
+        (rc.clone(),key)
     }
 
     fn execute(&mut self, terminal: &Terminal) -> bool
@@ -154,7 +157,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         Box::from(ToAlternateScreenBufferCommand {})
     }
 
-    fn execute(&mut self, context: &Context) -> bool
+    fn execute(&mut self, state: &StateManager) -> bool
     {
         let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
 
@@ -208,7 +211,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         true
     }
 
-    fn undo(&mut self, context: &Context) -> bool
+    fn undo(&mut self, state: &StateManager) -> bool
     {
         let handle = kernel::get_output_handle();
         kernel::set_active_screen_buffer(handle);

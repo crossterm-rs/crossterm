@@ -7,12 +7,12 @@ mod ansi_color;
 #[cfg(target_os = "windows")]
 use self::winapi_color::WinApiColor;
 use self::ansi_color::AnsiColor;
+
+use { ScreenManager };
 use super::{Color, ColorType};
 
 use std::rc::Rc;
 use std::sync::Mutex;
-
-use { ScreenManager };
 
 ///! This trait defines the actions that can be preformed with the terminal color.
 ///! This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill

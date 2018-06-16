@@ -3,7 +3,7 @@
 use super::kernel;
 
 /// This stores the cursor pos, at program level. So it can be recalled later.
-static  mut SAVED_CURSOR_POS:(u16,u16) = (0,0);
+static mut SAVED_CURSOR_POS:(u16,u16) = (0,0);
 
 /// Reset to saved cursor position
 pub fn reset_to_saved_position()
@@ -23,6 +23,7 @@ pub fn save_cursor_pos()
     }
 }
 
+/// get the current cursor position.
 pub fn pos() -> (u16,u16)
 {
     let csbi = kernel::get_console_screen_buffer_info();

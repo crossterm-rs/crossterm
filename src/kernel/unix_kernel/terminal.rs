@@ -1,13 +1,14 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use { libc, Context, Terminal };
+use {libc, StateManager, Context, CommandManager};
 use termios::Termios;
 pub use self::libc::{termios};
 use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
-use state::commands::{ NoncanonicalModeCommand, IContextCommand} ;
+use state::commands::{ NoncanonicalModeCommand, IStateCommand} ;
 
 use std::io::Error;
 use std::{ io, mem };
+use std::rc::Rc;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -40,16 +41,15 @@ pub fn terminal_size() -> (u16,u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos(terminal: &Terminal) -> (u16,u16)
+pub fn pos(terminal: &Context) -> (u16, u16)
 {
     use std::io::{ Write,Read };
 
+    let mut command_id = NoncanonicalModeCommand::new(&terminal.state_manager);
 
-        let mut command = NoncanonicalModeCommand::new(&terminal.context);
-        command.0.execute(&terminal);
+    CommandManager::execute(terminal, command_id);
 
     // This code is original written by term_cursor credits to them.
-
     use std::io;
     let mut std = io::stdout();
     // Write command
@@ -97,10 +97,8 @@ pub fn pos(terminal: &Terminal) -> (u16,u16)
     // Expect `R`
     let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
 
-    let mut context = terminal.context.lock().unwrap();
-    {
-        context.undo_state(command.1, terminal);
-    }
+    CommandManager::undo(terminal, command_id);
+
     res
 }
 

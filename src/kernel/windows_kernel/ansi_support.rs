@@ -1,6 +1,6 @@
 //! This module handles the enabling `ANSI escape codes` for windows terminals.
 
-use Context;
+use StateManager;
 use state::commands::ICommand;
 
 static mut HAS_BEEN_TRYED_TO_ENABLE: bool = false;

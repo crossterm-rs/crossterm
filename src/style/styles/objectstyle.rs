@@ -5,6 +5,7 @@ use style::{Color, StyledObject};
 use ScreenManager;
 use std::sync::Mutex;
 use std::rc::Rc;
+
 #[cfg(unix)]
 use super::super::Attribute;
 

@@ -1,3 +1,7 @@
+//! This is an ANSI specific implementation for the screen manager
+//! This module is used for windows 10 terminals and unix terminals by default.
+//! This module uses the stdout to write to the console.
+
 use std::io::{self, Write};
 
 use super::IScreenManager;
@@ -24,24 +28,12 @@ impl<Output :Write> IScreenManager<Output> for AnsiScreenManager<Output>
     {
         write!(self.output, "{}", string);
         self.flush();
-//        println!("test");
-//        match self.is_alternate_screen
-//        {
-//            true =>  ,
-//            false => write!(io::stdout(), "{}", string),
-//        };
     }
 
     fn write_ansi_str(&mut self, string: &str)
     {
         write!(self.output, "{}", string);
         self.flush();
-//        println!("test");
-//        match self.is_alternate_screen
-//            {
-//                true =>  write!(self.output, "{}", string),
-//                false => write!(io::stdout(), "{}", string),
-//            };
     }
 }
 

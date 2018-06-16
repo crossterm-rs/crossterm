@@ -1,4 +1,4 @@
-//! This module contains the logic to style an object that contains some context witch can be styled.
+//! This module contains the logic to style an object that contains some state witch can be styled.
 
 use std::fmt;
 use std::io::Write;

@@ -1,6 +1,21 @@
-//! This module contains the commands that can be used for both unix and windows systems.
-use Terminal ;
-use super::ICommand;
+//! This module contains the commands that can be used for both unix and windows systems. Or else said terminals that support ansi codes.
+use Context;
+use super::{ICommand, IStateCommand};
+
+pub struct EmptyCommand;
+
+impl IStateCommand for EmptyCommand
+{
+    fn execute(&mut self, terminal: &Context) -> bool
+    {
+       return false
+    }
+
+    fn undo(&mut self, terminal: &Context) -> bool
+    {
+       return false;
+    }
+}
 
 /// This command is used for switching to alternate screen and back to main screen.
 #[derive(Clone, Copy)]
@@ -12,7 +27,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         Box::from(ToAlternateScreenBufferCommand {})
     }
 
-    fn execute(&mut self, terminal: &Terminal) -> bool
+    fn execute(&mut self, terminal: &Context) -> bool
     {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {
@@ -22,7 +37,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         }
     }
 
-    fn undo(&mut self, terminal: &Terminal) -> bool
+    fn undo(&mut self, terminal: &Context) -> bool
     {
         let mut screen = terminal.screen_manager.lock().unwrap();
         {

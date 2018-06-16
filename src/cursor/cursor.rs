@@ -1,31 +1,31 @@
 //! With this module you can perform actions that are cursor related.
-//! Like changing and displaying the position of the cursor in terminal.
+//! Like changing and display the position of the cursor in terminal.
 //!
-//! Note that positions of the cursor are 0 -based witch means that the coordinates starts counting from 0
+//! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
 use super::*;
-use Terminal;
+use Context;
 
 use std::fmt::Display;
 use std::io::Write;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
-pub struct TerminalCursor<'term> {
-    terminal: &'term Terminal,
+pub struct TerminalCursor<'context> {
+    context: &'context Context,
     terminal_cursor: Option<Box<ITerminalCursor>>,
 }
 
-impl <'term> TerminalCursor<'term>
+impl <'context> TerminalCursor<'context>
 {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(terminal: &'term Terminal) -> TerminalCursor<'term> {
+    pub fn new(context: &'context Context) -> TerminalCursor<'context> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new());
 
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new() as Box<ITerminalCursor>);
 
-        TerminalCursor { terminal_cursor: cursor , terminal: terminal}
+        TerminalCursor { terminal_cursor: cursor , context}
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -34,16 +34,24 @@ impl <'term> TerminalCursor<'term>
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
     ///
-    /// use self::crossterm::cursor;
-    ///     
-    /// cursor::cursor().goto(10,10);
-    /// 
+    //    pub fn goto()
+    //    {
+    //        let context = Context::new();
+    //
+    //        // Get the cursor
+    //        let mut cursor = cursor(&context);
+    //        // Set the cursor to position X: 10, Y: 5 in the terminal
+    //        cursor.goto(10,5);
+    //    }
+    ///
     /// ```
-    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor<'term> {
+    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor<'context> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.goto(x, y, &self.terminal);
+            terminal_cursor.goto(x, y, &self.context);
         }
         self
     }
@@ -54,17 +62,24 @@ impl <'term> TerminalCursor<'term>
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
     ///
-    /// use self::crossterm::cursor;
-    ///          
-    /// let pos = cursor::cursor().pos();
-    /// println!("{:?}", pos);
-    /// 
+    ///  pub fn pos()
+    ///  {
+    ///      let context = Context::new();
+    ///
+    ///      // Get the cursor
+    ///      let mut cursor = cursor(&context);
+    ///      // get the cursor position.
+    ///      let (x,y) = cursor.pos();
+    ///  }
+    ///
     /// ```
     pub fn pos(&mut self) -> (u16, u16) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.pos(&self.terminal)
+            terminal_cursor.pos(&self.context)
         } else {
             (0, 0)
         }
@@ -75,21 +90,25 @@ impl <'term> TerminalCursor<'term>
     /// #Example
     ///
     /// ```rust
-    /// 
-    /// extern crate crossterm;
     ///
-    /// use self::crossterm::cursor;
-    ///      
-    /// // Move 1 time up
-    /// cursor::cursor().move_up(1);
-    /// 
-    /// // Move 2 times up
-    /// cursor::cursor().move_up(2);
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
+    ///
+    /// pub fn move_up()
+    /// {
+    ///     let context = Context::new();
+    ///
+    ///     // Get the cursor
+    ///     let mut cursor = cursor(&context);
+    ///     // Move the cursor to position 3 times to the up in the terminal
+    ///     cursor.move_up(3);
+    /// }
     /// 
     /// ```
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'term> {
+    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'context> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_up(count, &self.terminal);
+            terminal_cursor.move_up(count, &self.context);
         }
         self
     }
@@ -99,22 +118,23 @@ impl <'term> TerminalCursor<'term>
     /// #Example
     ///
     /// ```rust
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
     ///
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::cursor;
-    ///
-    ///
-    /// // move 1 time right
-    /// cursor::cursor().move_right(1);
-    /// 
-    /// // move 2 times right
-    /// cursor::cursor().move_right(2);
-    /// 
+    //  pub fn move_right()
+    //  {
+    //      let context = Context::new();
+    //
+    //      // Get the cursor
+    //      let mut cursor = cursor(&context);
+    //      // Move the cursor to position 3 times to the right in the terminal
+    //      cursor.move_right(3);
+    //  }
     /// ```
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'term> {
+    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'context> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_right(count, &self.terminal);
+            terminal_cursor.move_right(count, &self.context);
         }
         self
     }
@@ -125,20 +145,24 @@ impl <'term> TerminalCursor<'term>
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
     ///
-    /// use self::crossterm::cursor;
-    /// 
-    /// // move 1 time down 
-    /// cursor::cursor().move_down(1);
-    /// 
-    /// // move 2 times down
-    /// cursor::cursor().move_down(2);
+    /// pub fn move_down()
+    /// {
+    ///    let context = Context::new();
+    ///
+    ///    // Get the cursor
+    ///    let mut cursor = cursor(&context);
+    ///    // Move the cursor to position 3 times to the down in the terminal
+    ///    cursor.move_down(3);
+    /// }
     ///
     /// ```
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'term> {
+    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'context> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_down(count, &self.terminal);
+            terminal_cursor.move_down(count, &self.context);
         }
         self
     }
@@ -149,20 +173,24 @@ impl <'term> TerminalCursor<'term>
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
+    ///  extern crate crossterm;
+    ///  use self::crossterm::Context;
+    ///  use self::crossterm::cursor;
     ///
-    /// use self::crossterm::cursor;
+    ///  pub fn move_left()
+    ///  {
+    ///      let context = Context::new();
     ///
-    /// // move 1 time left
-    /// cursor::cursor().move_left(1);
-    /// 
-    /// // move 2 time left
-    /// cursor::cursor().move_left(2);
-    /// 
+    ///      // Get the cursor
+    ///      let mut cursor = cursor(&context);
+    ///      // Move the cursor to position 3 times to the left in the terminal
+    ///      cursor.move_left(3);
+    ///  }
+    ///
     /// ```
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'term> {
+    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'context> {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_left(count, &self.terminal);
+            terminal_cursor.move_left(count, &self.context);
         }
         self
     }
@@ -184,23 +212,27 @@ impl <'term> TerminalCursor<'term>
     ///
     /// extern crate crossterm;
     ///
+    /// use self::crossterm::Context;
     /// use self::crossterm::cursor;
+    ///
     /// use std;
     /// use std::io::Write;
     ///
+    /// let context = Context::new();
+    ///
     /// // of course we can just do this.
-    /// cursor::cursor().goto(10,10);
+    /// cursor::cursor(&context).goto(10,10);
     /// print!("@");
     /// std::io::stdout().flush();
     /// 
     /// // but now we can chain the methods so it looks cleaner and it automatically flushes the buffer.  
-    /// cursor::cursor()
+    /// cursor::cursor(&context)
     /// .goto(10,10)
     /// .print("@");
     /// 
     /// ```
-    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor<'term> {
-        let mut screen = self.terminal.screen_manager.lock().unwrap();
+    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor<'context> {
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             write!(screen.stdout(), "{}", value);
             // rust is line buffered so we need to flush the buffer in order to print it at the current cursor position.
@@ -218,16 +250,17 @@ impl <'term> TerminalCursor<'term>
     /// ```rust
     ///
     /// extern crate crossterm;
-    ///
+    /// use self::crossterm::Context;
     /// use self::crossterm::cursor;
     ///
-    /// cursor::cursor().safe_position();
+    /// let context = Context::new();
+    /// cursor::cursor(&context).safe_position();
     ///
     /// ```
     pub fn save_position(&mut self)
     {
         if let Some(ref mut terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.save_position(&self.terminal);
+            terminal_cursor.save_position(&self.context);
         }
     }
 
@@ -240,40 +273,43 @@ impl <'term> TerminalCursor<'term>
     /// ```rust
     ///
     /// extern crate crossterm;
-    ///
     /// use self::crossterm::cursor::cursor;
+    /// use self::crossterm::Context;
     ///
-    /// cursor().reset_position();
+    /// let context = Context::new();
+    /// cursor(&context).reset_position();
     ///
     /// ```
     pub fn reset_position(&mut self)
     {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.reset_position(&self.terminal);
+            terminal_cursor.reset_position(&self.context);
         }
     }
 }
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 ///
-/// Check `/examples/cursor` in the libary for more spesific examples.
+/// Check `/examples/version/cursor` in the libary for more spesific examples.
 /// 
 /// #Example
 ///
 /// ```rust
 ///
-/// extern crate crossterm;
+///  extern crate crossterm;
+///  use self::crossterm::Context;
+///  use self::crossterm::cursor;
 ///
-/// use self::crossterm::cursor;
-/// 
+/// let context = Context::new();
+///
 /// // Get cursor and goto pos X: 5, Y: 10
-/// let mut cursor = cursor::cursor();
+/// let mut cursor = cursor::cursor(&context);
 /// cursor.goto(5,10);
 ///     
 /// //Or you can do it in one line.
-/// cursor::cursor().goto(5,10);
+/// cursor::cursor(&context).goto(5,10);
 ///
 /// ```
-pub fn cursor<'term>(terminal: &'term Terminal) -> Box<TerminalCursor<'term>> {
-    Box::from(TerminalCursor::new(&terminal))
+pub fn cursor<'context>(context: &'context Context) -> Box<TerminalCursor<'context>> {
+    Box::from(TerminalCursor::new(&context))
 }

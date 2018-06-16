@@ -58,7 +58,7 @@ pub fn get_input_handle() -> HANDLE {
 }
 
 /// Checks if the console handle is an invalid handle value.
-pub fn is_valid_handle(handle: &HANDLE) -> bool {
+fn is_valid_handle(handle: &HANDLE) -> bool {
     if *handle == INVALID_HANDLE_VALUE {
         false
     } else {

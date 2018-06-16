@@ -14,12 +14,11 @@ pub mod terminal;
 pub mod manager;
 
 pub use shared::{screen, raw};
+pub use state::context::Context;
 
-use shared::traits::{Construct};
-pub use state::{ Context };
-pub use manager::manager::{ ScreenManager };
-pub use shared::terminal::Terminal;
-
+use state::command_manager::CommandManager;
+use state::state_manager::StateManager;
+use manager::ScreenManager;
 
 #[cfg(windows)]
 extern crate winapi;
@@ -27,5 +26,3 @@ extern crate winapi;
 extern crate libc;
 #[cfg(unix)]
 extern crate termios;
-
-extern crate rand;

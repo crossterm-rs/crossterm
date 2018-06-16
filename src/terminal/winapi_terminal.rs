@@ -1,5 +1,5 @@
 //! This is an `WINAPI` specific implementation for terminal related action.
-//! This module is used for windows 10 terminals and unix terminals by default.
+//! This module is used for non supporting `ANSI` windows terminals.
 
 use {Construct};
 use cursor::cursor;

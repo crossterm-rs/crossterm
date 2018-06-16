@@ -1,6 +1,6 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use Terminal;
+use Context;
 
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::terminal_size;
@@ -20,7 +20,7 @@ pub fn get_terminal_size() -> (u16, u16)
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(screen: &Terminal) -> (u16,u16)
+pub fn get_cursor_position(screen: &Context) -> (u16, u16)
 {
     #[cfg(unix)]
     return pos(&screen);

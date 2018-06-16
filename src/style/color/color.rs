@@ -2,10 +2,9 @@
 //! Like styling the font, foreground color and background.
 
 use super::*;
-use Construct;
 use style::Color;
 
-use std::{ io };
+use std::io;
 use std::rc::Rc;
 use std::sync::Mutex;
 
@@ -35,9 +34,12 @@ impl TerminalColor {
     /// extern crate crossterm;
     ///
     /// use self::crossterm::style::{ color, Color};
+    /// use crossterm::Context;
+    ///
+    /// let context = Context::new();
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = color();
+    /// let mut colored_terminal = color(&context);
     /// 
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
@@ -60,9 +62,12 @@ impl TerminalColor {
     /// extern crate crossterm;
     ///
     /// use self::crossterm::style::{ color, Color};
+    /// use crossterm::Context;
+    ///
+    /// let context = Context::new();
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = color();
+    /// let mut colored_terminal = color(&context);
     /// 
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
@@ -83,9 +88,12 @@ impl TerminalColor {
     /// extern crate crossterm;
     ///
     /// use self::crossterm::style::color;
+    /// use crossterm::Context;
+    ///
+    /// let context = Context::new();
     ///
     /// // Get colored terminal instance
-    /// let mut colored_terminal = color();
+    /// let mut colored_terminal = color(&context);
     /// 
     /// colored_terminal.reset();
     ///
@@ -114,6 +122,10 @@ impl TerminalColor {
     }
 }
 
+/// Get an Color implementation whereon color related actions can be performed.
+///
+/// Check `/examples/version/color` in the libary for more specific examples.
+///
 pub fn color(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<TerminalColor> {
     Box::from(TerminalColor::new(screen_manager.clone()))
 }

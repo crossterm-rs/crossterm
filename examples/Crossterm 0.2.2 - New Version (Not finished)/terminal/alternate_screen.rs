@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::Terminal;
+use crossterm::Context;
 use crossterm::screen::AlternateScreen;
 use crossterm::cursor::cursor;
 use crossterm::terminal::{self, ClearType};
@@ -8,7 +8,7 @@ use crossterm::terminal::{self, ClearType};
 use std::io::{Write, stdout};
 use std::{time, thread};
 
-fn print_wait_screen(terminal: &Terminal)
+fn print_wait_screen(terminal: &Context)
 {
     terminal::terminal(&terminal).clear(ClearType::All);
 
@@ -39,16 +39,16 @@ fn print_wait_screen(terminal: &Terminal)
 
 pub fn print_wait_screen_on_alternate_window()
 {
-    let terminal = Terminal::new();
+    let context = Context::new();
 
     // create scope. If this scope ends the screen will be switched back to mainscreen.
     // because `AlternateScreen` switches back to main screen when switching back.
     {
         // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(&terminal);
+        let mut screen = AlternateScreen::from(&context);
 
         // Print the wait screen.
-        print_wait_screen(&terminal);
+        print_wait_screen(&context);
     }
 
     println!("Whe are back at the main screen");
@@ -56,12 +56,12 @@ pub fn print_wait_screen_on_alternate_window()
 
 pub fn switch_between_main_and_alternate_screen()
 {
-    let terminal = Terminal::new();
-    let mut cursor = cursor(&terminal);
+    let context = Context::new();
+    let mut cursor = cursor(&context);
 
     {
         // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(&terminal);
+        let mut screen = AlternateScreen::from(&context);
         cursor.goto(0,0);
         write!(screen, "we are at the alternate screen!");
         screen.flush();

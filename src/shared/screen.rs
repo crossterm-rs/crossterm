@@ -1,96 +1,57 @@
 //! This module contains all the logic for switching between alternate screen and main screen.
 
-use Terminal;
+use Context;
 use state::commands::*;
 
 use std::io::{self, Write};
 
-//pub struct ToMainScreen;
-//
-//impl fmt::Display for ToMainScreen
-//{
-//    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//        get_to_alternate_screen_command().undo();
-//        Ok(())
-//    }
-//}
-//
-///// Struct that switches to alternate screen buffer on display.
-//pub struct ToAlternateScreen;
-//
-//impl fmt::Display for ToAlternateScreen
-//{
-//    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//        get_to_alternate_screen_command().execute();
-//        Ok(())
-//    }
-//}
-
-/// Struct that can be used for writing to an alternate screen.
-///
-/// #Example
-///
-/// ```rust
-/// extern crate crossterm;
-/// use self::crossterm::terminal::screen;
-/// use std::{time, thread};
-///    ...
-///
-///    // Initialize and switch to the alternate screen from an std output handle.
-///    // Now you can write to this screen.
-///    let mut screen = screen::AlternateScreen::from(stdout());
-///    // Write some text to the alternate screen.
-///    write!(screen, "Welcome to the alternate screen. Wait 4 seconds to switch back").unwrap();
-///    thread::sleep(time::Duration::from_secs(4));
-///    // switch back to main screen.
-///    write!(screen, "{}", screen::ToMainScreen);
-///    write!(screen, "{}", "We are back again at the main screen");
-///
-///    ...
-///
-/// ```
-pub struct AlternateScreen<'term> {
-    term: &'term Terminal
+pub struct AlternateScreen<'context> {
+    context: &'context Context
 }
 
-impl<'term> AlternateScreen<'term> {
-    pub fn from(output: &'term Terminal) -> Self {
-        get_to_alternate_screen_command().execute(&output);
-        AlternateScreen { term: output }
+impl<'context> AlternateScreen<'context> {
+    /// Get the alternate screen from the context.
+    /// By calling this method the current screen will be changed to the alternate screen.
+    /// And you get back an handle for that screen.
+    pub fn from(context: &'context Context) -> Self {
+        get_to_alternate_screen_command().execute(&context);
+        AlternateScreen { context: context }
     }
 
+    /// Change the current screen to the mainscreen.
     pub fn to_main(&self)
     {
-        get_to_alternate_screen_command().undo(&self.term);
+        get_to_alternate_screen_command().undo(&self.context);
     }
 
+    /// Change the current screen to alternate screen.
     pub fn to_alternate(&self)
     {
-        get_to_alternate_screen_command().execute(&self.term);
+        get_to_alternate_screen_command().execute(&self.context);
     }
 }
 
-impl<'term> Write for AlternateScreen<'term> {
+impl<'context> Write for AlternateScreen<'context> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        let mut screen = self.term.screen_manager.lock().unwrap();
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.stdout().write(buf)
         }
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        let mut screen = self.term.screen_manager.lock().unwrap();
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.stdout().flush()
         }
     }
 }
 
-impl<'term> Drop for AlternateScreen<'term>
+impl<'context> Drop for AlternateScreen<'context>
 {
     fn drop(&mut self)
     {
-        get_to_alternate_screen_command().undo(&self.term);
+        get_to_alternate_screen_command().undo(&self.context);
     }
 }
 
