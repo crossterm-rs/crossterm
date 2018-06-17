@@ -1,7 +1,7 @@
 //! Crossterm provides the same core functionalities for both windows and unix systems.
 //! Crossterm aims to be simple and easy to call in code.
 //! True the simplicity of Crossterm you do not have to worry about the platform your working with.
-//! You can just call the action you want to preform and under water it will check what to do based on the current platform.
+//! You can just call the action you want to perform and under water it will check what to do based on the current platform.
 
 #[macro_use]
 mod shared;
