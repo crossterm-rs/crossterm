@@ -6,15 +6,17 @@ use std::io::{self, Write};
 
 use super::IScreenManager;
 
-pub struct AnsiScreenManager<Output:Write>
+pub struct AnsiScreenManager
 {
     pub is_alternate_screen: bool,
-    output: Output,
+    output: Box<Write>,
 }
 
-impl<Output :Write> IScreenManager<Output> for AnsiScreenManager<Output>
+impl IScreenManager for AnsiScreenManager
 {
-    fn stdout(&mut self) -> &mut Output
+    type Output = Box<Write>;
+
+    fn stdout(&mut self) -> &mut Self::Output
     {
         return &mut self.output
     }
@@ -37,7 +39,7 @@ impl<Output :Write> IScreenManager<Output> for AnsiScreenManager<Output>
     }
 }
 
-impl AnsiScreenManager<Box<Write>> {
+impl AnsiScreenManager {
     pub fn new() -> Self {
         AnsiScreenManager {
             output: (Box::from(io::stdout()) as Box<Write>),
@@ -46,7 +48,7 @@ impl AnsiScreenManager<Box<Write>> {
     }
 }
 
-impl<Output:Write> Write for AnsiScreenManager<Output>
+impl Write for AnsiScreenManager
 {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.output.write(buf)

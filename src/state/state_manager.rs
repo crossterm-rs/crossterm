@@ -50,6 +50,11 @@ impl StateManager
 
         return Rc::new(Mutex::new(Box::new(EmptyCommand)))
     }
+
+    pub fn get_changes_count(&self) -> u16
+    {
+        return self.changed_states.len() as u16
+    }
 }
 
 

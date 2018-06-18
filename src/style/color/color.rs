@@ -1,12 +1,13 @@
 //! With this module you can perform actions that are color related.
 //! Like styling the font, foreground color and background.
 
+use {ScreenManager, Context};
 use super::*;
 use style::Color;
-
 use std::io;
 use std::rc::Rc;
 use std::sync::Mutex;
+use super::super::super::shared::functions;
 
 /// Struct that stores an specific platform implementation for color related actions.
 pub struct TerminalColor {
@@ -16,14 +17,14 @@ pub struct TerminalColor {
 
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(screen_manager: Rc<Mutex<ScreenManager>> ) -> TerminalColor {
+    pub fn new(context: &Context ) -> TerminalColor {
         #[cfg(target_os = "windows")]
-        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new());
+        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new(), context);
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new() as Box<ITerminalColor>);
 
-        TerminalColor { color: color, screen_manager: screen_manager.clone() }
+        TerminalColor { color: color, screen_manager: context.screen_manager.clone() }
     }
 
     /// Set the foreground color to the given color.
@@ -126,6 +127,6 @@ impl TerminalColor {
 ///
 /// Check `/examples/version/color` in the libary for more specific examples.
 ///
-pub fn color(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<TerminalColor> {
-    Box::from(TerminalColor::new(screen_manager.clone()))
+pub fn color(context: &Context) -> Box<TerminalColor> {
+    Box::from(TerminalColor::new(context))
 }

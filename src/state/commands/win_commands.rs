@@ -1,7 +1,7 @@
 //! This module contains the commands that can be used for windows systems.
 
 use super::{ICommand, IStateCommand};
-use super::super::StateManager;
+use { StateManager, Context };
 
 use kernel::windows_kernel::{kernel, ansi_support};
 use winapi::shared::minwindef::DWORD;
@@ -23,18 +23,16 @@ pub struct EnableAnsiCommand
 impl ICommand for EnableAnsiCommand
 {
     fn new() -> Box<EnableAnsiCommand> {
-        let key = super::generate_key();
         let command = EnableAnsiCommand { mask: ENABLE_VIRTUAL_TERMINAL_PROCESSING };
         Box::from(command)
     }
 
-    fn execute(&mut self) -> bool
+    fn execute(&mut self, context: &Context) -> bool
     {
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled()
             {
                 return ansi_support::windows_supportable();
-
             } else {
             let output_handle = kernel::get_output_handle();
 
@@ -56,7 +54,7 @@ impl ICommand for EnableAnsiCommand
         }
     }
 
-    fn undo(&mut self) -> bool
+    fn undo(&mut self, context: &Context) -> bool
     {
         if ansi_support::ansi_enabled()
         {
@@ -86,23 +84,28 @@ impl ICommand for EnableAnsiCommand
 pub struct EnableRawModeCommand
 {
     mask: DWORD,
-    key: i16
+    key: u16
+}
+
+impl EnableRawModeCommand
+{
+    pub fn new(state_manager: &Mutex<StateManager>) -> u16 {
+        use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_PROCESSED_OUTPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_ECHO_INPUT};
+
+
+        let mut state = state_manager.lock().unwrap();
+        {
+            let key = state.get_changes_count();
+            let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT, key: key };
+            state.register_change(Box::from(command), key);
+            key
+        }
+    }
 }
 
 impl IStateCommand for EnableRawModeCommand
 {
-    fn new(state: &mut StateManager) -> (Box<EnableRawModeCommand>, i16) {
-        use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_PROCESSED_OUTPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_ECHO_INPUT};
-
-        let key = super::generate_key();
-        let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT, key: key };
-        let rc = Rc::new(command);
-
-        state.register_change(rc.clone(), key);
-        (rc.clone(),key)
-    }
-
-    fn execute(&mut self, terminal: &Terminal) -> bool
+    fn execute(&mut self, context: &Context) -> bool
     {
         use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_ECHO_INPUT};
 
@@ -124,7 +127,7 @@ impl IStateCommand for EnableRawModeCommand
         true
     }
 
-    fn undo(&mut self, terminal: &Terminal) -> bool
+    fn undo(&mut self, context: &Context) -> bool
     {
         let output_handle = kernel::get_output_handle();
 
@@ -157,7 +160,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         Box::from(ToAlternateScreenBufferCommand {})
     }
 
-    fn execute(&mut self, state: &StateManager) -> bool
+    fn execute(&mut self, context: &Context) -> bool
     {
         let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
 
@@ -211,7 +214,7 @@ impl ICommand for ToAlternateScreenBufferCommand
         true
     }
 
-    fn undo(&mut self, state: &StateManager) -> bool
+    fn undo(&mut self, context: &Context) -> bool
     {
         let handle = kernel::get_output_handle();
         kernel::set_active_screen_buffer(handle);

@@ -78,7 +78,7 @@ impl Context
         where
             D: fmt::Display,
     {
-        style::ObjectStyle::new().apply_to(val, self.screen_manager.clone())
+        style::ObjectStyle::new().apply_to(val, &self)
     }
 }
 

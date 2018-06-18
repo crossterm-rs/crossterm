@@ -1,8 +1,11 @@
-use Construct;
 use super::ITerminalColor;
 use super::super::{ColorType, Color};
 use winapi::um::wincon;
 use kernel::windows_kernel::kernel;
+use ScreenManager;
+
+use std::sync::Mutex;
+use std::rc::Rc;
 
 /// This struct is an windows implementation for color related actions.
 #[derive(Debug)]
@@ -10,8 +13,8 @@ pub struct WinApiColor {
     original_console_color: u16,
 }
 
-impl Construct for WinApiColor {
-    fn new() -> Box<WinApiColor> {
+impl WinApiColor {
+    pub fn new() -> Box<WinApiColor> {
         Box::from(WinApiColor {
             original_console_color: kernel::get_original_console_color(),
         })
@@ -20,7 +23,7 @@ impl Construct for WinApiColor {
 
 impl ITerminalColor for WinApiColor {
 
-    fn set_fg(&self, fg_color: Color) {
+    fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
         let csbi = kernel::get_console_screen_buffer_info();
@@ -41,7 +44,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color);
     }
 
-    fn set_bg(&self, bg_color: Color) {
+    fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
         let csbi = kernel::get_console_screen_buffer_info();
@@ -61,7 +64,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color);
     }
 
-    fn reset(&self) {
+    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
         kernel::set_console_text_attribute(self.original_console_color);
     }
 

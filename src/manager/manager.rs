@@ -9,7 +9,7 @@ use std::io::Write;
 /// Struct that stores an specific platform implementation for screen related actions.
 pub struct ScreenManager
 {
-    screen_manager: Box<IScreenManager<Box<Write>>>
+    screen_manager: Box<IScreenManager<Output=Box<Write>>>
 }
 
 impl ScreenManager

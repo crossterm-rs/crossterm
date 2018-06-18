@@ -31,7 +31,7 @@ pub fn get_cursor_position(screen: &Context) -> (u16, u16)
 
 #[cfg(windows)]
 /// Get an module specific implementation based on the current platform.
-pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T>
+pub fn get_module<T>(winapi_impl: T, unix_impl: T, context: &Context) -> Option<T>
 {
     let mut term: Option<T> = None;
     let mut does_support = true;
@@ -41,7 +41,7 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T>
         use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
         // Try to enable ansi on windows if not than use WINAPI.
-        does_support = try_enable_ansi_support();
+        does_support = try_enable_ansi_support(&context);
 
         if !does_support
         {

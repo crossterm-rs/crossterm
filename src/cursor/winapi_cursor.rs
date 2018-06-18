@@ -26,23 +26,23 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn move_up(&self, count: u16, context: &Context) {
-        let (xpos,ypos) = self.pos();
-        self.goto(xpos, ypos - count);
+        let (xpos,ypos) = self.pos(context);
+        self.goto(xpos, ypos - count, context);
     }
 
     fn move_right(&self, count: u16, context: &Context) {
-        let (xpos,ypos) = self.pos();
-        self.goto(xpos + count, ypos);
+        let (xpos,ypos) = self.pos(context);
+        self.goto(xpos + count, ypos, context);
     }
 
     fn move_down(&self, count: u16, context: &Context) {
-        let (xpos,ypos) = self.pos();
-        self.goto(xpos, ypos + count);
+        let (xpos,ypos) = self.pos(context);
+        self.goto(xpos, ypos + count,context);
     }
 
     fn move_left(&self, count: u16, context: &Context) {
-        let (xpos,ypos) = self.pos();
-        self.goto(xpos - count, ypos);
+        let (xpos,ypos) = self.pos(context);
+        self.goto(xpos - count, ypos,context);
     }
 
     fn save_position(&mut self, context: &Context)

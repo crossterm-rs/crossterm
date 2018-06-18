@@ -4,8 +4,9 @@
 use super::*;
 use Context;
 
-use super::super::style;
 use std::fmt;
+use super::super::style;
+use super::super::shared::functions;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal<'context> {
@@ -17,7 +18,7 @@ impl<'context>  Terminal<'context> {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new(context: &'context  Context) -> Terminal<'context> {
         #[cfg(target_os = "windows")]
-        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new());
+        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new(), context);
 
         #[cfg(not(target_os = "windows"))]
         let terminal = Some(AnsiTerminal::new() as Box<ITerminal>);
@@ -182,7 +183,7 @@ impl<'context>  Terminal<'context> {
         where
             D: fmt::Display,
     {
-        style::ObjectStyle::new().apply_to(val, self.context.screen_manager.clone())
+        style::ObjectStyle::new().apply_to(val, &self.context)
     }
 }
 

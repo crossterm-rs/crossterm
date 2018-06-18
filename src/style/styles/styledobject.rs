@@ -4,7 +4,7 @@ use std::fmt;
 use std::io::Write;
 use std::sync::Mutex;
 use std::rc::Rc;
-use ScreenManager;
+use { ScreenManager, Context};
 
 #[cfg(unix)]
 use super::super::Attribute;
@@ -12,13 +12,13 @@ use super::super::Attribute;
 use style::{Color, ObjectStyle};
 
 /// Struct that contains both the style and the content wits can be styled.
-pub struct StyledObject<D> {
+pub struct StyledObject<'a, D> {
     pub object_style: ObjectStyle,
     pub content: D,
-    pub screen_manager: Rc<Mutex<ScreenManager>>
+    pub context: &'a Context
 }
 
-impl<D> StyledObject<D> {
+impl<'a, D> StyledObject<'a,D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// #Example
@@ -39,7 +39,7 @@ impl<D> StyledObject<D> {
     /// println!("{}", paint("I am colored green").with(Color::Green));
     /// 
     /// ```
-    pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
+    pub fn with(mut self, foreground_color: Color) -> StyledObject<'a,D> {
         self.object_style = self.object_style.fg(foreground_color);
         self
     }
@@ -64,7 +64,7 @@ impl<D> StyledObject<D> {
     /// println!("{}", paint("I am colored green").on(Color::Green))
     /// 
     /// ```
-    pub fn on(mut self, background_color: Color) -> StyledObject<D> {
+    pub fn on(mut self, background_color: Color) -> StyledObject<'a,D> {
         self.object_style = self.object_style.bg(background_color);
         self
     }
@@ -82,7 +82,7 @@ impl<D> StyledObject<D> {
     /// 
     /// ```
     #[cfg(unix)]
-    pub fn attr(mut self, attr: Attribute) -> StyledObject<D>
+    pub fn attr(mut self, attr: Attribute) -> StyledObject<'a,D>
     {
         &self.object_style.add_attr(attr);
         self
@@ -113,10 +113,10 @@ impl<D> StyledObject<D> {
 macro_rules! impl_fmt
 {
     ($name:ident) => {
-        impl<D: fmt::$name> fmt::$name for StyledObject<D> {
+        impl<'a, D: fmt::$name> fmt::$name for StyledObject<'a, D> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
             {
-                let mut colored_terminal = super::super::color(self.screen_manager.clone());
+                let mut colored_terminal = super::super::color(&self.context);
                 let mut reset = true;
 
                 if let Some(bg) = self.object_style.bg_color
@@ -138,7 +138,7 @@ macro_rules! impl_fmt
 
                 fmt::$name::fmt(&self.content, f)?;
 
-                let mutex = &self.screen_manager;
+                let mutex = &self.context.screen_manager;
                 {
                     let mut screen = mutex.lock().unwrap();
                      screen.stdout().flush().expect("Flush stdout failed");

@@ -5,6 +5,7 @@
 
 use super::*;
 use Context;
+use super::super::shared::functions;
 
 use std::fmt::Display;
 use std::io::Write;
@@ -20,7 +21,7 @@ impl <'context> TerminalCursor<'context>
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new(context: &'context Context) -> TerminalCursor<'context> {
         #[cfg(target_os = "windows")]
-        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new());
+        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(), context);
 
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new() as Box<ITerminalCursor>);

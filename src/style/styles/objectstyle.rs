@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 use style::{Color, StyledObject};
-use ScreenManager;
+use { ScreenManager, Context };
 use std::sync::Mutex;
 use std::rc::Rc;
 
@@ -32,13 +32,13 @@ impl Default for ObjectStyle {
 
 impl ObjectStyle {
     /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<D>(&self, val: D, screen: Rc<Mutex<ScreenManager>>) -> StyledObject<D>
+    pub fn apply_to<'a, D>(&self, val: D, context: &'a Context) -> StyledObject<'a, D>
     where
         D: Display,
     {
         StyledObject {
             object_style: self.clone(),
-            screen_manager: screen,
+            context: context,
             content: val,
         }
     }
