@@ -1,9 +1,9 @@
 //! This module contains the `object style` that can be applied to an `styled object`.
 
-use std::fmt::Display;
+use Context;
 use style::{Color, StyledObject};
-use { ScreenManager, Context };
-use std::sync::Mutex;
+
+use std::fmt::Display;
 use std::rc::Rc;
 
 #[cfg(unix)]
@@ -32,7 +32,7 @@ impl Default for ObjectStyle {
 
 impl ObjectStyle {
     /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<'a, D>(&self, val: D, context: &'a Context) -> StyledObject<'a, D>
+    pub fn apply_to<D>(&self, val: D, context: Rc<Context>) -> StyledObject<D>
     where
         D: Display,
     {

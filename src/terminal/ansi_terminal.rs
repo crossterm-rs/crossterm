@@ -3,66 +3,65 @@
 
 use Context;
 use shared::functions;
-use super::{ClearType, ITerminal};
-
-use std::io::Write;
+use super::{ClearType, ITerminal, Rc};
 
 /// This struct is an ansi implementation for terminal related actions.
-pub struct AnsiTerminal;
+pub struct AnsiTerminal
+{
+    context: Rc<Context>
+}
 
 impl AnsiTerminal {
-    pub fn new() -> Box<AnsiTerminal> {
-        Box::from(AnsiTerminal {})
+    pub fn new(context: Rc<Context>) -> Box<AnsiTerminal> {
+        Box::from(AnsiTerminal {context: context})
     }
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType, context: &Context) {
-
-        let mut screen_manager = context.screen_manager.lock().unwrap();
+    fn clear(&self, clear_type: ClearType)
+    {
+        let mut screen_manager = self.context.screen_manager.lock().unwrap();
         {
-            let stdout = screen_manager.stdout();
-
             match clear_type {
                 ClearType::All => {
-                    write!(stdout, csi!("2J"));
+                    screen_manager.write_ansi_str(csi!("2J"));
                 },
                 ClearType::FromCursorDown => {
-                    write!(stdout, csi!("J"));
+                    screen_manager.write_ansi_str(csi!("J"));
                 },
                 ClearType::FromCursorUp => {
-                    write!(stdout, csi!("1J"));
+                    screen_manager.write_ansi_str(csi!("1J"));
                 },
                 ClearType::CurrentLine => {
-                    write!(stdout, csi!("2K"));
+                    screen_manager.write_ansi_str(csi!("2K"));
                 },
                 ClearType::UntilNewLine => {
-                    write!(stdout, csi!("K"));
+                    screen_manager.write_ansi_str(csi!("K"));
                 },
             };
         }
     }
 
-    fn terminal_size(&self, context: &Context) -> (u16, u16) {
+    fn terminal_size(&self) -> (u16, u16) {
         functions::get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, context: &Context) {
-        let mut screen = context.screen_manager.lock().unwrap();
+    fn scroll_up(&self, count: i16) {
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{}S"), count));
         }
     }
 
-    fn scroll_down(&self, count: i16, context: &Context) {
-        let mut screen = context.screen_manager.lock().unwrap();
+    fn scroll_down(&self, count: i16) {
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{}T"), count));
         }
     }
 
-    fn set_size(&self, width: i16, height: i16, context: &Context) {
-        let mut screen = context.screen_manager.lock().unwrap();
+    fn set_size(&self, width: i16, height: i16) {
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("8;{};{}t"), width, height));
         }

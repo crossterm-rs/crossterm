@@ -1,18 +1,17 @@
 //! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
-
 use winapi::um::winnt::HANDLE;
 use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
 use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
-use winapi::shared::minwindef::{TRUE};
+use winapi::shared::minwindef::{TRUE, FALSE};
 use winapi::um::wincon;
 use winapi::um::wincon::
 {
-    SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer,
+    SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer, SetConsoleCursorInfo,
     GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,
-    CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT
+    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,WriteConsoleOutputCharacterA,WriteConsoleOutputAttribute,
+    CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT, CONSOLE_CURSOR_INFO
 };
 
 use super::{Empty};
@@ -129,6 +128,22 @@ pub fn set_console_cursor_position(x: i16, y: i16)
         if success == 0 {
             panic!("Argument out of range.");
         }
+    }
+}
+
+pub fn cursor_visibility(visable: bool)
+{
+    let handle = get_output_handle();
+
+    let cursor_info = CONSOLE_CURSOR_INFO
+    {
+        dwSize: 100,
+        bVisible: if visable { FALSE } else {TRUE}
+    };
+
+    unsafe
+    {
+        SetConsoleCursorInfo(handle, &cursor_info);
     }
 }
 
@@ -280,6 +295,32 @@ pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;
                 panic!("Cannot write to console output");
             }
         }
+}
+
+pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
+{
+    use std::ffi::CString;
+    use std::str;
+
+    // get buffer info
+    let csbi = get_console_screen_buffer_info();
+
+    // get string from u8[] and parse it to an c_str
+    let mut data = str::from_utf8(buf).unwrap();
+    let c_str = CString::new(data);
+    let ptr: *const u16 = c_str.unwrap().as_ptr() as *const u16;
+
+    // get current position
+    let current_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
+
+    let mut cells_written: u32 = 0;
+
+    // write to console
+    unsafe
+    {
+
+        WriteConsoleOutputAttribute(handle, ptr, data.len() as u32, current_pos, &mut cells_written);
+    }
 }
 
 /// Parse integer to an bool

@@ -1,35 +1,40 @@
 //! This module contains the commands that can be used for both unix and windows systems. Or else said terminals that support ansi codes.
 use Context;
-use super::{ICommand, IStateCommand};
+use super::{IStateCommand};
 
 pub struct EmptyCommand;
 
 impl IStateCommand for EmptyCommand
 {
-    fn execute(&mut self, terminal: &Context) -> bool
+    fn execute(&mut self) -> bool
     {
        return false
     }
 
-    fn undo(&mut self, terminal: &Context) -> bool
+    fn undo(&mut self) -> bool
     {
        return false;
     }
 }
 
 /// This command is used for switching to alternate screen and back to main screen.
-#[derive(Clone, Copy)]
-pub struct ToAlternateScreenBufferCommand;
-
-impl ICommand for ToAlternateScreenBufferCommand
+pub struct ToAlternateScreenBufferCommand<'a>
 {
-    fn new() -> Box<ToAlternateScreenBufferCommand> {
-        Box::from(ToAlternateScreenBufferCommand {})
-    }
+    context: &'a Context
+}
 
-    fn execute(&mut self, terminal: &Context) -> bool
+impl<'a> ToAlternateScreenBufferCommand<'a>
+{
+    pub fn new(context: & 'a Context) -> Box < ToAlternateScreenBufferCommand > {
+        Box::from(ToAlternateScreenBufferCommand {context: context})
+    }
+}
+
+impl<'context> IStateCommand for ToAlternateScreenBufferCommand<'context>
+{
+    fn execute(&mut self) -> bool
     {
-        let mut screen = terminal.screen_manager.lock().unwrap();
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("?1049h"));
             screen.toggle_is_alternate_screen(true);
@@ -37,9 +42,9 @@ impl ICommand for ToAlternateScreenBufferCommand
         }
     }
 
-    fn undo(&mut self, terminal: &Context) -> bool
+    fn undo(&mut self) -> bool
     {
-        let mut screen = terminal.screen_manager.lock().unwrap();
+        let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("?1049l"));
             screen.toggle_is_alternate_screen(false);

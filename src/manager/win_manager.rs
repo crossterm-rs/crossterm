@@ -2,21 +2,18 @@ use super::IScreenManager;
 use kernel::windows_kernel::kernel;
 use winapi::um::winnt::HANDLE;
 
+use std::io::{self,Write};
+use std::any::Any;
+
 pub struct WinApiScreenManager
 {
     pub is_alternate_screen: bool,
-    output: Box<HANDLE>,
+    output: HANDLE,
+    alternate_handle: HANDLE
 }
 
-impl IScreenManager for WinApiScreenManager where
+impl IScreenManager for WinApiScreenManager
 {
-    type Output = HANDLE;
-
-    fn stdout(&mut self) -> &mut Self::Output
-    {
-        return &mut self.output
-    }
-
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool)
     {
         self.is_alternate_screen = is_alternate_screen;
@@ -33,24 +30,39 @@ impl IScreenManager for WinApiScreenManager where
 //        write!(self.output, "{}", string);
 //        self.flush();
     }
+
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        if self.is_alternate_screen
+            {
+                kernel::write_char_buffer(self.alternate_handle, buf);
+            }
+            else {
+                kernel::write_char_buffer(self.output, buf);
+            }
+        Ok(0)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn as_any(&mut self) -> &mut Any
+    {
+        self
+    }
 }
 
 impl WinApiScreenManager {
     pub fn new() -> Self {
         WinApiScreenManager {
-            output: (Box::from(kernel::get_output_handle())),
-            is_alternate_screen: false
+            output: kernel::get_output_handle(),
+            is_alternate_screen: false,
+            alternate_handle: kernel::get_output_handle(),
         }
     }
-}
 
-//impl<Output:Write> Write for AnsiScreenManager<Output>
-//{
-//    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-//        self.output.write(buf)
-//    }
-//
-//    fn flush(&mut self) -> io::Result<()> {
-//        self.stdout().flush()
-//    }
-//}
+    pub fn set_alternate_handle(&mut self, alternate_handle: HANDLE)
+    {
+        self.alternate_handle = alternate_handle;
+    }
+}

@@ -3,25 +3,26 @@
 
 use super::*;
 use Context;
-
-use std::fmt;
 use super::super::style;
 use super::super::shared::functions;
 
+use std::fmt;
+use std::rc::Rc;
+
 /// Struct that stores an specific platform implementation for terminal related actions.
-pub struct Terminal<'context> {
+pub struct Terminal {
     terminal: Option<Box<ITerminal>>,
-    context: &'context Context
+    context: Rc<Context>
 }
 
-impl<'context>  Terminal<'context> {
+impl Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new(context: &'context  Context) -> Terminal<'context> {
+    pub fn new(context: Rc<Context>) -> Terminal {
         #[cfg(target_os = "windows")]
-        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(), AnsiTerminal::new(), context);
+        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(context.clone()), AnsiTerminal::new(context.clone()));
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = Some(AnsiTerminal::new() as Box<ITerminal>);
+        let terminal = Some(AnsiTerminal::new(context.clone()) as Box<ITerminal>);
 
         Terminal { terminal, context: context }
 
@@ -54,7 +55,7 @@ impl<'context>  Terminal<'context> {
     /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
         if let Some(ref terminal) = self.terminal {
-            terminal.clear(clear_type, &self.context);
+            terminal.clear(clear_type);
         }
     }
 
@@ -77,7 +78,7 @@ impl<'context>  Terminal<'context> {
     /// ```
     pub fn terminal_size(&mut self) -> (u16, u16) {
         if let Some(ref terminal) = self.terminal {
-            return terminal.terminal_size(&self.context)
+            return terminal.terminal_size()
         }
         (0,0)
     }
@@ -101,7 +102,7 @@ impl<'context>  Terminal<'context> {
     /// ```
     pub fn scroll_up(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
-            terminal.scroll_up(count,&self.context);
+            terminal.scroll_up(count);
         }
     }
 
@@ -124,7 +125,7 @@ impl<'context>  Terminal<'context> {
     /// ```
     pub fn scroll_down(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
-            terminal.scroll_down(count, &self.context);
+            terminal.scroll_down(count);
         }
     }
 
@@ -148,7 +149,7 @@ impl<'context>  Terminal<'context> {
     pub fn set_size(&mut self, width: i16, height: i16)
     {
         if let Some (ref terminal) = self.terminal {
-            terminal.set_size(width,height,&self.context);
+            terminal.set_size(width,height);
         }
     }
 
@@ -183,7 +184,7 @@ impl<'context>  Terminal<'context> {
         where
             D: fmt::Display,
     {
-        style::ObjectStyle::new().apply_to(val, &self.context)
+        style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
 }
 
@@ -208,6 +209,6 @@ impl<'context>  Terminal<'context> {
 ///
 /// ```
 ///
-pub fn terminal<'context>(context: &'context Context) -> Box<Terminal<'context>> {
-    Box::from(Terminal::new(&context))
+pub fn terminal(context: Rc<Context>) -> Box<Terminal> {
+    Box::from(Terminal::new(context.clone()))
 }

@@ -34,7 +34,7 @@ impl NoncanonicalModeCommand
 
 impl IStateCommand for NoncanonicalModeCommand
 {
-    fn execute(&mut self, terminal: &Context) -> bool
+    fn execute(&mut self) -> bool
     {
         // Set noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
@@ -53,7 +53,7 @@ impl IStateCommand for NoncanonicalModeCommand
         }
     }
 
-    fn undo(&mut self, terminal: &Context) -> bool
+    fn undo(&mut self) -> bool
     {
         // Disable noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN)
@@ -97,7 +97,7 @@ impl EnableRawModeCommand
 
 impl IStateCommand for EnableRawModeCommand
 {
-    fn execute(&mut self, terminal: &Context) -> bool
+    fn execute(&mut self) -> bool
     {
         let original_mode = terminal::get_terminal_mode();
 
@@ -114,7 +114,7 @@ impl IStateCommand for EnableRawModeCommand
         }
     }
 
-    fn undo(&mut self, terminal: &Context) -> bool
+    fn undo(&mut self) -> bool
     {
         if let Some(ref original_mode) = self.original_mode
         {

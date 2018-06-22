@@ -1,6 +1,7 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
 use Context;
+use std::rc::Rc;
 
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::terminal_size;
@@ -20,7 +21,7 @@ pub fn get_terminal_size() -> (u16, u16)
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(screen: &Context) -> (u16, u16)
+pub fn get_cursor_position(screen: Rc<Context>) -> (u16, u16)
 {
     #[cfg(unix)]
     return pos(&screen);
@@ -31,7 +32,7 @@ pub fn get_cursor_position(screen: &Context) -> (u16, u16)
 
 #[cfg(windows)]
 /// Get an module specific implementation based on the current platform.
-pub fn get_module<T>(winapi_impl: T, unix_impl: T, context: &Context) -> Option<T>
+pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T>
 {
     let mut term: Option<T> = None;
     let mut does_support = true;
@@ -41,7 +42,7 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T, context: &Context) -> Option<
         use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
         // Try to enable ansi on windows if not than use WINAPI.
-        does_support = try_enable_ansi_support(&context);
+        does_support = try_enable_ansi_support();
 
         if !does_support
         {

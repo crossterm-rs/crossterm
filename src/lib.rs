@@ -16,6 +16,7 @@ pub mod manager;
 pub use shared::{screen, raw};
 pub use state::context::Context;
 
+use state::commands::IStateCommand;
 use state::command_manager::CommandManager;
 use state::state_manager::StateManager;
 use manager::ScreenManager;

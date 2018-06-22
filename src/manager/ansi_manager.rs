@@ -3,6 +3,7 @@
 //! This module uses the stdout to write to the console.
 
 use std::io::{self, Write};
+use std::any::Any;
 
 use super::IScreenManager;
 
@@ -14,12 +15,11 @@ pub struct AnsiScreenManager
 
 impl IScreenManager for AnsiScreenManager
 {
-    type Output = Box<Write>;
 
-    fn stdout(&mut self) -> &mut Self::Output
-    {
-        return &mut self.output
-    }
+//    fn stdout(&mut self) -> &mut Self::Output
+//    {
+//        return &mut self.output
+//    }
 
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool)
     {
@@ -37,6 +37,19 @@ impl IScreenManager for AnsiScreenManager
         write!(self.output, "{}", string);
         self.flush();
     }
+
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.output.write(buf)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        self.output.flush()
+    }
+
+    fn as_any(&mut self) -> &mut Any
+    {
+        self
+    }
 }
 
 impl AnsiScreenManager {
@@ -45,16 +58,5 @@ impl AnsiScreenManager {
             output: (Box::from(io::stdout()) as Box<Write>),
             is_alternate_screen: false
         }
-    }
-}
-
-impl Write for AnsiScreenManager
-{
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.output.write(buf)
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        self.stdout().flush()
     }
 }

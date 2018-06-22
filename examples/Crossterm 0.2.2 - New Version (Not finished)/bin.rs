@@ -32,5 +32,8 @@ use std::{time, thread};
 fn main() {
 //   alternate_screen::switch_between_main_and_alternate_screen();
    let context = Context::new();
-   raw_mode::print_wait_screen_on_alternate_window();
+   let mut scre = screen::AlternateScreen::from(context.clone());
+   write!(scre, "asdf");
+   scre.flush();
+   thread::sleep(time::Duration::from_secs(3));
 }

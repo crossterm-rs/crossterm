@@ -12,7 +12,7 @@ use self::crossterm::Context;
 pub fn paint_foreground()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     // Pass an string to the `paint()` method with you want to paint. 
     // This will give you an object back wits can be styled and displayed.
@@ -30,7 +30,7 @@ pub fn paint_foreground()
 pub fn paint_background()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     // Pass an string to the `paint()` method with you want to paint. 
     // This will give you an object back wits can be styled and displayed.
@@ -48,7 +48,7 @@ pub fn paint_background()
 pub fn paint_foreground_and_background()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     // Pass an string to the `paint()` method with you want to paint. 
     // This will give you an object back wits can be styled and displayed.
@@ -74,7 +74,7 @@ pub fn paint_foreground_and_background()
 pub fn print_all_foreground_colors()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     println!("Black : \t {}", terminal.paint("■").with(Color::Black));
     println!("Red : \t\t {}", terminal.paint("■").with(Color::Red));
@@ -97,7 +97,7 @@ pub fn print_all_foreground_colors()
 pub fn print_all_background_colors()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     println!("Black : \t {}", terminal.paint("  ").on(Color::Black));
     println!("Red : \t\t {}", terminal.paint("  ").on(Color::Red));
@@ -125,7 +125,7 @@ pub fn print_all_background_colors()
 pub fn print_font_with_attributes()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     println!("{}", terminal.paint("Normal text"));
     println!("{}", terminal.paint("Bold text").bold());
@@ -144,7 +144,7 @@ pub fn print_font_with_attributes()
 pub fn print_supported_colors()
 {
     let context = Context::new();
-    let terminal = terminal::terminal(&context);
+    let terminal = terminal::terminal(context.clone());
 
     let count = crossterm::style::color(context.screen_manager.clone()).get_available_color_count().unwrap();
 

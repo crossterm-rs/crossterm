@@ -1,10 +1,10 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
 
+use Context;
+
 use std::fmt;
 use std::io::Write;
-use std::sync::Mutex;
 use std::rc::Rc;
-use { ScreenManager, Context};
 
 #[cfg(unix)]
 use super::super::Attribute;
@@ -12,13 +12,13 @@ use super::super::Attribute;
 use style::{Color, ObjectStyle};
 
 /// Struct that contains both the style and the content wits can be styled.
-pub struct StyledObject<'a, D> {
+pub struct StyledObject<D> {
     pub object_style: ObjectStyle,
     pub content: D,
-    pub context: &'a Context
+    pub context: Rc<Context>
 }
 
-impl<'a, D> StyledObject<'a,D> {
+impl<D> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// #Example
@@ -39,7 +39,7 @@ impl<'a, D> StyledObject<'a,D> {
     /// println!("{}", paint("I am colored green").with(Color::Green));
     /// 
     /// ```
-    pub fn with(mut self, foreground_color: Color) -> StyledObject<'a,D> {
+    pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.fg(foreground_color);
         self
     }
@@ -64,7 +64,7 @@ impl<'a, D> StyledObject<'a,D> {
     /// println!("{}", paint("I am colored green").on(Color::Green))
     /// 
     /// ```
-    pub fn on(mut self, background_color: Color) -> StyledObject<'a,D> {
+    pub fn on(mut self, background_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.bg(background_color);
         self
     }
@@ -82,7 +82,7 @@ impl<'a, D> StyledObject<'a,D> {
     /// 
     /// ```
     #[cfg(unix)]
-    pub fn attr(mut self, attr: Attribute) -> StyledObject<'a,D>
+    pub fn attr(mut self, attr: Attribute) -> StyledObject<D>
     {
         &self.object_style.add_attr(attr);
         self
@@ -113,10 +113,10 @@ impl<'a, D> StyledObject<'a,D> {
 macro_rules! impl_fmt
 {
     ($name:ident) => {
-        impl<'a, D: fmt::$name> fmt::$name for StyledObject<'a, D> {
+        impl<D: fmt::$name> fmt::$name for StyledObject<D> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
             {
-                let mut colored_terminal = super::super::color(&self.context);
+                let mut colored_terminal = super::super::color(self.context.clone());
                 let mut reset = true;
 
                 if let Some(bg) = self.object_style.bg_color
@@ -132,7 +132,11 @@ macro_rules! impl_fmt
 
                 #[cfg(unix)]
                  for attr in self.object_style.attrs.iter() {
-                    write!(f, csi!("{}m"), *attr as i16);
+                   let mutex = self.context.screen_manager;
+                    {
+                        let mut screen = mutex.lock().unwrap();
+                        screen.write_ansi_str(format!(csi!("{}m"),  *attr as i16)).expect("Flush failed");
+                    }
                     reset = true;
                  }
 
@@ -141,7 +145,8 @@ macro_rules! impl_fmt
                 let mutex = &self.context.screen_manager;
                 {
                     let mut screen = mutex.lock().unwrap();
-                     screen.stdout().flush().expect("Flush stdout failed");
+
+                    screen.flush().expect("Flush failed");
                 }
 
                 if reset

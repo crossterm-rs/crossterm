@@ -7,15 +7,16 @@ use crossterm::terminal::{self, ClearType};
 
 use std::io::{Write, stdout};
 use std::{time, thread};
+use std::rc::Rc;
 
 use crossterm::raw::IntoRawMode;
 
 // raw screen is not working correctly currently
-fn print_wait_screen(context: &Context)
+fn print_wait_screen(context: Rc<Context>)
 {
-    terminal::terminal(&context).clear(ClearType::All);
+    terminal::terminal(context.clone()).clear(ClearType::All);
 
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     cursor.goto(0,0).print("Welcome to the wait screen.");
     cursor.goto(0,1).print("Please wait a few seconds until we arrive back at the main screen.");
     cursor.goto(0,2).print("Progress: ");
@@ -41,11 +42,11 @@ pub fn print_wait_screen_on_alternate_window()
         // create new alternate screen instance this call is also switching the screen to alternate screen.
         // then convert the output of the program to raw mode.
         // then print the wait screen on the alternate screen in raw mode.
-        let mut screen = AlternateScreen::from(&context);
-        let alternate_screen = screen.into_raw_mode(&context);
+        let mut screen = AlternateScreen::from(context.clone());
+        let alternate_screen = screen.into_raw_mode(context.clone());
 
         // Print the wait screen.
-        print_wait_screen(&context);
+        print_wait_screen(context.clone());
 
         screen.flush();
     }

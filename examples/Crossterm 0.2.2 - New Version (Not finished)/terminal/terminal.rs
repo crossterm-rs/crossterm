@@ -21,7 +21,7 @@ pub fn clear_all_lines()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context);
 
     print_test_data();
 
@@ -35,12 +35,12 @@ pub fn clear_from_cursor_down()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor::cursor(&context).goto(4,8);
+    cursor::cursor(context.clone()).goto(4,8);
 
     // Clear all cells from current cursor position down.
     terminal.clear(ClearType::FromCursorDown);
@@ -52,12 +52,12 @@ pub fn clear_from_cursor_up()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor::cursor(&context).goto(4,4);
+    cursor::cursor(context.clone()).goto(4,4);
 
     // Clear all cells from current cursor position down.
     terminal.clear(ClearType::FromCursorUp);
@@ -69,12 +69,12 @@ pub fn clear_current_line()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor::cursor(&context).goto(4,4);
+    cursor::cursor(context.clone()).goto(4,4);
 
     // Clear current line cells.
     terminal.clear(ClearType::CurrentLine);
@@ -86,12 +86,12 @@ pub fn clear_until_new_line()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor::cursor(&context).goto(4,20);
+    cursor::cursor(context.clone()).goto(4,20);
 
     // Clear all the cells until next line.
     terminal.clear(ClearType::UntilNewLine);
@@ -103,7 +103,7 @@ pub fn print_terminal_size()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
     // Get terminal size
     let terminal_size = terminal.terminal_size();
     // Print results
@@ -115,7 +115,7 @@ pub fn set_terminal_size()
 {
     let context = Context::new();
 
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context);
 
     terminal.set_size(10,10);
 }
@@ -127,7 +127,7 @@ pub fn scroll_down()
 
     print_test_data();
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
     // Scroll down 10 lines.
     terminal.scroll_down(10);
 }
@@ -140,7 +140,7 @@ pub fn scroll_up()
     print_test_data();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
     // Scroll up 10 lines.
     terminal.scroll_up(10);
 }
@@ -151,7 +151,7 @@ pub fn resize_terminal()
     let context = Context::new();
 
     // Get terminal
-    let mut terminal = terminal(&context);
+    let mut terminal = terminal(context.clone());
     // Get terminal size
     terminal.set_size(10,10);
 }

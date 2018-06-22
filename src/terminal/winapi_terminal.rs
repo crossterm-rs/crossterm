@@ -3,44 +3,47 @@
 
 use Context;
 use cursor::cursor;
-use super::{ClearType, ITerminal};
+use super::{ClearType, ITerminal, Rc};
 use winapi::um::wincon::{SMALL_RECT, COORD, CONSOLE_SCREEN_BUFFER_INFO,};
 use kernel::windows_kernel::{kernel, terminal};
 
 /// This struct is an windows implementation for terminal related actions.
-pub struct WinApiTerminal;
+pub struct WinApiTerminal
+{
+    context: Rc<Context>
+}
 
 impl WinApiTerminal {
-    pub fn new() -> Box<WinApiTerminal> {
-        Box::from(WinApiTerminal {})
+    pub fn new(context: Rc<Context>) -> Box<WinApiTerminal> {
+        Box::from(WinApiTerminal { context })
     }
 }
 
 impl ITerminal for WinApiTerminal {
 
-    fn clear(&self, clear_type: ClearType, context: &Context) {
+    fn clear(&self, clear_type: ClearType) {
         let csbi = kernel::get_console_screen_buffer_info();
-        let pos = cursor(&context).pos();
+        let pos = cursor(self.context.clone()).pos();
 
         match clear_type
         {
-            ClearType::All => clear_entire_screen(csbi, &context),
-            ClearType::FromCursorDown => clear_after_cursor(pos,csbi,&context),
-            ClearType::FromCursorUp => clear_before_cursor(pos, csbi, &context),
-            ClearType::CurrentLine => clear_current_line(pos, csbi, &context),
-            ClearType::UntilNewLine => clear_until_line(pos, csbi,&context),
+            ClearType::All => clear_entire_screen(csbi, self.context.clone()),
+            ClearType::FromCursorDown => clear_after_cursor(pos,csbi, self.context.clone()),
+            ClearType::FromCursorUp => clear_before_cursor(pos, csbi, self.context.clone()),
+            ClearType::CurrentLine => clear_current_line(pos, csbi, self.context.clone()),
+            ClearType::UntilNewLine => clear_until_line(pos, csbi,self.context.clone()),
         };
     }
 
-    fn terminal_size(&self, context: &Context) -> (u16, u16) {
+    fn terminal_size(&self) -> (u16, u16) {
        terminal::terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, context: &Context) {
+    fn scroll_up(&self, count: i16) {
         // yet to be inplemented
     }
 
-    fn scroll_down(&self, count: i16, context: &Context) {
+    fn scroll_down(&self, count: i16) {
         let csbi = kernel::get_console_screen_buffer_info();
         let mut srct_window;
 
@@ -60,7 +63,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16, context: &Context) {
+    fn set_size(&self, width: i16, height: i16) {
         if width <= 0
             {
                 panic!("Cannot set the terminal width lower than 1");
@@ -136,7 +139,7 @@ impl ITerminal for WinApiTerminal {
     }
 }
 
-pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context) {
+pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
     let (mut x,mut y) = pos;
 
     // if cursor position is at the outer right position
@@ -154,7 +157,7 @@ pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, cont
     clear(start_location,cells_to_write);
 }
 
-pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context) {
+pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
     let (xpos,ypos) = pos;
 
     // one cell after cursor position
@@ -170,7 +173,7 @@ pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, con
     clear(start_location, cells_to_write);
 }
 
-pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context) {
+pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
     // position x at start
     let x = 0;
     // position y at start
@@ -185,10 +188,10 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context) 
     clear( start_location, cells_to_write);
 
     // put the cursor back at (0, 0)
-    cursor(&context).goto(0, 0);
+    cursor(context.clone()).goto(0, 0);
 }
 
-pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context)
+pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>)
 {
     // position x at start
     let x = 0;
@@ -204,10 +207,10 @@ pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, cont
     clear(start_location, cells_to_write);
 
     // put the cursor back at 1 cell on current row
-    cursor(&context).goto(0, y);
+    cursor(context.clone()).goto(0, y);
 }
 
-pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Context)
+pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>)
 {
     let (x,y) = pos;
 
@@ -219,7 +222,7 @@ pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, contex
     clear(start_location, cells_to_write);
 
     // put the cursor back at original cursor position
-    cursor(&context).goto(x,y);
+    cursor(context.clone()).goto(x,y);
 }
 
 fn clear(

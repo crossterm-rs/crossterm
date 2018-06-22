@@ -7,18 +7,18 @@ use crossterm::terminal::{self, ClearType};
 
 use std::io::{Write, stdout};
 use std::{time, thread};
-
-fn print_wait_screen(terminal: &Context)
+use std::rc::Rc;
+fn print_wait_screen(context: Rc<Context>)
 {
-    terminal::terminal(&terminal).clear(ClearType::All);
+    terminal::terminal(context.clone()).clear(ClearType::All);
 
-    let mut cursor = cursor(&terminal);
+    let mut cursor = cursor(context.clone());
     cursor.goto(0,0);
 
     {
-        let mut screen_manager = terminal.screen_manager.lock().unwrap();
+        let mut screen_manager = context.screen_manager.lock().unwrap();
         {
-            write!(screen_manager.stdout(),
+            write!(screen_manager,
                    "Welcome to the wait screen.\n\
                 Please wait a few seconds until we arrive back at the main screen.\n\
                 Progress: "
@@ -45,10 +45,10 @@ pub fn print_wait_screen_on_alternate_window()
     // because `AlternateScreen` switches back to main screen when switching back.
     {
         // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(&context);
+        let mut screen = AlternateScreen::from(context.clone());
 
         // Print the wait screen.
-        print_wait_screen(&context);
+        print_wait_screen(context.clone());
     }
 
     println!("Whe are back at the main screen");
@@ -57,11 +57,11 @@ pub fn print_wait_screen_on_alternate_window()
 pub fn switch_between_main_and_alternate_screen()
 {
     let context = Context::new();
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
 
     {
         // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(&context);
+        let mut screen = AlternateScreen::from(context.clone());
         cursor.goto(0,0);
         write!(screen, "we are at the alternate screen!");
         screen.flush();

@@ -8,23 +8,23 @@ use Context;
 use super::super::shared::functions;
 
 use std::fmt::Display;
-use std::io::Write;
+use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
-pub struct TerminalCursor<'context> {
-    context: &'context Context,
+pub struct TerminalCursor {
+    context: Rc<Context>,
     terminal_cursor: Option<Box<ITerminalCursor>>,
 }
 
-impl <'context> TerminalCursor<'context>
+impl TerminalCursor
 {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(context: &'context Context) -> TerminalCursor<'context> {
+    pub fn new(context: Rc<Context>) -> TerminalCursor {
         #[cfg(target_os = "windows")]
-        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(), context);
+        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(context.clone()));
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = Some(AnsiCursor::new() as Box<ITerminalCursor>);
+        let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
 
         TerminalCursor { terminal_cursor: cursor , context}
     }
@@ -39,20 +39,20 @@ impl <'context> TerminalCursor<'context>
     ///  use self::crossterm::Context;
     ///  use self::crossterm::cursor;
     ///
-    //    pub fn goto()
-    //    {
-    //        let context = Context::new();
-    //
-    //        // Get the cursor
-    //        let mut cursor = cursor(&context);
-    //        // Set the cursor to position X: 10, Y: 5 in the terminal
-    //        cursor.goto(10,5);
-    //    }
+    ///    pub fn goto()
+    ///    {
+    ///        let context = Context::new();
+    ///
+    ///        // Get the cursor
+    ///        let mut cursor = cursor(&context);
+    ///        // Set the cursor to position X: 10, Y: 5 in the terminal
+    ///        cursor.goto(10,5);
+    ///    }
     ///
     /// ```
-    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor<'context> {
+    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.goto(x, y, &self.context);
+            terminal_cursor.goto(x, y);
         }
         self
     }
@@ -80,7 +80,7 @@ impl <'context> TerminalCursor<'context>
     /// ```
     pub fn pos(&mut self) -> (u16, u16) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.pos(&self.context)
+            terminal_cursor.pos()
         } else {
             (0, 0)
         }
@@ -107,9 +107,9 @@ impl <'context> TerminalCursor<'context>
     /// }
     /// 
     /// ```
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'context> {
+    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_up(count, &self.context);
+            terminal_cursor.move_up(count);
         }
         self
     }
@@ -123,19 +123,19 @@ impl <'context> TerminalCursor<'context>
     ///  use self::crossterm::Context;
     ///  use self::crossterm::cursor;
     ///
-    //  pub fn move_right()
-    //  {
-    //      let context = Context::new();
-    //
-    //      // Get the cursor
-    //      let mut cursor = cursor(&context);
-    //      // Move the cursor to position 3 times to the right in the terminal
-    //      cursor.move_right(3);
-    //  }
+    ///  pub fn move_right()
+    ///  {
+    ///      let context = Context::new();
+    ///
+    ///      // Get the cursor
+    ///      let mut cursor = cursor(&context);
+    ///      // Move the cursor to position 3 times to the right in the terminal
+    ///      cursor.move_right(3);
+    ///  }
     /// ```
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'context> {
+    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_right(count, &self.context);
+            terminal_cursor.move_right(count);
         }
         self
     }
@@ -161,9 +161,9 @@ impl <'context> TerminalCursor<'context>
     /// }
     ///
     /// ```
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'context> {
+    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_down(count, &self.context);
+            terminal_cursor.move_down(count);
         }
         self
     }
@@ -189,9 +189,9 @@ impl <'context> TerminalCursor<'context>
     ///  }
     ///
     /// ```
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'context> {
+    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_left(count, &self.context);
+            terminal_cursor.move_left(count);
         }
         self
     }
@@ -232,12 +232,18 @@ impl <'context> TerminalCursor<'context>
     /// .print("@");
     /// 
     /// ```
-    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor<'context> {
-        let mut screen = self.context.screen_manager.lock().unwrap();
+    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
         {
-            write!(screen.stdout(), "{}", value);
-            // rust is line buffered so we need to flush the buffer in order to print it at the current cursor position.
-            screen.stdout().flush();
+            let mut mutex = &self.context.screen_manager;
+            {
+                let mut screen_manager = mutex.lock().unwrap();
+
+                use std::fmt::Write;
+                let mut string = String::new();
+                write!(string, "{}", value).unwrap();
+
+                screen_manager.write_ansi(string);
+            }
         }
         self
     }
@@ -261,7 +267,7 @@ impl <'context> TerminalCursor<'context>
     pub fn save_position(&mut self)
     {
         if let Some(ref mut terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.save_position(&self.context);
+            terminal_cursor.save_position();
         }
     }
 
@@ -284,7 +290,7 @@ impl <'context> TerminalCursor<'context>
     pub fn reset_position(&mut self)
     {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.reset_position(&self.context);
+            terminal_cursor.reset_position();
         }
     }
 }
@@ -311,6 +317,6 @@ impl <'context> TerminalCursor<'context>
 /// cursor::cursor(&context).goto(5,10);
 ///
 /// ```
-pub fn cursor<'context>(context: &'context Context) -> Box<TerminalCursor<'context>> {
-    Box::from(TerminalCursor::new(&context))
+pub fn cursor(context: Rc<Context>) -> Box<TerminalCursor> {
+    Box::from(TerminalCursor::new(context.clone()))
 }

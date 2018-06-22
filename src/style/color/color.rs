@@ -17,9 +17,9 @@ pub struct TerminalColor {
 
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(context: &Context ) -> TerminalColor {
+    pub fn new(context: Rc<Context>) -> TerminalColor {
         #[cfg(target_os = "windows")]
-        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new(), context);
+        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new());
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new() as Box<ITerminalColor>);
@@ -127,6 +127,6 @@ impl TerminalColor {
 ///
 /// Check `/examples/version/color` in the libary for more specific examples.
 ///
-pub fn color(context: &Context) -> Box<TerminalColor> {
+pub fn color(context: Rc<Context>) -> Box<TerminalColor> {
     Box::from(TerminalColor::new(context))
 }

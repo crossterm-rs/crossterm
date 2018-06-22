@@ -12,7 +12,7 @@ pub fn goto()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10,5);    
 }
@@ -23,7 +23,7 @@ pub fn pos()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // get the cursor position.
     let (x,y) = cursor.pos();
 }
@@ -34,7 +34,7 @@ pub fn move_up()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Move the cursor to position 3 times to the up in the terminal
     cursor.move_up(3);
 }
@@ -45,7 +45,7 @@ pub fn move_right()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Move the cursor to position 3 times to the right in the terminal
     cursor.move_right(3);
 }
@@ -56,7 +56,7 @@ pub fn move_down()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Move the cursor to position 3 times to the down in the terminal
     cursor.move_down(3);
 }
@@ -67,7 +67,7 @@ pub fn move_left()
     let context = Context::new();
 
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Move the cursor to position 3 times to the left in the terminal
     cursor.move_left(3);
 }
@@ -80,7 +80,7 @@ pub fn print()
     // To print an some displayable content on an certain position.  
     
     // Get the cursor
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10,5);
     // Print the @ symbol at position X: 10, Y: 5 in the terminal
@@ -104,7 +104,7 @@ pub fn safe_and_reset_position()
 {
     let context = Context::new();
 
-    let mut cursor = cursor(&context);
+    let mut cursor = cursor(context.clone());
     
     // Goto X: 5 Y: 5
     cursor.goto(5,5);
