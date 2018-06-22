@@ -4,6 +4,7 @@ use super::commands::IStateCommand;
 use super::commands::shared_commands::EmptyCommand;
 
 use std::rc::Rc;
+use std::sync::Mutex;
 use std::collections::HashMap;
 
 /// Struct that stores the changed states of the terminal.

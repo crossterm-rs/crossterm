@@ -307,9 +307,9 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
 
     // get string from u8[] and parse it to an c_str
     let mut data = str::from_utf8(buf).unwrap();
-    let c_str = CString::new(data);
-    let ptr: *const u16 = c_str.unwrap().as_ptr() as *const u16;
-
+    let c_str = CString::new(data).unwrap();
+    let ptr: *const u16 = c_str.as_ptr() as *const u16;
+    panic!("{:?}", ptr);
     // get current position
     let current_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
 
