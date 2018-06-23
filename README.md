@@ -2,23 +2,25 @@
 
 Things where I am working on now:
 
-I have implemented the alternate and raw screen features for unix systems. Now I am trying to get this also to work for windows with WINAPI. 
+I have implemented the alternate and raw screen features for Unix systems. Now I am trying to get this also to work for windows with WINAPI. 
 
 In the new version you must provide the Context type to the function calls `cursor(), color(), terminal()`. This type is used by Crossterm for managing the state of the terminal and for futures like `AlternateScreen` and `Rawscreen`. 
 
 Like described above the next version will have api braking changes. Why I needed to do that is essential for the functioning of these above features. 
 
 - At first `Terminal state`:
-Because this is an terminal manupulating library there will be made changes to terminal when running an proccess with my libaray. If you stop the process you want the terminal back in it's original state. This is why I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone in the end.
+
+    Because this is a terminal manipulating library there will be made changes to terminal when running an process with my library. If you stop the process you want the terminal back in its original state. Therefore, I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone in the end.
+
 
 - At second `Handle to the console`
 
-In rust we can call `stdout()` to get an handle to the current default console handle. For example when in unix sytems you want to execute some ANSI escape code you have to write it to terminal. I can write it to stdout (screen ouput) withs is the main screen. 
+    In rust we can call `stdout()` to get an handle to the current default console handle. For example when in unix sytems you want to execute some ANSI escape code you have to write it to terminal. I can write it to stdout (screen ouput) withs is the main screen. 
 
-    //like
-    write!(std::io::stdout(), "{}", "some ANSI code".
-    
-But things change when we are in alternate screen. If I execute the code above the ANSI escape code will be written to the main handle and not or altenate handle. This causes things to be written to the main screen and not the alternate screen, and this is not wat we want.
+        //like
+        write!(std::io::stdout(), "{}", "some ANSI code".
+
+    But things change when we are in alternate screen. If I execute the code above the ANSI escape code will be written to the main handle and not or altenate handle. This causes things to be written to the main screen and not the alternate screen, and this is not wat we want.
 
 To solve the problem we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program. This handle is stored in an subtype of the Context type. 
 
