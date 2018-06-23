@@ -6,11 +6,11 @@ I have implemented the alternate and raw screen features for Unix systems. Now I
 
 In the new version you must provide the Context type to the function calls `cursor(), color(), terminal()`. This type is used by Crossterm for managing the state of the terminal and for futures like `AlternateScreen` and `Rawscreen`. 
 
-Like described above the next version will have api braking changes. Why I needed to do that is essential for the functioning of these above features. 
+Like described above the next version will have api braking changes. Why I needed to do that is essential for the functioning of the above features. 
 
 - At first `Terminal state`:
 
-    Because this is a terminal manipulating library there will be made changes to terminal when running an process with my library. If you stop the process you want the terminal back in its original state. Therefore, I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone in the end.
+    Because this is a terminal manipulating library there will be made changes to terminal when running an process. If you stop the process you want the terminal back in its original state. Therefore, I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone when the process ends.
 
 
 - At second `Handle to the console`
@@ -18,13 +18,13 @@ Like described above the next version will have api braking changes. Why I neede
     In rust we can call `stdout()` to get an handle to the current default console handle. For example when in unix sytems you want to execute some ANSI escape code you have to write it to terminal. I can write it to stdout (screen ouput) withs is the main screen. 
 
         //like
-        write!(std::io::stdout(), "{}", "some ANSI code".
+        write!(std::io::stdout(), "{}", "some ANSI code").
 
-    But things change when we are in alternate screen. If I execute the code above the ANSI escape code will be written to the main handle and not or alternate handle. This causes things to be written to the main screen and not the alternate screen, and this is not wat we want.
+    But things change when we are in alternate screen. If I execute the code above the ANSI escape code to the current stdout it will be written to the main handle and not or alternate handle, and this is not what we want.
 
-To solve the problem, we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program. This handle is stored in a subtype of the Context type. 
+To solve the problem, we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program in the different modules like `cursor, terminal and color`. This handle is stored in a subtype of the Context type. 
 
-The user must create an `Context` type for this library.
+Now the user must create an `Context` type for this library.
 
       //like
       let context = Context::new();
@@ -33,9 +33,9 @@ The user must create an `Context` type for this library.
       let terminal = terminal(&context);
       let color = color(&context);
       
-Now that we have on global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to clean up the changes that are made.
+Now we have one global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to clean up the changes that are made to the terminal.
 
-Maybe I am going to make a wrapper for the function calls `cursor, terminal, colour` so that when can avoid passing the context all over the place which makes to code more unreadable to my opinion. I really did not want to make API braking changes, bur for the sake of the futures I want to implement it needed to be done.
+Maybe I am going to make a wrapper for the function calls `cursor, terminal, colour` so that when can avoid passing the context all over the place which makes to code more unreadable to my opinion. I really did not want to make API braking changes, but for the sake of the features I needed to do it.
 
       // maybe I am going to create some Envoirment type which can be used for getting acces to diffrent modules that this libary provides.
       let envoirment = Envoirment::new();
@@ -81,7 +81,7 @@ Maybe I am going to make a wrapper for the function calls `cursor, terminal, col
 
 ## Features crossterm 0.2.3
 - Alternate screen for windows and unix systems.
-- Rawscreen for unix systems maybe windows.
+- Rawscreen for unix systems maybe windows [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
 - Hiding an showing the cursor.
 - Control over blinking of the terminal cursor.
 
@@ -105,7 +105,7 @@ If you have used this library for an terminal other than the above list without 
     
 ## How it works
 
-Crossterm is using `WINAPI` for windows systems and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client calls some action and the module will deside what to do based on the current platform. And it will execute that action.
+Crossterm is using `WINAPI` for windows versions lower than windows 10 and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client can call some action and the module will deside what to do based on the current platform. And it will execute that action. 
 
 ## Notice 
 This library is library is stable. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to an newer version.
