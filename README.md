@@ -1,157 +1,22 @@
 # This is the development branch do not use this in production. This code can be broken and contains code that could not function correctly.
 
-# Crossterm | crossplatform terminal library written in rust.
+Things where I am working on now:
 
-Ever got disappointed when a terminal library for rust was only written for unix systems? Crossterm provides the same core functionalities for both windows and unix systems. 
+I have inplemented the alternate and raw screen features for unix systems. Now I am trying to get this also to work for windows with WINAPI. 
 
-Crossterm aims to be simple and easy to call in code. True the simplicity of crossterm you do not have to worry about the platform your working with. You can just call the action you want to preform and unther water it will check what to do based on the current platform.
+The next version will have api braking changes. Why I needed to do that is essential for the functioning of these above features. 
 
-Currently working on the alternatescreen and raw terminal features.
+- At first:
+I needed to create some `Context` types withs can manage the terminal state. So that when changes are made to the terminal the can be reverted. This is handy when using raw terminal mode and enabling some mode on the terminal like ansi escape codes for windows. When the `Context` dispposes all changes made will be reverted so that the user terminal is back in its starting state.
 
-## Getting Started
+When in unix sytems you want to execute some ANSI escape code you have to write it to terminal stdout (screen ouput). 
 
-This documentation is only for the newest version of crossterm. See the [Upgrade manual for more info](https://github.com/TimonPost/crossterm/blob/development/UPGRADE%20Manual)
-
-Add the crossterm package to your `Cargo.toml` file.
-
-```
-[dependencies]
-crossterm = "*"
-
-```
-
-Add the crate to your solution.
-And use the crossterm modules withs you want to use.
-
-```rust  
-extern crate crossterm;
-
-// this module is used for styling the terminal
-use self::crossterm::style::*;
-// this module is used for cursor related actions
-use self::crossterm::cursor::*;
-// this mudule is used for terminal related actions
-use self::crossterm::terminal::*;
-
-```
-## Links
-
-Documentation for the code version 0.1 can be found [here](https://docs.rs/crossterm/0.1.0/crossterm/)
-
-Documentation for the code version 0.2 can be found [here](https://docs.rs/crossterm/0.2.0/crossterm/)
-
-The Cargo Page can be found [here](https://crates.io/search?q=crossterm)
-
-## Examples
-
-For detailed examples of all crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) direcory.
-
-### Styled font
-```rust    
-    use crossterm::style::{paint, Color};
+    //like
+    write!(std::io::stdout(), "{}", "some ANSI code".
     
-    // Crossterm provides method chaining so that you can style the font nicely.
-    // the `with()` methods sets the foreground color and the `on()` methods sets the background color
-    // You can either store the styled font.
-    let mut styledobject = paint("Stored styled font").with(Color::Red).on(Color::Blue);
-    println!("{}",styledobject);
-    
-    // Or you can print it directly.
-    println!("{}", paint("Red font on blue background color").with(Color::Red).on(Color::Blue));     
-    println!("{}", paint("Red font on default background color").with(Color::Red));
-    println!("{}", paint("Default font color on Blue background color").on(Color::Blue));
-    
-    /// The following code can only be used for unix systems:
-    // Set background Color from RGB
-    println!("RGB (10,10,10): \t {}", paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
-     // Set background Color from RGB
-    println!("ANSI value (50): \t {}", paint("  ").on(Color::AnsiValue(50)));
-    
-    // Use attributes to syle the font.
-    println!("{}", paint("Normal text"));
-    println!("{}", paint("Bold text").bold());
-    println!("{}", paint("Italic text").italic());
-    println!("{}", paint("Slow blinking text").slow_blink());
-    println!("{}", paint("Rapid blinking text").rapid_blink());
-    println!("{}", paint("Hidden text").hidden());
-    println!("{}", paint("Underlined text").underlined());
-    println!("{}", paint("Reversed color").reverse());
-    println!("{}", paint("Dim text color").dim());
-    println!("{}", paint("Crossed out font").crossed_out());
-    
-```
-### Cursor
-```rust 
+But when using `std::io::stdout` you will have an handle to the current screen. And not the alternate screen. And when using alternate screen you don't want to write to the mainscreen stdout. But to the alternate screen stdout. For this we also have the `Context` type withs has contains an type to manage the screen. 
 
-     use crossterm::cursor::cursor();
-    
-     let mut cursor = cursor();
-    
-     /// Moving the cursor
-     // Set the cursor to position X: 10, Y: 5 in the terminal
-     cursor.goto(10,5);
-    
-     // Move the cursor to position 3 times to the up in the terminal
-     cursor.move_up(3);
-    
-     // Move the cursor to position 3 times to the right in the terminal
-     cursor.move_right(3);
-    
-     // Move the cursor to position 3 times to the down in the terminal
-     cursor.move_down(3);
-    
-     // Move the cursor to position 3 times to the left in the terminal
-        cursor.move_left(3);
-    
-     // Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
-     // cursor.goto(10,5).print("@");   
-     
-     /// Safe the current cursor position to recall later     
-     // Goto X: 5 Y: 5
-     cursor.goto(5,5);
-     // Safe cursor position: X: 5 Y: 5
-     cursor.safe_position();
-     // Goto X: 5 Y: 20
-     cursor.goto(5,20);
-     // Print at X: 5 Y: 20.
-     print!("Yea!");
-     // Reset back to X: 5 Y: 5.
-     cursor.reset_position();
-     // Print 'Back' at X: 5 Y: 5.
-     print!("Back");    
-```
-
-### Terminal
-```rust 
-   use crossterm::terminal::{terminal,ClearType};
-   
-   let mut terminal = terminal();
-
-   // Clear all lines in terminal;
-   terminal.clear(ClearType::All);
-   // Clear all cells from current cursor position down.
-   terminal.clear(ClearType::FromCursorDown);
-   // Clear all cells from current cursor position down.
-   terminal.clear(ClearType::FromCursorUp);
-   // Clear current line cells.
-   terminal.clear(ClearType::CurrentLine);
-   // Clear all the cells until next line.
-   terminal.clear(ClearType::UntilNewLine);
-
-   // Get terminal size
-   let terminal_size = terminal.terminal_size().unwrap();
-   // Print results
-   print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
-
-   // Scroll down 10 lines.
-   terminal.scroll_down(10);
-
-   // Scroll up 10 lines.
-   terminal.scroll_up(10);
-   
-   // Set terminal size
-    terminal.set_size(10,10);
-```
+So that is why I have created the `Context` type. To mange the terminal state changes and to run cleanup code. And for managegin the screen output.
 
 ## Features crossterm 0.1
 
