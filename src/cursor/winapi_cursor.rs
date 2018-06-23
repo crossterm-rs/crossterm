@@ -62,4 +62,9 @@ impl ITerminalCursor for WinApiCursor {
     {
         kernel::cursor_visibility(true);
     }
+
+    fn blink(&self, blink: bool)
+    {
+
+    }
 }

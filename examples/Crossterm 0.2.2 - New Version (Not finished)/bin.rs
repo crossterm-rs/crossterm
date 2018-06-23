@@ -30,10 +30,15 @@ use std::io::Write;
 use std::{time, thread};
 
 fn main() {
-//   alternate_screen::switch_between_main_and_alternate_screen();
+////   alternate_screen::switch_between_main_and_alternate_screen();
    let context = Context::new();
-   let mut scre = screen::AlternateScreen::from(context.clone());
-   write!(scre, "asdf");
-   scre.flush();
-   thread::sleep(time::Duration::from_secs(3));
+//   let mut scre = screen::AlternateScreen::from(context.clone());
+//   write!(scre, "asdf");
+//   scre.flush();
+//   thread::sleep(time::Duration::from_secs(3));
+
+   use crossterm::terminal::terminal;
+
+   let curs = terminal(context.clone());
+   curs.set_title(String::from("Test"));
 }

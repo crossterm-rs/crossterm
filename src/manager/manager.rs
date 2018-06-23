@@ -20,15 +20,15 @@ impl ScreenManager
 {
     /// Create new screen manager instance whereon screen related actions can be performed.
     pub fn new() -> ScreenManager {
-//        #[cfg(target_os = "windows")]
-//        let screen_manager = functions::get_module::<Box<IScreenManager>>(Box::from(WinApiScreenManager::new()), Box::from(AnsiScreenManager::new())).unwrap();
-//
-//        #[cfg(not(target_os = "windows"))]
-//        let screen_manager = Box::new(AnsiScreenManager::new());
+        #[cfg(target_os = "windows")]
+        let screen_manager = functions::get_module::<Box<IScreenManager>>(Box::from(WinApiScreenManager::new()), Box::from(AnsiScreenManager::new())).unwrap();
+
+        #[cfg(not(target_os = "windows"))]
+        let screen_manager = Box::new(AnsiScreenManager::new());
 
         ScreenManager
         {
-            screen_manager: Box::from(WinApiScreenManager::new()),
+            screen_manager: Box::from(WinApiScreenManager::new())
         }
     }
 

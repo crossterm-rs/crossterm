@@ -1,4 +1,9 @@
 //! This module contains all the logic for switching between alternate screen and main screen.
+//!
+//! *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
+//! The alternate buffer is exactly the dimensions of the window, without any scrollback region.
+//! For an example of this behavior, consider when vim is launched from bash.
+//! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
 use Context;
 use state::commands::*;

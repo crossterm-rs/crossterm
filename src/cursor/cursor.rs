@@ -26,7 +26,7 @@ impl TerminalCursor
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
 
-        TerminalCursor { terminal_cursor: cursor , context}
+        TerminalCursor { terminal_cursor: Some(WinApiCursor::new()), context}
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -105,7 +105,7 @@ impl TerminalCursor
     ///     // Move the cursor to position 3 times to the up in the terminal
     ///     cursor.move_up(3);
     /// }
-    /// 
+    ///
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
@@ -293,6 +293,73 @@ impl TerminalCursor
             terminal_cursor.reset_position();
         }
     }
+
+    /// Hide de cursor in the console.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use self::crossterm::cursor::cursor;
+    /// use self::crossterm::Context;
+    ///
+    /// let context = Context::new();
+    /// cursor(&context).hide();
+    ///
+    /// ```
+    pub fn hide(&self)
+    {
+        if let Some(ref terminal_cursor) = self.terminal_cursor {
+            terminal_cursor.hide();
+        }
+    }
+
+    /// Show the cursor in the console.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use self::crossterm::cursor::cursor;
+    /// use self::crossterm::Context;
+    ///
+    /// let context = Context::new();
+    /// cursor(&context).show();
+    ///
+    /// ```
+    pub fn show(&self)
+    {
+        if let Some(ref terminal_cursor) = self.terminal_cursor {
+            terminal_cursor.show();
+        }
+    }
+
+    /// Enable or disable blinking of the terminal.
+    ///
+    /// Note that this only works on windows 10 and unix systems. If you are working on windows 10 or lower this won't work.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use self::crossterm::cursor::cursor;
+    /// use self::crossterm::Context;
+    ///
+    /// let context = Context::new();
+    /// let cursor = cursor(&context);
+    /// cursor.blink(true);
+    /// cursor.blink(false);
+    ///
+    /// ```
+    pub fn blink(&self, blink: bool)
+    {
+        if let Some(ref terminal_cursor) = self.terminal_cursor {
+            terminal_cursor.blink(blink);
+        }
+    }
 }
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
@@ -312,7 +379,12 @@ impl TerminalCursor
 /// // Get cursor and goto pos X: 5, Y: 10
 /// let mut cursor = cursor::cursor(&context);
 /// cursor.goto(5,10);
-///     
+///
+/// cursor.show();
+/// cursor.hide();
+/// cursor.blink();
+/// cursor.move_left(2);
+///
 /// //Or you can do it in one line.
 /// cursor::cursor(&context).goto(5,10);
 ///

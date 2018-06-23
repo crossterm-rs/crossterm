@@ -134,11 +134,11 @@ pub fn set_console_cursor_position(x: i16, y: i16)
 pub fn cursor_visibility(visable: bool)
 {
     let handle = get_output_handle();
-
     let cursor_info = CONSOLE_CURSOR_INFO
     {
-        dwSize: 100,
-        bVisible: if visable { FALSE } else {TRUE}
+
+        dwSize: 1,
+        bVisible: if visable { TRUE } else {FALSE}
     };
 
     unsafe
@@ -299,17 +299,37 @@ pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;
 
 pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
 {
-    use std::ffi::CString;
+    use std::ffi::{ NulError, CString };
     use std::str;
+
+    // get string from u8[] and parse it to an c_str
+    let mut utf8 = match str::from_utf8(buf)
+        {
+            Ok(string) => string,
+            Err(_) => "",
+        };
+
+    let utf16_bytes: Vec<u16> = utf8.encode_utf16().collect();
+
+    let utf16 = match String::from_utf16(&utf16_bytes)
+        {
+            Ok(string) => string,
+            Err(_) => String::new()
+        };
+
+    let str_length = utf16.len() as u32;
+
+    let c_str = match CString::new(utf16)
+        {
+            Ok(c) => c,
+            Err(_) => CString::new("").unwrap()
+        };
+
+    let ptr: *const i8 = c_str.as_ptr() as *const i8;
 
     // get buffer info
     let csbi = get_console_screen_buffer_info();
 
-    // get string from u8[] and parse it to an c_str
-    let mut data = str::from_utf8(buf).unwrap();
-    let c_str = CString::new(data).unwrap();
-    let ptr: *const u16 = c_str.as_ptr() as *const u16;
-    panic!("{:?}", ptr);
     // get current position
     let current_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
 
@@ -318,9 +338,16 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
     // write to console
     unsafe
     {
-
-        WriteConsoleOutputAttribute(handle, ptr, data.len() as u32, current_pos, &mut cells_written);
+        WriteConsoleOutputCharacterA(handle, ptr, str_length, current_pos, &mut cells_written);
     }
+
+    // get buffer info
+    let csbi = get_console_screen_buffer_info();
+
+    // get current position
+    let new_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
+
+    set_console_cursor_position(new_pos.X, new_pos.Y + 1);
 }
 
 /// Parse integer to an bool

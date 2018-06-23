@@ -15,12 +15,6 @@ pub struct AnsiScreenManager
 
 impl IScreenManager for AnsiScreenManager
 {
-
-//    fn stdout(&mut self) -> &mut Self::Output
-//    {
-//        return &mut self.output
-//    }
-
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool)
     {
         self.is_alternate_screen = is_alternate_screen;

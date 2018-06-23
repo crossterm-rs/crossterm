@@ -66,4 +66,12 @@ impl ITerminal for AnsiTerminal {
             screen.write_ansi(format!(csi!("8;{};{}t"), width, height));
         }
     }
+
+    fn set_title(&self, title: String)
+    {
+        let mut screen = self.context.screen_manager.lock().unwrap();
+        {
+            screen.write_ansi_str("\x1b]2;New terminal titleBEL");
+        }
+    }
 }

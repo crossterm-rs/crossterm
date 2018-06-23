@@ -137,6 +137,11 @@ impl ITerminal for WinApiTerminal {
             }
         }
     }
+
+    fn set_title(&self, title: String)
+    {
+
+    }
 }
 
 pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {

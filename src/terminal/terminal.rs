@@ -186,6 +186,13 @@ impl Terminal {
     {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
+
+    pub fn set_title(&self, title: String)
+    {
+        if let Some (ref terminal) = self.terminal {
+            terminal.set_title(title );
+        }
+    }
 }
 
 /// Get an Terminal implementation whereon terminal related actions can be performed.

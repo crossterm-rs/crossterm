@@ -122,6 +122,24 @@ pub fn safe_and_reset_position()
     println!()
 }
 
+/// Hide cursor display | demonstration.
+pub fn hide_cursor()
+{
+    let context = Context::new();
+
+    let cursor = cursor(context.clone());
+    cursor.hide();
+}
+
+/// Show cursor display | demonstration.
+pub fn show_cursor()
+{
+    let context = Context::new();
+
+    let cursor = cursor(context.clone());
+    cursor.show();
+}
+
 
 
 

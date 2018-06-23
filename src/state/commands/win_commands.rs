@@ -174,13 +174,7 @@ impl IStateCommand for ToAlternateScreenBufferCommand
 {
     fn execute(&mut self) -> bool
     {
-        use super::super::super::kernel::windows_kernel::ansi_support;
         use super::super::super::manager::WinApiScreenManager;
-
-        let does_support = ansi_support::try_enable_ansi_support();
-        let mut screen_manager = self.context.screen_manager.lock().unwrap();
-
-        screen_manager.toggle_is_alternate_screen(true);
 
         let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
 
@@ -191,6 +185,9 @@ impl IStateCommand for ToAlternateScreenBufferCommand
 
         // Make the new screen buffer the active screen buffer.
         kernel::set_active_screen_buffer(new_handle);
+
+        let mut screen_manager = self.context.screen_manager.lock().unwrap();
+        screen_manager.toggle_is_alternate_screen(true);
 
         let b: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
             Some(b) => { b },

@@ -51,4 +51,6 @@ pub trait ITerminalCursor {
     fn hide(&self);
     /// Show the terminal cursor
     fn show(&self);
+    /// enable or disable the blinking of the cursor.
+    fn blink(&self, blink: bool);
 }

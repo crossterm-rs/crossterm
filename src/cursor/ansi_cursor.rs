@@ -19,12 +19,11 @@ impl AnsiCursor {
 }
 
 impl ITerminalCursor for AnsiCursor {
-
     fn goto(&self, x: u16, y: u16)
     {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{};{}H"), y + 1, x +1));
+            screen.write_ansi(format!(csi!("{};{}H"), y + 1, x + 1));
         }
     }
 
@@ -89,6 +88,20 @@ impl ITerminalCursor for AnsiCursor {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("?25h"));
+        }
+    }
+
+    fn blink(&self, blink: bool)
+    {
+        let mut screen = self.context.screen_manager.lock().unwrap();
+        {
+            if blink
+            {
+                screen.write_ansi_str(csi!("?12h"));
+            }
+            else {
+                screen.write_ansi_str(csi!("?12l"));
+            }
         }
     }
 }
