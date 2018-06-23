@@ -20,11 +20,11 @@ Like described above the next version will have api braking changes. Why I neede
         //like
         write!(std::io::stdout(), "{}", "some ANSI code".
 
-    But things change when we are in alternate screen. If I execute the code above the ANSI escape code will be written to the main handle and not or altenate handle. This causes things to be written to the main screen and not the alternate screen, and this is not wat we want.
+    But things change when we are in alternate screen. If I execute the code above the ANSI escape code will be written to the main handle and not or alternate handle. This causes things to be written to the main screen and not the alternate screen, and this is not wat we want.
 
-To solve the problem we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program. This handle is stored in an subtype of the Context type. 
+To solve the problem, we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program. This handle is stored in a subtype of the Context type. 
 
-The user has to create an `Context` type for this libary.
+The user must create an `Context` type for this library.
 
       //like
       let context = Context::new();
@@ -33,9 +33,9 @@ The user has to create an `Context` type for this libary.
       let terminal = terminal(&context);
       let color = color(&context);
       
-Now that we have on global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to cleanup the changes that are made.
+Now that we have on global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to clean up the changes that are made.
 
-Maybe I am going to make a wrapper for the function calls `cursor, terminal, color` so that whe can avoid passing the context all over the place which makes to code more unreadable to my opinion. I realy did not want to make api braking changes, bur for the sake of the futures I want to implement it needed to be done.
+Maybe I am going to make a wrapper for the function calls `cursor, terminal, colour` so that when can avoid passing the context all over the place which makes to code more unreadable to my opinion. I really did not want to make API braking changes, bur for the sake of the futures I want to implement it needed to be done.
 
       // maybe I am going to create some Envoirment type which can be used for getting acces to diffrent modules that this libary provides.
       let envoirment = Envoirment::new();
