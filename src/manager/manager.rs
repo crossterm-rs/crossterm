@@ -1,6 +1,6 @@
 //! This module provides an interface for working with the sceen. With that I mean that you can get or wirte to the handle of the current screen. stdout.
 //! Because crossterm can work with alternate screen, we need a place that holds the handle to the current screen. And this module provides this place.
-use super::{AnsiScreenManager, WinApiScreenManager, IScreenManager };
+use super::*;
 use super::super::shared::functions;
 use std::any::Any;
 
@@ -24,11 +24,11 @@ impl ScreenManager
         let screen_manager = functions::get_module::<Box<IScreenManager>>(Box::from(WinApiScreenManager::new()), Box::from(AnsiScreenManager::new())).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::new(AnsiScreenManager::new());
+        let screen_manager =  Box::from(AnsiScreenManager::new()) as Box<IScreenManager>;
 
         ScreenManager
         {
-            screen_manager: Box::from(WinApiScreenManager::new())
+            screen_manager: screen_manager
         }
     }
 

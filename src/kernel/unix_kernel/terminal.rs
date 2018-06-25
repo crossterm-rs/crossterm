@@ -41,13 +41,13 @@ pub fn terminal_size() -> (u16,u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos(terminal: &Context) -> (u16, u16)
+pub fn pos(context: Rc<Context>) -> (u16, u16)
 {
     use std::io::{ Write,Read };
 
-    let mut command_id = NoncanonicalModeCommand::new(&terminal.state_manager);
+    let mut command_id = NoncanonicalModeCommand::new(&context.state_manager);
 
-    CommandManager::execute(terminal, command_id);
+    CommandManager::execute(context.clone(), command_id);
 
     // This code is original written by term_cursor credits to them.
     use std::io;
@@ -97,7 +97,7 @@ pub fn pos(terminal: &Context) -> (u16, u16)
     // Expect `R`
     let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
 
-    CommandManager::undo(terminal, command_id);
+    CommandManager::undo(context.clone(), command_id);
 
     res
 }

@@ -19,14 +19,14 @@ pub struct NoncanonicalModeCommand
 
 impl NoncanonicalModeCommand
 {
-    pub fn new(state: &Mutex<StateManager>) -> u16
+    pub fn new(state_manager: &Mutex<StateManager>) -> u16
     {
-        let key = 1;
-
-        let mut state_manager = state.lock().unwrap();
+        let mut state = state_manager.lock().unwrap();
         {
-            let command = Box::from(NoncanonicalModeCommand { key: key });
-            state_manager.register_change(command, key);
+            let key = state.get_changes_count();
+            let command = NoncanonicalModeCommand { key: key };
+
+            state.register_change(Box::from(command), key);
             key
         }
     }
@@ -84,11 +84,12 @@ pub struct EnableRawModeCommand
 impl EnableRawModeCommand
 {
     pub fn new(state_manager: &Mutex<StateManager>) -> u16{
-        let key = 2;
 
         let mut state = state_manager.lock().unwrap();
         {
+            let key = state.get_changes_count();
             let command = EnableRawModeCommand { original_mode: None, command_id: key };
+
             state.register_change(Box::from(command), key);
             key
         }

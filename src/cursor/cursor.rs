@@ -26,7 +26,7 @@ impl TerminalCursor
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
 
-        TerminalCursor { terminal_cursor: Some(WinApiCursor::new()), context}
+        TerminalCursor { terminal_cursor: cursor, context}
     }
 
     /// Goto some position (x,y) in the terminal.

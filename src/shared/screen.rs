@@ -95,9 +95,9 @@ impl Drop for AlternateScreen
 // Get the alternate screen command to enable and disable alternate screen based on the current platform
 fn get_to_alternate_screen_command(context: Rc<Context>) -> u16
 {
-//    #[cfg(target_os = "windows")]
-//    let command = functions::get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), context).unwrap();
+    #[cfg(target_os = "windows")]
+    let command = functions::get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), context).unwrap();
 
-//    #[cfg(not(target_os = "windows"))]
-     win_commands::ToAlternateScreenBufferCommand::new(context)
+    #[cfg(not(target_os = "windows"))]
+        shared_commands::ToAlternateScreenBufferCommand::new(context.clone())
 }
