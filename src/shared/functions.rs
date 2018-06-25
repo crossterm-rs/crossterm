@@ -21,10 +21,10 @@ pub fn get_terminal_size() -> (u16, u16)
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(screen: Rc<Context>) -> (u16, u16)
+pub fn get_cursor_position(context: Rc<Context>) -> (u16, u16)
 {
     #[cfg(unix)]
-    return pos(&screen);
+    return pos(context.clone());
 
     #[cfg(windows)]
     return pos();

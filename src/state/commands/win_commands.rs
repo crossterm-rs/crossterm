@@ -158,10 +158,9 @@ impl ToAlternateScreenBufferCommand
 {
     pub fn new(context: Rc<Context>) -> u16
     {
-        let key = 2;
-
         let mut state = context.state_manager.lock().unwrap();
         {
+            let key = state.get_changes_count();
             let command = ToAlternateScreenBufferCommand {context: context.clone()};
 
             state.register_change(Box::from(command), key);

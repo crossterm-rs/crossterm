@@ -135,7 +135,7 @@ macro_rules! impl_fmt
                    let mutex = self.context.screen_manager;
                     {
                         let mut screen = mutex.lock().unwrap();
-                        screen.write_ansi_str(format!(csi!("{}m"),  *attr as i16)).expect("Flush failed");
+                        screen.write_ansi_str(format!(csi!("{}m"),  *attr as i16));
                     }
                     reset = true;
                  }
@@ -146,7 +146,7 @@ macro_rules! impl_fmt
                 {
                     let mut screen = mutex.lock().unwrap();
 
-                    screen.flush().expect("Flush failed");
+                    screen.flush();
                 }
 
                 if reset

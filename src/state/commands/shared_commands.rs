@@ -2,6 +2,8 @@
 use Context;
 use super::{IStateCommand};
 
+use std::rc::Rc;
+
 pub struct EmptyCommand;
 
 impl IStateCommand for EmptyCommand
@@ -18,19 +20,27 @@ impl IStateCommand for EmptyCommand
 }
 
 /// This command is used for switching to alternate screen and back to main screen.
-pub struct ToAlternateScreenBufferCommand<'a>
+pub struct ToAlternateScreenBufferCommand
 {
-    context: &'a Context
+    context: Rc<Context>
 }
 
-impl<'a> ToAlternateScreenBufferCommand<'a>
+impl ToAlternateScreenBufferCommand
 {
-    pub fn new(context: & 'a Context) -> Box < ToAlternateScreenBufferCommand > {
-        Box::from(ToAlternateScreenBufferCommand {context: context})
+    pub fn new(context: Rc<Context>) -> u16 {
+
+        let mut state = context.state_manager.lock().unwrap();
+        {
+            let key = state.get_changes_count();
+            let command = ToAlternateScreenBufferCommand {context: context.clone()};
+
+            state.register_change(Box::from(command), key);
+            key
+        }
     }
 }
 
-impl<'context> IStateCommand for ToAlternateScreenBufferCommand<'context>
+impl IStateCommand for ToAlternateScreenBufferCommand
 {
     fn execute(&mut self) -> bool
     {

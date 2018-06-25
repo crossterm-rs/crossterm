@@ -2,21 +2,47 @@
 
 Things where I am working on now:
 
-I have inplemented the alternate and raw screen features for unix systems. Now I am trying to get this also to work for windows with WINAPI. 
+I have implemented the alternate and raw screen features for Unix systems. Now I am trying to get this also to work for windows with WINAPI. 
 
-The next version will have api braking changes. Why I needed to do that is essential for the functioning of these above features. 
+In the new version you must provide the Context type to the function calls `cursor(), color(), terminal()`. This type is used by Crossterm for managing the state of the terminal and for futures like `AlternateScreen` and `Rawscreen`. 
 
-- At first:
-I needed to create some `Context` types withs can manage the terminal state. So that when changes are made to the terminal the can be reverted. This is handy when using raw terminal mode and enabling some mode on the terminal like ansi escape codes for windows. When the `Context` dispposes all changes made will be reverted so that the user terminal is back in its starting state.
+Like described above the next version will have api braking changes. Why I needed to do that is essential for the functioning of the above features. 
 
-When in unix sytems you want to execute some ANSI escape code you have to write it to terminal stdout (screen ouput). 
+- At first `Terminal state`:
 
-    //like
-    write!(std::io::stdout(), "{}", "some ANSI code".
-    
-But when using `std::io::stdout` you will have an handle to the current screen. And not the alternate screen. And when using alternate screen you don't want to write to the mainscreen stdout. But to the alternate screen stdout. For this we also have the `Context` type withs has contains an type to manage the screen. 
+    Because this is a terminal manipulating library there will be made changes to terminal when running an process. If you stop the process you want the terminal back in its original state. Therefore, I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone when the process ends.
 
-So that is why I have created the `Context` type. To mange the terminal state changes and to run cleanup code. And for managegin the screen output.
+
+- At second `Handle to the console`
+
+    In rust we can call `stdout()` to get an handle to the current default console handle. For example when in unix sytems you want to execute some ANSI escape code you have to write it to terminal. I can write it to stdout (screen ouput) withs is the main screen. 
+
+        //like
+        write!(std::io::stdout(), "{}", "some ANSI code").
+
+    But things change when we are in alternate screen. If I execute the code above the ANSI escape code to the current stdout it will be written to the main handle and not or alternate handle, and this is not what we want.
+
+To solve the problem, we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program in the different modules like `cursor, terminal and color`. This handle is stored in a subtype of the Context type. 
+
+Now the user must create an `Context` type for this library.
+
+      //like
+      let context = Context::new();
+      
+      let cursor = cursor(&context);
+      let terminal = terminal(&context);
+      let color = color(&context);
+      
+Now we have one global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to clean up the changes that are made to the terminal.
+
+Maybe I am going to make a wrapper for the function calls `cursor, terminal, colour` so that when can avoid passing the context all over the place which makes to code more unreadable to my opinion. I really did not want to make API braking changes, but for the sake of the features I needed to do it.
+
+      // maybe I am going to create some Envoirment type which can be used for getting acces to diffrent modules that this libary provides.
+      let envoirment = Envoirment::new();
+      envoirment.color();
+      envoirment.cursor();
+      envoirment.terminal();     
+
 
 ## Features crossterm 0.1
 
@@ -41,7 +67,7 @@ So that is why I have created the `Context` type. To mange the terminal state ch
 - Storing the current cursor position and resetting to that stored cursor position later. 
 - Resizing the terminal.
 
-### fixes in crossterm 0.2.1
+## fixes in crossterm 0.2.1
 
 - Default ANSI escape codes for windows machines, if windows does not support ANSI switsh back to WINAPI.
 - method grammer mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
@@ -50,11 +76,18 @@ So that is why I have created the `Context` type. To mange the terminal state ch
 - The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
 - Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
 
+## fixes in crossterm 0.2.2
+- Bug see [issue 15](https://github.com/TimonPost/crossterm/issues/15)
 
-## TODO Features crossterm 0.3
-- Raw state implementation [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
-- Alternate screen implementation.
-- Tests
+## Features crossterm 0.2.3
+- Alternate screen for windows and unix systems.
+- Rawscreen for unix systems maybe windows [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
+- Hiding an showing the cursor.
+- Control over blinking of the terminal cursor.
+
+## TODO Features crossterm 0.2.2
+- Raw state implementation for windows [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
+- Alternate screen for windows
 
 ## Tested terminals
 
@@ -72,7 +105,7 @@ If you have used this library for an terminal other than the above list without 
     
 ## How it works
 
-Crossterm is using `WINAPI` for windows systems and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client calls some action and the module will deside what to do based on the current platform. And it will execute that action.
+Crossterm is using `WINAPI` for windows versions lower than windows 10 and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client can call some action and the module will deside what to do based on the current platform. And it will execute that action. 
 
 ## Notice 
 This library is library is stable. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to an newer version.
