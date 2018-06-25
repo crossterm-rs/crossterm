@@ -1,4 +1,5 @@
 //! This module contains the code for the context of the terminal.
+
 use { StateManager, ScreenManager };
 
 use std::sync::Mutex;
@@ -15,7 +16,7 @@ impl Context
 {
     /// Create new Context instance so that you can provide it to other modules like terminal, cursor and color
     ///
-    /// This context type is just an wrapper that crossterm uses for managin the state the terminal.
+    /// This context type is just an wrapper that crossterm uses for managing the state the terminal.
     ///
     /// You must provide this context otherwise crossterm would not be able to restore to the original state of the terminal.
     /// Also futures like rawscreen and ansi codes can not be used.
