@@ -6,6 +6,7 @@ use cursor::cursor;
 use super::{ClearType, ITerminal, Rc};
 use winapi::um::wincon::{SMALL_RECT, COORD, CONSOLE_SCREEN_BUFFER_INFO,};
 use kernel::windows_kernel::{kernel, terminal};
+use super::super::shared::functions;
 
 /// This struct is an windows implementation for terminal related actions.
 pub struct WinApiTerminal
@@ -141,6 +142,11 @@ impl ITerminal for WinApiTerminal {
     fn set_title(&self, title: String)
     {
 
+    }
+
+    fn exit(&self)
+    {
+        functions::exit_terminal();
     }
 }
 

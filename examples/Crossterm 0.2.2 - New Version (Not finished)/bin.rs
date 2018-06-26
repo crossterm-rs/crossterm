@@ -29,11 +29,15 @@ use crossterm::raw::IntoRawMode;
 use std::io::Write;
 use std::{time, thread};
 
+use std::process::exit;
+
 fn main() {
    let context = Context::new();
 
-   use crossterm::cursor::cursor;
+   use crossterm::terminal::terminal;
 
-   let curs = cursor(context.clone());
-   curs.blink(false);
+   let curs = terminal(context.clone());
+   curs.exit();
+    thread::sleep(time::Duration::from_secs(3));
+
 }

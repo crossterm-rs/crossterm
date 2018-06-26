@@ -6,3 +6,8 @@ pub fn terminal_size() -> (u16, u16) {
         (csbi.srWindow.Bottom - csbi.srWindow.Top) as u16,
     )
 }
+
+pub fn exit()
+{
+    ::std::process::exit(256);
+}
