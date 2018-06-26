@@ -48,8 +48,6 @@ pub trait ITerminal {
     fn scroll_down(&self, count: i16);
     /// Resize terminal to the given width and height.
     fn set_size(&self,width: i16, height: i16);
-    /// Set the terminal title.
-    fn set_title(&self, title: String);
     /// Close the current terminal
     fn exit(&self);
 }

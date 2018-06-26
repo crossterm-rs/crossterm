@@ -37,6 +37,7 @@ fn print_wait_screen(context: Rc<Context>)
     }
 }
 
+/// print wait screen on alternate screen, then swich back.
 pub fn print_wait_screen_on_alternate_window()
 {
     let context = Context::new();
@@ -54,6 +55,7 @@ pub fn print_wait_screen_on_alternate_window()
     println!("Whe are back at the main screen");
 }
 
+/// some stress test switch from and to alternate screen.
 pub fn switch_between_main_and_alternate_screen()
 {
     let context = Context::new();

@@ -338,7 +338,7 @@ impl TerminalCursor
 
     /// Enable or disable blinking of the terminal.
     ///
-    /// Note that this only works on windows 10 and unix systems. If you are working on windows 10 or lower this won't work.
+    /// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
     ///
     /// #Example
     ///

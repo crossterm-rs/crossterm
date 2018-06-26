@@ -139,11 +139,6 @@ impl ITerminal for WinApiTerminal {
         }
     }
 
-    fn set_title(&self, title: String)
-    {
-
-    }
-
     fn exit(&self)
     {
         functions::exit_terminal();

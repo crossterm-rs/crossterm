@@ -2,10 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="310aeab2-4737-4e8e-b7eb-0aac10d104a3" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cursor/cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/cursor.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/functions.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/functions.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/manager/win_manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/win_manager.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/terminal.rs" afterDir="false" />
@@ -20,6 +24,73 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="manager.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/manager/manager.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="19" column="1" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="win_manager.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/manager/win_manager.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="405">
+              <caret line="30" column="32" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="kernel.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="676">
+              <caret line="340" column="5" lean-forward="true" selection-start-line="340" selection-start-column="5" selection-end-line="340" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ansi_terminal.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="706">
+              <caret line="67" column="5" selection-start-line="67" selection-start-column="5" selection-end-line="67" selection-end-column="5" />
+              <folding>
+                <element signature="e#2303#2304#0" expanded="true" />
+                <element signature="e#2327#2328#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="winapi_terminal.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/terminal/winapi_terminal.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="556">
+              <caret line="147" column="99" selection-start-line="147" selection-start-column="99" selection-end-line="147" selection-end-column="99" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/terminal/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="615">
+              <caret line="41" column="43" selection-start-line="41" selection-start-column="43" selection-end-line="41" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="alternate_screen.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="39" column="59" selection-start-line="39" selection-start-column="59" selection-end-line="39" selection-end-column="59" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="bin.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs">
           <provider selected="true" editor-type-id="text-editor">
@@ -29,99 +100,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="576">
-              <caret line="136" column="33" selection-start-line="136" selection-start-column="33" selection-end-line="136" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
-              <caret line="136" column="28" selection-start-line="136" selection-start-column="28" selection-end-line="136" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
-              <folding>
-                <element signature="e#276#277#0" expanded="true" />
-                <element signature="e#307#308#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="533">
-              <caret line="199" column="26" selection-start-line="199" selection-start-column="26" selection-end-line="199" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="winapi_terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/winapi_terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="586">
-              <caret line="148" column="32" selection-start-line="148" selection-start-column="32" selection-end-line="148" selection-end-column="32" />
-              <folding>
-                <element signature="e#4788#4789#0" expanded="true" />
-                <element signature="e#4820#4821#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="functions.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shared/functions.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="886">
-              <caret line="62" column="31" lean-forward="true" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
-              <folding>
-                <element signature="e#500#501#0" expanded="true" />
-                <element signature="e#522#523#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ansi_terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="631">
-              <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
-              <folding>
-                <element signature="e#2303#2304#0" expanded="true" />
-                <element signature="e#2327#2328#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="37" column="47" selection-start-line="37" selection-start-column="47" selection-end-line="37" selection-end-column="47" />
+            <state relative-caret-position="26">
+              <caret line="78" column="32" lean-forward="true" selection-start-line="78" selection-start-column="32" selection-end-line="78" selection-end-column="32" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="alternate_screen.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs">
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="473">
-              <caret line="35" column="52" selection-start-line="35" selection-start-column="7" selection-end-line="35" selection-end-column="52" />
+            <state relative-caret-position="516">
+              <caret line="141" lean-forward="true" selection-start-line="141" selection-end-line="141" />
             </state>
           </provider>
         </entry>
@@ -137,7 +129,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>term</find>
       <find>ScreenManager</find>
       <find>color</find>
       <find>cursor(</find>
@@ -167,6 +158,7 @@
       <find>context</find>
       <find>WinApiScreenManager</find>
       <find>color(</find>
+      <find>d</find>
     </findStrings>
     <replaceStrings>
       <replace>crossterm_cursor</replace>
@@ -208,23 +200,17 @@
         <option value="$PROJECT_DIR$/src/style/color/color.rs" />
         <option value="$PROJECT_DIR$/src/shared/raw.rs" />
         <option value="$PROJECT_DIR$/src/state/command_manager.rs" />
-        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/raw_mode.rs" />
-        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" />
         <option value="$PROJECT_DIR$/src/manager/mod.rs" />
-        <option value="$PROJECT_DIR$/src/manager/win_manager.rs" />
         <option value="$PROJECT_DIR$/src/kernel/windows_kernel/cursor.rs" />
         <option value="$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs" />
         <option value="$PROJECT_DIR$/src/state/commands/mod.rs" />
         <option value="$PROJECT_DIR$/src/state/context.rs" />
         <option value="$PROJECT_DIR$/src/style/styles/objectstyle.rs" />
         <option value="$PROJECT_DIR$/src/state/state_manager.rs" />
-        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" />
         <option value="$PROJECT_DIR$/src/manager/ansi_manager.rs" />
         <option value="$PROJECT_DIR$/src/cursor/mod.rs" />
-        <option value="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" />
         <option value="$PROJECT_DIR$/src/cursor/winapi_cursor.rs" />
-        <option value="$PROJECT_DIR$/src/cursor/cursor.rs" />
         <option value="$PROJECT_DIR$/src/manager/manager.rs" />
         <option value="$PROJECT_DIR$/src/shared/screen.rs" />
         <option value="$PROJECT_DIR$/src/state/commands/win_commands.rs" />
@@ -232,15 +218,21 @@
         <option value="$PROJECT_DIR$/src/state/commands/unix_command.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/color/mod.rs" />
         <option value="$PROJECT_DIR$/src/style/styles/styledobject.rs" />
-        <option value="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" />
-        <option value="$PROJECT_DIR$/src/terminal/mod.rs" />
-        <option value="$PROJECT_DIR$/src/terminal/terminal.rs" />
         <option value="$PROJECT_DIR$/src/shared/functions.rs" />
-        <option value="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" />
-        <option value="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs" />
         <option value="$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs" />
+        <option value="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" />
+        <option value="$PROJECT_DIR$/src/cursor/cursor.rs" />
         <option value="$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs" />
+        <option value="$PROJECT_DIR$/src/terminal/terminal.rs" />
+        <option value="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" />
+        <option value="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" />
+        <option value="$PROJECT_DIR$/src/terminal/mod.rs" />
+        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" />
+        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" />
+        <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" />
+        <option value="$PROJECT_DIR$/src/manager/win_manager.rs" />
+        <option value="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" />
       </list>
     </option>
   </component>
@@ -322,6 +314,12 @@
               <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
               <item name="crossterm" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="cursor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
+              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="kernel" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -337,6 +335,12 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="kernel" type="462c0819:PsiDirectoryNode" />
               <item name="windows_kernel" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
+              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="manager" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
@@ -541,12 +545,12 @@
       <workItem from="1529599006635" duration="10804000" />
       <workItem from="1529689699529" duration="6745000" />
       <workItem from="1529741655974" duration="14906000" />
-      <workItem from="1530030893916" duration="4906000" />
+      <workItem from="1530030893916" duration="6941000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="617808000" />
+    <option name="totallyTimeSpent" value="619843000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="2560" height="1050" extended-state="6" />
@@ -695,13 +699,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="139" column="17" selection-start-line="139" selection-start-column="17" selection-end-line="139" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -737,13 +734,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/manager/win_manager.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="36" column="38" selection-start-line="36" selection-start-column="38" selection-end-line="36" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/manager/ansi_manager.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -755,13 +745,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="9" column="29" selection-start-line="9" selection-start-column="29" selection-end-line="9" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/manager/manager.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="1" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -839,20 +822,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cursor/cursor.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="359" column="31" selection-start-line="359" selection-start-column="31" selection-end-line="359" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cursor/ansi_cursor.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="421">
-          <caret line="81" column="10" selection-start-line="81" selection-start-column="10" selection-end-line="81" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -860,49 +829,89 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/terminal/mod.rs">
+    <entry file="file://$PROJECT_DIR$/src/shared/functions.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="53" column="19" selection-start-line="53" selection-start-column="19" selection-end-line="53" selection-end-column="19" />
+        <state relative-caret-position="886">
+          <caret line="62" column="31" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
+          <folding>
+            <element signature="e#500#501#0" expanded="true" />
+            <element signature="e#522#523#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cursor/ansi_cursor.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="871">
+          <caret line="102" column="48" selection-start-line="102" selection-start-column="48" selection-end-line="102" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cursor/cursor.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="316">
+          <caret line="361" column="5" selection-start-line="361" selection-start-column="5" selection-end-line="361" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="541">
+          <caret line="129" column="45" selection-start-line="129" selection-start-column="45" selection-end-line="129" selection-end-column="45" />
+          <folding>
+            <element signature="e#3437#3438#0" expanded="true" />
+            <element signature="e#3468#3469#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+          <folding>
+            <element signature="e#276#277#0" expanded="true" />
+            <element signature="e#307#308#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/terminal/terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="533">
-          <caret line="199" column="26" selection-start-line="199" selection-start-column="26" selection-end-line="199" selection-end-column="26" />
+        <state relative-caret-position="353">
+          <caret line="187" column="5" selection-start-line="187" selection-start-column="5" selection-end-line="187" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="706">
+          <caret line="67" column="5" selection-start-line="67" selection-start-column="5" selection-end-line="67" selection-end-column="5" />
+          <folding>
+            <element signature="e#2303#2304#0" expanded="true" />
+            <element signature="e#2327#2328#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/terminal/winapi_terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="586">
-          <caret line="148" column="32" selection-start-line="148" selection-start-column="32" selection-end-line="148" selection-end-column="32" />
-          <folding>
-            <element signature="e#4788#4789#0" expanded="true" />
-            <element signature="e#4820#4821#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="556">
+          <caret line="147" column="99" selection-start-line="147" selection-start-column="99" selection-end-line="147" selection-end-column="99" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs">
+    <entry file="file://$PROJECT_DIR$/src/terminal/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="37" column="47" selection-start-line="37" selection-start-column="47" selection-end-line="37" selection-end-column="47" />
+        <state relative-caret-position="615">
+          <caret line="41" column="43" selection-start-line="41" selection-start-column="43" selection-end-line="41" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="473">
-          <caret line="35" column="52" selection-start-line="35" selection-start-column="7" selection-end-line="35" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="136" column="33" selection-start-line="136" selection-start-column="33" selection-end-line="136" selection-end-column="33" />
+        <state relative-caret-position="181">
+          <caret line="39" column="59" selection-start-line="39" selection-start-column="59" selection-end-line="39" selection-end-column="59" />
         </state>
       </provider>
     </entry>
@@ -913,43 +922,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
+    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="631">
-          <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
-          <folding>
-            <element signature="e#2303#2304#0" expanded="true" />
-            <element signature="e#2327#2328#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="26">
+          <caret line="78" column="32" lean-forward="true" selection-start-line="78" selection-start-column="32" selection-end-line="78" selection-end-column="32" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shared/functions.rs">
+    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="886">
-          <caret line="62" column="31" lean-forward="true" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
-          <folding>
-            <element signature="e#500#501#0" expanded="true" />
-            <element signature="e#522#523#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="516">
+          <caret line="141" lean-forward="true" selection-start-line="141" selection-end-line="141" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
+    <entry file="file://$PROJECT_DIR$/src/manager/manager.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
-          <folding>
-            <element signature="e#276#277#0" expanded="true" />
-            <element signature="e#307#308#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="285">
+          <caret line="19" column="1" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs">
+    <entry file="file://$PROJECT_DIR$/src/manager/win_manager.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="136" column="28" selection-start-line="136" selection-start-column="28" selection-end-line="136" selection-end-column="28" />
+        <state relative-caret-position="405">
+          <caret line="30" column="32" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="676">
+          <caret line="340" column="5" lean-forward="true" selection-start-line="340" selection-start-column="5" selection-end-line="340" selection-end-column="5" />
         </state>
       </provider>
     </entry>

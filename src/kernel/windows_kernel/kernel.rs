@@ -4,6 +4,7 @@ use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::{GetStdHandle};
 use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
+use winapi::shared::ntdef::{NULL};
 use winapi::shared::minwindef::{TRUE, FALSE};
 use winapi::um::wincon;
 use winapi::um::wincon::
@@ -311,7 +312,7 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
 
     let utf16_bytes: Vec<u16> = utf8.encode_utf16().collect();
 
-    let utf16 = match String::from_utf16(&utf16_bytes)
+    let mut utf16 = match String::from_utf16(&utf16_bytes)
         {
             Ok(string) => string,
             Err(_) => String::new()
@@ -338,6 +339,7 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
     // write to console
     unsafe
     {
+        ::winapi::um::consoleapi::WriteConsoleW(handle, utf16.as_ptr(), utf16.len() as u32, &mut cells_written, NULL);
         WriteConsoleOutputCharacterA(handle, ptr, str_length, current_pos, &mut cells_written);
     }
 

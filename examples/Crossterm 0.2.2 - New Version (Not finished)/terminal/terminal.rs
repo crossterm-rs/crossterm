@@ -155,3 +155,14 @@ pub fn resize_terminal()
     // Get terminal size
     terminal.set_size(10,10);
 }
+
+/// exit the current proccess.
+pub fn exit()
+{
+    let context = Context::new();
+
+    // Get terminal
+    let mut terminal = terminal(context.clone());
+    // Get terminal size
+    terminal.exit();
+}
