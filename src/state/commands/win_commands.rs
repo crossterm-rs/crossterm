@@ -195,45 +195,6 @@ impl IStateCommand for ToAlternateScreenBufferCommand
 
         b.set_alternate_handle(new_handle);
 
-        // Set the source rectangle.
-        let mut srct_read_rect = SMALL_RECT
-        {
-            Top: 0,
-            Left: 0 ,
-            Bottom: 1,
-            Right: 79,
-        };
-
-        // The temporary buffer size is 2 rows x 80 columns.
-        let coord_buffer_size = COORD
-        {
-            X: 2,
-            Y: 80
-        };
-
-        // The top left destination cell of the temporary buffer is
-        // row 0, col 0.
-        let coord_buffer_coord = COORD
-        {
-            X: 0,
-            Y: 0,
-        };
-
-        // Copy the block from the screen buffer to the temp. buffer.
-        kernel::read_console_output(&handle, &mut chi_buffer, coord_buffer_size, coord_buffer_coord, &mut srct_read_rect);
-
-        // Set the destination rectangle.
-        let mut srct_write_rect = SMALL_RECT
-        {
-            Top: 10,
-            Left: 0,
-            Bottom: 11,
-            Right: 19,
-        };
-
-        // Copy from the temporary buffer to the new screen buffer.
-        kernel::write_console_output(&new_handle, &mut chi_buffer, coord_buffer_size, coord_buffer_coord, &mut srct_write_rect);
-
         true
     }
 

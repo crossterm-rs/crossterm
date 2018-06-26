@@ -1,4 +1,8 @@
 //! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
+use Context;
+use std::rc::Rc;
+
+
 use winapi::um::winnt::HANDLE;
 use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
@@ -19,6 +23,21 @@ use winapi::um::wincon::
 use super::{Empty};
 static mut CONSOLE_OUTPUT_HANDLE: Option<HANDLE> = None;
 static mut CONSOLE_INPUT_HANDLE: Option<HANDLE> = None;
+
+
+pub fn get_current_handle(context: Rc<Context>) -> Rc<HANDLE>
+{
+    let mut screen_manager = context.screen_manager.lock().unwrap();
+    use super::super::super::manager::WinApiScreenManager;
+    let b: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(b) => { b },
+        None => panic!("")
+    };
+
+    let handle = b.get_handle();
+
+    return handle.clone()
+}
 
 /// Get the std_output_handle of the console
 pub fn get_output_handle() -> HANDLE {

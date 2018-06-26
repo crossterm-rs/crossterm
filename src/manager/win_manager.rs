@@ -4,6 +4,7 @@ use winapi::um::winnt::HANDLE;
 
 use std::io::{self,Write};
 use std::any::Any;
+use std::rc::Rc;
 
 pub struct WinApiScreenManager
 {
@@ -58,5 +59,16 @@ impl WinApiScreenManager {
     pub fn set_alternate_handle(&mut self, alternate_handle: HANDLE)
     {
         self.alternate_handle = alternate_handle;
+    }
+
+    pub fn get_handle(&mut self) -> Rc<HANDLE>
+    {
+        if self.is_alternate_screen
+            {
+                return Rc::from(self.alternate_handle);
+            }
+            else {
+                return Rc::from(self.output);
+            }
     }
 }
