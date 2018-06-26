@@ -100,7 +100,7 @@ impl ITerminalCursor for AnsiCursor {
                 screen.write_ansi_str(csi!("?12h"));
             }
             else {
-                screen.write_ansi_str(csi!("?12l"));
+                screen.write_ansi_str(csi!("?12"));
             }
         }
     }

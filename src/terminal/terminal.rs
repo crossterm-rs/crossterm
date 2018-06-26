@@ -193,6 +193,13 @@ impl Terminal {
             terminal.set_title(title );
         }
     }
+
+    pub fn exit(&self)
+    {
+        if let Some (ref terminal) = self.terminal {
+            terminal.exit();
+        }
+    }
 }
 
 /// Get an Terminal implementation whereon terminal related actions can be performed.

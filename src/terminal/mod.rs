@@ -50,4 +50,6 @@ pub trait ITerminal {
     fn set_size(&self,width: i16, height: i16);
     /// Set the terminal title.
     fn set_title(&self, title: String);
+    /// Close the current terminal
+    fn exit(&self);
 }

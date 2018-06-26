@@ -4,15 +4,13 @@ use Context;
 use std::rc::Rc;
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::terminal_size;
-
-#[cfg(unix)]
-use kernel::unix_kernel::terminal::terminal_size;
+use kernel::windows_kernel::terminal::{exit, terminal_size};
 
 #[cfg(windows)]
 use kernel::windows_kernel::cursor::pos;
+
 #[cfg(unix)]
-use kernel::unix_kernel::terminal::pos;
+use kernel::unix_kernel::terminal::{pos, exit,terminal_size };
 
 /// Get the terminal size based on the current platform.
 pub fn get_terminal_size() -> (u16, u16)
@@ -28,6 +26,16 @@ pub fn get_cursor_position(context: Rc<Context>) -> (u16, u16)
 
     #[cfg(windows)]
     return pos();
+}
+
+/// exit the current terminal.
+pub fn exit_terminal()
+{
+    #[cfg(unix)]
+        exit();
+
+    #[cfg(windows)]
+        exit();
 }
 
 #[cfg(windows)]
