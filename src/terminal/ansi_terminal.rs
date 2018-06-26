@@ -67,14 +67,6 @@ impl ITerminal for AnsiTerminal {
         }
     }
 
-    fn set_title(&self, title: String)
-    {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_ansi_str("\x1b]2;New terminal titleBEL");
-        }
-    }
-
     fn exit(&self)
     {
         functions::exit_terminal();

@@ -135,6 +135,7 @@ pub fn get_terminal_mode() -> io::Result<Termios>
 pub fn exit()
 {
     ::std::process::exit(0);
+}
 
 /// Is the return value true?
 fn is_true(value: i32) -> Result<(), Error>

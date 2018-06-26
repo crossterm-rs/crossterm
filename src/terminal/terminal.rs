@@ -187,13 +187,6 @@ impl Terminal {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
 
-    pub fn set_title(&self, title: String)
-    {
-        if let Some (ref terminal) = self.terminal {
-            terminal.set_title(title );
-        }
-    }
-
     pub fn exit(&self)
     {
         if let Some (ref terminal) = self.terminal {

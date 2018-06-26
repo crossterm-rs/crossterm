@@ -140,6 +140,16 @@ pub fn show_cursor()
     cursor.show();
 }
 
+/// Show cursor display | demonstration.
+pub fn blink_cursor()
+{
+    let context = Context::new();
+
+    let cursor = cursor(context.clone());
+    cursor.blink(false);
+    cursor.blink(false);
+}
+
 
 
 
