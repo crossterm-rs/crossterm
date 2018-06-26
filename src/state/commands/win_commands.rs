@@ -190,7 +190,7 @@ impl IStateCommand for ToAlternateScreenBufferCommand
 
         let b: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
             Some(b) => { b },
-            None => panic!("&a isn't a B!")
+            None => panic!("")
         };
 
         b.set_alternate_handle(new_handle);

@@ -33,11 +33,6 @@ use std::process::exit;
 
 fn main() {
    let context = Context::new();
-
-   use crossterm::terminal::terminal;
-
-   let curs = terminal(context.clone());
-   curs.exit();
-    thread::sleep(time::Duration::from_secs(3));
+    alternate_screen::print_wait_screen_on_alternate_window();
 
 }

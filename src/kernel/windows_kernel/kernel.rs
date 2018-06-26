@@ -9,9 +9,10 @@ use winapi::shared::minwindef::{TRUE, FALSE};
 use winapi::um::wincon;
 use winapi::um::wincon::
 {
+    WriteConsoleOutputCharacterA,
     SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer, SetConsoleCursorInfo,
     GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
-    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,WriteConsoleOutputCharacterA,WriteConsoleOutputAttribute,
+    FillConsoleOutputCharacterA, FillConsoleOutputAttribute,WriteConsoleOutputAttribute,
     CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT, COORD, CHAR_INFO, PSMALL_RECT, CONSOLE_CURSOR_INFO
 };
 
@@ -339,7 +340,8 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
     // write to console
     unsafe
     {
-        ::winapi::um::consoleapi::WriteConsoleW(handle, utf16.as_ptr(), utf16.len() as u32, &mut cells_written, NULL);
+//        WriteConsoleOutputCharacterA()
+//        ::winapi::um::consoleapi::WriteConsoleW(handle, utf16.as_ptr(), utf16.len() as u32, &mut cells_written, NULL);
         WriteConsoleOutputCharacterA(handle, ptr, str_length, current_pos, &mut cells_written);
     }
 

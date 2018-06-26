@@ -131,7 +131,7 @@ macro_rules! impl_fmt
                    reset = true;
                 }
 
-//                #[cfg(unix)]
+                #[cfg(unix)]
                  for attr in self.object_style.attrs.iter() {
                    let mutex = &self.context.screen_manager;
                     {
@@ -146,7 +146,6 @@ macro_rules! impl_fmt
                 let mutex = &self.context.screen_manager;
                 {
                     let mut screen = mutex.lock().unwrap();
-
                     screen.flush();
                 }
 
