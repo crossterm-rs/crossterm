@@ -124,18 +124,19 @@ macro_rules! impl_fmt
                     colored_terminal.set_bg(bg);
                     reset = true;
                 }
+
                 if let Some(fg) = self.object_style.fg_color
                 {
                    colored_terminal.set_fg(fg);
                    reset = true;
                 }
 
-                #[cfg(unix)]
+//                #[cfg(unix)]
                  for attr in self.object_style.attrs.iter() {
-                   let mutex = self.context.screen_manager;
+                   let mutex = &self.context.screen_manager;
                     {
                         let mut screen = mutex.lock().unwrap();
-                        screen.write_ansi_str(format!(csi!("{}m"),  *attr as i16));
+                        screen.write_ansi(format!(csi!("{}m"),  *attr as i16));
                     }
                     reset = true;
                  }

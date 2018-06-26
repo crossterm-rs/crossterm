@@ -146,7 +146,7 @@ pub fn print_supported_colors()
     let context = Context::new();
     let terminal = terminal::terminal(context.clone());
 
-    let count = crossterm::style::color(context.screen_manager.clone()).get_available_color_count().unwrap();
+    let count = crossterm::style::color(context.clone()).get_available_color_count().unwrap();
 
     for i in 0..count
     {
