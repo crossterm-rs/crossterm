@@ -13,7 +13,8 @@ pub mod style;
 pub mod terminal;
 pub mod manager;
 
-pub use shared::{screen, raw};
+pub use shared::{screen};
+pub use shared::environment::Environment;
 pub use state::context::Context;
 
 use state::commands::IStateCommand;

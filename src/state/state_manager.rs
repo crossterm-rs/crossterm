@@ -30,6 +30,8 @@ impl StateManager
         {
             let mut item = item.lock().unwrap();
             item.undo();
+
+            println!("undo!");
         }
     }
 

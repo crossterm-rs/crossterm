@@ -4,9 +4,13 @@
 //! The alternate buffer is exactly the dimensions of the window, without any scrollback region.
 //! For an example of this behavior, consider when vim is launched from bash.
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
+//!
+//! !! Note: this module is only working for unix and windows 10 terminals only.  If you are using windows 10 or lower do not implement this functionality. Work in progress...
+//!
 
 use Context;
 use state::commands::*;
+use shared::functions;
 
 use std::io::{self, Write};
 use std::rc::Rc;
@@ -79,27 +83,20 @@ impl Drop for AlternateScreen
 {
     fn drop(&mut self)
     {
-        let mut mutex = &self.context.state_manager;
-        {
-            let mut state_manager = mutex.lock().unwrap();
+        use CommandManager;
 
-            let mut mx = &state_manager.get(self.command_id);
-            {
-                let mut command = mx.lock().unwrap();
-                command.undo();
-            }
-        }
+        CommandManager::undo(self.context.clone(), self.command_id);
     }
 }
 
 // Get the alternate screen command to enable and disable alternate screen based on the current platform
 fn get_to_alternate_screen_command(context: Rc<Context>) -> u16
 {
-//    #[cfg(target_os = "windows")]
-//    let command = functions::get_module::<Box<ICommand>>(win_commands::ToAlternateScreenBufferCommand::new(), shared_commands::ToAlternateScreenBufferCommand::new(), context).unwrap();
-//
-//    #[cfg(not(target_os = "windows"))]
-//        shared_commands::ToAlternateScreenBufferCommand::new(context.clone())
+    #[cfg(target_os = "windows")]
+    let command_id = functions::get_module::<u16>(win_commands::ToAlternateScreenBufferCommand::new(context.clone()), shared_commands::ToAlternateScreenBufferCommand::new(context.clone())).unwrap();
 
-    win_commands::ToAlternateScreenBufferCommand::new(context.clone())
+    #[cfg(not(target_os = "windows"))]
+    let command_id = shared_commands::ToAlternateScreenBufferCommand::new(context.clone());
+
+    return command_id;
 }

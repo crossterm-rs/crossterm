@@ -19,7 +19,7 @@ impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
     pub fn new(context: Rc<Context>) -> TerminalColor {
         #[cfg(target_os = "windows")]
-        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(), AnsiColor::new());
+        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(context.screen_manager.clone()), AnsiColor::new());
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new() as Box<ITerminalColor>);

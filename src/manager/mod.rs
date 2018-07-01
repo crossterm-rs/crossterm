@@ -17,17 +17,16 @@ use std::any::Any;
 
 pub trait IScreenManager
 {
-    /// get the stdout of the screen. This can be used to write to the
-//    fn stdout(&mut self) -> &mut Self::Output;
+    /// Toggle the value if alternatescreen is on.
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool);
     /// Write ansi code as String to the current stdout.
     fn write_ansi(&mut self, string: String);
     /// Write a &str to the current stdout.
     fn write_ansi_str(&mut self, string: &str);
-
+    /// Write buffer to console.
     fn write(&mut self, buf: &[u8]) -> io::Result<usize>;
-
+    /// Flush the current output.
     fn flush(&mut self) -> io::Result<()>;
-
+    /// Can be used to convert to an specific IScreenManager implementation.
     fn as_any(&mut self) -> &mut Any;
 }

@@ -44,9 +44,10 @@ impl IStateCommand for ToAlternateScreenBufferCommand
 {
     fn execute(&mut self) -> bool
     {
+
+        println!("asdfasdf");
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("?1049h"));
             screen.toggle_is_alternate_screen(true);
             return true;
         }

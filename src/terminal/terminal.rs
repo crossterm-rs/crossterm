@@ -6,6 +6,7 @@ use Context;
 use super::super::style;
 use super::super::shared::functions;
 
+use std::fmt::Write;
 use std::fmt;
 use std::rc::Rc;
 
@@ -191,6 +192,20 @@ impl Terminal {
     {
         if let Some (ref terminal) = self.terminal {
             terminal.exit();
+        }
+    }
+
+    pub fn write<D: fmt::Display>(&mut self, value: D)
+    {
+        let mut mutex = &self.context.screen_manager;
+        {
+            let mut screen_manager = mutex.lock().unwrap();
+
+            use std::fmt::Write;
+            let mut string = String::new();
+            write!(string, "{}", value).unwrap();
+
+            screen_manager.write_val(string);
         }
     }
 }

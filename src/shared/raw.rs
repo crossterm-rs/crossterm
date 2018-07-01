@@ -12,6 +12,8 @@
 //!
 //! With these modes you can easier design the terminal screen.
 //!
+//! !! Note that this module is only working for unix currently. !!
+//!
 //! # Example
 //!
 //! ```rust

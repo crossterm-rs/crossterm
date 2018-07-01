@@ -6,6 +6,7 @@
 use super::*;
 use Context;
 use super::super::shared::functions;
+use std::io::Write;
 
 use std::fmt::Display;
 use std::rc::Rc;
@@ -21,7 +22,7 @@ impl TerminalCursor
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new(context: Rc<Context>) -> TerminalCursor {
         #[cfg(target_os = "windows")]
-        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new(context.clone()));
+        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(context.screen_manager.clone()), AnsiCursor::new(context.clone()));
 
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
@@ -242,7 +243,9 @@ impl TerminalCursor
                 let mut string = String::new();
                 write!(string, "{}", value).unwrap();
 
-                screen_manager.write_ansi(string);
+                screen_manager.write_val(string);
+
+                screen_manager.flush();
             }
         }
         self

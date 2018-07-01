@@ -1,5 +1,5 @@
 //!    
-//! Color Examples
+//! Examples of coloring the terminal.
 //!
 
 extern crate crossterm;

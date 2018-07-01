@@ -8,15 +8,16 @@ use std::sync::Mutex;
 use std::rc::Rc;
 
 /// This struct is an windows implementation for color related actions.
-#[derive(Debug)]
 pub struct WinApiColor {
     original_console_color: u16,
+    screen_manager: Rc<Mutex<ScreenManager>>
 }
 
 impl WinApiColor {
-    pub fn new() -> Box<WinApiColor> {
+    pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<WinApiColor> {
         Box::from(WinApiColor {
-            original_console_color: kernel::get_original_console_color(),
+            original_console_color: kernel::get_original_console_color(&screen_manager),
+            screen_manager: screen_manager
         })
     }
 }
@@ -26,7 +27,7 @@ impl ITerminalColor for WinApiColor {
     fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
-        let csbi = kernel::get_console_screen_buffer_info();
+        let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
 
         // Notice that the color values are stored in wAttribute.
         // So we need to use bitwise operators to check if the values exists or to get current console colors.
@@ -41,13 +42,13 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color);
+        kernel::set_console_text_attribute(color,&self.screen_manager);
     }
 
     fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let csbi = kernel::get_console_screen_buffer_info();
+        let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
         let mut color: u16;
@@ -61,11 +62,11 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color);
+        kernel::set_console_text_attribute(color,&self.screen_manager);
     }
 
     fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
-        kernel::set_console_text_attribute(self.original_console_color);
+        kernel::set_console_text_attribute(self.original_console_color,&self.screen_manager);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct

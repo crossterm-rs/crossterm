@@ -2,7 +2,6 @@
 use Context;
 use std::rc::Rc;
 
-
 use winapi::um::winnt::HANDLE;
 use winapi::um::winbase::{STD_OUTPUT_HANDLE, STD_INPUT_HANDLE };
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
@@ -11,9 +10,13 @@ use winapi::um::consoleapi::{SetConsoleMode,GetConsoleMode, };
 use winapi::shared::ntdef::{NULL};
 use winapi::shared::minwindef::{TRUE, FALSE};
 use winapi::um::wincon;
+use winapi::um::consoleapi::WriteConsoleW;
 use winapi::um::wincon::
 {
+    ENABLE_PROCESSED_INPUT,
+    WriteConsoleOutputW,
     WriteConsoleOutputCharacterA,
+    WriteConsoleOutputCharacterW,
     SetConsoleWindowInfo, SetConsoleCursorPosition, SetConsoleTextAttribute, SetConsoleScreenBufferSize, CreateConsoleScreenBuffer,SetConsoleActiveScreenBuffer, SetConsoleCursorInfo,
     GetLargestConsoleWindowSize, GetConsoleScreenBufferInfo,
     FillConsoleOutputCharacterA, FillConsoleOutputAttribute,WriteConsoleOutputAttribute,
@@ -24,19 +27,13 @@ use super::{Empty};
 static mut CONSOLE_OUTPUT_HANDLE: Option<HANDLE> = None;
 static mut CONSOLE_INPUT_HANDLE: Option<HANDLE> = None;
 
+use super::super::super::manager::{ScreenManager, WinApiScreenManager};
+use std::sync::Mutex;
 
-pub fn get_current_handle(context: Rc<Context>) -> Rc<HANDLE>
+/// Get the global stored handle.
+pub fn get_current_handle(screen_manager: &mut WinApiScreenManager) -> &HANDLE
 {
-    let mut screen_manager = context.screen_manager.lock().unwrap();
-    use super::super::super::manager::WinApiScreenManager;
-    let b: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
-        Some(b) => { b },
-        None => panic!("")
-    };
-
-    let handle = b.get_handle();
-
-    return handle.clone()
+    return screen_manager.get_handle();
 }
 
 /// Get the std_output_handle of the console
@@ -85,13 +82,20 @@ fn is_valid_handle(handle: &HANDLE) -> bool {
         true
     }
 }
+/// Create a new console screen buffer info struct.
+pub fn get_console_screen_buffer_info(screen_manager: &Rc<Mutex<ScreenManager>>) -> CONSOLE_SCREEN_BUFFER_INFO {
 
-pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
-    let output_handle = get_output_handle();
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let output_handle = get_current_handle(winapi_screen_manager);
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
-    unsafe { success = GetConsoleScreenBufferInfo(output_handle, &mut csbi) }
+    unsafe { success = GetConsoleScreenBufferInfo(*output_handle, &mut csbi) }
 
     if success == 0 {
         panic!("Cannot get console screen buffer info");
@@ -100,6 +104,22 @@ pub fn get_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     csbi
 }
 
+/// Create a new console screen buffer info struct.
+pub fn get_console_screen_buffer_info_from_handle(handle: &HANDLE) -> CONSOLE_SCREEN_BUFFER_INFO {
+
+    let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
+    let success;
+
+    unsafe { success = GetConsoleScreenBufferInfo(*handle, &mut csbi) }
+
+    if success == 0 {
+        panic!("Cannot get console screen buffer info");
+    }
+
+    csbi
+}
+
+/// Get the larged console window size posible.
 pub fn get_largest_console_window_size() -> COORD
 {
     let output_handle = get_output_handle();
@@ -109,11 +129,13 @@ pub fn get_largest_console_window_size() -> COORD
     }
 }
 
-pub fn get_original_console_color() -> u16 {
-    let console_buffer_info = get_console_screen_buffer_info();
+/// Get the original color of the terminal.
+pub fn get_original_console_color(screen_manager: &Rc<Mutex<ScreenManager>>) -> u16 {
+    let console_buffer_info = get_console_screen_buffer_info(screen_manager);
     console_buffer_info.wAttributes as u16
 }
 
+/// Set the console mode to the given console mode.
 pub fn set_console_mode(handle: &HANDLE, console_mode: u32) -> bool
 {
     unsafe {
@@ -122,6 +144,7 @@ pub fn set_console_mode(handle: &HANDLE, console_mode: u32) -> bool
     }
 }
 
+/// Get the console mode.
 pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool
 {
     unsafe {
@@ -130,7 +153,8 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool
     }
 }
 
-pub fn set_console_cursor_position(x: i16, y: i16)
+/// Set the cursor position to the given x and y. Note that this is 0 based.
+pub fn set_console_cursor_position(x: i16, y: i16, screen_manager: &Rc<Mutex<ScreenManager>>)
 {
     if x < 0 || x >= <i16>::max_value() {
         panic!("X: {}, Argument Out of Range Exception", x);
@@ -140,11 +164,18 @@ pub fn set_console_cursor_position(x: i16, y: i16)
         panic!("Y: {}, Argument Out of Range Exception", y);
     }
 
-    let output_handle = get_output_handle();
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let handle = get_current_handle(winapi_screen_manager);
+
     let position = COORD { X: x, Y: y };
 
     unsafe {
-        let success = SetConsoleCursorPosition(output_handle, position);
+        let success = SetConsoleCursorPosition(*handle, position);
 
         if success == 0 {
             panic!("Argument out of range.");
@@ -152,23 +183,31 @@ pub fn set_console_cursor_position(x: i16, y: i16)
     }
 }
 
-pub fn cursor_visibility(visable: bool)
+/// change the cursor visibility.
+pub fn cursor_visibility(visable: bool, screen_manager: &Rc<Mutex<ScreenManager>>)
 {
-    let handle = get_output_handle();
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let handle = get_current_handle(winapi_screen_manager);
+
     let cursor_info = CONSOLE_CURSOR_INFO
     {
-
-        dwSize: 1,
+        dwSize: 100,
         bVisible: if visable { TRUE } else {FALSE}
     };
 
     unsafe
     {
-        SetConsoleCursorInfo(handle, &cursor_info);
+        SetConsoleCursorInfo(*handle, &cursor_info);
     }
 }
 
-pub fn set_console_text_attribute(value: u16)
+/// Change the console text attribute.
+pub fn set_console_text_attribute(value: u16, screen_manager: &Rc<Mutex<ScreenManager>>)
 {
     let output_handle = get_output_handle();
 
@@ -177,38 +216,58 @@ pub fn set_console_text_attribute(value: u16)
     }
 }
 
-pub fn set_console_info(absolute: bool, rect: &SMALL_RECT) -> bool
+/// Change console info.
+pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, screen_manager: &Rc<Mutex<ScreenManager>>) -> bool
 {
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
 
-    let output_handle = get_output_handle();
+    let handle = get_current_handle(winapi_screen_manager);
 
     let absolute = match absolute {  true => 1, false => 0, };
     unsafe
     {
-        let success = SetConsoleWindowInfo(output_handle,absolute ,rect);
+        let success = SetConsoleWindowInfo(*handle,absolute ,rect);
         is_true(success)
     }
 }
 
-pub fn set_console_screen_buffer_size(  size: COORD) -> bool
+/// Set the console screen buffer size
+pub fn set_console_screen_buffer_size(  size: COORD, screen_manager: &Rc<Mutex<ScreenManager>>) -> bool
 {
-    let output_handle = get_output_handle();
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let handle = get_current_handle(winapi_screen_manager);
 
     unsafe
-        {
-            let success = SetConsoleScreenBufferSize(output_handle, size);
-            is_true(success)
-        }
+    {
+        let success = SetConsoleScreenBufferSize(*handle, size);
+        is_true(success)
+    }
 }
 
-pub fn fill_console_output_character(cells_written: &mut u32, start_location: COORD, cells_to_write: u32) -> bool
+/// Fill a certain block with characters.
+pub fn fill_console_output_character(cells_written: &mut u32, start_location: COORD, cells_to_write: u32, screen_manager: &Rc<Mutex<ScreenManager>>) -> bool
 {
-    let output_handle = get_output_handle();
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let handle = get_current_handle(winapi_screen_manager);
 
     unsafe {
         // fill the cells in console with blanks
         let success = FillConsoleOutputCharacterA (
-            output_handle,
+            *handle,
             ' ' as i8,
             cells_to_write,
             start_location,
@@ -218,17 +277,26 @@ pub fn fill_console_output_character(cells_written: &mut u32, start_location: CO
     }
 }
 
-pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: COORD, cells_to_write: u32) -> bool
+/// Set console ouput attribute for certain block.
+pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: COORD, cells_to_write: u32,screen_manager: &Rc<Mutex<ScreenManager>>) -> bool
 {
+
     // Get the position of the current console window
-    let csbi = get_console_screen_buffer_info();
-    let output_handle = get_output_handle();
+    let csbi = get_console_screen_buffer_info(screen_manager);
+
+    let mut screen_manager = screen_manager.lock().unwrap();
+    let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
+        Some(win_api) => { win_api },
+        None => panic!("")
+    };
+
+    let handle = get_current_handle(winapi_screen_manager);
 
     let success;
 
     unsafe {
         success = FillConsoleOutputAttribute (
-            output_handle,
+            *handle,
             csbi.wAttributes,
             cells_to_write,
             start_location,
@@ -239,6 +307,7 @@ pub fn fill_console_output_attribute(cells_written: &mut u32, start_location: CO
     is_true(success)
 }
 
+/// Create new console screen buffer. This can be used for alternate screen.
 pub fn create_console_screen_buffer() -> HANDLE
 {
     use winapi::shared::ntdef::NULL;
@@ -269,6 +338,7 @@ pub fn create_console_screen_buffer() -> HANDLE
     }
 }
 
+/// Set the active screen buffer to the given handle. This can be used for alternate screen.
 pub fn set_active_screen_buffer(new_buffer: HANDLE)
 {
     unsafe
@@ -280,6 +350,7 @@ pub fn set_active_screen_buffer(new_buffer: HANDLE)
     }
 }
 
+/// Read the console outptut.
 pub fn read_console_output(read_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
 {
     use self::wincon::ReadConsoleOutputA;
@@ -299,6 +370,7 @@ pub fn read_console_output(read_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;16
     }
 }
 
+/// Write console output.
 pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;160], buffer_size: COORD, buffer_coord: COORD, source_buffer: PSMALL_RECT)
 {
     use self::wincon::WriteConsoleOutputA;
@@ -318,38 +390,34 @@ pub fn write_console_output(write_buffer: &HANDLE, copy_buffer: &mut [CHAR_INFO;
         }
 }
 
+use std::ffi::OsStr;
+use std::os::windows::ffi::OsStrExt;
+use std::iter::once;
+
+fn win32_string( value : &str ) -> Vec<u16> {
+    OsStr::new( value ).encode_wide().chain( once( 0 ) ).collect()
+}
+
+//use std::os::raw::c_void;
+use winapi::ctypes::c_void;
+use std::mem::transmute;
+use std::str;
+
+/// Write utf8 buffer to console.
 pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
 {
-    use std::ffi::{ NulError, CString };
-    use std::str;
-
     // get string from u8[] and parse it to an c_str
     let mut utf8 = match str::from_utf8(buf)
         {
             Ok(string) => string,
-            Err(_) => "",
+            Err(_) => "123",
         };
 
-    let utf16_bytes: Vec<u16> = utf8.encode_utf16().collect();
-
-    let mut utf16 = match String::from_utf16(&utf16_bytes)
-        {
-            Ok(string) => string,
-            Err(_) => String::new()
-        };
-
-    let str_length = utf16.len() as u32;
-
-    let c_str = match CString::new(utf16)
-        {
-            Ok(c) => c,
-            Err(_) => CString::new("").unwrap()
-        };
-
-    let ptr: *const i8 = c_str.as_ptr() as *const i8;
+    let utf16: Vec<u16> = utf8.encode_utf16().collect();
+    let utf16_ptr: *const c_void = utf16.as_ptr() as *const _ as *const c_void;
 
     // get buffer info
-    let csbi = get_console_screen_buffer_info();
+    let csbi = get_console_screen_buffer_info_from_handle(&handle);
 
     // get current position
     let current_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
@@ -359,18 +427,8 @@ pub fn write_char_buffer(handle: HANDLE, buf: &[u8])
     // write to console
     unsafe
     {
-//        WriteConsoleOutputCharacterA()
-//        ::winapi::um::consoleapi::WriteConsoleW(handle, utf16.as_ptr(), utf16.len() as u32, &mut cells_written, NULL);
-        WriteConsoleOutputCharacterA(handle, ptr, str_length, current_pos, &mut cells_written);
+        WriteConsoleW(handle, utf16_ptr, utf16.len() as u32, &mut cells_written, NULL);
     }
-
-    // get buffer info
-    let csbi = get_console_screen_buffer_info();
-
-    // get current position
-    let new_pos = COORD {X: csbi.dwCursorPosition.X, Y: csbi.dwCursorPosition.Y};
-
-    set_console_cursor_position(new_pos.X, new_pos.Y + 1);
 }
 
 /// Parse integer to an bool

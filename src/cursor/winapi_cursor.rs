@@ -2,25 +2,34 @@
 //! This module is used for windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
 use super::ITerminalCursor;
+use super::super::manager::{IScreenManager, ScreenManager, WinApiScreenManager };
+
 use kernel::windows_kernel::{kernel, cursor};
 
+use std::rc::Rc;
+use std::sync::Mutex;
+
 /// This struct is an windows implementation for cursor related actions.
-pub struct WinApiCursor;
+pub struct WinApiCursor
+{
+    screen_manager: Rc<Mutex<ScreenManager>>
+}
 
 impl WinApiCursor {
-    pub fn new() -> Box<WinApiCursor> {
-        Box::from(WinApiCursor { })
+    pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<WinApiCursor> {
+        Box::from(WinApiCursor { screen_manager })
     }
 }
 
-impl ITerminalCursor for WinApiCursor {
-
+impl ITerminalCursor for WinApiCursor
+{
     fn goto(&self, x: u16, y: u16) {
-        kernel::set_console_cursor_position(x as i16, y as i16);
+
+        kernel::set_console_cursor_position(x as i16, y as i16, &self.screen_manager);
     }
 
     fn pos(&self) -> (u16, u16) {
-        cursor::pos()
+        cursor::pos(&self.screen_manager)
     }
 
     fn move_up(&self, count: u16) {
@@ -45,22 +54,22 @@ impl ITerminalCursor for WinApiCursor {
 
     fn save_position(&mut self)
     {
-        cursor::save_cursor_pos();
+        cursor::save_cursor_pos(&self.screen_manager);
     }
 
     fn reset_position(&self)
     {
-        cursor::reset_to_saved_position();
+        cursor::reset_to_saved_position(&self.screen_manager);
     }
 
     fn hide(&self)
     {
-        kernel::cursor_visibility(false);
+        kernel::cursor_visibility(false, &self.screen_manager);
     }
 
     fn show(&self)
     {
-        kernel::cursor_visibility(true);
+        kernel::cursor_visibility(true, &self.screen_manager);
     }
 
     fn blink(&self, blink: bool)

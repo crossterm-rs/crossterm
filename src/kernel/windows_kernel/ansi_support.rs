@@ -7,6 +7,7 @@ static mut HAS_BEEN_TRYED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI:  Option<bool>  = None;
 static START: Once = ONCE_INIT;
+
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool
 {
@@ -18,7 +19,6 @@ pub fn try_enable_ansi_support() -> bool
         set_is_windows_ansi_supportable(success);
         set_ansi_enabled(success);
         has_been_tried_to_enable(true);
-
     });
 
    windows_supportable()

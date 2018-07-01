@@ -1,5 +1,6 @@
-//! This module provides an interface for working with the sceen. With that I mean that you can get or wirte to the handle of the current screen. stdout.
-//! Because crossterm can work with alternate screen, we need a place that holds the handle to the current screen. And this module provides this place.
+//! This module provides an interface for working with the screen. With that I mean that you can get or wirte to the handle of the current screen. stdout.
+//! Because crossterm can work with alternate screen, we need a place that holds the handle to the current screen so we can write to that screen.
+
 use super::*;
 use super::super::shared::functions;
 use std::any::Any;
@@ -20,15 +21,15 @@ impl ScreenManager
 {
     /// Create new screen manager instance whereon screen related actions can be performed.
     pub fn new() -> ScreenManager {
-//        #[cfg(target_os = "windows")]
-//        let screen_manager = functions::get_module::<Box<IScreenManager>>(Box::from(WinApiScreenManager::new()), Box::from(AnsiScreenManager::new())).unwrap();
-//
-//        #[cfg(not(target_os = "windows"))]
-//        let screen_manager =  Box::from(AnsiScreenManager::new()) as Box<IScreenManager>;
+        #[cfg(target_os = "windows")]
+        let screen_manager = functions::get_module::<Box<IScreenManager>>(Box::from(WinApiScreenManager::new()), Box::from(AnsiScreenManager::new())).unwrap();
+
+        #[cfg(not(target_os = "windows"))]
+        let screen_manager =  Box::from(AnsiScreenManager::new()) as Box<IScreenManager>;
 
         ScreenManager
         {
-            screen_manager: Box::new(WinApiScreenManager::new())
+            screen_manager: screen_manager
         }
     }
 
@@ -49,13 +50,19 @@ impl ScreenManager
         self.screen_manager.write_ansi_str(string);
     }
 
+    /// Can be used to get an specific implementation used for the current platform.
     pub fn as_any(&mut self) -> &mut Any { self.screen_manager.as_any() }
+
+    pub fn write_val(&mut self, value: String)
+    {
+        self.screen_manager.write(value.as_bytes());
+    }
 }
 
 impl Write for ScreenManager
 {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.screen_manager.write(buf)
+        self.write(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {

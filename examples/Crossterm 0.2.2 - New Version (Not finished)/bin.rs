@@ -16,23 +16,17 @@ extern crate crossterm;
 mod terminal;
 mod cursor;
 mod color;
-
-use terminal::alternate_screen;
-use terminal::raw_mode;
-use terminal::terminal as term;
-
-use self::crossterm::Context;
-use self::crossterm::terminal::ClearType;
-use crossterm::raw;
-use crossterm::screen;
-use crossterm::raw::IntoRawMode;
-use std::io::Write;
-use std::{time, thread};
-
-use std::process::exit;
+mod program_examples;
 
 fn main() {
-   let context = Context::new();
-    alternate_screen::print_wait_screen_on_alternate_window();
 
+    use crossterm::Context;
+
+    {
+        let mut context = Context::new();
+
+        terminal::alternate_screen::print_wait_screen_on_alternate_window(context.clone());
+
+        println!("count: {}", std::rc::Rc::strong_count(&context));
+    }
 }

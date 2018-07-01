@@ -7,6 +7,9 @@ use super::{ClearType, ITerminal, Rc};
 use winapi::um::wincon::{SMALL_RECT, COORD, CONSOLE_SCREEN_BUFFER_INFO,};
 use kernel::windows_kernel::{kernel, terminal};
 use super::super::shared::functions;
+use super::super::ScreenManager;
+
+use std::sync::Mutex;
 
 /// This struct is an windows implementation for terminal related actions.
 pub struct WinApiTerminal
@@ -23,29 +26,29 @@ impl WinApiTerminal {
 impl ITerminal for WinApiTerminal {
 
     fn clear(&self, clear_type: ClearType) {
-        let csbi = kernel::get_console_screen_buffer_info();
+        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
         let pos = cursor(self.context.clone()).pos();
 
         match clear_type
         {
-            ClearType::All => clear_entire_screen(csbi, self.context.clone()),
-            ClearType::FromCursorDown => clear_after_cursor(pos,csbi, self.context.clone()),
-            ClearType::FromCursorUp => clear_before_cursor(pos, csbi, self.context.clone()),
-            ClearType::CurrentLine => clear_current_line(pos, csbi, self.context.clone()),
-            ClearType::UntilNewLine => clear_until_line(pos, csbi,self.context.clone()),
+            ClearType::All => clear_entire_screen(csbi, &self.context),
+            ClearType::FromCursorDown => clear_after_cursor(pos,csbi, &self.context),
+            ClearType::FromCursorUp => clear_before_cursor(pos, csbi, &self.context),
+            ClearType::CurrentLine => clear_current_line(pos, csbi, &self.context),
+            ClearType::UntilNewLine => clear_until_line(pos, csbi, &self.context),
         };
     }
 
     fn terminal_size(&self) -> (u16, u16) {
-       terminal::terminal_size()
+       terminal::terminal_size(&self.context.screen_manager)
     }
 
     fn scroll_up(&self, count: i16) {
-        // yet to be inplemented
+        // yet to be implemented
     }
 
     fn scroll_down(&self, count: i16) {
-        let csbi = kernel::get_console_screen_buffer_info();
+        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
         let mut srct_window;
 
         // Set srctWindow to the current window size and location.
@@ -56,7 +59,7 @@ impl ITerminal for WinApiTerminal {
             srct_window.Top += count; // move top down
             srct_window.Bottom += count; // move bottom down
 
-            let success = kernel::set_console_info(true, &mut srct_window);
+            let success = kernel::set_console_info(true, &mut srct_window, &self.context.screen_manager);
             if success {
                 panic!("Something went wrong when scrolling down");
             }
@@ -76,7 +79,7 @@ impl ITerminal for WinApiTerminal {
             }
 
         // Get the position of the current console window
-        let csbi = kernel::get_console_screen_buffer_info();
+        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
         let mut success = false;
 
         // If the buffer is smaller than this new window size, resize the
@@ -105,7 +108,7 @@ impl ITerminal for WinApiTerminal {
         }
 
         if resize_buffer {
-            success = kernel::set_console_screen_buffer_size(size);
+            success = kernel::set_console_screen_buffer_size(size, &self.context.screen_manager);
 
             if !success
                 {
@@ -118,12 +121,12 @@ impl ITerminal for WinApiTerminal {
         fsr_window.Bottom = fsr_window.Top + height;
         fsr_window.Right = fsr_window.Left + width;
 
-        let success = kernel::set_console_info(true, &fsr_window);
+        let success = kernel::set_console_info(true, &fsr_window, &self.context.screen_manager);
 
         if success {
             // If we resized the buffer, un-resize it.
             if resize_buffer {
-                kernel::set_console_screen_buffer_size(csbi.dwSize);
+                kernel::set_console_screen_buffer_size(csbi.dwSize, &self.context.screen_manager);
             }
 
             let bounds = kernel::get_largest_console_window_size();
@@ -145,7 +148,7 @@ impl ITerminal for WinApiTerminal {
     }
 }
 
-pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
+pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>) {
     let (mut x,mut y) = pos;
 
     // if cursor position is at the outer right position
@@ -160,10 +163,10 @@ pub fn clear_after_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, cont
     // get sum cells before cursor
     let cells_to_write = csbi.dwSize.X as u32  * csbi.dwSize.Y as u32;
 
-    clear(start_location,cells_to_write);
+    clear(start_location,cells_to_write, &context.screen_manager);
 }
 
-pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
+pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>) {
     let (xpos,ypos) = pos;
 
     // one cell after cursor position
@@ -176,10 +179,10 @@ pub fn clear_before_cursor(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, con
     // get sum cells before cursor
     let cells_to_write = (csbi.dwSize.X as u32  * ypos as u32) + (xpos as u32 + 1);
 
-    clear(start_location, cells_to_write);
+    clear(start_location, cells_to_write, &context.screen_manager);
 }
 
-pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>) {
+pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>) {
     // position x at start
     let x = 0;
     // position y at start
@@ -191,13 +194,13 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context
 
     let cells_to_write = csbi.dwSize.X as u32 * csbi.dwSize.Y as u32;
 
-    clear( start_location, cells_to_write);
+    clear( start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at (0, 0)
     cursor(context.clone()).goto(0, 0);
 }
 
-pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>)
+pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>)
 {
     // position x at start
     let x = 0;
@@ -210,13 +213,13 @@ pub fn clear_current_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, cont
 
     let cells_to_write = csbi.dwSize.X as u32;
 
-    clear(start_location, cells_to_write);
+    clear(start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at 1 cell on current row
     cursor(context.clone()).goto(0, y);
 }
 
-pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: Rc<Context>)
+pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>)
 {
     let (x,y) = pos;
 
@@ -225,7 +228,7 @@ pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, contex
     // get sum cells before cursor
     let cells_to_write = (csbi.dwSize.X - x  as i16) as u32;
 
-    clear(start_location, cells_to_write);
+    clear(start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at original cursor position
     cursor(context.clone()).goto(x,y);
@@ -233,12 +236,13 @@ pub fn clear_until_line(pos: (u16,u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, contex
 
 fn clear(
     start_loaction: COORD,
-    cells_to_write: u32
+    cells_to_write: u32,
+    screen_manager: &Rc<Mutex<ScreenManager>>
 ) {
     let mut cells_written = 0;
     let mut success = false;
 
-    success = kernel::fill_console_output_character(&mut cells_written, start_loaction, cells_to_write);
+    success = kernel::fill_console_output_character(&mut cells_written, start_loaction, cells_to_write, screen_manager);
 
     if !success
     {
@@ -247,7 +251,7 @@ fn clear(
 
     cells_written = 0;
 
-    success = kernel::fill_console_output_attribute(&mut cells_written, start_loaction, cells_to_write);
+    success = kernel::fill_console_output_attribute(&mut cells_written, start_loaction, cells_to_write, screen_manager);
 
     if !success {
         panic!("Couldnot reset attributes after cursor");

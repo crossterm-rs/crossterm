@@ -1,12 +1,12 @@
 //! This module contains the commands that can be used for windows systems.
 
 use super::IStateCommand;
-use { StateManager, Context };
+use {StateManager, Context};
 
 use kernel::windows_kernel::{kernel, ansi_support};
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
-use winapi::um::wincon::{ENABLE_VIRTUAL_TERMINAL_PROCESSING ,SMALL_RECT, COORD, CHAR_INFO};
+use winapi::um::wincon::{ENABLE_VIRTUAL_TERMINAL_PROCESSING, SMALL_RECT, COORD, CHAR_INFO};
 use std::mem;
 
 use std::rc::Rc;
@@ -17,7 +17,7 @@ use std::sync::Mutex;
 #[derive(Clone, Copy)]
 pub struct EnableAnsiCommand
 {
-    mask:  DWORD,
+    mask: DWORD,
 }
 
 impl EnableAnsiCommand
@@ -31,7 +31,7 @@ impl EnableAnsiCommand
 
 impl IStateCommand for EnableAnsiCommand
 {
-    fn execute(&mut self,) -> bool
+    fn execute(&mut self) -> bool
     {
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled()
@@ -59,23 +59,23 @@ impl IStateCommand for EnableAnsiCommand
     fn undo(&mut self) -> bool
     {
         if ansi_support::ansi_enabled()
-        {
-            let output_handle = kernel::get_output_handle();
-
-            let mut dw_mode: DWORD = 0;
-            if !kernel::get_console_mode(&output_handle, &mut dw_mode)
-                {
-                    return false;
-                }
-
-            dw_mode &= !self.mask;
-            if !kernel::set_console_mode(&output_handle, dw_mode)
             {
-                return false;
-            }
+                let output_handle = kernel::get_output_handle();
 
-            ansi_support::set_ansi_enabled(false);
-        }
+                let mut dw_mode: DWORD = 0;
+                if !kernel::get_console_mode(&output_handle, &mut dw_mode)
+                    {
+                        return false;
+                    }
+
+                dw_mode &= !self.mask;
+                if !kernel::set_console_mode(&output_handle, dw_mode)
+                    {
+                        return false;
+                    }
+
+                ansi_support::set_ansi_enabled(false);
+            }
         return true;
     }
 }
@@ -86,18 +86,18 @@ impl IStateCommand for EnableAnsiCommand
 pub struct EnableRawModeCommand
 {
     mask: DWORD,
-    key: u16
+    key: u16,
 }
 
 impl EnableRawModeCommand
 {
     pub fn new(state_manager: &Mutex<StateManager>) -> u16 {
-        use self::wincon::{ENABLE_LINE_INPUT,ENABLE_PROCESSED_INPUT, ENABLE_ECHO_INPUT};
+        use self::wincon::{ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT, ENABLE_ECHO_INPUT};
 
         let mut state = state_manager.lock().unwrap();
         {
             let key = state.get_changes_count();
-            let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT  | ENABLE_ECHO_INPUT, key: key };
+            let command = EnableRawModeCommand { mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT, key: key };
             state.register_change(Box::from(command), key);
             key
         }
@@ -112,16 +112,16 @@ impl IStateCommand for EnableRawModeCommand
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&input_handle, &mut dw_mode)
-        {
-            return false;
-        }
+            {
+                return false;
+            }
 
         let new_mode = dw_mode & !self.mask;
 
         if !kernel::set_console_mode(&input_handle, new_mode)
-        {
-            return false;
-        }
+            {
+                return false;
+            }
 
         true
     }
@@ -132,16 +132,16 @@ impl IStateCommand for EnableRawModeCommand
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&output_handle, &mut dw_mode)
-        {
-            return false;
-        }
+            {
+                return false;
+            }
 
         let new_mode = dw_mode | self.mask;
 
         if !kernel::set_console_mode(&output_handle, new_mode)
-        {
-            return false;
-        }
+            {
+                return false;
+            }
 
         true
     }
@@ -161,7 +161,7 @@ impl ToAlternateScreenBufferCommand
         let mut state = context.state_manager.lock().unwrap();
         {
             let key = state.get_changes_count();
-            let command = ToAlternateScreenBufferCommand {context: context.clone()};
+            let command = ToAlternateScreenBufferCommand { context: context.clone() };
 
             state.register_change(Box::from(command), key);
             key
@@ -175,7 +175,7 @@ impl IStateCommand for ToAlternateScreenBufferCommand
     {
         use super::super::super::manager::WinApiScreenManager;
 
-        let mut chi_buffer: [CHAR_INFO;160] = unsafe {mem::zeroed() };
+        let mut chi_buffer: [CHAR_INFO; 160] = unsafe { mem::zeroed() };
 
         let handle = kernel::get_output_handle();
 
@@ -189,7 +189,7 @@ impl IStateCommand for ToAlternateScreenBufferCommand
         screen_manager.toggle_is_alternate_screen(true);
 
         let b: &mut WinApiScreenManager = match screen_manager.as_any().downcast_mut::<WinApiScreenManager>() {
-            Some(b) => { b },
+            Some(b) => { b }
             None => panic!("")
         };
 

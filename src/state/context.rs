@@ -45,10 +45,13 @@ impl Context
     }
 }
 
+use std::io::Write;
+
 impl Drop for Context
 {
     fn drop(&mut self)
     {
+        panic!();
         let mut changes = self.state_manager.lock().unwrap();
         changes.restore_changes();
     }

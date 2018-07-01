@@ -1,6 +1,7 @@
 use super::IScreenManager;
 use kernel::windows_kernel::kernel;
 use winapi::um::winnt::HANDLE;
+use winapi::um::wincon::ENABLE_PROCESSED_OUTPUT;
 
 use std::io::{self,Write};
 use std::any::Any;
@@ -59,16 +60,19 @@ impl WinApiScreenManager {
     pub fn set_alternate_handle(&mut self, alternate_handle: HANDLE)
     {
         self.alternate_handle = alternate_handle;
+
+        // needs to be turned on so that escape characters like \n and \t will be processed.
+        kernel::set_console_mode(&self.alternate_handle, ENABLE_PROCESSED_OUTPUT as u32);
     }
 
-    pub fn get_handle(&mut self) -> Rc<HANDLE>
+    pub fn get_handle(&mut self) -> &HANDLE
     {
         if self.is_alternate_screen
-            {
-                return Rc::from(self.alternate_handle);
-            }
-            else {
-                return Rc::from(self.output);
-            }
+        {
+            return &self.alternate_handle;
+        }
+        else {
+            return &self.output;
+        }
     }
 }

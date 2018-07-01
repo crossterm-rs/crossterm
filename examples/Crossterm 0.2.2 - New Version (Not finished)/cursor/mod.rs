@@ -1,5 +1,5 @@
 //!    
-//! Cursor Examples
+//! Examples of actions that could be performed with te cursor.
 //!
 
 extern crate crossterm;
@@ -140,7 +140,7 @@ pub fn show_cursor()
     cursor.show();
 }
 
-/// Show cursor display | demonstration.
+/// Show cursor display, only works on certain terminals.| demonstration
 pub fn blink_cursor()
 {
     let context = Context::new();
