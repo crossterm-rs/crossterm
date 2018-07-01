@@ -8,16 +8,16 @@
 //! !! Note: this module is only working for unix and windows 10 terminals only.  If you are using windows 10 or lower do not implement this functionality. Work in progress...
 //!
 
-use Context;
-use state::commands::*;
 use shared::functions;
+use state::commands::*;
+use Context;
 
 use std::io::{self, Write};
 use std::rc::Rc;
 
 pub struct AlternateScreen {
     context: Rc<Context>,
-    command_id: u16
+    command_id: u16,
 }
 
 impl AlternateScreen {
@@ -27,14 +27,16 @@ impl AlternateScreen {
     pub fn from(context: Rc<Context>) -> Self {
         let command_id = get_to_alternate_screen_command(context.clone());
 
-        let screen = AlternateScreen { context: context, command_id: command_id };
+        let screen = AlternateScreen {
+            context: context,
+            command_id: command_id,
+        };
         screen.to_alternate();
         return screen;
     }
 
     /// Change the current screen to the mainscreen.
-    pub fn to_main(&self)
-    {
+    pub fn to_main(&self) {
         let mut mutex = &self.context.state_manager;
         {
             let mut state_manager = mutex.lock().unwrap();
@@ -48,8 +50,7 @@ impl AlternateScreen {
     }
 
     /// Change the current screen to alternate screen.
-    pub fn to_alternate(&self)
-    {
+    pub fn to_alternate(&self) {
         let mut mutex = &self.context.state_manager;
         {
             let mut state_manager = mutex.lock().unwrap();
@@ -79,10 +80,8 @@ impl Write for AlternateScreen {
     }
 }
 
-impl Drop for AlternateScreen
-{
-    fn drop(&mut self)
-    {
+impl Drop for AlternateScreen {
+    fn drop(&mut self) {
         use CommandManager;
 
         CommandManager::undo(self.context.clone(), self.command_id);
@@ -90,10 +89,12 @@ impl Drop for AlternateScreen
 }
 
 // Get the alternate screen command to enable and disable alternate screen based on the current platform
-fn get_to_alternate_screen_command(context: Rc<Context>) -> u16
-{
+fn get_to_alternate_screen_command(context: Rc<Context>) -> u16 {
     #[cfg(target_os = "windows")]
-    let command_id = functions::get_module::<u16>(win_commands::ToAlternateScreenBufferCommand::new(context.clone()), shared_commands::ToAlternateScreenBufferCommand::new(context.clone())).unwrap();
+    let command_id = functions::get_module::<u16>(
+        win_commands::ToAlternateScreenBufferCommand::new(context.clone()),
+        shared_commands::ToAlternateScreenBufferCommand::new(context.clone()),
+    ).unwrap();
 
     #[cfg(not(target_os = "windows"))]
     let command_id = shared_commands::ToAlternateScreenBufferCommand::new(context.clone());

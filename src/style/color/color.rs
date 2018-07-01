@@ -1,30 +1,36 @@
 //! With this module you can perform actions that are color related.
 //! Like styling the font, foreground color and background.
 
-use {ScreenManager, Context};
+use super::super::super::shared::functions;
 use super::*;
-use style::Color;
 use std::io;
 use std::rc::Rc;
 use std::sync::Mutex;
-use super::super::super::shared::functions;
+use style::Color;
+use {Context, ScreenManager};
 
 /// Struct that stores an specific platform implementation for color related actions.
 pub struct TerminalColor {
     color: Option<Box<ITerminalColor>>,
-    screen_manager: Rc<Mutex<ScreenManager>>
+    screen_manager: Rc<Mutex<ScreenManager>>,
 }
 
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
     pub fn new(context: Rc<Context>) -> TerminalColor {
         #[cfg(target_os = "windows")]
-        let color = functions::get_module::<Box<ITerminalColor>>(WinApiColor::new(context.screen_manager.clone()), AnsiColor::new());
+        let color = functions::get_module::<Box<ITerminalColor>>(
+            WinApiColor::new(context.screen_manager.clone()),
+            AnsiColor::new(),
+        );
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new() as Box<ITerminalColor>);
 
-        TerminalColor { color: color, screen_manager: context.screen_manager.clone() }
+        TerminalColor {
+            color: color,
+            screen_manager: context.screen_manager.clone(),
+        }
     }
 
     /// Set the foreground color to the given color.
@@ -41,7 +47,7 @@ impl TerminalColor {
     ///
     /// // Get colored terminal instance
     /// let mut colored_terminal = color(&context);
-    /// 
+    ///
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
     /// // crossterm provides to set the background from &str or String
@@ -69,7 +75,7 @@ impl TerminalColor {
     ///
     /// // Get colored terminal instance
     /// let mut colored_terminal = color(&context);
-    /// 
+    ///
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
     /// // crossterm provides to set the background from &str or String
@@ -95,7 +101,7 @@ impl TerminalColor {
     ///
     /// // Get colored terminal instance
     /// let mut colored_terminal = color(&context);
-    /// 
+    ///
     /// colored_terminal.reset();
     ///
     /// ```
@@ -106,10 +112,9 @@ impl TerminalColor {
     }
 
     /// Get available color count.
-    pub fn get_available_color_count(&self) -> io::Result<u16>
-    {
+    pub fn get_available_color_count(&self) -> io::Result<u16> {
         use std::env;
-        
+
         Ok(match env::var_os("TERM") {
             Some(val) => {
                 if val.to_str().unwrap_or("").contains("256color") {

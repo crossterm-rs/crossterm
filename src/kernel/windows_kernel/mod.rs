@@ -1,13 +1,13 @@
 //! This module contains the `windows` specific logic.
 
-pub mod kernel;
-pub mod cursor;
-pub mod terminal;
 pub mod ansi_support;
+pub mod cursor;
+pub mod kernel;
+pub mod terminal;
 
-use winapi;
+use self::winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use shared::traits::Empty;
-use self::winapi::um::wincon::{COORD, CONSOLE_SCREEN_BUFFER_INFO, SMALL_RECT};
+use winapi;
 
 impl Empty for COORD {
     fn empty() -> COORD {

@@ -3,10 +3,10 @@
 //!
 //! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
-use super::*;
-use Context;
 use super::super::shared::functions;
+use super::*;
 use std::io::Write;
+use Context;
 
 use std::fmt::Display;
 use std::rc::Rc;
@@ -17,17 +17,22 @@ pub struct TerminalCursor {
     terminal_cursor: Option<Box<ITerminalCursor>>,
 }
 
-impl TerminalCursor
-{
+impl TerminalCursor {
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new(context: Rc<Context>) -> TerminalCursor {
         #[cfg(target_os = "windows")]
-        let cursor = functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(context.screen_manager.clone()), AnsiCursor::new(context.clone()));
+        let cursor = functions::get_module::<Box<ITerminalCursor>>(
+            WinApiCursor::new(context.screen_manager.clone()),
+            AnsiCursor::new(context.clone()),
+        );
 
         #[cfg(not(target_os = "windows"))]
         let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
 
-        TerminalCursor { terminal_cursor: cursor, context}
+        TerminalCursor {
+            terminal_cursor: cursor,
+            context,
+        }
     }
 
     /// Goto some position (x,y) in the terminal.
@@ -199,9 +204,9 @@ impl TerminalCursor
 
     /// Print an value at the current cursor position.
     ///
-    /// This method prints an value with `print!()` and clears the buffer afterwards. 
+    /// This method prints an value with `print!()` and clears the buffer afterwards.
     /// Rust's standard output is line-buffered. So your text gets sent to the console one line at a time.
-    /// If you set the curosr position and try to `print!()` at that position and do not clear the buffer, than the character will not be printed at that position. 
+    /// If you set the curosr position and try to `print!()` at that position and do not clear the buffer, than the character will not be printed at that position.
     /// But will be printed when the next `println()` will be done.
     ///
     /// With this method you can print any displayable value at a certain position and the output buffer will be cleared afterwards.
@@ -226,12 +231,12 @@ impl TerminalCursor
     /// cursor::cursor(&context).goto(10,10);
     /// print!("@");
     /// std::io::stdout().flush();
-    /// 
+    ///
     /// // but now we can chain the methods so it looks cleaner and it automatically flushes the buffer.  
     /// cursor::cursor(&context)
     /// .goto(10,10)
     /// .print("@");
-    /// 
+    ///
     /// ```
     pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
         {
@@ -267,8 +272,7 @@ impl TerminalCursor
     /// cursor::cursor(&context).safe_position();
     ///
     /// ```
-    pub fn save_position(&mut self)
-    {
+    pub fn save_position(&mut self) {
         if let Some(ref mut terminal_cursor) = self.terminal_cursor {
             terminal_cursor.save_position();
         }
@@ -290,8 +294,7 @@ impl TerminalCursor
     /// cursor(&context).reset_position();
     ///
     /// ```
-    pub fn reset_position(&mut self)
-    {
+    pub fn reset_position(&mut self) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.reset_position();
         }
@@ -311,8 +314,7 @@ impl TerminalCursor
     /// cursor(&context).hide();
     ///
     /// ```
-    pub fn hide(&self)
-    {
+    pub fn hide(&self) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.hide();
         }
@@ -332,8 +334,7 @@ impl TerminalCursor
     /// cursor(&context).show();
     ///
     /// ```
-    pub fn show(&self)
-    {
+    pub fn show(&self) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.show();
         }
@@ -357,8 +358,7 @@ impl TerminalCursor
     /// cursor.blink(false);
     ///
     /// ```
-    pub fn blink(&self, blink: bool)
-    {
+    pub fn blink(&self, blink: bool) {
         if let Some(ref terminal_cursor) = self.terminal_cursor {
             terminal_cursor.blink(blink);
         }
@@ -368,7 +368,7 @@ impl TerminalCursor
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 ///
 /// Check `/examples/version/cursor` in the libary for more spesific examples.
-/// 
+///
 /// #Example
 ///
 /// ```rust

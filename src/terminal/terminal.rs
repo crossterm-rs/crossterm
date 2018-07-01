@@ -1,36 +1,41 @@
 //! With this module you can perform actions that are terminal related.
 //! Like clearing and scrolling in the terminal or getting the size of the terminal.
 
+use super::super::shared::functions;
+use super::super::style;
 use super::*;
 use Context;
-use super::super::style;
-use super::super::shared::functions;
 
-use std::fmt::Write;
 use std::fmt;
+use std::fmt::Write;
 use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal {
     terminal: Option<Box<ITerminal>>,
-    context: Rc<Context>
+    context: Rc<Context>,
 }
 
 impl Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new(context: Rc<Context>) -> Terminal {
         #[cfg(target_os = "windows")]
-        let terminal = functions::get_module::<Box<ITerminal>>(WinApiTerminal::new(context.clone()), AnsiTerminal::new(context.clone()));
+        let terminal = functions::get_module::<Box<ITerminal>>(
+            WinApiTerminal::new(context.clone()),
+            AnsiTerminal::new(context.clone()),
+        );
 
         #[cfg(not(target_os = "windows"))]
         let terminal = Some(AnsiTerminal::new(context.clone()) as Box<ITerminal>);
 
-        Terminal { terminal, context: context }
-
+        Terminal {
+            terminal,
+            context: context,
+        }
     }
 
     /// Clear the current cursor by specifying the clear type
-    /// 
+    ///
     /// #Example
     ///
     /// ```rust
@@ -41,7 +46,7 @@ impl Terminal {
     ///
     /// let context = Context::new();
     /// let mut term = terminal::terminal(&context);
-    /// 
+    ///
     /// // clear all cells in terminal.
     /// term.clear(terminal::ClearType::All);
     /// // clear all cells from the cursor position downwards in terminal.
@@ -52,7 +57,7 @@ impl Terminal {
     /// term.clear(terminal::ClearType::CurrentLine);
     /// // clear all cells from cursor position until new line in terminal.
     /// term.clear(terminal::ClearType::UntilNewLine);
-    /// 
+    ///
     /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
         if let Some(ref terminal) = self.terminal {
@@ -61,7 +66,7 @@ impl Terminal {
     }
 
     /// Get the terminal size (x,y).
-    /// 
+    ///
     /// #Example
     ///
     /// ```rust
@@ -75,17 +80,17 @@ impl Terminal {
     ///
     /// let size = term.terminal_size();
     /// println!("{:?}", size);
-    /// 
+    ///
     /// ```
     pub fn terminal_size(&mut self) -> (u16, u16) {
         if let Some(ref terminal) = self.terminal {
-            return terminal.terminal_size()
+            return terminal.terminal_size();
         }
-        (0,0)
+        (0, 0)
     }
 
     /// Scroll `n` lines up in the current terminal.
-    /// 
+    ///
     /// #Example
     ///
     /// ```rust
@@ -96,10 +101,10 @@ impl Terminal {
     ///
     /// let context = Context::new();
     /// let mut term = terminal::terminal(&context);
-    /// 
+    ///
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
-    /// 
+    ///
     /// ```
     pub fn scroll_up(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
@@ -108,7 +113,7 @@ impl Terminal {
     }
 
     /// Scroll `n` lines up in the current terminal.
-    /// 
+    ///
     /// #Example
     ///
     /// ```rust
@@ -119,10 +124,10 @@ impl Terminal {
     ///
     /// let context = Context::new();
     /// let mut term = terminal::terminal(&context);
-    /// 
+    ///
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
-    /// 
+    ///
     /// ```
     pub fn scroll_down(&mut self, count: i16) {
         if let Some(ref terminal) = self.terminal {
@@ -145,12 +150,11 @@ impl Terminal {
     ///
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
-    /// 
+    ///
     /// ```
-    pub fn set_size(&mut self, width: i16, height: i16)
-    {
-        if let Some (ref terminal) = self.terminal {
-            terminal.set_size(width,height);
+    pub fn set_size(&mut self, width: i16, height: i16) {
+        if let Some(ref terminal) = self.terminal {
+            terminal.set_size(width, height);
         }
     }
 
@@ -182,21 +186,19 @@ impl Terminal {
     /// }
     /// ```
     pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
-        where
-            D: fmt::Display,
+    where
+        D: fmt::Display,
     {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
 
-    pub fn exit(&self)
-    {
-        if let Some (ref terminal) = self.terminal {
+    pub fn exit(&self) {
+        if let Some(ref terminal) = self.terminal {
             terminal.exit();
         }
     }
 
-    pub fn write<D: fmt::Display>(&mut self, value: D)
-    {
+    pub fn write<D: fmt::Display>(&mut self, value: D) {
         let mut mutex = &self.context.screen_manager;
         {
             let mut screen_manager = mutex.lock().unwrap();

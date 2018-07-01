@@ -1,7 +1,7 @@
 //! This bin folder can be used to try the examples out located in the examples directory.
 //!
 //! All you need to do is:
-//! 
+//!
 //! - Download the crossterm source code.
 //! - Add this in the Cargo.toml file:
 //!   ``` [[bin]]
@@ -13,13 +13,12 @@
 
 extern crate crossterm;
 
-mod terminal;
-mod cursor;
 mod color;
+mod cursor;
 mod program_examples;
+mod terminal;
 
 fn main() {
-
     use crossterm::Context;
 
     {

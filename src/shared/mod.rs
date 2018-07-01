@@ -2,10 +2,10 @@
 
 #[macro_use]
 pub mod macros;
-pub mod traits;
+pub mod environment;
 pub mod functions;
 pub mod screen;
-pub mod environment;
+pub mod traits;
 
 #[cfg(target_os = "unix")]
 pub mod raw;

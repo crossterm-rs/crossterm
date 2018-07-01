@@ -9,8 +9,8 @@
 //!
 //! See the `StateManager` struct where we store the commands for more info.
 
-use std::sync::Mutex;
 use std::rc::Rc;
+use std::sync::Mutex;
 
 #[cfg(unix)]
 pub mod unix_command;
@@ -25,11 +25,9 @@ pub use self::unix_command::*;
 #[cfg(windows)]
 pub use self::win_commands::*;
 
-
 /// This command is used for complex commands whits change the terminal state.
 /// By passing an `Context` instance this command will register it self to notify the terminal state change.
-pub trait IStateCommand
-{
+pub trait IStateCommand {
     fn execute(&mut self) -> bool;
     fn undo(&mut self) -> bool;
 }

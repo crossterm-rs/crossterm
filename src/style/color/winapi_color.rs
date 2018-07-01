@@ -1,29 +1,28 @@
+use super::super::{Color, ColorType};
 use super::ITerminalColor;
-use super::super::{ColorType, Color};
-use winapi::um::wincon;
 use kernel::windows_kernel::kernel;
+use winapi::um::wincon;
 use ScreenManager;
 
-use std::sync::Mutex;
 use std::rc::Rc;
+use std::sync::Mutex;
 
 /// This struct is an windows implementation for color related actions.
 pub struct WinApiColor {
     original_console_color: u16,
-    screen_manager: Rc<Mutex<ScreenManager>>
+    screen_manager: Rc<Mutex<ScreenManager>>,
 }
 
 impl WinApiColor {
     pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<WinApiColor> {
         Box::from(WinApiColor {
             original_console_color: kernel::get_original_console_color(&screen_manager),
-            screen_manager: screen_manager
+            screen_manager: screen_manager,
         })
     }
 }
 
 impl ITerminalColor for WinApiColor {
-
     fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
@@ -42,7 +41,7 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color,&self.screen_manager);
+        kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
     fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
@@ -62,16 +61,15 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color,&self.screen_manager);
+        kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
     fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
-        kernel::set_console_text_attribute(self.original_console_color,&self.screen_manager);
+        kernel::set_console_text_attribute(self.original_console_color, &self.screen_manager);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct
     fn color_value(&self, color: Color, color_type: ColorType) -> String {
-
         use style::{Color, ColorType};
 
         let winapi_color: u16;

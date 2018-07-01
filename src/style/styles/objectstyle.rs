@@ -1,7 +1,7 @@
 //! This module contains the `object style` that can be applied to an `styled object`.
 
-use Context;
 use style::{Color, StyledObject};
+use Context;
 
 use std::fmt::Display;
 use std::rc::Rc;
@@ -16,7 +16,7 @@ pub struct ObjectStyle {
     pub bg_color: Option<Color>,
 
     #[cfg(unix)]
-    pub attrs: Vec<Attribute>
+    pub attrs: Vec<Attribute>,
 }
 
 impl Default for ObjectStyle {
@@ -25,7 +25,7 @@ impl Default for ObjectStyle {
             fg_color: Some(Color::White),
             bg_color: Some(Color::Black),
             #[cfg(unix)]
-            attrs: Vec::new()
+            attrs: Vec::new(),
         }
     }
 }
@@ -49,7 +49,7 @@ impl ObjectStyle {
             fg_color: None,
             bg_color: None,
             #[cfg(unix)]
-            attrs: Vec::new()
+            attrs: Vec::new(),
         };
     }
 
@@ -66,8 +66,7 @@ impl ObjectStyle {
     }
 
     #[cfg(unix)]
-    pub fn add_attr(&mut self, attr: Attribute)
-    {
+    pub fn add_attr(&mut self, attr: Attribute) {
         self.attrs.push(attr);
     }
 }

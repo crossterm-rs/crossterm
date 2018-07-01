@@ -9,22 +9,22 @@ mod kernel;
 mod state;
 
 pub mod cursor;
+pub mod manager;
 pub mod style;
 pub mod terminal;
-pub mod manager;
 
-pub use shared::{screen};
 pub use shared::environment::Environment;
+pub use shared::screen;
 pub use state::context::Context;
 
-use state::commands::IStateCommand;
-use state::command_manager::CommandManager;
-use state::state_manager::StateManager;
 use manager::ScreenManager;
+use state::command_manager::CommandManager;
+use state::commands::IStateCommand;
+use state::state_manager::StateManager;
 
-#[cfg(windows)]
-extern crate winapi;
 #[cfg(unix)]
 extern crate libc;
 #[cfg(unix)]
 extern crate termios;
+#[cfg(windows)]
+extern crate winapi;

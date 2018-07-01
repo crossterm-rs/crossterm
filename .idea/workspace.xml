@@ -2,39 +2,56 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="310aeab2-4737-4e8e-b7eb-0aac10d104a3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/first_depth_search/map.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/first_depth_search/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/first_depth_search/variables.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shared/environment.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/color/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/color/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/program_examples/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/raw_mode.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/raw_mode.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/ansi_cursor.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cursor/cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/cursor.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cursor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cursor/winapi_cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/winapi_cursor.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kernel/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kernel/unix_kernel/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/unix_kernel/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/cursor.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/manager/ansi_manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/ansi_manager.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/manager/manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/manager.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/manager/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/manager/win_manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/win_manager.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/environment.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/environment.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/functions.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/functions.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/macros.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/macros.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/raw.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/raw.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shared/screen.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/screen.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/traits.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/traits.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/state/command_manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/command_manager.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/state/commands/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/commands/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/state/commands/shared_commands.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/commands/shared_commands.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/state/commands/unix_command.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/commands/unix_command.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/state/commands/win_commands.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/commands/win_commands.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/state/context.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/context.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/state/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/state/state_manager.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/state/state_manager.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style/color/ansi_color.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/color/ansi_color.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/style/color/color.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/color/color.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style/color/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/color/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/style/color/winapi_color.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/color/winapi_color.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style/styles/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/styles/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/style/styles/objectstyle.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/styles/objectstyle.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/style/styles/styledobject.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/styles/styledobject.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/terminal/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/terminal.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" afterDir="false" />
     </list>
@@ -47,88 +64,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="cursor.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cursor/cursor.rs">
+      <file leaf-file-name="raw.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/shared/raw.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="313" column="11" selection-start-line="313" selection-start-column="11" selection-end-line="313" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bin.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="27" column="61" selection-start-line="27" selection-start-column="61" selection-end-line="27" selection-end-column="61" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="winapi_cursor.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cursor/winapi_cursor.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="498">
-              <caret line="66" column="25" selection-start-line="66" selection-start-column="25" selection-end-line="66" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="alternate_screen.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="screen.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shared/screen.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="26" column="11" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="742">
-              <caret line="197" column="11" selection-start-line="197" selection-start-column="11" selection-end-line="197" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="kernel.rs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="203" column="5" selection-start-line="203" selection-start-column="5" selection-end-line="203" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/kernel/mod.rs">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file leaf-file-name="winapi_color.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/style/color/winapi_color.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
-              <caret line="64" column="69" selection-start-line="64" selection-start-column="69" selection-end-line="64" selection-end-column="69" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ansi_terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="45" column="66" selection-start-line="45" selection-start-column="66" selection-end-line="45" selection-end-column="66" />
+            <state relative-caret-position="357">
+              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
             </state>
           </provider>
         </entry>
@@ -209,7 +149,6 @@
         <option value="$PROJECT_DIR$/src/terminal/mod.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/terminal.rs" />
         <option value="$PROJECT_DIR$/src/style/styles/styledobject.rs" />
-        <option value="$PROJECT_DIR$/src/shared/raw.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/mod.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/color/mod.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs" />
@@ -248,6 +187,7 @@
         <option value="$PROJECT_DIR$/src/terminal/ansi_terminal.rs" />
         <option value="$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs" />
         <option value="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" />
+        <option value="$PROJECT_DIR$/src/shared/raw.rs" />
       </list>
     </option>
   </component>
@@ -622,12 +562,12 @@
       <workItem from="1530289442537" duration="10502000" />
       <workItem from="1530344478032" duration="18289000" />
       <workItem from="1530446561530" duration="7222000" />
-      <workItem from="1530473645162" duration="3874000" />
+      <workItem from="1530473645162" duration="4134000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="681698000" />
+    <option name="totallyTimeSpent" value="681958000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
@@ -699,27 +639,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="114" selection-start-line="1" selection-start-column="114" selection-end-line="1" selection-end-column="114" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/manager/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="24" column="47" selection-start-line="24" selection-start-column="47" selection-end-line="24" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/src/rust/src/libcore/ops/drop.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="94" column="10" selection-start-line="94" selection-start-column="10" selection-end-line="94" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/state/state_manager.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
@@ -862,13 +781,6 @@
         <state relative-caret-position="-255" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="31" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/src/rust/src/liballoc/rc.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="275">
@@ -918,17 +830,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
-          <folding>
-            <element signature="e#346#347#0" expanded="true" />
-            <element signature="e#379#380#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/terminal/winapi_terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="424">
@@ -936,24 +837,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="43" column="7" selection-start-line="43" selection-start-column="7" selection-end-line="43" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shared/functions.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
           <caret line="30" column="14" selection-start-line="30" selection-start-column="14" selection-end-line="30" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/cursor.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="32" column="23" selection-start-line="32" selection-start-column="23" selection-end-line="32" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -973,25 +860,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/style/color/winapi_color.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="64" column="69" selection-start-line="64" selection-start-column="69" selection-end-line="64" selection-end-column="69" />
+        <state relative-caret-position="141">
+          <caret line="63" column="69" selection-start-line="63" selection-start-column="69" selection-end-line="63" selection-end-column="69" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/terminal/ansi_terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="45" column="66" selection-start-line="45" selection-start-column="66" selection-end-line="45" selection-end-column="66" />
+        <state relative-caret-position="357">
+          <caret line="43" column="66" selection-start-line="43" selection-start-column="66" selection-end-line="43" selection-end-column="66" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/kernel/mod.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="27" column="61" selection-start-line="27" selection-start-column="61" selection-end-line="27" selection-end-column="61" />
+        <state relative-caret-position="442">
+          <caret line="26" column="61" selection-start-line="26" selection-start-column="61" selection-end-line="26" selection-end-column="61" />
         </state>
       </provider>
     </entry>
@@ -1004,36 +888,80 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/terminal/terminal.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="742">
-          <caret line="197" column="11" selection-start-line="197" selection-start-column="11" selection-end-line="197" selection-end-column="11" />
+        <state relative-caret-position="844">
+          <caret line="200" column="11" selection-start-line="200" selection-start-column="11" selection-end-line="200" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/terminal/alternate_screen.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        <state relative-caret-position="187">
+          <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cursor/cursor.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="313" column="11" selection-start-line="313" selection-start-column="11" selection-end-line="313" selection-end-column="11" />
+        <state relative-caret-position="459">
+          <caret line="316" column="11" selection-start-line="316" selection-start-column="11" selection-end-line="316" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cursor/winapi_cursor.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="498">
-          <caret line="66" column="25" selection-start-line="66" selection-start-column="25" selection-end-line="66" selection-end-column="25" />
+        <state relative-caret-position="566">
+          <caret line="60" column="25" selection-start-line="60" selection-start-column="25" selection-end-line="60" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/unix_kernel/terminal.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="79" column="13" lean-forward="true" selection-start-line="79" selection-start-column="13" selection-end-line="79" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="203" column="5" selection-start-line="203" selection-start-column="5" selection-end-line="203" selection-end-column="5" />
+        <state relative-caret-position="98">
+          <caret line="204" column="18" selection-start-line="204" selection-start-column="18" selection-end-line="204" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/cursor.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="32" column="23" selection-start-line="32" selection-start-column="23" selection-end-line="32" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/ansi_support.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="31" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.2 - New Version (Not finished)/cursor/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shared/macros.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shared/raw.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
         </state>
       </provider>
     </entry>

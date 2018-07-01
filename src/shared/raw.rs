@@ -26,27 +26,24 @@ use super::super::state::commands::unix_command::EnableRawModeCommand;
 #[cfg(windows)]
 use state::commands::win_commands::EnableRawModeCommand;
 
-use {Context, CommandManager };
 use state::commands::IStateCommand;
+use {CommandManager, Context};
 
-use std::io::{ self, Write};
+use std::io::{self, Write};
 use std::rc::Rc;
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
-pub struct RawTerminal
-{
-    context : Rc<Context>,
+pub struct RawTerminal {
+    context: Rc<Context>,
     command_id: u16,
 }
 
 /// Trait withs contains a method for switching into raw mode.
-pub trait IntoRawMode: Write + Sized
-{
-    fn into_raw_mode(&self, context:Rc<Context>) -> io::Result<RawTerminal>;
+pub trait IntoRawMode: Write + Sized {
+    fn into_raw_mode(&self, context: Rc<Context>) -> io::Result<RawTerminal>;
 }
 
-impl <W: Write> IntoRawMode for W
-{
+impl<W: Write> IntoRawMode for W {
     /// Raw mode means that input (stdin) won't be printed it will instead have to be written manually by
     /// the program. The input isn't canonicalised or line buffered (that is, you can
     /// read from input(stdin) one byte of a time).
@@ -55,10 +52,14 @@ impl <W: Write> IntoRawMode for W
 
         let success = CommandManager::execute(context.clone(), command_id);
 
-        if success
-        {
-            Ok(RawTerminal { context: context.clone(), command_id: command_id})
-        }else { panic!("cannot move into raw mode") }
+        if success {
+            Ok(RawTerminal {
+                context: context.clone(),
+                command_id: command_id,
+            })
+        } else {
+            panic!("cannot move into raw mode")
+        }
     }
 }
 
@@ -79,10 +80,8 @@ impl Write for RawTerminal {
 }
 
 /// If an instance of `RawTerminal` will be dropped all terminal changes that are made will be undone.
-impl Drop for RawTerminal
-{
-    fn drop(&mut self)
-    {
+impl Drop for RawTerminal {
+    fn drop(&mut self) {
         let success = CommandManager::undo(self.context.clone(), self.command_id);
     }
 }

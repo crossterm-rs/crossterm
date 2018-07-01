@@ -2,14 +2,13 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
 
-use Context;
-use shared::functions;
 use super::*;
+use shared::functions;
+use Context;
 
 /// This struct is an ansi implementation for cursor related actions.
-pub struct AnsiCursor
-{
-    context: Rc<Context>
+pub struct AnsiCursor {
+    context: Rc<Context>,
 }
 
 impl AnsiCursor {
@@ -19,8 +18,7 @@ impl AnsiCursor {
 }
 
 impl ITerminalCursor for AnsiCursor {
-    fn goto(&self, x: u16, y: u16)
-    {
+    fn goto(&self, x: u16, y: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi(format!(csi!("{};{}H"), y + 1, x + 1));
@@ -59,47 +57,40 @@ impl ITerminalCursor for AnsiCursor {
         }
     }
 
-    fn save_position(&mut self)
-    {
+    fn save_position(&mut self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("s"));
         }
     }
 
-    fn reset_position(&self)
-    {
+    fn reset_position(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("u"));
         }
     }
 
-    fn hide(&self)
-    {
+    fn hide(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("?25l"));
         }
     }
 
-    fn show(&self)
-    {
+    fn show(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("?25h"));
         }
     }
 
-    fn blink(&self, blink: bool)
-    {
+    fn blink(&self, blink: bool) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            if blink
-            {
+            if blink {
                 screen.write_ansi_str(csi!("?12h"));
-            }
-            else {
+            } else {
                 screen.write_ansi_str(csi!("?12l"));
             }
         }

@@ -1,15 +1,15 @@
 pub mod color;
 
+mod ansi_color;
 #[cfg(target_os = "windows")]
 mod winapi_color;
-mod ansi_color;
 
+use self::ansi_color::AnsiColor;
 #[cfg(target_os = "windows")]
 use self::winapi_color::WinApiColor;
-use self::ansi_color::AnsiColor;
 
-use { ScreenManager };
 use super::{Color, ColorType};
+use ScreenManager;
 
 use std::rc::Rc;
 use std::sync::Mutex;
@@ -28,7 +28,7 @@ pub trait ITerminalColor {
     /// Set the background color to the given color.
     fn set_bg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>);
     /// Reset the terminal color to default.
-    fn reset(&self,screen_manager: Rc<Mutex<ScreenManager>>);
+    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>);
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }

@@ -1,7 +1,6 @@
-use ScreenManager;
-use std::sync::Mutex;
 use std::rc::Rc;
-
+use std::sync::Mutex;
+use ScreenManager;
 
 /// Get the terminal size
 pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
@@ -13,7 +12,6 @@ pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
 }
 
 /// Exit the current process.
-pub fn exit()
-{
+pub fn exit() {
     ::std::process::exit(256);
 }

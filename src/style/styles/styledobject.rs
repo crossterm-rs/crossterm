@@ -15,7 +15,7 @@ use style::{Color, ObjectStyle};
 pub struct StyledObject<D> {
     pub object_style: ObjectStyle,
     pub content: D,
-    pub context: Rc<Context>
+    pub context: Rc<Context>,
 }
 
 impl<D> StyledObject<D> {
@@ -37,7 +37,7 @@ impl<D> StyledObject<D> {
     /// println!("{}", styledobject1);
     /// // print an styled object directly.
     /// println!("{}", paint("I am colored green").with(Color::Green));
-    /// 
+    ///
     /// ```
     pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.fg(foreground_color);
@@ -48,7 +48,7 @@ impl<D> StyledObject<D> {
     ///
     /// #Example
     ///
-    /// ```rust 
+    /// ```rust
     /// extern crate crossterm;
     /// use self::crossterm::style::{paint,Color};
     ///
@@ -62,7 +62,7 @@ impl<D> StyledObject<D> {
     /// println!("{}", styledobject1);
     /// // print an styled object directly.
     /// println!("{}", paint("I am colored green").on(Color::Green))
-    /// 
+    ///
     /// ```
     pub fn on(mut self, background_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.bg(background_color);
@@ -74,72 +74,103 @@ impl<D> StyledObject<D> {
     /// #Example
     ///
     /// ```rust
-    /// 
+    ///
     /// extern crate crossterm;
     /// use self::crossterm::style::{paint,Attribute};
     ///
     /// println!("{}", paint("Bold").attr(Attribute::Bold));
-    /// 
+    ///
     /// ```
     #[cfg(unix)]
-    pub fn attr(mut self, attr: Attribute) -> StyledObject<D>
-    {
+    pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
         &self.object_style.add_attr(attr);
         self
     }
 
     /// Increase the font intensity.
-    #[cfg(unix)]#[inline(always)] pub fn bold(self) -> StyledObject<D> { self.attr(Attribute::Bold) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn bold(self) -> StyledObject<D> {
+        self.attr(Attribute::Bold)
+    }
     /// Faint (decreased intensity) (Not widely supported).
-    #[cfg(unix)]#[inline(always)] pub fn dim(self) -> StyledObject<D> { self.attr(Attribute::Dim) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn dim(self) -> StyledObject<D> {
+        self.attr(Attribute::Dim)
+    }
     /// Make the font italic (Not widely supported; Sometimes treated as inverse).
-    #[cfg(unix)]#[inline(always)] pub fn italic(self) -> StyledObject<D> { self.attr(Attribute::Italic) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn italic(self) -> StyledObject<D> {
+        self.attr(Attribute::Italic)
+    }
     /// Underline font.
-    #[cfg(unix)]#[inline(always)] pub fn underlined(self) -> StyledObject<D> { self.attr(Attribute::Underlined) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn underlined(self) -> StyledObject<D> {
+        self.attr(Attribute::Underlined)
+    }
     /// Slow Blink (less than 150 per minute; not widely supported).
-    #[cfg(unix)]#[inline(always)] pub fn slow_blink(self) -> StyledObject<D> { self.attr(Attribute::SlowBlink) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn slow_blink(self) -> StyledObject<D> {
+        self.attr(Attribute::SlowBlink)
+    }
     /// Rapid Blink (MS-DOS ANSI.SYS; 150+ per minute; not widely supported).
-    #[cfg(unix)]#[inline(always)] pub fn rapid_blink(self) -> StyledObject<D> { self.attr(Attribute::RapidBlink) }
-    /// Swap foreground and background colors. 
-    #[cfg(unix)]#[inline(always)] pub fn reverse(self) -> StyledObject<D> { self.attr(Attribute::Reverse) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn rapid_blink(self) -> StyledObject<D> {
+        self.attr(Attribute::RapidBlink)
+    }
+    /// Swap foreground and background colors.
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn reverse(self) -> StyledObject<D> {
+        self.attr(Attribute::Reverse)
+    }
     /// Hide text (Not widely supported).
-    #[cfg(unix)]#[inline(always)] pub fn hidden(self) -> StyledObject<D> { self.attr(Attribute::Hidden) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn hidden(self) -> StyledObject<D> {
+        self.attr(Attribute::Hidden)
+    }
     /// Characters legible, but marked for deletion. Not widely supported.
-    #[cfg(unix)]#[inline(always)] pub fn crossed_out(self) -> StyledObject<D> { self.attr(Attribute::CrossedOut) }
+    #[cfg(unix)]
+    #[inline(always)]
+    pub fn crossed_out(self) -> StyledObject<D> {
+        self.attr(Attribute::CrossedOut)
+    }
 }
 
 /// This is used to make StyledObject able to be displayed.
 /// This macro will set the styles stored in Styled Object
-macro_rules! impl_fmt
-{
+macro_rules! impl_fmt {
     ($name:ident) => {
         impl<D: fmt::$name> fmt::$name for StyledObject<D> {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-            {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 let mut colored_terminal = super::super::color(self.context.clone());
                 let mut reset = true;
 
-                if let Some(bg) = self.object_style.bg_color
-                {
+                if let Some(bg) = self.object_style.bg_color {
                     colored_terminal.set_bg(bg);
                     reset = true;
                 }
 
-                if let Some(fg) = self.object_style.fg_color
-                {
-                   colored_terminal.set_fg(fg);
-                   reset = true;
+                if let Some(fg) = self.object_style.fg_color {
+                    colored_terminal.set_fg(fg);
+                    reset = true;
                 }
 
                 #[cfg(unix)]
-                 for attr in self.object_style.attrs.iter() {
-                   let mutex = &self.context.screen_manager;
+                for attr in self.object_style.attrs.iter() {
+                    let mutex = &self.context.screen_manager;
                     {
                         let mut screen = mutex.lock().unwrap();
-                        screen.write_ansi(format!(csi!("{}m"),  *attr as i16));
+                        screen.write_ansi(format!(csi!("{}m"), *attr as i16));
                     }
                     reset = true;
-                 }
+                }
 
                 fmt::$name::fmt(&self.content, f)?;
 
@@ -149,15 +180,14 @@ macro_rules! impl_fmt
                     screen.flush();
                 }
 
-                if reset
-                {
+                if reset {
                     colored_terminal.reset();
                 }
 
                 Ok(())
             }
         }
-    }
+    };
 }
 
 impl_fmt!(Debug);

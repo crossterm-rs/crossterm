@@ -1,43 +1,41 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use Context;
-use shared::functions;
 use super::{ClearType, ITerminal, Rc};
+use shared::functions;
+use Context;
 
 /// This struct is an ansi implementation for terminal related actions.
-pub struct AnsiTerminal
-{
-    context: Rc<Context>
+pub struct AnsiTerminal {
+    context: Rc<Context>,
 }
 
 impl AnsiTerminal {
     pub fn new(context: Rc<Context>) -> Box<AnsiTerminal> {
-        Box::from(AnsiTerminal {context: context})
+        Box::from(AnsiTerminal { context: context })
     }
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType)
-    {
+    fn clear(&self, clear_type: ClearType) {
         let mut screen_manager = self.context.screen_manager.lock().unwrap();
         {
             match clear_type {
                 ClearType::All => {
                     screen_manager.write_ansi_str(csi!("2J"));
-                },
+                }
                 ClearType::FromCursorDown => {
                     screen_manager.write_ansi_str(csi!("J"));
-                },
+                }
                 ClearType::FromCursorUp => {
                     screen_manager.write_ansi_str(csi!("1J"));
-                },
+                }
                 ClearType::CurrentLine => {
                     screen_manager.write_ansi_str(csi!("2K"));
-                },
+                }
                 ClearType::UntilNewLine => {
                     screen_manager.write_ansi_str(csi!("K"));
-                },
+                }
             };
         }
     }
@@ -67,8 +65,7 @@ impl ITerminal for AnsiTerminal {
         }
     }
 
-    fn exit(&self)
-    {
+    fn exit(&self) {
         functions::exit_terminal();
     }
 }

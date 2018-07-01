@@ -3,20 +3,19 @@
 
 pub mod manager;
 
+mod ansi_manager;
 #[cfg(target_os = "windows")]
 mod win_manager;
-mod ansi_manager;
 
+pub use self::ansi_manager::AnsiScreenManager;
 #[cfg(target_os = "windows")]
 pub use self::win_manager::WinApiScreenManager;
-pub use self::ansi_manager::AnsiScreenManager;
 
-pub use self::manager::{ ScreenManager };
-use std::io;
+pub use self::manager::ScreenManager;
 use std::any::Any;
+use std::io;
 
-pub trait IScreenManager
-{
+pub trait IScreenManager {
     /// Toggle the value if alternatescreen is on.
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool);
     /// Write ansi code as String to the current stdout.

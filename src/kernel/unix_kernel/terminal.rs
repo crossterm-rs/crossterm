@@ -1,14 +1,14 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use {libc, StateManager, Context, CommandManager};
+pub use self::libc::termios;
+use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
+use state::commands::{IStateCommand, NoncanonicalModeCommand};
 use termios::Termios;
-pub use self::libc::{termios};
-use self::libc::{STDOUT_FILENO, TIOCGWINSZ, c_ushort, ioctl, c_int};
-use state::commands::{ NoncanonicalModeCommand, IStateCommand} ;
+use {libc, CommandManager, Context, StateManager};
 
 use std::io::Error;
-use std::{ io, mem };
 use std::rc::Rc;
+use std::{io, mem};
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -23,7 +23,7 @@ pub struct UnixSize {
 }
 
 /// Get the current terminal size.
-pub fn terminal_size() -> (u16,u16) {
+pub fn terminal_size() -> (u16, u16) {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let us = UnixSize {
         rows: 0,
@@ -34,16 +34,15 @@ pub fn terminal_size() -> (u16,u16) {
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &us) };
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
-        (us.cols -1, us.rows -1)
+        (us.cols - 1, us.rows - 1)
     } else {
-        (0,0)
+        (0, 0)
     }
 }
 
 /// Get the current cursor position.
-pub fn pos(context: Rc<Context>) -> (u16, u16)
-{
-    use std::io::{ Write,Read };
+pub fn pos(context: Rc<Context>) -> (u16, u16) {
+    use std::io::{Read, Write};
 
     let mut command_id = NoncanonicalModeCommand::new(&context.state_manager);
 
@@ -95,7 +94,11 @@ pub fn pos(context: Rc<Context>) -> (u16, u16)
     let (cols, c) = read_num();
 
     // Expect `R`
-    let res = if c == 'R' { (cols as u16, rows as u16) } else { return (0, 0) };
+    let res = if c == 'R' {
+        (cols as u16, rows as u16)
+    } else {
+        return (0, 0);
+    };
 
     CommandManager::undo(context.clone(), command_id);
 
@@ -103,8 +106,7 @@ pub fn pos(context: Rc<Context>) -> (u16, u16)
 }
 
 /// Set the terminal mode to the given mode.
-pub fn set_terminal_mode(termios: &Termios) -> io::Result<()>
-{
+pub fn set_terminal_mode(termios: &Termios) -> io::Result<()> {
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
@@ -120,8 +122,7 @@ pub fn make_raw(termios: &mut Termios) {
 }
 
 /// Get the current terminal mode.
-pub fn get_terminal_mode() -> io::Result<Termios>
-{
+pub fn get_terminal_mode() -> io::Result<Termios> {
     extern "C" {
         pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
     }
@@ -132,16 +133,13 @@ pub fn get_terminal_mode() -> io::Result<Termios>
     }
 }
 
-pub fn exit()
-{
+pub fn exit() {
     ::std::process::exit(0);
 }
 
 /// Is the return value true?
-fn is_true(value: i32) -> Result<(), Error>
-{
-    match value
-    {
+fn is_true(value: i32) -> Result<(), Error> {
+    match value {
         -1 => Err(io::Error::last_os_error()),
         0 => Ok(()),
         _ => Err(io::Error::last_os_error()),

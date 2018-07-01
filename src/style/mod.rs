@@ -4,7 +4,7 @@
 mod color;
 mod styles;
 
-pub use self::color::color::{color, TerminalColor };
+pub use self::color::color::{color, TerminalColor};
 pub use self::styles::objectstyle::ObjectStyle;
 pub use self::styles::styledobject::StyledObject;
 
@@ -21,7 +21,7 @@ pub enum Attribute {
     RapidBlink = 6,
     Reverse = 7,
     Hidden = 8,
-    CrossedOut = 9
+    CrossedOut = 9,
 }
 
 /// Colors that are available for coloring the termainal font.
@@ -51,9 +51,13 @@ pub enum Color {
     White,
 
     #[cfg(unix)]
-    Rgb { r: u8, g: u8, b:u8 },
+    Rgb {
+        r: u8,
+        g: u8,
+        b: u8,
+    },
     #[cfg(unix)]
-    AnsiValue(u8)
+    AnsiValue(u8),
 }
 
 /// Color types that can be used to determine if the Color enum is an Fore- or Background Color
