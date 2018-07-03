@@ -2,12 +2,15 @@
 
 use Context;
 
-use std::fmt;
+use std::fmt::{self,Display};
 use std::io::Write;
 use std::rc::Rc;
 
 #[cfg(unix)]
 use super::super::Attribute;
+
+#[cfg(windows)]
+use super::super::super::manager::WinApiScreenManager;
 
 use style::{Color, ObjectStyle};
 
@@ -18,7 +21,7 @@ pub struct StyledObject<D> {
     pub context: Rc<Context>,
 }
 
-impl<D> StyledObject<D> {
+impl<D> StyledObject<D> where D: Display {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// #Example
@@ -143,52 +146,58 @@ impl<D> StyledObject<D> {
     }
 }
 
-/// This is used to make StyledObject able to be displayed.
-/// This macro will set the styles stored in Styled Object
-macro_rules! impl_fmt {
-    ($name:ident) => {
-        impl<D: fmt::$name> fmt::$name for StyledObject<D> {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                let mut colored_terminal = super::super::color(self.context.clone());
-                let mut reset = true;
+impl <D:Display> Display for StyledObject<D>
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
 
-                if let Some(bg) = self.object_style.bg_color {
-                    colored_terminal.set_bg(bg);
-                    reset = true;
-                }
+        let mut colored_terminal = super::super::color(self.context.clone());
+        let mut reset = true;
 
-                if let Some(fg) = self.object_style.fg_color {
-                    colored_terminal.set_fg(fg);
-                    reset = true;
-                }
+        if let Some(bg) = self.object_style.bg_color {
+            colored_terminal.set_bg(bg);
+            reset = true;
+        }
 
-                #[cfg(unix)]
-                for attr in self.object_style.attrs.iter() {
-                    let mutex = &self.context.screen_manager;
-                    {
-                        let mut screen = mutex.lock().unwrap();
-                        screen.write_ansi(format!(csi!("{}m"), *attr as i16));
-                    }
-                    reset = true;
-                }
+        if let Some(fg) = self.object_style.fg_color {
+            colored_terminal.set_fg(fg);
+            reset = true;
+        }
 
-                fmt::$name::fmt(&self.content, f)?;
+        #[cfg(unix)]
+            for attr in self.object_style.attrs.iter() {
+            let mutex = &self.context.screen_manager;
+            {
+                let mut screen = mutex.lock().unwrap();
+                screen.write_ansi(format!(csi!("{}m"), *attr as i16));
+            }
+            reset = true;
+        }
 
-                let mutex = &self.context.screen_manager;
-                {
-                    let mut screen = mutex.lock().unwrap();
-                    screen.flush();
-                }
+        if cfg!(target_os = "linux") {
+            fmt::Display::fmt(&self.content, f)?;
+        } else {
+            let mutex = &self.context.screen_manager;
+            {
+                let mut screen_manager = mutex.lock().unwrap();
 
-                if reset {
-                    colored_terminal.reset();
-                }
+                use std::fmt::Write;
+                let mut string = String::new();
+                write!(string, "{}", self.content).unwrap();
 
-                Ok(())
+                screen_manager.write_val(string)
             }
         }
-    };
-}
 
-impl_fmt!(Debug);
-impl_fmt!(Display);
+        let mutex = &self.context.screen_manager;
+        {
+            let mut screen = mutex.lock().unwrap();
+            screen.flush();
+        }
+
+        if reset {
+            colored_terminal.reset();
+        }
+
+        Ok(())
+    }
+}

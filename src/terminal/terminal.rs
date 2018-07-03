@@ -184,20 +184,21 @@ impl Terminal {
     ///     // Or all in one line
     ///     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
     /// }
+    ///
     /// ```
-    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
-    where
-        D: fmt::Display,
+    pub fn paint<D>(&self, val: D) -> style::StyledObject<D> where D: fmt::Display
     {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
 
+    /// Exit the current process.fy
     pub fn exit(&self) {
         if let Some(ref terminal) = self.terminal {
             terminal.exit();
         }
     }
 
+    /// Write any displayable content to the current terminal screen.
     pub fn write<D: fmt::Display>(&mut self, value: D) {
         let mut mutex = &self.context.screen_manager;
         {

@@ -1,5 +1,6 @@
 extern crate crossterm;
 
+use crossterm::style::Color;
 use crossterm::cursor::cursor;
 use crossterm::screen::AlternateScreen;
 use crossterm::terminal::{self, ClearType};
@@ -28,11 +29,13 @@ fn print_wait_screen(context: Rc<Context>) {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor
             .goto(10, 2)
-            .print(format!("{} of the 5 items processed", i));
+            .print(terminal.paint(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue));
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
     }
+
+    stdout().flush();
 }
 
 /// print wait screen on alternate screen, then swich back.
@@ -43,6 +46,8 @@ pub fn print_wait_screen_on_alternate_window(context: Rc<Context>) {
         // create new alternate screen instance and switch to the alternate screen.
         let mut screen = AlternateScreen::from(context.clone());
 
+        write!(screen,  "test");
+        println!();
         // Print the wait screen.
         print_wait_screen(context.clone());
     }

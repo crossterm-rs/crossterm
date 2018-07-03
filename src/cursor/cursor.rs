@@ -240,14 +240,13 @@ impl TerminalCursor {
     /// ```
     pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
         {
+            use std::fmt::Write;
+            let mut string = String::new();
+            write!(string, "{}", value).unwrap();
+
             let mut mutex = &self.context.screen_manager;
             {
                 let mut screen_manager = mutex.lock().unwrap();
-
-                use std::fmt::Write;
-                let mut string = String::new();
-                write!(string, "{}", value).unwrap();
-
                 screen_manager.write_val(string);
 
                 screen_manager.flush();

@@ -60,7 +60,7 @@ impl ScreenManager {
 
 impl Write for ScreenManager {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.write(buf)
+        self.screen_manager.write(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {

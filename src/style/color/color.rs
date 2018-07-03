@@ -21,11 +21,11 @@ impl TerminalColor {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor>>(
             WinApiColor::new(context.screen_manager.clone()),
-            AnsiColor::new(),
+            AnsiColor::new(context.screen_manager.clone()),
         );
 
         #[cfg(not(target_os = "windows"))]
-        let color = Some(AnsiColor::new() as Box<ITerminalColor>);
+        let color = Some(AnsiColor::new(context.screen_manager.clone()) as Box<ITerminalColor>);
 
         TerminalColor {
             color: color,
@@ -55,8 +55,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_fg(&mut self, color: Color) {
-        if let Some(ref terminal_color) = self.color {
-            terminal_color.set_fg(color, self.screen_manager.clone());
+        if let Some(ref mut terminal_color) = self.color {
+            terminal_color.set_fg(color);
         }
     }
 
@@ -83,8 +83,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_bg(&mut self, color: Color) {
-        if let Some(ref terminal_color) = self.color {
-            terminal_color.set_bg(color, self.screen_manager.clone());
+        if let Some(ref mut terminal_color) = self.color {
+            terminal_color.set_bg(color);
         }
     }
 
@@ -106,8 +106,8 @@ impl TerminalColor {
     ///
     /// ```
     pub fn reset(&mut self) {
-        if let Some(ref terminal_color) = self.color {
-            terminal_color.reset(self.screen_manager.clone());
+        if let Some(ref mut terminal_color) = self.color {
+            terminal_color.reset();
         }
     }
 

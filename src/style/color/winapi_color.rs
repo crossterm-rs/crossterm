@@ -3,12 +3,14 @@ use super::ITerminalColor;
 use kernel::windows_kernel::kernel;
 use winapi::um::wincon;
 use ScreenManager;
+use super::super::super::manager::WinApiScreenManager;
 
 use std::rc::Rc;
 use std::sync::Mutex;
 
 /// This struct is an windows implementation for color related actions.
 pub struct WinApiColor {
+
     original_console_color: u16,
     screen_manager: Rc<Mutex<ScreenManager>>,
 }
@@ -23,7 +25,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
+    fn set_fg(&mut self, fg_color: Color) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
         let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
@@ -44,10 +46,11 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
-    fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
+    fn set_bg(&mut self, bg_color: Color) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
+        let (csbi,handle) = kernel::get_buffer_info_and_hande(&self.screen_manager);
+
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
         let mut color: u16;
@@ -64,7 +67,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
-    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
+    fn reset(&mut self) {
         kernel::set_console_text_attribute(self.original_console_color, &self.screen_manager);
     }
 

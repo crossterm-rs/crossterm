@@ -9,38 +9,40 @@ use std::rc::Rc;
 use std::sync::Mutex;
 
 /// This struct is an ansi implementation for color related actions.
-#[derive(Debug)]
-pub struct AnsiColor;
+pub struct AnsiColor
+{
+    screen_manager: Rc<Mutex<ScreenManager>>
+}
 
 impl AnsiColor {
-    pub fn new() -> Box<AnsiColor> {
-        Box::from(AnsiColor {})
+    pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<AnsiColor> {
+        Box::from(AnsiColor { screen_manager })
     }
 }
 
 impl ITerminalColor for AnsiColor {
-    fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
-        let mut screen = screen_manager.lock().unwrap();
-        {
-            screen.write_ansi(format!(
-                csi!("{}m"),
-                self.color_value(fg_color, ColorType::Foreground)
-            ));
-        }
+    fn set_fg(&mut self, fg_color: Color ) {
+        let mx_guard = &self.screen_manager;
+        let mut screen = mx_guard.lock().unwrap();
+
+        screen.write_ansi(format!(
+            csi!("{}m"),
+            self.color_value(fg_color, ColorType::Foreground)
+        ));
     }
 
-    fn set_bg(&self, bg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>) {
-        let mut screen = screen_manager.lock().unwrap();
-        {
-            screen.write_ansi(format!(
-                csi!("{}m"),
-                self.color_value(bg_color, ColorType::Background)
-            ));
-        }
+    fn set_bg(&mut self, bg_color: Color) {
+        let mx_guard = &self.screen_manager;
+        let mut screen = mx_guard.lock().unwrap();
+
+        screen.write_ansi(format!(
+            csi!("{}m"),
+            self.color_value(bg_color, ColorType::Background)
+        ));
     }
 
-    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>) {
-        let mut screen = screen_manager.lock().unwrap();
+    fn reset(&mut self) {
+        let mut screen = self.screen_manager.lock().unwrap();
         {
             screen.write_ansi_str(csi!("0m"));
         }

@@ -30,6 +30,7 @@ impl EnableAnsiCommand {
 
 impl IStateCommand for EnableAnsiCommand {
     fn execute(&mut self) -> bool {
+        panic!();
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
             return ansi_support::windows_supportable();

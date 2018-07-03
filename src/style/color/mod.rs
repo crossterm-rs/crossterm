@@ -24,11 +24,11 @@ use std::sync::Mutex;
 ///! so that color related actions can be preformed on both unix and windows systems.
 pub trait ITerminalColor {
     /// Set the foreground color to the given color.
-    fn set_fg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>);
+    fn set_fg(&mut self, fg_color: Color);
     /// Set the background color to the given color.
-    fn set_bg(&self, fg_color: Color, screen_manager: Rc<Mutex<ScreenManager>>);
+    fn set_bg(&mut self, fg_color: Color);
     /// Reset the terminal color to default.
-    fn reset(&self, screen_manager: Rc<Mutex<ScreenManager>>);
+    fn reset(&mut self);
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }

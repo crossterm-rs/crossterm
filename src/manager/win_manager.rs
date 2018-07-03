@@ -24,9 +24,10 @@ impl IScreenManager for WinApiScreenManager {
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.is_alternate_screen {
-            kernel::write_char_buffer(self.alternate_handle, buf);
+            kernel::write_char_buffer(&self.alternate_handle, buf);
+
         } else {
-            kernel::write_char_buffer(self.output, buf);
+            kernel::write_char_buffer(&self.output, buf);
         }
         Ok(0)
     }
@@ -59,6 +60,7 @@ impl WinApiScreenManager {
     pub fn get_handle(&mut self) -> &HANDLE {
         if self.is_alternate_screen {
             return &self.alternate_handle;
+
         } else {
             return &self.output;
         }
