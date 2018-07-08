@@ -15,13 +15,13 @@ use super::super::super::manager::WinApiScreenManager;
 use style::{Color, ObjectStyle};
 
 /// Struct that contains both the style and the content wits can be styled.
-pub struct StyledObject<D> {
+pub struct StyledObject<D: Display> {
     pub object_style: ObjectStyle,
     pub content: D,
     pub context: Rc<Context>,
 }
 
-impl<D> StyledObject<D> where D: Display {
+impl<D: Display> StyledObject<D>{
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// #Example
@@ -168,7 +168,7 @@ impl <D:Display> Display for StyledObject<D>
             let mutex = &self.context.screen_manager;
             {
                 let mut screen = mutex.lock().unwrap();
-                screen.write_ansi(format!(csi!("{}m"), *attr as i16));
+                screen.write_string(format!(csi!("{}m"), *attr as i16));
             }
             reset = true;
         }
@@ -183,8 +183,7 @@ impl <D:Display> Display for StyledObject<D>
                 use std::fmt::Write;
                 let mut string = String::new();
                 write!(string, "{}", self.content).unwrap();
-
-                screen_manager.write_val(string)
+                screen_manager.write_string(string)
             }
         }
 

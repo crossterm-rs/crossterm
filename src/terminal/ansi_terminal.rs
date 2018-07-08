@@ -22,19 +22,19 @@ impl ITerminal for AnsiTerminal {
         {
             match clear_type {
                 ClearType::All => {
-                    screen_manager.write_ansi_str(csi!("2J"));
+                    screen_manager.write_str(csi!("2J"));
                 }
                 ClearType::FromCursorDown => {
-                    screen_manager.write_ansi_str(csi!("J"));
+                    screen_manager.write_str(csi!("J"));
                 }
                 ClearType::FromCursorUp => {
-                    screen_manager.write_ansi_str(csi!("1J"));
+                    screen_manager.write_str(csi!("1J"));
                 }
                 ClearType::CurrentLine => {
-                    screen_manager.write_ansi_str(csi!("2K"));
+                    screen_manager.write_str(csi!("2K"));
                 }
                 ClearType::UntilNewLine => {
-                    screen_manager.write_ansi_str(csi!("K"));
+                    screen_manager.write_str(csi!("K"));
                 }
             };
         }
@@ -47,21 +47,21 @@ impl ITerminal for AnsiTerminal {
     fn scroll_up(&self, count: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}S"), count));
+            screen.write_string(format!(csi!("{}S"), count));
         }
     }
 
     fn scroll_down(&self, count: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}T"), count));
+            screen.write_string(format!(csi!("{}T"), count));
         }
     }
 
     fn set_size(&self, width: i16, height: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("8;{};{}t"), width, height));
+            screen.write_string(format!(csi!("8;{};{}t"), width, height));
         }
     }
 

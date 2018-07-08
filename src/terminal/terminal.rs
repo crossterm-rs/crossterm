@@ -12,7 +12,7 @@ use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 pub struct Terminal {
-    terminal: Option<Box<ITerminal>>,
+    terminal: Box<ITerminal>,
     context: Rc<Context>,
 }
 
@@ -23,10 +23,10 @@ impl Terminal {
         let terminal = functions::get_module::<Box<ITerminal>>(
             WinApiTerminal::new(context.clone()),
             AnsiTerminal::new(context.clone()),
-        );
+        ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = Some(AnsiTerminal::new(context.clone()) as Box<ITerminal>);
+        let terminal = AnsiTerminal::new(context.clone()) as Box<ITerminal>;
 
         Terminal {
             terminal,
@@ -60,9 +60,7 @@ impl Terminal {
     ///
     /// ```
     pub fn clear(&mut self, clear_type: ClearType) {
-        if let Some(ref terminal) = self.terminal {
-            terminal.clear(clear_type);
-        }
+        self.terminal.clear(clear_type);
     }
 
     /// Get the terminal size (x,y).
@@ -83,10 +81,7 @@ impl Terminal {
     ///
     /// ```
     pub fn terminal_size(&mut self) -> (u16, u16) {
-        if let Some(ref terminal) = self.terminal {
-            return terminal.terminal_size();
-        }
-        (0, 0)
+            return self.terminal.terminal_size();
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -107,9 +102,7 @@ impl Terminal {
     ///
     /// ```
     pub fn scroll_up(&mut self, count: i16) {
-        if let Some(ref terminal) = self.terminal {
-            terminal.scroll_up(count);
-        }
+        self.terminal.scroll_up(count);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -130,9 +123,7 @@ impl Terminal {
     ///
     /// ```
     pub fn scroll_down(&mut self, count: i16) {
-        if let Some(ref terminal) = self.terminal {
-            terminal.scroll_down(count);
-        }
+        self.terminal.scroll_down(count);
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -153,9 +144,7 @@ impl Terminal {
     ///
     /// ```
     pub fn set_size(&mut self, width: i16, height: i16) {
-        if let Some(ref terminal) = self.terminal {
-            terminal.set_size(width, height);
-        }
+        self.terminal.set_size(width, height);
     }
 
     /// Wraps an displayable object so it can be formatted with colors and attributes.
@@ -193,9 +182,7 @@ impl Terminal {
 
     /// Exit the current process.fy
     pub fn exit(&self) {
-        if let Some(ref terminal) = self.terminal {
-            terminal.exit();
-        }
+        self.terminal.exit();
     }
 
     /// Write any displayable content to the current terminal screen.
@@ -208,7 +195,7 @@ impl Terminal {
             let mut string = String::new();
             write!(string, "{}", value).unwrap();
 
-            screen_manager.write_val(string);
+            screen_manager.write_string(string);
         }
     }
 }

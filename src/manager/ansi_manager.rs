@@ -14,15 +14,16 @@ pub struct AnsiScreenManager {
 
 impl IScreenManager for AnsiScreenManager {
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool) {
+        panic!();
         self.is_alternate_screen = is_alternate_screen;
     }
 
-    fn write_ansi(&mut self, string: String) {
+    fn write_string(&mut self, string: String) {
         write!(self.output, "{}", string);
         self.flush();
     }
 
-    fn write_ansi_str(&mut self, string: &str) {
+    fn write_str(&mut self, string: &str) {
         write!(self.output, "{}", string);
         self.flush();
     }

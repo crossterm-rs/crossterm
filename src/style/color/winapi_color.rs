@@ -10,15 +10,12 @@ use std::sync::Mutex;
 
 /// This struct is an windows implementation for color related actions.
 pub struct WinApiColor {
-
-    original_console_color: u16,
     screen_manager: Rc<Mutex<ScreenManager>>,
 }
 
 impl WinApiColor {
     pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<WinApiColor> {
         Box::from(WinApiColor {
-            original_console_color: kernel::get_original_console_color(&screen_manager),
             screen_manager: screen_manager,
         })
     }
@@ -68,7 +65,8 @@ impl ITerminalColor for WinApiColor {
     }
 
     fn reset(&mut self) {
-        kernel::set_console_text_attribute(self.original_console_color, &self.screen_manager);
+        self.set_bg(Color::Black);
+        self.set_fg(Color::White);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct

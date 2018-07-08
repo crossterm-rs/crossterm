@@ -18,14 +18,10 @@ mod cursor;
 mod program_examples;
 mod terminal;
 
+use crossterm::Context;
+use program_examples::first_depth_search;
+
 fn main() {
-    use crossterm::Context;
-
-    {
-        let mut context = Context::new();
-
-        terminal::alternate_screen::print_wait_screen_on_alternate_window(context.clone());
-
-        println!("count: {}", std::rc::Rc::strong_count(&context));
-    }
+    first_depth_search::run();
+//    println!("End")
 }

@@ -14,7 +14,7 @@ use std::rc::Rc;
 /// Struct that stores an specific platform implementation for cursor related actions.
 pub struct TerminalCursor {
     context: Rc<Context>,
-    terminal_cursor: Option<Box<ITerminalCursor>>,
+    terminal_cursor: Box<ITerminalCursor>,
 }
 
 impl TerminalCursor {
@@ -24,10 +24,10 @@ impl TerminalCursor {
         let cursor = functions::get_module::<Box<ITerminalCursor>>(
             WinApiCursor::new(context.screen_manager.clone()),
             AnsiCursor::new(context.clone()),
-        );
+        ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = Some(AnsiCursor::new(context.clone()) as Box<ITerminalCursor>);
+        let cursor = AnsiCursor::new(context.clone()) as Box<ITerminalCursor>;
 
         TerminalCursor {
             terminal_cursor: cursor,
@@ -57,9 +57,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.goto(x, y);
-        }
+        self.terminal_cursor.goto(x, y);
         self
     }
 
@@ -85,11 +83,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn pos(&mut self) -> (u16, u16) {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.pos()
-        } else {
-            (0, 0)
-        }
+        self.terminal_cursor.pos()
     }
 
     /// Move the current cursor position `n` times up.
@@ -114,9 +108,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_up(count);
-        }
+        self.terminal_cursor.move_up(count);
         self
     }
 
@@ -140,9 +132,7 @@ impl TerminalCursor {
     ///  }
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_right(count);
-        }
+        self.terminal_cursor.move_right(count);
         self
     }
 
@@ -168,9 +158,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_down(count);
-        }
+        self.terminal_cursor.move_down(count);
         self
     }
 
@@ -196,9 +184,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.move_left(count);
-        }
+        self.terminal_cursor.move_left(count);
         self
     }
 
@@ -246,10 +232,12 @@ impl TerminalCursor {
 
             let mut mutex = &self.context.screen_manager;
             {
-                let mut screen_manager = mutex.lock().unwrap();
-                screen_manager.write_val(string);
+//                let mut screen_manager = mutex.lock().unwrap();
+//                screen_manager.write_string(string);
 
-                screen_manager.flush();
+                println!("{}",string);
+
+//                screen_manager.flush();
             }
         }
         self
@@ -272,9 +260,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn save_position(&mut self) {
-        if let Some(ref mut terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.save_position();
-        }
+        self.terminal_cursor.save_position();
     }
 
     /// Return to saved cursor position
@@ -294,9 +280,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn reset_position(&mut self) {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.reset_position();
-        }
+        self.terminal_cursor.reset_position();
     }
 
     /// Hide de cursor in the console.
@@ -314,9 +298,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn hide(&self) {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.hide();
-        }
+        self.terminal_cursor.hide();
     }
 
     /// Show the cursor in the console.
@@ -334,9 +316,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn show(&self) {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.show();
-        }
+        self.terminal_cursor.show();
     }
 
     /// Enable or disable blinking of the terminal.
@@ -358,9 +338,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn blink(&self, blink: bool) {
-        if let Some(ref terminal_cursor) = self.terminal_cursor {
-            terminal_cursor.blink(blink);
-        }
+            self.terminal_cursor.blink(blink);
     }
 }
 

@@ -25,7 +25,7 @@ impl ITerminalColor for AnsiColor {
         let mx_guard = &self.screen_manager;
         let mut screen = mx_guard.lock().unwrap();
 
-        screen.write_ansi(format!(
+        screen.write_string(format!(
             csi!("{}m"),
             self.color_value(fg_color, ColorType::Foreground)
         ));
@@ -35,7 +35,7 @@ impl ITerminalColor for AnsiColor {
         let mx_guard = &self.screen_manager;
         let mut screen = mx_guard.lock().unwrap();
 
-        screen.write_ansi(format!(
+        screen.write_string(format!(
             csi!("{}m"),
             self.color_value(bg_color, ColorType::Background)
         ));
@@ -44,7 +44,7 @@ impl ITerminalColor for AnsiColor {
     fn reset(&mut self) {
         let mut screen = self.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("0m"));
+            screen.write_str(csi!("0m"));
         }
     }
 

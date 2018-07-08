@@ -1,19 +1,22 @@
 extern crate crossterm;
 
 use self::crossterm::terminal::{terminal, ClearType};
-use self::crossterm::Context;
 use self::crossterm::style::{Color, StyledObject, ObjectStyle };
+use self::crossterm::Context;
 
-#[derive(Copy, Clone)]
+use std::fmt::Debug;
+use std::fmt;
+
+#[derive(Copy, Clone,Debug)]
 pub enum Direction
 {
-    Up,
-    Down,
-    Left,
-    Right
+    Up = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Position
 {
     pub x: usize,
@@ -31,33 +34,30 @@ impl Position
 #[derive(Copy, Clone)]
 pub struct Size
 {
-    pub width: u16,
-    pub height: u16
+    pub width: usize,
+    pub height: usize
 }
 
 impl Size
 {
-    pub fn new(width: u16, height: u16) -> Size
+    pub fn new(width: usize, height: usize) -> Size
     {
         Size {width,height}
     }
 }
 
-use std::fmt::Display;
-
-pub struct Cell<'a, D: Display>
+pub struct Cell
 {
-    position: Position,
-    style: &'a StyledObject<D>,
-    visited: bool
+    pub position: Position,
+    pub color: Color,
+    pub look: char,
+    pub visited: bool
 }
 
-use std::rc::Rc;
-
-impl<'a, D: Display> Cell<'a, D>
+impl Cell
 {
-    pub fn new(position: Position, style: &'a StyledObject<D>) -> Cell<D>
+    pub fn new(position: Position, color: Color, look: char, visited: bool) -> Cell
     {
-        Cell { position: position, style: style, visited: false }
+        Cell { position, color, look, visited }
     }
 }

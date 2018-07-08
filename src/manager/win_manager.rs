@@ -18,9 +18,9 @@ impl IScreenManager for WinApiScreenManager {
         self.is_alternate_screen = is_alternate_screen;
     }
 
-    fn write_ansi(&mut self, string: String) {}
+    fn write_string(&mut self, string: String) { &self.write(string.as_bytes()); }
 
-    fn write_ansi_str(&mut self, string: &str) {}
+    fn write_str(&mut self, string: &str) { &self.write(string.as_bytes()); }
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.is_alternate_screen {

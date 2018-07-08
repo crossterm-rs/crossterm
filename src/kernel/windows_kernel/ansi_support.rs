@@ -19,7 +19,6 @@ pub fn try_enable_ansi_support() -> bool {
         set_ansi_enabled(success);
         has_been_tried_to_enable(true);
     });
-
     windows_supportable()
 }
 

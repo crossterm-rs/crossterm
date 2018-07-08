@@ -11,7 +11,7 @@ use {Context, ScreenManager};
 
 /// Struct that stores an specific platform implementation for color related actions.
 pub struct TerminalColor {
-    color: Option<Box<ITerminalColor>>,
+    color: Box<ITerminalColor>,
     screen_manager: Rc<Mutex<ScreenManager>>,
 }
 
@@ -22,7 +22,7 @@ impl TerminalColor {
         let color = functions::get_module::<Box<ITerminalColor>>(
             WinApiColor::new(context.screen_manager.clone()),
             AnsiColor::new(context.screen_manager.clone()),
-        );
+        ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let color = Some(AnsiColor::new(context.screen_manager.clone()) as Box<ITerminalColor>);
@@ -55,9 +55,7 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_fg(&mut self, color: Color) {
-        if let Some(ref mut terminal_color) = self.color {
-            terminal_color.set_fg(color);
-        }
+        self.color.set_fg(color);
     }
 
     /// Set the background color to the given color.
@@ -83,9 +81,7 @@ impl TerminalColor {
     ///
     /// ```
     pub fn set_bg(&mut self, color: Color) {
-        if let Some(ref mut terminal_color) = self.color {
-            terminal_color.set_bg(color);
-        }
+        self.color.set_bg(color);
     }
 
     /// Reset the terminal colors and attributes to default.
@@ -106,9 +102,7 @@ impl TerminalColor {
     ///
     /// ```
     pub fn reset(&mut self) {
-        if let Some(ref mut terminal_color) = self.color {
-            terminal_color.reset();
-        }
+        self.color.reset();
     }
 
     /// Get available color count.

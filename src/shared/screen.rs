@@ -14,6 +14,7 @@ use Context;
 
 use std::io::{self, Write};
 use std::rc::Rc;
+use std::convert::From;
 
 pub struct AlternateScreen {
     context: Rc<Context>,
@@ -85,6 +86,22 @@ impl Drop for AlternateScreen {
         use CommandManager;
 
         CommandManager::undo(self.context.clone(), self.command_id);
+    }
+}
+
+use super::super::shared::environment::Crossterm;
+
+impl From<Crossterm> for AlternateScreen
+{
+    fn from(crossterm: Crossterm) -> Self {
+        let command_id = get_to_alternate_screen_command(crossterm.context());
+
+        let screen = AlternateScreen {
+            context: crossterm.context(),
+            command_id: command_id,
+        };
+        screen.to_alternate();
+        return screen;
     }
 }
 

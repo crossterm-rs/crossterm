@@ -10,6 +10,7 @@
 
 pub mod cursor;
 
+mod default_cursor;
 mod ansi_cursor;
 #[cfg(target_os = "windows")]
 mod winapi_cursor;
@@ -44,7 +45,7 @@ pub trait ITerminalCursor {
     /// Move the cursor `n` times left.
     fn move_left(&self, count: u16);
     /// Save cursor position so that its saved position can be recalled later. Note that this position is stored program based not per instance of the cursor struct.
-    fn save_position(&mut self);
+    fn save_position(&self);
     /// Return to saved cursor position
     fn reset_position(&self);
     /// Hide the terminal cursor.

@@ -1,49 +1,75 @@
 use super::variables::{Cell, Position, Size };
 use crossterm::terminal::terminal;
-use crossterm::Environment;
-use crossterm::style::{ObjectStyle, StyledObject};
+use crossterm::cursor::cursor;
+use crossterm::Crossterm;
+use crossterm::style::{ObjectStyle, StyledObject, Color};
 use crossterm::Context;
 use std::rc::Rc;
 
 use std::fmt::Display;
 
-pub struct Map<D: Display>
+pub struct Map
 {
-    map: Vec<Vec<Cell<D>>>,
-    wall_style: StyledObject<D>,
-    map_style: StyledObject<D>,
+    pub map: Vec<Vec<Cell>>,
+    pub size: Size,
 }
 
-impl<D: Display> Map<D>
+impl Map
 {
-    pub fn new(context: Rc<Context>) -> Map<D>
+    pub fn new(map_size: Size, wall_cell_char: char, map_cell_char: char) -> Map
     {
-        Map { map: Vec::new(), wall_style: ObjectStyle::apply_  to("■", context.clone() )}
-    }
+        let mut map: Vec<Vec<Cell>> = Vec::new();
 
-    pub fn init(&self, environment: &mut Environment, map_size: Size) -> Map<D>
-    {
-        let mut map: Vec<Vec<Cell<D>>> = Vec::new();
-
-        for y in 0..map[0].len()
+        // initialize the map shown on the screen. Each cell of terminal should have a value that could be changed by the algorithm
+        // create n rows with n cells.
+        for y in 0..map_size.height
         {
-            for x in 0..map[1].len()
-            {
-                if (y == 0 || y == map.len() - 1) || (x == 0 || x == map[0].len())
+            let mut row: Vec<Cell> = Vec::new();
+
+            for x in 0..map_size.width
                 {
-                    map[y][x] = Cell::new(Position::new(x,y), wall_style.apply_to(environment.context(), "■"));
+                    if (y == 0 || y == map_size.height - 1) || (x == 0 || x == map_size.width - 1)
+                        {
+                            row.push(Cell::new(Position::new(x, y), Color::Black, wall_cell_char, true));
+                        } else {
+                        row.push(Cell::new(Position::new(x, y), Color::Black, map_cell_char, false));
+                    }
                 }
-                else{
-                    map[y][x] = Cell::new(Position::new(x,y), map_style);
-                }
-            }
+            map.push(row);
         }
 
-        Map { map }
+        Map { map: map, size: Size::new(map_size.width, map_size.height)}
     }
 
-    fn render_map()
+    // render the map on the screen.
+    pub fn render_map(&mut self, crossterm: &mut Crossterm)
     {
+        let mut cursor = crossterm.cursor();
 
+        for row in self.map.iter_mut()
+        {
+            for column in row.iter_mut()
+            {
+                // we only have to render the walls
+                if (column.position.y == 0 || column.position.y == self.size.height - 1) || (column.position.x == 0 || column.position.x == self.size.width - 1)
+                    {
+                        let cell_style = crossterm.paint(column.look).on(column.color);
+                        cursor.goto(column.position.x as u16, column.position.y as u16)
+                            .print(cell_style);
+                    }
+            }
+        }
+    }
+
+    // check if position in the map at the given coords is visted.
+    pub fn is_cell_visited(&self, x: usize, y: usize) -> bool
+    {
+        self.map[y][x].visited
+    }
+
+    // change an position in the map to visited.
+    pub fn set_visited(&mut self, x: usize, y: usize)
+    {
+        self.map[y][x].visited = true;
     }
 }

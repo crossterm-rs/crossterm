@@ -21,7 +21,7 @@ impl ITerminalCursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{};{}H"), y + 1, x + 1));
+            screen.write_string(format!(csi!("{};{}H"), y + 1, x + 1));
         }
     }
 
@@ -32,56 +32,56 @@ impl ITerminalCursor for AnsiCursor {
     fn move_up(&self, count: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}A"), count));
+            screen.write_string(format!(csi!("{}A"), count));
         }
     }
 
     fn move_right(&self, count: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}C"), count));
+            screen.write_string(format!(csi!("{}C"), count));
         }
     }
 
     fn move_down(&self, count: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}B"), count));
+            screen.write_string(format!(csi!("{}B"), count));
         }
     }
 
     fn move_left(&self, count: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi(format!(csi!("{}D"), count));
+            screen.write_string(format!(csi!("{}D"), count));
         }
     }
 
-    fn save_position(&mut self) {
+    fn save_position(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("s"));
+            screen.write_str(csi!("s"));
         }
     }
 
     fn reset_position(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("u"));
+            screen.write_str(csi!("u"));
         }
     }
 
     fn hide(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("?25l"));
+            screen.write_str(csi!("?25l"));
         }
     }
 
     fn show(&self) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            screen.write_ansi_str(csi!("?25h"));
+            screen.write_str(csi!("?25h"));
         }
     }
 
@@ -89,9 +89,9 @@ impl ITerminalCursor for AnsiCursor {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             if blink {
-                screen.write_ansi_str(csi!("?12h"));
+                screen.write_str(csi!("?12h"));
             } else {
-                screen.write_ansi_str(csi!("?12l"));
+                screen.write_str(csi!("?12l"));
             }
         }
     }

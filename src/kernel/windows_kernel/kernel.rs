@@ -111,6 +111,21 @@ pub fn get_console_screen_buffer_info(
     csbi
 }
 
+/// Create a new console screen buffer info struct.
+pub fn get_std_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
+
+    let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
+    let success;
+
+    unsafe { success = GetConsoleScreenBufferInfo(get_output_handle(), &mut csbi) }
+
+    if success == 0 {
+        panic!("Cannot get console screen buffer info");
+    }
+
+    csbi
+}
+
 pub fn get_buffer_info_and_hande(screen_manager: &Rc<Mutex<ScreenManager>>) -> (CONSOLE_SCREEN_BUFFER_INFO, HANDLE)
 {
    let handle = get_current_handle(screen_manager);

@@ -49,7 +49,7 @@ impl ITerminalCursor for WinApiCursor {
         self.goto(xpos - count, ypos);
     }
 
-    fn save_position(&mut self) {
+    fn save_position(&self) {
         cursor::save_cursor_pos(&self.screen_manager);
     }
 

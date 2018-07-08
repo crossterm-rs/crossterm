@@ -23,10 +23,10 @@ impl StateManager {
     /// Restore all changes that are made to the terminal.
     pub fn restore_changes(&mut self) {
         for (id, item) in self.changed_states.iter_mut() {
-            let mut item = item.lock().unwrap();
-            item.undo();
-
-            println!("undo!");
+//            let mut item = item.lock().unwrap();
+//            item.undo();
+//
+//            println!("undo!");
         }
     }
 

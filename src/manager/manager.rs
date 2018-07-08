@@ -39,22 +39,18 @@ impl ScreenManager {
     }
 
     /// Write an ANSI code as String.
-    pub fn write_ansi(&mut self, string: String) {
-        self.screen_manager.write_ansi(string);
+    pub fn write_string(&mut self, string: String) {
+        self.screen_manager.write_string(string);
     }
 
     /// Write an ANSI code as &str
-    pub fn write_ansi_str(&mut self, string: &str) {
-        self.screen_manager.write_ansi_str(string);
+    pub fn write_str(&mut self, string: &str) {
+        self.screen_manager.write_str(string);
     }
 
     /// Can be used to get an specific implementation used for the current platform.
     pub fn as_any(&mut self) -> &mut Any {
         self.screen_manager.as_any()
-    }
-
-    pub fn write_val(&mut self, value: String) {
-        self.screen_manager.write(value.as_bytes());
     }
 }
 

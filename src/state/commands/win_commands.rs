@@ -30,7 +30,6 @@ impl EnableAnsiCommand {
 
 impl IStateCommand for EnableAnsiCommand {
     fn execute(&mut self) -> bool {
-        panic!();
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
             return ansi_support::windows_supportable();
@@ -46,7 +45,6 @@ impl IStateCommand for EnableAnsiCommand {
             if !kernel::set_console_mode(&output_handle, dw_mode) {
                 return false;
             }
-
             return true;
         }
     }
@@ -156,8 +154,6 @@ impl ToAlternateScreenBufferCommand {
 impl IStateCommand for ToAlternateScreenBufferCommand {
     fn execute(&mut self) -> bool {
         use super::super::super::manager::WinApiScreenManager;
-
-        let mut chi_buffer: [CHAR_INFO; 160] = unsafe { mem::zeroed() };
 
         let handle = kernel::get_output_handle();
 
