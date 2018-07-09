@@ -60,6 +60,7 @@ fn print_welcome_screen(crossterm: &Crossterm)
 
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
+    cursor.goto(0,0);
     terminal.write(WELCOME_MESSAGE.join("\n"));
 
     cursor.hide();

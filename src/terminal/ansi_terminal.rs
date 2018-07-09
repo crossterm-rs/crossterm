@@ -2,6 +2,7 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 
 use super::{ClearType, ITerminal, Rc};
+use super::super::cursor::cursor;
 use shared::functions;
 use Context;
 

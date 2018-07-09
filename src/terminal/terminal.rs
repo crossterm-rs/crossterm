@@ -7,7 +7,8 @@ use super::*;
 use Context;
 
 use std::fmt;
-use std::fmt::Write;
+use std::io::Write;
+
 use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
@@ -196,6 +197,7 @@ impl Terminal {
             write!(string, "{}", value).unwrap();
 
             screen_manager.write_string(string);
+            screen_manager.flush();
         }
     }
 }

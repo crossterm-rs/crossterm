@@ -173,19 +173,17 @@ impl <D:Display> Display for StyledObject<D>
             reset = true;
         }
 
-        if cfg!(target_os = "linux") {
-            fmt::Display::fmt(&self.content, f)?;
-        } else {
-            let mutex = &self.context.screen_manager;
-            {
-                let mut screen_manager = mutex.lock().unwrap();
 
-                use std::fmt::Write;
-                let mut string = String::new();
-                write!(string, "{}", self.content).unwrap();
-                screen_manager.write_string(string)
-            }
+        let mutex = &self.context.screen_manager;
+        {
+            let mut screen_manager = mutex.lock().unwrap();
+
+            use std::fmt::Write;
+            let mut string = String::new();
+            write!(string, "{}", self.content).unwrap();
+            screen_manager.write_string(string)
         }
+
 
         let mutex = &self.context.screen_manager;
         {

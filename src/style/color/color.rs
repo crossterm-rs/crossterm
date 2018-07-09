@@ -25,7 +25,7 @@ impl TerminalColor {
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let color = Some(AnsiColor::new(context.screen_manager.clone()) as Box<ITerminalColor>);
+        let color = AnsiColor::new(context.screen_manager.clone()) as Box<ITerminalColor>;
 
         TerminalColor {
             color: color,

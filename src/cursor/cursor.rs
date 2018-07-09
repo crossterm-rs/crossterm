@@ -232,12 +232,9 @@ impl TerminalCursor {
 
             let mut mutex = &self.context.screen_manager;
             {
-//                let mut screen_manager = mutex.lock().unwrap();
-//                screen_manager.write_string(string);
-
-                println!("{}",string);
-
-//                screen_manager.flush();
+                let mut screen_manager = mutex.lock().unwrap();
+                screen_manager.write_string(string);
+                screen_manager.flush();
             }
         }
         self

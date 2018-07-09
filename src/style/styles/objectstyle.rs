@@ -10,7 +10,7 @@ use std::rc::Rc;
 use super::super::Attribute;
 
 /// Struct that contains the style properties that can be applied to an displayable object.
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,

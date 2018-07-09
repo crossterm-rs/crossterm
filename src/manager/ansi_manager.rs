@@ -14,7 +14,6 @@ pub struct AnsiScreenManager {
 
 impl IScreenManager for AnsiScreenManager {
     fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool) {
-        panic!();
         self.is_alternate_screen = is_alternate_screen;
     }
 
