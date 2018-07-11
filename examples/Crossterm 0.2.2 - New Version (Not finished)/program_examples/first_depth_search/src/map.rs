@@ -49,15 +49,15 @@ impl Map
         for row in self.map.iter_mut()
         {
             for column in row.iter_mut()
-            {
-                // we only have to render the walls
-                if (column.position.y == 0 || column.position.y == self.size.height - 1) || (column.position.x == 0 || column.position.x == self.size.width - 1)
-                    {
-                        let cell_style = crossterm.paint(column.look).on(column.color);
-                        cursor.goto(column.position.x as u16, column.position.y as u16)
-                            .print(cell_style);
-                    }
-            }
+                {
+                    // we only have to render the walls
+                    if (column.position.y == 0 || column.position.y == self.size.height - 1) || (column.position.x == 0 || column.position.x == self.size.width - 1)
+                        {
+                            let cell_style = crossterm.paint(column.look).on(column.color);
+                            cursor.goto(column.position.x as u16, column.position.y as u16)
+                                .print(cell_style);
+                        }
+                }
         }
     }
 

@@ -21,7 +21,7 @@ impl AnsiColor {
 }
 
 impl ITerminalColor for AnsiColor {
-    fn set_fg(&mut self, fg_color: Color ) {
+    fn set_fg(&self, fg_color: Color ) {
         let mx_guard = &self.screen_manager;
         let mut screen = mx_guard.lock().unwrap();
 
@@ -31,7 +31,7 @@ impl ITerminalColor for AnsiColor {
         ));
     }
 
-    fn set_bg(&mut self, bg_color: Color) {
+    fn set_bg(&self, bg_color: Color) {
         let mx_guard = &self.screen_manager;
         let mut screen = mx_guard.lock().unwrap();
 
@@ -41,7 +41,7 @@ impl ITerminalColor for AnsiColor {
         ));
     }
 
-    fn reset(&mut self) {
+    fn reset(&self) {
         let mut screen = self.screen_manager.lock().unwrap();
         {
             screen.write_str(csi!("0m"));

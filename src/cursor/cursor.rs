@@ -256,7 +256,7 @@ impl TerminalCursor {
     /// cursor::cursor(&context).safe_position();
     ///
     /// ```
-    pub fn save_position(&mut self) {
+    pub fn save_position(&self) {
         self.terminal_cursor.save_position();
     }
 
@@ -276,7 +276,7 @@ impl TerminalCursor {
     /// cursor(&context).reset_position();
     ///
     /// ```
-    pub fn reset_position(&mut self) {
+    pub fn reset_position(&self) {
         self.terminal_cursor.reset_position();
     }
 

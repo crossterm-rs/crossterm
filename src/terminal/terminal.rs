@@ -60,7 +60,7 @@ impl Terminal {
     /// term.clear(terminal::ClearType::UntilNewLine);
     ///
     /// ```
-    pub fn clear(&mut self, clear_type: ClearType) {
+    pub fn clear(&self, clear_type: ClearType) {
         self.terminal.clear(clear_type);
     }
 
@@ -81,7 +81,7 @@ impl Terminal {
     /// println!("{:?}", size);
     ///
     /// ```
-    pub fn terminal_size(&mut self) -> (u16, u16) {
+    pub fn terminal_size(&self) -> (u16, u16) {
             return self.terminal.terminal_size();
     }
 
@@ -102,7 +102,7 @@ impl Terminal {
     /// let size = term.scroll_up(5);
     ///
     /// ```
-    pub fn scroll_up(&mut self, count: i16) {
+    pub fn scroll_up(&self, count: i16) {
         self.terminal.scroll_up(count);
     }
 
@@ -123,7 +123,7 @@ impl Terminal {
     /// let size = term.scroll_down(5);
     ///
     /// ```
-    pub fn scroll_down(&mut self, count: i16) {
+    pub fn scroll_down(&self, count: i16) {
         self.terminal.scroll_down(count);
     }
 
@@ -144,7 +144,7 @@ impl Terminal {
     /// let size = term.set_size(10,10);
     ///
     /// ```
-    pub fn set_size(&mut self, width: i16, height: i16) {
+    pub fn set_size(&self, width: i16, height: i16) {
         self.terminal.set_size(width, height);
     }
 
@@ -217,7 +217,7 @@ impl Terminal {
     /// let size = term.write("Some text \n Some text on new line");
     ///
     /// ```
-    pub fn write<D: fmt::Display>(&mut self, value: D) {
+    pub fn write<D: fmt::Display>(&self, value: D) {
         let mut mutex = &self.context.screen_manager;
         {
             let mut screen_manager = mutex.lock().unwrap();

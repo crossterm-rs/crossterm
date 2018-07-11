@@ -17,7 +17,7 @@
 //!     ```
 //!
 //!     But things change when we are in alternate screen modes.
-//!     We can not simply use `stdout()` to get a handle to the alternate screen, since this call returns the current default console handle (mainscreen).
+//!     We can not simply use `stdout()` to get a handle to the alternate screen, since this call returns the current default console handle (handle to the mainscreen).
 //!
 //!     Instead we need to store an handle to the screen output.
 //!     This handle could be used to put into alternate screen modes and back into main screen modes.
@@ -33,7 +33,7 @@
 //! Because Crossterm needs access to the above to types quite often I have chosen to add those two in one struct called `Context` so that this type could be shared throughout library.
 //! Check this link for more info:  [cleanup of the changes](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library).
 //!
-//! Now the user has to pass an context type to the modules of Crossterm like this:
+//! Because like described above the user has to pass an context type to the modules of Crossterm like this:
 //!
 //! ```
 //!      let context = Context::new();
@@ -43,8 +43,8 @@
 //!      let color = color(&context);
 //! ```
 //!
-//! Check the documentation of `AlternateScreen` for more info about how to properly manage the `Context` of the terminal.
-//! If you don't use alternate screen functionalist's please checkout the `Crossterm` documentation whits will make things easier for you.
+//! Check the documentation of `AlternateScreen` for more info about how to properly manage the `Context` of the terminal when using the alternate screen.
+//! If you don't use alternate screen functionalities please checkout the `Crossterm` documentation whits will make things easier for you. Since you don't have to manage the `Context` by your self.
 
 use {ScreenManager, StateManager};
 
@@ -90,6 +90,7 @@ impl Context {
 
 use std::io::Write;
 
+/// Revert the changes made to the terminal (this is not running currently don't know why, probably because Context is stored in an Rc<> and it will not be dropped because of that.).
 impl Drop for Context {
     fn drop(&mut self) {
         let mut changes = self.state_manager.lock().unwrap();

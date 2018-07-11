@@ -54,7 +54,7 @@ impl TerminalColor {
     /// colored_terminal.set_fg(Color::from("Red"));
     ///
     /// ```
-    pub fn set_fg(&mut self, color: Color) {
+    pub fn set_fg(&self, color: Color) {
         self.color.set_fg(color);
     }
 
@@ -80,7 +80,7 @@ impl TerminalColor {
     /// colored_terminal.set_bg(Color::from("Red"));
     ///
     /// ```
-    pub fn set_bg(&mut self, color: Color) {
+    pub fn set_bg(&self, color: Color) {
         self.color.set_bg(color);
     }
 
@@ -101,7 +101,7 @@ impl TerminalColor {
     /// colored_terminal.reset();
     ///
     /// ```
-    pub fn reset(&mut self) {
+    pub fn reset(&self) {
         self.color.reset();
     }
 

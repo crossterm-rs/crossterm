@@ -100,7 +100,7 @@ impl AlternateScreen {
     /// Get the alternate screen from the context.
     /// By calling this method the current screen will be changed to the alternate screen.
     /// And you get back an handle for that screen.
-    pub fn from(context: &Rc<Context>) -> Self {
+    pub fn from(context: Rc<Context>) -> Self {
         let command_id = get_to_alternate_screen_command(context.clone());
 
         let screen = AlternateScreen {

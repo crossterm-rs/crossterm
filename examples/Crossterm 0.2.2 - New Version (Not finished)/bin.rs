@@ -15,7 +15,9 @@ extern crate crossterm;
 mod color;
 mod cursor;
 mod terminal;
+mod crossterm_type;
 
 fn main() {
-    // some code to try out the examples.
+    use crossterm_type::create_alternate_screen_from_crossterm;
+    create_alternate_screen_from_crossterm();
 }

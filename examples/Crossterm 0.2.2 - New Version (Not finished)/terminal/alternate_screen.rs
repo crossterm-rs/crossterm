@@ -38,7 +38,7 @@ fn print_wait_screen(context: Rc<Context>) {
     stdout().flush();
 }
 
-/// print wait screen on alternate screen, then swich back.
+/// print wait screen on alternate screen, then switches back to mainscreen | demonstration.
 pub fn print_wait_screen_on_alternate_window(context: Rc<Context>) {
     // create scope. If this scope ends the screen will be switched back to mainscreen.
     // because `AlternateScreen` switches back to main screen when switching back.
@@ -50,10 +50,10 @@ pub fn print_wait_screen_on_alternate_window(context: Rc<Context>) {
         println!();
         // Print the wait screen.
         print_wait_screen(context.clone());
-    }
+    } // <- switch back to main screen
 }
 
-/// some stress test switch from and to alternate screen.
+/// some stress test switch from and to alternate screen | demonstration
 pub fn switch_between_main_and_alternate_screen() {
     let context = Context::new();
     let mut cursor = cursor(context.clone());
@@ -78,4 +78,24 @@ pub fn switch_between_main_and_alternate_screen() {
     }
 
     println!("Whe are back at the main screen");
+}
+
+/// Switch to alternate screen using the `Context` of `Crossterm` | demonstration.
+pub fn create_alternate_screen_from_crossterm()
+{
+    use crossterm::screen::*;
+    use crossterm::Crossterm;
+
+    let crossterm = Crossterm::new();
+
+    {
+        // move into alternate screen
+        let alternate_screen = AlternateScreen::from(crossterm.context());
+
+        // this will move the cursor and print `some text` on the alternate screen.
+        crossterm.cursor().goto(10, 10).print("Some text");
+    } // <- alternate screen ends here an will be switched back to main screen.
+
+    // print "Some other text" on the mainscreen at x: 0, y: 10
+    crossterm.cursor().goto(0,10).print("Some other text");
 }

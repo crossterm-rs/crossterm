@@ -11,7 +11,6 @@ use std::{thread, time};
 
 use crossterm::raw::IntoRawMode;
 
-// raw screen is not working correctly currently
 fn print_wait_screen(context: Rc<Context>) {
     terminal::terminal(context.clone()).clear(ClearType::All);
 
@@ -34,6 +33,7 @@ fn print_wait_screen(context: Rc<Context>) {
     }
 }
 
+/// print wait screen on raw alternate screen | demonstration
 pub fn print_wait_screen_on_alternate_window() {
     let context = Context::new();
 

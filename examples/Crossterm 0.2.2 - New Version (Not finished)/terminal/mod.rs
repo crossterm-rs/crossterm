@@ -6,5 +6,5 @@ pub mod alternate_screen;
 pub mod terminal;
 
 /// Alternate screen is only supported for unix systems. Windows support will come later :).
-#[cfg(target_os = "unix")]
+//#[cfg(target_os = "unix")]
 pub mod raw_mode;

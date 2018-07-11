@@ -11,9 +11,6 @@
 //!   Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
 //!
 //! With these modes you can easier design the terminal screen.
-//!
-//! !! Note that this module is only working for unix currently. !!
-//!
 
 #[cfg(not(windows))]
 use super::super::state::commands::unix_command::EnableRawModeCommand;

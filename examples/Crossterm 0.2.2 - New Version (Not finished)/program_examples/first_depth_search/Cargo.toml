@@ -5,7 +5,6 @@ authors = ["TimonPost <timonpost@hotmail.nl>"]
 
 [dependencies]
 rand = "0.4.2"
+crossterm = { path = "../../../../" }
 
-[dependencies.crossterm]
-git = "https://github.com/TimonPost/crossterm"
-branch = "development"
+

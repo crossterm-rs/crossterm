@@ -73,7 +73,7 @@ impl<'crossterm> FirstDepthSearch<'crossterm>
             cursor.goto(x,y).print(cell);
             ::std::io::stdout().flush();
 
-            thread::sleep(time::Duration::from_millis(2));
+            thread::sleep(time::Duration::from_millis(1));
         }
     }
 

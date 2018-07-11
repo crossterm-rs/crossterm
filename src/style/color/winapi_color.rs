@@ -22,7 +22,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&mut self, fg_color: Color) {
+    fn set_fg(&self, fg_color: Color) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
         let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
@@ -43,7 +43,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
-    fn set_bg(&mut self, bg_color: Color) {
+    fn set_bg(&self, bg_color: Color) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
         let (csbi,handle) = kernel::get_buffer_info_and_hande(&self.screen_manager);
@@ -64,7 +64,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, &self.screen_manager);
     }
 
-    fn reset(&mut self) {
+    fn reset(&self) {
         self.set_bg(Color::Black);
         self.set_fg(Color::White);
     }

@@ -15,6 +15,7 @@ pub mod terminal;
 
 pub use shared::crossterm::Crossterm;
 pub use shared::screen;
+pub use shared::raw;
 pub use state::context::Context;
 
 use manager::ScreenManager;

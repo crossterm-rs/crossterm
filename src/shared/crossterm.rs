@@ -1,7 +1,7 @@
 //! This module provides easy access to the functionalities of crossterm.
 //! since `crossterm version 0.2.3` an `Context` type is introduced (check that documentation for more info why this type is introduced).
 //!
-//! You have to provide this `Context` to the modules: `cursor, color, terminal`.
+//! You have to provide this `Context` to the modules: `cursor::cursor(), color::color(), terminal::terminal()`.
 //!
 //!   use crossterm::Context;
 //!   use crossterm::cursor;
@@ -39,6 +39,8 @@ use std::convert::From;
 /// You can better use `Crossterm` for accessing these modules.
 /// `Crossterm` handles the Context internally so jo do not have to bother about it, for example:
 ///
+/// Check `/examples/Crossterm 0.2.3/program_examples/first_depth_search` in the library for more specific examples.
+///
 ///      let crossterm = Crossterm::new();
 ///      let color = crossterm.color();
 ///      let cursor = crossterm.cursor();
@@ -64,8 +66,6 @@ impl Crossterm {
 
     /// Get an Terminal implementation whereon terminal related actions can be performed.
     ///
-    /// Check `/examples/{version}/terminal` in the library for more spesific examples.
-    ///
     /// #Example
     ///
     /// ```rust
@@ -85,7 +85,6 @@ impl Crossterm {
 
     /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
     ///
-    /// Check `/examples/{version}/cursor` in the library for more specific examples.
     /// #Example
     ///
     /// ```rust
@@ -160,7 +159,7 @@ impl Crossterm {
         self.terminal().paint(value)
     }
 
-    /// Write any displayable value to the current screen.
+    /// Write any displayable value to the current screen weather it will be the main screen or alternate screen.
     ///
     /// #Example
     ///
@@ -173,7 +172,7 @@ impl Crossterm {
     /// crossterm.write("Some text \n Some text on new line.");
     ///
     /// ```
-    pub fn write<D: Display>(&mut self, value: D)
+    pub fn write<D: Display>(&self, value: D)
     {
         self.terminal().write(value)
     }
