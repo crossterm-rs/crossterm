@@ -10,7 +10,8 @@ use std::io::Error;
 use std::rc::Rc;
 use std::{io, mem};
 
-/// A representation of the size of the current terminal.
+//! A representation of the size of the current terminal.
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct UnixSize {

@@ -181,12 +181,42 @@ impl Terminal {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }
 
-    /// Exit the current process.fy
+    /// Exit the current process.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use crossterm::terminal;
+    /// use crossterm::Context;
+    ///
+    /// let context = Context::new();
+    /// let mut term = terminal::terminal(&context);
+    ///
+    /// let size = term.exit();
+    ///
+    /// ```
     pub fn exit(&self) {
         self.terminal.exit();
     }
 
     /// Write any displayable content to the current terminal screen.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    ///
+    /// extern crate crossterm;
+    /// use crossterm::terminal;
+    /// use crossterm::Context;
+    ///
+    /// let context = Context::new();
+    /// let mut term = terminal::terminal(&context);
+    ///
+    /// let size = term.write("Some text \n Some text on new line");
+    ///
+    /// ```
     pub fn write<D: fmt::Display>(&mut self, value: D) {
         let mut mutex = &self.context.screen_manager;
         {

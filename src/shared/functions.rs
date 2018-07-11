@@ -42,10 +42,12 @@ pub fn exit_terminal() {
 }
 
 #[cfg(windows)]
-/// Get an module specific implementation based on the current platform.
+/// Get an module specific implementation of a the generic given type based on the current platform.
+/// If the current platform is windows and it supports ansi escape codes it will return the ansi implementation and if not it will return the winapi implementation.
+/// If the current platform is unix it will return the ansi implementation.
 pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut term: Option<T> = None;
-    let mut does_support = false;
+    let mut does_support = true;
 
     if cfg!(target_os = "windows") {
             #[cfg(windows)]

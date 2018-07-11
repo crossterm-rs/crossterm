@@ -9,8 +9,6 @@
 //!
 
 pub mod cursor;
-
-mod default_cursor;
 mod ansi_cursor;
 #[cfg(target_os = "windows")]
 mod winapi_cursor;

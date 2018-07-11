@@ -11,8 +11,6 @@ exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 
 [dependencies]
-rand = "0.4.2"
-lazy_static = "1.0.1"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi"] }
@@ -24,7 +22,3 @@ termios = "0.3.0"
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
-
-[[bin]]
-name = "a"
-path = "examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs"

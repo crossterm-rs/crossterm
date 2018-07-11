@@ -173,7 +173,6 @@ impl <D:Display> Display for StyledObject<D>
             reset = true;
         }
 
-
         let mutex = &self.context.screen_manager;
         {
             let mut screen_manager = mutex.lock().unwrap();
@@ -181,9 +180,8 @@ impl <D:Display> Display for StyledObject<D>
             use std::fmt::Write;
             let mut string = String::new();
             write!(string, "{}", self.content).unwrap();
-            screen_manager.write_string(string)
+            screen_manager.write_string(string);
         }
-
 
         let mutex = &self.context.screen_manager;
         {

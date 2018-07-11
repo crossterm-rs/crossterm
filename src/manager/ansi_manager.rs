@@ -17,14 +17,16 @@ impl IScreenManager for AnsiScreenManager {
         self.is_alternate_screen = is_alternate_screen;
     }
 
-    fn write_string(&mut self, string: String) {
-        write!(self.output, "{}", string);
+    fn write_string(&mut self, string: String) -> io::Result<usize> {
+        write!(self.output, "{}", string)?;
         self.flush();
+        Ok(0)
     }
 
-    fn write_str(&mut self, string: &str) {
-        write!(self.output, "{}", string);
+    fn write_str(&mut self, string: &str) -> io::Result<usize> {
+        write!(self.output, "{}", string)?;
         self.flush();
+        Ok(0)
     }
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {

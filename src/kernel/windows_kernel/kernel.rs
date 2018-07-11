@@ -1,4 +1,6 @@
 //! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
+//! I am planing to refactor this a little since a lot of code could be handled safer.
+
 use std::rc::Rc;
 use Context;
 
@@ -126,6 +128,7 @@ pub fn get_std_console_screen_buffer_info() -> CONSOLE_SCREEN_BUFFER_INFO {
     csbi
 }
 
+/// Get buffer info and handle of the current screen.
 pub fn get_buffer_info_and_hande(screen_manager: &Rc<Mutex<ScreenManager>>) -> (CONSOLE_SCREEN_BUFFER_INFO, HANDLE)
 {
    let handle = get_current_handle(screen_manager);
@@ -148,7 +151,7 @@ pub fn get_console_screen_buffer_info_from_handle(handle: &HANDLE) -> CONSOLE_SC
     csbi
 }
 
-/// Get the larged console window size posible.
+/// Get the largest console window size possible.
 pub fn get_largest_console_window_size() -> COORD {
     let output_handle = get_output_handle();
 
@@ -390,26 +393,18 @@ pub fn write_console_output(
     }
 }
 
-use std::ffi::OsStr;
-use std::iter::once;
-use std::os::windows::ffi::OsStrExt;
-
-fn win32_string(value: &str) -> Vec<u16> {
-    OsStr::new(value).encode_wide().chain(once(0)).collect()
-}
-
 //use std::os::raw::c_void;
-use std::mem::transmute;
 use std::str;
 use winapi::ctypes::c_void;
 
 /// Write utf8 buffer to console.
-pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) {
+pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize> {
     // get string from u8[] and parse it to an c_str
     let mut utf8 = match str::from_utf8(buf) {
         Ok(string) => string,
         Err(_) => "123",
     };
+
     let utf16: Vec<u16> = utf8.encode_utf16().collect();
     let utf16_ptr: *const c_void = utf16.as_ptr() as *const _ as *const c_void;
 
@@ -424,15 +419,23 @@ pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) {
 
     let mut cells_written: u32 = 0;
 
+    let mut success = false;
     // write to console
     unsafe {
-        WriteConsoleW(
+        success = is_true(WriteConsoleW(
             *handle,
             utf16_ptr,
             utf16.len() as u32,
             &mut cells_written,
             NULL,
-        );
+        ));
+    }
+
+    match success
+    {
+        // think this is wrong could be done better!
+        true => Ok(utf8.as_bytes().len()),
+        false => Ok(0)
     }
 }
 

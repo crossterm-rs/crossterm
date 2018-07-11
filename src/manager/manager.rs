@@ -33,19 +33,21 @@ impl ScreenManager {
         }
     }
 
+    /// Toggle a boolean to whether alternate screen is on or of.
     pub fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool) {
         self.screen_manager
             .toggle_is_alternate_screen(is_alternate_screen);
     }
 
     /// Write an ANSI code as String.
-    pub fn write_string(&mut self, string: String) {
-        self.screen_manager.write_string(string);
+    pub fn write_string(&mut self, string: String) -> io::Result<usize> {
+        self.screen_manager.write_string(string)
     }
 
     /// Write an ANSI code as &str
-    pub fn write_str(&mut self, string: &str) {
-        self.screen_manager.write_str(string);
+    pub fn write_str(&mut self, string: &str) -> io::Result<usize>
+    {
+        self.screen_manager.write_str(string)
     }
 
     /// Can be used to get an specific implementation used for the current platform.

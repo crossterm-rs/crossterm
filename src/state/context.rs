@@ -51,7 +51,7 @@ use {ScreenManager, StateManager};
 use std::rc::Rc;
 use std::sync::Mutex;
 
-/// This type contains the context of the current terminal. The context surrounds the changed states of the terminal and can be used for managing the output of the terminal.
+/// This type is the context of the current terminal. The context is a wrapper for states changes of the terminal and can be used for managing the output of the terminal.
 pub struct Context {
     pub screen_manager: Rc<Mutex<ScreenManager>>,
     pub state_manager: Mutex<StateManager>,

@@ -10,18 +10,12 @@
 //!   ```
 //!   
 //! - Run program with: `cargo run`
-
 extern crate crossterm;
 
 mod color;
 mod cursor;
-mod program_examples;
 mod terminal;
 
-use crossterm::Context;
-use program_examples::first_depth_search;
-
 fn main() {
-    first_depth_search::run();
-//    println!("End")
+    // some code to try out the examples.
 }

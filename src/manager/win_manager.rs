@@ -18,18 +18,22 @@ impl IScreenManager for WinApiScreenManager {
         self.is_alternate_screen = is_alternate_screen;
     }
 
-    fn write_string(&mut self, string: String) { &self.write(string.as_bytes()); }
+    fn write_string(&mut self, string: String) -> io::Result<usize>
+    {
+        self.write(string.as_bytes())
+    }
 
-    fn write_str(&mut self, string: &str) { &self.write(string.as_bytes()); }
+    fn write_str(&mut self, string: &str) -> io::Result<usize>
+    {
+        self.write(string.as_bytes())
+    }
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.is_alternate_screen {
-            kernel::write_char_buffer(&self.alternate_handle, buf);
-
+            kernel::write_char_buffer(&self.alternate_handle, buf)
         } else {
-            kernel::write_char_buffer(&self.output, buf);
+            kernel::write_char_buffer(&self.output, buf)
         }
-        Ok(0)
     }
 
     fn flush(&mut self) -> io::Result<()> {
@@ -41,6 +45,7 @@ impl IScreenManager for WinApiScreenManager {
     }
 }
 
+// for winapi we have some custom implementation that will be used by windows only. You can get a reference to this implementation by using the any and that cast it to this struct.
 impl WinApiScreenManager {
     pub fn new() -> Self {
         WinApiScreenManager {
@@ -50,6 +55,7 @@ impl WinApiScreenManager {
         }
     }
 
+    /// Set the alternate handle to the given handle.
     pub fn set_alternate_handle(&mut self, alternate_handle: HANDLE) {
         self.alternate_handle = alternate_handle;
 
@@ -57,6 +63,7 @@ impl WinApiScreenManager {
         kernel::set_console_mode(&self.alternate_handle, ENABLE_PROCESSED_OUTPUT as u32);
     }
 
+    /// get the current screen handle.
     pub fn get_handle(&mut self) -> &HANDLE {
         if self.is_alternate_screen {
             return &self.alternate_handle;

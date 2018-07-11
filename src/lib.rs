@@ -13,7 +13,7 @@ pub mod manager;
 pub mod style;
 pub mod terminal;
 
-pub use shared::environment::Crossterm;
+pub use shared::crossterm::Crossterm;
 pub use shared::screen;
 pub use state::context::Context;
 
@@ -28,6 +28,3 @@ extern crate libc;
 extern crate termios;
 #[cfg(windows)]
 extern crate winapi;
-
-#[macro_use]
-extern crate lazy_static;

@@ -14,12 +14,6 @@
 //!
 //! !! Note that this module is only working for unix currently. !!
 //!
-//! # Example
-//!
-//! ```rust
-//! to be implemented
-//!
-//! ```
 
 #[cfg(not(windows))]
 use super::super::state::commands::unix_command::EnableRawModeCommand;

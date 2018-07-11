@@ -1,3 +1,5 @@
+//! A wrapper for executing and undoing commands.
+
 use super::commands::IStateCommand;
 use std::rc::Rc;
 use std::sync::Mutex;

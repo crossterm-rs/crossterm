@@ -1,4 +1,8 @@
 //! This module is used for registering, storing an restoring the terminal state changes.
+//!
+//!  Because this is a terminal manipulating library there will be made changes to terminal when running an process.
+//!  If you stop the process you want the terminal back in its original state.
+//!  Therefore, I need to track the changes made to the terminal.
 
 use super::commands::shared_commands::EmptyCommand;
 use super::commands::IStateCommand;
@@ -23,10 +27,8 @@ impl StateManager {
     /// Restore all changes that are made to the terminal.
     pub fn restore_changes(&mut self) {
         for (id, item) in self.changed_states.iter_mut() {
-//            let mut item = item.lock().unwrap();
-//            item.undo();
-//
-//            println!("undo!");
+            let mut item = item.lock().unwrap();
+            item.undo();
         }
     }
 
@@ -44,6 +46,7 @@ impl StateManager {
         return Rc::new(Mutex::new(Box::new(EmptyCommand)));
     }
 
+    /// get the count of changes made. This could be used for the identifier when registering a state.
     pub fn get_changes_count(&self) -> u16 {
         return self.changed_states.len() as u16;
     }
