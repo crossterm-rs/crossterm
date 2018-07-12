@@ -150,7 +150,7 @@ impl <D:Display> Display for StyledObject<D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
 
-        let mut colored_terminal = super::super::color(self.context.clone());
+        let mut colored_terminal = super::super::color(&self.context);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {

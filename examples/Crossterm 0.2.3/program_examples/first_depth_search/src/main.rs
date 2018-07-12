@@ -25,14 +25,16 @@ fn main()
 /// run the program
 pub fn run()
 {
-    // create new Crossterm instance.
-    let mut crossterm = Crossterm::new();
+//    // create new Crossterm instance.
+//    let mut crossterm = Crossterm::new();
+//
+//    print_welcome_screen(&crossterm);
+//
+//    start_algorithm(&mut crossterm);
+//
+//    print_end_screen(&crossterm);
 
-    print_welcome_screen(&crossterm);
 
-    start_algorithm(&mut crossterm);
-
-    print_end_screen(&crossterm);
 }
 
 fn start_algorithm(crossterm: &mut Crossterm)

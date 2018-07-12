@@ -25,7 +25,7 @@ impl WinApiTerminal {
 impl ITerminal for WinApiTerminal {
     fn clear(&self, clear_type: ClearType) {
         let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
-        let pos = cursor(self.context.clone()).pos();
+        let pos = cursor(&self.context).pos();
 
         match clear_type {
             ClearType::All => clear_entire_screen(csbi, &self.context),
@@ -211,7 +211,7 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Contex
     clear(start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at (0, 0)
-    cursor(context.clone()).goto(0, 0);
+    cursor(&context).goto(0, 0);
 }
 
 pub fn clear_current_line(
@@ -236,7 +236,7 @@ pub fn clear_current_line(
     clear(start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at 1 cell on current row
-    cursor(context.clone()).goto(0, y);
+    cursor(&context).goto(0, y);
 }
 
 pub fn clear_until_line(pos: (u16, u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, context: &Rc<Context>) {
@@ -253,7 +253,7 @@ pub fn clear_until_line(pos: (u16, u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, conte
     clear(start_location, cells_to_write, &context.screen_manager);
 
     // put the cursor back at original cursor position
-    cursor(context.clone()).goto(x, y);
+    cursor(&context).goto(x, y);
 }
 
 fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &Rc<Mutex<ScreenManager>>) {

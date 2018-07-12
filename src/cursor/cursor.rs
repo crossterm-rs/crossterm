@@ -366,6 +366,6 @@ impl TerminalCursor {
 /// cursor::cursor(&context).goto(5,10);
 ///
 /// ```
-pub fn cursor(context: Rc<Context>) -> Box<TerminalCursor> {
+pub fn cursor(context: &Rc<Context>) -> Box<TerminalCursor> {
     Box::from(TerminalCursor::new(context.clone()))
 }

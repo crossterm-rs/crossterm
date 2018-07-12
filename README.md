@@ -1,93 +1,245 @@
-# This is the development branch do not use this in production. This code can be broken and contains code that could not function correctly.
+[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | 
+[Documentation](link_to_docs) | 
+[Examples](link_to_examples) |
+[Changelog](link_to_change_log) | 
+[Release Nodes](link_to_release_nodes)
 
-Things where I am working on now:
+Ever got disappointed when a terminal library for rust was only written for unix systems? 
+Crossterm provides the same core functionalities for both windows and unix systems.
 
-I have implemented the alternate and raw screen features for Unix systems. Now I am trying to get this also to work for windows with WINAPI. 
+Crossterm aims to be simple and easy to call in code. 
+True the simplicity of Crossterm you do not have to worry about the platform your working with. 
+You can just call whatever action you want and underwater it will check what to do based on the current platform.
 
-In the new version you must provide the Context type to the function calls `cursor(), color(), terminal()`. This type is used by Crossterm for managing the state of the terminal and for futures like `AlternateScreen` and `Rawscreen`. 
+This crate supports all unix terminals and windows terminals down to windows XP (not not all terminals are tested see 'tested terminals' for more info)
 
-Like described above the next version will have api braking changes. Why I needed to do that is essential for the functioning of the above features. 
+## Getting Started
 
-- At first `Terminal state`:
+This documentation is only for Crossterm version `0.2.3` check the [Upgrade Manual](link) for more info. 
+Also the [examples](link) directory contains examples for each version of Crossterm. 
 
-    Because this is a terminal manipulating library there will be made changes to terminal when running an process. If you stop the process you want the terminal back in its original state. Therefore, I need to track the changes made to the terminal. This is done in the `Context` struct so that they can be undone when the process ends.
+Add the Crossterm package to your `Cargo.toml` file.
 
+```
+[dependencies]
+crossterm = "*"
 
-- At second `Handle to the console`
+```
+And import the Crossterm modules you want to use.
 
-    In rust we can call `stdout()` to get an handle to the current default console handle. For example when in unix sytems you want to execute some ANSI escape code you have to write it to terminal. I can write it to stdout (screen ouput) withs is the main screen. 
+```rust  
+extern crate crossterm;
 
-        //like
-        write!(std::io::stdout(), "{}", "some ANSI code").
+// this module is used for styling the terminal
+use self::crossterm::style::*;
+// this module is used for cursor related actions
+use self::crossterm::cursor::*;
+// this mudule is used for terminal related actions
+use self::crossterm::terminal::*;
 
-    But things change when we are in alternate screen. If I execute the code above the ANSI escape code to the current stdout it will be written to the main handle and not or alternate handle, and this is not what we want.
+```
 
-To solve the problem, we need to have one place to store the handle to the console screen. So that we can write to this handle during the lifetime of the program in the different modules like `cursor, terminal and color`. This handle is stored in a subtype of the Context type. 
+## Useful Links
 
-Now the user must create an `Context` type for this library.
+- Code documentation: 
+version [0.1.0](https://docs.rs/crossterm/0.1.0/crossterm/), 
+version [0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
+version [0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
+and [0.2.3](link)
 
-      //like
-      let context = Context::new();
-      
-      let cursor = cursor(&context);
-      let terminal = terminal(&context);
-      let color = color(&context);
-      
-Now we have one global `Context` type which can be used to register terminal state changes, and in with we can manage the terminal stdout (screen output). When this `Context` disposes we run code to clean up the changes that are made to the terminal.
+- Code functionalities Examples: 
+version [0.1.0](link_examples_01), 
+version [0.2.0](link_examples_02), 
+version [0.2.1](link_examples_03) 
+and version [0.2.3](link_examples_04)
 
-Maybe I am going to make a wrapper for the function calls `cursor, terminal, colour` so that when can avoid passing the context all over the place which makes to code more unreadable to my opinion. I really did not want to make API braking changes, but for the sake of the features I needed to do it.
+- [Cargo Page](https://crates.io/crates/crossterm)
+- [Examples for specific versions](link_to_specific_version)
+- [Real life examples](example_link)
 
-      // maybe I am going to create some Envoirment type which can be used for getting acces to diffrent modules that this libary provides.
-      let envoirment = Envoirment::new();
-      envoirment.color();
-      envoirment.cursor();
-      envoirment.terminal();     
+# Features
+These are the futures that this crate supports:
 
-
-## Features crossterm 0.1
-
-- Cursor movement.
-    - Up, Down, Left, Right.
+- Cursor.
+    - Moving _n_ times Up, Down, Left, Right.
     - Goto an certain position.
+    - Get cursor position
+    - Storing the current cursor position and resetting to that stored cursor position later.
+    - Hiding an showing the cursor. 
+    - Control over blinking of the terminal cursor (only some terminals are supporting this).
 - Styled output
     - Foreground color (16 base colors)
     - Background color (16 base colors)
+    - 256 color support (unix only). 
+    - Text Attributes like: bold, italic, underscore and crossed word ect (unix only). 
+    - Custom ANSI color code input to set fore- and background color (unix only).
 - Terminal
-    - Clearing
-    - Scrolling
-    - Size
+    - Clearing (all lines, current line, from cursor down and up, until new line)
+    - Scrolling (Up, down)
+    - Get size of terminal
+    - Set size of the terminal.
+    - Alternate screen
+    - Raw screen    
+- Exit the current process.
 - Detailed documentation on every item.
 - Examples for every client callable code.
+- Real life examples.
 
-## Features crossterm 0.2
+## Examples
 
-- 256 color support. 
-- Text Attributes like: bold, italic, underscore and crossed word ect. 
-- Custom ANSI color code input to set fore- and background color for unix.
-- Storing the current cursor position and resetting to that stored cursor position later. 
-- Resizing the terminal.
+For detailed examples of all Crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) directory.
 
-## fixes in crossterm 0.2.1
+### Crossterm wrapper | [see more](example_link)
+This is a wrapper for the modules crossterm provides. This is introduced to mange the `Context` for the user.
+```
+let crossterm = Crossterm::new();
 
-- Default ANSI escape codes for windows machines, if windows does not support ANSI switsh back to WINAPI.
-- method grammer mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
-- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
-- Removed bin refrence from crate [Issue 6](https://github.com/TimonPost/crossterm/issues/6)
-- The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
-- Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
+// get instance of the modules, whereafter you can use the methods the particulary module provides. 
+let color = crossterm.color();
+let cursor = crossterm.cursor();
+let terminal = crossterm.terminal();
 
-## fixes in crossterm 0.2.2
-- Bug see [issue 15](https://github.com/TimonPost/crossterm/issues/15)
+// write text to console wheter it be the main screen or the alternate screen.
+crossterm.write("some text");
+// print some styled font.
+println!("{}", crossterm.paint("Red font on blue background").with(Color::Red).on(Color::Blue));
+```
+### Styled font | [see more](example_link)
+```rust    
+use crossterm::style::{Color};
+use crossterm::Crossterm; 
+    
+// Crossterm provides method chaining so that you can style the font nicely.
+// the `with()` methods sets the foreground color and the `on()` methods sets the background color
+// You can either store the styled font.
+   
+// create instance of `Crossterm`
+let crossterm = Crossterm::new();
 
-## Features crossterm 0.2.3
-- Alternate screen for windows and unix systems.
-- Rawscreen for unix systems maybe windows [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
-- Hiding an showing the cursor.
-- Control over blinking of the terminal cursor.
+// store style in styled object and print it
+let mut styledobject = crossterm.paint("stored styled font in variable").with(Color::Green).on(Color::Yellow);
+println!("{}",styledobject);
 
-## TODO Features crossterm 0.2.2
-- Raw state implementation for windows [Issue 5](https://github.com/TimonPost/crossterm/issues/5).
-- Alternate screen for windows
+// Or you can print it directly.
+println!("{}", crossterm.paint("Red font on blue background color").with(Color::Red).on(Color::Blue));
+println!("{}", crossterm.paint("Red font on default background color").with(Color::Red));
+println!("{}", crossterm.paint("Default font color on Blue background color").on(Color::Blue));
+
+/// The following code can only be used for unix systems:
+
+// Set background Color from RGB
+println!("RGB (10,10,10): \t {}", crossterm.paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
+// Set background Color from RGB
+println!("ANSI value (50): \t {}", crossterm.paint("  ").on(Color::AnsiValue(50)));
+
+// Use attributes to syle the font.
+println!("{}", crossterm.paint("Normal text"));
+println!("{}", crossterm.paint("Bold text").bold());
+println!("{}", crossterm.paint("Italic text").italic());
+println!("{}", crossterm.paint("Slow blinking text").slow_blink());
+println!("{}", crossterm.paint("Rapid blinking text").rapid_blink());
+println!("{}", crossterm.paint("Hidden text").hidden());
+println!("{}", crossterm.paint("Underlined text").underlined());
+println!("{}", crossterm.paint("Reversed color").reverse());
+println!("{}", crossterm.paint("Dim text color").dim());
+println!("{}", crossterm.paint("Crossed out font").crossed_out());
+```
+### Cursor | [see more](example_link)
+```rust 
+
+use crossterm::Context;
+use crossterm::cursor::cursor;
+
+// create context to pass to the `cursor()` function.
+let context = Context::new();
+let mut cursor = cursor(&context);
+
+/// Moving the cursor | demo
+// Set the cursor to position X: 10, Y: 5 in the terminal
+cursor.goto(10,5);
+
+// Move the cursor to position 3 times to the up in the terminal
+cursor.move_up(3);
+
+// Move the cursor to position 3 times to the right in the terminal
+cursor.move_right(3);
+
+// Move the cursor to position 3 times to the down in the terminal
+cursor.move_down(3);
+
+// Move the cursor to position 3 times to the left in the terminal
+cursor.move_left(3);
+
+// Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
+// cursor.goto(10,5).print("@");
+
+/// Safe the current cursor position to recall later | demo
+// Goto X: 5 Y: 5
+cursor.goto(5,5);
+// Safe cursor position: X: 5 Y: 5
+cursor.save_position();
+// Goto X: 5 Y: 20
+cursor.goto(5,20);
+// Print at X: 5 Y: 20.
+print!("Yea!");
+// Reset back to X: 5 Y: 5.
+cursor.reset_position();
+// Print 'Back' at X: 5 Y: 5.
+print!("Back");
+
+// hide cursor
+cursor.hide();
+// show cursor
+cursor.show();
+// blink or not blinking of the cursor (not widely supported)
+cursor.blink(true)
+
+```
+
+### Terminal | [see more](example_link)
+```rust 
+use crossterm::terminal::{terminal,ClearType};
+use crossterm::Context;
+
+let mut context = Context::new();
+let mut terminal = terminal(&context);
+
+// Clear all lines in terminal;
+terminal.clear(ClearType::All);
+// Clear all cells from current cursor position down.
+terminal.clear(ClearType::FromCursorDown);
+// Clear all cells from current cursor position down.
+terminal.clear(ClearType::FromCursorUp);
+// Clear current line cells.
+terminal.clear(ClearType::CurrentLine);
+// Clear all the cells until next line.
+terminal.clear(ClearType::UntilNewLine);
+
+// Get terminal size
+let terminal_size = terminal.terminal_size();
+// Print results
+print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
+
+// Scroll down 10 lines.
+terminal.scroll_down(10);
+
+// Scroll up 10 lines.
+terminal.scroll_up(10);
+
+// Set terminal size
+terminal.set_size(10,10);
+
+// exit the current process.
+terminal.exit();
+
+// write to the terminal whether you are on the main screen or alternate screen.
+terminal.write("Some text\n Some text on new line");
+
+// use the `paint()` for styling font
+println!("{}", terminal.paint("x").with(Color::Red).on(Color::Blue));
+```
+
+For alternate screen and raw screen I recommend you to check this [link](example_link) for better examples.
 
 ## Tested terminals
 
@@ -97,36 +249,30 @@ Maybe I am going to make a wrapper for the function calls `cursor, terminal, col
     - Windows 10 (pro)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
+- Arch linux Konsole
 
-
-The above terminals have been tested. Crossterm should works also for windows 7, 8 consoles and all ansi supportable consoles.
-But these are yet to be tested. 
-If you have used this library for an terminal other than the above list without issues feel free to add it to the above list.
+This crate supports all unix terminals and windows terminals down to windows XP but not all of them have been tested.
+If you have used this library for an terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
     
 ## How it works
 
-Crossterm is using `WINAPI` for windows versions lower than windows 10 and `ANSI escape codes` for unix systems. Crossterm provides one base trait with can be implemented for a platform specific instance. For example, there is an implementation for windows (`WINAPI`) and unix(`ANSI`) for the `cursor module`. To call the platform specific implementation there is one module that rules them all. Thrue this module the client can call some action and the module will deside what to do based on the current platform. And it will execute that action. 
+Crossterm is using ANSI escape codes by default for all systems unix and windows systems. 
+For Windows systems it is a different story since Windows version lower than 10 will use WinApi instead because they are not supporting ANSI escape codes. 
 
 ## Notice 
-This library is library is stable. There will not be changed mutch in the code design so do not worry to mutch. If there are any changes that affect previous versions I will describe what to change when upgrading crossterm to an newer version.
+This library is library is stable. There will not be changed much in the code design so do not worry to much.
+If there are any changes that affect previous versions I will describe what to change when upgrading Crossterm to an newer version.
 
 ## Todo
-
-- This library does not support any kind of raw terminal. When an terminal changes some core state of the terminal this state should be revered when the process ends from this library. Currently there are not made any changed to the core state of the terminal with this library. But when some fearures in the furure will be inplemented this will be the case. So there should come an kind of raw state for the terminal and reversable options to redo all the changes made to the core state when the process ends. More information can be found at this [thread](https://www.reddit.com/r/rust/comments/7tg6n2/looking_for_feedback_onmy_cross_platform_terminal/dtf4ilo/)
-
 - Handling mouse events 
 - Handling key events
 - Tests
-
 ## Contributing
 
-If you would like to contribute to crossterm, than please design the code as it is now. Each module contains the same structures so we can easely extend to multible platforms. As you study the code you will quiqly see what the architecture is. Maybe later there will be an documentation for how crossterm is design.
-
-## Versioning
-
-The current version is crossterm 0.1, every commit I merge the version go's up like 0.1.0 -> 0.1.1 -> 0.1.2.
-
-When new features arrives the packages will go up like 0.1 -> 0.2 -> 0.3
+If you would like to contribute to Crossterm, than please design the code as it is now.
+Each module contains the same structures so we can easily extend to multiple platforms. 
+As you study the code you will quickly see what the architecture is. 
+Maybe later there will be an documentation for Crossterm architecture design.
 
 ## Authors
 

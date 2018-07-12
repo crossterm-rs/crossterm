@@ -253,6 +253,6 @@ impl Terminal {
 ///
 /// ```
 ///
-pub fn terminal(context: Rc<Context>) -> Box<Terminal> {
+pub fn terminal(context: &Rc<Context>) -> Box<Terminal> {
     Box::from(Terminal::new(context.clone()))
 }

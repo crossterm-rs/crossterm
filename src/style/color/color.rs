@@ -124,8 +124,8 @@ impl TerminalColor {
 
 /// Get an Color implementation whereon color related actions can be performed.
 ///
-/// Check `/examples/version/color` in the libary for more specific examples.
+/// Check `/examples/version/color` in the library for more specific examples.
 ///
-pub fn color(context: Rc<Context>) -> Box<TerminalColor> {
-    Box::from(TerminalColor::new(context))
+pub fn color(context: &Rc<Context>) -> Box<TerminalColor> {
+    Box::from(TerminalColor::new(context.clone()))
 }

@@ -7,5 +7,5 @@ authors = ["TimonPost <timonpost@hotmail.nl>"]
 rand = "0.4.2"
 
 [dependencies.crossterm]
- path = "../../../../"
+path = "../../../../"
 branch = "development"

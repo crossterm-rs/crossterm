@@ -104,7 +104,7 @@ pub fn get_console_screen_buffer_info(
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
-    unsafe { success = GetConsoleScreenBufferInfo(get_current_handle(screen_manager), &mut csbi) }
+    unsafe { success = GetConsoleScreenBufferInfo(get_output_handle(), &mut csbi) }
 
     if success == 0 {
         panic!("Cannot get console screen buffer info");
