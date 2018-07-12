@@ -1,1 +1,0 @@
-{"rustc":505120086900794094,"features":"[\"consoleapi\", \"handleapi\", \"minwindef\", \"ntsecapi\", \"processenv\", \"profileapi\", \"winbase\", \"wincon\", \"winnt\", \"winuser\"]","target":13123923088509177768,"profile":7282077418741342047,"path":51131497022828661,"deps":[],"local":[{"Precalculated":"0.3.5"}],"rustflags":[],"edition":"Edition2015"}

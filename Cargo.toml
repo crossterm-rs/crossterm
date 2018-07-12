@@ -19,10 +19,6 @@ winapi = { version = "0.3", features = ["winbase","winuser","consoleapi","proces
 libc = "0.2"
 termios = "0.3.0"
 
-[[bin]]
-name = "example_bin"
-path = "./examples/Crossterm 0.2.2 - New Version (Not finished)/bin.rs"
-
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
