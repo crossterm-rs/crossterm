@@ -5,390 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="310aeab2-4737-4e8e-b7eb-0aac10d104a3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/ReleaseNotesVersion 0.2.0.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ReleaseNotesVersion 0.2.1.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ReleaseNotesVersion 0.2.2.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/UpgradeManual.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/crossterm_type/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/crossterm.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/Timon.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UPGRADE Manual" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/.rustc_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/.rustc_info.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-024f015e49345722/dep-lib-crossterm-024f015e49345722" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-024f015e49345722/lib-crossterm-024f015e49345722" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-024f015e49345722/lib-crossterm-024f015e49345722.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-5f9f68198c107c92/dep-lib-crossterm-5f9f68198c107c92" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-5f9f68198c107c92/lib-crossterm-5f9f68198c107c92" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-5f9f68198c107c92/lib-crossterm-5f9f68198c107c92.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-8f61ecf1c102428d/dep-lib-crossterm-8f61ecf1c102428d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-8f61ecf1c102428d/lib-crossterm-8f61ecf1c102428d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/crossterm-8f61ecf1c102428d/lib-crossterm-8f61ecf1c102428d.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-480a32cad2816a77/bin-first_depth_search-480a32cad2816a77" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-480a32cad2816a77/bin-first_depth_search-480a32cad2816a77.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-480a32cad2816a77/dep-bin-first_depth_search-480a32cad2816a77" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-b6f33af2cce3b29f/bin-first_depth_search-b6f33af2cce3b29f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-b6f33af2cce3b29f/bin-first_depth_search-b6f33af2cce3b29f.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/first_depth_search-b6f33af2cce3b29f/dep-bin-first_depth_search-b6f33af2cce3b29f" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/lazy_static-7b749abda964e14a/dep-lib-lazy_static-7b749abda964e14a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/lazy_static-7b749abda964e14a/lib-lazy_static-7b749abda964e14a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/lazy_static-7b749abda964e14a/lib-lazy_static-7b749abda964e14a.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/libc-76755a6888618a72/dep-lib-libc-76755a6888618a72" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/libc-76755a6888618a72/lib-libc-76755a6888618a72" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/libc-76755a6888618a72/lib-libc-76755a6888618a72.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/rand-793ccaec440a94cc/dep-lib-rand-793ccaec440a94cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/rand-793ccaec440a94cc/lib-rand-793ccaec440a94cc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/rand-793ccaec440a94cc/lib-rand-793ccaec440a94cc.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/termios-8ad962b2a2626fb5/dep-lib-termios-8ad962b2a2626fb5" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/termios-8ad962b2a2626fb5/lib-termios-8ad962b2a2626fb5" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/termios-8ad962b2a2626fb5/lib-termios-8ad962b2a2626fb5.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/winapi-82ad602439f8f31a/build" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/winapi-82ad602439f8f31a/build" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/winapi-82ad602439f8f31a/build.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/.fingerprint/winapi-82ad602439f8f31a/build.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build-script-build.exe" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build-script-build.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.d" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.exe" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-40a9ec8ec96fc09e/build_script_build-40a9ec8ec96fc09e.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-82ad602439f8f31a/output" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-82ad602439f8f31a/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-82ad602439f8f31a/root-output" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/build/winapi-82ad602439f8f31a/root-output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/crossterm-024f015e49345722.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/crossterm-5f9f68198c107c92.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/crossterm-8f61ecf1c102428d.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-480a32cad2816a77" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-480a32cad2816a77.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-b6f33af2cce3b29f.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-b6f33af2cce3b29f.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-b6f33af2cce3b29f.pdb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/first_depth_search-bb4b495df634f778.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/lazy_static-7b749abda964e14a.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/libc-76755a6888618a72.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/libcrossterm-024f015e49345722.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/libcrossterm-5f9f68198c107c92.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/libcrossterm-8f61ecf1c102428d.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/liblazy_static-7b749abda964e14a.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/liblibc-76755a6888618a72.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/librand-793ccaec440a94cc.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/libtermios-8ad962b2a2626fb5.rlib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/rand-793ccaec440a94cc.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/rand-c278be3f57a6eab5.d" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/rand-c278be3f57a6eab5.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/termios-8ad962b2a2626fb5.d" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/winapi-a7fc1f06729e06bc.d" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/deps/winapi-a7fc1f06729e06bc.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.d" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.d" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.exe" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/first_depth_search.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/13tprap6axy2fph1.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/13tprap6axy2fph1.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/16i0u6jlhoj1fwbo.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/16i0u6jlhoj1fwbo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/16u6js6g0l3k1ic6.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/16u6js6g0l3k1ic6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/17erb31xn70viq4b.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/17erb31xn70viq4b.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/181cuta0v63atwcm.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/181cuta0v63atwcm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1dqvxks6k2bzkxe.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1dqvxks6k2bzkxe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1e698527iprj2v8f.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1e698527iprj2v8f.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1g3lwilq9cwv41qg.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1g3lwilq9cwv41qg.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1idjnqb23rob2tvo.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1idjnqb23rob2tvo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1im38lueib99jsk0.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1im38lueib99jsk0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1jnlhyxj59jycbjv.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1jnlhyxj59jycbjv.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1lelgpelve5cjj1b.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1lelgpelve5cjj1b.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1mvmz58owquyropc.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1mvmz58owquyropc.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1o6b1la7g4jnv39b.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1o6b1la7g4jnv39b.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1pyg38ew8eq184bu.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1pyg38ew8eq184bu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1q8ffos2d96smbjs.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1q8ffos2d96smbjs.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1vut2eft6nlujjxr.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1vut2eft6nlujjxr.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1y16o1qfye96o7m0.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1y16o1qfye96o7m0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1zeawhkbeobww1zn.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/1zeawhkbeobww1zn.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/225ddtul7dxk4spr.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/225ddtul7dxk4spr.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/23tqyymcb18u96mb.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/23tqyymcb18u96mb.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2640z5nlaa1e9i15.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2640z5nlaa1e9i15.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/26b9icpd1rxg15bl.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/26b9icpd1rxg15bl.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/28m6b5dkfoixx5aa.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/28m6b5dkfoixx5aa.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2i7eodbtd59z3zjl.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2i7eodbtd59z3zjl.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2jqywn86b2gsqohu.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2jqywn86b2gsqohu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2lyh15q6cjwzy18c.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2lyh15q6cjwzy18c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2q5257pdh5222n7q.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2q5257pdh5222n7q.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2qhkzqx5zqexj20y.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2qhkzqx5zqexj20y.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2r82puffnvvb8iic.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2r82puffnvvb8iic.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2tz4y48d51occu5q.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2tz4y48d51occu5q.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2ujx3sbmswjw52yh.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2ujx3sbmswjw52yh.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2w6xsa2hbi53xhak.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2w6xsa2hbi53xhak.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2zs2fmxejslebffm.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/2zs2fmxejslebffm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3171x0bwu82dptu7.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3171x0bwu82dptu7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/38le3cr9pk2ij99x.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/38le3cr9pk2ij99x.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/38ps4pa181wsnsy9.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/38ps4pa181wsnsy9.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ayaeypdcro9d6yk.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ayaeypdcro9d6yk.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3emkq4pcbtey8152.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3emkq4pcbtey8152.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ey2fuirvapj2it7.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ey2fuirvapj2it7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3g94tobrpgum5dk6.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3g94tobrpgum5dk6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ik0x0hz6l66cx38.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ik0x0hz6l66cx38.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ldk0i2zxftngav8.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3ldk0i2zxftngav8.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3oqznv5oym7l3m4e.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3oqznv5oym7l3m4e.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3wta9ctgdrpkmlpr.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/3wta9ctgdrpkmlpr.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/41sd1w3yketxogqs.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/41sd1w3yketxogqs.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/436dotimmrgzkwfa.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/436dotimmrgzkwfa.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/43v6g0y2xsxoggnt.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/43v6g0y2xsxoggnt.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/45pc7c65foh9i35f.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/45pc7c65foh9i35f.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/47kb80rpg37n2ote.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/47kb80rpg37n2ote.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/48721dc4k5qxei0u.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/48721dc4k5qxei0u.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49a7n47po4ttqjl7.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49a7n47po4ttqjl7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49lx1q7cxvpykyv0.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49lx1q7cxvpykyv0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49qmpuk8w1opmi5q.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/49qmpuk8w1opmi5q.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4b8ptp1vn215jmoe.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4b8ptp1vn215jmoe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4bggn7q7s42t3ahg.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4bggn7q7s42t3ahg.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4brwxiorhmgsb6oc.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4brwxiorhmgsb6oc.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4eaiea9zt8ealj1r.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4eaiea9zt8ealj1r.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4g47d2sx6m33abop.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4g47d2sx6m33abop.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4hixfs0v2n1lvr33.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4hixfs0v2n1lvr33.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4m6arsu3fcv2nap5.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4m6arsu3fcv2nap5.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4r23sjj72r90nor6.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4r23sjj72r90nor6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4s5tl9to8f7ehfuh.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4s5tl9to8f7ehfuh.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4sdt5uofoy0vrzjl.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4sdt5uofoy0vrzjl.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4sw9hz7i7fiueihz.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4sw9hz7i7fiueihz.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4u1ryaq9qolvv4uf.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4u1ryaq9qolvv4uf.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4xq48u46a1pwiqn7.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4xq48u46a1pwiqn7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4xuhwz5yy6q4gvgg.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4xuhwz5yy6q4gvgg.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4yh8x2b62dcih00t.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4yh8x2b62dcih00t.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4ypvbwho0bu5tnww.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/4ypvbwho0bu5tnww.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/51s1w397y42gpez1.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/51s1w397y42gpez1.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/53y8zwkrh9s36vgc.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/53y8zwkrh9s36vgc.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5544xgl7axh7p8nz.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5544xgl7axh7p8nz.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/572bgozz9kcwe4zq.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/572bgozz9kcwe4zq.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/57k06xfugllsc526.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/57k06xfugllsc526.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5b9pfgjsd97fy2a3.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5b9pfgjsd97fy2a3.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5beqqbexwb143v6a.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5beqqbexwb143v6a.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5frs3mx5dzjbj7u6.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5frs3mx5dzjbj7u6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5gstmer6jle7s6lw.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/5gstmer6jle7s6lw.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/63mmpc50mjcb0lb.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/63mmpc50mjcb0lb.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/7p53qlves2rwxx0.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/7p53qlves2rwxx0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/81jpvh8cn5k8ng8.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/81jpvh8cn5k8ng8.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/8xzrsc1ux72v29j.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/8xzrsc1ux72v29j.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/98g0d9x8aw3akpe.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/98g0d9x8aw3akpe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/9elsx31vb4it187.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/9elsx31vb4it187.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/c6lbtaiefvx3wya.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/c6lbtaiefvx3wya.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/d6p2df93qm1h3gm.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/d6p2df93qm1h3gm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/dep-graph.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/e19kx9t7xhzajfl.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/e19kx9t7xhzajfl.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/mb501chi8fnqgmm.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/mb501chi8fnqgmm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/pqmjx25qpxkduz7.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/pqmjx25qpxkduz7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/query-cache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/sjcqfz2ncn1dupz.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/sjcqfz2ncn1dupz.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/work-products.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/y08g5q2x813c4wx.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/y08g5q2x813c4wx.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/z9ox7biyn1otfln.bc.z" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv-2lw5oyps00cfz/z9ox7biyn1otfln.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/crossterm-sdqyunpb2uq5/s-f2ubh9u14p-1s0z6nv.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/10ygozpgsu0ud2lu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/16u6js6g0l3k1ic6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/181cuta0v63atwcm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1bq5qje1qm23749i.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1dqvxks6k2bzkxe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1idjnqb23rob2tvo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1im38lueib99jsk0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1lelgpelve5cjj1b.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1me60hlgb7a3ij3y.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/1y16o1qfye96o7m0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/23ggl8omwle9dip3.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/23tqyymcb18u96mb.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2ag0e2gyqzteo5lh.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2jqywn86b2gsqohu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2lyh15q6cjwzy18c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2q5257pdh5222n7q.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2r82puffnvvb8iic.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/2yf0izvq9wmxs9a5.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/3ayaeypdcro9d6yk.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/3hfnnvlph5ozv32c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/3kfx4ynvkmi2y9i5.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/3rngp6bm2u2q5z0y.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/3wta9ctgdrpkmlpr.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/42pcprhl8qosvo9v.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/43v6g0y2xsxoggnt.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/44fwlp5wvpf2x6hd.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/48721dc4k5qxei0u.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/49a7n47po4ttqjl7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4gbgp5a7xd4lch9n.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4oc10dk278mpk1vy.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4x335n22m9teucop.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4xq48u46a1pwiqn7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4yh8x2b62dcih00t.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/4ypvbwho0bu5tnww.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/5ff8tflogd3ohf7d.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/7p53qlves2rwxx0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/8xzrsc1ux72v29j.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/98g0d9x8aw3akpe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/9elsx31vb4it187.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/axa40e43gxrjm3m.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/axtihhkbvxh0bzs.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/bgnho0tqnbm6uhe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/c6lbtaiefvx3wya.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/dep-graph.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/kclyx7of0fal6jf.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/query-cache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/v6ozwtpojmqfurc.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/work-products.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/y08g5q2x813c4wx.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136-31hzdp9ywpizv/z9ox7biyn1otfln.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-1z3k61p0nldlo/s-f2t7nufdzy-193v136.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-24uuydir119g5/s-f2r1wpvwhu-1xvkdgp.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/16i0u6jlhoj1fwbo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/16u6js6g0l3k1ic6.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/181cuta0v63atwcm.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1bq5qje1qm23749i.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1dqvxks6k2bzkxe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1idjnqb23rob2tvo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1im38lueib99jsk0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1lelgpelve5cjj1b.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1me60hlgb7a3ij3y.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1y16o1qfye96o7m0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/1zwd8n7bcl3vhvvh.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/23tqyymcb18u96mb.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2640z5nlaa1e9i15.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2ag0e2gyqzteo5lh.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2areh0j5h114qj0h.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2jqywn86b2gsqohu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2lyh15q6cjwzy18c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2q5257pdh5222n7q.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2r82puffnvvb8iic.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/2yf0izvq9wmxs9a5.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/3ayaeypdcro9d6yk.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/3hfnnvlph5ozv32c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/3kfx4ynvkmi2y9i5.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/3rngp6bm2u2q5z0y.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/3wta9ctgdrpkmlpr.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/42pcprhl8qosvo9v.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/43v6g0y2xsxoggnt.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/44fwlp5wvpf2x6hd.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/48721dc4k5qxei0u.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/49a7n47po4ttqjl7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4gbgp5a7xd4lch9n.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4oc10dk278mpk1vy.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4x335n22m9teucop.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4xq48u46a1pwiqn7.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4yh8x2b62dcih00t.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/4ypvbwho0bu5tnww.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/56dly8q07ws8ucdq.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/5ff8tflogd3ohf7d.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/7p53qlves2rwxx0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/81jpvh8cn5k8ng8.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/8xzrsc1ux72v29j.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/98g0d9x8aw3akpe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/9elsx31vb4it187.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/axa40e43gxrjm3m.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/axtihhkbvxh0bzs.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/bgnho0tqnbm6uhe.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/c6lbtaiefvx3wya.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/dep-graph.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/kclyx7of0fal6jf.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/oa3rad818d8sgn4.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/query-cache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/v6ozwtpojmqfurc.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/work-products.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/y08g5q2x813c4wx.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv-13d2tfjzfb1tw/z9ox7biyn1otfln.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/target/debug/incremental/first_depth_search-xg0cy2aqlkfj/s-f2ubhajh5q-1uswsyv.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cursor/cursor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cursor/cursor.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style/color/color.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/color/color.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style/styles/styledobject.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/style/styles/styledobject.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/terminal/terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/terminal.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/terminal/winapi_terminal.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -411,95 +30,19 @@
     <expand />
     <select />
   </component>
+  <component name="FavoritesManager">
+    <favorites_list name="crossterm" />
+  </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/src/main.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="74">
-              <caret line="36" selection-start-line="36" selection-end-line="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="map.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/src/map.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
-              <caret line="44" column="11" selection-start-line="44" selection-start-column="11" selection-end-line="44" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
+    <leaf>
       <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="460">
-                <caret line="20" column="52" lean-forward="true" selection-start-line="20" selection-start-column="52" selection-end-line="20" selection-end-column="52" />
+              <first_editor relative-caret-position="598">
+                <caret line="26" column="9" lean-forward="true" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
               </first_editor>
               <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="crossterm.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shared/crossterm.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/terminal/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-276" />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="functions.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shared/functions.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="385">
-              <caret line="22" column="21" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="138">
-              <caret line="6" column="43" selection-start-line="6" selection-start-column="43" selection-end-line="6" selection-end-column="43" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="kernel.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/kernel/windows_kernel/kernel.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="362">
-              <caret line="103" column="33" selection-start-line="103" selection-start-column="33" selection-end-line="103" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="wincon.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/winapi-0.3.5/src/um/wincon.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="323" column="11" selection-start-line="323" selection-start-column="11" selection-end-line="323" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="terminal.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/terminal/terminal.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="221" column="9" selection-start-line="221" selection-start-column="9" selection-end-line="221" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -657,13 +200,12 @@
       </profile-state>
     </entry>
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -681,90 +223,13 @@
               <item name="crossterm" type="462c0819:PsiDirectoryNode" />
               <item name="examples" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-              <item name="Crossterm 0.2.3" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-              <item name="Crossterm 0.2.3" type="462c0819:PsiDirectoryNode" />
-              <item name="program_examples" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-              <item name="Crossterm 0.2.3" type="462c0819:PsiDirectoryNode" />
-              <item name="program_examples" type="462c0819:PsiDirectoryNode" />
-              <item name="first_depth_search" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-              <item name="Crossterm 0.2.3" type="462c0819:PsiDirectoryNode" />
-              <item name="program_examples" type="462c0819:PsiDirectoryNode" />
-              <item name="first_depth_search" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="examples" type="462c0819:PsiDirectoryNode" />
-              <item name="Crossterm 0.2.3" type="462c0819:PsiDirectoryNode" />
-              <item name="terminal" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="cursor" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="kernel" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="kernel" type="462c0819:PsiDirectoryNode" />
-              <item name="windows_kernel" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="manager" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="shared" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="crossterm" type="b2602c69:ProjectViewProjectNode" />
-              <item name="crossterm" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="terminal" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="AndroidView" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -971,14 +436,15 @@
       <workItem from="1531050282692" duration="9956000" />
       <workItem from="1531255043269" duration="2419000" />
       <workItem from="1531329850377" duration="9810000" />
+      <workItem from="1531481790997" duration="1388000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="809455000" />
+    <option name="totallyTimeSpent" value="811135000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="2576" height="1056" extended-state="0" />
+    <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -995,52 +461,30 @@
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32943678" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15580286" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.098569155" />
       <window_info anchor="right" id="Database" order="6" sideWeight="0.49719417" weight="0.3298887" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" sideWeight="0.4971815" weight="0.073529415" />
       <window_info id="UI Designer" order="4" />
       <window_info anchor="right" id="Theme Preview" order="8" />
-      <window_info id="Favorites" order="5" side_tool="true" />
+      <window_info id="Favorites" order="5" side_tool="true" weight="0.3298887" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="right" id="Palette" order="3" />
-      <window_info anchor="right" id="Ant Build" order="1" sideWeight="0.4971815" weight="0.073529415" />
-      <window_info id="Designer" order="3" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Capture Analysis" order="7" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="right" id="Cargo" order="9" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.097774245" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.14927049" />
-      <window_info id="Image Layers" order="6" />
-      <window_info id="Capture Tool" order="2" />
-      <window_info id="UI Designer" order="4" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="right" id="Theme Preview" order="8" />
       <window_info anchor="right" x="0" y="0" width="594" height="856" id="Documentation" order="10" sideWeight="0.5028058" side_tool="true" visible="true" weight="0.3298887" />
-      <window_info anchor="right" id="Database" order="6" sideWeight="0.49719417" visible="true" weight="0.3298887" />
-      <window_info anchor="right" id="Palette&#9;" order="5" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.503125" side_tool="true" weight="0.27038628" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.496875" weight="0.004489338" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32943678" />
-      <window_info anchor="right" id="Maven Projects" order="4" />
-      <window_info id="Favorites" order="5" side_tool="true" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" id="Palette" order="3" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.496875" visible="true" weight="0.004489338" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Capture Analysis" order="7" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.14927049" />
       <window_info anchor="right" id="Theme Preview" order="8" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.096979335" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -1057,10 +501,10 @@
       <window_info anchor="bottom" id="Terminal" order="9" weight="0.32943678" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.503125" side_tool="true" weight="0.27038628" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Capture Tool" order="2" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.496875" visible="true" weight="0.004489338" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="right" id="Maven Projects" order="4" />
       <window_info id="Favorites" order="5" side_tool="true" />
     </layout-to-restore>
@@ -1142,9 +586,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.lock">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/program_examples/first_depth_search/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
@@ -1166,9 +607,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/color/mod.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/Crossterm 0.2.3/crossterm_type/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-87">
@@ -1184,17 +622,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/UpgradeManual.md">
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="5" column="15" selection-start-line="5" selection-start-column="15" selection-end-line="5" selection-end-column="15" />
-        </state>
-      </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="92">
             <caret line="4" column="126" selection-start-line="4" selection-start-column="126" selection-end-line="4" selection-end-column="126" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="15" selection-start-line="5" selection-start-column="15" selection-end-line="5" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -1212,16 +650,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="563">
-            <caret line="110" column="19" selection-end-line="114" selection-end-column="92" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/test.md" />
     <entry file="file://$PROJECT_DIR$/docs/ReleaseNotesVersion 0.2.2.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="23">
@@ -1379,8 +808,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="460">
-            <caret line="20" column="52" lean-forward="true" selection-start-line="20" selection-start-column="52" selection-end-line="20" selection-end-column="52" />
+          <first_editor relative-caret-position="598">
+            <caret line="26" column="9" lean-forward="true" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
           </first_editor>
           <second_editor />
         </state>

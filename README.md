@@ -1,8 +1,5 @@
-[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | 
-[Documentation](link_to_docs) | 
-[Examples](link_to_examples) |
-[Changelog](link_to_change_log) | 
-[Release Nodes](link_to_release_nodes)
+[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](link_to_examples) | [Changelog](link_to_change_log) | [Release Nodes](link_to_release_nodes)
+|----|----|----|----|----|----
 
 Ever got disappointed when a terminal library for rust was only written for unix systems? 
 Crossterm provides the same core functionalities for both windows and unix systems.
