@@ -8,12 +8,11 @@ Crossterm aims to be simple and easy to call in code.
 True the simplicity of Crossterm you do not have to worry about the platform your working with. 
 You can just call whatever action you want and underwater it will check what to do based on the current platform.
 
-This crate supports all unix terminals and windows terminals down to windows XP (not not all terminals are tested see 'tested terminals' for more info)
+This crate supports all unix terminals and windows terminals down to windows XP (not not all terminals are tested see 'Tested Terminals' for more info)
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.2.3` check the [Upgrade Manual](link) for more info. 
-Also the [examples](link) directory contains examples for each version of Crossterm. 
+This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](link_to_manual) for more infomation about how to upgrade to a new version or I suggest you to checkout the [examples](link) for each version of Crossterm. 
 
 Add the Crossterm package to your `Cargo.toml` file.
 
@@ -55,7 +54,7 @@ and version [0.2.3](link_examples_04)
 - [Real life examples](example_link)
 
 # Features
-These are the futures that this crate supports:
+These are the fatures from this crate:
 
 - Cursor.
     - Moving _n_ times Up, Down, Left, Right.
@@ -87,7 +86,7 @@ These are the futures that this crate supports:
 For detailed examples of all Crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) directory.
 
 ### Crossterm wrapper | [see more](example_link)
-This is a wrapper for the modules crossterm provides. This is introduced to mange the `Context` for the user.
+This is a wrapper for the modules crossterm provides. This is introduced to mange the [`Context`](link_to_context) for the user.
 ```
 let crossterm = Crossterm::new();
 
@@ -102,6 +101,7 @@ crossterm.write("some text");
 println!("{}", crossterm.paint("Red font on blue background").with(Color::Red).on(Color::Blue));
 ```
 ### Styled font | [see more](example_link)
+This module provides the functionalities to style the terminal cursor.
 ```rust    
 use crossterm::style::{Color};
 use crossterm::Crossterm; 
@@ -142,6 +142,8 @@ println!("{}", crossterm.paint("Dim text color").dim());
 println!("{}", crossterm.paint("Crossed out font").crossed_out());
 ```
 ### Cursor | [see more](example_link)
+This module provides the functionalities to work with the terminal cursor.
+
 ```rust 
 
 use crossterm::Context;
@@ -194,6 +196,8 @@ cursor.blink(true)
 ```
 
 ### Terminal | [see more](example_link)
+This module provides the functionalities to work with the terminal in general.
+
 ```rust 
 use crossterm::terminal::{terminal,ClearType};
 use crossterm::Context;
@@ -236,7 +240,7 @@ terminal.write("Some text\n Some text on new line");
 println!("{}", terminal.paint("x").with(Color::Red).on(Color::Blue));
 ```
 
-For alternate screen and raw screen I recommend you to check this [link](example_link) for better examples.
+Check these links: [AlternateScreen](link) and [RawScreen](link) for information about how to work with these features.
 
 ## Tested terminals
 
@@ -252,24 +256,48 @@ This crate supports all unix terminals and windows terminals down to windows XP 
 If you have used this library for an terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
     
 ## How it works
-
-Crossterm is using ANSI escape codes by default for all systems unix and windows systems. 
-For Windows systems it is a different story since Windows version lower than 10 will use WinApi instead because they are not supporting ANSI escape codes. 
+Crossterm is using ANSI escape codes by default for both unix and windows systems. 
+But for Windows it is a bit more complicater since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
 
 ## Notice 
-This library is library is stable. There will not be changed much in the code design so do not worry to much.
-If there are any changes that affect previous versions I will describe what to change when upgrading Crossterm to an newer version.
+This libary is not stable yet but I expect it ot not to change that mutch anymore. 
+And if there are any changes that affect previous versions I will [describe](link_to_upgrade_manual) what to change when upgrading Crossterm to an newer version.
 
 ## Todo
+I still have some things in mind to implement. 
+
 - Handling mouse events 
-- Handling key events
+    I want to be able to do something based on the clicks the use has done with is mouse.
+- Handling key comn
+    I want to be able read key combination inputs. 
+- reading from the console.
+    I want to be able to read the input of the console.
+- Error handling
+    Currently I am not doing that mutch with returend errors. This is bad since I suspect that everyting is working. I want to mange this better. When you build this crate you will see the warnings about not used return values. This is what needs to be improved.
 - Tests
+    Also I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
+
 ## Contributing
 
-If you would like to contribute to Crossterm, than please design the code as it is now.
-Each module contains the same structures so we can easily extend to multiple platforms. 
-As you study the code you will quickly see what the architecture is. 
-Maybe later there will be an documentation for Crossterm architecture design.
+If you would like to contribute to Crossterm, than please design the code as it is now. 
+For example a module like cursor has the following file stucture:
+- mod.rs
+  This file contains some trait, in this case `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
+- cursor.rs
+  The end user will call this module to access the cursor functionalities. This module will deside withch implementation to use based on the current platform.
+- winapi_cursor
+  This is the cursor trait (located in mod.rs) implementation with winapi.
+- ansi_cursor
+  This is the cursor trait (located in mod.rs) implementation with ANSI escape codes.
+  
+The above structure is the same for the terminal, color, manager modules. 
+
+Why I chose for this design:
+- Because you can easaly extend to muliple platforms by implementing the trait int the mod.rs.
+- You keep the functionalites for different platforms speperated in different files. 
+- Also you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that mutch. All the other code could change alot because it has not impact on the user side.
+  
+I higly appriciate when you contributing to this crate. Also Since my native language is not Enlishe my grammer and sentence order will not be perfect. So improving this by correcting these mistakes will help both me and the reader of the docs.
 
 ## Authors
 
