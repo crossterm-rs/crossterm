@@ -63,8 +63,6 @@ version [0.1.0](https://docs.rs/crossterm/0.1.0/crossterm/),
 version [0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
 version [0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
 and [0.2.3](link)
-
-<<<<<<< HEAD
 - Code functionalities Examples: 
 version [0.1.0](link_examples_01), 
 version [0.2.0](link_examples_02), 
