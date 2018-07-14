@@ -60,14 +60,14 @@ use self::crossterm::terminal::*;
 
 - Code documentation: 
 version [0.1.0](https://docs.rs/crossterm/0.1.0/crossterm/), 
-version [0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
-version [0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
+[0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
+[0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
 and [0.2.3](link)
 - Code Examples: 
 version [0.1.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.1.0), 
-version [0.2.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.0), 
-version [0.2.1](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.1) 
-and version [0.2.3](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3)
+[0.2.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.0), 
+[0.2.1](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.1) 
+and [0.2.3](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3)
 
 - [Cargo Page](https://crates.io/crates/crossterm)
 - [Real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3/program_examples)
