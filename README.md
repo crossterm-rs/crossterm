@@ -32,7 +32,7 @@ Version `0.2.3` of Crossterm will have API braking changes. If you are reading t
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](link_to_manual) for more infomation about how to upgrade to a new version or I suggest you to checkout the [examples](link) for each version of Crossterm. 
+This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](link_to_manual) for more infomation about how to upgrade to an newer version or checkout the [README.md](link_to_backup_readme) from the previous versions. Also you could take a look at the [examples](link) from the previous versions of Crossterm.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
