@@ -287,14 +287,19 @@ And if there are any changes that affect previous versions I will [describe](lin
 I still have some things in mind to implement. 
 
 - Handling mouse events 
+
     I want to be able to do something based on the clicks the use has done with is mouse.
-- Handling key comn
+- Handling key events
+
     I want to be able read key combination inputs. 
 - reading from the console.
+
     I want to be able to read the input of the console.
 - Error handling
+
     Currently I am not doing that mutch with returend errors. This is bad since I suspect that everyting is working. I want to mange this better. When you build this crate you will see the warnings about not used return values. This is what needs to be improved.
 - Tests
+
     Also I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
 
 ## Contributing
@@ -302,12 +307,17 @@ I still have some things in mind to implement.
 If you would like to contribute to Crossterm, than please design the code as it is now. 
 For example a module like cursor has the following file stucture:
 - mod.rs
+
   This file contains some trait, in this case `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
+  
 - cursor.rs
+
   The end user will call this module to access the cursor functionalities. This module will deside withch implementation to use based on the current platform.
 - winapi_cursor
+
   This is the cursor trait (located in mod.rs) implementation with winapi.
 - ansi_cursor
+
   This is the cursor trait (located in mod.rs) implementation with ANSI escape codes.
   
 The above structure is the same for the terminal, color, manager modules. 
