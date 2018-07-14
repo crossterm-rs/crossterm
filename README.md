@@ -322,7 +322,7 @@ For example a module like cursor has the following file stucture:
   
 The above structure is the same for the terminal, color, manager modules. 
 
-Why I chose for this design:
+Why I have chosen for this design:
 - Because you can easaly extend to muliple platforms by implementing the trait int the mod.rs.
 - You keep the functionalites for different platforms speperated in different files. 
 - Also you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that mutch. All the other code could change alot because it has not impact on the user side.
