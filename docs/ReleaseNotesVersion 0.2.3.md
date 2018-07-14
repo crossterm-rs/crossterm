@@ -1,5 +1,5 @@
 This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed. 
-I think you should not switch to version `0.2.3` if you aren't going to use the AlternateScreen functionalities. 
+I think you should not switch to version `0.2.3` if you aren't going to use the AlternateScreen feature.
 Because you will have some work to get to the new version of crossterm. 
 But if you are starting to use this crate I highly recommend you to switch to the new version `0.2.3`.
 
@@ -82,9 +82,9 @@ __Now the user has to pass an context type to the modules of Crossterm like this
       
       let context = Context::new();
       
-      let cursor = cursor(context);
-      let terminal = terminal(context);
-      let color = color(context);
+      let cursor = cursor(&context);
+      let terminal = terminal(&context);
+      let color = color(&context);
     
 Because this looks a little odd I will provide a type withs will manage the `Context` for you. You can call the different modules like the following:
 
@@ -96,7 +96,7 @@ Because this looks a little odd I will provide a type withs will manage the `Con
       
 ### Alternate screen
 When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly. 
-First off some code of how to switch to Alternate screen, for more info check the example folder at github
+First off some code of how to switch to Alternate screen, for more info check the alternate screen example](link)folder at github
 
 _Create alternate screen from `Context`_
 
