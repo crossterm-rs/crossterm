@@ -8,7 +8,10 @@ Crossterm aims to be simple and easy to call in code.
 True the simplicity of Crossterm you do not have to worry about the platform your working with. 
 You can just call whatever action you want and underwater it will check what to do based on the current platform.
 
-This crate supports all unix terminals and windows terminals down to windows XP (not not all terminals are tested see 'Tested Terminals' for more info)
+This crate supports all unix and windows terminals down to windows XP (not not all terminals are tested see 'Tested Terminals' for more info)
+
+## IMPORTANT When updating to version `0.2.3` 
+Version `0.2.3` of Crossterm will have API braking changes. If you are reading this and you version whas autmaticly incremented to the new version, there will be some broken code. An Quiqe solution? no unless you did not used this crate that much. If it is important to keep running you code and you don't want to spend some time to fix the errors I recomend you to keep using version `0.2.2` because in version `0.2.3` alternate screen and some other features are introduced. And if you are not using any of these feature just downgrade. If however you want to have the newest version you can check the [upgrade manual](link) on how to upgrade to te new version. Check [changelog](link) why thise Api braking changes where nessairly.
 
 ## Getting Started
 
