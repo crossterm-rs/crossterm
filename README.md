@@ -1,4 +1,4 @@
-[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](link_to_examples) | [Changelog](link_to_change_log) | [Release Nodes](link_to_release_nodes)
+[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/tree/master/docs)
 |----|----|----|----|----|----
 
 Ever got disappointed when a terminal library for rust was only written for unix systems? 
@@ -11,28 +11,28 @@ You can just call whatever action you want and underwater it will check what to 
 This crate supports all unix and windows terminals down to windows XP (not not all terminals are tested see 'Tested Terminals' for more info)
 
 ### Table of contents:
-- [Getting started](link)
-- [Usefull links](link)
-- [Features](link)
-- [Examples]()
-    - [Croossterm Wrapper]()
-    - [Styling](link)
-    - [Cursor](link)
-    - [Terminal](link)
-- [Tested Terminals](link)
-- [How it works](link)
-- [Notice](link)
-- [Todo](link)
-- [Contributing](link)
-- [Authors](link)
-- [License](link)
+- [Getting started](https://github.com/TimonPost/crossterm#getting-started)
+- [Usefull links](https://github.com/TimonPost/crossterm#useful-links)
+- [Features](https://github.com/TimonPost/crossterm#features)
+- [Examples](https://github.com/TimonPost/crossterm#examples)
+    - [Crossterm Wrapper](https://github.com/TimonPost/crossterm#crossterm-wrapper--see-more)
+    - [Styling](https://github.com/TimonPost/crossterm#styled-font--see-more)
+    - [Cursor](https://github.com/TimonPost/crossterm#cursor--see-more)
+    - [Terminal](https://github.com/TimonPost/crossterm#terminal--see-more)
+- [Tested Terminals](https://github.com/TimonPost/crossterm#tested-terminals)
+- [How it works](https://github.com/TimonPost/crossterm#how-it-works)
+- [Notice](https://github.com/TimonPost/crossterm#notice)
+- [Todo](https://github.com/TimonPost/crossterm#todo)
+- [Contributing](https://github.com/TimonPost/crossterm#contributing)
+- [Authors](https://github.com/TimonPost/crossterm#authors)
+- [License](https://github.com/TimonPost/crossterm#license)
 
 ## IMPORTANT When updating to version `0.2.3` 
-Version `0.2.3` of Crossterm will have API braking changes. If you are reading this and you version whas autmaticly incremented to the new version, there will be some broken code. An Quiqe solution? no unless you did not used this crate that much. If it is important to keep running you code and you don't want to spend some time to fix the errors I recomend you to keep using version `0.2.2` because in version `0.2.3` alternate screen and some other features are introduced. And if you are not using any of these feature just downgrade. If however you want to have the newest version you can check the [upgrade manual](link) on how to upgrade to te new version. Check [changelog](link) why thise Api braking changes where nessairly.
+Version `0.2.3` of Crossterm will have API braking changes. If you are reading this and you version whas autmaticly incremented to the new version, there will be some broken code. An Quiqe solution? no unless you did not used this crate that much. If it is important to keep running you code and you don't want to spend some time to fix the errors I recomend you to keep using version `0.2.2` because in version `0.2.3` alternate screen and some other features are introduced. And if you are not using any of these feature just downgrade. If however you want to have the newest version you can check the [upgrade manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) on how to upgrade to te new version. Check [release node](https://github.com/TimonPost/crossterm/blob/master/docs/ReleaseNotesVersion%200.2.3.md) why thise Api braking changes where nessairly.
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](link_to_manual) for more infomation about how to upgrade to an newer version or checkout the [README.md](link_to_backup_readme) from the previous versions. Also you could take a look at the [examples](link) from the previous versions of Crossterm.
+This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more infomation about how to upgrade to an newer version or checkout the [README.md](https://github.com/TimonPost/crossterm/tree/master/docs) from the previous versions. Also you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) wich have examples from the previous versions of Crossterm.
 
 
 Add the Crossterm package to your `Cargo.toml` file.
@@ -63,15 +63,14 @@ version [0.1.0](https://docs.rs/crossterm/0.1.0/crossterm/),
 version [0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
 version [0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
 and [0.2.3](link)
-- Code functionalities Examples: 
-version [0.1.0](link_examples_01), 
-version [0.2.0](link_examples_02), 
-version [0.2.1](link_examples_03) 
-and version [0.2.3](link_examples_04)
+- Code Examples: 
+version [0.1.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.1.0), 
+version [0.2.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.0), 
+version [0.2.1](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.1) 
+and version [0.2.3](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3)
 
 - [Cargo Page](https://crates.io/crates/crossterm)
-- [Examples for specific versions](link_to_specific_version)
-- [Real life examples](example_link)
+- [Real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3/program_examples)
 
 # Features
 These are the fatures from this crate:
@@ -105,7 +104,7 @@ These are the fatures from this crate:
 
 For detailed examples of all Crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) directory.
 
-### Crossterm wrapper | [see more](example_link)
+### Crossterm wrapper | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/crossterm_type/mod.rs)
 This is a wrapper for the modules crossterm provides. This is introduced to mange the [`Context`](link_to_context) for the user.
 ```
 let crossterm = Crossterm::new();
@@ -120,7 +119,7 @@ crossterm.write("some text");
 // print some styled font.
 println!("{}", crossterm.paint("Red font on blue background").with(Color::Red).on(Color::Blue));
 ```
-### Styled font | [see more](example_link)
+### Styled font | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/color/mod.rs)
 This module provides the functionalities to style the terminal cursor.
 ```rust    
 use crossterm::style::{Color};
@@ -161,7 +160,7 @@ println!("{}", crossterm.paint("Reversed color").reverse());
 println!("{}", crossterm.paint("Dim text color").dim());
 println!("{}", crossterm.paint("Crossed out font").crossed_out());
 ```
-### Cursor | [see more](example_link)
+### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/cursor/mod.rs)
 This module provides the functionalities to work with the terminal cursor.
 
 ```rust 
@@ -215,7 +214,7 @@ cursor.blink(true)
 
 ```
 
-### Terminal | [see more](example_link)
+### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/terminal/terminal.rs)
 This module provides the functionalities to work with the terminal in general.
 
 ```rust 
@@ -260,7 +259,7 @@ terminal.write("Some text\n Some text on new line");
 println!("{}", terminal.paint("x").with(Color::Red).on(Color::Blue));
 ```
 
-Check these links: [AlternateScreen](link) and [RawScreen](link) for information about how to work with these features.
+Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.2.3/terminal/raw_mode.rs) for information about how to work with these features.
 
 ## Tested terminals
 
