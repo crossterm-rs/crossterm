@@ -34,6 +34,7 @@ Version `0.2.3` of Crossterm will have API braking changes. If you are reading t
 
 This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](link_to_manual) for more infomation about how to upgrade to an newer version or checkout the [README.md](link_to_backup_readme) from the previous versions. Also you could take a look at the [examples](link) from the previous versions of Crossterm.
 
+
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
@@ -63,6 +64,7 @@ version [0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/),
 version [0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
 and [0.2.3](link)
 
+<<<<<<< HEAD
 - Code functionalities Examples: 
 version [0.1.0](link_examples_01), 
 version [0.2.0](link_examples_02), 
@@ -280,6 +282,7 @@ Crossterm is using ANSI escape codes by default for both unix and windows system
 But for Windows it is a bit more complicater since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
 
 ## Notice 
+<<<<<<< HEAD
 This libary is not stable yet but I expect it ot not to change that mutch anymore. 
 And if there are any changes that affect previous versions I will [describe](link_to_upgrade_manual) what to change when upgrading Crossterm to an newer version.
 
