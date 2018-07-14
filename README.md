@@ -279,9 +279,8 @@ Crossterm is using ANSI escape codes by default for both unix and windows system
 But for Windows it is a bit more complicater since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
 
 ## Notice 
-<<<<<<< HEAD
 This libary is not stable yet but I expect it ot not to change that mutch anymore. 
-And if there are any changes that affect previous versions I will [describe](link_to_upgrade_manual) what to change when upgrading Crossterm to an newer version.
+And if there are any changes that affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change when upgrading Crossterm to an newer version.
 
 ## Todo
 I still have some things in mind to implement. 
