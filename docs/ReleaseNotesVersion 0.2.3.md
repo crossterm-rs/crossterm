@@ -1,11 +1,11 @@
 This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed. 
 I think you should not switch to version `0.2.3` if you aren't going to use the AlternateScreen feature.
-Because you will have some work to get to the new version of crossterm. 
-But if you are starting to use this crate I highly recommend you to switch to the new version `0.2.3`.
+Because you will have some work to get to the new version of crossterm depending on your situation. 
+But if this is the firsttime you are using this crate I highly recommend you to switch to the new version `0.2.3`.
 
 Some Features crossterm 0.2.3
-- Alternate screen for windows and unix systems.
-- Rawscreen for unix and windows systems [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
+- [Alternate screen](LINK) for windows and unix systems.
+- [Raw screen](LINK) for unix and windows systems [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
 - Hiding an showing the cursor.
 - Control over blinking of the terminal cursor (only some terminals are supporting this).
 - The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
@@ -40,8 +40,10 @@ With these modes you can easier design the terminal screen.
 - Restoring the terminal to original modes.
 - Added a [wrapper](linktocrosstermtype) for managing all the functionalities of crossterm `Crossterm`.
 - Exit the current running process
+
 ## Examples
-Added examples for each version of crossterm version. Also added a folder with some real life examples.
+Added [examples](link_to_examples) for each version of the crossterm version. 
+Also added a folder with some [real life examples](link_to_realive_examples).
 
 ## Context
 
@@ -75,7 +77,7 @@ When this `Context` goes out of scope all changes made will be undone.
 Also is this `Context` is a wrapper for access to the current console screen.
 
 Because Crossterm needs access to the above to types quite often I have chosen to add those two in one struct called `Context` so that this type could be shared throughout library. 
-Check this link for more info:  [cleanup of the changes](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library). 
+Check this link for more info: [cleanup of rust codr](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library). 
 More info over writing to alternate screen buffer on windows and unix see this [link](https://github.com/TimonPost/crossterm/issues/17)
 
 __Now the user has to pass an context type to the modules of Crossterm like this:__
@@ -96,7 +98,7 @@ Because this looks a little odd I will provide a type withs will manage the `Con
       
 ### Alternate screen
 When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly. 
-First off some code of how to switch to Alternate screen, for more info check the alternate screen example](link)folder at github
+First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](link).
 
 _Create alternate screen from `Context`_
 
@@ -116,6 +118,6 @@ _Create alternate screen from `Crossterm`:_
         // write to the alternate screen.
         write!(screen,  "test");
          
-To get the functionalities of `cursor(), color(), terminal()` also working on alternate screen.
+like demonstrated above, to get the functionalities of `cursor(), color(), terminal()` also working on alternate screen.
 You need to pass it the same `Context` as you have passed to the previous three called functions,
-If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen.
+If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](link) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
