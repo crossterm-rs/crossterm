@@ -1,3 +1,5 @@
+# Crossterm | crossplatform terminal library written in rust.
+
 [![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/tree/master/docs)
 |----|----|----|----|----|----
 
@@ -10,7 +12,7 @@ You can just call whatever action you want and underwater it will check what to 
 
 This crate supports all unix and windows terminals down to windows XP (not not all terminals are tested see 'Tested Terminals' for more info)
 
-### Table of contents:
+## Table of contents:
 - [Getting started](https://github.com/TimonPost/crossterm#getting-started)
 - [Usefull links](https://github.com/TimonPost/crossterm#useful-links)
 - [Features](https://github.com/TimonPost/crossterm#features)
