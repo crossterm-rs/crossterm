@@ -1,4 +1,4 @@
-## Upgrade crossterm 0.2.1 to 0.2.3
+## Upgrade crossterm 0.2.1 to 0.3.0
 
 ***WARNING*** 
 

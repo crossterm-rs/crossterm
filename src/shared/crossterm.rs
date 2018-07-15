@@ -1,5 +1,5 @@
 //! This module provides easy access to the functionalities of crossterm.
-//! since `crossterm version 0.2.3` an `Context` type is introduced (check that documentation for more info why this type is introduced).
+//! since `crossterm version 0.3.0` an `Context` type is introduced (check that documentation for more info why this type is introduced).
 //!
 //! You have to provide this `Context` to the modules: `cursor::cursor(), color::color(), terminal::terminal()`.
 //!
@@ -39,7 +39,7 @@ use std::convert::From;
 /// You can better use `Crossterm` for accessing these modules.
 /// `Crossterm` handles the Context internally so jo do not have to bother about it, for example:
 ///
-/// Check `/examples/Crossterm 0.2.3/program_examples/first_depth_search` in the library for more specific examples.
+/// Check `/examples/Crossterm 0.3.0/program_examples/first_depth_search` in the library for more specific examples.
 ///
 ///      let crossterm = Crossterm::new();
 ///      let color = crossterm.color();

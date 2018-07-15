@@ -1,10 +1,10 @@
 [package]
 name = "crossterm"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["T Post <timonpost@hotmail.nl>"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/TimonPost/crossterm"
-documentation = "https://docs.rs/crossterm/0.2.0/crossterm/"
+documentation = "https://docs.rs/crossterm/"
 license = "MIT"
 keywords = ["console", "color", "cursor", "terminal", "cli"]
 exclude = ["target", "Cargo.lock"]

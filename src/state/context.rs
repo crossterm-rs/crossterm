@@ -1,4 +1,4 @@
-//! What is the `Context`  all about? This `Context` has several reasons why it is introduced into `crossterm version 0.2.3`.
+//! What is the `Context`  all about? This `Context` has several reasons why it is introduced into `crossterm version 0.3.0`.
 //! These points are related to the features like `Alternatescreen` and managing the terminal state.
 //!
 //! - At first `Terminal state`:
