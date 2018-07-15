@@ -34,7 +34,7 @@ Version `0.3.0` of Crossterm will have API braking changes. If you are reading t
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.3.0` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version or check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which contains a readme for every specific version. Also, you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) which have examples from the previous versions of Crossterm.
+This documentation is only for Crossterm version `0.3.0` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version or check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which contains a readme for every specific version. Also, you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) from the previous versions of Crossterm.
 
 
 Add the Crossterm package to your `Cargo.toml` file.
