@@ -30,11 +30,11 @@ This crate supports all unix and windows terminals down to windows XP (not not a
 - [License](https://github.com/TimonPost/crossterm#license)
 
 ## IMPORTANT When updating to version `0.2.3` 
-Version `0.2.3` of Crossterm will have API braking changes. If you are reading this and you version whas autmaticly incremented to the new version, there will be some broken code. An Quiqe solution? no unless you did not used this crate that much. If it is important to keep running you code and you don't want to spend some time to fix the errors I recomend you to keep using version `0.2.2` because in version `0.2.3` alternate screen and some other features are introduced. And if you are not using any of these feature just downgrade. If however you want to have the newest version you can check the [upgrade manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) on how to upgrade to te new version. Check [release node](https://github.com/TimonPost/crossterm/blob/master/docs/ReleaseNotesVersion%200.2.3.md) why thise Api braking changes where nessairly.
+Version `0.2.3` of Crossterm will have API braking changes. If you are reading this and your version was automatically incremented to the new version, there will be some broken code. A Quiqe solution? no, unless you did not use this crate that much. If it is important to keep running your code and you don't want to spend some time to fix the errors I recommend you to keep using version `0.2.2` because in version `0.2.3` alternate screen and some other features are introduced. And if you are not using any of these features just downgrade. If however, you want to have the newest version you can check the [upgrade manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) on how to upgrade to the new version. Check [release node](https://github.com/TimonPost/crossterm/blob/master/docs/ReleaseNotesVersion%200.2.3.md) why these API breaking changes where necessary.
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you to check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more infomation about how to upgrade to an newer version or checkout the [README.md](https://github.com/TimonPost/crossterm/tree/master/docs) from the previous versions. Also you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) wich have examples from the previous versions of Crossterm.
+This documentation is only for Crossterm version `0.2.3` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version or check the [README.md](https://github.com/TimonPost/crossterm/tree/master/docs) from the previous versions. Also, you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) which have examples from the previous versions of Crossterm.
 
 
 Add the Crossterm package to your `Cargo.toml` file.
@@ -75,11 +75,11 @@ and [0.2.3](https://github.com/TimonPost/crossterm/tree/master/examples/Crosster
 - [Real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.3/program_examples)
 
 # Features
-These are the fatures from this crate:
+These are the features from this crate:
 
 - Cursor.
     - Moving _n_ times Up, Down, Left, Right.
-    - Goto an certain position.
+    - Goto a certain position.
     - Get cursor position
     - Storing the current cursor position and resetting to that stored cursor position later.
     - Hiding an showing the cursor. 
@@ -93,8 +93,8 @@ These are the fatures from this crate:
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (Up, down)
-    - Get size of terminal
-    - Set size of the terminal.
+    - Get the size of the terminal
+    - Set the size of the terminal.
     - Alternate screen
     - Raw screen    
 - Exit the current process.
@@ -273,50 +273,50 @@ Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob
     - Ubuntu 17.10
 - Arch linux Konsole
 
-This crate supports all unix terminals and windows terminals down to windows XP but not all of them have been tested.
-If you have used this library for an terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
+This crate supports all Unix terminals and windows terminals down to Windows XP but not all of them have been tested.
+If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
     
 ## How it works
-Crossterm is using ANSI escape codes by default for both unix and windows systems. 
-But for Windows it is a bit more complicater since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
+Crossterm is using ANSI escape codes by default for both Unix and Windows systems. 
+But for Windows, it is a bit more complicated since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
 
 ## Notice 
-This libary is not stable yet but I expect it ot not to change that mutch anymore. 
-And if there are any changes that affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change when upgrading Crossterm to an newer version.
+This library is not stable yet but I expect it to not to change that much anymore. 
+And if there are any changes that affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change when upgrading Crossterm to a newer version.
 
 ## Todo
 I still have some things in mind to implement. 
 
 - Handling mouse events 
 
-    I want to be able to do something based on the clicks the use has done with is mouse.
+    I want to be able to do something based on the clicks the user has done with its mouse.
 - Handling key events
 
-    I want to be able read key combination inputs. 
+    I want to be able to read key combination inputs. 
 - reading from the console.
 
     I want to be able to read the input of the console.
 - Error handling
 
-    Currently I am not doing that mutch with returend errors. This is bad since I suspect that everyting is working. I want to mange this better. When you build this crate you will see the warnings about not used return values. This is what needs to be improved.
+    Currently, I am not doing that much with returned errors. This is bad since I suspect that everything is working. I want to manage this better. When you build this crate you will see the warnings about not used return values. This is what needs to be improved.
 - Tests
 
-    Also I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
+    Also, I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
 
 ## Contributing
 
 If you would like to contribute to Crossterm, than please design the code as it is now. 
-For example a module like cursor has the following file stucture:
+For example, a module like cursor has the following file structure:
 - mod.rs
 
-  This file contains some trait, in this case `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
+  This file contains some trait, in this case, `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
   
 - cursor.rs
 
-  The end user will call this module to access the cursor functionalities. This module will deside withch implementation to use based on the current platform.
+  The end user will call this module to access the cursor functionalities. This module will decide which implementation to use based on the current platform.
 - winapi_cursor
 
-  This is the cursor trait (located in mod.rs) implementation with winapi.
+  This is the cursor trait (located in mod.rs) implementation with WinApi.
 - ansi_cursor
 
   This is the cursor trait (located in mod.rs) implementation with ANSI escape codes.
@@ -324,11 +324,11 @@ For example a module like cursor has the following file stucture:
 The above structure is the same for the terminal, color, manager modules. 
 
 Why I have chosen for this design:
-- Because you can easaly extend to muliple platforms by implementing the trait int the mod.rs.
-- You keep the functionalites for different platforms speperated in different files. 
-- Also you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that mutch. All the other code could change alot because it has not impact on the user side.
+- Because you can easily extend to multiple platforms by implementing the trait int the mod.rs.
+- You keep the functionalities for different platforms separated in different files. 
+- Also, you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that much. All the other code could change a lot because it has no impact on the user side.
   
-I higly appriciate when you contributing to this crate. Also Since my native language is not Enlishe my grammer and sentence order will not be perfect. So improving this by correcting these mistakes will help both me and the reader of the docs.
+I highly appreciate it when you are contributing to this crate. Also Since my native language is not English my grammar and sentence order will not be perfect. So improving this by correcting these mistakes will help both me and the reader of the docs.
 
 ## Authors
 
