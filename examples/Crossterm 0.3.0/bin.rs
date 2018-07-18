@@ -10,12 +10,15 @@
 //!   ```
 //!   
 //! - Run program with: `cargo run`
-extern crate crossterm;
+//extern crate crossterm;
 
-mod color;
-mod cursor;
-mod terminal;
+// mod terminal;
+// mod color;
+// mod cursor;
+// mod crossterm_type;
 
-fn main() {
-    // some code to try out the examples.
+fn main()
+{
 }
+
+

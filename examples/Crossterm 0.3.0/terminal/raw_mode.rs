@@ -13,9 +13,9 @@ use crossterm::raw::IntoRawMode;
 
 // raw screen is not working correctly currently
 fn print_wait_screen(context: Rc<Context>) {
-    terminal::terminal(context.clone()).clear(ClearType::All);
+    terminal::terminal(&context).clear(ClearType::All);
 
-    let mut cursor = cursor(context.clone());
+    let mut cursor = cursor(&context);
     cursor.goto(0, 0).print("Welcome to the wait screen.");
     cursor
         .goto(0, 1)
@@ -44,7 +44,7 @@ pub fn print_wait_screen_on_alternate_window() {
         // then convert the output of the program to raw mode.
         // then print the wait screen on the alternate screen in raw mode.
         let mut screen = AlternateScreen::from(context.clone());
-        let alternate_screen = screen.into_raw_mode(context.clone());
+        let raw_screen = screen.into_raw_mode(context.clone());
 
         // Print the wait screen.
         print_wait_screen(context.clone());

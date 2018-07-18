@@ -41,23 +41,39 @@ impl ITerminal for WinApiTerminal {
     }
 
     fn scroll_up(&self, count: i16) {
-        // yet to be implemented
+        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
+
+        // Set srctWindow to the current window size and location.
+        let mut srct_window = csbi.srWindow;
+
+
+        // Check whether the window is too close to the screen buffer top
+        if srct_window.Top >= count {
+            srct_window.Top -=  count; // move top down
+            srct_window.Bottom = count; // move bottom down
+
+            let success = kernel::set_console_info(false, &mut srct_window, &self.context.screen_manager);
+            if success {
+                panic!("Something went wrong when scrolling down");
+            }
+        }
     }
 
     fn scroll_down(&self, count: i16) {
-        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
-        let mut srct_window;
 
+        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
         // Set srctWindow to the current window size and location.
-        srct_window = csbi.srWindow;
+        let mut srct_window = csbi.srWindow;
+
+        panic!("window top: {} , window bottom: {} | {}, {}", srct_window.Top, srct_window.Bottom, csbi.dwSize.Y, csbi.dwSize.X);
 
         // Check whether the window is too close to the screen buffer top
         if srct_window.Bottom < csbi.dwSize.Y - count {
             srct_window.Top += count; // move top down
             srct_window.Bottom += count; // move bottom down
 
-            let success =
-                kernel::set_console_info(true, &mut srct_window, &self.context.screen_manager);
+            let success = kernel::set_console_info(false, &mut srct_window, &self.context.screen_manager);
+
             if success {
                 panic!("Something went wrong when scrolling down");
             }

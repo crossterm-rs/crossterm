@@ -54,8 +54,9 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
             use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
         //   Try to enable ansi on windows if not than use WINAPI.
-        does_support = try_enable_ansi_support();
+//        does_support = try_enable_ansi_support();
 
+        does_support = false;
         if !does_support {
             term = Some(winapi_impl);
         }

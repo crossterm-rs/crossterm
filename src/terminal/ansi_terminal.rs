@@ -48,6 +48,7 @@ impl ITerminal for AnsiTerminal {
     fn scroll_up(&self, count: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
+            panic!();
             screen.write_string(format!(csi!("{}S"), count));
         }
     }

@@ -11,10 +11,10 @@ use std::rc::Rc;
 use std::{thread, time};
 
 fn print_wait_screen(context: Rc<Context>) {
-    let mut terminal = terminal::terminal(context.clone());
+    let mut terminal = terminal::terminal(&context);
     terminal.clear(ClearType::All);
 
-    let mut cursor = cursor(context.clone());
+    let mut cursor = cursor(&context);
     cursor.goto(0, 0);
     cursor.hide();
 
@@ -56,7 +56,7 @@ pub fn print_wait_screen_on_alternate_window(context: Rc<Context>) {
 /// some stress test switch from and to alternate screen.
 pub fn switch_between_main_and_alternate_screen() {
     let context = Context::new();
-    let mut cursor = cursor(context.clone());
+    let mut cursor = cursor(&context);
 
     {
         // create new alternate screen instance and switch to the alternate screen.
