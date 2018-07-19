@@ -10,7 +10,10 @@
 //!   ```
 //!   
 //! - Run program with: `cargo run`
-//extern crate crossterm;
+extern crate crossterm;
+
+use crossterm::Context;
+
 
 // mod terminal;
 // mod color;
@@ -19,6 +22,11 @@
 
 fn main()
 {
+    let context = Context::new();
+    let input = ::crossterm::input::input(&context);
+    let line = input.read_line().unwrap();
+
+    println!("input: {}",line);
 }
 
 

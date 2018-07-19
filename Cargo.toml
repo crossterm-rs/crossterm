@@ -22,3 +22,7 @@ termios = "0.3.0"
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
+
+[[bin]]
+ name = "example_bin"
+ path = "./examples/Crossterm 0.3.0/bin.rs"
