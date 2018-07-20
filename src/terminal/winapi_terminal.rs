@@ -5,7 +5,7 @@ use super::super::shared::functions;
 use super::super::ScreenManager;
 use super::{ClearType, ITerminal, Rc};
 use cursor::cursor;
-use kernel::windows_kernel::{kernel, terminal};
+use kernel::windows_kernel::{kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use Context;
 
@@ -276,7 +276,7 @@ fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &Rc<Mutex<S
     let mut cells_written = 0;
     let mut success = false;
 
-    success = kernel::fill_console_output_character(
+    success = writing::fill_console_output_character(
         &mut cells_written,
         start_loaction,
         cells_to_write,
@@ -289,7 +289,7 @@ fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &Rc<Mutex<S
 
     cells_written = 0;
 
-    success = kernel::fill_console_output_attribute(
+    success = writing::fill_console_output_attribute(
         &mut cells_written,
         start_loaction,
         cells_to_write,

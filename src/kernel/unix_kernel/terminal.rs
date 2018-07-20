@@ -8,7 +8,7 @@ use {libc, CommandManager, Context, StateManager};
 
 use std::io::Error;
 use std::rc::Rc;
-use std::{io, mem};
+use std::{io, mem, fs};
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -131,6 +131,13 @@ pub fn get_terminal_mode() -> io::Result<Termios> {
         is_true(tcgetattr(0, &mut termios))?;
         Ok(termios)
     }
+}
+
+/// Get the TTY device.
+///
+/// This allows for getting stdio representing _only_ the TTY, and not other streams.
+pub fn get_tty() -> io::Result<fs::File> {
+    fs::OpenOptions::new().read(true).write(true).open("/dev/tty")
 }
 
 pub fn exit() {

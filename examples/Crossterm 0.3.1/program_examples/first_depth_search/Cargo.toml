@@ -1,0 +1,11 @@
+[package]
+name = "first_depth_search"
+version = "0.1.0"
+authors = ["TimonPost <timonpost@hotmail.nl>"]
+
+[dependencies]
+rand = "0.4.2"
+
+[dependencies.crossterm]
+path = "../../../../"
+branch = "development"

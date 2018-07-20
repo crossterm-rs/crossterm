@@ -15,10 +15,10 @@ impl TerminalInput
     pub fn new(context: Rc<Context>) -> TerminalInput
     {
         #[cfg(target_os = "windows")]
-        let input = Box::from(WindowsInput::new());
+        let input = Box::from(WindowsInput::new(context.clone()));
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = Box::from(UnixInput::new());
+        let input = Box::from(UnixInput::new());
 
         TerminalInput {
             terminal_input: input,
@@ -28,32 +28,27 @@ impl TerminalInput
 
     pub fn read_line(&self) -> io::Result<String>
     {
-        let mut rv = String::new();
-        io::stdin().read_line(&mut rv)?;
-        let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
-        rv.truncate(len);
-        Ok(rv)
+        self.terminal_input.read_line()
     }
 
-    fn read_char(&self) -> io::Result<String>
+    pub fn read_char(&self) -> io::Result<char>
     {
-        // todo: read char
-        Ok(String::new())
+        return self.terminal_input.read_char()
     }
 
-    fn read_key(&self) -> io::Result<()>
+    pub fn read_key(&self) -> io::Result<Key>
     {
-        // todo: read pressed key
-        Ok(())
+        self.terminal_input.read_pressed_key()
     }
 
-    fn read_async(&self)
+    pub fn read_async(&self) -> AsyncReader
     {
+        self.terminal_input.read_async()
         // todo: async reading
     }
 
-    fn read_until(&self, delimiter: u8)
-    {   // todo: read until char
+    pub fn read_until_async(&self, delimiter: u8) -> AsyncReader
+    {   self.terminal_input.read_until_async(delimiter)
     }
 }
 

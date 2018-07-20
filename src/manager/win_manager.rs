@@ -1,5 +1,7 @@
 use super::IScreenManager;
+
 use kernel::windows_kernel::kernel;
+use kernel::windows_kernel::writing;
 use winapi::um::wincon::ENABLE_PROCESSED_OUTPUT;
 use winapi::um::winnt::HANDLE;
 
@@ -30,9 +32,9 @@ impl IScreenManager for WinApiScreenManager {
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self.is_alternate_screen {
-            kernel::write_char_buffer(&self.alternate_handle, buf)
+            writing::write_char_buffer(&self.alternate_handle, buf)
         } else {
-            kernel::write_char_buffer(&self.output, buf)
+            writing::write_char_buffer(&self.output, buf)
         }
     }
 

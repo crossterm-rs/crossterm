@@ -25,4 +25,4 @@ path = "src/lib.rs"
 
 [[bin]]
  name = "example_bin"
- path = "./examples/Crossterm 0.3.0/bin.rs"
+ path = "./examples/Crossterm 0.3.1/bin.rs"
