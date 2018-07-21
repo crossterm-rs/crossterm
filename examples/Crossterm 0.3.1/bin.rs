@@ -23,11 +23,24 @@ mod input;
 
 use input::keyboard::{async_input, input as stdin};
 
+use crossterm::raw::IntoRawMode;
+
 fn main()
 {
-    async_input::read_async();
-//    stdin::read_line();
+    let context = Context::new();
+
+    {
+//        let screen = ::crossterm::screen::AlternateScreen::from(context.clone());
+//        screen.into_raw_mode(context.clone());
+
+
+        async_input::async_reading_on_alternate_screen();
+//        async_input::test();
+//        stdin::t();
+//        stdin::read_line();
+//        stdin::read_char();
 //    stdin::read_char();
+    }
 }
 
 

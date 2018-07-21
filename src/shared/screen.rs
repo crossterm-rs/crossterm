@@ -107,6 +107,7 @@ impl AlternateScreen {
             context: context.clone(),
             command_id: command_id,
         };
+
         screen.to_alternate();
         return screen;
     }
@@ -134,6 +135,7 @@ impl AlternateScreen {
             let mut mx = &state_manager.get(self.command_id);
             {
                 let mut command = mx.lock().unwrap();
+
                 command.execute();
             }
         }

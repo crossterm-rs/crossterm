@@ -27,6 +27,8 @@
 use super::super::cursor;
 use super::super::style;
 use super::super::terminal::terminal;
+use super::super::input::input;
+
 use Context;
 
 use std::fmt::Display;
@@ -124,6 +126,11 @@ impl Crossterm {
     pub fn color(&self) -> style::TerminalColor
     {
         return style::TerminalColor::new(self.context.clone());
+    }
+
+    pub fn input(&self) -> input::TerminalInput
+    {
+        return input::TerminalInput::new(self.context.clone());
     }
 
     /// Wraps an displayable object so it can be formatted with colors and attributes.

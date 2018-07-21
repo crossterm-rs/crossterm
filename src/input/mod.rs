@@ -7,8 +7,9 @@ use self::windows_input::WindowsInput;
 #[cfg(target_os = "windows")]
 mod windows_input;
 
-#[cfg(target_os = "windows")]
+#[cfg(not(target_os = "windows"))]
 use self::unix_input::UnixInput;
+#[cfg(not(target_os = "windows"))]
 mod unix_input;
 
 

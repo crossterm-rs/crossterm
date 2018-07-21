@@ -44,7 +44,6 @@ impl TerminalInput
     pub fn read_async(&self) -> AsyncReader
     {
         self.terminal_input.read_async()
-        // todo: async reading
     }
 
     pub fn read_until_async(&self, delimiter: u8) -> AsyncReader
