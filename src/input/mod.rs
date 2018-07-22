@@ -12,14 +12,12 @@ use self::unix_input::UnixInput;
 #[cfg(not(target_os = "windows"))]
 mod unix_input;
 
-
-pub use self::input::{ input, TerminalInput };
+pub use self::input::{input, TerminalInput};
 
 use std::io::Read;
 use std::sync::mpsc;
 
-trait ITerminalInput
-{
+trait ITerminalInput {
     fn read_line(&self) -> io::Result<String>;
 
     fn read_char(&self) -> io::Result<char>;
@@ -29,9 +27,8 @@ trait ITerminalInput
     fn read_until_async(&self, delimiter: u8) -> AsyncReader;
 }
 
-pub struct AsyncReader
-{
-    recv: mpsc::Receiver<io::Result<u8>>
+pub struct AsyncReader {
+    recv: mpsc::Receiver<io::Result<u8>>,
 }
 
 impl Read for AsyncReader {

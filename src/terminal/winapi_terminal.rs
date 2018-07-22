@@ -5,7 +5,7 @@ use super::super::shared::functions;
 use super::super::ScreenManager;
 use super::{ClearType, ITerminal, Rc};
 use cursor::cursor;
-use kernel::windows_kernel::{kernel, terminal, writing};
+use kernel::windows_kernel::{csbi, kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use Context;
 
@@ -24,7 +24,7 @@ impl WinApiTerminal {
 
 impl ITerminal for WinApiTerminal {
     fn clear(&self, clear_type: ClearType) {
-        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
+        let csbi = csbi::get_csbi(&self.context.screen_manager).unwrap();
         let pos = cursor(&self.context).pos();
 
         match clear_type {
@@ -41,18 +41,18 @@ impl ITerminal for WinApiTerminal {
     }
 
     fn scroll_up(&self, count: i16) {
-        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
+        let csbi = csbi::get_csbi(&self.context.screen_manager).unwrap();
 
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
 
-
         // Check whether the window is too close to the screen buffer top
         if srct_window.Top >= count {
-            srct_window.Top -=  count; // move top down
+            srct_window.Top -= count; // move top down
             srct_window.Bottom = count; // move bottom down
 
-            let success = kernel::set_console_info(false, &mut srct_window, &self.context.screen_manager);
+            let success =
+                kernel::set_console_info(false, &mut srct_window, &self.context.screen_manager);
             if success {
                 panic!("Something went wrong when scrolling down");
             }
@@ -60,20 +60,22 @@ impl ITerminal for WinApiTerminal {
     }
 
     fn scroll_down(&self, count: i16) {
-
-        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
+        let csbi = csbi::get_csbi(&self.context.screen_manager).unwrap();
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
 
-        panic!("window top: {} , window bottom: {} | {}, {}", srct_window.Top, srct_window.Bottom, csbi.dwSize.Y, csbi.dwSize.X);
+        //        panic!("window top: {} , window bottom: {} | {}, {}", srct_window.Top, srct_window.Bottom, csbi.dwSize.Y, csbi.dwSize.X);
+
+        // Set srctWindow to the current window size and location.
+        srct_window = csbi.srWindow;
 
         // Check whether the window is too close to the screen buffer top
         if srct_window.Bottom < csbi.dwSize.Y - count {
             srct_window.Top += count; // move top down
             srct_window.Bottom += count; // move bottom down
 
-            let success = kernel::set_console_info(false, &mut srct_window, &self.context.screen_manager);
-
+            let success =
+                kernel::set_console_info(true, &mut srct_window, &self.context.screen_manager);
             if success {
                 panic!("Something went wrong when scrolling down");
             }
@@ -91,7 +93,7 @@ impl ITerminal for WinApiTerminal {
         }
 
         // Get the position of the current console window
-        let csbi = kernel::get_console_screen_buffer_info(&self.context.screen_manager);
+        let csbi = csbi::get_csbi(&self.context.screen_manager).unwrap();
         let mut success = false;
 
         // If the buffer is smaller than this new window size, resize the
@@ -120,7 +122,7 @@ impl ITerminal for WinApiTerminal {
         }
 
         if resize_buffer {
-            success = kernel::set_console_screen_buffer_size(size, &self.context.screen_manager);
+            success = csbi::set_console_screen_buffer_size(size, &self.context.screen_manager);
 
             if !success {
                 panic!("Something went wrong when setting screen buffer size.");
@@ -137,7 +139,7 @@ impl ITerminal for WinApiTerminal {
         if success {
             // If we resized the buffer, un-resize it.
             if resize_buffer {
-                kernel::set_console_screen_buffer_size(csbi.dwSize, &self.context.screen_manager);
+                csbi::set_console_screen_buffer_size(csbi.dwSize, &self.context.screen_manager);
             }
 
             let bounds = kernel::get_largest_console_window_size();

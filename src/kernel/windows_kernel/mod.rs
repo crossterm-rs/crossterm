@@ -5,7 +5,9 @@ pub mod cursor;
 pub mod kernel;
 pub mod terminal;
 pub mod writing;
-pub mod reading;
+//pub mod reading;
+pub mod csbi;
+pub mod handle;
 
 use self::winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use shared::traits::Empty;

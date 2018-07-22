@@ -6,5 +6,5 @@ pub mod crossterm;
 pub mod functions;
 pub mod traits;
 
-pub mod screen;
 pub mod raw;
+pub mod screen;

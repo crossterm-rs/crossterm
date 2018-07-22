@@ -5,23 +5,20 @@ use self::crossterm::Context;
 use self::crossterm::Crossterm;
 use crossterm::terminal::ClearType;
 
-use std::{thread, time};
 use crossterm::raw::IntoRawMode;
+use std::{thread, time};
 
-use std::io::{Read, Write, stdout};
+use std::io::{stdout, Read, Write};
 use std::time::Duration;
 
-
 /// this will capture the input until the given key.
-pub fn read_async_until()
-{
+pub fn read_async_until() {
     let context = Context::new();
     let input = input(&context);
 
     let mut stdin = input.read_until_async(b'\r').bytes();
 
-    for i in 0..100
-    {
+    for i in 0..100 {
         let a = stdin.next();
 
         println!("pressed key: {:?}", a);
@@ -41,15 +38,13 @@ pub fn read_async_until()
 }
 
 /// this will read pressed characters async until `x` is typed .
-pub fn read_async()
-{
+pub fn read_async() {
     let context = Context::new();
     let input = input(&context);
 
     let mut stdin = input.read_async().bytes();
 
-    for i in 0..100
-    {
+    for i in 0..100 {
         let a = stdin.next();
 
         println!("pressed key: {:?}", a);
@@ -63,8 +58,7 @@ pub fn read_async()
     }
 }
 
-pub fn read_async_demo()
-{
+pub fn read_async_demo() {
     let crossterm = Crossterm::new();
 
     // init some modules we use for this demo
@@ -81,7 +75,6 @@ pub fn read_async_demo()
     // clear terminal and reset the cursor.
     terminal.clear(ClearType::All);
     cursor.goto(1, 1);
-
 
     // loop until the enter key (\r) is pressed.
     loop {
@@ -103,8 +96,7 @@ pub fn read_async_demo()
     }
 }
 
-pub fn async_reading_on_alternate_screen()
-{
+pub fn async_reading_on_alternate_screen() {
     use crossterm::screen::AlternateScreen;
 
     let crossterm = Crossterm::new();
@@ -126,7 +118,7 @@ pub fn async_reading_on_alternate_screen()
     terminal.clear(ClearType::All);
     cursor.goto(1, 1);
 
-//    panic!();
+    //    panic!();
 
     // loop until the enter key (\r) is pressed.
     loop {
@@ -136,7 +128,11 @@ pub fn async_reading_on_alternate_screen()
         // get the next pressed key
         let pressed_key = stdin.next();
 
-        write!(alternate_screen, "\r{:?}    <- Character pressed", pressed_key).unwrap();
+        write!(
+            alternate_screen,
+            "\r{:?}    <- Character pressed",
+            pressed_key
+        ).unwrap();
 
         // check if pressed key is enter (\r)
         if let Some(Ok(b'\r')) = pressed_key {

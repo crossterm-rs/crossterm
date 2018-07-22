@@ -1,8 +1,8 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use super::{ClearType, ITerminal, Rc};
 use super::super::cursor::cursor;
+use super::{ClearType, ITerminal, Rc};
 use shared::functions;
 use Context;
 
@@ -48,7 +48,6 @@ impl ITerminal for AnsiTerminal {
     fn scroll_up(&self, count: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
-            panic!();
             screen.write_string(format!(csi!("{}S"), count));
         }
     }

@@ -1,9 +1,9 @@
+use super::super::super::manager::WinApiScreenManager;
 use super::super::{Color, ColorType};
 use super::ITerminalColor;
-use kernel::windows_kernel::kernel;
+use kernel::windows_kernel::{csbi, kernel};
 use winapi::um::wincon;
 use ScreenManager;
-use super::super::super::manager::WinApiScreenManager;
 
 use std::rc::Rc;
 use std::sync::Mutex;
@@ -25,7 +25,7 @@ impl ITerminalColor for WinApiColor {
     fn set_fg(&self, fg_color: Color) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
-        let csbi = kernel::get_console_screen_buffer_info(&self.screen_manager);
+        let csbi = csbi::get_csbi(&self.screen_manager).unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So we need to use bitwise operators to check if the values exists or to get current console colors.
@@ -46,7 +46,7 @@ impl ITerminalColor for WinApiColor {
     fn set_bg(&self, bg_color: Color) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let (csbi,handle) = kernel::get_buffer_info_and_hande(&self.screen_manager);
+        let (csbi, handle) = csbi::get_csbi_and_handle(&self.screen_manager).unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.

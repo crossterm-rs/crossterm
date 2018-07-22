@@ -82,7 +82,7 @@ impl Terminal {
     ///
     /// ```
     pub fn terminal_size(&self) -> (u16, u16) {
-            return self.terminal.terminal_size();
+        return self.terminal.terminal_size();
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -176,7 +176,9 @@ impl Terminal {
     /// }
     ///
     /// ```
-    pub fn paint<D>(&self, val: D) -> style::StyledObject<D> where D: fmt::Display
+    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
+    where
+        D: fmt::Display,
     {
         style::ObjectStyle::new().apply_to(val, self.context.clone())
     }

@@ -8,8 +8,8 @@
 //! so that the cursor related actions can be preformed on both unix and windows systems.
 //!
 
-pub mod cursor;
 mod ansi_cursor;
+pub mod cursor;
 #[cfg(target_os = "windows")]
 mod winapi_cursor;
 

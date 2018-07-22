@@ -2,7 +2,7 @@
 
 use Context;
 
-use std::fmt::{self,Display};
+use std::fmt::{self, Display};
 use std::io::Write;
 use std::rc::Rc;
 
@@ -21,7 +21,7 @@ pub struct StyledObject<D: Display> {
     pub context: Rc<Context>,
 }
 
-impl<D: Display> StyledObject<D>{
+impl<D: Display> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// #Example
@@ -146,10 +146,8 @@ impl<D: Display> StyledObject<D>{
     }
 }
 
-impl <D:Display> Display for StyledObject<D>
-{
+impl<D: Display> Display for StyledObject<D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-
         let mut colored_terminal = super::super::color(&self.context);
         let mut reset = true;
 
@@ -164,7 +162,7 @@ impl <D:Display> Display for StyledObject<D>
         }
 
         #[cfg(unix)]
-            for attr in self.object_style.attrs.iter() {
+        for attr in self.object_style.attrs.iter() {
             let mutex = &self.context.screen_manager;
             {
                 let mut screen = mutex.lock().unwrap();

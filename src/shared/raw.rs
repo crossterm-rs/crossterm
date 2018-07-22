@@ -29,6 +29,25 @@ pub struct RawTerminal {
     command_id: u16,
 }
 
+impl RawTerminal {
+    pub fn new(context: &Rc<Context>) -> RawTerminal {
+        let command_id = EnableRawModeCommand::new(&context.state_manager);
+
+        RawTerminal {
+            context: context.clone(),
+            command_id: command_id,
+        }
+    }
+
+    pub fn enable(&self) -> bool {
+        CommandManager::execute(self.context.clone(), self.command_id)
+    }
+
+    pub fn disable(&self) -> bool {
+        CommandManager::undo(self.context.clone(), self.command_id)
+    }
+}
+
 /// Trait withs contains a method for switching into raw mode.
 pub trait IntoRawMode: Write + Sized {
     fn into_raw_mode(&self, context: Rc<Context>) -> io::Result<RawTerminal>;

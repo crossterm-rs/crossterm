@@ -45,8 +45,7 @@ impl ScreenManager {
     }
 
     /// Write an ANSI code as &str
-    pub fn write_str(&mut self, string: &str) -> io::Result<usize>
-    {
+    pub fn write_str(&mut self, string: &str) -> io::Result<usize> {
         self.screen_manager.write_str(string)
     }
 

@@ -87,9 +87,9 @@ use shared::functions;
 use state::commands::*;
 use Context;
 
+use std::convert::From;
 use std::io::{self, Write};
 use std::rc::Rc;
-use std::convert::From;
 
 pub struct AlternateScreen {
     context: Rc<Context>,
@@ -167,8 +167,7 @@ impl Drop for AlternateScreen {
 
 use super::super::shared::crossterm::Crossterm;
 
-impl From<Crossterm> for AlternateScreen
-{
+impl From<Crossterm> for AlternateScreen {
     fn from(crossterm: Crossterm) -> Self {
         let command_id = get_to_alternate_screen_command(crossterm.context());
 

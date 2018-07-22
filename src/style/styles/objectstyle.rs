@@ -32,8 +32,7 @@ impl Default for ObjectStyle {
 
 impl ObjectStyle {
     /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<D: Display>(&self, val: D, context: Rc<Context>) -> StyledObject<D>
-    {
+    pub fn apply_to<D: Display>(&self, val: D, context: Rc<Context>) -> StyledObject<D> {
         StyledObject {
             object_style: self.clone(),
             context: context,

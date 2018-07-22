@@ -9,15 +9,15 @@ mod kernel;
 mod state;
 
 pub mod cursor;
+pub mod input;
 pub mod manager;
 pub mod style;
 pub mod terminal;
-pub mod input;
 
-pub use state::context::Context;
 pub use shared::crossterm::Crossterm;
-pub use shared::screen;
 pub use shared::raw;
+pub use shared::screen;
+pub use state::context::Context;
 
 use manager::ScreenManager;
 use state::command_manager::CommandManager;

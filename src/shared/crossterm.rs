@@ -22,20 +22,18 @@
 //!      let cursor = crossterm.cursor();
 //!      let terminal = crossterm.terminal();
 
-
-
 use super::super::cursor;
+use super::super::input::input;
 use super::super::style;
 use super::super::terminal::terminal;
-use super::super::input::input;
 
 use Context;
 
+use std::convert::From;
 use std::fmt::Display;
 use std::mem;
 use std::rc::Rc;
 use std::sync::Arc;
-use std::convert::From;
 
 /// Because it can seem a little odd to constantly create an `Context` and provide it to modules like: `cursor, color and terminal`.
 /// You can better use `Crossterm` for accessing these modules.
@@ -48,22 +46,21 @@ use std::convert::From;
 ///      let cursor = crossterm.cursor();
 ///      let terminal = crossterm.terminal();
 pub struct Crossterm {
-    context: Rc<Context>
+    context: Rc<Context>,
 }
 
 /// Create `Crossterm` instance from `Context`
-impl From<Rc<Context>> for Crossterm
-{
+impl From<Rc<Context>> for Crossterm {
     fn from(context: Rc<Context>) -> Self {
-        return Crossterm {
-            context: context
-        }
+        return Crossterm { context: context };
     }
 }
 
 impl Crossterm {
     pub fn new() -> Crossterm {
-        return Crossterm { context: Context::new() };
+        return Crossterm {
+            context: Context::new(),
+        };
     }
 
     /// Get an Terminal implementation whereon terminal related actions can be performed.
@@ -80,8 +77,7 @@ impl Crossterm {
     /// let mut terminal = crossterm.terminal();
     ///
     /// ```
-    pub fn terminal(&self) -> terminal::Terminal
-    {
+    pub fn terminal(&self) -> terminal::Terminal {
         return terminal::Terminal::new(self.context.clone());
     }
 
@@ -102,9 +98,8 @@ impl Crossterm {
     /// cursor.goto(5,10);
     ///
     /// ```
-    pub fn cursor(&self) -> cursor::TerminalCursor
-    {
-        return cursor::TerminalCursor::new(self.context.clone())
+    pub fn cursor(&self) -> cursor::TerminalCursor {
+        return cursor::TerminalCursor::new(self.context.clone());
     }
 
     /// Get an Color implementation whereon color related actions can be performed.
@@ -123,13 +118,11 @@ impl Crossterm {
     /// let mut terminal_color = crossterm.color();
     ///
     /// ```
-    pub fn color(&self) -> style::TerminalColor
-    {
+    pub fn color(&self) -> style::TerminalColor {
         return style::TerminalColor::new(self.context.clone());
     }
 
-    pub fn input(&self) -> input::TerminalInput
-    {
+    pub fn input(&self) -> input::TerminalInput {
         return input::TerminalInput::new(self.context.clone());
     }
 
@@ -179,8 +172,7 @@ impl Crossterm {
     /// crossterm.write("Some text \n Some text on new line.");
     ///
     /// ```
-    pub fn write<D: Display>(&self, value: D)
-    {
+    pub fn write<D: Display>(&self, value: D) {
         self.terminal().write(value)
     }
 

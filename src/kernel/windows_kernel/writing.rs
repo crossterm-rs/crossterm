@@ -1,14 +1,19 @@
-use { Context, ScreenManager };
-use std::rc::Rc;
-use std::sync::Mutex;
-
-use winapi::um::wincon;
-use winapi::um::winnt::HANDLE;
-use winapi::um::consoleapi::WriteConsoleW;
-use winapi::um::wincon::{WriteConsoleOutputA, PSMALL_RECT, FillConsoleOutputAttribute, FillConsoleOutputCharacterA, COORD, CHAR_INFO};
+use winapi::ctypes::c_void;
 use winapi::shared::ntdef::NULL;
+use winapi::um::consoleapi::WriteConsoleW;
+use winapi::um::wincon::{
+    self, FillConsoleOutputAttribute, FillConsoleOutputCharacterA, WriteConsoleOutputA, CHAR_INFO,
+    COORD, PSMALL_RECT,
+};
+use winapi::um::winnt::HANDLE;
 
-use super::kernel;
+use super::{csbi, handle, kernel};
+use {Context, ScreenManager};
+
+use std::io::{self, ErrorKind, Result};
+use std::rc::Rc;
+use std::str;
+use std::sync::Mutex;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(
@@ -17,8 +22,7 @@ pub fn fill_console_output_character(
     cells_to_write: u32,
     screen_manager: &Rc<Mutex<ScreenManager>>,
 ) -> bool {
-
-    let handle = kernel::get_current_handle(screen_manager);
+    let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {
         // fill the cells in console with blanks
@@ -42,7 +46,7 @@ pub fn fill_console_output_attribute(
 ) -> bool {
     // Get the position of the current console window
 
-    let (csbi, mut handle) = kernel::get_buffer_info_and_hande(screen_manager);
+    let (csbi, mut handle) = csbi::get_csbi_and_handle(screen_manager).unwrap();
 
     let success;
 
@@ -66,9 +70,7 @@ pub fn write_console_output(
     buffer_size: COORD,
     buffer_coord: COORD,
     source_buffer: PSMALL_RECT,
-) {
-    use self::wincon::WriteConsoleOutputA;
-
+) -> Result<()> {
     unsafe {
         if !kernel::is_true(
             WriteConsoleOutputA(
@@ -79,27 +81,34 @@ pub fn write_console_output(
                 source_buffer,
             ), // screen buffer source rectangle
         ) {
-            panic!("Cannot write to console output");
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Could not write to terminal",
+            ));
         }
     }
-}
 
-use winapi::ctypes::c_void;
-use std::str;
+    Ok(())
+}
 
 /// Write utf8 buffer to console.
 pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize> {
     // get string from u8[] and parse it to an c_str
     let mut utf8 = match str::from_utf8(buf) {
         Ok(string) => string,
-        Err(_) => "123",
+        Err(_) => {
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Could not parse input to utf8 string.",
+            ))
+        }
     };
 
     let utf16: Vec<u16> = utf8.encode_utf16().collect();
     let utf16_ptr: *const c_void = utf16.as_ptr() as *const _ as *const c_void;
 
     // get buffer info
-    let csbi = kernel::get_console_screen_buffer_info_from_handle(handle);
+    let csbi = csbi::get_csbi_by_handle(handle)?;
 
     // get current position
     let current_pos = COORD {
@@ -108,7 +117,6 @@ pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize
     };
 
     let mut cells_written: u32 = 0;
-
     let mut success = false;
     // write to console
     unsafe {
@@ -121,10 +129,9 @@ pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize
         ));
     }
 
-    match success
-        {
-            // think this is wrong could be done better!
-            true => Ok(utf8.as_bytes().len()),
-            false => Ok(0)
-        }
+    match success {
+        // think this is wrong could be done better!
+        true => Ok(utf8.as_bytes().len()),
+        false => Ok(0),
+    }
 }

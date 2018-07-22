@@ -3,14 +3,14 @@
 use std::sync::{Once, ONCE_INIT};
 use IStateCommand;
 
-static mut HAS_BEEN_TRYED_TO_ENABLE: bool = false;
+static mut HAS_BEEN_TRIED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
-static START: Once = ONCE_INIT;
+static ENABLE_ANSI: Once = ONCE_INIT;
 
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool {
-    START.call_once(|| {
+    ENABLE_ANSI.call_once(|| {
         use state::commands::win_commands::EnableAnsiCommand;
         let mut command = EnableAnsiCommand::new();
         let success = command.execute();
@@ -35,7 +35,7 @@ pub fn windows_supportable() -> bool {
 /// Get whether ansi has been tried to enable before.
 pub fn has_been_tried_to_enable_ansi() -> bool {
     unsafe {
-        return HAS_BEEN_TRYED_TO_ENABLE;
+        return HAS_BEEN_TRIED_TO_ENABLE;
     }
 }
 
@@ -56,6 +56,6 @@ fn set_is_windows_ansi_supportable(is_enabled: bool) {
 /// Set the has_been_tried_to_enable property. So we can determine whether ansi has been tried to enable before.
 fn has_been_tried_to_enable(has_been_tried: bool) {
     unsafe {
-        HAS_BEEN_TRYED_TO_ENABLE = has_been_tried;
+        HAS_BEEN_TRIED_TO_ENABLE = has_been_tried;
     }
 }

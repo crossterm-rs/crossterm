@@ -5,11 +5,11 @@ use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
 use state::commands::{IStateCommand, NoncanonicalModeCommand};
 use {libc, CommandManager, Context, StateManager};
 
-use termios::{ Termios,cfmakeraw,tcsetattr,TCSADRAIN };
 use std::io::Error;
-use std::rc::Rc;
-use std::{io, mem, fs};
 use std::os::unix::io::AsRawFd;
+use std::rc::Rc;
+use std::{fs, io, mem};
+use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -138,28 +138,26 @@ pub fn get_terminal_mode() -> io::Result<Termios> {
 ///
 /// This allows for getting stdio representing _only_ the TTY, and not other streams.
 pub fn get_tty() -> io::Result<fs::File> {
-    fs::OpenOptions::new().read(true).write(true).open("/dev/tty")
+    fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open("/dev/tty")
 }
 
-
-pub fn read_char() -> io::Result<char>
-{
+pub fn read_char() -> io::Result<char> {
     let mut buf = [0u8; 20];
 
     // get tty raw handle.
     let tty_f;
 
-    let fd = unsafe
-        {
-            if libc::isatty(libc::STDIN_FILENO) == 1
-                {
-                    libc::STDIN_FILENO
-                } else {
-                tty_f = fs::File::open("/dev/tty")?;
-                tty_f.as_raw_fd()
-            }
-        };
-
+    let fd = unsafe {
+        if libc::isatty(libc::STDIN_FILENO) == 1 {
+            libc::STDIN_FILENO
+        } else {
+            tty_f = fs::File::open("/dev/tty")?;
+            tty_f.as_raw_fd()
+        }
+    };
 
     let mut termios = Termios::from_fd(fd)?;
     let original = termios.clone();
@@ -174,31 +172,36 @@ pub fn read_char() -> io::Result<char>
         if read < 0 {
             Err(io::Error::last_os_error())
         } else if buf[0] == b'\x03' {
-            Err(io::Error::new(io::ErrorKind::Interrupted, "read interrupted"))
+            Err(io::Error::new(
+                io::ErrorKind::Interrupted,
+                "read interrupted",
+            ))
         } else {
             let mut pressed_char = Ok(' ');
 
-            if let Ok(s) = ::std::str::from_utf8(&buf[..read as usize])
-                {
-                    if let Some(c) = s.chars().next()
-                        {
-                            pressed_char = Ok(c);
-                        }
-                }else {
-                pressed_char = Err(io::Error::new(io::ErrorKind::Interrupted, "Could not parse char to utf8 char"));
+            if let Ok(s) = ::std::str::from_utf8(&buf[..read as usize]) {
+                if let Some(c) = s.chars().next() {
+                    pressed_char = Ok(c);
+                }
+            } else {
+                pressed_char = Err(io::Error::new(
+                    io::ErrorKind::Interrupted,
+                    "Could not parse char to utf8 char",
+                ));
             }
 
             pressed_char
         }
     };
 
-
     tcsetattr(fd, TCSADRAIN, &original)?;
 
     // if the user hit ^C we want to signal SIGINT to outselves.
     if let Err(ref err) = rv {
         if err.kind() == io::ErrorKind::Interrupted {
-            unsafe { libc::raise(libc::SIGINT); }
+            unsafe {
+                libc::raise(libc::SIGINT);
+            }
         }
     }
 

@@ -335,7 +335,7 @@ impl TerminalCursor {
     ///
     /// ```
     pub fn blink(&self, blink: bool) {
-            self.terminal_cursor.blink(blink);
+        self.terminal_cursor.blink(blink);
     }
 }
 

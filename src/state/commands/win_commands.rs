@@ -3,7 +3,7 @@
 use super::IStateCommand;
 use {Context, StateManager};
 
-use kernel::windows_kernel::{ansi_support, kernel};
+use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
 use std::mem;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
@@ -34,7 +34,7 @@ impl IStateCommand for EnableAnsiCommand {
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
             return ansi_support::windows_supportable();
         } else {
-            let output_handle = kernel::get_output_handle();
+            let output_handle = handle::get_output_handle().unwrap();
 
             let mut dw_mode: DWORD = 0;
             if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
@@ -51,7 +51,7 @@ impl IStateCommand for EnableAnsiCommand {
 
     fn undo(&mut self) -> bool {
         if ansi_support::ansi_enabled() {
-            let output_handle = kernel::get_output_handle();
+            let output_handle = handle::get_output_handle().unwrap();
 
             let mut dw_mode: DWORD = 0;
             if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
@@ -96,7 +96,7 @@ impl EnableRawModeCommand {
 
 impl IStateCommand for EnableRawModeCommand {
     fn execute(&mut self) -> bool {
-        let input_handle = kernel::get_input_handle();
+        let input_handle = handle::get_input_handle().unwrap();
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&input_handle, &mut dw_mode) {
@@ -113,7 +113,7 @@ impl IStateCommand for EnableRawModeCommand {
     }
 
     fn undo(&mut self) -> bool {
-        let output_handle = kernel::get_output_handle();
+        let output_handle = handle::get_output_handle().unwrap();
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
@@ -155,13 +155,13 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
     fn execute(&mut self) -> bool {
         use super::super::super::manager::WinApiScreenManager;
 
-        let handle = kernel::get_output_handle();
+        let handle = handle::get_output_handle().unwrap();
 
         // create a new screen buffer to copy to.
-        let new_handle = kernel::create_console_screen_buffer();
+        let new_handle = csbi::create_console_screen_buffer();
 
         // Make the new screen buffer the active screen buffer.
-        kernel::set_active_screen_buffer(new_handle);
+        csbi::set_active_screen_buffer(new_handle);
 
         let mut screen_manager = self.context.screen_manager.lock().unwrap();
         screen_manager.toggle_is_alternate_screen(true);
@@ -180,8 +180,8 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
     }
 
     fn undo(&mut self) -> bool {
-        let handle = kernel::get_output_handle();
-        kernel::set_active_screen_buffer(handle);
+        let handle = handle::get_output_handle().unwrap();
+        csbi::set_active_screen_buffer(handle);
 
         {
             let mut screen_manager = self.context.screen_manager.lock().unwrap();

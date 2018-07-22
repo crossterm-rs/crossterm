@@ -48,16 +48,16 @@
 
 use {ScreenManager, StateManager};
 
+use std::marker::Sync;
 use std::rc::Rc;
 use std::sync::Mutex;
-use std::marker::Sync;
 /// This type is the context of the current terminal. The context is a wrapper for states changes of the terminal and can be used for managing the output of the terminal.
 pub struct Context {
     pub screen_manager: Rc<Mutex<ScreenManager>>,
     pub state_manager: Mutex<StateManager>,
 }
 
-impl Context{
+impl Context {
     /// Create new Context instance so that you can provide it to other modules like terminal, cursor and color
     ///
     /// This context type is just an wrapper that crossterm uses for managing the state the terminal.

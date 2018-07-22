@@ -22,7 +22,7 @@ impl WinApiCursor {
 
 impl ITerminalCursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16) {
-        kernel::set_console_cursor_position(x as i16, y as i16, &self.screen_manager);
+        cursor::set_console_cursor_position(x as i16, y as i16, &self.screen_manager);
     }
 
     fn pos(&self) -> (u16, u16) {
@@ -58,11 +58,11 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn hide(&self) {
-        kernel::cursor_visibility(false, &self.screen_manager);
+        cursor::cursor_visibility(false, &self.screen_manager);
     }
 
     fn show(&self) {
-        kernel::cursor_visibility(true, &self.screen_manager);
+        cursor::cursor_visibility(true, &self.screen_manager);
     }
 
     fn blink(&self, blink: bool) {}

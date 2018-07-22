@@ -9,9 +9,8 @@ use std::rc::Rc;
 use std::sync::Mutex;
 
 /// This struct is an ansi implementation for color related actions.
-pub struct AnsiColor
-{
-    screen_manager: Rc<Mutex<ScreenManager>>
+pub struct AnsiColor {
+    screen_manager: Rc<Mutex<ScreenManager>>,
 }
 
 impl AnsiColor {
@@ -21,7 +20,7 @@ impl AnsiColor {
 }
 
 impl ITerminalColor for AnsiColor {
-    fn set_fg(&self, fg_color: Color ) {
+    fn set_fg(&self, fg_color: Color) {
         let mx_guard = &self.screen_manager;
         let mut screen = mx_guard.lock().unwrap();
 
