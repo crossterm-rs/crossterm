@@ -29,6 +29,11 @@ impl ITerminalCursor for WinApiCursor {
         cursor::pos(&self.screen_manager)
     }
 
+    fn absolute_pos(&self) -> (u16, u16)
+    {
+        cursor::absolute_cursor_pos(&self.screen_manager)
+    }
+
     fn move_up(&self, count: u16) {
         let (xpos, ypos) = self.pos();
         self.goto(xpos, ypos - count);

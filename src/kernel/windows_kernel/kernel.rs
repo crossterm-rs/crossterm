@@ -1,31 +1,19 @@
 //! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
 //! I am planing to refactor this a little since a lot of code could be handled safer.
 
-use std::rc::Rc;
-use Context;
-
-use winapi::shared::minwindef::{FALSE, TRUE};
-use winapi::shared::ntdef::NULL;
-use winapi::um::consoleapi::WriteConsoleW;
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
-
-use winapi::um::wincon;
-use winapi::um::wincon::{
-    CreateConsoleScreenBuffer, FillConsoleOutputAttribute, FillConsoleOutputCharacterA,
-    GetConsoleScreenBufferInfo, GetLargestConsoleWindowSize, SetConsoleActiveScreenBuffer,
-    SetConsoleCursorInfo, SetConsoleCursorPosition, SetConsoleScreenBufferSize,
-    SetConsoleTextAttribute, SetConsoleWindowInfo, WriteConsoleOutputAttribute,
-    WriteConsoleOutputCharacterA, WriteConsoleOutputCharacterW, WriteConsoleOutputW, CHAR_INFO,
-    CONSOLE_CURSOR_INFO, CONSOLE_SCREEN_BUFFER_INFO, COORD, ENABLE_PROCESSED_INPUT, PSMALL_RECT,
-    SMALL_RECT,
-};
 use winapi::um::winnt::HANDLE;
+use winapi::um::wincon::{
+    SetConsoleTextAttribute, SetConsoleWindowInfo, GetLargestConsoleWindowSize,
+    COORD, SMALL_RECT
+};
 
 use super::{handle, Empty};
+use super::super::super::manager::ScreenManager;
 
-use super::super::super::manager::{ScreenManager, WinApiScreenManager};
 use std::io::{ErrorKind, Result};
 use std::sync::Mutex;
+use std::rc::Rc;
 
 /// Get the largest console window size possible.
 pub fn get_largest_console_window_size() -> COORD {

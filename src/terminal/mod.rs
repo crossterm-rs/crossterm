@@ -42,6 +42,10 @@ pub trait ITerminal {
     fn clear(&self, clear_type: ClearType);
     /// Get the terminal size (x,y)
     fn terminal_size(&self) -> (u16, u16);
+
+    // get the size of the current buffer
+    fn buffer_size(&self) -> (u16, u16);
+
     /// Scroll `n` lines up in the current terminal.
     fn scroll_up(&self, count: i16);
     /// Scroll `n` lines down in the current terminal.

@@ -85,7 +85,7 @@
 
 use shared::functions;
 use state::commands::*;
-use Context;
+use {CommandManager, Context};
 
 use std::convert::From;
 use std::io::{self, Write};
@@ -109,36 +109,29 @@ impl AlternateScreen {
         };
 
         screen.to_alternate();
+
         return screen;
     }
 
     /// Change the current screen to the mainscreen.
     pub fn to_main(&self) {
-        let mut mutex = &self.context.state_manager;
         {
-            let mut state_manager = mutex.lock().unwrap();
-
-            let mut mx = &state_manager.get(self.command_id);
-            {
-                let mut command = mx.lock().unwrap();
-                command.undo();
-            }
+            let mutex = &self.context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
+            screen.set_is_alternate_screen(false);
         }
+
+        CommandManager::undo(self.context.clone(), self.command_id);
     }
 
     /// Change the current screen to alternate screen.
     pub fn to_alternate(&self) {
-        let mut mutex = &self.context.state_manager;
         {
-            let mut state_manager = mutex.lock().unwrap();
-
-            let mut mx = &state_manager.get(self.command_id);
-            {
-                let mut command = mx.lock().unwrap();
-
-                command.execute();
-            }
+            let mutex = &self.context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
+            screen.set_is_alternate_screen(true);
         }
+        CommandManager::execute(self.context.clone(), self.command_id);
     }
 }
 

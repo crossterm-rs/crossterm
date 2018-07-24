@@ -8,14 +8,27 @@ use std::io::{self, Read, Write};
 use super::IScreenManager;
 
 pub struct AnsiScreenManager {
-    pub is_alternate_screen: bool,
+    is_alternate_screen: bool,
+    is_raw_screen: bool,
     output: Box<Write>,
     input: Box<Read>,
 }
 
 impl IScreenManager for AnsiScreenManager {
-    fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool) {
-        self.is_alternate_screen = is_alternate_screen;
+    fn set_is_raw_screen(&mut self, value: bool) {
+       self.is_raw_screen = value;
+    }
+
+    fn set_is_alternate_screen(&mut self, value: bool) {
+        self.is_alternate_screen = value;
+    }
+
+    fn is_raw_screen(&self) -> bool {
+        self.is_raw_screen
+    }
+
+    fn is_alternate_screen(&self) -> bool {
+        self.is_alternate_screen
     }
 
     fn write_string(&mut self, string: String) -> io::Result<usize> {
@@ -63,6 +76,7 @@ impl AnsiScreenManager {
             input: (Box::from(io::stdin()) as Box<Read>),
             output: (Box::from(io::stdout()) as Box<Write>),
             is_alternate_screen: false,
+            is_raw_screen: false,
         }
     }
 }

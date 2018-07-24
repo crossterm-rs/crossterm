@@ -33,7 +33,15 @@ impl ITerminalInput for WindowsInput {
         let mut chars: Vec<char> = Vec::new();
 
         loop {
-            let pressed_char = unsafe { _getwch() };
+            let mut is_raw_screen = false;
+            {
+                let mutex = &self.context.screen_manager;
+                let screen = mutex.lock().unwrap();
+                is_raw_screen = screen.is_raw_screen();
+            }
+
+            // _getwch is without echo and _getwche is with echo
+            let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
 
             // if 0 or 0xe0 we need to listen again because the next key will be an special key
             if pressed_char != 0 || pressed_char != 0xe0 {
@@ -45,9 +53,7 @@ impl ITerminalInput for WindowsInput {
                             chars.push(c);
                         }
 
-                        if self.display_input {
-                            term.write(c);
-                        }
+
                     }
                     None => panic!("Some error needs to be returned"),
                 };
@@ -60,7 +66,15 @@ impl ITerminalInput for WindowsInput {
     fn read_char(&self) -> io::Result<char> {
         let term = terminal(&self.context);
 
-        let pressed_char = unsafe { _getwch() };
+        let mut is_raw_screen = false;
+        {
+            let mutex = &self.context.screen_manager;
+            let screen = mutex.lock().unwrap();
+            is_raw_screen = screen.is_raw_screen();
+        }
+
+        // _getwch is without echo and _getwche is with echo
+        let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
 
         // we could return error but maybe option to keep listening until valid character is inputted.
         if pressed_char == 0 || pressed_char == 0xe0 {
@@ -111,9 +125,19 @@ impl ITerminalInput for WindowsInput {
     fn read_async(&self) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
+        let mut is_raw_screen = false;
+
+        {
+            let mutex = &self.context.screen_manager;
+            let screen = mutex.lock().unwrap();
+            is_raw_screen = screen.is_raw_screen();
+        }
+//        panic!("is raw screen: {} ", is_raw_screen);
         thread::spawn(move || {
             loop {
-                let pressed_char: u8 = (unsafe { _getwch() }) as u8;
+
+                // _getwch is without echo and _getwche is with echo
+                let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
 
                 // we could return error but maybe option to keep listening until valid character is inputted.
                 if pressed_char == 0 || pressed_char == 0xe0 {
@@ -134,9 +158,17 @@ impl ITerminalInput for WindowsInput {
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
+        let mut is_raw_screen = false;
+        {
+            let mutex =&self.context.screen_manager;
+            let screen = mutex.lock().unwrap();
+            is_raw_screen = screen.is_raw_screen();
+        }
+
         thread::spawn(move || {
             loop {
-                let pressed_char: u8 = (unsafe { _getwch() }) as u8;
+                // _getwch is without echo and _getwche is with echo
+                let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } } as u8;
 
                 let end_of_stream = (pressed_char == delimiter);
 
@@ -152,6 +184,7 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 }
+
 
 fn is_line_end(key: char) -> bool {
     if key as u8 == 13 {
@@ -212,6 +245,6 @@ fn key_from_key_code(code: INT) -> Key {
 }
 
 extern "C" {
+    fn _getwche() -> INT;
     fn _getwch() -> INT;
-    fn _getwch_nolock() -> INT;
 }

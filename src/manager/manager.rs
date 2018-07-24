@@ -33,10 +33,22 @@ impl ScreenManager {
         }
     }
 
+    pub fn set_is_raw_screen(&mut self, value: bool) {
+        self.screen_manager.set_is_raw_screen(value);
+    }
+
     /// Toggle a boolean to whether alternate screen is on or of.
-    pub fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool) {
-        self.screen_manager
-            .toggle_is_alternate_screen(is_alternate_screen);
+    pub fn set_is_alternate_screen(&mut self, value: bool) {
+        self.screen_manager.set_is_alternate_screen(value);
+    }
+
+    pub fn is_raw_screen(&self) -> bool {
+        self.screen_manager.is_raw_screen()
+    }
+
+    /// Toggle a boolean to whether alternate screen is on or of.
+    pub fn is_alternate_screen(&self) -> bool {
+        self.screen_manager.is_alternate_screen()
     }
 
     /// Write an ANSI code as String.

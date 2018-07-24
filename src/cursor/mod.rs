@@ -34,6 +34,9 @@ pub trait ITerminalCursor {
     fn goto(&self, x: u16, y: u16);
     /// Get the location (x,y) of the current cusror in the context
     fn pos(&self) -> (u16, u16);
+
+    fn absolute_pos(&self) -> (u16, u16);
+
     /// Move cursor n times up
     fn move_up(&self, count: u16);
     /// Move the cursor `n` times to the right.

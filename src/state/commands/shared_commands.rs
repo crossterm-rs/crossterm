@@ -41,7 +41,6 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_str(csi!("?1049h"));
-            screen.toggle_is_alternate_screen(true);
             return true;
         }
     }
@@ -50,7 +49,6 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {
             screen.write_str(csi!("?1049l"));
-            screen.toggle_is_alternate_screen(false);
             return true;
         }
     }

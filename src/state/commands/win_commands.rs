@@ -163,19 +163,20 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle);
 
-        let mut screen_manager = self.context.screen_manager.lock().unwrap();
-        screen_manager.toggle_is_alternate_screen(true);
-
-        let b: &mut WinApiScreenManager = match screen_manager
-            .as_any()
-            .downcast_mut::<WinApiScreenManager>()
         {
-            Some(b) => b,
-            None => panic!(""),
-        };
+            let mutex = &self.context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
 
-        b.set_alternate_handle(new_handle);
+            let b: &mut WinApiScreenManager = match screen
+                .as_any()
+                .downcast_mut::<WinApiScreenManager>()
+                {
+                    Some(b) => b,
+                    None => panic!(""),
+                };
 
+            b.set_alternate_handle(new_handle);
+        }
         true
     }
 
@@ -183,11 +184,6 @@ impl IStateCommand for ToAlternateScreenBufferCommand {
         let handle = handle::get_output_handle().unwrap();
         csbi::set_active_screen_buffer(handle);
 
-        {
-            let mut screen_manager = self.context.screen_manager.lock().unwrap();
-            screen_manager.toggle_is_alternate_screen(false);
-        }
-
-        true
+       true
     }
 }

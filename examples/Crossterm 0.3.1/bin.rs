@@ -45,6 +45,12 @@ fn main() {
 use crossterm::raw::RawTerminal;
 use crossterm::Crossterm;
 
+
+use crossterm::cursor::cursor::TerminalCursor;
+use crossterm::terminal::terminal::Terminal;
+use crossterm::terminal::ClearType;
+use std::io::Read;
+
 pub fn crossterm() {
     let crossterm = Crossterm::new();
     let mut term = crossterm.terminal();
@@ -57,26 +63,29 @@ pub fn crossterm() {
     let mut raw_screen = RawTerminal::new(&crossterm.context());
     raw_screen.enable();
 
-    let mut stdin = input.read_async().bytes();
+    let mut stdin = input.read_until_async().bytes();
 
     let mut buf = String::new();
 
-    let mut counter: u16 = 1;
+    let (term_x, term_y) = term.terminal_size();
+    let mut command_bar_y = term_y;
+    let (curs_x, curs_y) = cursor.pos();
 
+    let mut counter: u16 = 0 + curs_y;
     loop {
         cursor.goto(0, counter);
-        term.write("test data");
+        let (curs_x, curs_y) = cursor.pos();
+        term.write(format!("cursor pos {} term pos: {} command pos: {}", curs_y, term_y, command_bar_y));
+        cursor.goto(0, counter + 1);
 
-        let (term_width, term_height) = term.terminal_size();
-        let (cursor_x, cursor_y) = cursor.pos();
-
-        if cursor_y >= term_height {
+        if (curs_y >= term_y - 1 )
+        {
+            cursor.goto(0, counter + 1);
+            term.clear(ClearType::CurrentLine);
+            cursor.goto(0, counter + 2);
+            term.write(format!("> {}", buf));
             term.scroll_up(1);
         }
-
-        cursor.goto(0, term_height);
-        term.clear(ClearType::CurrentLine);
-        term.write(format!("> {}", buf));
 
         while let Some(b) = stdin.next() {
             if let Ok(b) = b {
@@ -93,18 +102,3 @@ pub fn crossterm() {
         thread::sleep(time::Duration::from_millis(100));
     }
 }
-
-use crossterm::cursor::cursor::TerminalCursor;
-use crossterm::terminal::terminal::Terminal;
-use crossterm::terminal::ClearType;
-use std::io::Read;
-
-//pub fn swap_write(terminal: &mut Terminal, out: &mut RawTerminal, cursor: &mut TerminalCursor, msg: &str, input_buf: &String) {
-//    let (term_width,term_height) = terminal.terminal_size();
-//    let (x,y) = cursor.get_post();
-//    cursor.goto(0,0);
-//
-//
-//
-//
-//}

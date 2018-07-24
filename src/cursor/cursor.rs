@@ -82,8 +82,13 @@ impl TerminalCursor {
     ///  }
     ///
     /// ```
-    pub fn pos(&mut self) -> (u16, u16) {
+    pub fn pos(&self) -> (u16, u16) {
         self.terminal_cursor.pos()
+    }
+
+    pub fn absolute_pos(&self) -> (u16, u16)
+    {
+        self.terminal_cursor.absolute_pos()
     }
 
     /// Move the current cursor position `n` times up.

@@ -40,10 +40,22 @@ impl RawTerminal {
     }
 
     pub fn enable(&self) -> bool {
+        {
+            let mutex = &self.context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
+            screen.set_is_raw_screen(true);
+        }
+
         CommandManager::execute(self.context.clone(), self.command_id)
     }
 
     pub fn disable(&self) -> bool {
+        {
+            let mutex = &self.context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
+            screen.set_is_raw_screen(false);
+        }
+
         CommandManager::undo(self.context.clone(), self.command_id)
     }
 }
@@ -60,16 +72,22 @@ impl<W: Write> IntoRawMode for W {
     fn into_raw_mode(&self, context: Rc<Context>) -> io::Result<RawTerminal> {
         let command_id = EnableRawModeCommand::new(&context.state_manager);
 
-        let success = CommandManager::execute(context.clone(), command_id);
-
-        if success {
-            Ok(RawTerminal {
-                context: context.clone(),
-                command_id: command_id,
-            })
-        } else {
-            panic!("cannot move into raw mode")
+        {
+            let mutex = &context.screen_manager;
+            let mut screen = mutex.lock().unwrap();
+            screen.set_is_raw_screen(true);
         }
+
+        let raw_terminal = RawTerminal {
+            context: context.clone(),
+            command_id: command_id,
+        };
+
+        if raw_terminal.enable()
+            {
+                return Ok(raw_terminal);
+            }
+        return Err(io::Error::new(io::ErrorKind::Other, "Could not enter raw mode."))
     }
 }
 

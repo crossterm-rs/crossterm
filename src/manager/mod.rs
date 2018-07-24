@@ -33,8 +33,12 @@ use std::any::Any;
 use std::io;
 
 pub trait IScreenManager {
-    /// Toggle the value if alternatescreen is on.
-    fn toggle_is_alternate_screen(&mut self, is_alternate_screen: bool);
+    fn set_is_raw_screen(&mut self, value: bool);
+    fn set_is_alternate_screen(&mut self, value: bool);
+
+    fn is_raw_screen(&self) -> bool;
+    fn is_alternate_screen(&self) -> bool;
+
     /// Write ansi code as String to the current stdout.
     fn write_string(&mut self, string: String) -> io::Result<usize>;
     /// Write a &str to the current stdout.

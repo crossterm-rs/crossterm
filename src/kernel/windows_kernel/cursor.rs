@@ -37,13 +37,27 @@ pub fn save_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) {
 
 /// get the current cursor position.
 pub fn pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
-    if let Ok(csbi) = csbi::get_csbi(screen_manager) {
-        (
-            csbi.dwCursorPosition.X as u16,
-            csbi.dwCursorPosition.Y as u16,
-        )
+
+    let handle = handle::get_output_handle().unwrap();
+
+    if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
+        ( csbi.dwCursorPosition.X as u16, csbi.dwCursorPosition.Y as u16 )
     } else {
         (0, 0)
+    }
+}
+
+pub fn absolute_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+
+    let handle = handle::get_output_handle().unwrap();
+
+    if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
+        (
+            (csbi.dwMaximumWindowSize.X) as u16,
+            (csbi.dwMaximumWindowSize.Y) as u16,
+        )
+    } else {
+        return (0, 0);
     }
 }
 

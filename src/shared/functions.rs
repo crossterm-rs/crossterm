@@ -6,10 +6,10 @@ use Context;
 use ScreenManager;
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::{exit, terminal_size};
+use kernel::windows_kernel::terminal::{exit, terminal_size, buffer_size};
 
 #[cfg(windows)]
-use kernel::windows_kernel::cursor::pos;
+use kernel::windows_kernel::cursor::{pos, absolute_cursor_pos};
 
 #[cfg(unix)]
 use kernel::unix_kernel::terminal::{exit, pos, terminal_size};
@@ -30,6 +30,16 @@ pub fn get_cursor_position(context: Rc<Context>) -> (u16, u16) {
 
     #[cfg(windows)]
     return pos(&context.screen_manager);
+}
+
+pub fn get_buffer_size(context: &Rc<Context>) -> (u16, u16)
+{
+    return buffer_size(&context.screen_manager);
+}
+
+pub fn get_absolute_cursor_pos(context: &Rc<Context>) -> (u16, u16)
+{
+    return absolute_cursor_pos(&context.screen_manager);
 }
 
 /// exit the current terminal.
