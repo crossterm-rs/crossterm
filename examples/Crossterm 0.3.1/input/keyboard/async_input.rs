@@ -13,12 +13,19 @@ use std::time::Duration;
 
 /// this will capture the input until the given key.
 pub fn read_async_until() {
-    let context = Context::new();
-    let input = input(&context);
+    let crossterm = Crossterm::new();
 
+    // init some modules we use for this demo
+    let input = crossterm.input();
+    let terminal = crossterm.terminal();
+    let mut cursor = crossterm.cursor();
+
+    let mut stdout = stdout().into_raw_mode(crossterm.context()).unwrap();
     let mut stdin = input.read_until_async(b'\r').bytes();
 
     for i in 0..100 {
+        terminal.clear(ClearType::All);
+        cursor.goto(1, 1);
         let a = stdin.next();
 
         println!("pressed key: {:?}", a);
@@ -33,7 +40,7 @@ pub fn read_async_until() {
             break;
         }
 
-        thread::sleep(time::Duration::from_millis(50));
+        thread::sleep(time::Duration::from_millis(100));
     }
 }
 

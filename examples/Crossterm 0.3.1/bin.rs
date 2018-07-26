@@ -27,7 +27,7 @@ use crossterm::raw::IntoRawMode;
 use std::{thread, time};
 
 fn main() {
-   async_input::read_async();
+   async_input::read_async_until();
 }
 
 use crossterm::raw::RawTerminal;
