@@ -29,11 +29,6 @@ impl ITerminalCursor for AnsiCursor {
         functions::get_cursor_position(self.context.clone())
     }
 
-    fn absolute_pos(&self) -> (u16, u16)
-    {
-        functions::get_absolute_cursor_pos(&self.context)
-    }
-
     fn move_up(&self, count: u16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {

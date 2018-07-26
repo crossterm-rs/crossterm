@@ -32,16 +32,6 @@ pub fn get_cursor_position(context: Rc<Context>) -> (u16, u16) {
     return pos(&context.screen_manager);
 }
 
-pub fn get_buffer_size(context: &Rc<Context>) -> (u16, u16)
-{
-    return buffer_size(&context.screen_manager);
-}
-
-pub fn get_absolute_cursor_pos(context: &Rc<Context>) -> (u16, u16)
-{
-    return absolute_cursor_pos(&context.screen_manager);
-}
-
 /// exit the current terminal.
 pub fn exit_terminal() {
     #[cfg(unix)]

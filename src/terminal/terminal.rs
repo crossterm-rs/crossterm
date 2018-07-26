@@ -85,10 +85,6 @@ impl Terminal {
         return self.terminal.terminal_size();
     }
 
-    pub fn buffer_size(&self) -> (u16, u16) {
-        return self.terminal.buffer_size();
-    }
-
     /// Scroll `n` lines up in the current terminal.
     ///
     /// #Example

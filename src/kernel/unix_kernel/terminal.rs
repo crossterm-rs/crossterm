@@ -2,7 +2,7 @@
 
 pub use self::libc::termios;
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use state::commands::{IStateCommand, NoncanonicalModeCommand};
+use state::commands::{IStateCommand, NoncanonicalModeCommand, EnableRawModeCommand};
 use {libc, CommandManager, Context, StateManager};
 
 use std::io::Error;
@@ -19,8 +19,8 @@ pub struct UnixSize {
     pub rows: c_ushort,
     /// number of columns
     pub cols: c_ushort,
-    x: c_ushort,
-    y: c_ushort,
+    pub ws_xpixel: c_ushort,
+    pub ws_ypixel: c_ushort,
 }
 
 /// Get the current terminal size.
@@ -29,81 +29,75 @@ pub fn terminal_size() -> (u16, u16) {
     let us = UnixSize {
         rows: 0,
         cols: 0,
-        x: 0,
-        y: 0,
+        ws_xpixel: 0,
+        ws_ypixel: 0,
     };
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &us) };
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         (us.cols - 1, us.rows - 1)
+
     } else {
         (0, 0)
     }
 }
 
+
+use std::time::{SystemTime, Duration};
+use std::io::ErrorKind;
+use Crossterm;
+use std::io::Read;
 /// Get the current cursor position.
 pub fn pos(context: Rc<Context>) -> (u16, u16) {
-    use std::io::{Read, Write};
+    let crossterm = Crossterm::from(context.clone());
+    let input = crossterm.input();
 
-    let mut command_id = NoncanonicalModeCommand::new(&context.state_manager);
+    let delimiter = b'R';
+    let mut stdin = input.read_until_async(delimiter);
 
-    CommandManager::execute(context.clone(), command_id);
+    // Where is the cursor?
+    // Use `ESC [ 6 n`.
 
-    // This code is original written by term_cursor credits to them.
-    use std::io;
-    let mut std = io::stdout();
-    // Write command
-    std.write(b"\x1B[6n");
-    std.flush();
+    crossterm.write("\x1B[6n");
 
-    // Read back result
-    let mut buf = [0u8; 2];
-    // Expect `ESC[`
-    io::stdin().read_exact(&mut buf);
-    if buf[0] != 0x1B || buf[1] as char != '[' {
-        return (0, 0);
-    }
+    let mut buf: [u8; 1] = [0];
+    let mut read_chars = Vec::new();
 
-    // Read rows and cols through a ad-hoc integer parsing function
-    let read_num = || -> (i32, char) {
-        let mut num = 0;
-        let mut c;
+    let timeout = Duration::from_millis(2000);
+    let now = SystemTime::now();
 
-        loop {
-            let mut buf = [0u8; 1];
-            io::stdin().read_exact(&mut buf);
-            c = buf[0] as char;
-            if let Some(d) = c.to_digit(10) {
-                num = if num == 0 { 0 } else { num * 10 };
-                num += d as i32;
-            } else {
-                break;
+    // Either consume all data up to R or wait for a timeout.
+    while buf[0] != delimiter && now.elapsed().unwrap() < timeout {
+        if let Ok(c) = stdin.read(&mut buf){
+            if c >= 0
+            {
+                read_chars.push(buf[0]);
             }
         }
+    }
 
-        (num, c)
-    };
-
-    // Read rows and expect `;`
-    let (rows, c) = read_num();
-
-    if c != ';' {
+    if read_chars.len() == 0 {
         return (0, 0);
     }
 
-    // Read cols
-    let (cols, c) = read_num();
+    // The answer will look like `ESC [ Cy ; Cx R`.
 
-    // Expect `R`
-    let res = if c == 'R' {
-        (cols as u16, rows as u16)
-    } else {
-        return (0, 0);
-    };
+    read_chars.pop(); // remove trailing R.
+    let read_str = String::from_utf8(read_chars).unwrap();
+    let beg = read_str.rfind('[').unwrap();
+    let coords: String = read_str.chars().skip(beg + 1).collect();
+    let mut nums = coords.split(';');
 
-    CommandManager::undo(context.clone(), command_id);
+    let cy = nums.next()
+        .unwrap()
+        .parse::<u16>()
+        .unwrap();
+    let cx = nums.next()
+        .unwrap()
+        .parse::<u16>()
+        .unwrap();
 
-    res
+    (cx, cy)
 }
 
 /// Set the terminal mode to the given mode.

@@ -37,11 +37,9 @@ impl ITerminalInput for UnixInput {
     fn read_async(&self) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
-        thread::spawn(move || {
-            for i in get_tty().unwrap().bytes() {
-                if send.send(i).is_err() {
-                    return;
-                }
+        thread::spawn(move || for i in get_tty().unwrap().bytes() {
+            if send.send(i).is_err() {
+                return;
             }
         });
 
@@ -51,21 +49,16 @@ impl ITerminalInput for UnixInput {
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
-        thread::spawn(move || {
-            for i in get_tty().unwrap().bytes() {
-                match i {
-                    Ok(byte) => {
-                        let end_of_stream = &byte == &delimiter;
-                        let send_error = send.send(Ok(byte)).is_err();
+        thread::spawn(move || for i in get_tty().unwrap().bytes() {
 
-                        if end_of_stream || send_error {
-                            return;
-                        }
-                    }
-                    Err(_) => {
-                        return;
-                    }
-                }
+            match i {
+                Ok(byte) => {
+                    let end_of_stream = &byte == &delimiter;
+                    let send_error = send.send(Ok(byte)).is_err();
+
+                    if end_of_stream || send_error { return; }
+                },
+                Err(_) => { return; }
             }
         });
 

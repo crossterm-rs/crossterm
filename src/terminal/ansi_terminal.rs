@@ -45,8 +45,6 @@ impl ITerminal for AnsiTerminal {
         functions::get_terminal_size(&self.context.screen_manager)
     }
 
-    fn buffer_size(&self) -> (u16, u16) { functions::get_buffer_size(&self.context) }
-
     fn scroll_up(&self, count: i16) {
         let mut screen = self.context.screen_manager.lock().unwrap();
         {

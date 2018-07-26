@@ -27,19 +27,7 @@ use crossterm::raw::IntoRawMode;
 use std::{thread, time};
 
 fn main() {
-    //    let context = Context::new();
-    crossterm();
-    {
-        //        let screen = ::crossterm::screen::AlternateScreen::from(context.clone());
-        //        screen.into_raw_mode(context.clone());
-
-        //        async_input::async_reading_on_alternate_screen();
-        //        async_input::test();
-        //        stdin::t();
-        //        stdin::read_line();
-        //        stdin::read_char();
-        //    stdin::read_char();
-    }
+   async_input::read_async();
 }
 
 use crossterm::raw::RawTerminal;
@@ -63,29 +51,34 @@ pub fn crossterm() {
     let mut raw_screen = RawTerminal::new(&crossterm.context());
     raw_screen.enable();
 
-    let mut stdin = input.read_until_async().bytes();
+    let mut stdin = input.read_async().bytes();
 
     let mut buf = String::new();
-
-    let (term_x, term_y) = term.terminal_size();
-    let mut command_bar_y = term_y;
-    let (curs_x, curs_y) = cursor.pos();
-
-    let mut counter: u16 = 0 + curs_y;
+//
+//    let (term_x, term_y) = term.terminal_size();
+//
+//    let mut command_bar_y = term_y;
+//    let (curs_x, curs_y) = cursor.pos();
+//
+    let mut counter: u16 = 0;
     loop {
-        cursor.goto(0, counter);
-        let (curs_x, curs_y) = cursor.pos();
-        term.write(format!("cursor pos {} term pos: {} command pos: {}", curs_y, term_y, command_bar_y));
-        cursor.goto(0, counter + 1);
-
-        if (curs_y >= term_y - 1 )
-        {
-            cursor.goto(0, counter + 1);
-            term.clear(ClearType::CurrentLine);
-            cursor.goto(0, counter + 2);
-            term.write(format!("> {}", buf));
-            term.scroll_up(1);
-        }
+//        cursor.goto(0, counter);
+//
+//        let (curs_x, curs_y) = cursor.pos();
+//        term.write(format!("cursor pos {} term pos: {} command pos: {}", curs_y, term_y, command_bar_y));
+//
+//        cursor.goto(0, counter + 1);
+//
+//        if (curs_y >= term_y - 1 )
+//        {
+//            cursor.goto(0, counter + 1);
+//            term.clear(ClearType::CurrentLine);
+//            cursor.goto(0, counter + 2);
+//            term.write(format!("> {}", buf));
+//            term.scroll_up(1);
+//        }
+//
+        term.write(format!("> {}", buf));
 
         while let Some(b) = stdin.next() {
             if let Ok(b) = b {
