@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::IStateCommand;
+use super::{ IStateCommand, IAlternateScreenCommand, IRawScreenCommand};
 use {Context, StateManager};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
@@ -11,6 +11,7 @@ use winapi::um::wincon::{CHAR_INFO, COORD, ENABLE_VIRTUAL_TERMINAL_PROCESSING, S
 
 use std::rc::Rc;
 use std::sync::Mutex;
+use std::io::{Result, ErrorKind, Error };
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -74,116 +75,95 @@ impl IStateCommand for EnableAnsiCommand {
 #[derive(Clone, Copy)]
 pub struct EnableRawModeCommand {
     mask: DWORD,
-    key: u16,
 }
 
 impl EnableRawModeCommand {
-    pub fn new(state_manager: &Mutex<StateManager>) -> u16 {
+    pub fn new() -> EnableRawModeCommand {
         use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
 
-        let mut state = state_manager.lock().unwrap();
-        {
-            let key = state.get_changes_count();
-            let command = EnableRawModeCommand {
-                mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT,
-                key: key,
-            };
-            state.register_change(Box::from(command), key);
-            key
+        EnableRawModeCommand {
+            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT,
         }
     }
 }
 
-impl IStateCommand for EnableRawModeCommand {
-    fn execute(&mut self) -> bool {
-        let input_handle = handle::get_input_handle().unwrap();
+impl IRawScreenCommand for EnableRawModeCommand {
+    fn enable(&mut self) -> Result<()> {
+        let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&input_handle, &mut dw_mode) {
-            return false;
+            return Err(Error::new(ErrorKind::Other,"Could not get console mode when enabling raw mode"))
         }
 
         let new_mode = dw_mode & !self.mask;
 
         if !kernel::set_console_mode(&input_handle, new_mode) {
-            return false;
+            return Err(Error::new(ErrorKind::Other,"Could not set console mode when enabling raw mode"))
         }
 
-        true
+        return Ok(())
     }
 
-    fn undo(&mut self) -> bool {
-        let output_handle = handle::get_output_handle().unwrap();
+    fn disable(&mut self) -> Result<()> {
+        let output_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
-            return false;
+            return Err(Error::new(ErrorKind::Other,"Could not get console mode when disabling raw mode"))
         }
 
         let new_mode = dw_mode | self.mask;
 
         if !kernel::set_console_mode(&output_handle, new_mode) {
-            return false;
+            return Err(Error::new(ErrorKind::Other,"Could not set console mode when disabling raw mode"))
         }
 
-        true
+        return Ok(())
     }
 }
+
+use ScreenManager;
 
 /// This command is used for switching to alternate screen and back to main screen.
 /// check https://docs.microsoft.com/en-us/windows/console/reading-and-writing-blocks-of-characters-and-attributes for more info
-pub struct ToAlternateScreenBufferCommand {
-    context: Rc<Context>,
-}
+pub struct ToAlternateScreenBufferCommand;
 
 impl ToAlternateScreenBufferCommand {
-    pub fn new(context: Rc<Context>) -> u16 {
-        let mut state = context.state_manager.lock().unwrap();
-        {
-            let key = state.get_changes_count();
-            let command = ToAlternateScreenBufferCommand {
-                context: context.clone(),
-            };
-
-            state.register_change(Box::from(command), key);
-            key
-        }
+    pub fn new() -> Box<ToAlternateScreenBufferCommand>{
+        return Box::from(ToAlternateScreenBufferCommand {});
     }
 }
 
-impl IStateCommand for ToAlternateScreenBufferCommand {
-    fn execute(&mut self) -> bool {
+impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
+    fn to_alternate_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>{
         use super::super::super::manager::WinApiScreenManager;
 
-        let handle = handle::get_output_handle().unwrap();
+        let handle = handle::get_output_handle()?;
 
         // create a new screen buffer to copy to.
         let new_handle = csbi::create_console_screen_buffer();
 
         // Make the new screen buffer the active screen buffer.
-        csbi::set_active_screen_buffer(new_handle);
+        csbi::set_active_screen_buffer(new_handle)?;
 
-        {
-            let mutex = &self.context.screen_manager;
-            let mut screen = mutex.lock().unwrap();
+        let b: &mut WinApiScreenManager = match screen_manager
+            .as_any()
+            .downcast_mut::<WinApiScreenManager>()
+            {
+                Some(b) => b,
+                None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
+            };
 
-            let b: &mut WinApiScreenManager = match screen
-                .as_any()
-                .downcast_mut::<WinApiScreenManager>()
-                {
-                    Some(b) => b,
-                    None => panic!(""),
-                };
+        b.set_alternate_handle(new_handle);
 
-            b.set_alternate_handle(new_handle);
-        }
-        true
+        Ok(())
     }
 
-    fn undo(&mut self) -> bool {
-        let handle = handle::get_output_handle().unwrap();
+    fn to_main_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>{
+        let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 
-       true
+        Ok(())
     }
 }

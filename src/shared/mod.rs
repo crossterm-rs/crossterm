@@ -8,3 +8,4 @@ pub mod traits;
 
 pub mod raw;
 pub mod screen;
+pub mod Terminal;

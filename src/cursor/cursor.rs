@@ -6,20 +6,20 @@
 use super::super::shared::functions;
 use super::*;
 use std::io::Write;
-use Context;
+use {Context, ScreenManager};
 
 use std::fmt::Display;
 use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
-pub struct TerminalCursor {
-    context: Rc<Context>,
+pub struct TerminalCursor<'cursor> {
+    context: &'cursor ScreenManager,
     terminal_cursor: Box<ITerminalCursor>,
 }
 
-impl TerminalCursor {
+impl<'cursor> TerminalCursor<'cursor> {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(context: Rc<Context>) -> TerminalCursor {
+    pub fn new(context: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor>>(
             WinApiCursor::new(context.screen_manager.clone()),

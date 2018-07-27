@@ -14,6 +14,7 @@ pub mod manager;
 pub mod style;
 pub mod terminal;
 
+pub use shared::Terminal::Terminal;
 pub use shared::crossterm::Crossterm;
 pub use shared::raw;
 pub use shared::screen;

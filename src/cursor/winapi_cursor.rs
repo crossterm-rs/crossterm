@@ -10,65 +10,63 @@ use std::rc::Rc;
 use std::sync::Mutex;
 
 /// This struct is an windows implementation for cursor related actions.
-pub struct WinApiCursor {
-    screen_manager: Rc<Mutex<ScreenManager>>,
-}
+pub struct WinApiCursor;
 
 impl WinApiCursor {
-    pub fn new(screen_manager: Rc<Mutex<ScreenManager>>) -> Box<WinApiCursor> {
-        Box::from(WinApiCursor { screen_manager })
+    pub fn new() -> Box<WinApiCursor> {
+        Box::from(WinApiCursor { })
     }
 }
 
 impl ITerminalCursor for WinApiCursor {
-    fn goto(&self, x: u16, y: u16) {
+    fn goto(&self, x: u16, y: u16, screen_manager: &ScreenManager) {
         cursor::set_console_cursor_position(x as i16, y as i16, &self.screen_manager);
     }
 
-    fn pos(&self) -> (u16, u16) {
+    fn pos(&self, screen_manager: &ScreenManager) -> (u16, u16) {
         cursor::pos(&self.screen_manager)
     }
 
-    fn absolute_pos(&self) -> (u16, u16)
+    fn absolute_pos(&self, screen_manager: &ScreenManager) -> (u16, u16)
     {
         cursor::absolute_cursor_pos(&self.screen_manager)
     }
 
-    fn move_up(&self, count: u16) {
+    fn move_up(&self, count: u16, screen_manager: &ScreenManager) {
         let (xpos, ypos) = self.pos();
         self.goto(xpos, ypos - count);
     }
 
-    fn move_right(&self, count: u16) {
+    fn move_right(&self, count: u16, screen_manager: &ScreenManager) {
         let (xpos, ypos) = self.pos();
         self.goto(xpos + count, ypos);
     }
 
-    fn move_down(&self, count: u16) {
+    fn move_down(&self, count: u16, screen_manager: &ScreenManager) {
         let (xpos, ypos) = self.pos();
         self.goto(xpos, ypos + count);
     }
 
-    fn move_left(&self, count: u16) {
+    fn move_left(&self, count: u16, screen_manager: &ScreenManager) {
         let (xpos, ypos) = self.pos();
         self.goto(xpos - count, ypos);
     }
 
-    fn save_position(&self) {
+    fn save_position(&self, screen_manager: &ScreenManager) {
         cursor::save_cursor_pos(&self.screen_manager);
     }
 
-    fn reset_position(&self) {
+    fn reset_position(&self, screen_manager: &ScreenManager) {
         cursor::reset_to_saved_position(&self.screen_manager);
     }
 
-    fn hide(&self) {
+    fn hide(&self, screen_manager: &ScreenManager) {
         cursor::cursor_visibility(false, &self.screen_manager);
     }
 
-    fn show(&self) {
+    fn show(&self, screen_manager: &ScreenManager) {
         cursor::cursor_visibility(true, &self.screen_manager);
     }
 
-    fn blink(&self, blink: bool) {}
+    fn blink(&self, blink: bool, screen_manager: &ScreenManager) {}
 }

@@ -85,104 +85,43 @@
 
 use shared::functions;
 use state::commands::*;
-use {CommandManager, Context};
+use {CommandManager, Context,ScreenManager};
 
 use std::convert::From;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-pub struct AlternateScreen {
-    context: Rc<Context>,
-    command_id: u16,
-}
+pub struct AlternateScreen;
 
 impl AlternateScreen {
     /// Get the alternate screen from the context.
     /// By calling this method the current screen will be changed to the alternate screen.
     /// And you get back an handle for that screen.
-    pub fn from(context: Rc<Context>) -> Self {
-        let command_id = get_to_alternate_screen_command(context.clone());
+    pub fn new() -> Box<IAlternateScreenCommand> {
+        let command = functions::get_module::<Box<IAlternateScreenCommand>>(
+            win_commands::ToAlternateScreenBufferCommand::new(),
+            shared_commands::ToAlternateScreenBufferCommand::new(),
+        ).unwrap();
 
-        let screen = AlternateScreen {
-            context: context.clone(),
-            command_id: command_id,
-        };
+        #[cfg(not(target_os = "windows"))]
+        let command = shared_commands::ToAlternateScreenBufferCommand::new();
 
-        screen.to_alternate();
-
-        return screen;
-    }
-
-    /// Change the current screen to the mainscreen.
-    pub fn to_main(&self) {
-        {
-            let mutex = &self.context.screen_manager;
-            let mut screen = mutex.lock().unwrap();
-            screen.set_is_alternate_screen(false);
-        }
-
-        CommandManager::undo(self.context.clone(), self.command_id);
-    }
-
-    /// Change the current screen to alternate screen.
-    pub fn to_alternate(&self) {
-        {
-            let mutex = &self.context.screen_manager;
-            let mut screen = mutex.lock().unwrap();
-            screen.set_is_alternate_screen(true);
-        }
-        CommandManager::execute(self.context.clone(), self.command_id);
-    }
-}
-
-impl Write for AlternateScreen {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write(buf)
-        }
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.flush()
-        }
-    }
-}
-
-impl Drop for AlternateScreen {
-    fn drop(&mut self) {
-        use CommandManager;
-        CommandManager::undo(self.context.clone(), self.command_id);
+        command
     }
 }
 
 use super::super::shared::crossterm::Crossterm;
 
-impl From<Crossterm> for AlternateScreen {
-    fn from(crossterm: Crossterm) -> Self {
-        let command_id = get_to_alternate_screen_command(crossterm.context());
+//impl From<Crossterm> for AlternateScreen {
+//    fn from(crossterm: Crossterm) -> Self {
+//        let command_id = get_to_alternate_screen_command(crossterm.context());
+//
+//        let screen = AlternateScreen {
+//            context: crossterm.context(),
+//            command_id: command_id,
+//        };
+//        screen.to_alternate();
+//        return screen;
+//    }
+//}
 
-        let screen = AlternateScreen {
-            context: crossterm.context(),
-            command_id: command_id,
-        };
-        screen.to_alternate();
-        return screen;
-    }
-}
-
-// Get the alternate screen command to enable and disable alternate screen based on the current platform
-fn get_to_alternate_screen_command(context: Rc<Context>) -> u16 {
-    #[cfg(target_os = "windows")]
-    let command_id = functions::get_module::<u16>(
-        win_commands::ToAlternateScreenBufferCommand::new(context.clone()),
-        shared_commands::ToAlternateScreenBufferCommand::new(context.clone()),
-    ).unwrap();
-
-    #[cfg(not(target_os = "windows"))]
-    let command_id = shared_commands::ToAlternateScreenBufferCommand::new(context.clone());
-
-    return command_id;
-}
