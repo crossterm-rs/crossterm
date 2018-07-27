@@ -7,6 +7,7 @@ use {CommandManager, Context, StateManager};
 
 const FD_STDIN: ::std::os::unix::io::RawFd = 1;
 
+use std::io::Result;
 use std::rc::Rc;
 use std::sync::Mutex;
 
@@ -66,32 +67,18 @@ impl IStateCommand for NoncanonicalModeCommand {
 
 /// This command is used for enabling and disabling raw mode for the terminal.
 pub struct EnableRawModeCommand {
-    original_mode: Option<Box<Termios>>,
-    command_id: u16,
+    original_mode: Result<Termios>,
 }
 
 impl EnableRawModeCommand {
-    pub fn new(state_manager: &Mutex<StateManager>) -> u16 {
-        let mut state = state_manager.lock().unwrap();
-        {
-            let key = state.get_changes_count();
-            let command = EnableRawModeCommand {
-                original_mode: None,
-                command_id: key,
-            };
-
-            state.register_change(Box::from(command), key);
-            key
-        }
+    pub fn new() -> EnableRawModeCommand {
+        return EnableRawModeCommand { original_mode: terminal::get_terminal_mode(),  }
     }
 }
 
-impl IStateCommand for EnableRawModeCommand {
+impl EnableRawModeCommand {
     fn execute(&mut self) -> bool {
-        let original_mode = terminal::get_terminal_mode();
-
-        if let Ok(original_mode) = original_mode {
-            self.original_mode = Some(Box::from(original_mode));
+        if let Ok(original_mode) = self.original_mode {
             let mut new_mode = original_mode;
             terminal::make_raw(&mut new_mode);
             terminal::set_terminal_mode(&new_mode);

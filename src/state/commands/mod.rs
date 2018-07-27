@@ -31,3 +31,18 @@ pub trait IStateCommand {
     fn execute(&mut self) -> bool;
     fn undo(&mut self) -> bool;
 }
+
+use ScreenManager;
+use std::io::Result;
+
+pub trait IAlternateScreenCommand
+{
+    fn to_alternate_screen(&self,screen_manager: &mut ScreenManager) -> Result<()>;
+    fn to_main_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>;
+}
+
+pub trait IRawScreenCommand
+{
+    fn enable(&mut self) -> Result<()>;
+    fn disable(&mut self) -> Result<()>;
+}
