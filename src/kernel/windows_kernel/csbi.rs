@@ -16,7 +16,7 @@ use std::sync::Mutex;
 use ScreenManager;
 
 /// Create a new console screen buffer info struct.
-pub fn get_csbi(screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
+pub fn get_csbi(screen_manager: &ScreenManager) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
@@ -36,7 +36,7 @@ pub fn get_csbi(screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<CONSOLE_SCR
 
 /// Get buffer info and handle of the current screen.
 pub fn get_csbi_and_handle(
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &ScreenManager,
 ) -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
     let handle = handle::get_current_handle(screen_manager)?;
     let csbi = get_csbi_by_handle(&handle)?;
@@ -63,7 +63,7 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 /// Set the console screen buffer size
 pub fn set_console_screen_buffer_size(
     size: COORD,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &ScreenManager,
 ) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 

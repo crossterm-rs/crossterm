@@ -52,27 +52,26 @@ impl ScreenManager {
     }
 
     /// Write an ANSI code as String.
-    pub fn write_string(&mut self, string: String) -> io::Result<usize> {
-        self.screen_manager.write_string(string)
+    pub fn write_string(&self, string: String) -> io::Result<usize> {
+        self.screen_manager.write_str(string.as_str())
     }
 
+    pub fn flush(&self) -> io::Result<()>
+    {
+        self.screen_manager.flush()
+    }
     /// Write an ANSI code as &str
-    pub fn write_str(&mut self, string: &str) -> io::Result<usize> {
+    pub fn write_str(&self, string: &str) -> io::Result<usize> {
         self.screen_manager.write_str(string)
     }
 
     /// Can be used to get an specific implementation used for the current platform.
-    pub fn as_any(&mut self) -> &mut Any {
+    pub fn as_any(&self) -> &Any {
         self.screen_manager.as_any()
     }
-}
 
-impl Write for ScreenManager {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.screen_manager.write(buf)
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        self.screen_manager.flush()
+    /// Can be used to get an specific implementation used for the current platform.
+    pub fn as_any_mut(&mut self) -> &mut Any {
+        self.screen_manager.as_any_mut()
     }
 }

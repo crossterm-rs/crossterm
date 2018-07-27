@@ -15,7 +15,7 @@ use kernel::windows_kernel::cursor::{pos, absolute_cursor_pos};
 use kernel::unix_kernel::terminal::{exit, pos, terminal_size};
 
 /// Get the terminal size based on the current platform.
-pub fn get_terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+pub fn get_terminal_size(screen_manager: &ScreenManager) -> (u16, u16) {
     #[cfg(unix)]
     return terminal_size();
 
@@ -24,12 +24,12 @@ pub fn get_terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(context: Rc<Context>) -> (u16, u16) {
+pub fn get_cursor_position(screen_manager: &ScreenManager) -> (u16, u16) {
     #[cfg(unix)]
-    return pos(context.clone());
+    return pos(screen_manager);
 
     #[cfg(windows)]
-    return pos(&context.screen_manager);
+    return pos(screen_manager);
 }
 
 /// exit the current terminal.

@@ -15,7 +15,6 @@ pub struct WinApiScreenManager {
 }
 
 impl IScreenManager for WinApiScreenManager {
-
     fn set_is_raw_screen(&mut self, value: bool) {
         self.is_raw_screen = value;
     }
@@ -31,16 +30,11 @@ impl IScreenManager for WinApiScreenManager {
         self.is_alternate_screen
     }
 
-
-    fn write_string(&mut self, string: String) -> io::Result<usize> {
+    fn write_str(&self, string: &str) -> io::Result<usize> {
         self.write(string.as_bytes())
     }
 
-    fn write_str(&mut self, string: &str) -> io::Result<usize> {
-        self.write(string.as_bytes())
-    }
-
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+    fn write(&self, buf: &[u8]) -> io::Result<usize> {
         if self.is_alternate_screen {
             writing::write_char_buffer(&self.alternate_handle, buf)
         } else {
@@ -48,11 +42,15 @@ impl IScreenManager for WinApiScreenManager {
         }
     }
 
-    fn flush(&mut self) -> io::Result<()> {
+    fn flush(&self) -> io::Result<()> {
         Ok(())
     }
 
-    fn as_any(&mut self) -> &mut Any {
+    fn as_any(&self) -> &Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut Any {
         self
     }
 }
@@ -76,7 +74,7 @@ impl WinApiScreenManager {
     }
 
     /// get the current screen handle.
-    pub fn get_handle(&mut self) -> &HANDLE {
+    pub fn get_handle(&self) -> &HANDLE {
         if self.is_alternate_screen {
             return &self.alternate_handle;
         } else {

@@ -2,6 +2,12 @@ use {StateManager, ScreenManager};
 use super::super::state::commands::*;
 use super::raw::RawTerminal;
 use super::screen::AlternateScreen;
+
+use super::super::cursor;
+use super::super::input;
+use super::super::terminal;
+
+
 use std::collections::HashMap;
 
 use std::io::Result;
@@ -92,6 +98,18 @@ impl Terminal{
         }
 
         return Ok(())
+    }
+
+    pub fn cursor(&self) -> cursor::TerminalCursor {
+       cursor::TerminalCursor::new(&self.active_screen)
+    }
+
+    pub fn input(&self) -> input::TerminalInput {
+        return input::TerminalInput::new(&self.active_screen)
+    }
+
+    pub fn terminal(&self) -> input::TerminalInput {
+        return input::TerminalInput::new(&self.active_screen)
     }
 }
 

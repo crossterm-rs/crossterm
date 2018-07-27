@@ -13,18 +13,18 @@ use self::unix_input::UnixInput;
 mod unix_input;
 
 pub use self::input::{input, TerminalInput};
+use ScreenManager;
 
 use std::io::Read;
 use std::sync::mpsc;
 
 trait ITerminalInput {
-    fn read_line(&self) -> io::Result<String>;
+    fn read_line(&self, screen_manger: &ScreenManager) -> io::Result<String>;
 
-    fn read_char(&self) -> io::Result<char>;
-    fn read_pressed_key(&self) -> io::Result<Key>;
+    fn read_char(&self, screen_manger: &ScreenManager) -> io::Result<char>;
 
-    fn read_async(&self) -> AsyncReader;
-    fn read_until_async(&self, delimiter: u8) -> AsyncReader;
+    fn read_async(&self, screen_manger: &ScreenManager) -> AsyncReader;
+    fn read_until_async(&self, delimiter: u8, screen_manger: &ScreenManager) -> AsyncReader;
 }
 
 pub struct AsyncReader {

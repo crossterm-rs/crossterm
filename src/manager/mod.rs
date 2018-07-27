@@ -39,14 +39,14 @@ pub trait IScreenManager {
     fn is_raw_screen(&self) -> bool;
     fn is_alternate_screen(&self) -> bool;
 
-    /// Write ansi code as String to the current stdout.
-    fn write_string(&mut self, string: String) -> io::Result<usize>;
     /// Write a &str to the current stdout.
-    fn write_str(&mut self, string: &str) -> io::Result<usize>;
+    fn write_str(&self, string: &str) -> io::Result<usize>;
     /// Write [u8] buffer to console.
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize>;
+    fn write(&self, buf: &[u8]) -> io::Result<usize>;
     /// Flush the current output.
-    fn flush(&mut self) -> io::Result<()>;
+    fn flush(&self) -> io::Result<()>;
     /// Can be used to convert to an specific IScreenManager implementation.
-    fn as_any(&mut self) -> &mut Any;
+    fn as_any(&self) -> &Any;
+    /// Can be used to convert to an specific mutable IScreenManager implementation.
+    fn as_any_mut(&mut self) -> &mut Any;
 }

@@ -17,8 +17,8 @@ use self::ansi_cursor::AnsiCursor;
 #[cfg(target_os = "windows")]
 use self::winapi_cursor::WinApiCursor;
 
-pub use self::cursor::{cursor, TerminalCursor};
-
+pub use self::cursor::{TerminalCursor};
+use ScreenManager;
 use std::rc::Rc;
 
 ///! This trait defines the actions that can be preformed with the terminal cursor.

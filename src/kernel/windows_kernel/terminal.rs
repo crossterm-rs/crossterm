@@ -5,7 +5,7 @@ use ScreenManager;
 use super::{csbi, handle};
 
 /// Get the terminal size
-pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+pub fn terminal_size(screen_manager: &ScreenManager) -> (u16, u16) {
 
     let handle = handle::get_output_handle().unwrap();
 
@@ -19,7 +19,7 @@ pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
     }
 }
 
-pub fn buffer_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+pub fn buffer_size(screen_manager: &ScreenManager) -> (u16, u16) {
 
     let handle = handle::get_output_handle().unwrap();
 

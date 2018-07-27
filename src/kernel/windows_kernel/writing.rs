@@ -20,7 +20,7 @@ pub fn fill_console_output_character(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &ScreenManager,
 ) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
@@ -42,7 +42,7 @@ pub fn fill_console_output_attribute(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &ScreenManager,
 ) -> bool {
     // Get the position of the current console window
 

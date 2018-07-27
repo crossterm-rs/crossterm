@@ -4,14 +4,14 @@
 
 use std::any::Any;
 use std::io::{self, Read, Write};
-
+use std::sync::Mutex;
 use super::IScreenManager;
+use std::str::from_utf8;
 
 pub struct AnsiScreenManager {
     is_alternate_screen: bool,
     is_raw_screen: bool,
-    output: Box<Write>,
-    input: Box<Read>,
+    output: Mutex<Box<Write>>
 }
 
 impl IScreenManager for AnsiScreenManager {
@@ -31,41 +31,37 @@ impl IScreenManager for AnsiScreenManager {
         self.is_alternate_screen
     }
 
-    fn write_string(&mut self, string: String) -> io::Result<usize> {
-        write!(self.output, "{}", string)?;
+    fn write_str(&self, string: &str) -> io::Result<usize> {
+        {
+            let mx = &self.output;
+
+            let mut output = mx.lock().unwrap();
+            write!(output, "{}", string)?;
+        }
         self.flush();
         Ok(0)
     }
 
-    fn write_str(&mut self, string: &str) -> io::Result<usize> {
-        write!(self.output, "{}", string)?;
-        self.flush();
+    fn write(&self, buf: &[u8]) -> io::Result<usize> {
+        {
+            let mx = &self.output;
+            let mut output = mx.lock().unwrap();
+            output.write(buf)?;
+        }
         Ok(0)
     }
 
-    //    fn read_line(&mut self) -> io::Result<String>
-    //    {
-    //        let mut rv = String::new();
-    //        self.input.read_line(&mut rv)?;
-    //        let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
-    //        rv.truncate(len);
-    //        Ok(rv)
-    //    }
-    //
-    //    fn read_char(&mut self) -> io::Result<String>
-    //    {
-    //
-    //    }
-
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.output.write(buf)
+    fn flush(&self) -> io::Result<()> {
+        let mx = &self.output;
+        let mut output = mx.lock().unwrap();
+        output.flush()
     }
 
-    fn flush(&mut self) -> io::Result<()> {
-        self.output.flush()
+    fn as_any(&self) -> &Any {
+        self
     }
 
-    fn as_any(&mut self) -> &mut Any {
+    fn as_any_mut(&mut self) -> &mut Any {
         self
     }
 }
@@ -73,8 +69,7 @@ impl IScreenManager for AnsiScreenManager {
 impl AnsiScreenManager {
     pub fn new() -> Self {
         AnsiScreenManager {
-            input: (Box::from(io::stdin()) as Box<Read>),
-            output: (Box::from(io::stdout()) as Box<Write>),
+            output: Mutex::new(Box::from(io::stdout()) as Box<Write>),
             is_alternate_screen: false,
             is_raw_screen: false,
         }

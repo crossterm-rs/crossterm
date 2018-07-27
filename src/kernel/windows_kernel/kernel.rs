@@ -37,7 +37,7 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool {
 }
 
 /// Change the console text attribute.
-pub fn set_console_text_attribute(value: u16, screen_manager: &Rc<Mutex<ScreenManager>>) -> bool {
+pub fn set_console_text_attribute(value: u16, screen_manager: &ScreenManager) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {
@@ -49,7 +49,7 @@ pub fn set_console_text_attribute(value: u16, screen_manager: &Rc<Mutex<ScreenMa
 pub fn set_console_info(
     absolute: bool,
     rect: &SMALL_RECT,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &ScreenManager,
 ) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
@@ -72,7 +72,7 @@ pub fn is_true(value: i32) -> bool {
 }
 
 ///// Get the original color of the terminal.
-//pub fn get_original_console_color(screen_manager: &Rc<Mutex<ScreenManager>>) -> u16 {
+//pub fn get_original_console_color(screen_manager: &ScreenManager) -> u16 {
 //    let console_buffer_info = csbi::get_console_screen_buffer_info(screen_manager);
 //    console_buffer_info.wAttributes as u16
 //}

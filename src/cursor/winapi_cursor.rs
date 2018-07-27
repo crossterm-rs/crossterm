@@ -20,47 +20,47 @@ impl WinApiCursor {
 
 impl ITerminalCursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16, screen_manager: &ScreenManager) {
-        cursor::set_console_cursor_position(x as i16, y as i16, &self.screen_manager);
+        cursor::set_console_cursor_position(x as i16, y as i16, screen_manager);
     }
 
     fn pos(&self, screen_manager: &ScreenManager) -> (u16, u16) {
-        cursor::pos(&self.screen_manager)
+        cursor::pos(screen_manager)
     }
 
     fn move_up(&self, count: u16, screen_manager: &ScreenManager) {
-        let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos - count);
+        let (xpos, ypos) = self.pos(screen_manager);
+        self.goto(xpos, ypos - count, screen_manager);
     }
 
     fn move_right(&self, count: u16, screen_manager: &ScreenManager) {
-        let (xpos, ypos) = self.pos();
-        self.goto(xpos + count, ypos);
+        let (xpos, ypos) = self.pos(screen_manager);
+        self.goto(xpos + count, ypos, screen_manager);
     }
 
     fn move_down(&self, count: u16, screen_manager: &ScreenManager) {
-        let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos + count);
+        let (xpos, ypos) = self.pos(screen_manager);
+        self.goto(xpos, ypos + count, screen_manager);
     }
 
     fn move_left(&self, count: u16, screen_manager: &ScreenManager) {
-        let (xpos, ypos) = self.pos();
-        self.goto(xpos - count, ypos);
+        let (xpos, ypos) = self.pos(screen_manager);
+        self.goto(xpos - count, ypos, screen_manager);
     }
 
     fn save_position(&self, screen_manager: &ScreenManager) {
-        cursor::save_cursor_pos(&self.screen_manager);
+        cursor::save_cursor_pos(screen_manager);
     }
 
     fn reset_position(&self, screen_manager: &ScreenManager) {
-        cursor::reset_to_saved_position(&self.screen_manager);
+        cursor::reset_to_saved_position(screen_manager);
     }
 
     fn hide(&self, screen_manager: &ScreenManager) {
-        cursor::cursor_visibility(false, &self.screen_manager);
+        cursor::cursor_visibility(false, screen_manager);
     }
 
     fn show(&self, screen_manager: &ScreenManager) {
-        cursor::cursor_visibility(true, &self.screen_manager);
+        cursor::cursor_visibility(true, screen_manager);
     }
 
     fn blink(&self, blink: bool, screen_manager: &ScreenManager) {}

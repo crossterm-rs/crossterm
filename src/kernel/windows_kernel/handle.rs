@@ -6,27 +6,23 @@ use winapi::um::winnt::HANDLE;
 use std::io::{self, ErrorKind, Result};
 use std::rc::Rc;
 use std::sync::Mutex;
-
 use super::super::super::manager::{ScreenManager, WinApiScreenManager};
 
 /// Get the global stored handle whits provides access to the current screen.
-pub fn get_current_handle(screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<HANDLE> {
+pub fn get_current_handle(screen_manager: &ScreenManager) -> Result<HANDLE> {
     let mut mutex = screen_manager;
 
     let handle: Result<HANDLE>;
 
-    let mut screen_manager = mutex.lock().unwrap();
-    {
-        let winapi_screen_manager: &mut WinApiScreenManager = match screen_manager
+        let winapi_screen_manager: &WinApiScreenManager = match screen_manager
             .as_any()
-            .downcast_mut::<WinApiScreenManager>()
+            .downcast_ref::<WinApiScreenManager>()
             {
                 Some(win_api) => win_api,
                 None => return Err(io::Error::new(io::ErrorKind::Other,"Could not convert to winapi screen manager, this could happen when the user has an ANSI screen manager and is calling the platform specific operations 'get_cursor_pos' or 'get_terminal_size'"))
             };
 
-        handle = Ok(*winapi_screen_manager.get_handle());
-    }
+    handle = Ok(*winapi_screen_manager.get_handle());
 
     return handle;
 }

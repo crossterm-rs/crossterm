@@ -147,16 +147,13 @@ impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle)?;
 
-        let b: &mut WinApiScreenManager = match screen_manager
-            .as_any()
+        match screen_manager
+            .as_any_mut()
             .downcast_mut::<WinApiScreenManager>()
             {
-                Some(b) => b,
+                Some(b) => b.set_alternate_handle(new_handle),
                 None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
             };
-
-        b.set_alternate_handle(new_handle);
-
         Ok(())
     }
 

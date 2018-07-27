@@ -25,4 +25,12 @@ use crossterm::Terminal;
 use std::{thread, time};
 
 fn main() {
+    let term = Terminal::new();
+    let mut cursor = term.cursor();
+    cursor.goto(10,10);
+    cursor.print("test");
+
+    let stdin = term.input();
+    let line = stdin.read_line();
+    println!("{:?}", line)
 }

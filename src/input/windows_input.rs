@@ -9,36 +9,23 @@ use super::{AsyncReader, ITerminalInput, Key};
 use winapi::um::winnt::INT;
 use winapi::um::winuser;
 
-use super::super::terminal::terminal;
 use std::rc::Rc;
-use Context;
+use ScreenManager;
 
-pub struct WindowsInput {
-    context: Rc<Context>,
-    pub display_input: bool,
-}
+pub struct WindowsInput;
 
 impl WindowsInput {
-    pub fn new(context: Rc<Context>) -> WindowsInput {
-        WindowsInput {
-            context,
-            display_input: false,
-        }
+    pub fn new() -> WindowsInput {
+        WindowsInput {}
     }
 }
 
 impl ITerminalInput for WindowsInput {
-    fn read_line(&self) -> io::Result<String> {
-        let term = terminal(&self.context);
+    fn read_line(&self,screen_manger: &ScreenManager) -> io::Result<String> {
         let mut chars: Vec<char> = Vec::new();
 
         loop {
-            let mut is_raw_screen = false;
-            {
-                let mutex = &self.context.screen_manager;
-                let screen = mutex.lock().unwrap();
-                is_raw_screen = screen.is_raw_screen();
-            }
+            let is_raw_screen = screen_manger.is_raw_screen();
 
             // _getwch is without echo and _getwche is with echo
             let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
@@ -63,15 +50,8 @@ impl ITerminalInput for WindowsInput {
         return Ok(chars.into_iter().collect());
     }
 
-    fn read_char(&self) -> io::Result<char> {
-        let term = terminal(&self.context);
-
-        let mut is_raw_screen = false;
-        {
-            let mutex = &self.context.screen_manager;
-            let screen = mutex.lock().unwrap();
-            is_raw_screen = screen.is_raw_screen();
-        }
+    fn read_char(&self, screen_manger: &ScreenManager) -> io::Result<char> {
+        let is_raw_screen = screen_manger.is_raw_screen();
 
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
@@ -86,9 +66,6 @@ impl ITerminalInput for WindowsInput {
 
         match char::from_u32(pressed_char as u32) {
             Some(c) => {
-                if self.display_input {
-                    term.write(c);
-                }
                 return Ok(c);
             }
             None => Err(io::Error::new(
@@ -98,41 +75,11 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_pressed_key(&self) -> io::Result<Key> {
-        use Context;
-        let context = Context::new();
-
-        let buf: [u8; 1024] = unsafe { ::std::mem::zeroed() };
-        //        reading::read(&mut buf, &context.screen_manager);
-
-        Ok(Key::Unknown)
-        //        let pressed_char = unsafe { _getwch() };
-        //
-        //        // if 0 or 0xe0 we need to listen again because the next key will be an special key
-        //        if pressed_char == 0 || pressed_char == 0xe0 {
-        //            let special_key: i32 = unsafe { _getwch() };
-        //            println!("spkey {}",special_key);
-        //            return Ok(key_from_key_code(0x26));
-        //        } else {
-        //            match char::from_u32(pressed_char as u32)
-        //            {
-        //                Some(c) => return Ok(Key::Char(c)),
-        //                None => { panic!("Some error needs to be returned") }
-        //            }
-        //        }
-    }
-
-    fn read_async(&self) -> AsyncReader {
+    fn read_async(&self,screen_manger: &ScreenManager) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
-        let mut is_raw_screen = false;
+        let is_raw_screen = screen_manger.is_raw_screen();
 
-        {
-            let mutex = &self.context.screen_manager;
-            let screen = mutex.lock().unwrap();
-            is_raw_screen = screen.is_raw_screen();
-        }
-//        panic!("is raw screen: {} ", is_raw_screen);
         thread::spawn(move || {
             loop {
 
@@ -155,15 +102,10 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 
-    fn read_until_async(&self, delimiter: u8) -> AsyncReader {
+    fn read_until_async(&self, delimiter: u8,screen_manger: &ScreenManager) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
-        let mut is_raw_screen = false;
-        {
-            let mutex =&self.context.screen_manager;
-            let screen = mutex.lock().unwrap();
-            is_raw_screen = screen.is_raw_screen();
-        }
+        let is_raw_screen = screen_manger.is_raw_screen();
 
         thread::spawn(move || {
             loop {

@@ -16,7 +16,7 @@ use std::sync::Mutex;
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
 
 /// Reset to saved cursor position
-pub fn reset_to_saved_position(screen_manager: &Rc<Mutex<ScreenManager>>) {
+pub fn reset_to_saved_position(screen_manager: &ScreenManager) {
     unsafe {
         set_console_cursor_position(
             SAVED_CURSOR_POS.0 as i16,
@@ -27,7 +27,7 @@ pub fn reset_to_saved_position(screen_manager: &Rc<Mutex<ScreenManager>>) {
 }
 
 /// Save current cursor position to recall later.
-pub fn save_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) {
+pub fn save_cursor_pos(screen_manager: &ScreenManager) {
     let position = pos(screen_manager);
 
     unsafe {
@@ -36,7 +36,7 @@ pub fn save_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) {
 }
 
 /// get the current cursor position.
-pub fn pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+pub fn pos(screen_manager: &ScreenManager) -> (u16, u16) {
 
     let handle = handle::get_output_handle().unwrap();
 
@@ -47,7 +47,7 @@ pub fn pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
     }
 }
 
-pub fn absolute_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
+pub fn absolute_cursor_pos(screen_manager: &ScreenManager) -> (u16, u16) {
 
     let handle = handle::get_output_handle().unwrap();
 
@@ -62,7 +62,7 @@ pub fn absolute_cursor_pos(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u
 }
 
 /// Set the cursor position to the given x and y. Note that this is 0 based.
-pub fn set_console_cursor_position(x: i16, y: i16, screen_manager: &Rc<Mutex<ScreenManager>>) {
+pub fn set_console_cursor_position(x: i16, y: i16, screen_manager: &ScreenManager) {
     if x < 0 || x >= <i16>::max_value() {
         panic!(
             "Argument Out of Range Exception when setting cursor position to X: {}",
@@ -91,7 +91,7 @@ pub fn set_console_cursor_position(x: i16, y: i16, screen_manager: &Rc<Mutex<Scr
 }
 
 /// change the cursor visibility.
-pub fn cursor_visibility(visable: bool, screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<()> {
+pub fn cursor_visibility(visable: bool, screen_manager: &ScreenManager) -> Result<()> {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     let cursor_info = CONSOLE_CURSOR_INFO {

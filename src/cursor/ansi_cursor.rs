@@ -4,95 +4,63 @@
 
 use super::*;
 use shared::functions;
-use Context;
+use {Context,ScreenManager};
 
 /// This struct is an ansi implementation for cursor related actions.
-pub struct AnsiCursor {
-    context: Rc<Context>,
-}
+pub struct AnsiCursor;
 
 impl AnsiCursor {
-    pub fn new(context: Rc<Context>) -> Box<AnsiCursor> {
-        Box::from(AnsiCursor { context })
+    pub fn new() -> Box<AnsiCursor> {
+        Box::from(AnsiCursor {  })
     }
 }
 
 impl ITerminalCursor for AnsiCursor {
-    fn goto(&self, x: u16, y: u16) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_string(format!(csi!("{};{}H"), y + 1, x + 1));
-        }
+    fn goto(&self, x: u16, y: u16, screen_manager: &ScreenManager) {
+        screen_manager.write_string(format!(csi!("{};{}H"), y + 1, x + 1));
     }
 
-    fn pos(&self) -> (u16, u16) {
-        functions::get_cursor_position(self.context.clone())
+    fn pos(&self, screen_manager: &ScreenManager) -> (u16, u16) {
+        functions::get_cursor_position(screen_manager)
     }
 
-    fn move_up(&self, count: u16) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_string(format!(csi!("{}A"), count));
-        }
+    fn move_up(&self, count: u16, screen_manager: &ScreenManager) {
+        screen_manager.write_string(format!(csi!("{}A"), count));
     }
 
-    fn move_right(&self, count: u16) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_string(format!(csi!("{}C"), count));
-        }
+    fn move_right(&self, count: u16, screen_manager: &ScreenManager) {
+        screen_manager.write_string(format!(csi!("{}C"), count));
     }
 
-    fn move_down(&self, count: u16) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_string(format!(csi!("{}B"), count));
-        }
+    fn move_down(&self, count: u16, screen_manager: &ScreenManager) {
+        screen_manager.write_string(format!(csi!("{}B"), count));
     }
 
-    fn move_left(&self, count: u16) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_string(format!(csi!("{}D"), count));
-        }
+    fn move_left(&self, count: u16, screen_manager: &ScreenManager) {
+        screen_manager.write_string(format!(csi!("{}D"), count));
     }
 
-    fn save_position(&self) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_str(csi!("s"));
-        }
+    fn save_position(&self, screen_manager: &ScreenManager) {
+        screen_manager.write_str(csi!("s"));
     }
 
-    fn reset_position(&self) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_str(csi!("u"));
-        }
+    fn reset_position(&self, screen_manager: &ScreenManager) {
+        screen_manager.write_str(csi!("u"));
     }
 
-    fn hide(&self) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_str(csi!("?25l"));
-        }
+    fn hide(&self, screen_manager: &ScreenManager) {
+        screen_manager.write_str(csi!("?25l"));
     }
 
-    fn show(&self) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            screen.write_str(csi!("?25h"));
-        }
+    fn show(&self, screen_manager: &ScreenManager) {
+        screen_manager.write_str(csi!("?25h"));
     }
 
-    fn blink(&self, blink: bool) {
-        let mut screen = self.context.screen_manager.lock().unwrap();
-        {
-            if blink {
-                screen.write_str(csi!("?12h"));
-            } else {
-                screen.write_str(csi!("?12l"));
-            }
+    fn blink(&self, blink: bool, screen_manager: &ScreenManager) {
+        if blink {
+            screen_manager.write_str(csi!("?12h"));
+        } else {
+            screen_manager.write_str(csi!("?12l"));
         }
     }
 }

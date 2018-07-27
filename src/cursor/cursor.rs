@@ -13,25 +13,25 @@ use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 pub struct TerminalCursor<'cursor> {
-    context: &'cursor ScreenManager,
+    screen_manager: &'cursor ScreenManager,
     terminal_cursor: Box<ITerminalCursor>,
 }
 
 impl<'cursor> TerminalCursor<'cursor> {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(context: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
+    pub fn new(screen_manager: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor>>(
-            WinApiCursor::new(context.screen_manager.clone()),
-            AnsiCursor::new(context.clone()),
+            WinApiCursor::new(),
+            AnsiCursor::new(),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = AnsiCursor::new(context.clone()) as Box<ITerminalCursor>;
+        let cursor = AnsiCursor::new() as Box<ITerminalCursor>;
 
         TerminalCursor {
             terminal_cursor: cursor,
-            context,
+            screen_manager: screen_manager,
         }
     }
 
@@ -56,8 +56,8 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///    }
     ///
     /// ```
-    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor {
-        self.terminal_cursor.goto(x, y);
+    pub fn goto(&mut self, x: u16, y: u16) -> &mut TerminalCursor<'cursor> {
+        self.terminal_cursor.goto(x, y, &self.screen_manager);
         self
     }
 
@@ -83,7 +83,7 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn pos(&self) -> (u16, u16) {
-        self.terminal_cursor.pos()
+        self.terminal_cursor.pos(&self.screen_manager)
     }
 
     /// Move the current cursor position `n` times up.
@@ -107,8 +107,8 @@ impl<'cursor> TerminalCursor<'cursor> {
     /// }
     ///
     /// ```
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
-        self.terminal_cursor.move_up(count);
+    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'cursor> {
+        self.terminal_cursor.move_up(count, &self.screen_manager);
         self
     }
 
@@ -131,8 +131,8 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///      cursor.move_right(3);
     ///  }
     /// ```
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
-        self.terminal_cursor.move_right(count);
+    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'cursor> {
+        self.terminal_cursor.move_right(count, &self.screen_manager);
         self
     }
 
@@ -157,8 +157,8 @@ impl<'cursor> TerminalCursor<'cursor> {
     /// }
     ///
     /// ```
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
-        self.terminal_cursor.move_down(count);
+    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'cursor> {
+        self.terminal_cursor.move_down(count, &self.screen_manager);
         self
     }
 
@@ -183,8 +183,8 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///  }
     ///
     /// ```
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
-        self.terminal_cursor.move_left(count);
+    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'cursor> {
+        self.terminal_cursor.move_left(count, &self.screen_manager);
         self
     }
 
@@ -224,19 +224,13 @@ impl<'cursor> TerminalCursor<'cursor> {
     /// .print("@");
     ///
     /// ```
-    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
-        {
-            use std::fmt::Write;
-            let mut string = String::new();
-            write!(string, "{}", value).unwrap();
+    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor<'cursor> {
+        use std::fmt::Write;
+        let mut string = String::new();
+        write!(string, "{}", value).unwrap();
 
-            let mut mutex = &self.context.screen_manager;
-            {
-                let mut screen_manager = mutex.lock().unwrap();
-                screen_manager.write_string(string);
-                screen_manager.flush();
-            }
-        }
+        &self.screen_manager.write_string(string);
+        &self.screen_manager.flush();
         self
     }
 
@@ -257,7 +251,7 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn save_position(&self) {
-        self.terminal_cursor.save_position();
+        self.terminal_cursor.save_position(&self.screen_manager);
     }
 
     /// Return to saved cursor position
@@ -277,7 +271,7 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn reset_position(&self) {
-        self.terminal_cursor.reset_position();
+        self.terminal_cursor.reset_position(&self.screen_manager);
     }
 
     /// Hide de cursor in the console.
@@ -295,7 +289,7 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn hide(&self) {
-        self.terminal_cursor.hide();
+        self.terminal_cursor.hide(&self.screen_manager);
     }
 
     /// Show the cursor in the console.
@@ -313,7 +307,7 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn show(&self) {
-        self.terminal_cursor.show();
+        self.terminal_cursor.show(&self.screen_manager);
     }
 
     /// Enable or disable blinking of the terminal.
@@ -335,37 +329,37 @@ impl<'cursor> TerminalCursor<'cursor> {
     ///
     /// ```
     pub fn blink(&self, blink: bool) {
-        self.terminal_cursor.blink(blink);
+        self.terminal_cursor.blink(blink, &self.screen_manager);
     }
 }
 
-/// Get an TerminalCursor implementation whereon cursor related actions can be performed.
-///
-/// Check `/examples/version/cursor` in the libary for more spesific examples.
-///
-/// #Example
-///
-/// ```rust
-///
-///  extern crate crossterm;
-///  use self::crossterm::Context;
-///  use self::crossterm::cursor;
-///
-/// let context = Context::new();
-///
-/// // Get cursor and goto pos X: 5, Y: 10
-/// let mut cursor = cursor::cursor(&context);
-/// cursor.goto(5,10);
-///
-/// cursor.show();
-/// cursor.hide();
-/// cursor.blink();
-/// cursor.move_left(2);
-///
-/// //Or you can do it in one line.
-/// cursor::cursor(&context).goto(5,10);
-///
-/// ```
-pub fn cursor(context: &Rc<Context>) -> Box<TerminalCursor> {
-    Box::from(TerminalCursor::new(context.clone()))
-}
+// Get an TerminalCursor implementation whereon cursor related actions can be performed.
+//
+// Check `/examples/version/cursor` in the libary for more spesific examples.
+//
+// #Example
+//
+// ```rust
+//
+//  extern crate crossterm;
+//  use self::crossterm::Context;
+//  use self::crossterm::cursor;
+//
+// let context = Context::new();
+//
+// // Get cursor and goto pos X: 5, Y: 10
+// let mut cursor = cursor::cursor(&context);
+// cursor.goto(5,10);
+//
+// cursor.show();
+// cursor.hide();
+// cursor.blink();
+// cursor.move_left(2);
+//
+// //Or you can do it in one line.
+// cursor::cursor(&context).goto(5,10);
+//
+// ```
+//pub fn cursor(context: &ScreenManager) -> Box<TerminalCursor> {
+//    Box::from(TerminalCursor::new(context.clone()))
+//}
