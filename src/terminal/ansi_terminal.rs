@@ -37,7 +37,7 @@ impl ITerminal for AnsiTerminal {
     }
 
     fn terminal_size(&self, screen_manager: &ScreenManager) -> (u16, u16) {
-        functions::get_terminal_size(&self.context.screen_manager)
+        functions::get_terminal_size()
     }
 
     fn scroll_up(&self, count: i16, screen_manager: &ScreenManager) {

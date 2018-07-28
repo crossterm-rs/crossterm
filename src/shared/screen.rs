@@ -98,6 +98,7 @@ impl AlternateScreen {
     /// By calling this method the current screen will be changed to the alternate screen.
     /// And you get back an handle for that screen.
     pub fn new() -> Box<IAlternateScreenCommand> {
+        #[cfg(target_os = "windows")]
         let command = functions::get_module::<Box<IAlternateScreenCommand>>(
             win_commands::ToAlternateScreenBufferCommand::new(),
             shared_commands::ToAlternateScreenBufferCommand::new(),

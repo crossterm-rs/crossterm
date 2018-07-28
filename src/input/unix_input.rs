@@ -6,7 +6,6 @@ use std::sync::mpsc;
 use std::thread;
 
 use super::super::kernel::unix_kernel::terminal::{get_tty, read_char};
-use super::super::terminal::terminal;
 use super::{AsyncReader, ITerminalInput, Key};
 use ScreenManager;
 pub struct UnixInput;

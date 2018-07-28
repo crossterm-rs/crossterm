@@ -45,11 +45,11 @@ pub fn terminal_size() -> (u16, u16) {
 
 use std::time::{SystemTime, Duration};
 use std::io::ErrorKind;
-use Crossterm;
+use Terminal;
 use std::io::Read;
 /// Get the current cursor position.
-pub fn pos(context: Rc<Context>) -> (u16, u16) {
-    let crossterm = Crossterm::from(context.clone());
+pub fn pos() -> (u16, u16) {
+    let crossterm = Terminal::new();
     let input = crossterm.input();
 
     let delimiter = b'R';
@@ -58,7 +58,7 @@ pub fn pos(context: Rc<Context>) -> (u16, u16) {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
 
-    crossterm.write("\x1B[6n");
+//    crossterm.write("\x1B[6n");
 
     let mut buf: [u8; 1] = [0];
     let mut read_chars = Vec::new();
