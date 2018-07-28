@@ -5,7 +5,7 @@ use std::fmt::{self, Display};
 use std::io::Write;
 
 #[cfg(unix)]
-use super::super::Attribute;
+use super::Attribute;
 
 #[cfg(windows)]
 use super::super::super::manager::WinApiScreenManager;
@@ -89,55 +89,55 @@ impl<'terminal,D: Display> StyledObject<'terminal,D> {
     /// Increase the font intensity.
     #[cfg(unix)]
     #[inline(always)]
-    pub fn bold(self) -> StyledObject<D> {
+    pub fn bold(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Bold)
     }
     /// Faint (decreased intensity) (Not widely supported).
     #[cfg(unix)]
     #[inline(always)]
-    pub fn dim(self) -> StyledObject<D> {
+    pub fn dim(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Dim)
     }
     /// Make the font italic (Not widely supported; Sometimes treated as inverse).
     #[cfg(unix)]
     #[inline(always)]
-    pub fn italic(self) -> StyledObject<D> {
+    pub fn italic(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Italic)
     }
     /// Underline font.
     #[cfg(unix)]
     #[inline(always)]
-    pub fn underlined(self) -> StyledObject<D> {
+    pub fn underlined(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Underlined)
     }
     /// Slow Blink (less than 150 per minute; not widely supported).
     #[cfg(unix)]
     #[inline(always)]
-    pub fn slow_blink(self) -> StyledObject<D> {
+    pub fn slow_blink(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::SlowBlink)
     }
     /// Rapid Blink (MS-DOS ANSI.SYS; 150+ per minute; not widely supported).
     #[cfg(unix)]
     #[inline(always)]
-    pub fn rapid_blink(self) -> StyledObject<D> {
+    pub fn rapid_blink(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::RapidBlink)
     }
     /// Swap foreground and background colors.
     #[cfg(unix)]
     #[inline(always)]
-    pub fn reverse(self) -> StyledObject<D> {
+    pub fn reverse(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Reverse)
     }
     /// Hide text (Not widely supported).
     #[cfg(unix)]
     #[inline(always)]
-    pub fn hidden(self) -> StyledObject<D> {
+    pub fn hidden(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::Hidden)
     }
     /// Characters legible, but marked for deletion. Not widely supported.
     #[cfg(unix)]
     #[inline(always)]
-    pub fn crossed_out(self) -> StyledObject<D> {
+    pub fn crossed_out(self) -> StyledObject<'terminal,D> {
         self.attr(Attribute::CrossedOut)
     }
 }

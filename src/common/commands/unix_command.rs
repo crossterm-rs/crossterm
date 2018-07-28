@@ -10,20 +10,11 @@ use std::io::{Result,Error, ErrorKind};
 
 /// This command is used for switching to NoncanonicalMode.
 #[derive(Copy, Clone)]
-pub struct NoncanonicalModeCommand {
-    key: u16,
-}
+pub struct NoncanonicalModeCommand;
 
 impl NoncanonicalModeCommand {
-    pub fn new(state_manager: &Mutex<StateManager>) -> u16 {
-        let mut state = state_manager.lock().unwrap();
-        {
-            let key = state.get_changes_count();
-            let command = NoncanonicalModeCommand { key: key };
-
-            state.register_change(Box::from(command), key);
-            key
-        }
+    pub fn new() -> NoncanonicalModeCommand {
+        NoncanonicalModeCommand { }
     }
 }
 

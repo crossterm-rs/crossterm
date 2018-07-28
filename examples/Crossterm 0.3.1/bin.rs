@@ -30,7 +30,6 @@ fn main() {
     let mut cursor = term.cursor();
     cursor.goto(10, 10);
     cursor.print("test");
-    term.terminal().set_size(20,20);
     let mut color = term.color();
     color.set_fg(Color::Red);
 }

@@ -5,7 +5,7 @@ use super::{ScreenManager, Color, StyledObject};
 use std::fmt::Display;
 
 #[cfg(unix)]
-use super::super::Attribute;
+use super::Attribute;
 
 /// Struct that contains the style properties that can be applied to an displayable object.
 #[derive(Clone)]

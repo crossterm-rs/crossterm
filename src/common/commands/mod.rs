@@ -8,18 +8,12 @@ use std::io::Result;
 
 pub mod shared_commands;
 
-#[cfg(target_os = "unix")]
+#[cfg(not(target_os = "windows"))]
 pub mod unix_command;
 
 #[cfg(target_os = "windows")]
 pub mod win_commands;
 
-#[cfg(target_os = "windows")]
-pub use self::win_commands::*;
-#[cfg(target_os = "unix")]
-pub use self::unix_commands::*;
-
-pub use self::shared_commands::*;
 
 /// This command is used for complex commands whits change the terminal state.
 /// By passing an `Context` instance this command will register it self to notify the terminal state change.

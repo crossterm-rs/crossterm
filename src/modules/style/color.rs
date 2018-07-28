@@ -21,7 +21,7 @@ impl<'terminal>  TerminalColor<'terminal> {
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let color = AnsiColor::new() as Box<ITerminalColor>;
+        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor>;
 
         TerminalColor {
             color,

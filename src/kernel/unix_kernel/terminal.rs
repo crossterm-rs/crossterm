@@ -3,12 +3,18 @@
 use libc;
 pub use libc::termios;
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use common::commands::{NoncanonicalModeCommand, EnableRawModeCommand};
+use common::commands::unix_command::{NoncanonicalModeCommand, EnableRawModeCommand};
 
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 use std::{fs, io, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
+use std::io::ErrorKind;
+use std::io::Read;
+use std::time::{SystemTime, Duration};
+
+
+use Crossterm;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -41,14 +47,9 @@ pub fn terminal_size() -> (u16, u16) {
     }
 }
 
-
-use std::time::{SystemTime, Duration};
-use std::io::ErrorKind;
-use Terminal;
-use std::io::Read;
 /// Get the current cursor position.
 pub fn pos() -> (u16, u16) {
-    let crossterm = Terminal::new();
+    let crossterm = Crossterm::new();
     let input = crossterm.input();
 
     let delimiter = b'R';
