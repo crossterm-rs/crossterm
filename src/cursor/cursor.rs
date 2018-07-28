@@ -13,21 +13,13 @@ use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 pub struct TerminalCursor<'cursor> {
-<<<<<<< HEAD
     screen_manager: &'cursor ScreenManager,
-=======
-    context: &'cursor ScreenManager,
->>>>>>> 403d0668a72e9ca04a05bbe137a30d6a2d9ba90c
     terminal_cursor: Box<ITerminalCursor>,
 }
 
 impl<'cursor> TerminalCursor<'cursor> {
     /// Create new cursor instance whereon cursor related actions can be performed.
-<<<<<<< HEAD
     pub fn new(screen_manager: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
-=======
-    pub fn new(context: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
->>>>>>> 403d0668a72e9ca04a05bbe137a30d6a2d9ba90c
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor>>(
             WinApiCursor::new(),

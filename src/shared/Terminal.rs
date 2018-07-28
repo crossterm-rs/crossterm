@@ -2,11 +2,10 @@ use {StateManager, ScreenManager};
 use super::super::state::commands::*;
 use super::raw::RawTerminal;
 use super::screen::AlternateScreen;
-<<<<<<< HEAD
 
 use super::super::cursor;
 use super::super::input;
-use super::super::terminal;
+//use super::super::terminal;
 
 use std::collections::HashMap;
 
@@ -107,9 +106,6 @@ impl Terminal{
         return input::TerminalInput::new(&self.active_screen)
     }
 
-    pub fn terminal(&self) -> input::TerminalInput {
-        return input::TerminalInput::new(&self.active_screen)
-    }
 }
 
 impl Drop for Terminal

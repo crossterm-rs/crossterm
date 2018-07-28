@@ -12,7 +12,7 @@ pub mod cursor;
 pub mod input;
 pub mod manager;
 //pub mod style;
-pub mod terminal;
+//pub mod terminal;
 
 pub use shared::Terminal::Terminal;
 //pub use shared::crossterm::Crossterm;

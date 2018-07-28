@@ -156,7 +156,7 @@ impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
             };
 
         let b: &mut WinApiScreenManager = match screen_manager
-            .as_any()
+            .as_any_mut()
             .downcast_mut::<WinApiScreenManager>()
             {
                 Some(b) => b,
