@@ -12,26 +12,26 @@ use std::io::Write;
 use std::rc::Rc;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
-pub struct Terminal {
+pub struct Terminal<'terminal> {
     terminal: Box<ITerminal>,
-    context: Rc<Context>,
+    screen_manager: &'terminal ScreenManager,
 }
 
-impl Terminal {
+impl<'terminal> Terminal<'terminal> {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new(context: Rc<Context>) -> Terminal {
+    pub fn new(screen_manager: &'terminal ScreenManager) -> Terminal<'terminal> {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal>>(
-            WinApiTerminal::new(context.clone()),
-            AnsiTerminal::new(context.clone()),
+            Box::new(WinApiTerminal::new()),
+            Box::new(AnsiTerminal::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = AnsiTerminal::new(context.clone()) as Box<ITerminal>;
+        let terminal = AnsiTerminal::new() as Box<ITerminal>;
 
         Terminal {
             terminal,
-            context: context,
+            screen_manager: screen_manager
         }
     }
 
@@ -61,7 +61,7 @@ impl Terminal {
     ///
     /// ```
     pub fn clear(&self, clear_type: ClearType) {
-        self.terminal.clear(clear_type);
+        self.terminal.clear(clear_type, &self.screen_manager);
     }
 
     /// Get the terminal size (x,y).
@@ -82,7 +82,7 @@ impl Terminal {
     ///
     /// ```
     pub fn terminal_size(&self) -> (u16, u16) {
-        return self.terminal.terminal_size();
+        return self.terminal.terminal_size(&self.screen_manager);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -103,7 +103,7 @@ impl Terminal {
     ///
     /// ```
     pub fn scroll_up(&self, count: i16) {
-        self.terminal.scroll_up(count);
+        self.terminal.scroll_up(count,&self.screen_manager);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -124,7 +124,7 @@ impl Terminal {
     ///
     /// ```
     pub fn scroll_down(&self, count: i16) {
-        self.terminal.scroll_down(count);
+        self.terminal.scroll_down(count,&self.screen_manager);
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -145,7 +145,7 @@ impl Terminal {
     ///
     /// ```
     pub fn set_size(&self, width: i16, height: i16) {
-        self.terminal.set_size(width, height);
+        self.terminal.set_size(width, height,&self.screen_manager);
     }
 
     /// Wraps an displayable object so it can be formatted with colors and attributes.
@@ -176,12 +176,12 @@ impl Terminal {
     /// }
     ///
     /// ```
-    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
-    where
-        D: fmt::Display,
-    {
-        style::ObjectStyle::new().apply_to(val, self.context.clone())
-    }
+//    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
+//    where
+//        D: fmt::Display,
+//    {
+//        style::ObjectStyle::new().apply_to(val, self.context.clone())
+//    }
 
     /// Exit the current process.
     ///
@@ -220,17 +220,9 @@ impl Terminal {
     ///
     /// ```
     pub fn write<D: fmt::Display>(&self, value: D) {
-        let mut mutex = &self.context.screen_manager;
-        {
-            let mut screen_manager = mutex.lock().unwrap();
-
-            use std::fmt::Write;
-            let mut string = String::new();
-            write!(string, "{}", value).unwrap();
-
-            screen_manager.write_string(string);
-            screen_manager.flush();
-        }
+        let mut string = String::new();
+        write!(string, "{}", value).unwrap();
+        self.screen_manager.write_string(string);
     }
 }
 
@@ -255,6 +247,6 @@ impl Terminal {
 ///
 /// ```
 ///
-pub fn terminal(context: &Rc<Context>) -> Box<Terminal> {
-    Box::from(Terminal::new(context.clone()))
+pub fn terminal(screen_manager: &ScreenManager) -> Terminal {
+    Terminal::new(screen_manager)
 }
