@@ -1,17 +1,18 @@
 //! This module handles the enabling `ANSI escape codes` for windows terminals.
 
 use std::sync::{Once, ONCE_INIT};
-use IStateCommand;
 
 static mut HAS_BEEN_TRIED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
 static ENABLE_ANSI: Once = ONCE_INIT;
 
+use common::commands::{EnableAnsiCommand, IStateCommand};
+
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
-        use state::commands::win_commands::EnableAnsiCommand;
+
         let mut command = EnableAnsiCommand::new();
         let success = command.execute();
 

@@ -1,12 +1,11 @@
-use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::GetStdHandle;
+use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
 use winapi::um::winnt::HANDLE;
 
-use std::io::{self, ErrorKind, Result};
-use std::rc::Rc;
-use std::sync::Mutex;
 use super::super::super::manager::{ScreenManager, WinApiScreenManager};
+
+use std::io::{self, ErrorKind, Result};
 
 /// Get the global stored handle whits provides access to the current screen.
 pub fn get_current_handle(screen_manager: &ScreenManager) -> Result<HANDLE> {

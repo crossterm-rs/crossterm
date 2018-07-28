@@ -8,12 +8,9 @@ use winapi::um::wincon::{
 use winapi::um::winnt::HANDLE;
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
-use super::{handle, kernel, Empty};
+use super::{handle, kernel, Empty, ScreenManager};
 use std::io::{self, ErrorKind, Result};
 use std::mem::size_of;
-use std::rc::Rc;
-use std::sync::Mutex;
-use ScreenManager;
 
 /// Create a new console screen buffer info struct.
 pub fn get_csbi(screen_manager: &ScreenManager) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {

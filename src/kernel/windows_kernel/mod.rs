@@ -1,4 +1,4 @@
-//! This module contains the `windows` specific logic.
+//! This module contains the `windows` (unsafe) logic.
 
 pub mod ansi_support;
 pub mod cursor;
@@ -8,9 +8,9 @@ pub mod writing;
 pub mod csbi;
 pub mod handle;
 
-use self::winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
-use shared::traits::Empty;
-use winapi;
+use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
+use common::traits::Empty;
+use super::super::manager::ScreenManager;
 
 impl Empty for COORD {
     fn empty() -> COORD {

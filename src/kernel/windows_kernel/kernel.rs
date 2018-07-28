@@ -1,5 +1,4 @@
 //! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
-//! I am planing to refactor this a little since a lot of code could be handled safer.
 
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
 use winapi::um::winnt::HANDLE;
@@ -12,8 +11,6 @@ use super::{handle, Empty};
 use super::super::super::manager::ScreenManager;
 
 use std::io::{ErrorKind, Result};
-use std::sync::Mutex;
-use std::rc::Rc;
 
 /// Get the largest console window size possible.
 pub fn get_largest_console_window_size() -> COORD {
@@ -70,9 +67,3 @@ pub fn is_true(value: i32) -> bool {
         return true;
     }
 }
-
-///// Get the original color of the terminal.
-//pub fn get_original_console_color(screen_manager: &ScreenManager) -> u16 {
-//    let console_buffer_info = csbi::get_console_screen_buffer_info(screen_manager);
-//    console_buffer_info.wAttributes as u16
-//}

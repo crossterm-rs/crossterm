@@ -7,13 +7,10 @@ use winapi::um::wincon::{
 };
 use winapi::um::winnt::HANDLE;
 
-use super::{csbi, handle, kernel};
-use {Context, ScreenManager};
+use super::{ScreenManager, csbi, handle, kernel};
 
 use std::io::{self, ErrorKind, Result};
-use std::rc::Rc;
 use std::str;
-use std::sync::Mutex;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(

@@ -1,13 +1,12 @@
 //! This module contains all `unix` specific terminal related logic.
 
-pub use self::libc::termios;
+use libc;
+pub use libc::termios;
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use state::commands::{IStateCommand, NoncanonicalModeCommand, EnableRawModeCommand};
-use {libc, CommandManager, Context, StateManager};
+use common::commands::{NoncanonicalModeCommand, EnableRawModeCommand};
 
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
-use std::rc::Rc;
 use std::{fs, io, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 

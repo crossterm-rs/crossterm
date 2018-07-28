@@ -9,8 +9,6 @@ use super::super::super::manager::{ScreenManager, WinApiScreenManager};
 use super::{csbi, handle, kernel};
 
 use std::io::{self, ErrorKind, Result};
-use std::rc::Rc;
-use std::sync::Mutex;
 
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);

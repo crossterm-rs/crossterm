@@ -4,29 +4,19 @@
 //! You can just call the action you want to perform and under water it will check what to do based on the current platform.
 
 #[macro_use]
-mod shared;
+pub mod common;
+
 mod kernel;
-mod state;
+mod modules;
 
-pub mod cursor;
-pub mod input;
-pub mod manager;
-//pub mod style;
-//pub mod terminal;
+pub use common::screen;
+pub use modules::style;
+pub use modules::cursor;
+pub use modules::manager;
+pub use modules::terminal;
+pub use modules::input;
 
-pub use shared::Terminal::Terminal;
-//pub use shared::crossterm::Crossterm;
-
-pub use shared::crossterm::Crossterm;
-
-pub use shared::raw;
-pub use shared::screen;
-pub use state::context::Context;
-
-use manager::ScreenManager;
-use state::command_manager::CommandManager;
-use state::commands::IStateCommand;
-use state::state_manager::StateManager;
+pub use common::Crossterm;
 
 #[cfg(unix)]
 extern crate libc;

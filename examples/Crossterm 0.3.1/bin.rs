@@ -12,7 +12,8 @@
 //! - Run program with: `cargo run`
 extern crate crossterm;
 
-use crossterm::Terminal;
+use crossterm::Crossterm;
+use crossterm::style::Color;
 
 // mod terminal;
 // mod color;
@@ -25,8 +26,11 @@ use crossterm::Terminal;
 use std::{thread, time};
 
 fn main() {
-    let term = Terminal::new();
+    let term = Crossterm::new();
     let mut cursor = term.cursor();
     cursor.goto(10, 10);
     cursor.print("test");
+    term.terminal().set_size(20,20);
+    let mut color = term.color();
+    color.set_fg(Color::Red);
 }
