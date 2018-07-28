@@ -154,6 +154,17 @@ impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
                 Some(b) => b.set_alternate_handle(new_handle),
                 None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
             };
+
+        let b: &mut WinApiScreenManager = match screen_manager
+            .as_any()
+            .downcast_mut::<WinApiScreenManager>()
+            {
+                Some(b) => b,
+                None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
+            };
+
+        b.set_alternate_handle(new_handle);
+
         Ok(())
     }
 

@@ -62,6 +62,5 @@ impl ITerminalCursor for WinApiCursor {
     fn show(&self, screen_manager: &ScreenManager) {
         cursor::cursor_visibility(true, screen_manager);
     }
-
     fn blink(&self, blink: bool, screen_manager: &ScreenManager) {}
 }
