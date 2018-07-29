@@ -1,24 +1,27 @@
-//! This module contains the commands that can be used for both unix and windows systems. Or else said terminals that support ansi codes.
+//! This module contains the commands that can be used for both unix and windows 10 systems because they support ANSI escape codes
+
 use super::{IAlternateScreenCommand, ScreenManager};
 
 use std::io::Result;
 
 /// This command is used for switching to alternate screen and back to main screen.
-pub struct ToAlternateScreenBufferCommand;
+pub struct ToAlternateScreenCommand;
 
-impl  ToAlternateScreenBufferCommand {
-    pub fn new() -> Box<ToAlternateScreenBufferCommand> {
-      return Box::new(ToAlternateScreenBufferCommand {});
+impl  ToAlternateScreenCommand {
+    pub fn new() -> Box<ToAlternateScreenCommand> {
+      return Box::new(ToAlternateScreenCommand {});
     }
 }
 
-impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
-    fn to_alternate_screen(&self, screen_manager: &mut ScreenManager) -> Result<()> {
+impl IAlternateScreenCommand for ToAlternateScreenCommand {
+    /// enable alternate screen.
+    fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
         screen_manager.write_str(csi!("?1049h"));
         Ok(())
     }
 
-    fn to_main_screen(&self, screen_manager: &mut ScreenManager) -> Result<()> {
+    /// disable alternate screen.
+    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
         screen_manager.write_str(csi!("?1049l"));
         Ok(())
     }

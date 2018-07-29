@@ -1,12 +1,5 @@
-//! This trait defines the actions that can be preformed with the terminal cursor.
-//! This trait can be implemented so that an concrete implementation of the ITerminalCursor can for fill
-//! the wishes to work on an specific platform.
-//!
-//! ## For example:
-//!
-//! This trait is implemented to work with WINAPI (Windows specific) and ANSI (Unix specific),
-//! so that the cursor related actions can be preformed on both unix and windows systems.
-//!
+//! With this module you can perform actions that are cursor related.
+//! Like moving the cursor position;saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
 mod cursor;
 

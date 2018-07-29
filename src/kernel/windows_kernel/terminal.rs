@@ -1,3 +1,5 @@
+//! This module contains terminal specific logic.
+
 use super::{csbi, handle, ScreenManager};
 
 /// Get the terminal size

@@ -1,3 +1,5 @@
+//! This contains the logic for working with the console buffer.
+
 use winapi::shared::minwindef::{FALSE, TRUE};
 use winapi::shared::ntdef::NULL;
 use winapi::um::minwinbase::SECURITY_ATTRIBUTES;

@@ -1,12 +1,14 @@
 //! This is an `WINAPI` specific implementation for terminal related action.
 //! This module is used for non supporting `ANSI` windows terminals.
+//!
+//! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
 use super::{ClearType, ITerminal, ScreenManager, functions};
 use super::super::super::cursor::cursor;
 use kernel::windows_kernel::{csbi, kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 
-/// This struct is an windows implementation for terminal related actions.
+/// This struct is an winapi implementation for terminal related actions.
 pub struct WinApiTerminal;
 
 impl WinApiTerminal {
@@ -21,7 +23,7 @@ impl ITerminal for WinApiTerminal {
         let pos = cursor(screen_manager).pos();
 
         match clear_type {
-            ClearType::All => clear_entire_screen(csbi, &screen_manager),
+            ClearType::All => { clear_entire_screen(csbi, screen_manager);  },
             ClearType::FromCursorDown => clear_after_cursor(pos, csbi, screen_manager),
             ClearType::FromCursorUp => clear_before_cursor(pos, csbi, screen_manager),
             ClearType::CurrentLine => clear_current_line(pos, csbi, screen_manager),
@@ -56,8 +58,6 @@ impl ITerminal for WinApiTerminal {
         let csbi = csbi::get_csbi(&screen_manager).unwrap();
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
-
-        //        panic!("window top: {} , window bottom: {} | {}, {}", srct_window.Top, srct_window.Bottom, csbi.dwSize.Y, csbi.dwSize.X);
 
         // Set srctWindow to the current window size and location.
         srct_window = csbi.srWindow;
@@ -201,7 +201,7 @@ pub fn clear_before_cursor(
     // get sum cells before cursor
     let cells_to_write = (csbi.dwSize.X as u32 * ypos as u32) + (xpos as u32 + 1);
 
-    clear(start_location, cells_to_write, &screen_manager);
+    clear(start_location, cells_to_write, screen_manager);
 }
 
 pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &ScreenManager) {
@@ -222,7 +222,7 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &Sc
     clear(start_location, cells_to_write, &screen_manager);
 
     // put the cursor back at (0, 0)
-    cursor(&screen_manager).goto(0, 0);
+    cursor(screen_manager).goto(0, 0);
 }
 
 pub fn clear_current_line(
@@ -247,7 +247,7 @@ pub fn clear_current_line(
     clear(start_location, cells_to_write, screen_manager);
 
     // put the cursor back at 1 cell on current row
-    cursor(&screen_manager).goto(0, y);
+    cursor(screen_manager).goto(0, y);
 }
 
 pub fn clear_until_line(pos: (u16, u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &ScreenManager) {
@@ -264,7 +264,7 @@ pub fn clear_until_line(pos: (u16, u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, scree
     clear(start_location, cells_to_write, &screen_manager);
 
     // put the cursor back at original cursor position
-    cursor(&screen_manager).goto(x, y);
+    cursor(screen_manager).goto(x, y);
 }
 
 fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &ScreenManager) {
@@ -292,6 +292,6 @@ fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &ScreenMana
     );
 
     if !success {
-        panic!("Couldnot reset attributes after cursor");
+        panic!("Could not reset attributes after cursor");
     }
 }

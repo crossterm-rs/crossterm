@@ -1,5 +1,22 @@
-//! This module provides an interface for working with the screen. With that I mean that you can get or wirte to the handle of the current screen. stdout.
-//! Because crossterm can work with alternate screen, we need a place that holds the handle to the current screen so we can write to that screen.
+//! This module provides one place to work with the screen.
+//!
+//!   In Rust we can call `stdout()` to get an handle to the current default console handle.
+//!   For example when in unix systems you want to print something to the main screen you can use the following code:
+//!
+//!   ```
+//!   write!(std::io::stdout(), "{}", "some text").
+//!   ```
+//!
+//!   But things change when we are in alternate screen modes.
+//!   We can not simply use `stdout()` to get a handle to the alternate screen, since this call returns the current default console handle (mainscreen).
+//!
+//!   Instead we need to store an handle to the screen output.
+//!   This handle could be used to put into alternate screen modes and back into main screen modes.
+//!   Through this stored handle Crossterm can execute its command on the current screen whether it be alternate screen or main screen.
+//!
+//!   For unix systems we store the handle gotten from `stdout()` for windows systems that are not supporting ANSI escape codes we store WinApi `HANDLE` struct witch will provide access to the current screen.
+//!
+//! This is the reason why this module exits: it is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
 
 use super::*;
 
@@ -28,7 +45,7 @@ impl ScreenManager {
         let screen_manager = Box::from(AnsiScreenManager::new()) as Box<IScreenManager>;
 
         ScreenManager {
-            screen_manager: screen_manager,
+            screen_manager,
         }
     }
 
@@ -68,12 +85,12 @@ impl ScreenManager {
         self.screen_manager.write_str(string)
     }
 
-    /// Can be used to get an specific implementation used for the current platform.
+    /// Can be used to get an reference to an specific implementation used for the current platform.
     pub fn as_any(&self) -> &Any {
         self.screen_manager.as_any()
     }
 
-    /// Can be used to get an specific implementation used for the current platform.
+    /// Can be used to get an mutable reference to an specific implementation used for the current platform.
     pub fn as_any_mut(&mut self) -> &mut Any {
         self.screen_manager.as_any_mut()
     }

@@ -1,4 +1,4 @@
-//! This module is the core of all the `WINAPI` actions. All unsafe `WINAPI` function call are done here.
+//! This module contains some basic winapi calls.
 
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
 use winapi::um::winnt::HANDLE;

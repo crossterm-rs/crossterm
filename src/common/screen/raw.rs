@@ -26,6 +26,7 @@ use std::io::{self, Write};
 pub struct RawScreen;
 
 impl RawScreen {
+    /// Create a new RawScreen type.
     pub fn new() -> Box<commands::IRawScreenCommand> {
         Box::from(EnableRawModeCommand::new())
     }

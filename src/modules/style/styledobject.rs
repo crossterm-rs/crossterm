@@ -1,4 +1,5 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
+
 use super::{ScreenManager, ObjectStyle, Color};
 
 use std::fmt::{self, Display};
@@ -14,7 +15,7 @@ use super::super::super::manager::WinApiScreenManager;
 pub struct StyledObject<'terminal, D: Display> {
     pub object_style: ObjectStyle,
     pub content: D,
-    pub screen_manager: &'terminal ScreenManager,
+    pub screen_manager: &'terminal mut ScreenManager,
 }
 
 impl<'terminal,D: Display> StyledObject<'terminal,D> {
@@ -144,7 +145,7 @@ impl<'terminal,D: Display> StyledObject<'terminal,D> {
 
 impl<'terminal, D: Display> Display for StyledObject<'terminal,D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let mut colored_terminal = super::super::super::style::color::color(&self.screen_manager);
+        let mut colored_terminal = super::super::super::style::color::color(self.screen_manager);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {

@@ -6,6 +6,7 @@ use winapi::um::winnt::HANDLE;
 use std::any::Any;
 use std::io::{self, Write};
 
+/// This struct is an WINAPI implementation for screen related actions.
 pub struct WinApiScreenManager {
     is_alternate_screen: bool,
     is_raw_screen: bool,
@@ -54,8 +55,9 @@ impl IScreenManager for WinApiScreenManager {
     }
 }
 
-// for winapi we have some custom implementation that will be used by windows only. You can get a reference to this implementation by using the any and that cast it to this struct.
+// for winapi we have some custom implementation that will be used by windows only. You can get a reference to this implementation by using the `as_any()` and that cast it to this struct.
 impl WinApiScreenManager {
+    /// Create a new instance.
     pub fn new() -> Self {
         WinApiScreenManager {
             output: handle::get_output_handle().unwrap(),

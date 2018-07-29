@@ -1,10 +1,4 @@
-//! Module that contains all the actions related to the terminal.
-//!
-//! We can think of:
-//! - alternate screen
-//! - raw mode
-//! - clearing resizing scrolling the terminal.
-//!
+//! Module that contains all the actions related to the terminal. like clearing, resizing and scrolling the terminal.
 
 pub mod terminal;
 
@@ -19,7 +13,7 @@ use self::ansi_terminal::AnsiTerminal;
 pub use self::terminal::Terminal;
 use super::{ ScreenManager, functions };
 
-/// Enum that can be used for the kind of clearing that can be done in the terminal.
+/// Enum that specifies a way of clearing.
 pub enum ClearType {
     All,
     FromCursorDown,
@@ -28,14 +22,14 @@ pub enum ClearType {
     UntilNewLine,
 }
 
-///! This trait defines the actions that can be preformed with the terminal.
-///! This trait can be implemented so that an concrete implementation of the ITerminal can forfill
-///! the wishes to work on an specific platform.
-///!
-///! ## For example:
-///!
-///! This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
-///! so that cursor related actions can be preformed on both unix and windows systems.
+/// This trait defines the actions that can be preformed with the terminal color.
+/// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
+/// the wishes to work on an specific platform.
+///
+/// ## For example:
+///
+/// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
+/// so that color related actions can be preformed on both unix and windows systems.
 pub trait ITerminal {
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType, screen_manager: &ScreenManager);

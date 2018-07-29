@@ -6,13 +6,14 @@ use super::IScreenManager;
 
 use std::any::Any;
 use std::io::{self, Read, Write};
-use std::sync::Mutex;
+use std::cell::RefCell ;
 use std::str::from_utf8;
 
+/// This struct is an ANSI escape code implementation for screen related actions.
 pub struct AnsiScreenManager {
     is_alternate_screen: bool,
     is_raw_screen: bool,
-    output: Mutex<Box<Write>>
+    output: RefCell<Box<Write>>
 }
 
 impl IScreenManager for AnsiScreenManager {
@@ -33,28 +34,21 @@ impl IScreenManager for AnsiScreenManager {
     }
 
     fn write_str(&self, string: &str) -> io::Result<usize> {
-        {
-            let mx = &self.output;
-
-            let mut output = mx.lock().unwrap();
-            write!(output, "{}", string)?;
-        }
-        self.flush();
+        let mut output = self.output.borrow_mut();
+        write!(output, "{}", string)?;
         Ok(0)
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
         {
-            let mx = &self.output;
-            let mut output = mx.lock().unwrap();
+            let mut output = self.output.borrow_mut();
             output.write(buf)?;
         }
         Ok(0)
     }
 
     fn flush(&self) -> io::Result<()> {
-        let mx = &self.output;
-        let mut output = mx.lock().unwrap();
+        let mut output = self.output.borrow_mut();
         output.flush()
     }
 
@@ -70,7 +64,7 @@ impl IScreenManager for AnsiScreenManager {
 impl AnsiScreenManager {
     pub fn new() -> Self {
         AnsiScreenManager {
-            output: Mutex::new(Box::from(io::stdout()) as Box<Write>),
+            output: RefCell::new(Box::from(io::stdout()) as Box<Write>),
             is_alternate_screen: false,
             is_raw_screen: false,
         }

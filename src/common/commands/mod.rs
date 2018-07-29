@@ -1,7 +1,4 @@
-//! This module is used for managing the state changes of the terminal.
-//!
-//! If `crossterm` changes some core state of the terminal like: enabling ANSI or enabling raw mode it should be reverted when the current process ends.
-//! It would be a little lame to let the terminal in raw mode after the the current process ends for the user of this library.
+//! This module contains some commands that could be executed for specific task.
 
 use super::super::manager::ScreenManager;
 use std::io::Result;
@@ -21,19 +18,20 @@ pub use self::unix_commands::*;
 
 pub use self::shared_commands::*;
 
-/// This command is used for complex commands whits change the terminal state.
-/// By passing an `Context` instance this command will register it self to notify the terminal state change.
+/// This trait provides a way to execute some state changing commands.
 pub trait IStateCommand {
     fn execute(&mut self) -> bool;
     fn undo(&mut self) -> bool;
 }
 
+/// This trait provides an interface for switching to alternate screen and back.
 pub trait IAlternateScreenCommand
 {
-    fn to_alternate_screen(&self,screen_manager: &mut ScreenManager) -> Result<()>;
-    fn to_main_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>;
+    fn enable(&self,screen_manager: &mut ScreenManager) -> Result<()>;
+    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()>;
 }
 
+/// This trait provides an interface for switching to raw mode and back.
 pub trait IRawScreenCommand
 {
     fn enable(&mut self) -> Result<()>;

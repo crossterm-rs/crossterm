@@ -1,3 +1,8 @@
+//! This is an `WINAPI` specific implementation for styling related action.
+//! This module is used for non supporting `ANSI` windows terminals.
+//!
+//! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
+
 use super::super::super::manager::WinApiScreenManager;
 use super::{Color, ColorType, ITerminalColor, ScreenManager};
 use kernel::windows_kernel::{csbi, kernel};

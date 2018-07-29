@@ -4,7 +4,7 @@
 use super::super::cursor::cursor;
 use super::{ClearType, ITerminal, ScreenManager, functions};
 
-/// This struct is an ansi implementation for terminal related actions.
+/// This struct is an ansi escape code implementation for terminal related actions.
 pub struct AnsiTerminal;
 
 impl AnsiTerminal {

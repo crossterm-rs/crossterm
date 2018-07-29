@@ -3,7 +3,7 @@
 
 use super::{ITerminalColor, Color, ScreenManager, ColorType};
 
-/// This struct is an ansi implementation for color related actions.
+/// This struct is an ANSI escape code implementation for color related actions.
 pub struct AnsiColor;
 
 impl AnsiColor {

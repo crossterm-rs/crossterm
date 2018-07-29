@@ -1,6 +1,7 @@
 //! This is an WINAPI specific implementation for cursor related action.
 //! This module is used for windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
+
 use super::super::manager::{ScreenManager, WinApiScreenManager};
 use super::ITerminalCursor;
 

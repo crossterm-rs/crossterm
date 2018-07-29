@@ -7,6 +7,21 @@ use std::fmt;
 use std::io::Write;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
+///
+/// Check `/examples/version/terminal` in the library for more specific examples.
+///
+/// #Example
+///
+/// ```rust
+///
+/// let crossterm = Crossterm::new();
+/// let term = crossterm.terminal();
+///
+/// term.scroll_down(5);
+/// term.scroll_up(4);
+/// let (with, height) = term.terminal_size();
+///
+/// ```
 pub struct Terminal<'terminal> {
     terminal: Box<ITerminal>,
     screen_manager: &'terminal ScreenManager,
@@ -36,12 +51,8 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// // clear all cells in terminal.
     /// term.clear(terminal::ClearType::All);
@@ -55,8 +66,8 @@ impl<'terminal> Terminal<'terminal> {
     /// term.clear(terminal::ClearType::UntilNewLine);
     ///
     /// ```
-    pub fn clear(&self, clear_type: ClearType) {
-        self.terminal.clear(clear_type, &self.screen_manager);
+    pub fn clear(&mut self, clear_type: ClearType) {
+        self.terminal.clear(clear_type, &mut self.screen_manager);
     }
 
     /// Get the terminal size (x,y).
@@ -69,8 +80,8 @@ impl<'terminal> Terminal<'terminal> {
     /// use crossterm::terminal;
     /// use crossterm::Context;
     ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// let size = term.terminal_size();
     /// println!("{:?}", size);
@@ -86,12 +97,8 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
@@ -107,12 +114,8 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+   ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
@@ -128,12 +131,8 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
@@ -143,53 +142,14 @@ impl<'terminal> Terminal<'terminal> {
         self.terminal.set_size(width, height,&self.screen_manager);
     }
 
-    /// Wraps an displayable object so it can be formatted with colors and attributes.
-    ///
-    /// Check `/examples/color` in the libary for more spesific examples.
-    ///
-    /// #Example
-    ///
-    /// ```rust
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::style::{paint,Color};
-    ///
-    /// fn main()
-    /// {
-    ///     // Create an styledobject object from the text 'Unstyled font'
-    ///     // Currently it has the default foregroundcolor and backgroundcolor.
-    ///     println!("{}",paint("Unstyled font"));
-    ///
-    ///     // Create an displayable object from the text 'Colored font',
-    ///     // Paint this with the `Red` foreground color and `Blue` backgroundcolor.
-    ///     // Print the result.
-    ///     let styledobject = paint("Colored font").with(Color::Red).on(Color::Blue);
-    ///     println!("{}", styledobject);
-    ///
-    ///     // Or all in one line
-    ///     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
-    /// }
-    ///
-    /// ```
-//    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
-//    where
-//        D: fmt::Display,
-//    {
-//        style::ObjectStyle::new().apply_to(val, self.context.clone())
-//    }
-
     /// Exit the current process.
     ///
     /// #Example
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// let size = term.exit();
     ///
@@ -204,12 +164,8 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    /// let mut term = terminal::terminal(&context);
+    ///  let crossterm = Crossterm::new();
+    ///  let term = crossterm.terminal();
     ///
     /// let size = term.write("Some text \n Some text on new line");
     ///
@@ -222,27 +178,7 @@ impl<'terminal> Terminal<'terminal> {
     }
 }
 
-/// Get an Terminal implementation whereon terminal related actions can be performed.
-///
-/// Check `/examples/version/terminal` in the libary for more spesific examples.
-///
-/// #Example
-///
-/// ```rust
-///
-/// extern crate crossterm;
-/// use crossterm::terminal;
-/// use crossterm::Context;
-///
-/// let context = Context::new();
-///
-/// let mut term = terminal::terminal(&context);
-///
-/// // scroll down by 5 lines
-/// let size = term.scroll_down(5);
-///
-/// ```
-///
-pub fn terminal(screen_manager: &ScreenManager) -> Terminal {
+/// Get an terminal implementation whereon terminal related actions could performed
+pub fn terminal(screen_manager: &mut ScreenManager) -> Terminal {
     Terminal::new(screen_manager)
 }

@@ -2,10 +2,27 @@
 //! Like styling the font, foreground color and background.
 
 use super::*;
-
 use std::io;
 
 /// Struct that stores an specific platform implementation for color related actions.
+///
+/// Check `/examples/version/color` in the library for more specific examples.
+///
+/// #Example
+///
+/// ```rust
+///
+/// let crossterm = Crossterm::new();
+/// let colored_terminal = crossterm.color();
+///
+/// // set foreground color
+/// colored_terminal.set_fg(Color::Red);
+/// // set background color
+/// colored_terminal.set_bg(Color::Red);
+/// // reset color to default
+/// colored_terminal.reset();
+///
+/// ```
 pub struct TerminalColor<'terminal> {
     color: Box<ITerminalColor>,
     screen_manager: &'terminal ScreenManager
@@ -34,15 +51,8 @@ impl<'terminal>  TerminalColor<'terminal> {
     /// #Example
     ///
     /// ```rust
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::style::{ color, Color};
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    ///
-    /// // Get colored terminal instance
-    /// let mut colored_terminal = color(&context);
+    /// let crossterm = Crossterm::new();
+    /// let colored_terminal = crossterm.color();
     ///
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
@@ -60,15 +70,8 @@ impl<'terminal>  TerminalColor<'terminal> {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::style::{ color, Color};
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    ///
-    /// // Get colored terminal instance
-    /// let mut colored_terminal = color(&context);
+    /// let crossterm = Crossterm::new();
+    /// let colored_terminal = crossterm.color();
     ///
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
@@ -84,15 +87,9 @@ impl<'terminal>  TerminalColor<'terminal> {
     /// # Example
     ///
     /// ```rust
-    /// extern crate crossterm;
     ///
-    /// use self::crossterm::style::color;
-    /// use crossterm::Context;
-    ///
-    /// let context = Context::new();
-    ///
-    /// // Get colored terminal instance
-    /// let mut colored_terminal = color(&context);
+    /// let crossterm = Crossterm::new();
+    /// let colored_terminal = crossterm.color();
     ///
     /// colored_terminal.reset();
     ///
@@ -118,10 +115,7 @@ impl<'terminal>  TerminalColor<'terminal> {
     }
 }
 
-/// Get an Color implementation whereon color related actions can be performed.
-///
-/// Check `/examples/version/color` in the library for more specific examples.
-///
+/// Get an Terminal Color implementation whereon color related actions can be performed.
 pub fn color(screen_manager: &ScreenManager) -> TerminalColor {
   TerminalColor::new(screen_manager)
 }

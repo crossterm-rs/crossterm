@@ -1,3 +1,5 @@
+//! This is an WINDOWS specific implementation for input related action.
+
 use std::char;
 use std::io::{self,Write};
 use std::sync::mpsc;
@@ -78,7 +80,6 @@ impl ITerminalInput for WindowsInput {
 
         thread::spawn(move || {
             loop {
-
                 // _getwch is without echo and _getwche is with echo
                 let pressed_char = unsafe { if is_raw_screen { _getwch() } else { _getwche() } };
 
@@ -122,7 +123,6 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 }
-
 
 fn is_line_end(key: char) -> bool {
     if key as u8 == 13 {

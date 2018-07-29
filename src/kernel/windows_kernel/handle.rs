@@ -1,3 +1,5 @@
+//! This module contains some logic for working with the console handle.
+
 use winapi::um::processenv::GetStdHandle;
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};

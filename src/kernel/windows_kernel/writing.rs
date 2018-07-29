@@ -1,3 +1,5 @@
+//! This module contains the logic to write to the terminal.
+
 use winapi::ctypes::c_void;
 use winapi::shared::ntdef::NULL;
 use winapi::um::consoleapi::WriteConsoleW;

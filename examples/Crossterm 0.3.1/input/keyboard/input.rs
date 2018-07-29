@@ -1,7 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::input::input;
-use self::crossterm::Context;
+use self::crossterm::Crossterm;
 
 pub fn read_char() {
     let context = Context::new();
@@ -14,8 +13,8 @@ pub fn read_char() {
 }
 
 pub fn read_line() {
-    let context = Context::new();
-    let input = input(&context);
+    let crossterm = Crossterm::new();
+    let input = crossterm.input();
 
     match input.read_line() {
         Ok(s) => println!("string typed: {}", s),

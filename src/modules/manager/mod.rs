@@ -16,7 +16,7 @@
 //!
 //!   For unix systems we store the handle gotten from `stdout()` for windows systems that are not supporting ANSI escape codes we store WinApi `HANDLE` struct witch will provide access to the current screen.
 //!
-//! This is the reason why this module exits. It is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
+//! This is the reason why this module exits: it is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
 
 mod manager;
 
@@ -34,6 +34,14 @@ use super::functions;
 use std::any::Any;
 use std::io;
 
+/// This trait defines the actions that could be preformed on the current screen.
+/// This trait can be implemented so that an concrete implementation of the IScreenManager can forfill
+/// the wishes to work on an specific platform.
+///
+/// ## For example:
+///
+/// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
+/// so that color related actions can be preformed on both unix and windows systems.
 pub trait IScreenManager {
     fn set_is_raw_screen(&mut self, value: bool);
     fn set_is_alternate_screen(&mut self, value: bool);

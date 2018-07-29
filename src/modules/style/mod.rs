@@ -1,3 +1,5 @@
+//! Module that contains all the actions related to the styling of the terminal. like coloring adding attributes etc.
+
 pub mod color;
 pub mod objectstyle;
 pub mod styledobject;
@@ -18,14 +20,14 @@ pub use self::styledobject::StyledObject;
 pub use self::objectstyle::ObjectStyle;
 use super::{ScreenManager, functions};
 
-///! This trait defines the actions that can be preformed with the terminal color.
-///! This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
-///! the wishes to work on an specific platform.
-///!
-///! ## For example:
-///!
-///! This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
-///! so that color related actions can be preformed on both unix and windows systems.
+/// This trait defines the actions that can be preformed with the terminal color.
+/// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
+/// the wishes to work on an specific platform.
+///
+/// ## For example:
+///
+/// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
+/// so that color related actions can be preformed on both unix and windows systems.
 pub trait ITerminalColor {
     /// Set the foreground color to the given color.
     fn set_fg(&self, fg_color: Color, screen_manager: &ScreenManager);
@@ -37,6 +39,7 @@ pub trait ITerminalColor {
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }
 
+/// Attributes that could be applied on some text.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum Attribute {
     Bold = 1,
@@ -50,7 +53,7 @@ pub enum Attribute {
     CrossedOut = 9,
 }
 
-/// Colors that are available for coloring the termainal font.
+/// Colors that are available for coloring the terminal font.
 #[derive(Debug, Copy, Clone)]
 pub enum Color {
     Black,

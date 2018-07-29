@@ -1,3 +1,5 @@
+//! This is an UNIX specific implementation for input related action.
+
 use std::char;
 use std::io::{self, Read, Write};
 use std::sync::mpsc;
