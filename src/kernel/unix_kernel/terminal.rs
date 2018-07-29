@@ -49,7 +49,7 @@ pub fn terminal_size() -> (u16, u16) {
 
 /// Get the current cursor position.
 pub fn pos() -> (u16, u16) {
-    let crossterm = Crossterm::new();
+    let mut crossterm = Crossterm::new();
     let input = crossterm.input();
 
     let delimiter = b'R';
@@ -57,8 +57,7 @@ pub fn pos() -> (u16, u16) {
 
     // Where is the cursor?
     // Use `ESC [ 6 n`.
-
-//    crossterm.write("\x1B[6n");
+    crossterm.active_screen.write_str("\x1B[6n");
 
     let mut buf: [u8; 1] = [0];
     let mut read_chars = Vec::new();
