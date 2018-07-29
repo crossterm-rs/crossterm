@@ -85,6 +85,10 @@ impl ScreenManager {
         self.screen_manager.write_str(string)
     }
 
+    pub fn write_buf(&self, buf: &[u8]) -> io::Result<usize> {
+        self.screen_manager.write(buf)
+    }
+
     /// Can be used to get an reference to an specific implementation used for the current platform.
     pub fn as_any(&self) -> &Any {
         self.screen_manager.as_any()

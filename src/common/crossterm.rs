@@ -9,13 +9,16 @@ use super::super::input;
 use super::super::terminal;
 use super::super::style;
 
+use std::fmt::{Display};
+use std::io::Write;
+
 use std::io::Result;
 
 pub struct Crossterm {
-    raw_mode: bool,
-    alternate_mode: bool,
     pub active_screen: manager::ScreenManager,
     raw_terminal: Option<Box<IRawScreenCommand>>,
+    // Would be cool to figure out a way to have multiple screens instead of just only the main and alternate screen.
+    // For windows this would be easy but for unix I have no idea.
     alternate_screen: Option<Box<IAlternateScreenCommand>>
 }
 
@@ -25,8 +28,6 @@ impl<'crossterm> Crossterm
     {
         Crossterm
         {
-            raw_mode: false,
-            alternate_mode: false,
             active_screen:  manager::ScreenManager::new(),
             raw_terminal: None,
             alternate_screen: None,
@@ -42,7 +43,7 @@ impl<'crossterm> Crossterm
                 },
                 Some(ref mut raw_terminal) => {
                     raw_terminal.enable()?;
-                    self.raw_mode = true;
+                    self.active_screen.set_is_raw_screen(true);
                 },
             }
 
@@ -59,41 +60,41 @@ impl<'crossterm> Crossterm
                 },
                 Some(ref mut raw_terminal) => {
                     raw_terminal.disable()?;
-                    self.raw_mode = false;
+                    self.active_screen.set_is_raw_screen(false);
                 },
             }
 
         return Ok(())
     }
 
-    pub fn enable_alternate_screen(&mut self) -> Result<()>
+    pub fn to_alternate_screen(&mut self) -> Result<()>
     {
         match self.alternate_screen
             {
                 None => {
                     self.alternate_screen = Some(AlternateScreen::new());
-                    return self.enable_alternate_screen();
+                    return self.to_alternate_screen();
                 },
                 Some(ref mut alternate_screen) => {
                     alternate_screen.enable(&mut self.active_screen)?;
-                    self.alternate_mode = true;
+                    self.active_screen.set_is_alternate_screen(true);
                 },
             }
 
         return Ok(())
     }
 
-    pub fn disable_alternate_screen(&mut self) -> Result<()>
+    pub fn to_main_screen(&mut self) -> Result<()>
     {
         match self.alternate_screen
             {
                 None => {
                     self.alternate_screen = Some(AlternateScreen::new());
-                    return self.disable_alternate_screen();
+                    return self.to_main_screen();
                 },
                 Some(ref mut alternate_screen) => {
                     alternate_screen.disable(&mut self.active_screen)?;
-                    self.alternate_mode = false;
+                    self.active_screen.set_is_alternate_screen(false);
                 },
             }
 
@@ -115,6 +116,28 @@ impl<'crossterm> Crossterm
     pub fn color(&self) -> style::TerminalColor {
         return style::TerminalColor::new(&self.active_screen)
     }
+
+    // Wraps an displayable object so it can be formatted with colors and attributes.
+    //
+    // Check `/examples/color` in the libary for more spesific examples.
+    //
+    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
+    where
+        D: Display,
+    {
+        style::ObjectStyle::new().apply_to(val, &self.active_screen)
+    }
+}
+
+impl Write for Crossterm
+{
+    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+        self.active_screen.write_buf(buf)
+    }
+
+    fn flush(&mut self) -> Result<()> {
+        self.active_screen.flush()
+    }
 }
 
 impl Drop for Crossterm
@@ -133,37 +156,3 @@ impl Drop for Crossterm
 
 
 
-// Wraps an displayable object so it can be formatted with colors and attributes.
-//
-// Check `/examples/color` in the libary for more spesific examples.
-//
-// #Example
-//
-// ```rust
-// extern crate crossterm;
-//
-// use self::crossterm::style::{paint,Color};
-//
-// fn main()
-// {
-//     // Create an styledobject object from the text 'Unstyled font'
-//     // Currently it has the default foregroundcolor and backgroundcolor.
-//     println!("{}",paint("Unstyled font"));
-//
-//     // Create an displayable object from the text 'Colored font',
-//     // Paint this with the `Red` foreground color and `Blue` backgroundcolor.
-//     // Print the result.
-//     let styledobject = paint("Colored font").with(Color::Red).on(Color::Blue);
-//     println!("{}", styledobject);
-//
-//     // Or all in one line
-//     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
-// }
-//
-// ```
-//    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
-//    where
-//        D: fmt::Display,
-//    {
-//        style::ObjectStyle::new().apply_to(val, self.context.clone())
-//    }

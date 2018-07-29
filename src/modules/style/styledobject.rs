@@ -15,7 +15,7 @@ use super::super::super::manager::WinApiScreenManager;
 pub struct StyledObject<'terminal, D: Display> {
     pub object_style: ObjectStyle,
     pub content: D,
-    pub screen_manager: &'terminal mut ScreenManager,
+    pub screen_manager: &'terminal ScreenManager,
 }
 
 impl<'terminal,D: Display> StyledObject<'terminal,D> {
