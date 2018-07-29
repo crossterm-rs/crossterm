@@ -40,7 +40,7 @@ impl AlternateScreen {
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let command = commands::shared_commands::ToAlternateScreenBufferCommand::new();
+        let command = Box::from(commands::shared_commands::ToAlternateScreenCommand::new());
 
         command
     }
