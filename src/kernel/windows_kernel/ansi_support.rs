@@ -7,14 +7,15 @@ static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
 static ENABLE_ANSI: Once = ONCE_INIT;
 
-use common::commands::{EnableAnsiCommand, IStateCommand};
+use common::commands::win_commands::{EnableAnsiCommand};
+use common::commands::IEnableAnsiCommand;
 
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
 
         let mut command = EnableAnsiCommand::new();
-        let success = command.execute();
+        let success = command.enable();
 
         set_is_windows_ansi_supportable(success);
         set_ansi_enabled(success);

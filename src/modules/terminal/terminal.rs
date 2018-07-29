@@ -37,7 +37,7 @@ impl<'terminal> Terminal<'terminal> {
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = AnsiTerminal::new() as Box<ITerminal>;
+        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal>;
 
         Terminal {
             terminal,

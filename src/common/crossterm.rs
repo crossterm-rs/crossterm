@@ -75,7 +75,7 @@ impl<'crossterm> Crossterm
                     return self.enable_alternate_screen();
                 },
                 Some(ref mut alternate_screen) => {
-                    alternate_screen.to_alternate_screen(&mut self.active_screen)?;
+                    alternate_screen.enable(&mut self.active_screen)?;
                     self.alternate_mode = true;
                 },
             }
@@ -92,7 +92,7 @@ impl<'crossterm> Crossterm
                     return self.disable_alternate_screen();
                 },
                 Some(ref mut alternate_screen) => {
-                    alternate_screen.to_main_screen(&mut self.active_screen)?;
+                    alternate_screen.disable(&mut self.active_screen)?;
                     self.alternate_mode = false;
                 },
             }
@@ -122,7 +122,7 @@ impl Drop for Crossterm
     fn drop(&mut self) {
         if let Some(ref mut screen) = self.alternate_screen
         {
-            screen.to_main_screen(&mut self.active_screen);
+            screen.disable(&mut self.active_screen);
         }
         if let Some(ref mut raw_terminal) = self.raw_terminal
         {
@@ -133,34 +133,34 @@ impl Drop for Crossterm
 
 
 
-/// Wraps an displayable object so it can be formatted with colors and attributes.
-    ///
-    /// Check `/examples/color` in the libary for more spesific examples.
-    ///
-    /// #Example
-    ///
-    /// ```rust
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::style::{paint,Color};
-    ///
-    /// fn main()
-    /// {
-    ///     // Create an styledobject object from the text 'Unstyled font'
-    ///     // Currently it has the default foregroundcolor and backgroundcolor.
-    ///     println!("{}",paint("Unstyled font"));
-    ///
-    ///     // Create an displayable object from the text 'Colored font',
-    ///     // Paint this with the `Red` foreground color and `Blue` backgroundcolor.
-    ///     // Print the result.
-    ///     let styledobject = paint("Colored font").with(Color::Red).on(Color::Blue);
-    ///     println!("{}", styledobject);
-    ///
-    ///     // Or all in one line
-    ///     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
-    /// }
-    ///
-    /// ```
+// Wraps an displayable object so it can be formatted with colors and attributes.
+//
+// Check `/examples/color` in the libary for more spesific examples.
+//
+// #Example
+//
+// ```rust
+// extern crate crossterm;
+//
+// use self::crossterm::style::{paint,Color};
+//
+// fn main()
+// {
+//     // Create an styledobject object from the text 'Unstyled font'
+//     // Currently it has the default foregroundcolor and backgroundcolor.
+//     println!("{}",paint("Unstyled font"));
+//
+//     // Create an displayable object from the text 'Colored font',
+//     // Paint this with the `Red` foreground color and `Blue` backgroundcolor.
+//     // Print the result.
+//     let styledobject = paint("Colored font").with(Color::Red).on(Color::Blue);
+//     println!("{}", styledobject);
+//
+//     // Or all in one line
+//     println!("{}", paint("Colored font").with(Color::Red).on(Color::Blue));
+// }
+//
+// ```
 //    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
 //    where
 //        D: fmt::Display,

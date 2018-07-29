@@ -35,8 +35,8 @@ impl AlternateScreen {
     pub fn new() -> Box<commands::IAlternateScreenCommand> {
         #[cfg(target_os = "windows")]
         let command = functions::get_module::<Box<commands::IAlternateScreenCommand>>(
-            commands::win_commands::ToAlternateScreenBufferCommand::new(),
-            commands::shared_commands::ToAlternateScreenBufferCommand::new(),
+            Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
+            Box::from(commands::shared_commands::ToAlternateScreenCommand::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]

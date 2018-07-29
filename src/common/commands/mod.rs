@@ -5,23 +5,23 @@ use std::io::Result;
 
 pub mod shared_commands;
 
-#[cfg(target_os = "unix")]
+#[cfg(not(target_os = "windows"))]
 pub mod unix_command;
 
 #[cfg(target_os = "windows")]
 pub mod win_commands;
 
-#[cfg(target_os = "windows")]
-pub use self::win_commands::*;
-#[cfg(target_os = "unix")]
-pub use self::unix_commands::*;
-
-pub use self::shared_commands::*;
 
 /// This trait provides a way to execute some state changing commands.
 pub trait IStateCommand {
-    fn execute(&mut self) -> bool;
-    fn undo(&mut self) -> bool;
+    fn execute(&mut self) -> Result<()>;
+    fn undo(&mut self) -> Result<()>;
+}
+
+pub trait IEnableAnsiCommand
+{
+    fn enable(&mut self) -> bool;
+    fn disable(&mut self) -> bool;
 }
 
 /// This trait provides an interface for switching to alternate screen and back.

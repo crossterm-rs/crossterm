@@ -13,9 +13,10 @@
 //! With these modes you can easier design the terminal screen.
 
 #[cfg(not(windows))]
-use common::commands::EnableRawModeCommand;
+use common::commands::unix_command::EnableRawModeCommand;
+
 #[cfg(windows)]
-use common::commands::EnableRawModeCommand;
+use common::commands::win_commands::EnableRawModeCommand;
 
 use super::{functions, ScreenManager};
 use super::commands;

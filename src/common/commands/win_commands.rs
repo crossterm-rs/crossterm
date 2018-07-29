@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{ ScreenManager, IStateCommand, IAlternateScreenCommand, IRawScreenCommand};
+use super::{ ScreenManager, IEnableAnsiCommand, IAlternateScreenCommand, IRawScreenCommand};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
 use std::mem;
@@ -18,16 +18,16 @@ pub struct EnableAnsiCommand {
 }
 
 impl EnableAnsiCommand {
-    pub fn new() -> Box<EnableAnsiCommand> {
+    pub fn new() -> EnableAnsiCommand {
         let command = EnableAnsiCommand {
             mask: ENABLE_VIRTUAL_TERMINAL_PROCESSING,
         };
-        Box::from(command)
+        command
     }
 }
 
-impl IStateCommand for EnableAnsiCommand {
-    fn execute(&mut self) -> bool {
+impl IEnableAnsiCommand for EnableAnsiCommand {
+    fn enable(&mut self) -> bool {
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
             return ansi_support::windows_supportable();
@@ -47,7 +47,7 @@ impl IStateCommand for EnableAnsiCommand {
         }
     }
 
-    fn undo(&mut self) -> bool {
+    fn disable(&mut self) -> bool {
         if ansi_support::ansi_enabled() {
             let output_handle = handle::get_output_handle().unwrap();
 
@@ -122,16 +122,16 @@ impl IRawScreenCommand for EnableRawModeCommand {
 
 /// This command is used for switching to alternate screen and back to main screen.
 /// check https://docs.microsoft.com/en-us/windows/console/reading-and-writing-blocks-of-characters-and-attributes for more info
-pub struct ToAlternateScreenBufferCommand;
+pub struct ToAlternateScreenCommand;
 
-impl ToAlternateScreenBufferCommand {
-    pub fn new() -> Box<ToAlternateScreenBufferCommand>{
-        return Box::from(ToAlternateScreenBufferCommand {});
+impl ToAlternateScreenCommand {
+    pub fn new() -> ToAlternateScreenCommand{
+        return ToAlternateScreenCommand {};
     }
 }
 
-impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
-    fn to_alternate_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>{
+impl IAlternateScreenCommand for ToAlternateScreenCommand {
+    fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()>{
         use super::super::super::manager::WinApiScreenManager;
 
         let handle = handle::get_output_handle()?;
@@ -163,7 +163,7 @@ impl IAlternateScreenCommand for ToAlternateScreenBufferCommand {
         Ok(())
     }
 
-    fn to_main_screen(&self, screen_manager: &mut ScreenManager) -> Result<()>{
+    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()>{
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 

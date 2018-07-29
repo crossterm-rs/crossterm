@@ -8,8 +8,8 @@ use std::io::Result;
 pub struct ToAlternateScreenCommand;
 
 impl  ToAlternateScreenCommand {
-    pub fn new() -> Box<ToAlternateScreenCommand> {
-      return Box::new(ToAlternateScreenCommand {});
+    pub fn new() -> ToAlternateScreenCommand {
+      return ToAlternateScreenCommand {};
     }
 }
 
