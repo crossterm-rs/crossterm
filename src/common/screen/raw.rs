@@ -18,8 +18,8 @@ use common::commands::unix_command::EnableRawModeCommand;
 #[cfg(windows)]
 use common::commands::win_commands::EnableRawModeCommand;
 
-use super::{functions, ScreenManager};
 use super::commands;
+use super::{functions, ScreenManager};
 
 use std::io::{self, Write};
 

@@ -41,7 +41,7 @@ impl<'terminal> Terminal<'terminal> {
 
         Terminal {
             terminal,
-            screen_manager: screen_manager
+            screen_manager: screen_manager,
         }
     }
 
@@ -105,7 +105,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn scroll_up(&self, count: i16) {
-        self.terminal.scroll_up(count,&self.screen_manager);
+        self.terminal.scroll_up(count, &self.screen_manager);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -114,7 +114,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```rust
     ///
-   ///  let crossterm = Crossterm::new();
+    ///  let crossterm = Crossterm::new();
     ///  let term = crossterm.terminal();
     ///
     /// // scroll down by 5 lines
@@ -122,7 +122,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn scroll_down(&self, count: i16) {
-        self.terminal.scroll_down(count,&self.screen_manager);
+        self.terminal.scroll_down(count, &self.screen_manager);
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -139,7 +139,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn set_size(&self, width: i16, height: i16) {
-        self.terminal.set_size(width, height,&self.screen_manager);
+        self.terminal.set_size(width, height, &self.screen_manager);
     }
 
     /// Exit the current process.

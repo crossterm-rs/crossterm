@@ -9,7 +9,7 @@ use winapi::um::wincon::{
 };
 use winapi::um::winnt::HANDLE;
 
-use super::{ScreenManager, csbi, handle, kernel};
+use super::{csbi, handle, kernel, ScreenManager};
 
 use std::io::{self, ErrorKind, Result};
 use std::str;

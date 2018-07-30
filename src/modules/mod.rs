@@ -1,10 +1,10 @@
 pub mod cursor;
-pub mod terminal;
 pub mod input;
 pub mod manager;
 pub mod style;
+pub mod terminal;
 
-pub use super::manager::ScreenManager;
-use super::common::functions;
 use super::common::commands;
+use super::common::functions;
 use super::common::traits;
+pub use super::manager::ScreenManager;

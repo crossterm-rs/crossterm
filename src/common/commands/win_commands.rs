@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{ ScreenManager, IEnableAnsiCommand, IAlternateScreenCommand, IRawScreenCommand};
+use super::{IAlternateScreenCommand, IEnableAnsiCommand, IRawScreenCommand, ScreenManager};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
 use std::mem;
@@ -8,7 +8,7 @@ use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 use winapi::um::wincon::{CHAR_INFO, COORD, ENABLE_VIRTUAL_TERMINAL_PROCESSING, SMALL_RECT};
 
-use std::io::{Result, ErrorKind, Error };
+use std::io::{Error, ErrorKind, Result};
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -70,53 +70,65 @@ impl IEnableAnsiCommand for EnableAnsiCommand {
 /// This command is used for enabling and disabling raw mode for windows systems.
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/high-level-console-modes.
 #[derive(Clone, Copy)]
-pub struct EnableRawModeCommand {
+pub struct RawModeCommand {
     mask: DWORD,
 }
 
-impl EnableRawModeCommand {
-    pub fn new() -> EnableRawModeCommand {
+impl RawModeCommand {
+    pub fn new() -> Self {
         use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
 
-        EnableRawModeCommand {
+        RawModeCommand {
             mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT,
         }
     }
-}
-
-impl IRawScreenCommand for EnableRawModeCommand {
-    fn enable(&mut self) -> Result<()> {
+    
+    /// Enables raw mode.
+    pub fn enable(&mut self) -> Result<()> {
         let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&input_handle, &mut dw_mode) {
-            return Err(Error::new(ErrorKind::Other,"Could not get console mode when enabling raw mode"))
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Could not get console mode when enabling raw mode",
+            ));
         }
 
         let new_mode = dw_mode & !self.mask;
 
         if !kernel::set_console_mode(&input_handle, new_mode) {
-            return Err(Error::new(ErrorKind::Other,"Could not set console mode when enabling raw mode"))
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Could not set console mode when enabling raw mode",
+            ));
         }
 
-        return Ok(())
+        Ok(())
     }
 
-    fn disable(&mut self) -> Result<()> {
+    /// Disables raw mode.
+    pub fn disable(&mut self) -> Result<()> {
         let output_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
-            return Err(Error::new(ErrorKind::Other,"Could not get console mode when disabling raw mode"))
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Could not get console mode when disabling raw mode",
+            ));
         }
 
         let new_mode = dw_mode | self.mask;
 
         if !kernel::set_console_mode(&output_handle, new_mode) {
-            return Err(Error::new(ErrorKind::Other,"Could not set console mode when disabling raw mode"))
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Could not set console mode when disabling raw mode",
+            ));
         }
 
-        return Ok(())
+        return Ok(());
     }
 }
 
@@ -125,13 +137,13 @@ impl IRawScreenCommand for EnableRawModeCommand {
 pub struct ToAlternateScreenCommand;
 
 impl ToAlternateScreenCommand {
-    pub fn new() -> ToAlternateScreenCommand{
+    pub fn new() -> ToAlternateScreenCommand {
         return ToAlternateScreenCommand {};
     }
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-    fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()>{
+    fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
         use super::super::super::manager::WinApiScreenManager;
 
         let handle = handle::get_output_handle()?;
@@ -145,25 +157,25 @@ impl IAlternateScreenCommand for ToAlternateScreenCommand {
         match screen_manager
             .as_any_mut()
             .downcast_mut::<WinApiScreenManager>()
-            {
-                Some(b) => b.set_alternate_handle(new_handle),
-                None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
-            };
+        {
+            Some(b) => b.set_alternate_handle(new_handle),
+            None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
+        };
 
         let b: &mut WinApiScreenManager = match screen_manager
             .as_any_mut()
             .downcast_mut::<WinApiScreenManager>()
-            {
-                Some(b) => b,
-                None => return Err(Error::new(ErrorKind::Other,"Invalid cast exception")),
-            };
+        {
+            Some(b) => b,
+            None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
+        };
 
         b.set_alternate_handle(new_handle);
 
         Ok(())
     }
 
-    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()>{
+    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 

@@ -4,7 +4,6 @@ use super::{csbi, handle, ScreenManager};
 
 /// Get the terminal size
 pub fn terminal_size() -> (u16, u16) {
-
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
@@ -18,14 +17,10 @@ pub fn terminal_size() -> (u16, u16) {
 }
 
 pub fn buffer_size(screen_manager: &ScreenManager) -> (u16, u16) {
-
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
-        (
-            (csbi.dwSize.X) as u16,
-            (csbi.dwSize.Y) as u16,
-        )
+        ((csbi.dwSize.X) as u16, (csbi.dwSize.Y) as u16)
     } else {
         return (0, 0);
     }

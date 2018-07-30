@@ -5,8 +5,8 @@
 
 use super::*;
 
-use std::io::Write;
 use std::fmt::Display;
+use std::io::Write;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 ///
@@ -42,10 +42,9 @@ impl<'cursor> TerminalCursor<'cursor> {
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new(screen_manager: &'cursor ScreenManager) -> TerminalCursor<'cursor> {
         #[cfg(target_os = "windows")]
-        let cursor = functions::get_module::<Box<ITerminalCursor>>(
-            WinApiCursor::new(),
-            AnsiCursor::new(),
-        ).unwrap();
+        let cursor =
+            functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new())
+                .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let cursor = AnsiCursor::new() as Box<ITerminalCursor>;

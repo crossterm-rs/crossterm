@@ -60,10 +60,7 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 }
 
 /// Set the console screen buffer size
-pub fn set_console_screen_buffer_size(
-    size: COORD,
-    screen_manager: &ScreenManager,
-) -> bool {
+pub fn set_console_screen_buffer_size(size: COORD, screen_manager: &ScreenManager) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {

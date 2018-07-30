@@ -5,20 +5,20 @@
 use super::IScreenManager;
 
 use std::any::Any;
+use std::cell::RefCell;
 use std::io::{self, Read, Write};
-use std::cell::RefCell ;
 use std::str::from_utf8;
 
 /// This struct is an ANSI escape code implementation for screen related actions.
 pub struct AnsiScreenManager {
     is_alternate_screen: bool,
     is_raw_screen: bool,
-    output: RefCell<Box<Write>>
+    output: RefCell<Box<Write>>,
 }
 
 impl IScreenManager for AnsiScreenManager {
     fn set_is_raw_screen(&mut self, value: bool) {
-       self.is_raw_screen = value;
+        self.is_raw_screen = value;
     }
 
     fn set_is_alternate_screen(&mut self, value: bool) {

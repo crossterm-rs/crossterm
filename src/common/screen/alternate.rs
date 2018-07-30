@@ -22,8 +22,8 @@
 //! Todo: example
 //!
 
-use super::{functions, ScreenManager};
 use super::commands;
+use super::{functions, ScreenManager};
 
 use std::convert::From;
 use std::io::{self, Write};
@@ -45,4 +45,3 @@ impl AlternateScreen {
         command
     }
 }
-

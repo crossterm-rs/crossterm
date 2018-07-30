@@ -29,7 +29,7 @@ use winapi::um::winnt::HANDLE;
 
 /// Struct that stores an specific platform implementation for screen related actions.
 pub struct ScreenManager {
-    screen_manager: Box<IScreenManager>,
+    screen_manager: Box<IScreenManager + Send>,
 }
 
 impl ScreenManager {
@@ -44,9 +44,7 @@ impl ScreenManager {
         #[cfg(not(target_os = "windows"))]
         let screen_manager = Box::from(AnsiScreenManager::new()) as Box<IScreenManager>;
 
-        ScreenManager {
-            screen_manager,
-        }
+        ScreenManager { screen_manager }
     }
 
     /// Set whether screen is raw screen.
@@ -75,8 +73,7 @@ impl ScreenManager {
     }
 
     /// Flush the current screen.
-    pub fn flush(&self) -> io::Result<()>
-    {
+    pub fn flush(&self) -> io::Result<()> {
         self.screen_manager.flush()
     }
 

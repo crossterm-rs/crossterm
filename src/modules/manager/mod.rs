@@ -20,13 +20,13 @@
 
 mod manager;
 
+mod ansi_manager;
 #[cfg(target_os = "windows")]
 mod win_manager;
-mod ansi_manager;
 
+pub use self::ansi_manager::AnsiScreenManager;
 #[cfg(target_os = "windows")]
 pub use self::win_manager::WinApiScreenManager;
-pub use self::ansi_manager::AnsiScreenManager;
 
 pub use self::manager::ScreenManager;
 use super::functions;
