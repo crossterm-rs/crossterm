@@ -12,7 +12,7 @@ pub struct WinApiCursor;
 
 impl WinApiCursor {
     pub fn new() -> Box<WinApiCursor> {
-        Box::from(WinApiCursor { })
+        Box::from(WinApiCursor {})
     }
 }
 

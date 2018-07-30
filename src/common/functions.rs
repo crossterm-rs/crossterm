@@ -3,10 +3,10 @@
 use super::ScreenManager;
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::{exit, terminal_size, buffer_size};
+use kernel::windows_kernel::terminal::{buffer_size, exit, terminal_size};
 
 #[cfg(windows)]
-use kernel::windows_kernel::cursor::{pos};
+use kernel::windows_kernel::cursor::pos;
 
 #[cfg(unix)]
 use kernel::unix_kernel::terminal::{exit, pos, terminal_size};

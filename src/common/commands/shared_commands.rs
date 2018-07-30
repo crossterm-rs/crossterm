@@ -7,9 +7,9 @@ use std::io::Result;
 /// This command is used for switching to alternate screen and back to main screen.
 pub struct ToAlternateScreenCommand;
 
-impl  ToAlternateScreenCommand {
+impl ToAlternateScreenCommand {
     pub fn new() -> ToAlternateScreenCommand {
-      return ToAlternateScreenCommand {};
+        return ToAlternateScreenCommand;
     }
 }
 

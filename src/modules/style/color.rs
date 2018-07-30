@@ -25,10 +25,10 @@ use std::io;
 /// ```
 pub struct TerminalColor<'terminal> {
     color: Box<ITerminalColor>,
-    screen_manager: &'terminal ScreenManager
+    screen_manager: &'terminal ScreenManager,
 }
 
-impl<'terminal>  TerminalColor<'terminal> {
+impl<'terminal> TerminalColor<'terminal> {
     /// Create new instance whereon color related actions can be performed.
     pub fn new(screen_manager: &'terminal ScreenManager) -> TerminalColor<'terminal> {
         #[cfg(target_os = "windows")]
@@ -42,7 +42,7 @@ impl<'terminal>  TerminalColor<'terminal> {
 
         TerminalColor {
             color,
-            screen_manager
+            screen_manager,
         }
     }
 
@@ -117,5 +117,5 @@ impl<'terminal>  TerminalColor<'terminal> {
 
 /// Get an Terminal Color implementation whereon color related actions can be performed.
 pub fn color(screen_manager: &ScreenManager) -> TerminalColor {
-  TerminalColor::new(screen_manager)
+    TerminalColor::new(screen_manager)
 }

@@ -10,11 +10,11 @@ mod kernel;
 mod modules;
 
 pub use common::screen;
-pub use modules::style;
 pub use modules::cursor;
-pub use modules::manager;
-pub use modules::terminal;
 pub use modules::input;
+pub use modules::manager;
+pub use modules::style;
+pub use modules::terminal;
 
 pub use common::Crossterm;
 

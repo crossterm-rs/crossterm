@@ -1,16 +1,16 @@
 //! This module contains the `windows` (unsafe) logic.
 
 pub mod ansi_support;
+pub mod csbi;
 pub mod cursor;
+pub mod handle;
 pub mod kernel;
 pub mod terminal;
 pub mod writing;
-pub mod csbi;
-pub mod handle;
 
-use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
-use common::traits::Empty;
 use super::super::manager::ScreenManager;
+use common::traits::Empty;
+use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 
 impl Empty for COORD {
     fn empty() -> COORD {
