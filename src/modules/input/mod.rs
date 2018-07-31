@@ -8,15 +8,15 @@ mod unix_input;
 #[cfg(target_os = "windows")]
 mod windows_input;
 
-#[cfg(target_os = "windows")]
-use self::windows_input::WindowsInput;
 #[cfg(not(target_os = "windows"))]
 use self::unix_input::UnixInput;
+#[cfg(target_os = "windows")]
+use self::windows_input::WindowsInput;
 
 pub use self::input::{input, TerminalInput};
 use super::ScreenManager;
 
-use std::io::{Read, self};
+use std::io::{self, Read};
 use std::sync::mpsc;
 
 /// This trait defines the actions that can be preformed with the terminal color.

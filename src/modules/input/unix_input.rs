@@ -5,8 +5,8 @@ use std::io::{self, Read, Write};
 use std::sync::mpsc;
 use std::thread;
 
+use super::{AsyncReader, ITerminalInput, ScreenManager};
 use kernel::unix_kernel::terminal::{get_tty, read_char};
-use super::{ScreenManager, AsyncReader, ITerminalInput};
 
 pub struct UnixInput;
 
@@ -32,9 +32,11 @@ impl ITerminalInput for UnixInput {
     fn read_async(&self, screen_manger: &ScreenManager) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
-        thread::spawn(move || for i in get_tty().unwrap().bytes() {
-            if send.send(i).is_err() {
-                return;
+        thread::spawn(move || {
+            for i in get_tty().unwrap().bytes() {
+                if send.send(i).is_err() {
+                    return;
+                }
             }
         });
 
@@ -44,16 +46,21 @@ impl ITerminalInput for UnixInput {
     fn read_until_async(&self, delimiter: u8, screen_manger: &ScreenManager) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
-        thread::spawn(move || for i in get_tty().unwrap().bytes() {
+        thread::spawn(move || {
+            for i in get_tty().unwrap().bytes() {
+                match i {
+                    Ok(byte) => {
+                        let end_of_stream = &byte == &delimiter;
+                        let send_error = send.send(Ok(byte)).is_err();
 
-            match i {
-                Ok(byte) => {
-                    let end_of_stream = &byte == &delimiter;
-                    let send_error = send.send(Ok(byte)).is_err();
-
-                    if end_of_stream || send_error { return; }
-                },
-                Err(_) => { return; }
+                        if end_of_stream || send_error {
+                            return;
+                        }
+                    }
+                    Err(_) => {
+                        return;
+                    }
+                }
             }
         });
 

@@ -3,8 +3,8 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use super::{ClearType, ITerminal, ScreenManager, functions};
 use super::super::super::cursor::cursor;
+use super::{functions, ClearType, ITerminal, ScreenManager};
 use kernel::windows_kernel::{csbi, kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 
@@ -13,7 +13,7 @@ pub struct WinApiTerminal;
 
 impl WinApiTerminal {
     pub fn new() -> WinApiTerminal {
-        WinApiTerminal { }
+        WinApiTerminal {}
     }
 }
 
@@ -23,7 +23,9 @@ impl ITerminal for WinApiTerminal {
         let pos = cursor(screen_manager).pos();
 
         match clear_type {
-            ClearType::All => { clear_entire_screen(csbi, screen_manager);  },
+            ClearType::All => {
+                clear_entire_screen(csbi, screen_manager);
+            }
             ClearType::FromCursorDown => clear_after_cursor(pos, csbi, screen_manager),
             ClearType::FromCursorUp => clear_before_cursor(pos, csbi, screen_manager),
             ClearType::CurrentLine => clear_current_line(pos, csbi, screen_manager),
@@ -46,8 +48,7 @@ impl ITerminal for WinApiTerminal {
             srct_window.Top -= count; // move top down
             srct_window.Bottom = count; // move bottom down
 
-            let success =
-                kernel::set_console_info(false, &mut srct_window, &screen_manager);
+            let success = kernel::set_console_info(false, &mut srct_window, &screen_manager);
             if success {
                 panic!("Something went wrong when scrolling down");
             }
@@ -67,8 +68,7 @@ impl ITerminal for WinApiTerminal {
             srct_window.Top += count; // move top down
             srct_window.Bottom += count; // move bottom down
 
-            let success =
-                kernel::set_console_info(true, &mut srct_window, &screen_manager);
+            let success = kernel::set_console_info(true, &mut srct_window, &screen_manager);
             if success {
                 panic!("Something went wrong when scrolling down");
             }
@@ -250,7 +250,11 @@ pub fn clear_current_line(
     cursor(screen_manager).goto(0, y);
 }
 
-pub fn clear_until_line(pos: (u16, u16), csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &ScreenManager) {
+pub fn clear_until_line(
+    pos: (u16, u16),
+    csbi: CONSOLE_SCREEN_BUFFER_INFO,
+    screen_manager: &ScreenManager,
+) {
     let (x, y) = pos;
 
     // location where to start clearing

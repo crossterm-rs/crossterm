@@ -12,8 +12,8 @@
 //! - Run program with: `cargo run`
 extern crate crossterm;
 
-use crossterm::Crossterm;
 use crossterm::style::Color;
+use crossterm::Crossterm;
 
  mod terminal;
 // mod color;

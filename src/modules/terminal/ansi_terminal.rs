@@ -2,7 +2,7 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 
 use super::super::cursor::cursor;
-use super::{ClearType, ITerminal, ScreenManager, functions};
+use super::{functions, ClearType, ITerminal, ScreenManager};
 
 /// This struct is an ansi escape code implementation for terminal related actions.
 pub struct AnsiTerminal;

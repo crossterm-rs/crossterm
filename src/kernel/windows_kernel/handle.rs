@@ -1,7 +1,7 @@
 //! This module contains some logic for working with the console handle.
 
-use winapi::um::processenv::GetStdHandle;
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
+use winapi::um::processenv::GetStdHandle;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
 use winapi::um::winnt::HANDLE;
 
@@ -15,7 +15,7 @@ pub fn get_current_handle(screen_manager: &ScreenManager) -> Result<HANDLE> {
 
     let handle: Result<HANDLE>;
 
-        let winapi_screen_manager: &WinApiScreenManager = match screen_manager
+    let winapi_screen_manager: &WinApiScreenManager = match screen_manager
             .as_any()
             .downcast_ref::<WinApiScreenManager>()
             {

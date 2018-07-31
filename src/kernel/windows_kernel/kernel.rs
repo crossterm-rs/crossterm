@@ -1,14 +1,13 @@
 //! This module contains some basic winapi calls.
 
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
-use winapi::um::winnt::HANDLE;
 use winapi::um::wincon::{
-    SetConsoleTextAttribute, SetConsoleWindowInfo, GetLargestConsoleWindowSize,
-    COORD, SMALL_RECT
+    GetLargestConsoleWindowSize, SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, SMALL_RECT,
 };
+use winapi::um::winnt::HANDLE;
 
-use super::{handle, Empty};
 use super::super::super::manager::ScreenManager;
+use super::{handle, Empty};
 
 use std::io::{ErrorKind, Result};
 
@@ -43,11 +42,7 @@ pub fn set_console_text_attribute(value: u16, screen_manager: &ScreenManager) ->
 }
 
 /// Change console info.
-pub fn set_console_info(
-    absolute: bool,
-    rect: &SMALL_RECT,
-    screen_manager: &ScreenManager,
-) -> bool {
+pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, screen_manager: &ScreenManager) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     let absolute = match absolute {

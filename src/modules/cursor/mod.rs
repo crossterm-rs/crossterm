@@ -3,16 +3,16 @@
 
 mod cursor;
 
+mod ansi_cursor;
 #[cfg(target_os = "windows")]
 mod winapi_cursor;
-mod ansi_cursor;
 
+use self::ansi_cursor::AnsiCursor;
 #[cfg(target_os = "windows")]
 use self::winapi_cursor::WinApiCursor;
-use self::ansi_cursor::AnsiCursor;
 
 pub use self::cursor::{cursor, TerminalCursor};
-use super::{ScreenManager, functions};
+use super::{functions, ScreenManager};
 
 ///! This trait defines the actions that can be preformed with the terminal cursor.
 ///! This trait can be implemented so that an concrete implementation of the ITerminalCursor can forfill

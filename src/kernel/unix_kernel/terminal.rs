@@ -1,18 +1,17 @@
 //! This module contains all `unix` specific terminal related logic.
 
+use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
+use common::commands::unix_command::{EnableRawModeCommand, NoncanonicalModeCommand};
 use libc;
 pub use libc::termios;
-use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use common::commands::unix_command::{NoncanonicalModeCommand, EnableRawModeCommand};
 
 use std::io::Error;
-use std::os::unix::io::AsRawFd;
-use std::{fs, io, mem};
-use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 use std::io::ErrorKind;
 use std::io::Read;
-use std::time::{SystemTime, Duration};
-
+use std::os::unix::io::AsRawFd;
+use std::time::{Duration, SystemTime};
+use std::{fs, io, mem};
+use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 
 use Crossterm;
 
@@ -41,7 +40,6 @@ pub fn terminal_size() -> (u16, u16) {
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         (us.cols - 1, us.rows - 1)
-
     } else {
         (0, 0)
     }
@@ -67,9 +65,8 @@ pub fn pos() -> (u16, u16) {
 
     // Either consume all data up to R or wait for a timeout.
     while buf[0] != delimiter && now.elapsed().unwrap() < timeout {
-        if let Ok(c) = stdin.read(&mut buf){
-            if c >= 0
-            {
+        if let Ok(c) = stdin.read(&mut buf) {
+            if c >= 0 {
                 read_chars.push(buf[0]);
             }
         }
@@ -87,14 +84,8 @@ pub fn pos() -> (u16, u16) {
     let coords: String = read_str.chars().skip(beg + 1).collect();
     let mut nums = coords.split(';');
 
-    let cy = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
-    let cx = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
+    let cy = nums.next().unwrap().parse::<u16>().unwrap();
+    let cx = nums.next().unwrap().parse::<u16>().unwrap();
 
     (cx, cy)
 }

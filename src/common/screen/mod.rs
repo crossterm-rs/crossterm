@@ -1,9 +1,9 @@
 //! This module provides some modules to work with the terminal screen. Like raw and alternate screen.
 
-mod raw;
 mod alternate;
+mod raw;
 
-use super::{ScreenManager, functions, commands};
+use super::{commands, functions, ScreenManager};
 
-pub use self::raw::RawScreen;
 pub use self::alternate::AlternateScreen;
+pub use self::raw::RawScreen;

@@ -4,21 +4,21 @@ pub mod color;
 pub mod objectstyle;
 pub mod styledobject;
 
+mod ansi_color;
 #[cfg(target_os = "windows")]
 mod winapi_color;
-mod ansi_color;
 
+use self::ansi_color::AnsiColor;
 #[cfg(target_os = "windows")]
 use self::winapi_color::WinApiColor;
-use self::ansi_color::AnsiColor;
 
 use std::convert::From;
 use std::str::FromStr;
 
 pub use self::color::TerminalColor;
-pub use self::styledobject::StyledObject;
 pub use self::objectstyle::ObjectStyle;
-use super::{ScreenManager, functions};
+pub use self::styledobject::StyledObject;
+use super::{functions, ScreenManager};
 
 /// This trait defines the actions that can be preformed with the terminal color.
 /// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
