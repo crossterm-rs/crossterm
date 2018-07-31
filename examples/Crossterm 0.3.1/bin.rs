@@ -15,7 +15,7 @@ extern crate crossterm;
 use crossterm::Crossterm;
 use crossterm::style::Color;
 
-// mod terminal;
+ mod terminal;
 // mod color;
 // mod cursor;
 // mod crossterm_type;
@@ -27,8 +27,4 @@ use std::{thread, time};
 
 fn main() {
     use crossterm::Crossterm;
-
-    let mut term = Crossterm::new();
-    let cursor = term.cursor();
-    let a = term.color();
 }
