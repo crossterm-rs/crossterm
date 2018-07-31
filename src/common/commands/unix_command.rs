@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for unix systems.
 
-use super::{IRawScreenCommand, IStateCommand};
+use super::{ IStateCommand};
 use kernel::unix_kernel::terminal;
 use termios::{tcsetattr, Termios, CREAD, ECHO, ICANON, TCSAFLUSH};
 

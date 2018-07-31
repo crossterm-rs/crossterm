@@ -6,4 +6,4 @@ mod raw;
 use super::{commands, functions, ScreenManager};
 
 pub use self::alternate::AlternateScreen;
-pub use self::raw::RawScreen;
+//pub use self::raw::RawScreen;

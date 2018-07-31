@@ -3,8 +3,10 @@ use kernel::windows_kernel::{handle, kernel, writing};
 use winapi::um::wincon::ENABLE_PROCESSED_OUTPUT;
 use winapi::um::winnt::HANDLE;
 
+use std::ptr::NonNull;
 use std::any::Any;
 use std::io::{self, Write};
+use std::sync::Arc;
 
 /// This struct is an WINAPI implementation for screen related actions.
 pub struct WinApiScreenManager {
@@ -59,11 +61,12 @@ impl IScreenManager for WinApiScreenManager {
 impl WinApiScreenManager {
     /// Create a new instance.
     pub fn new() -> Self {
+
         WinApiScreenManager {
-            output: handle::get_output_handle().unwrap(),
+            output:  handle::get_output_handle().unwrap(),
+            alternate_handle: handle::get_output_handle().unwrap(),
             is_alternate_screen: false,
             is_raw_screen: false,
-            alternate_handle: handle::get_output_handle().unwrap(),
         }
     }
 
@@ -83,3 +86,5 @@ impl WinApiScreenManager {
         }
     }
 }
+
+unsafe impl Send for WinApiScreenManager {}

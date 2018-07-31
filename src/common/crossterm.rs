@@ -1,7 +1,6 @@
-use super::commands::{IAlternateScreenCommand, IRawScreenCommand};
+use super::commands::{IAlternateScreenCommand};
 
 use super::screen::AlternateScreen;
-use super::screen::RawScreen;
 
 use super::super::cursor;
 use super::super::input;
@@ -14,12 +13,23 @@ use std::io::Write;
 
 use std::io::Result;
 
+#[cfg(not(windows))]
+use common::commands::unix_command;
+
+#[cfg(windows)]
+use common::commands::win_commands;
+
 pub struct Crossterm {
     pub active_screen: manager::ScreenManager,
-    raw_terminal: Option<RawScreenCommand>,
+
+    #[cfg(not(windows))]
+    raw_terminal: Option<unix_command::RawModeCommand>,
+
+    #[cfg(windows)]
+    raw_terminal: Option<win_commands::RawModeCommand>,
     // Would be cool to figure out a way to have multiple screens instead of just only the main and alternate screen.
     // For windows this would be easy but for unix I have no idea.
-    alternate_screen: Option<AlternateScreenCommand>,
+    alternate_screen: Option<Box<IAlternateScreenCommand + Send>>,
 }
 
 impl<'a> Crossterm {
@@ -34,7 +44,13 @@ impl<'a> Crossterm {
     pub fn enable_raw_mode(&mut self) -> Result<()> {
         match self.raw_terminal {
             None => {
-                self.raw_terminal = Some(RawScreen::new());
+                #[cfg(not(target_os = "windows"))]
+                let raw_terminal = Some(unix_command::RawModeCommand::new());
+                #[cfg(target_os = "windows")]
+                let raw_terminal = Some(win_commands::RawModeCommand::new());
+
+                self.raw_terminal = raw_terminal;
+
                 return self.enable_raw_mode();
             }
             Some(ref mut raw_terminal) => {
@@ -48,7 +64,13 @@ impl<'a> Crossterm {
     pub fn disable_raw_mode(&mut self) -> Result<()> {
         match self.raw_terminal {
             None => {
-                self.raw_terminal = Some(RawScreen::new());
+
+                #[cfg(not(target_os = "windows"))]
+                let raw_terminal = Some(unix_command::RawModeCommand::new());
+                #[cfg(target_os = "windows")]
+                let raw_terminal = Some(win_commands::RawModeCommand::new());
+
+                self.raw_terminal = raw_terminal;
                 return self.disable_raw_mode();
             }
             Some(ref mut raw_terminal) => {

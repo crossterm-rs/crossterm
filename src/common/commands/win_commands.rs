@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{IAlternateScreenCommand, IEnableAnsiCommand, IRawScreenCommand, ScreenManager};
+use super::{IAlternateScreenCommand, IEnableAnsiCommand, ScreenManager};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
 use std::mem;
@@ -142,7 +142,7 @@ impl ToAlternateScreenCommand {
     }
 }
 
-impl IAlternateScreenCommand for ToAlternateScreenCommand {
+impl IAlternateScreenCommand  for ToAlternateScreenCommand {
     fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
         use super::super::super::manager::WinApiScreenManager;
 

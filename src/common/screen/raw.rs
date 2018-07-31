@@ -12,28 +12,23 @@
 //!
 //! With these modes you can easier design the terminal screen.
 
-#[cfg(not(windows))]
-use common::commands::unix_command::EnableRawModeCommand;
-
-#[cfg(windows)]
-use common::commands::win_commands::EnableRawModeCommand;
-
-use super::commands;
-use super::{functions, ScreenManager};
-
-use std::io::{self, Write};
-
-/// A wrapper for the raw terminal state. Which can be used to write to.
-pub struct RawScreen;
-
-impl RawScreen {
-    /// Create a new RawScreen type.
-    pub fn new() -> Box<commands::IRawScreenCommand> {
-        Box::from(EnableRawModeCommand::new())
-    }
-}
-
-///// Trait withs contains a method for switching into raw mode.
-//pub trait IntoRawMode: Write + Sized {
-//    fn into_raw_mode(&self, context: Rc<Context>) -> io::Result<RawTerminal>;
+//
+//use super::commands;
+//use super::{functions, ScreenManager};
+//
+//use std::io::{self, Write};
+//
+///// A wrapper for the raw terminal state. Which can be used to write to.
+//pub struct RawScreen;
+//
+//impl RawScreen {
+//    /// Create a new RawScreen type.
+//    pub fn new() -> Box<commands::IRawScreenCommand> {
+//        Box::from(EnableRawModeCommand::new())
+//    }
 //}
+//
+/////// Trait withs contains a method for switching into raw mode.
+////pub trait IntoRawMode: Write + Sized {
+////    fn into_raw_mode(&self, context: Rc<Context>) -> io::Result<RawTerminal>;
+////}

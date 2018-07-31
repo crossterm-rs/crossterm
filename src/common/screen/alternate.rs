@@ -32,9 +32,9 @@ pub struct AlternateScreen;
 
 impl AlternateScreen {
     /// Create an new alternate screen type.
-    pub fn new() -> Box<commands::IAlternateScreenCommand> {
+    pub fn new() -> Box<commands::IAlternateScreenCommand + Send> {
         #[cfg(target_os = "windows")]
-        let command = functions::get_module::<Box<commands::IAlternateScreenCommand>>(
+        let command = functions::get_module::<Box<commands::IAlternateScreenCommand + Send>>(
             Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
             Box::from(commands::shared_commands::ToAlternateScreenCommand::new()),
         ).unwrap();

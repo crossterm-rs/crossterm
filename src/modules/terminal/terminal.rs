@@ -66,8 +66,8 @@ impl<'terminal> Terminal<'terminal> {
     /// term.clear(terminal::ClearType::UntilNewLine);
     ///
     /// ```
-    pub fn clear(&self, clear_type: ClearType) {
-        self.terminal.clear(clear_type, &self.screen_manager);
+    pub fn clear(&mut self, clear_type: ClearType) {
+        self.terminal.clear(clear_type, &mut self.screen_manager);
     }
 
     /// Get the terminal size (x,y).
