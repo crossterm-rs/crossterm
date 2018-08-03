@@ -1,10 +1,6 @@
 use super::variables::{Cell, Position, Size };
-use crossterm::terminal::terminal;
-use crossterm::cursor::cursor;
 use crossterm::Crossterm;
 use crossterm::style::{ObjectStyle, StyledObject, Color};
-use crossterm::Context;
-use std::rc::Rc;
 
 use std::fmt::Display;
 

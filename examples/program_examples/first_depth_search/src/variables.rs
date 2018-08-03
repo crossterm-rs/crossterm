@@ -2,7 +2,6 @@ extern crate crossterm;
 
 use self::crossterm::terminal::{terminal, ClearType};
 use self::crossterm::style::{Color, StyledObject, ObjectStyle };
-use self::crossterm::Context;
 
 use std::fmt::Debug;
 use std::fmt;

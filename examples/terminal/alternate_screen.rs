@@ -1,20 +1,18 @@
 extern crate crossterm;
 
 use crossterm::style::Color;
-use crossterm::cursor::cursor;
-use crossterm::screen::AlternateScreen;
 use crossterm::terminal::{self, ClearType};
-use crossterm::Context;
+use crossterm::Crossterm;
 
 use std::io::{stdout, Write};
-use std::rc::Rc;
 use std::{thread, time};
 
-fn print_wait_screen(context: Rc<Context>) {
-    let mut terminal = terminal::terminal(&context);
+fn print_wait_screen(crossterm: &mut Crossterm) {
+    let mut terminal = crossterm.terminal();
+    let mut cursor = crossterm.cursor();
+
     terminal.clear(ClearType::All);
 
-    let mut cursor = cursor(&context);
     cursor.goto(0, 0);
     cursor.hide();
 
@@ -29,7 +27,7 @@ fn print_wait_screen(context: Rc<Context>) {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor
             .goto(10, 2)
-            .print(terminal.paint(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue));
+            .print(crossterm.paint(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue));
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
@@ -39,43 +37,37 @@ fn print_wait_screen(context: Rc<Context>) {
 }
 
 /// print wait screen on alternate screen, then swich back.
-pub fn print_wait_screen_on_alternate_window(context: Rc<Context>) {
-    // create scope. If this scope ends the screen will be switched back to mainscreen.
-    // because `AlternateScreen` switches back to main screen when switching back.
-    {
-        // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(context.clone());
+pub fn print_wait_screen_on_alternate_window() {
 
-        write!(screen,  "test");
-        println!();
-        // Print the wait screen.
-        print_wait_screen(context.clone());
-    }
+    let mut term = Crossterm::new();
+    term.to_alternate_screen();
+
+    term.write(b"test");
+    print_wait_screen(&mut term);
 }
 
 /// some stress test switch from and to alternate screen.
 pub fn switch_between_main_and_alternate_screen() {
-    let context = Context::new();
-    let mut cursor = cursor(&context);
 
     {
+        let mut term = Crossterm::new();
+        let mut cursor = term.cursor();
+
         // create new alternate screen instance and switch to the alternate screen.
-        let mut screen = AlternateScreen::from(context.clone());
-        cursor.goto(0, 0);
-        write!(screen, "we are at the alternate screen!");
-        screen.flush();
+        let alternate = term.to_alternate_screen();
+
+        { cursor.goto(0, 0); }
+        write!(term, "we are at the alternate screen!");
         thread::sleep(time::Duration::from_secs(3));
 
-        screen.to_main();
-        write!(screen, "we are at the main screen!");
-        screen.flush();
+        term.to_main_screen();
+        write!(term, "we are at the alternate screen!");
         thread::sleep(time::Duration::from_secs(3));
 
-        screen.to_alternate();
-        write!(screen, "we are at the alternate screen!");
-        screen.flush();
+        term.to_alternate_screen();
+        write!(term, "we are at the alternate screen!");
         thread::sleep(time::Duration::from_secs(3));
-    }
+    } // <- Crossterm goes out of scope.
 
     println!("Whe are back at the main screen");
 }
