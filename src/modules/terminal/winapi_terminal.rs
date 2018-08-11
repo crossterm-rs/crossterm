@@ -3,8 +3,8 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use super::super::super::cursor::cursor;
-use super::{functions, ClearType, ITerminal, ScreenManager};
+use super::super::super::cursor::TerminalCursor;
+use super::*;
 use kernel::windows_kernel::{csbi, kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 
@@ -18,9 +18,9 @@ impl WinApiTerminal {
 }
 
 impl ITerminal for WinApiTerminal {
-    fn clear(&self, clear_type: ClearType, screen_manager: &ScreenManager) {
+    fn clear(&self, clear_type: ClearType, screen_manager: &Arc<Stdout>) {
         let csbi = csbi::get_csbi(screen_manager).unwrap();
-        let pos = cursor(screen_manager).pos();
+        let pos = TerminalCursor::new(screen_manager).pos();
 
         match clear_type {
             ClearType::All => {
@@ -33,11 +33,11 @@ impl ITerminal for WinApiTerminal {
         };
     }
 
-    fn terminal_size(&self, screen_manager: &ScreenManager) -> (u16, u16) {
+    fn terminal_size(&self, screen_manager: &Arc<Stdout>) -> (u16, u16) {
         terminal::terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, screen_manager: &ScreenManager) {
+    fn scroll_up(&self, count: i16, screen_manager: &Arc<Stdout>) {
         let csbi = csbi::get_csbi(&screen_manager).unwrap();
 
         // Set srctWindow to the current window size and location.
@@ -55,7 +55,7 @@ impl ITerminal for WinApiTerminal {
         }
     }
 
-    fn scroll_down(&self, count: i16, screen_manager: &ScreenManager) {
+    fn scroll_down(&self, count: i16, screen_manager: &Arc<Stdout>) {
         let csbi = csbi::get_csbi(&screen_manager).unwrap();
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
@@ -76,7 +76,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16, screen_manager: &ScreenManager) {
+    fn set_size(&self, width: i16, height: i16, screen_manager: &Arc<Stdout>) {
         if width <= 0 {
             panic!("Cannot set the terminal width lower than 1");
         }
@@ -160,7 +160,7 @@ impl ITerminal for WinApiTerminal {
 pub fn clear_after_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) {
     let (mut x, mut y) = pos;
 
@@ -184,7 +184,7 @@ pub fn clear_after_cursor(
 pub fn clear_before_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) {
     let (xpos, ypos) = pos;
 
@@ -204,7 +204,7 @@ pub fn clear_before_cursor(
     clear(start_location, cells_to_write, screen_manager);
 }
 
-pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &ScreenManager) {
+pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &Arc<Stdout>) {
     // position x at start
     let x = 0;
     // position y at start
@@ -222,13 +222,13 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, screen_manager: &Sc
     clear(start_location, cells_to_write, &screen_manager);
 
     // put the cursor back at (0, 0)
-    cursor(screen_manager).goto(0, 0);
+    TerminalCursor::new(screen_manager).goto(0, 0);
 }
 
 pub fn clear_current_line(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) {
     // position x at start
     let x = 0;
@@ -247,13 +247,13 @@ pub fn clear_current_line(
     clear(start_location, cells_to_write, screen_manager);
 
     // put the cursor back at 1 cell on current row
-    cursor(screen_manager).goto(0, y);
+    TerminalCursor::new(screen_manager).goto(0, y);
 }
 
 pub fn clear_until_line(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) {
     let (x, y) = pos;
 
@@ -268,10 +268,10 @@ pub fn clear_until_line(
     clear(start_location, cells_to_write, &screen_manager);
 
     // put the cursor back at original cursor position
-    cursor(screen_manager).goto(x, y);
+    TerminalCursor::new(screen_manager).goto(x, y);
 }
 
-fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &ScreenManager) {
+fn clear(start_loaction: COORD, cells_to_write: u32, screen_manager: &Arc<Stdout>) {
     let mut cells_written = 0;
     let mut success = false;
 

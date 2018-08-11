@@ -4,7 +4,7 @@ use super::messages::END_MESSAGE;
 use super::map::Map;
 
 use crossterm::style::Color;
-use crossterm::Crossterm;
+use crossterm::{Crossterm, Screen};
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
@@ -12,19 +12,19 @@ use super::rand::distributions::{IndependentSample, Range};
 use std::io::{stdout, Write};
 use std::{thread, time};
 
-pub struct FirstDepthSearch<'crossterm>
+pub struct FirstDepthSearch<'screen>
 {
     direction: Direction,
     map: Map,
     stack: Vec<Position>,
     root_pos: Position,
     is_terminated: bool,
-    crossterm: &'crossterm Crossterm
+    screen: &'screen Screen
 }
 
-impl<'crossterm> FirstDepthSearch<'crossterm>
+impl<'screen> FirstDepthSearch<'screen>
 {
-    pub fn new(map: Map, start_pos: Position, crossterm: &'crossterm Crossterm) -> FirstDepthSearch<'crossterm>
+    pub fn new(map: Map, start_pos: Position, crossterm: &'screen Screen) -> FirstDepthSearch<'screen>
     {
         FirstDepthSearch
         {
@@ -33,7 +33,7 @@ impl<'crossterm> FirstDepthSearch<'crossterm>
             stack: Vec::new(),
             root_pos: start_pos,
             is_terminated: false,
-            crossterm: crossterm,
+            screen: crossterm,
         }
     }
 
@@ -44,7 +44,8 @@ impl<'crossterm> FirstDepthSearch<'crossterm>
         // push first position on the stack
         self.stack.push(self.root_pos);
 
-        let mut cursor = self.crossterm.cursor();
+        let crossterm = Crossterm::new();
+        let mut cursor = crossterm.cursor(&self.screen);
         cursor.hide();
 
         // loop until there are now items left in the stack.
@@ -63,15 +64,16 @@ impl<'crossterm> FirstDepthSearch<'crossterm>
 
             self.update_position();
 
-            let cell = self.crossterm.paint(" ").on(Color::Blue);
+            let cell = crossterm.style(" ").on(Color::Blue);
 
             let pos = self.root_pos.clone();
 
             let x = pos.x as u16;
             let y = pos.y as u16;
 
-            cursor.goto(x,y).print(cell);
-            ::std::io::stdout().flush();
+            cursor.goto(x,y);
+            cell.paint(&self.screen);
+           self.screen.stdout.flush();
 
             thread::sleep(time::Duration::from_millis(2));
         }

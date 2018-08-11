@@ -16,31 +16,20 @@ extern crate crossterm;
 
 use crossterm::style::Color;
 use crossterm::Crossterm;
-
+use crossterm::write::Stdout;
+use crossterm::common::screen::Screen;
+use std::io::Write;
 // mod terminal;
 // mod color;
 // mod cursor;
 // mod crossterm_type;
-// mod input;
+ mod input;
 
 //use input::keyboard::{async_input, input as stdin};
 
-use std::{thread, time};
+use std::{thread, time, };
+use std::sync::mpsc;
 
 fn main() {
-    do_something();
+   input::keyboard::async_input::async_reading_on_alternate_screen();
 }
-
-fn do_something()
-{
-    let mut crossterm = Crossterm::new();
-
-    {
-        let mut cursor = crossterm.cursor(); // <- Immutable borrow occurs here ( cursor(&self) ) end lives until the end of this function call.
-        cursor.goto(10, 10);
-    }
-    crossterm.to_alternate_screen(); // <- mutable borrow occurs here  ( to_alternate_screen(&mut self) ) but because we already have borrowed immutable we can not mutate it.
-}
-
-
-

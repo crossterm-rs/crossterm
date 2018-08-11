@@ -27,45 +27,31 @@ use std::io::{self, Write};
 #[cfg(target_os = "windows")]
 use winapi::um::winnt::HANDLE;
 
+use std::sync::Arc;
+
 /// Struct that stores an specific platform implementation for screen related actions.
-pub struct ScreenManager {
-    screen_manager: Box<IScreenManager + Send>,
+pub struct Stdout {
+    screen_manager: Box<IStdout + Send>,
+    pub is_in_raw_mode:bool,
 }
 
-impl ScreenManager {
-    /// Create new screen manager instance whereon screen related actions can be performed.
-    pub fn new() -> ScreenManager {
+// todo: impl Default for stdout
+
+impl Stdout {
+    /// Create new screen write instance whereon screen related actions can be performed.
+    pub fn new(is_in_raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IScreenManager + Send>>(
-            Box::from(WinApiScreenManager::new()),
-            Box::from(AnsiScreenManager::new()),
+        let screen_manager = functions::get_module::<Box<IStdout + Send>>(
+            Box::from(WinApiStdout::new()),
+            Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiScreenManager::new()) as Box<IScreenManager + Send>;
+        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send>;
 
-        ScreenManager { screen_manager }
+        Stdout { screen_manager , is_in_raw_mode}
     }
 
-    /// Set whether screen is raw screen.
-    pub fn set_is_raw_screen(&mut self, value: bool) {
-        self.screen_manager.set_is_raw_screen(value);
-    }
-
-    /// Set whether the current screen is alternate screen.
-    pub fn set_is_alternate_screen(&mut self, value: bool) {
-        self.screen_manager.set_is_alternate_screen(value);
-    }
-
-    /// Check if the current screen is in rawscreen modes
-    pub fn is_raw_screen(&self) -> bool {
-        self.screen_manager.is_raw_screen()
-    }
-
-    /// Check if the current screen is in alternate modes.
-    pub fn is_alternate_screen(&self) -> bool {
-        self.screen_manager.is_alternate_screen()
-    }
 
     /// Write String to the current screen.
     pub fn write_string(&self, string: String) -> io::Result<usize> {
@@ -86,12 +72,10 @@ impl ScreenManager {
         self.screen_manager.write(buf)
     }
 
-    /// Can be used to get an reference to an specific implementation used for the current platform.
     pub fn as_any(&self) -> &Any {
         self.screen_manager.as_any()
     }
 
-    /// Can be used to get an mutable reference to an specific implementation used for the current platform.
     pub fn as_any_mut(&mut self) -> &mut Any {
         self.screen_manager.as_any_mut()
     }

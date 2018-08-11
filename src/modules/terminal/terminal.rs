@@ -22,14 +22,14 @@ use std::io::Write;
 /// let (with, height) = term.terminal_size();
 ///
 /// ```
-pub struct Terminal<'terminal> {
+pub struct Terminal {
     terminal: Box<ITerminal>,
-    screen_manager: &'terminal ScreenManager,
+    screen: Arc<Stdout>,
 }
 
-impl<'terminal> Terminal<'terminal> {
+impl Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new(screen_manager: &'terminal ScreenManager) -> Terminal<'terminal> {
+    pub fn new(screen: &Arc<Stdout>) -> Terminal {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal>>(
             Box::new(WinApiTerminal::new()),
@@ -41,7 +41,7 @@ impl<'terminal> Terminal<'terminal> {
 
         Terminal {
             terminal,
-            screen_manager: screen_manager,
+            screen: screen.clone(),
         }
     }
 
@@ -66,8 +66,8 @@ impl<'terminal> Terminal<'terminal> {
     /// term.clear(terminal::ClearType::UntilNewLine);
     ///
     /// ```
-    pub fn clear(&mut self, clear_type: ClearType) {
-        self.terminal.clear(clear_type, &mut self.screen_manager);
+    pub fn clear(&self, clear_type: ClearType) {
+        self.terminal.clear(clear_type, &self.screen);
     }
 
     /// Get the terminal size (x,y).
@@ -88,7 +88,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn terminal_size(&self) -> (u16, u16) {
-        return self.terminal.terminal_size(&self.screen_manager);
+        return self.terminal.terminal_size(&self.screen);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -105,7 +105,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn scroll_up(&self, count: i16) {
-        self.terminal.scroll_up(count, &self.screen_manager);
+        self.terminal.scroll_up(count, &self.screen);
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -122,7 +122,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn scroll_down(&self, count: i16) {
-        self.terminal.scroll_down(count, &self.screen_manager);
+        self.terminal.scroll_down(count, &self.screen);
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -139,7 +139,7 @@ impl<'terminal> Terminal<'terminal> {
     ///
     /// ```
     pub fn set_size(&self, width: i16, height: i16) {
-        self.terminal.set_size(width, height, &self.screen_manager);
+        self.terminal.set_size(width, height, &self.screen);
     }
 
     /// Exit the current process.
@@ -174,11 +174,11 @@ impl<'terminal> Terminal<'terminal> {
         use std::fmt::Write;
         let mut string = String::new();
         write!(string, "{}", value).unwrap();
-        self.screen_manager.write_string(string);
+        self.screen.write_string(string);
     }
 }
 
 /// Get an terminal implementation whereon terminal related actions could performed
-pub fn terminal(screen_manager: &mut ScreenManager) -> Terminal {
-    Terminal::new(screen_manager)
+pub fn terminal(screen: &Screen) -> Terminal {
+    Terminal::new(&screen.stdout)
 }

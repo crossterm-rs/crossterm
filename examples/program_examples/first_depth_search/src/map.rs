@@ -1,5 +1,6 @@
 use super::variables::{Cell, Position, Size };
-use crossterm::Crossterm;
+use crossterm::{Crossterm, Screen};
+use crossterm::cursor::cursor;
 use crossterm::style::{ObjectStyle, StyledObject, Color};
 
 use std::fmt::Display;
@@ -23,14 +24,14 @@ impl Map
             let mut row: Vec<Cell> = Vec::new();
 
             for x in 0..map_size.width
-                {
-                    if (y == 0 || y == map_size.height - 1) || (x == 0 || x == map_size.width - 1)
-                        {
-                            row.push(Cell::new(Position::new(x, y), Color::Black, wall_cell_char, true));
-                        } else {
-                        row.push(Cell::new(Position::new(x, y), Color::Black, map_cell_char, false));
-                    }
+            {
+                if (y == 0 || y == map_size.height - 1) || (x == 0 || x == map_size.width - 1)
+                    {
+                        row.push(Cell::new(Position::new(x, y), Color::Black, wall_cell_char, true));
+                    } else {
+                    row.push(Cell::new(Position::new(x, y), Color::Black, map_cell_char, false));
                 }
+            }
             map.push(row);
         }
 
@@ -38,9 +39,10 @@ impl Map
     }
 
     // render the map on the screen.
-    pub fn render_map(&mut self, crossterm: &mut Crossterm)
+    pub fn render_map(&mut self, screen: &Screen)
     {
-        let mut cursor = crossterm.cursor();
+        let crossterm = Crossterm::new();
+        let mut cursor = crossterm.cursor(screen);
 
         for row in self.map.iter_mut()
         {
@@ -48,11 +50,11 @@ impl Map
             {
                 // we only have to render the walls
                 if (column.position.y == 0 || column.position.y == self.size.height - 1) || (column.position.x == 0 || column.position.x == self.size.width - 1)
-                    {
-                        let cell_style = crossterm.paint(column.look).on(column.color);
-                        cursor.goto(column.position.x as u16, column.position.y as u16)
-                            .print(cell_style);
-                    }
+                {
+                    let cell_style = crossterm.style(column.look).on(column.color);
+                    cursor.goto(column.position.x as u16, column.position.y as u16);
+                    cell_style.paint(&screen);
+                }
             }
         }
     }

@@ -10,12 +10,13 @@ use winapi::um::wincon::{
 use winapi::um::winnt::HANDLE;
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
-use super::{handle, kernel, Empty, ScreenManager};
+use super::{handle, kernel, Empty, Stdout};
 use std::io::{self, ErrorKind, Result};
 use std::mem::size_of;
+use std::sync::Arc;
 
 /// Create a new console screen buffer info struct.
-pub fn get_csbi(screen_manager: &ScreenManager) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
+pub fn get_csbi(screen_manager: &Arc<Stdout>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
@@ -35,7 +36,7 @@ pub fn get_csbi(screen_manager: &ScreenManager) -> Result<CONSOLE_SCREEN_BUFFER_
 
 /// Get buffer info and handle of the current screen.
 pub fn get_csbi_and_handle(
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
     let handle = handle::get_current_handle(screen_manager)?;
     let csbi = get_csbi_by_handle(&handle)?;
@@ -60,7 +61,7 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 }
 
 /// Set the console screen buffer size
-pub fn set_console_screen_buffer_size(size: COORD, screen_manager: &ScreenManager) -> bool {
+pub fn set_console_screen_buffer_size(size: COORD, screen_manager: &Arc<Stdout>) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {

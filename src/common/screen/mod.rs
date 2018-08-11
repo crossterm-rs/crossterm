@@ -2,8 +2,10 @@
 
 mod alternate;
 mod raw;
+mod screen;
 
-use super::{commands, functions, ScreenManager};
+use super::{commands, functions, Stdout};
 
 pub use self::alternate::AlternateScreen;
-//pub use self::raw::RawScreen;
+pub use self::screen::Screen;
+pub use self::raw::RawScreen;

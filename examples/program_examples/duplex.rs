@@ -29,40 +29,40 @@ use std::time::Duration;
 
 use std::thread;
 
-fn main() {
-    let mut terminal = Arc::new(Mutex::new(Crossterm::new()));
-    let input = terminal.lock().unwrap().input().read_async();
-    terminal.lock().unwrap().enable_raw_mode();
-    let mut input_buf = Arc::new(Mutex::new(String::new()));
-    let mut key_buf = [0 as u8; 32];
 
-    thread::spawn(move || {
-        loop {
-            swap_write(&mut terminal.lock().unwrap(), "random program output",&input_buf.lock().unwrap());
-            sleep(Duration::from_millis(100));
-        }
-    });
+            }fn main() {
+            let mut terminal = Arc::new(Mutex::new(Crossterm::new()));
+            let input = terminal.lock().unwrap().input().read_async();
+            terminal.lock().unwrap().enable_raw_mode();
+            let mut input_buf = Arc::new(Mutex::new(String::new()));
+            let mut key_buf = [0 as u8; 32];
 
-    loop {
-            let mut term = terminal.lock().unwrap();
-            let (term_width, term_height) = term.terminal().terminal_size();
-            if let Ok(count) = input.read(&mut key_buf) {
-                for idx in 0..count {
-                    let b = key_buf.get(idx).unwrap();
-                    if *b == 3 {
-                        std::process::exit(0); // Ctrl+C = exit immediate
-                    } else if *b == 13 {
-                        // The return key was pressed.
-                        let mut input_buf_tmp = &mut input_buf.lock().unwrap();
-                        input_buf.lock().unwrap().clear();
-                        swap_write(&mut term, "", &input_buf_tmp);
-                    } else {
-                        let mut input_buf_tmp = &mut input_buf.lock().unwrap();
-                        input_buf_tmp.push(*b as char);
-                        swap_write(&mut term, "", &input_buf_tmp);
-                    }
+            thread::spawn(move || {
+                loop {
+                    swap_write(&mut terminal.lock().unwrap(), "random program output",&input_buf.lock().unwrap());
+                    sleep(Duration::from_millis(100));
                 }
-            }
+            });
+
+            loop {
+                let mut term = terminal.lock().unwrap();
+                let (term_width, term_height) = term.terminal().terminal_size();
+                if let Ok(count) = input.read(&mut key_buf) {
+                    for idx in 0..count {
+                        let b = key_buf.get(idx).unwrap();
+                        if *b == 3 {
+                            std::process::exit(0); // Ctrl+C = exit immediate
+                        } else if *b == 13 {
+                            // The return key was pressed.
+                            let mut input_buf_tmp = &mut input_buf.lock().unwrap();
+                            input_buf.lock().unwrap().clear();
+                            swap_write(&mut term, "", &input_buf_tmp);
+                        } else {
+                            let mut input_buf_tmp = &mut input_buf.lock().unwrap();
+                            input_buf_tmp.push(*b as char);
+                            swap_write(&mut term, "", &input_buf_tmp);
+                        }
+                    }
     }
 }
 

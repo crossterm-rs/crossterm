@@ -12,21 +12,47 @@
 //!
 //! With these modes you can easier design the terminal screen.
 
-//
-//use super::commands;
-//use super::{functions, ScreenManager};
-//
-//use std::io::{self, Write};
-//
-///// A wrapper for the raw terminal state. Which can be used to write to.
-//pub struct RawScreen;
-//
-//impl RawScreen {
-//    /// Create a new RawScreen type.
-//    pub fn new() -> Box<commands::IRawScreenCommand> {
-//        Box::from(EnableRawModeCommand::new())
-//    }
-//}
+use super::commands::*;
+use super::{functions, Screen};
+
+use std::io::{self, Write};
+
+/// A wrapper for the raw terminal state. Which can be used to write to.
+pub struct RawScreen
+{
+    #[cfg(not(target_os = "windows"))]
+    command: unix_command::RawModeCommand,
+    #[cfg(target_os = "windows")]
+    command: win_commands::RawModeCommand,
+
+    pub screen: Screen,
+}
+
+impl RawScreen {
+    pub fn into_raw_mode(screen: Screen) -> io::Result<RawScreen>
+    {
+        #[cfg(not(target_os = "windows"))]
+        let command = unix_command::RawModeCommand::new();
+        #[cfg(target_os = "windows")]
+        let command = win_commands::RawModeCommand::new();
+
+        Ok(RawScreen {  command: command, screen})
+    }
+
+    pub fn disable_raw_modes(&self) -> io::Result<()>
+    {
+        self.command.disable()?;
+        return Ok(())
+    }
+}
+
+impl Drop for RawScreen
+{
+    fn drop(&mut self) {
+        self.disable_raw_modes();
+    }
+}
+
 //
 /////// Trait withs contains a method for switching into raw mode.
 ////pub trait IntoRawMode: Write + Sized {

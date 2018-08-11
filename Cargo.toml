@@ -32,5 +32,9 @@ name = "simple"
 path = "examples/simple.rs"
 
 [[example]]
+name = "logging"
+path = "examples/program_examples/logging.rs"
+
+[[example]]
 name = "duplex"
-path = "examples/duplex.rs"
+path = "examples/program_examples/duplex.rs"

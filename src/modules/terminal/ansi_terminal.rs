@@ -2,7 +2,7 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 
 use super::super::cursor::cursor;
-use super::{functions, ClearType, ITerminal, ScreenManager};
+use super::*;
 
 /// This struct is an ansi escape code implementation for terminal related actions.
 pub struct AnsiTerminal;
@@ -14,7 +14,7 @@ impl AnsiTerminal {
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType, screen_manager: &ScreenManager) {
+    fn clear(&self, clear_type: ClearType, screen_manager: &Arc<Stdout>) {
         match clear_type {
             ClearType::All => {
                 screen_manager.write_str(csi!("2J"));
@@ -34,19 +34,19 @@ impl ITerminal for AnsiTerminal {
         };
     }
 
-    fn terminal_size(&self, screen_manager: &ScreenManager) -> (u16, u16) {
+    fn terminal_size(&self, screen_manager: &Arc<Stdout>) -> (u16, u16) {
         functions::get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, screen_manager: &ScreenManager) {
+    fn scroll_up(&self, count: i16, screen_manager: &Arc<Stdout>) {
         screen_manager.write_string(format!(csi!("{}S"), count));
     }
 
-    fn scroll_down(&self, count: i16, screen_manager: &ScreenManager) {
+    fn scroll_down(&self, count: i16, screen_manager: &Arc<Stdout>) {
         screen_manager.write_string(format!(csi!("{}T"), count));
     }
 
-    fn set_size(&self, width: i16, height: i16, screen_manager: &ScreenManager) {
+    fn set_size(&self, width: i16, height: i16, screen_manager: &Arc<Stdout>) {
         screen_manager.write_string(format!(csi!("8;{};{}t"), width, height));
     }
 

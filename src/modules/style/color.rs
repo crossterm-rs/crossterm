@@ -23,14 +23,14 @@ use std::io;
 /// colored_terminal.reset();
 ///
 /// ```
-pub struct TerminalColor<'terminal> {
+pub struct TerminalColor {
     color: Box<ITerminalColor>,
-    screen_manager: &'terminal ScreenManager,
+    stdout: Arc<Stdout>,
 }
 
-impl<'terminal> TerminalColor<'terminal> {
+impl<'terminal> TerminalColor {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(screen_manager: &'terminal ScreenManager) -> TerminalColor<'terminal> {
+    pub fn new(stdout: &Arc<Stdout>) -> TerminalColor {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor>>(
             Box::from(WinApiColor::new()),
@@ -42,7 +42,7 @@ impl<'terminal> TerminalColor<'terminal> {
 
         TerminalColor {
             color,
-            screen_manager,
+            stdout: stdout.clone(),
         }
     }
 
@@ -61,7 +61,7 @@ impl<'terminal> TerminalColor<'terminal> {
     ///
     /// ```
     pub fn set_fg(&self, color: Color) {
-        self.color.set_fg(color, &self.screen_manager);
+        self.color.set_fg(color, &self.stdout);
     }
 
     /// Set the background color to the given color.
@@ -80,7 +80,7 @@ impl<'terminal> TerminalColor<'terminal> {
     ///
     /// ```
     pub fn set_bg(&self, color: Color) {
-        self.color.set_bg(color, &self.screen_manager);
+        self.color.set_bg(color, &self.stdout);
     }
 
     /// Reset the terminal colors and attributes to default.
@@ -95,7 +95,7 @@ impl<'terminal> TerminalColor<'terminal> {
     ///
     /// ```
     pub fn reset(&self) {
-        self.color.reset(&self.screen_manager);
+        self.color.reset(&self.stdout);
     }
 
     /// Get available color count.
@@ -116,6 +116,6 @@ impl<'terminal> TerminalColor<'terminal> {
 }
 
 /// Get an Terminal Color implementation whereon color related actions can be performed.
-pub fn color(screen_manager: &ScreenManager) -> TerminalColor {
-    TerminalColor::new(screen_manager)
+pub fn color(stdout: &Arc<Stdout>) -> TerminalColor {
+    TerminalColor::new(stdout)
 }

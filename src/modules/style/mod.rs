@@ -14,11 +14,12 @@ use self::winapi_color::WinApiColor;
 
 use std::convert::From;
 use std::str::FromStr;
+use std::sync::Arc;
 
 pub use self::color::TerminalColor;
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
-use super::{functions, ScreenManager};
+use super::{functions, Stdout};
 
 /// This trait defines the actions that can be preformed with the terminal color.
 /// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
@@ -30,11 +31,11 @@ use super::{functions, ScreenManager};
 /// so that color related actions can be preformed on both unix and windows systems.
 pub trait ITerminalColor {
     /// Set the foreground color to the given color.
-    fn set_fg(&self, fg_color: Color, screen_manager: &ScreenManager);
+    fn set_fg(&self, fg_color: Color, stdout: &Arc<Stdout>);
     /// Set the background color to the given color.
-    fn set_bg(&self, fg_color: Color, screen_manager: &ScreenManager);
+    fn set_bg(&self, fg_color: Color, stdout: &Arc<Stdout>);
     /// Reset the terminal color to default.
-    fn reset(&self, screen_manager: &ScreenManager);
+    fn reset(&self, stdout: &Arc<Stdout>);
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }

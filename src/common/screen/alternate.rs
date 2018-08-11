@@ -22,17 +22,27 @@
 //! Todo: example
 //!
 
-use super::commands;
-use super::{functions, ScreenManager};
+use super::commands::{self, IAlternateScreenCommand};
+use super::{functions, Screen, Stdout, RawScreen};
 
 use std::convert::From;
 use std::io::{self, Write};
+use std::sync::Mutex;
 
-pub struct AlternateScreen;
+pub struct AlternateScreen
+{
+    command: Box<IAlternateScreenCommand + Send>,
+    pub screen: Screen,
+}
 
 impl AlternateScreen {
-    /// Create an new alternate screen type.
-    pub fn new() -> Box<commands::IAlternateScreenCommand + Send> {
+
+    pub fn new(command: Box<IAlternateScreenCommand + Send>, screen: Screen) -> Self
+    {
+        return AlternateScreen { command, screen }
+    }
+
+    pub fn to_alternate_screen(screen_manager: Stdout) -> io::Result<AlternateScreen> {
         #[cfg(target_os = "windows")]
         let command = functions::get_module::<Box<commands::IAlternateScreenCommand + Send>>(
             Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
@@ -42,6 +52,25 @@ impl AlternateScreen {
         #[cfg(not(target_os = "windows"))]
         let command = Box::from(commands::shared_commands::ToAlternateScreenCommand::new());
 
-        command
+        let mut stdout = screen_manager;
+        command.enable(&mut stdout)?;
+        return Ok(AlternateScreen::new(command, Screen::from(stdout)));
+    }
+
+    pub fn to_main_screen(&self) -> io::Result<()> {
+        self.command.disable(&self.screen.stdout)?;
+        Ok(())
+    }
+
+    pub fn enable_raw_modes(&self) -> io::Result<RawScreen>
+    {
+        return self.screen.enable_raw_modes();
+    }
+}
+
+impl Drop for AlternateScreen
+{
+    fn drop(&mut self) {
+        self.to_main_screen();
     }
 }

@@ -6,10 +6,11 @@ use winapi::um::wincon::{
 };
 use winapi::um::winnt::HANDLE;
 
-use super::super::super::manager::ScreenManager;
+use super::super::super::modules::Stdout;
 use super::{handle, Empty};
 
 use std::io::{ErrorKind, Result};
+use std::sync::Arc;
 
 /// Get the largest console window size possible.
 pub fn get_largest_console_window_size() -> COORD {
@@ -33,7 +34,7 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool {
 }
 
 /// Change the console text attribute.
-pub fn set_console_text_attribute(value: u16, screen_manager: &ScreenManager) -> bool {
+pub fn set_console_text_attribute(value: u16, screen_manager: &Arc<Stdout>) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {
@@ -42,7 +43,7 @@ pub fn set_console_text_attribute(value: u16, screen_manager: &ScreenManager) ->
 }
 
 /// Change console info.
-pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, screen_manager: &ScreenManager) -> bool {
+pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, screen_manager: &Arc<Stdout>) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     let absolute = match absolute {

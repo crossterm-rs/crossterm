@@ -18,21 +18,22 @@
 //!
 //! This is the reason why this module exits: it is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
 
-mod manager;
+mod stdout;
 
-mod ansi_manager;
+mod ansi_stdout;
 #[cfg(target_os = "windows")]
-mod win_manager;
+mod winapi_stdout;
 
-pub use self::ansi_manager::AnsiScreenManager;
+pub use self::ansi_stdout::AnsiStdout;
 #[cfg(target_os = "windows")]
-pub use self::win_manager::WinApiScreenManager;
+pub use self::winapi_stdout::WinApiStdout;
 
-pub use self::manager::ScreenManager;
-use super::functions;
+pub use self::stdout::Stdout;
 
 use std::any::Any;
 use std::io;
+
+use super::{functions};
 
 /// This trait defines the actions that could be preformed on the current screen.
 /// This trait can be implemented so that an concrete implementation of the IScreenManager can forfill
@@ -42,21 +43,15 @@ use std::io;
 ///
 /// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 /// so that color related actions can be preformed on both unix and windows systems.
-pub trait IScreenManager {
-    fn set_is_raw_screen(&mut self, value: bool);
-    fn set_is_alternate_screen(&mut self, value: bool);
-
-    fn is_raw_screen(&self) -> bool;
-    fn is_alternate_screen(&self) -> bool;
-
+pub trait IStdout {
     /// Write a &str to the current stdout.
-    fn write_str(&self, string: &str) -> io::Result<usize>;
+    fn write_str(&self, string: &str ) -> io::Result<usize>;
     /// Write [u8] buffer to console.
     fn write(&self, buf: &[u8]) -> io::Result<usize>;
     /// Flush the current output.
     fn flush(&self) -> io::Result<()>;
-    /// Can be used to convert to an specific IScreenManager implementation.
+
     fn as_any(&self) -> &Any;
-    /// Can be used to convert to an specific mutable IScreenManager implementation.
+
     fn as_any_mut(&mut self) -> &mut Any;
 }

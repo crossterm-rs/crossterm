@@ -9,17 +9,18 @@ use winapi::um::wincon::{
 };
 use winapi::um::winnt::HANDLE;
 
-use super::{csbi, handle, kernel, ScreenManager};
+use super::{csbi, handle, kernel, Stdout};
 
 use std::io::{self, ErrorKind, Result};
 use std::str;
+use std::sync::Arc;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
@@ -41,7 +42,7 @@ pub fn fill_console_output_attribute(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &ScreenManager,
+    screen_manager: &Arc<Stdout>,
 ) -> bool {
     // Get the position of the current console window
 

@@ -1,17 +1,18 @@
 use super::commands::{IAlternateScreenCommand};
 
-use super::screen::AlternateScreen;
+use super::screen::{AlternateScreen, Screen};
 
 use super::super::cursor;
 use super::super::input;
-use super::super::manager;
+use super::super::write;
 use super::super::style;
-use super::super::terminal;
+ use super::super::terminal;
 
 use std::fmt::Display;
 use std::io::Write;
-
+use std::sync::RwLock;
 use std::io::Result;
+use std::sync::Arc;
 
 #[cfg(not(windows))]
 use common::commands::unix_command;
@@ -19,143 +20,58 @@ use common::commands::unix_command;
 #[cfg(windows)]
 use common::commands::win_commands;
 
-pub struct Crossterm {
-    pub active_screen: manager::ScreenManager,
+use write::Stdout;
 
-    #[cfg(not(windows))]
-    raw_terminal: Option<unix_command::RawModeCommand>,
+pub struct Crossterm { }
 
-    #[cfg(windows)]
-    raw_terminal: Option<win_commands::RawModeCommand>,
-    // Would be cool to figure out a way to have multiple screens instead of just only the main and alternate screen.
-    // For windows this would be easy but for unix I have no idea.
-    alternate_screen: Option<Box<IAlternateScreenCommand + Send>>,
-}
-
-impl<'a> Crossterm {
+impl<'crossterm> Crossterm {
     pub fn new() -> Crossterm {
-        Crossterm {
-            active_screen: manager::ScreenManager::new(),
-            raw_terminal: None,
-            alternate_screen: None,
-        }
+        Crossterm {}
     }
 
-    pub fn enable_raw_mode(&mut self) -> Result<()> {
-        match self.raw_terminal {
-            None => {
-                #[cfg(not(target_os = "windows"))]
-                let raw_terminal = Some(unix_command::RawModeCommand::new());
-                #[cfg(target_os = "windows")]
-                let raw_terminal = Some(win_commands::RawModeCommand::new());
-
-                self.raw_terminal = raw_terminal;
-
-                return self.enable_raw_mode();
-            }
-            Some(ref mut raw_terminal) => {
-                raw_terminal.enable()?;
-                self.active_screen.set_is_raw_screen(true);
-            }
-        }
-        Ok(())
+    pub fn cursor(&self, screen: &'crossterm Screen) -> cursor::TerminalCursor {
+        cursor::TerminalCursor::new(&screen.stdout.clone())
     }
 
-    pub fn disable_raw_mode(&mut self) -> Result<()> {
-        match self.raw_terminal {
-            None => {
-
-                #[cfg(not(target_os = "windows"))]
-                let raw_terminal = Some(unix_command::RawModeCommand::new());
-                #[cfg(target_os = "windows")]
-                let raw_terminal = Some(win_commands::RawModeCommand::new());
-
-                self.raw_terminal = raw_terminal;
-                return self.disable_raw_mode();
-            }
-            Some(ref mut raw_terminal) => {
-                raw_terminal.disable()?;
-                self.active_screen.set_is_raw_screen(false);
-            }
-        }
-        Ok(())
+    pub fn input(&self, screen: &'crossterm Screen) -> input::TerminalInput {
+        return input::TerminalInput::new(&screen.stdout);
     }
 
-    pub fn to_alternate_screen(&mut self) -> Result<()> {
-        match self.alternate_screen {
-            None => {
-                self.alternate_screen = Some(AlternateScreen::new());
-                return self.to_alternate_screen();
-            }
-            Some(ref mut alternate_screen) => {
-                alternate_screen.enable(&mut self.active_screen)?;
-                self.active_screen.set_is_alternate_screen(true);
-            }
-        }
+     pub fn terminal(&self, screen: &'crossterm Screen) -> terminal::Terminal {
+         return terminal::Terminal::new(&screen.stdout);
+     }
 
-        return Ok(());
+    pub fn color(&self, screen: &'crossterm Screen) -> style::TerminalColor {
+        return style::TerminalColor::new(&screen.stdout);
     }
 
-    pub fn to_main_screen(&mut self) -> Result<()> {
-        match self.alternate_screen {
-            None => {
-                self.alternate_screen = Some(AlternateScreen::new());
-                return self.to_main_screen();
-            }
-            Some(ref mut alternate_screen) => {
-                alternate_screen.disable(&mut self.active_screen)?;
-                self.active_screen.set_is_alternate_screen(false);
-            }
-        }
-
-        return Ok(());
-    }
-
-    pub fn cursor(&self) -> cursor::TerminalCursor {
-        cursor::TerminalCursor::new(&self.active_screen)
-    }
-
-    pub fn input(&self) -> input::TerminalInput {
-        return input::TerminalInput::new(&self.active_screen);
-    }
-
-    pub fn terminal(&self) -> terminal::Terminal {
-        return terminal::Terminal::new(&self.active_screen);
-    }
-
-    pub fn color(&self) -> style::TerminalColor {
-        return style::TerminalColor::new(&self.active_screen);
-    }
-
-    // Wraps an displayable object so it can be formatted with colors and attributes.
-    //
-    // Check `/examples/color` in the libary for more spesific examples.
-    //
-    pub fn paint<D>(&self, val: D) -> style::StyledObject<D>
+//     Wraps an displayable object so it can be formatted with colors and attributes.
+//
+//     Check `/examples/color` in the libary for more spesific examples.
+    pub fn style<D>(&self, val: D) -> style::StyledObject<D>
     where
-        D: Display,
-    {
-        style::ObjectStyle::new().apply_to(val, &self.active_screen)
+        D: Display,    {
+        style::ObjectStyle::new().apply_to(val)
     }
 }
 
-impl Write for Crossterm {
-    fn write(&mut self, buf: &[u8]) -> Result<usize> {
-        self.active_screen.write_buf(buf)
-    }
-
-    fn flush(&mut self) -> Result<()> {
-        self.active_screen.flush()
-    }
-}
-
-impl Drop for Crossterm {
-    fn drop(&mut self) {
-        if let Some(ref mut screen) = self.alternate_screen {
-            screen.disable(&mut self.active_screen);
-        }
-        if let Some(ref mut raw_terminal) = self.raw_terminal {
-            raw_terminal.disable();
-        }
-    }
-}
+//impl Write for Crossterm {M
+//    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+//        self.active_screen.write_buf(buf)
+//    }
+//
+//    fn flush(&mut self) -> Result<()> {
+//        self.active_screen.flush()
+//    }
+//}
+//
+//impl Drop for Crossterm {
+//    fn drop(&mut self) {
+//        if let Some(ref mut screen) = self.alternate_screen {
+//            screen.disable(&mut self.active_screen);
+//        }
+//        if let Some(ref mut raw_terminal) = self.raw_terminal {
+//            raw_terminal.disable();
+//        }
+//    }
+//}

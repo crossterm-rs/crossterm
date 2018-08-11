@@ -12,12 +12,13 @@ mod modules;
 pub use common::screen;
 pub use modules::cursor;
 pub use modules::input;
-pub use modules::manager;
+pub use modules::write;
 pub use modules::style;
-pub use modules::terminal;
+ pub use modules::terminal;
 
 pub use common::Crossterm;
-
+pub use write::{IStdout, Stdout};
+pub use common::screen::Screen;
 #[cfg(unix)]
 extern crate libc;
 #[cfg(unix)]

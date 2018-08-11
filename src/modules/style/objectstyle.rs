@@ -1,8 +1,9 @@
 //! This module contains the `object style` that can be applied to an `styled object`.
 
-use super::{Color, ScreenManager, StyledObject};
+use super::{Color, Stdout, StyledObject};
 
 use std::fmt::Display;
+use std::sync::Arc;
 
 #[cfg(unix)]
 use super::Attribute;
@@ -30,14 +31,12 @@ impl Default for ObjectStyle {
 
 impl ObjectStyle {
     /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<'style, D: Display>(
+    pub fn apply_to<D: Display>(
         &self,
         val: D,
-        screen_manager: &'style ScreenManager,
-    ) -> StyledObject<'style, D> {
+    ) -> StyledObject<D> {
         StyledObject {
             object_style: self.clone(),
-            screen_manager: screen_manager,
             content: val,
         }
     }

@@ -2,15 +2,14 @@
 
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
 use common::commands::unix_command::{EnableRawModeCommand, NoncanonicalModeCommand};
-use libc;
+use {libc, Stdout};
 pub use libc::termios;
 
-use std::io::Error;
-use std::io::ErrorKind;
-use std::io::Read;
+use std::sync::Arc;
+use std::io::{self, Error, ErrorKind, Read};
 use std::os::unix::io::AsRawFd;
 use std::time::{Duration, SystemTime};
-use std::{fs, io, mem};
+use std::{fs, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 
 use Crossterm;
@@ -46,9 +45,9 @@ pub fn terminal_size() -> (u16, u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos() -> (u16, u16) {
+pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
     let mut crossterm = Crossterm::new();
-    let input = crossterm.input();
+    let input = crossterm.input(stdout);
 
     let delimiter = b'R';
     let mut stdin = input.read_until_async(delimiter);

@@ -10,8 +10,10 @@ use self::ansi_terminal::AnsiTerminal;
 #[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;
 
-pub use self::terminal::Terminal;
-use super::{functions, ScreenManager};
+pub use self::terminal::{terminal, Terminal};
+use super::{functions, Stdout};
+use std::sync::Arc;
+use Screen;
 
 /// Enum that specifies a way of clearing.
 pub enum ClearType {
@@ -32,15 +34,15 @@ pub enum ClearType {
 /// so that color related actions can be preformed on both unix and windows systems.
 pub trait ITerminal {
     /// Clear the current cursor by specifying the clear type
-    fn clear(&self, clear_type: ClearType, screen_manager: &ScreenManager);
+    fn clear(&self, clear_type: ClearType, screen_manager: &Arc<Stdout>);
     /// Get the terminal size (x,y)
-    fn terminal_size(&self, screen_manager: &ScreenManager) -> (u16, u16);
+    fn terminal_size(&self, screen_manager: &Arc<Stdout>) -> (u16, u16);
     /// Scroll `n` lines up in the current terminal.
-    fn scroll_up(&self, count: i16, screen_manager: &ScreenManager);
+    fn scroll_up(&self, count: i16, screen_manager: &Arc<Stdout>);
     /// Scroll `n` lines down in the current terminal.
-    fn scroll_down(&self, count: i16, screen_manager: &ScreenManager);
+    fn scroll_down(&self, count: i16, screen_manager: &Arc<Stdout>);
     /// Resize terminal to the given width and height.
-    fn set_size(&self, width: i16, height: i16, screen_manager: &ScreenManager);
+    fn set_size(&self, width: i16, height: i16, screen_manager: &Arc<Stdout>);
     /// Close the current terminal
     fn exit(&self);
 }

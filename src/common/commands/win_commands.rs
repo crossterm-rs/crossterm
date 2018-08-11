@@ -1,14 +1,16 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{IAlternateScreenCommand, IEnableAnsiCommand, ScreenManager};
+use super::{IAlternateScreenCommand, IEnableAnsiCommand, IRawScreenCommand, Stdout};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
+use modules::write::IStdout;
 use std::mem;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 use winapi::um::wincon::{CHAR_INFO, COORD, ENABLE_VIRTUAL_TERMINAL_PROCESSING, SMALL_RECT};
 
 use std::io::{Error, ErrorKind, Result};
+use std::sync::Mutex;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -27,7 +29,7 @@ impl EnableAnsiCommand {
 }
 
 impl IEnableAnsiCommand for EnableAnsiCommand {
-    fn enable(&mut self) -> bool {
+    fn enable(&self) -> bool {
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
             return ansi_support::windows_supportable();
@@ -47,7 +49,7 @@ impl IEnableAnsiCommand for EnableAnsiCommand {
         }
     }
 
-    fn disable(&mut self) -> bool {
+    fn disable(&self) -> bool {
         if ansi_support::ansi_enabled() {
             let output_handle = handle::get_output_handle().unwrap();
 
@@ -74,7 +76,8 @@ pub struct RawModeCommand {
     mask: DWORD,
 }
 
-impl RawModeCommand {
+impl RawModeCommand
+{
     pub fn new() -> Self {
         use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
 
@@ -82,9 +85,11 @@ impl RawModeCommand {
             mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT,
         }
     }
-    
+}
+
+impl IRawScreenCommand for RawModeCommand {
     /// Enables raw mode.
-    pub fn enable(&mut self) -> Result<()> {
+    fn enable(&mut self) -> Result<()> {
         let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
@@ -108,7 +113,7 @@ impl RawModeCommand {
     }
 
     /// Disables raw mode.
-    pub fn disable(&mut self) -> Result<()> {
+    fn disable(&self) -> Result<()> {
         let output_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
@@ -143,8 +148,8 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand  for ToAlternateScreenCommand {
-    fn enable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
-        use super::super::super::manager::WinApiScreenManager;
+    fn enable(&self, screen_manager: &mut Stdout) -> Result<()> {
+        use super::super::super::modules::write::WinApiStdout;
 
         let handle = handle::get_output_handle()?;
 
@@ -154,28 +159,20 @@ impl IAlternateScreenCommand  for ToAlternateScreenCommand {
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle)?;
 
-        match screen_manager
+        let b: &mut WinApiStdout = match screen_manager
             .as_any_mut()
-            .downcast_mut::<WinApiScreenManager>()
-        {
-            Some(b) => b.set_alternate_handle(new_handle),
-            None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
-        };
-
-        let b: &mut WinApiScreenManager = match screen_manager
-            .as_any_mut()
-            .downcast_mut::<WinApiScreenManager>()
+            .downcast_mut::<WinApiStdout>()
         {
             Some(b) => b,
             None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
         };
 
-        b.set_alternate_handle(new_handle);
+        b.set(new_handle);
 
         Ok(())
     }
 
-    fn disable(&self, screen_manager: &mut ScreenManager) -> Result<()> {
+    fn disable(&self, screen_manager: &Stdout) -> Result<()> {
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 

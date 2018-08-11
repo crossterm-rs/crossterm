@@ -2,7 +2,7 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use std::io;
-
+use std::sync::Arc;
 use super::*;
 
 /// Struct that stores an specific platform implementation for input related actions.
@@ -23,14 +23,14 @@ use super::*;
 /// let pressed_char = input.read_char();
 ///
 /// ```
-pub struct TerminalInput<'terminal> {
+pub struct TerminalInput {
     terminal_input: Box<ITerminalInput>,
-    screen_manager: &'terminal ScreenManager,
+    stdout: Arc<Stdout>,
 }
 
-impl<'terminal> TerminalInput<'terminal> {
+impl TerminalInput{
     /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn new(screen_manager: &'terminal ScreenManager) -> TerminalInput<'terminal> {
+    pub fn new(stdout: &Arc<Stdout>) -> TerminalInput {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
 
@@ -39,7 +39,7 @@ impl<'terminal> TerminalInput<'terminal> {
 
         TerminalInput {
             terminal_input: input,
-            screen_manager: screen_manager,
+            stdout: stdout.clone(),
         }
     }
 
@@ -56,7 +56,7 @@ impl<'terminal> TerminalInput<'terminal> {
     ///
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
-        self.terminal_input.read_line(&self.screen_manager)
+        self.terminal_input.read_line(&self.stdout)
     }
 
     /// Read one character from the user input
@@ -72,7 +72,7 @@ impl<'terminal> TerminalInput<'terminal> {
     ///
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
-        return self.terminal_input.read_char(&self.screen_manager);
+        return self.terminal_input.read_char(&self.stdout);
     }
 
     /// Read the input asynchronously from the user.
@@ -104,7 +104,7 @@ impl<'terminal> TerminalInput<'terminal> {
     ///
     /// ```
     pub fn read_async(&self) -> AsyncReader {
-        self.terminal_input.read_async(&self.screen_manager)
+        self.terminal_input.read_async(&self.stdout)
     }
 
     ///  Read the input asynchronously until a certain character is hit.
@@ -144,11 +144,11 @@ impl<'terminal> TerminalInput<'terminal> {
     /// ```
     pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         self.terminal_input
-            .read_until_async(delimiter, &self.screen_manager)
+            .read_until_async(delimiter, &self.stdout)
     }
 }
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
-pub fn input(screen_manager: &ScreenManager) -> TerminalInput {
-    return TerminalInput::new(screen_manager);
+pub fn input(stdout: &Screen) -> TerminalInput {
+    return TerminalInput::new(&stdout.stdout);
 }

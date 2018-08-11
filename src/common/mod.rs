@@ -10,4 +10,5 @@ pub mod traits;
 mod crossterm;
 
 pub use self::crossterm::Crossterm;
-use super::manager::ScreenManager;
+use super::modules::Stdout;
+pub use screen::Screen;

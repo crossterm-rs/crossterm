@@ -3,10 +3,12 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use super::super::super::manager::WinApiScreenManager;
-use super::{Color, ColorType, ITerminalColor, ScreenManager};
+use super::super::super::write::WinApiStdout;
+use super::{Color, ColorType, ITerminalColor, Stdout};
 use kernel::windows_kernel::{csbi, kernel};
 use winapi::um::wincon;
+
+use std::sync::Arc;
 
 /// This struct is an windows implementation for color related actions.
 pub struct WinApiColor;
@@ -18,10 +20,10 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, screen_manager: &ScreenManager) {
+    fn set_fg(&self, fg_color: Color, stdout: &Arc<Stdout>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
-        let csbi = csbi::get_csbi(screen_manager).unwrap();
+        let csbi = csbi::get_csbi(stdout).unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So we need to use bitwise operators to check if the values exists or to get current console colors.
@@ -36,13 +38,13 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color, screen_manager);
+        kernel::set_console_text_attribute(color, stdout);
     }
 
-    fn set_bg(&self, bg_color: Color, screen_manager: &ScreenManager) {
+    fn set_bg(&self, bg_color: Color, stdout: &Arc<Stdout>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let (csbi, handle) = csbi::get_csbi_and_handle(screen_manager).unwrap();
+        let (csbi, handle) = csbi::get_csbi_and_handle(stdout).unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
@@ -57,12 +59,12 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color, screen_manager);
+        kernel::set_console_text_attribute(color, stdout);
     }
 
-    fn reset(&self, screen_manager: &ScreenManager) {
-        self.set_bg(Color::Black, screen_manager);
-        self.set_fg(Color::White, screen_manager);
+    fn reset(&self, stdout: &Arc<Stdout>) {
+        self.set_bg(Color::Black, stdout);
+        self.set_fg(Color::White, stdout);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct

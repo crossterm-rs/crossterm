@@ -6,9 +6,9 @@ mod algorithm;
 mod messages;
 mod variables;
 
-use crossterm::Crossterm;
-use crossterm::terminal::ClearType;
-use crossterm::style::Color;
+use self::crossterm::{ Crossterm, Screen};
+use self::crossterm::terminal::{terminal, ClearType};
+use self::crossterm::style::Color;
 
 use self::variables::{Size, Position };
 use self::messages::WELCOME_MESSAGE;
@@ -25,79 +25,74 @@ fn main()
 /// run the program
 pub fn run()
 {
-//    // create new Crossterm instance.
-    let mut crossterm = Crossterm::new();
+    // This is represents the current screen.
+    let screen = Screen::new();
+
     // set size of terminal so the map we are going to draw is fitting the screen.
-    crossterm.terminal().set_size(110,50);
+    terminal(&screen).set_size(110,50);
 
-    print_welcome_screen(&mut crossterm);
+    print_welcome_screen(&screen);
 
-    start_algorithm(&mut crossterm);
-
-    print_end_screen(&crossterm);
+    start_algorithm(&screen);
 }
 
-fn start_algorithm(crossterm: &mut Crossterm)
+fn start_algorithm(screen: &Screen)
 {
     // we first want to switch to alternate screen. On the alternate screen we are going to run or firstdepthsearch algorithm
-    crossterm.to_alternate_screen();
+    if let Ok(ref alternate_screen) = screen.enable_alternate_modes()
+    {
+        // setup the map size and the position to start searching for a path.
+        let map_size = Size::new(100, 40);
+        let start_pos = Position::new(10, 10);
 
-    // setup the map size and the position to start searching for a path.
-    let map_size = Size::new(100,40);
-    let start_pos = Position::new(10,10);
+        // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
+        let mut map = map::Map::new(map_size, '█', ' ');
+        map.render_map(&alternate_screen.screen);
 
-    // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
-    let mut map = map::Map::new(map_size, '█', ' ');
-    map.render_map(crossterm);
-
-    // create the algorithm and start the
-    let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos, &crossterm);
-    algorithm.start();
+        // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
+        let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos, &alternate_screen.screen);
+        algorithm.start();
+    }
 }
 
-fn print_end_screen(crossterm: &Crossterm)
-{
-
-}
-
-fn print_welcome_screen(crossterm: &mut Crossterm)
+fn print_welcome_screen(screen: &Screen)
 {
     // create the handle for the cursor and terminal.
+    if let Ok(raw) = screen.enable_raw_modes()
+        {
+            let crossterm = Crossterm::new();
+            let terminal = crossterm.terminal(&screen);
+            let cursor = crossterm.cursor(&raw.screen);
+            let input = crossterm.input(&raw.screen);
 
-    crossterm.enable_raw_mode();
-    let mut terminal = crossterm.terminal();
-    let mut cursor = crossterm.cursor();
+            // clear the screen and print the welcome message.
+            terminal.clear(ClearType::All);
+            cursor.goto(0, 0);
+            terminal.write(WELCOME_MESSAGE.join("\n"));
 
-    // clear the screen and print the welcome message.
-    terminal.clear(ClearType::All);
-    cursor.goto(0,0);
-    terminal.write(WELCOME_MESSAGE.join("\n"));
+            cursor.hide();
+            cursor.goto(0, 10);
+            terminal.write(
+                "The first depth search algorithm will start in:   Seconds\n\
+                Press `q` to abort the program"
+            );
 
-    cursor.hide();
-    cursor.goto(0,10);
-    terminal.write(
-        "The first depth search algorithm will start in:   Seconds\n\
-        Press `q` to abort the program"
-    );
+            let mut stdin = input.read_async().bytes();
 
-    let input = crossterm.input();
-    let mut stdin = input.read_async().bytes();
+            // print some progress example.
+            for i in (1..5).rev() {
+                let a = stdin.next();
 
-    // print some progress example.
-    for i in (1..5).rev() {
+                if let Some(Ok(b'q')) = a {
+                    terminal.exit();
+                }
 
-        let a = stdin.next();
+                // print the current counter at the line of `Seconds to Go: {counter}`
+                cursor.goto(48, 10);
+                crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&screen);
 
-        if let Some(Ok(b'q')) = a {
-            terminal.exit();
+                // 1 second delay
+                thread::sleep(time::Duration::from_secs(1));
+            }
         }
-
-        // print the current counter at the line of `Seconds to Go: {counter}`
-        cursor
-            .goto(48, 10)
-            .print(crossterm.paint(format!("{}", i)).with(Color::Red).on(Color::Blue));
-
-        // 1 second delay
-        thread::sleep(time::Duration::from_secs(1));
-    }
 }

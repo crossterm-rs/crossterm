@@ -1,20 +1,19 @@
 extern crate crossterm;
 
-use self::crossterm::Crossterm;
+use self::crossterm::input::input;
+use self::crossterm::Screen;
 
 pub fn read_char() {
-    let context = Context::new();
-    let input = input(&context);
+    let input = input(&Screen::new());
 
     match input.read_char() {
-        Ok(c) => println!("character pressed: {}", c),
-        Err(e) => println!("error: {}", e),
+        Ok(s) => println!("char typed: {}", s),
+        Err(e) => println!("char error : {}", e),
     }
 }
 
 pub fn read_line() {
-    let crossterm = Crossterm::new();
-    let input = crossterm.input();
+    let input = input(&Screen::new());
 
     match input.read_line() {
         Ok(s) => println!("string typed: {}", s),

@@ -1,6 +1,7 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use super::ScreenManager;
+use super::Stdout;
+use std::sync::Arc;
 
 #[cfg(windows)]
 use kernel::windows_kernel::terminal::{buffer_size, exit, terminal_size};
@@ -21,12 +22,12 @@ pub fn get_terminal_size() -> (u16, u16) {
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(screen_manager: &ScreenManager) -> (u16, u16) {
+pub fn get_cursor_position(stdout: &Arc<Stdout>) -> (u16, u16) {
     #[cfg(unix)]
-    return pos();
+    return pos(stdout);
 
     #[cfg(windows)]
-    return pos(screen_manager);
+    return pos(stdout);
 }
 
 /// exit the current terminal.
