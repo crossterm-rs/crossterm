@@ -109,10 +109,12 @@ fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>)
         while more_jobs_rx.get().unwrap() {
             // If work is available, do that work.
             if let Some(work) = queue.get_work() {
+                let mut log = work;
+                log.push('\n');
 
                 // write the log
-                write!(screen, "{}\n", work);
-                screen.flush();
+                screen.stdout.write_string(log);
+                screen.stdout.flush();
             }
             std::thread::yield_now();
         }
@@ -134,7 +136,7 @@ fn log_with_different_threads(more_jobs_tx: SyncFlagTx, queue: WorkQueue<String>
         let thread = thread::spawn(move || {
 
             // log 400 messages
-            for log_entry_count in 1..400
+            for log_entry_count in 1..10000
             {
                 thread_queue.add_work(format!("Log {} from thread {} ",log_entry_count, thread_num));
                 more_jobs.set(true);
