@@ -28,8 +28,8 @@ path = "src/lib.rs"
 # path = "./examples/Crossterm 0.3.1/bin.rs"
 
 [[example]]
-name = "simple"
-path = "examples/simple.rs"
+name = "examples"
+path = "examples/examples.rs"
 
 [[example]]
 name = "logging"

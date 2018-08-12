@@ -11,11 +11,14 @@ use winapi::um::wincon;
 use std::sync::Arc;
 
 /// This struct is an windows implementation for color related actions.
-pub struct WinApiColor;
+pub struct WinApiColor
+{
+    original_color: u16
+}
 
 impl WinApiColor {
     pub fn new() -> WinApiColor {
-        WinApiColor {}
+        WinApiColor { original_color: csbi::get_original_console_color()}
     }
 }
 
@@ -63,8 +66,7 @@ impl ITerminalColor for WinApiColor {
     }
 
     fn reset(&self, stdout: &Arc<Stdout>) {
-        self.set_bg(Color::Black, stdout);
-        self.set_fg(Color::White, stdout);
+        kernel::set_console_text_attribute(self.original_color, stdout);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct

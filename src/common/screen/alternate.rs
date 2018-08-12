@@ -61,11 +61,6 @@ impl AlternateScreen {
         self.command.disable(&self.screen.stdout)?;
         Ok(())
     }
-
-    pub fn enable_raw_modes(&self) -> io::Result<RawScreen>
-    {
-        return self.screen.enable_raw_modes();
-    }
 }
 
 impl Drop for AlternateScreen

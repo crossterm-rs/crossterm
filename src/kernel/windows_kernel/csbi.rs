@@ -11,6 +11,8 @@ use winapi::um::winnt::HANDLE;
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
 use super::{handle, kernel, Empty, Stdout};
+
+use std::sync::{Once, ONCE_INIT};
 use std::io::{self, ErrorKind, Result};
 use std::mem::size_of;
 use std::sync::Arc;
@@ -105,4 +107,16 @@ pub fn set_active_screen_buffer(new_buffer: HANDLE) -> Result<()> {
         }
     }
     Ok(())
+}
+
+static GET_ORIGINAL_CONSOLE_COLOR: Once = ONCE_INIT;
+static mut original_console_color: u16 = 0;
+
+pub fn get_original_console_color() -> u16 {
+    GET_ORIGINAL_CONSOLE_COLOR.call_once(|| {
+        let handle = handle::get_output_handle().unwrap();
+        let csbi = get_csbi_by_handle(&handle).unwrap();
+        unsafe { original_console_color = csbi.wAttributes as u16 };
+    });
+    return unsafe { original_console_color };
 }

@@ -4,7 +4,7 @@ use self::crossterm::input::input;
 use self::crossterm::Screen;
 
 pub fn read_char() {
-    let input = input(&Screen::new());
+    let input = input(&Screen::default());
 
     match input.read_char() {
         Ok(s) => println!("char typed: {}", s),
@@ -13,7 +13,7 @@ pub fn read_char() {
 }
 
 pub fn read_line() {
-    let input = input(&Screen::new());
+    let input = input(&Screen::default());
 
     match input.read_line() {
         Ok(s) => println!("string typed: {}", s),

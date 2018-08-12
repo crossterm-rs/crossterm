@@ -15,6 +15,7 @@ use self::winapi_color::WinApiColor;
 use std::convert::From;
 use std::str::FromStr;
 use std::sync::Arc;
+use std::fmt::Display;
 
 pub use self::color::TerminalColor;
 pub use self::objectstyle::ObjectStyle;
@@ -38,6 +39,12 @@ pub trait ITerminalColor {
     fn reset(&self, stdout: &Arc<Stdout>);
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
+}
+
+pub fn style<D>(val: D) -> StyledObject<D>
+    where
+        D: Display,    {
+            ObjectStyle::new().apply_to(val)
 }
 
 /// Attributes that could be applied on some text.

@@ -1,18 +1,18 @@
 extern crate crossterm;
 
-use crossterm::style::Color;
+use crossterm::style::{Color, style};
 use crossterm::terminal::{self, ClearType};
-use crossterm::Crossterm;
+use crossterm::{Crossterm, Screen};
 
 use std::io::{stdout, Write};
 use std::{thread, time};
 
-fn print_wait_screen(crossterm: &mut Crossterm) {
-    let mut terminal = crossterm.terminal();
-    let mut cursor = crossterm.cursor();
+fn print_wait_screen(screen: &Screen) {
+    let crossterm = Crossterm::new();
+    let terminal = crossterm.terminal(&screen);
+    let cursor = crossterm.cursor(&screen);
 
     terminal.clear(ClearType::All);
-
     cursor.goto(0, 0);
     cursor.hide();
 
@@ -25,49 +25,21 @@ fn print_wait_screen(crossterm: &mut Crossterm) {
     // print some progress example.
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
-        cursor
-            .goto(10, 2)
-            .print(crossterm.paint(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue));
+        cursor.goto(10, 2);
+        style(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue).paint(&screen);
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
     }
-
-    stdout().flush();
 }
 
 /// print wait screen on alternate screen, then swich back.
 pub fn print_wait_screen_on_alternate_window() {
 
-    let mut term = Crossterm::new();
-    term.to_alternate_screen();
+    let screen = Screen::default();
 
-    term.write(b"test");
-    print_wait_screen(&mut term);
-}
-
-/// some stress test switch from and to alternate screen.
-pub fn switch_between_main_and_alternate_screen() {
-
+    if let Ok(alternate) = screen.enable_alternate_modes(false)
     {
-        let mut term = Crossterm::new();
-        let mut cursor = term.cursor();
-
-        // create new alternate screen instance and switch to the alternate screen.
-        let alternate = term.to_alternate_screen();
-
-        { cursor.goto(0, 0); }
-        write!(term, "we are at the alternate screen!");
-        thread::sleep(time::Duration::from_secs(3));
-
-        term.to_main_screen();
-        write!(term, "we are at the alternate screen!");
-        thread::sleep(time::Duration::from_secs(3));
-
-        term.to_alternate_screen();
-        write!(term, "we are at the alternate screen!");
-        thread::sleep(time::Duration::from_secs(3));
-    } // <- Crossterm goes out of scope.
-
-    println!("Whe are back at the main screen");
+        print_wait_screen(&alternate.screen);
+    }
 }

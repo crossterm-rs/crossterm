@@ -21,9 +21,15 @@ pub struct Screen
 
 impl Screen
 {
-    pub fn new() -> Screen
+    pub fn new(raw_mode: bool) -> Screen
     {
-        return Screen { stdout: Arc::new(Stdout::new(false)), buffer: Vec::new() };
+        if raw_mode
+        {
+            RawScreen::into_raw_mode();;
+            return Screen { stdout: Arc::new(Stdout::new(true)), buffer: Vec::new() };
+        }
+
+        return Screen::default();
     }
 
     pub fn from(stdout: Stdout) -> Screen
@@ -31,16 +37,38 @@ impl Screen
         return Screen { stdout: Arc::new(stdout), buffer: Vec::new() };
     }
 
-    pub fn enable_raw_modes(&self) -> Result<RawScreen> {
-        let mut screen = Screen::from(Stdout::new(true));
-        let raw_screen = RawScreen::into_raw_mode(screen)?;
-        return Ok(raw_screen)
+    pub fn enable_raw_modes(&self) -> Result<()> {
+        RawScreen::into_raw_mode()?;
+        return Ok(())
     }
 
-    pub fn enable_alternate_modes(&self) -> Result<AlternateScreen> {
-        let mut stdout = Stdout::new(true);
+    pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
+        let mut stdout = Stdout::new(raw_mode);
+
+        if raw_mode
+        {
+            RawScreen::into_raw_mode();
+        }
+
         let alternate_screen = AlternateScreen::to_alternate_screen(stdout)?;
         return Ok(alternate_screen);
+    }
+}
+
+impl Default for Screen
+{
+    fn default() -> Self {
+        return Screen { stdout: Arc::new(Stdout::new(false)), buffer: Vec::new() };
+    }
+}
+
+impl Drop for Screen
+{
+    fn drop(&mut self) {
+        if self.stdout.is_in_raw_mode
+        {
+            RawScreen::disable_raw_modes();
+        }
     }
 }
 

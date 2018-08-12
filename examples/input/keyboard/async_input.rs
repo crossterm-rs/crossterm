@@ -10,44 +10,41 @@ use std::time::Duration;
 
 /// this will capture the input until the given key.
 pub fn read_async_until() {
-    let screen = Screen::new();
+    // create raw screen
+    let screen = Screen::new(true);
     let crossterm = Crossterm::new();
 
-    if let Ok(raw) = screen.enable_raw_modes()
-    {
-        // init some modules we use for this demo
-        let input = crossterm.input(&raw.screen);
-        let terminal = crossterm.terminal(&raw.screen);
-        let mut cursor = crossterm.cursor(&raw.screen);
+    // init some modules we use for this demo
+    let input = crossterm.input(&screen);
+    let terminal = crossterm.terminal(&screen);
+    let mut cursor = crossterm.cursor(&screen);
 
+    let mut stdin = input.read_until_async(b'\r').bytes();
 
-        let mut stdin = input.read_until_async(b'\r').bytes();
+    for i in 0..100 {
+        terminal.clear(ClearType::All);
+        cursor.goto(1, 1);
+        let a = stdin.next();
 
-        for i in 0..100 {
-            terminal.clear(ClearType::All);
-            cursor.goto(1, 1);
-            let a = stdin.next();
+        println!("pressed key: {:?}", a);
 
-            println!("pressed key: {:?}", a);
-
-            if let Some(Ok(b'\r')) = a {
-                println!("The enter key is hit and program is not listening to input anymore.");
-                break;
-            }
-
-            if let Some(Ok(b'x')) = a {
-                println!("The key: x was pressed and program is terminated.");
-                break;
-            }
-
-            thread::sleep(time::Duration::from_millis(100));
+        if let Some(Ok(b'\r')) = a {
+            println!("The enter key is hit and program is not listening to input anymore.");
+            break;
         }
+
+        if let Some(Ok(b'x')) = a {
+            println!("The key: x was pressed and program is terminated.");
+            break;
+        }
+
+        thread::sleep(time::Duration::from_millis(100));
     }
 }
 
 /// this will read pressed characters async until `x` is typed .
 pub fn read_async() {
-    let input = input(&Screen::new());
+    let input = input(&Screen::default());
 
     let mut stdin = input.read_async().bytes();
 
@@ -66,16 +63,13 @@ pub fn read_async() {
 }
 
 pub fn read_async_demo() {
-    let screen = Screen::new();
+    let screen = Screen::new(true);
     let crossterm = Crossterm::new();
 
-    // put stdout in raw mode so that characters wil not be outputted.
-    let raw = screen.enable_raw_modes().unwrap();
-
     // init some modules we use for this demo
-    let input = crossterm.input(&raw.screen);
-    let terminal = crossterm.terminal(&raw.screen);
-    let mut cursor = crossterm.cursor(&raw.screen);
+    let input = crossterm.input(&screen);
+    let terminal = crossterm.terminal(&screen);
+    let mut cursor = crossterm.cursor(&screen);
 
     // this will setup the async reading.
     let mut stdin = input.read_async().bytes();
@@ -106,41 +100,37 @@ pub fn read_async_demo() {
 pub fn async_reading_on_alternate_screen() {
     use crossterm::screen::AlternateScreen;
 
-    let screen = Screen::new();
+    let screen = Screen::new(false);
     let crossterm = Crossterm::new();
 
     // switch to alternate screen
-    if let Ok(alternate) = screen.enable_alternate_modes()
+    if let Ok(alternate) = screen.enable_alternate_modes(true)
     {
-        // put alternate screen in raw mode so that characters wil not be outputted.
-        if let Ok(raw) = alternate.enable_raw_modes()
-        {
-            // init some modules we use for this demo
-            let input = crossterm.input(&raw.screen);
-            let terminal = crossterm.terminal(&raw.screen);
-            let mut cursor = crossterm.cursor(&raw.screen);
+        // init some modules we use for this demo
+        let input = crossterm.input(&alternate.screen);
+        let terminal = crossterm.terminal(&alternate.screen);
+        let mut cursor = crossterm.cursor(&alternate.screen);
 
-            // this will setup the async reading.
-            let mut stdin = input.read_async().bytes();
+        // this will setup the async reading.
+        let mut stdin = input.read_async().bytes();
 
-            // loop until the enter key (\r) is pressed.
-            loop {
-                terminal.clear(ClearType::All);
-                cursor.goto(1, 1);
+        // loop until the enter key (\r) is pressed.
+        loop {
+            terminal.clear(ClearType::All);
+            cursor.goto(1, 1);
 
-                // get the next pressed key
-                let pressed_key = stdin.next();
+            // get the next pressed key
+            let pressed_key = stdin.next();
 
-                terminal.write(format!("\r{:?}    <- Character pressed", pressed_key));
+            terminal.write(format!("\r{:?}    <- Character pressed", pressed_key));
 
-                // check if pressed key is enter (\r)
-                if let Some(Ok(b'\r')) = pressed_key {
-                    break;
-                }
-
-                // wait 200 ms and reset cursor write
-                thread::sleep(Duration::from_millis(200));
+            // check if pressed key is enter (\r)
+            if let Some(Ok(b'\r')) = pressed_key {
+                break;
             }
+
+            // wait 200 ms and reset cursor write
+            thread::sleep(Duration::from_millis(200));
         }
     }
 }

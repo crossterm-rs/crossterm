@@ -160,53 +160,6 @@ impl TerminalCursor {
         self
     }
 
-    /// Print an value at the current cursor position.
-    ///
-    /// This method prints an value with `print!()` and clears the buffer afterwards.
-    /// Rust's standard output is line-buffered. So your text gets sent to the console one line at a time.
-    /// If you set the curosr position and try to `print!()` at that position and do not clear the buffer, than the character will not be printed at that position.
-    /// But will be printed when the next `println()` will be done.
-    ///
-    /// With this method you can print any displayable value at a certain position and the output buffer will be cleared afterwards.
-    ///
-    /// For more information see the cursor example in /examples/cursor
-    ///
-    /// #Example
-    ///
-    /// ```rust
-    ///
-    /// extern crate crossterm;
-    ///
-    /// use self::crossterm::Context;
-    /// use self::crossterm::cursor;
-    ///
-    /// use std;
-    /// use std::io::Write;
-    ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
-    /// // of course we can just do this.
-    /// cursor.goto(10,10);
-    /// print!("@");
-    /// std::io::stdout().flush();
-    ///
-    /// // but now we can chain the methods so it looks cleaner and it automatically flushes the buffer.  
-    /// cursor::cursor(&context)
-    /// .goto(10,10)
-    /// .print("@");
-    ///
-    /// ```
-    pub fn print<D: Display>(&mut self, value: D) -> &mut TerminalCursor {
-        use std::fmt::Write;
-        let mut string = String::new();
-        write!(string, "{}", value).unwrap();
-
-        &self.screen.write_string(string);
-        &self.screen.flush();
-        self
-    }
-
     /// Save cursor position for recall later.
     ///
     /// Note that this position is stored program based not per instance of the `Cursor` struct.

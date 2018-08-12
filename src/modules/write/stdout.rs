@@ -52,7 +52,6 @@ impl Stdout {
         Stdout { screen_manager , is_in_raw_mode}
     }
 
-
     /// Write String to the current screen.
     pub fn write_string(&self, string: String) -> io::Result<usize> {
         self.screen_manager.write_str(string.as_str())

@@ -7,5 +7,3 @@ It has 4 modules:
 - input (this is about all input actions you can perform on with terminal)
 - crossterm_type (this is about the struct `Crossterm`)
 - program examples (this folder will contain some real life examples)
-
-To run any example where there is a `main()` you could run `cargo run --example simple`.
