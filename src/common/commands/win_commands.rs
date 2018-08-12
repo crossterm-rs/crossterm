@@ -87,9 +87,9 @@ impl RawModeCommand
     }
 }
 
-impl IRawScreenCommand for RawModeCommand {
+impl RawModeCommand {
     /// Enables raw mode.
-    fn enable(&mut self) -> Result<()> {
+    pub fn enable(&mut self) -> Result<()> {
         let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
@@ -113,7 +113,7 @@ impl IRawScreenCommand for RawModeCommand {
     }
 
     /// Disables raw mode.
-    fn disable(&self) -> Result<()> {
+    pub fn disable(&self) -> Result<()> {
         let output_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;

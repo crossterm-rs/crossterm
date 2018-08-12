@@ -67,5 +67,6 @@ impl Drop for AlternateScreen
 {
     fn drop(&mut self) {
         self.to_main_screen();
+
     }
 }

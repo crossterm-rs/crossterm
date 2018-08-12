@@ -18,8 +18,8 @@ impl NoncanonicalModeCommand {
     }
 }
 
-impl IStateCommand for NoncanonicalModeCommand {
-    fn execute(&mut self) -> Result<()> {
+impl NoncanonicalModeCommand {
+    pub fn enable(&mut self) -> Result<()> {
         // Set noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN) {
             let mut noncan = orig.clone();
@@ -36,7 +36,7 @@ impl IStateCommand for NoncanonicalModeCommand {
         Ok(())
     }
 
-    fn undo(&mut self) -> Result<()> {
+    pub fn disable(&self) -> Result<()> {
         // Disable noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN) {
             let mut noncan = orig.clone();
@@ -71,7 +71,7 @@ impl RawModeCommand
 
 impl RawModeCommand {
     /// Enables raw mode.
-    fn enable(&mut self) -> Result<()> {
+    pub fn enable(&mut self) -> Result<()> {
         if let Ok(original_mode) = self.original_mode {
             let mut new_mode = original_mode;
             terminal::make_raw(&mut new_mode);
@@ -86,8 +86,9 @@ impl RawModeCommand {
     }
 
     /// Disables raw mode.
-    fn disable(&self) -> Result<()> {
+    pub fn disable(&self) -> Result<()> {
         if let Ok(ref original_mode) = self.original_mode {
+
             let result = terminal::set_terminal_mode(&original_mode)?;
         } else {
             return Err(Error::new(

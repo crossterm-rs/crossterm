@@ -17,4 +17,10 @@ extern crate crossterm;
 
 fn main() {
   // call some test module function
+
+ terminal::terminal::resize_terminal();
+
+ use crossterm::screen::RawScreen;
+// RawScreen::into_raw_mode();
+// RawScreen::disable_raw_modes();
 }

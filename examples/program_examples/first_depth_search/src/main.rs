@@ -34,6 +34,7 @@ pub fn run()
     print_welcome_screen(&screen);
 
     start_algorithm(&screen);
+    drop(screen);
 }
 
 fn start_algorithm(screen: &Screen)
@@ -66,14 +67,14 @@ fn print_welcome_screen(screen: &Screen)
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);
-    terminal.write(WELCOME_MESSAGE.join("\n"));
+    terminal.write(WELCOME_MESSAGE.join("\n\r"));
 
     cursor.hide();
     cursor.goto(0, 10);
-    terminal.write(
-        "The first depth search algorithm will start in:   Seconds\n\
-                Press `q` to abort the program"
-    );
+    terminal.write("The first depth search algorithm will start in:   Seconds");
+
+    cursor.goto(0, 11);
+    terminal.write("\nPress `q` to abort the program");
 
     let mut stdin = input.read_async().bytes();
 

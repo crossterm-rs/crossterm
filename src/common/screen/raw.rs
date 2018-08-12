@@ -18,7 +18,14 @@ use super::{functions, Screen, Stdout};
 use std::io::{self, Write};
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
-pub struct RawScreen;
+pub struct RawScreen
+{
+//    #[cfg(not(target_os = "windows"))]
+//    command: unix_command::RawModeCommand,
+//    #[cfg(not(target_os = "windows"))]
+//    command: win_commands::RawModeCommand,
+
+}
 
 impl RawScreen {
     pub fn into_raw_mode() -> io::Result<()>
@@ -28,6 +35,7 @@ impl RawScreen {
         #[cfg(target_os = "windows")]
         let mut command = win_commands::RawModeCommand::new();
 
+//        command::new();
         command.enable()?;
 
         Ok(())
@@ -40,7 +48,9 @@ impl RawScreen {
         #[cfg(target_os = "windows")]
         let mut command = win_commands::RawModeCommand::new();
 
-        command.disable()?;
+        let a = command.disable();
+
+
         return Ok(())
     }
 }

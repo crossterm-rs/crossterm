@@ -144,7 +144,7 @@ impl<D: Display> StyledObject<D> {
 
     pub fn paint(&self, screen: &Screen)
     {
-        let mut colored_terminal = super::super::super::style::color::color(&screen.stdout);
+        let mut colored_terminal = super::super::super::style::color::color(&screen);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
@@ -159,8 +159,7 @@ impl<D: Display> StyledObject<D> {
 
         #[cfg(unix)]
             for attr in self.object_style.attrs.iter() {
-            self.stdout
-                .write_string(format!(csi!("{}m"), *attr as i16));
+            screen.stdout.write_string(format!(csi!("{}m"), *attr as i16));
             reset = true;
         }
 

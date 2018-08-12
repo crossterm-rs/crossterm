@@ -17,7 +17,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::fmt::Display;
 
-pub use self::color::TerminalColor;
+pub use self::color::{TerminalColor, color};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 use super::{functions, Stdout};

@@ -94,16 +94,16 @@ fn main()
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());
 
-    for handle in thread_handles
-    {
-        handle.join();
-    }
+//    for handle in thread_handles
+//    {
+//        handle.join();
+//    }
 }
 
 fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>)
 {
     thread::spawn( move || {
-        let mut screen: Screen = Screen::new();
+        let mut screen: Screen = Screen::default();
 
         // Loop while there's expected to be work, looking for work.
         while more_jobs_rx.get().unwrap() {
@@ -114,7 +114,6 @@ fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>)
 
                 // write the log
                 screen.stdout.write_string(log);
-                screen.stdout.flush();
             }
             std::thread::yield_now();
         }
@@ -136,7 +135,7 @@ fn log_with_different_threads(more_jobs_tx: SyncFlagTx, queue: WorkQueue<String>
         let thread = thread::spawn(move || {
 
             // log 400 messages
-            for log_entry_count in 1..10000
+            for log_entry_count in 1..400
             {
                 thread_queue.add_work(format!("Log {} from thread {} ",log_entry_count, thread_num));
                 more_jobs.set(true);

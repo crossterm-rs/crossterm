@@ -107,8 +107,8 @@ pub fn print_font_with_attributes() {
     style("Normal text").paint(&screen);
     style("Bold text").bold().paint(&screen);
     style("Italic text").italic().paint(&screen);
-    style("Slow blinking text").slow().paint(&screen);
-    style("Rapid blinking text").rapid().paint(&screen);
+    style("Slow blinking text").slow_blink().paint(&screen);
+    style("Rapid blinking text").rapid_blink().paint(&screen);
     style("Hidden text").hidden().paint(&screen);
     style("Underlined text").underlined().paint(&screen);
     style("Reversed text").reverse().paint(&screen);

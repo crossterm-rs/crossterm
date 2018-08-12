@@ -3,6 +3,7 @@
 
 use super::*;
 use std::io;
+use Screen;
 
 /// Struct that stores an specific platform implementation for color related actions.
 ///
@@ -116,6 +117,6 @@ impl<'terminal> TerminalColor {
 }
 
 /// Get an Terminal Color implementation whereon color related actions can be performed.
-pub fn color(stdout: &Arc<Stdout>) -> TerminalColor {
-    TerminalColor::new(stdout)
+pub fn color(screen: &Screen) -> TerminalColor {
+    TerminalColor::new(&screen.stdout)
 }
