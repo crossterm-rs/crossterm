@@ -9,6 +9,7 @@ use std::fmt::Display;
 use std::io::Write;
 
 use std::sync::Arc;
+
 /// Struct that stores an specific platform implementation for cursor related actions.
 ///
 /// Check `/examples/version/cursor` in the library for more specific examples.
@@ -17,22 +18,19 @@ use std::sync::Arc;
 ///
 /// ```rust
 ///
-///  extern crate crossterm;
-///  use self::crossterm::Crossterm;
+/// extern crate crossterm;
+/// use self::crossterm::cursor::cursor;
 ///
-/// let term = Crossterm::new();
-/// let mut cursor = term.cursor();
+/// let mut cursor = cursor();
 ///
 /// // Get cursor and goto pos X: 5, Y: 10
 /// cursor.goto(5,10);
-///
+/// 
 /// cursor.show();
 /// cursor.hide();
 /// cursor.blink(true);
 /// cursor.move_left(2);
-///
-/// // or in one line
-/// cursor.goto(5,5).move_left(2).move_right(2).print("10");
+/// 
 /// ```
 pub struct TerminalCursor {
     screen: Arc<Stdout>,
@@ -62,11 +60,10 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
+    /// let cursor = cursor(&Screen::default());
     ///
-    ///  // change the cursor to position, x: 4 and y: 5
-    ///  cursor.goto(4,5);
+    /// // change the cursor to position, x: 4 and y: 5
+    /// cursor.goto(4,5);
     ///
     /// ```
     pub fn goto(&self, x: u16, y: u16) {
@@ -78,12 +75,11 @@ impl TerminalCursor {
     /// #Example
     ///
     /// ```rust
+    /// 
+    /// let cursor = cursor(&Screen::default());
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
-    ///  // get the current cursor pos
-    ///  let (x,y) = cursor.pos();
+    /// // get the current cursor pos
+    /// let (x,y) = cursor.pos();
     ///
     /// ```
     pub fn pos(&self) -> (u16, u16) {
@@ -95,11 +91,9 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
-    ///  // Move the cursor to position 3 times to the up in the terminal
-    ///  cursor.move_up(3);
+    /// let cursor = cursor(&Screen::default());
+    /// // Move the cursor to position 3 times to the up in the terminal
+    /// cursor.move_up(3);
     ///
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
@@ -113,10 +107,10 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///  // Move the cursor to position 3 times to the right in the terminal
-    ///  cursor.move_right(3);
+    /// let cursor = cursor(&Screen::default());
+    ///
+    /// // Move the cursor to position 3 times to the right in the terminal
+    /// cursor.move_right(3);
     ///
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
@@ -130,11 +124,10 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
+    /// let cursor = cursor(&Screen::default());
     ///
-    ///  // Move the cursor to position 3 times to the down in the terminal
-    ///  cursor.move_down(3);
+    /// // Move the cursor to position 3 times to the down in the terminal
+    /// cursor.move_down(3);
     ///
     /// ```
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
@@ -148,8 +141,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
+    /// let cursor = cursor(&Screen::default());
     ///
     ///  // Move the cursor to position 3 times to the left in the terminal
     ///  cursor.move_left(3);
@@ -168,9 +160,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
+    /// let cursor = cursor(&Screen::default());
     /// cursor.safe_position();
     ///
     /// ```
@@ -186,9 +176,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
+    /// let cursor = cursor(&Screen::default());
     /// cursor.reset_position();
     ///
     /// ```
@@ -202,9 +190,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
+    /// let cursor = cursor(&Screen::default());
     /// cursor.hide();
     ///
     /// ```
@@ -218,9 +204,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
+    /// let cursor = cursor(&Screen::default());
     /// cursor.show();
     ///
     /// ```
@@ -236,9 +220,7 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    ///
+    /// let cursor = cursor(&Screen::default());
     /// cursor.blink(true);
     /// cursor.blink(false);
     ///
@@ -249,6 +231,7 @@ impl TerminalCursor {
 }
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
+/// Pass the reference to any screen you want this type to perform actions on.
 pub fn cursor(screen_manager: &Screen) -> TerminalCursor {
     TerminalCursor::new(&screen_manager.stdout)
 }

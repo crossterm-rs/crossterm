@@ -8,7 +8,7 @@ use std::any::Any;
 use std::io::{self, Write};
 use std::sync::Arc;
 
-/// This struct is an WINAPI implementation for screen related actions.
+/// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiStdout {
     pub handle: HANDLE,
 }

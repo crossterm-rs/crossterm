@@ -42,7 +42,7 @@ pub fn read_async_until() {
     }
 }
 
-/// this will read pressed characters async until `x` is typed .
+/// this will read pressed characters async until `x` is typed.
 pub fn read_async() {
     let input = input(&Screen::default());
 

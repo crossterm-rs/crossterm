@@ -44,5 +44,5 @@ pub trait ITerminal {
     /// Resize terminal to the given width and height.
     fn set_size(&self, width: i16, height: i16, screen_manager: &Arc<Stdout>);
     /// Close the current terminal
-    fn exit(&self);
+    fn exit(&self,screen_manager: &Arc<Stdout>);
 }

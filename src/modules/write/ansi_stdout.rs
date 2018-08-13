@@ -10,7 +10,7 @@ use std::sync::{Arc,Mutex};
 use std::io::{self, Read, Write,Stdout, stdout};
 use std::str::from_utf8;
 
-/// This struct is an ANSI escape code implementation for screen related actions.
+/// This struct is a wrapper for `Stdout`
 pub struct AnsiStdout {
     pub handle: Stdout,
 }
@@ -35,7 +35,6 @@ impl IStdout for AnsiStdout {
         let out = &self.handle;
         let mut handle = out.lock();
         handle.flush();
-
         Ok(())
     }
 

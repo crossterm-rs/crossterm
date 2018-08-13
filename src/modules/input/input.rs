@@ -7,18 +7,16 @@ use super::*;
 
 /// Struct that stores an specific platform implementation for input related actions.
 ///
-/// Check `/examples/version/input` the examples folder on github for more info.
+/// Check `/examples/input` the examples folder on github for more info.
 ///
 /// #Example
 ///
 /// ```rust
 ///
 /// extern crate crossterm;
-/// use self::crossterm::Crossterm;
+/// use self::crossterm::input::input;
 ///
-/// let crossterm = Crossterm::new();
-/// let input = crossterm.input();
-///
+/// let input = input(&Screen::default());
 /// let result = input.read_line();
 /// let pressed_char = input.read_char();
 ///
@@ -48,8 +46,8 @@ impl TerminalInput{
     /// #Example
     ///
     /// ```rust
-    ///  let crossterm = Crossterm::new();
-    ///  match crossterm.input().read_line() {
+    ///
+    ///  match input(&Screen::default()).read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
     ///  }
@@ -64,11 +62,11 @@ impl TerminalInput{
     /// #Example
     ///
     /// ```rust
-    ///  let crossterm = Crossterm::new();
-    ///  match crossterm.input().read_char() {
+    ///
+    ///  match crossterm.input(&Screen::default()).read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
-    //   }
+    ///   }
     ///
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
@@ -80,12 +78,14 @@ impl TerminalInput{
     /// #Example
     ///
     /// ```rust
-    /// let crossterm = Crossterm::new();
+    ///
+    /// use crossterm::{Crossterm, Screen}
     ///
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
-    /// crossterm.enable_raw_mode();
+    /// let screen = Screen::new(true);
+    /// let crossterm = Crossterm::new();
     ///
-    /// let mut stdin = crossterm.input().read_async().bytes();
+    /// let mut stdin = crossterm.input(&screen).read_async().bytes();
     ///
     /// for i in 0..100 {
     ///
@@ -112,13 +112,14 @@ impl TerminalInput{
     /// #Example
     ///
     /// ```rust
-    /// let crossterm = Crossterm::new();
-    /// let input = crossterm.input();
-    /// let terminal = crossterm.terminal();
-    /// let mut cursor = crossterm.cursor();
-    ///
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
-    /// crossterm.enable_raw_mode();
+    /// let screen = Screen::new(true);
+    ///
+    /// let crossterm = Crossterm::new();
+    /// let input = crossterm.input(&screen);
+    /// let terminal = crossterm.terminal(&screen);
+    /// let mut cursor = crossterm.cursor(&screen);
+    ///
     ///
     /// let mut stdin = input.read_until_async(b'\r').bytes();
     ///
@@ -149,6 +150,7 @@ impl TerminalInput{
 }
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
+/// Pass the reference to any screen you want this type to perform actions on.
 pub fn input(stdout: &Screen) -> TerminalInput {
     return TerminalInput::new(&stdout.stdout);
 }

@@ -41,6 +41,26 @@ pub trait ITerminalColor {
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }
 
+/// This could be used to style an Displayable with colors and attributes.
+///
+/// #Example
+///
+/// ```rust
+///
+/// use crossterm::Screen;
+///
+/// // get an styled object which could be painted to the terminal.
+/// let styled_object = style("Some Blue colored text on black background").with(Color::Blue).on(Color::Black);
+///
+/// // create an default screen.
+/// let screen = Screen::default();
+///
+/// // print the styled font * times to the current screen.
+/// for i in 1..10
+/// {
+///     styled_object.paint(&screen);
+/// }
+/// ```
 pub fn style<D>(val: D) -> StyledObject<D>
     where
         D: Display,    {
@@ -105,12 +125,14 @@ pub enum ColorType {
 }
 
 impl<'a> From<&'a str> for Color {
+    /// Get an color from an &str like `Color::from("blue")`
     fn from(src: &str) -> Self {
         src.parse().unwrap_or(Color::White)
     }
 }
 
 impl From<String> for Color {
+    /// Get an color from an &str like `Color::from(String::from(blue))`
     fn from(src: String) -> Self {
         src.parse().unwrap_or(Color::White)
     }
@@ -119,6 +141,7 @@ impl From<String> for Color {
 impl FromStr for Color {
     type Err = ();
 
+    /// Convert a string to an Color value
     fn from_str(src: &str) -> Result<Self, Self::Err> {
         let src = src.to_lowercase();
 

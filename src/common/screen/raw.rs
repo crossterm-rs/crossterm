@@ -9,6 +9,8 @@
 //! - Characters
 //!   The characters are not processed by the terminal driver, but are sent straight through.
 //!   Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
+//! - Escape characters
+//!   Note that in raw modes `\n` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
 //!
 //! With these modes you can easier design the terminal screen.
 
@@ -18,16 +20,10 @@ use super::{functions, Screen, Stdout};
 use std::io::{self, Write};
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
-pub struct RawScreen
-{
-//    #[cfg(not(target_os = "windows"))]
-//    command: unix_command::RawModeCommand,
-//    #[cfg(not(target_os = "windows"))]
-//    command: win_commands::RawModeCommand,
-
-}
+pub struct RawScreen;
 
 impl RawScreen {
+    /// Put terminal in raw mode.
     pub fn into_raw_mode() -> io::Result<()>
     {
         #[cfg(not(target_os = "windows"))]
@@ -35,12 +31,11 @@ impl RawScreen {
         #[cfg(target_os = "windows")]
         let mut command = win_commands::RawModeCommand::new();
 
-//        command::new();
         command.enable()?;
-
         Ok(())
     }
 
+    /// Put terminal back in original modes.
     pub fn disable_raw_modes() -> io::Result<()>
     {
         #[cfg(not(target_os = "windows"))]
@@ -48,9 +43,7 @@ impl RawScreen {
         #[cfg(target_os = "windows")]
         let mut command = win_commands::RawModeCommand::new();
 
-        let a = command.disable();
-
-
+        command.disable()?;
         return Ok(())
     }
 }

@@ -15,12 +15,13 @@ extern crate crossterm;
  mod some_types;
  mod input;
 
+
 fn main() {
   // call some test module function
 
- terminal::terminal::resize_terminal();
-
- use crossterm::screen::RawScreen;
+// terminal::terminal::resize_terminal();
+ input::keyboard::async_input::read_async_demo();
+// use crossterm::screen::RawScreen;
 // RawScreen::into_raw_mode();
 // RawScreen::disable_raw_modes();
 }

@@ -127,10 +127,10 @@ impl<'screen> FirstDepthSearch<'screen>
     fn find_first_possible_direction(&mut self)
     {
         // if there are no elements left in the stack that means we have visited all cell and we van terminate the program.
-        if let Some(previous_cell) = &self.stack.pop()
+        if let &Some(previous_cell) = &self.stack.pop()
         {
             // update root pos to previous cell and continue searching for new neighbours
-            self.root_pos = *previous_cell;
+            self.root_pos = previous_cell;
             self.choose_random_neighbor();
         }
         else {

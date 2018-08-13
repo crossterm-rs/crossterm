@@ -24,19 +24,21 @@ impl<D: Display> StyledObject<D> {
     /// #Example
     ///
     /// ```rust
-    /// extern crate crossterm;
-    /// use self::crossterm::style::{paint,Color};
+    /// use self::crossterm::style::{style,Color};
     ///
     /// // create an styled object with the foreground color red.
-    /// let styledobject = paint("I am colored red").with(Color::Red);
+    /// let styledobject =  style("Some colored text").with(Color::Blue);
     /// // create an styled object with the foreground color blue.
-    /// let styledobject1 = paint("I am colored blue").with(Color::Blue);
+    /// let styledobject1 = style("Some colored text").with(Color::Blue);
+    ///
+    /// let screen = Screen::default();
     ///
     /// // print the styledobject to see the result
-    /// println!("{}", styledobject);
-    /// println!("{}", styledobject1);
+    /// styledobject.paint(&screen);
+    /// styledobject1.paint(&screen);
+    ///
     /// // print an styled object directly.
-    /// println!("{}", paint("I am colored green").with(Color::Green));
+    /// style("Some colored text").with(Color::Blue).paint(&screen);
     ///
     /// ```
     pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
@@ -49,19 +51,21 @@ impl<D: Display> StyledObject<D> {
     /// #Example
     ///
     /// ```rust
-    /// extern crate crossterm;
-    /// use self::crossterm::style::{paint,Color};
+   /// use self::crossterm::style::{style,Color};
     ///
     /// // create an styled object with the background color red.
-    /// let styledobject = paint("I am colored red").on(Color::Red);
-    /// // create an styled object with the background color blue.
-    /// let styledobject1 = paint("I am colored blue").on(Color::Blue);
+    /// let styledobject =  style("Some colored text").on(Color::Blue);
+    /// // create an styled object with the foreground color blue.
+    /// let styledobject1 = style("Some colored text").on(Color::Blue);
     ///
-    /// // print the styledobjects
-    /// println!("{}", styledobject);
-    /// println!("{}", styledobject1);
+    /// let screen = Screen::default();
+    ///
+    /// // print the styledobject to see the result
+    /// styledobject.paint(&screen);
+    /// styledobject1.paint(&screen);
+    ///
     /// // print an styled object directly.
-    /// println!("{}", paint("I am colored green").on(Color::Green))
+    /// style("Some colored text").on(Color::Blue).paint(&screen);
     ///
     /// ```
     pub fn on(mut self, background_color: Color) -> StyledObject<D> {
@@ -76,9 +80,9 @@ impl<D: Display> StyledObject<D> {
     /// ```rust
     ///
     /// extern crate crossterm;
-    /// use self::crossterm::style::{paint,Attribute};
+    /// use self::crossterm::style::{style,Attribute};
     ///
-    /// println!("{}", paint("Bold").attr(Attribute::Bold));
+    /// style("Some colored text").attr(Attribute::Bold).paint(&screen);
     ///
     /// ```
     #[cfg(unix)]
@@ -142,6 +146,14 @@ impl<D: Display> StyledObject<D> {
         self.attr(Attribute::CrossedOut)
     }
 
+    /// This could be used to paint the styled object on the screen. Pass a refrence to the screen whereon you want to perform the painting.
+    ///
+    /// ``` rust
+    /// style("Some colored text")
+    ///     .with(Color::Blue)
+    ///     .on(Color::Black)
+    ///     .paint(&screen);
+    /// ```
     pub fn paint(&self, screen: &Screen)
     {
         let mut colored_terminal = super::super::super::style::color::color(&screen);

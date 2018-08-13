@@ -50,7 +50,10 @@ impl ITerminal for AnsiTerminal {
         screen_manager.write_string(format!(csi!("8;{};{}t"), width, height));
     }
 
-    fn exit(&self) {
+    fn exit(&self,screen_manager: &Arc<Stdout>) {
+        // drop the screen with the current stdout. This will make sure when in raw mode this will be disabled first.
+        let mut screen = Screen::from(screen_manager.clone());
+        drop(screen);
         functions::exit_terminal();
     }
 }

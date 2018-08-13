@@ -33,7 +33,7 @@ fn print_wait_screen(screen: &Screen) {
     }
 }
 
-/// print wait screen on alternate screen, then swich back.
+/// print wait screen on alternate screen, then switch back.
 pub fn print_wait_screen_on_alternate_window() {
 
     let screen = Screen::default();

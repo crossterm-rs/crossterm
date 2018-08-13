@@ -14,8 +14,9 @@ use std::io::Write;
 ///
 /// ```rust
 ///
-/// let crossterm = Crossterm::new();
-/// let term = crossterm.terminal();
+/// use crossterm::terminal::terminal;
+///
+/// let term = terminal();
 ///
 /// term.scroll_down(5);
 /// term.scroll_up(4);
@@ -51,8 +52,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// // clear all cells in terminal.
     /// term.clear(terminal::ClearType::All);
@@ -76,12 +76,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    /// extern crate crossterm;
-    /// use crossterm::terminal;
-    /// use crossterm::Context;
-    ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// let size = term.terminal_size();
     /// println!("{:?}", size);
@@ -97,8 +92,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
@@ -114,8 +108,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
@@ -131,8 +124,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
@@ -148,14 +140,13 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// let size = term.exit();
     ///
     /// ```
     pub fn exit(&self) {
-        self.terminal.exit();
+        self.terminal.exit(&self.screen);
     }
 
     /// Write any displayable content to the current terminal screen.
@@ -164,8 +155,7 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let crossterm = Crossterm::new();
-    ///  let term = crossterm.terminal();
+    ///  let term = terminal();
     ///
     /// let size = term.write("Some text \n Some text on new line");
     ///
@@ -178,7 +168,8 @@ impl Terminal {
     }
 }
 
-/// Get an terminal implementation whereon terminal related actions could performed
+/// Get an terminal implementation whereon terminal related actions could performed.
+/// Pass the reference to any screen you want this type to perform actions on.
 pub fn terminal(screen: &Screen) -> Terminal {
     Terminal::new(&screen.stdout)
 }

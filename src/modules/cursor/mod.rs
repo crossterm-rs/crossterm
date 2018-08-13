@@ -45,6 +45,6 @@ pub trait ITerminalCursor {
     fn hide(&self, screen_manager: &Arc<Stdout>);
     /// Show the terminal cursor
     fn show(&self, screen_manager: &Arc<Stdout>);
-    /// enable or disable the blinking of the cursor.
+    /// Enable or disable the blinking of the cursor.
     fn blink(&self, blink: bool, screen_manager: &Arc<Stdout>);
 }
