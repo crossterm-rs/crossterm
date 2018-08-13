@@ -1,7 +1,16 @@
+# Features / Fixes in crossterm 0.4.0
+- Input support (read_line, read_char, read_async, read_until_async)
+- Styling module improved
+- This create supports multithreading (`Send`)
+- Performance enhancements: removed mutexes, removed state manager, removed context type removed unnecessarily RC types.
+- Bug fix resetting console color.
+- Bug fix whit undoing raw modes.
+
+# Features in crossterm 0.3.0
+
 This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed. 
 I think you should not switch to version `0.3.0` if you aren't going to use the AlternateScreen feature.
 Because you will have some work to get to the new version of crossterm depending on your situation. 
-But if this is the firsttime you are using this crate I highly recommend you to switch to the new version `0.3.0`.
 
 Some Features crossterm 0.3.0
 - Alternate Screen for windows and unix systems.
@@ -121,3 +130,22 @@ _Create alternate screen from `Crossterm`:_
 like demonstrated above, to get the functionalities of `cursor(), color(), terminal()` also working on alternate screen.
 You need to pass it the same `Context` as you have passed to the previous three called functions,
 If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/TimonPost/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
+
+# Fixes in crossterm 0.2.2
+- Bug see [issue 15](https://github.com/TimonPost/crossterm/issues/15)
+
+# Fixes in crossterm 0.2.1
+
+- Default ANSI escape codes for windows machines, if windows does not support ANSI switch back to WinApi.
+- method grammar mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
+- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
+- Removed bin reference from crate [Issue 6](https://github.com/TimonPost/crossterm/issues/6)
+- Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
+
+# Features crossterm 0.2
+
+- 256 color support. 
+- Text Attributes like: bold, italic, underscore and crossed word ect. 
+- Custom ANSI color code input to set fore- and background color for unix.
+- Storing the current cursor position and resetting to that stored cursor position later. 
+- Resizing the terminal.
