@@ -1,12 +1,11 @@
-use std::rc::Rc;
-use std::sync::Mutex;
-use ScreenManager;
+//! This module contains terminal specific logic.
 
-use super::{csbi, handle};
+use super::{csbi, handle, Stdout};
+
+use std::sync::Arc;
 
 /// Get the terminal size
-pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
-
+pub fn terminal_size() -> (u16, u16) {
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
@@ -19,15 +18,11 @@ pub fn terminal_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
     }
 }
 
-pub fn buffer_size(screen_manager: &Rc<Mutex<ScreenManager>>) -> (u16, u16) {
-
+pub fn buffer_size(screen_manager: &Arc<Stdout>) -> (u16, u16) {
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
-        (
-            (csbi.dwSize.X) as u16,
-            (csbi.dwSize.Y) as u16,
-        )
+        ((csbi.dwSize.X) as u16, (csbi.dwSize.Y) as u16)
     } else {
         return (0, 0);
     }

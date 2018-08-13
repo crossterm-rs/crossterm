@@ -1,3 +1,5 @@
+//! This contains the logic for working with the console buffer.
+
 use winapi::shared::minwindef::{FALSE, TRUE};
 use winapi::shared::ntdef::NULL;
 use winapi::um::minwinbase::SECURITY_ATTRIBUTES;
@@ -8,15 +10,15 @@ use winapi::um::wincon::{
 use winapi::um::winnt::HANDLE;
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
-use super::{handle, kernel, Empty};
+use super::{handle, kernel, Empty, Stdout};
+
+use std::sync::{Once, ONCE_INIT};
 use std::io::{self, ErrorKind, Result};
 use std::mem::size_of;
-use std::rc::Rc;
-use std::sync::Mutex;
-use ScreenManager;
+use std::sync::Arc;
 
 /// Create a new console screen buffer info struct.
-pub fn get_csbi(screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
+pub fn get_csbi(screen_manager: &Arc<Stdout>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
@@ -36,7 +38,7 @@ pub fn get_csbi(screen_manager: &Rc<Mutex<ScreenManager>>) -> Result<CONSOLE_SCR
 
 /// Get buffer info and handle of the current screen.
 pub fn get_csbi_and_handle(
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &Arc<Stdout>,
 ) -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
     let handle = handle::get_current_handle(screen_manager)?;
     let csbi = get_csbi_by_handle(&handle)?;
@@ -61,10 +63,7 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 }
 
 /// Set the console screen buffer size
-pub fn set_console_screen_buffer_size(
-    size: COORD,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
-) -> bool {
+pub fn set_console_screen_buffer_size(size: COORD, screen_manager: &Arc<Stdout>) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
     unsafe {
@@ -108,4 +107,16 @@ pub fn set_active_screen_buffer(new_buffer: HANDLE) -> Result<()> {
         }
     }
     Ok(())
+}
+
+static GET_ORIGINAL_CONSOLE_COLOR: Once = ONCE_INIT;
+static mut original_console_color: u16 = 0;
+
+pub fn get_original_console_color() -> u16 {
+    GET_ORIGINAL_CONSOLE_COLOR.call_once(|| {
+        let handle = handle::get_output_handle().unwrap();
+        let csbi = get_csbi_by_handle(&handle).unwrap();
+        unsafe { original_console_color = csbi.wAttributes as u16 };
+    });
+    return unsafe { original_console_color };
 }

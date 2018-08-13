@@ -1,15 +1,18 @@
 //! This module contains all `unix` specific terminal related logic.
 
-pub use self::libc::termios;
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use state::commands::{IStateCommand, NoncanonicalModeCommand, EnableRawModeCommand};
-use {libc, CommandManager, Context, StateManager};
+use common::commands::unix_command::{RawModeCommand, NoncanonicalModeCommand};
+use {libc, Stdout, Screen};
+pub use libc::termios;
 
-use std::io::Error;
+use std::sync::Arc;
+use std::io::{self, Error, ErrorKind, Read};
 use std::os::unix::io::AsRawFd;
-use std::rc::Rc;
-use std::{fs, io, mem};
+use std::time::{Duration, SystemTime};
+use std::{fs, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
+
+use Crossterm;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -36,29 +39,22 @@ pub fn terminal_size() -> (u16, u16) {
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         (us.cols - 1, us.rows - 1)
-
     } else {
         (0, 0)
     }
 }
 
-
-use std::time::{SystemTime, Duration};
-use std::io::ErrorKind;
-use Crossterm;
-use std::io::Read;
 /// Get the current cursor position.
-pub fn pos(context: Rc<Context>) -> (u16, u16) {
-    let crossterm = Crossterm::from(context.clone());
-    let input = crossterm.input();
+pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
+    let mut crossterm = Crossterm::new();
+    let input = crossterm.input(&Screen::default());
 
     let delimiter = b'R';
     let mut stdin = input.read_until_async(delimiter);
 
     // Where is the cursor?
     // Use `ESC [ 6 n`.
-
-    crossterm.write("\x1B[6n");
+    stdout.write_str("\x1B[6n");
 
     let mut buf: [u8; 1] = [0];
     let mut read_chars = Vec::new();
@@ -68,9 +64,8 @@ pub fn pos(context: Rc<Context>) -> (u16, u16) {
 
     // Either consume all data up to R or wait for a timeout.
     while buf[0] != delimiter && now.elapsed().unwrap() < timeout {
-        if let Ok(c) = stdin.read(&mut buf){
-            if c >= 0
-            {
+        if let Ok(c) = stdin.read(&mut buf) {
+            if c >= 0 {
                 read_chars.push(buf[0]);
             }
         }
@@ -88,14 +83,8 @@ pub fn pos(context: Rc<Context>) -> (u16, u16) {
     let coords: String = read_str.chars().skip(beg + 1).collect();
     let mut nums = coords.split(';');
 
-    let cy = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
-    let cx = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
+    let cy = nums.next().unwrap().parse::<u16>().unwrap();
+    let cx = nums.next().unwrap().parse::<u16>().unwrap();
 
     (cx, cy)
 }
@@ -116,15 +105,26 @@ pub fn make_raw(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
+static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
+
 /// Get the current terminal mode.
 pub fn get_terminal_mode() -> io::Result<Termios> {
     extern "C" {
         pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
     }
     unsafe {
-        let mut termios = mem::zeroed();
-        is_true(tcgetattr(0, &mut termios))?;
-        Ok(termios)
+        if let Some(original_mode) = ORIGINAL_TERMINAL_MODE
+        {
+            return Ok(original_mode.clone())
+        }
+        else {
+            let mut termios = mem::zeroed();
+            is_true(tcgetattr(0, &mut termios))?;
+            ORIGINAL_TERMINAL_MODE = Some(termios.clone());
+
+            return Ok(termios)
+        }
+
     }
 }
 

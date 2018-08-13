@@ -1,3 +1,5 @@
+//! This module contains the logic to write to the terminal.
+
 use winapi::ctypes::c_void;
 use winapi::shared::ntdef::NULL;
 use winapi::um::consoleapi::WriteConsoleW;
@@ -7,20 +9,18 @@ use winapi::um::wincon::{
 };
 use winapi::um::winnt::HANDLE;
 
-use super::{csbi, handle, kernel};
-use {Context, ScreenManager};
+use super::{csbi, handle, kernel, Stdout};
 
 use std::io::{self, ErrorKind, Result};
-use std::rc::Rc;
 use std::str;
-use std::sync::Mutex;
+use std::sync::Arc;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &Arc<Stdout>,
 ) -> bool {
     let handle = handle::get_current_handle(screen_manager).unwrap();
 
@@ -42,7 +42,7 @@ pub fn fill_console_output_attribute(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Rc<Mutex<ScreenManager>>,
+    screen_manager: &Arc<Stdout>,
 ) -> bool {
     // Get the position of the current console window
 

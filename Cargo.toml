@@ -23,6 +23,18 @@ termios = "0.3.0"
 name = "crossterm"
 path = "src/lib.rs"
 
-[[bin]]
- name = "example_bin"
- path = "./examples/Crossterm 0.3.1/bin.rs"
+#[[bin]]
+# name = "example_bin"
+# path = "./examples/Crossterm 0.3.1/bin.rs"
+
+[[example]]
+name = "examples"
+path = "examples/examples.rs"
+
+[[example]]
+name = "logging"
+path = "examples/program_examples/logging.rs"
+
+[[example]]
+name = "duplex"
+path = "examples/program_examples/duplex.rs"
