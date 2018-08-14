@@ -1,4 +1,4 @@
-# Crossterm | crossplatform terminal library written in rust.
+# Crossterm | cross-platform terminal manipulating library written in rust.
 
 [![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/tree/master/docs)
 |----|----|----|----|----|----
@@ -10,7 +10,7 @@ Crossterm aims to be simple and easy to call in code.
 Though the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 You can just call whatever action you want and behind the scenes it will check what to do based on the current platform.
 
-This crate supports all unix and windows terminals down to windows XP (not all terminals are tested see 'Tested Terminals' for more info)
+This crate supports all unix and windows terminals down to windows XP (not all terminals are tested see [Tested Terminals](Link) for more info)
 
 ## Table of contents:
 - [Getting started](https://github.com/TimonPost/crossterm#getting-started)
@@ -31,7 +31,8 @@ This crate supports all unix and windows terminals down to windows XP (not all t
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.4.0` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version or check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which contains a readme for every specific version. Also, you could take a look at the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) from the previous versions of Crossterm.
+This documentation is only for Crossterm version `0.4.0` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version. 
+Also check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which detailed examples for all functionality of this crate.
 
 
 Add the Crossterm package to your `Cargo.toml` file.
@@ -102,7 +103,8 @@ For detailed examples of all Crossterm functionalities check the [examples](http
 
 ### Crossterm Type | [see more](Link)
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
-```
+
+```rust
 // screen wheron the `Crossterm` methods will be executed.
 let screen = Screen::default();
 let crossterm = Crossterm::new(&screen);
