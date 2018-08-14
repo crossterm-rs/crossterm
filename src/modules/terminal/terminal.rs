@@ -16,21 +16,22 @@ use std::io::Write;
 ///
 /// use crossterm::terminal::terminal;
 ///
-/// let term = terminal();
+/// let screen = Screen::default();
+/// let term = terminal(&screen);
 ///
 /// term.scroll_down(5);
 /// term.scroll_up(4);
 /// let (with, height) = term.terminal_size();
 ///
 /// ```
-pub struct Terminal {
+pub struct Terminal<'stdout> {
     terminal: Box<ITerminal>,
-    screen: Arc<Stdout>,
+    screen: &'stdout Arc<Stdout>,
 }
 
-impl Terminal {
+impl<'stdout> Terminal<'stdout> {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new(screen: &Arc<Stdout>) -> Terminal {
+    pub fn new(screen: &'stdout Arc<Stdout>) -> Terminal<'stdout> {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal>>(
             Box::new(WinApiTerminal::new()),
@@ -42,7 +43,7 @@ impl Terminal {
 
         Terminal {
             terminal,
-            screen: screen.clone(),
+            screen: screen,
         }
     }
 
@@ -52,7 +53,8 @@ impl Terminal {
     ///
     /// ```rust
     ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// // clear all cells in terminal.
     /// term.clear(terminal::ClearType::All);
@@ -75,8 +77,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// let size = term.terminal_size();
     /// println!("{:?}", size);
@@ -91,8 +93,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
@@ -107,8 +109,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
@@ -123,8 +125,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
@@ -139,8 +141,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// let size = term.exit();
     ///
@@ -154,8 +156,8 @@ impl Terminal {
     /// #Example
     ///
     /// ```rust
-    ///
-    ///  let term = terminal();
+    /// let screen = Screen::default();
+    /// let mut term = terminal(&screen);
     ///
     /// let size = term.write("Some text \n Some text on new line");
     ///
@@ -170,6 +172,6 @@ impl Terminal {
 
 /// Get an terminal implementation whereon terminal related actions could performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn terminal(screen: &Screen) -> Terminal {
+pub fn terminal<'stdout>(screen: &'stdout Screen) -> Terminal<'stdout> {
     Terminal::new(&screen.stdout)
 }

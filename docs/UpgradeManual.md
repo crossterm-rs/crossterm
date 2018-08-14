@@ -72,7 +72,7 @@ let screen = Screen::default();
 // this will create a new screen with raw modes enabled.
 let screen = Screen::new(true);
 
-// false specifies whether the alternate screen should be in raw modes.
+// `false` specifies whether the alternate screen should be in raw modes.
 if let Ok(alternate) = screen.enable_alternate_modes(false)
 {
     let cursor = cursor(&alternate.screen);
@@ -81,6 +81,7 @@ if let Ok(alternate) = screen.enable_alternate_modes(false)
 
 #### Other
 - ::crossterm::Crossterm::write() is gone.
+- ::crossterm::Crossterm::flush() is gone.
 - Context type is removed
 - StateManager is removed
 - ScreenManager type is renamed to Stdout.

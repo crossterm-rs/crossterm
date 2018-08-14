@@ -20,8 +20,10 @@ use std::sync::Arc;
 ///
 /// extern crate crossterm;
 /// use self::crossterm::cursor::cursor;
+/// use self::crossterm::Screen;
 ///
-/// let mut cursor = cursor();
+/// let screen = Screen::default();
+/// let mut cursor = cursor(&screen);
 ///
 /// // Get cursor and goto pos X: 5, Y: 10
 /// cursor.goto(5,10);
@@ -32,14 +34,14 @@ use std::sync::Arc;
 /// cursor.move_left(2);
 /// 
 /// ```
-pub struct TerminalCursor {
-    screen: Arc<Stdout>,
+pub struct TerminalCursor<'stdout> {
+    screen: &'stdout Arc<Stdout>,
     terminal_cursor: Box<ITerminalCursor>,
 }
 
-impl TerminalCursor {
+impl<'stdout> TerminalCursor<'stdout> {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(screen: &Arc<Stdout>) -> TerminalCursor {
+    pub fn new(screen: &'stdout Arc<Stdout>) -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
         let cursor =
             functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new())
@@ -50,7 +52,7 @@ impl TerminalCursor {
 
         TerminalCursor {
             terminal_cursor: cursor,
-            screen: screen.clone(),
+            screen: screen,
         }
     }
 
@@ -59,8 +61,8 @@ impl TerminalCursor {
     /// #Example
     ///
     /// ```rust
-    ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     ///
     /// // change the cursor to position, x: 4 and y: 5
     /// cursor.goto(4,5);
@@ -76,7 +78,8 @@ impl TerminalCursor {
     ///
     /// ```rust
     /// 
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     ///
     /// // get the current cursor pos
     /// let (x,y) = cursor.pos();
@@ -91,12 +94,14 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
+    ///
     /// // Move the cursor to position 3 times to the up in the terminal
     /// cursor.move_up(3);
     ///
     /// ```
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_up(count, &self.screen);
         self
     }
@@ -107,13 +112,14 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     ///
     /// // Move the cursor to position 3 times to the right in the terminal
     /// cursor.move_right(3);
     ///
     /// ```
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_right(count, &self.screen);
         self
     }
@@ -124,13 +130,14 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     ///
     /// // Move the cursor to position 3 times to the down in the terminal
     /// cursor.move_down(3);
     ///
     /// ```
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_down(count, &self.screen);
         self
     }
@@ -141,13 +148,14 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     ///
     ///  // Move the cursor to position 3 times to the left in the terminal
     ///  cursor.move_left(3);
     ///
     /// ```
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_left(count, &self.screen);
         self
     }
@@ -160,7 +168,9 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
+    ///
     /// cursor.safe_position();
     ///
     /// ```
@@ -176,7 +186,9 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
+    ///
     /// cursor.reset_position();
     ///
     /// ```
@@ -204,7 +216,8 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     /// cursor.show();
     ///
     /// ```
@@ -220,7 +233,8 @@ impl TerminalCursor {
     ///
     /// ```rust
     ///
-    /// let cursor = cursor(&Screen::default());
+    /// let screen = Screen::default();
+    /// let cursor = cursor(&screen);
     /// cursor.blink(true);
     /// cursor.blink(false);
     ///
@@ -232,6 +246,6 @@ impl TerminalCursor {
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn cursor(screen_manager: &Screen) -> TerminalCursor {
+pub fn cursor<'stdout>(screen_manager: &'stdout Screen) -> TerminalCursor<'stdout> {
     TerminalCursor::new(&screen_manager.stdout)
 }

@@ -44,8 +44,8 @@ impl<'screen> FirstDepthSearch<'screen>
         // push first position on the stack
         self.stack.push(self.root_pos);
 
-        let crossterm = Crossterm::new();
-        let mut cursor = crossterm.cursor(&self.screen);
+        let crossterm = Crossterm::new(&self.screen);
+        let mut cursor = crossterm.cursor();
         cursor.hide();
 
         // loop until there are now items left in the stack.

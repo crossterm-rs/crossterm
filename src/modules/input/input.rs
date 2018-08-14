@@ -14,21 +14,23 @@ use super::*;
 /// ```rust
 ///
 /// extern crate crossterm;
+/// use self::crossterm::Screen;
 /// use self::crossterm::input::input;
 ///
-/// let input = input(&Screen::default());
+/// let screen = Screen::default();
+/// let input = input(&screen);
 /// let result = input.read_line();
 /// let pressed_char = input.read_char();
 ///
 /// ```
-pub struct TerminalInput {
+pub struct TerminalInput<'stdout> {
     terminal_input: Box<ITerminalInput>,
-    stdout: Arc<Stdout>,
+    stdout: &'stdout Arc<Stdout>,
 }
 
-impl TerminalInput{
+impl<'stdout> TerminalInput<'stdout> {
     /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn new(stdout: &Arc<Stdout>) -> TerminalInput {
+    pub fn new(stdout: &'stdout Arc<Stdout>) -> TerminalInput<'stdout> {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
 
@@ -37,7 +39,7 @@ impl TerminalInput{
 
         TerminalInput {
             terminal_input: input,
-            stdout: stdout.clone(),
+            stdout: stdout,
         }
     }
 
@@ -47,7 +49,9 @@ impl TerminalInput{
     ///
     /// ```rust
     ///
-    ///  match input(&Screen::default()).read_line() {
+    /// let screen = Screen::default();
+    /// let input = input(&screen);
+    ///  match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
     ///  }
@@ -63,7 +67,10 @@ impl TerminalInput{
     ///
     /// ```rust
     ///
-    ///  match crossterm.input(&Screen::default()).read_char() {
+    /// let screen = Screen::default();
+    /// let input = input(&screen);
+    ///
+    ///  match input.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
     ///   }
@@ -83,9 +90,9 @@ impl TerminalInput{
     ///
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
-    /// let crossterm = Crossterm::new();
+    /// let input = input(&screen);
     ///
-    /// let mut stdin = crossterm.input(&screen).read_async().bytes();
+    /// let mut stdin = input.read_async().bytes();
     ///
     /// for i in 0..100 {
     ///
@@ -115,10 +122,10 @@ impl TerminalInput{
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
     ///
-    /// let crossterm = Crossterm::new();
-    /// let input = crossterm.input(&screen);
-    /// let terminal = crossterm.terminal(&screen);
-    /// let mut cursor = crossterm.cursor(&screen);
+    /// let crossterm = Crossterm::new(&screen);
+    /// let input = crossterm.input();
+    /// let terminal = crossterm.terminal();
+    /// let mut cursor = crossterm.cursor();
     ///
     ///
     /// let mut stdin = input.read_until_async(b'\r').bytes();
@@ -151,6 +158,6 @@ impl TerminalInput{
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn input(stdout: &Screen) -> TerminalInput {
+pub fn input<'stdout>(stdout: &'stdout Screen) -> TerminalInput<'stdout> {
     return TerminalInput::new(&stdout.stdout);
 }

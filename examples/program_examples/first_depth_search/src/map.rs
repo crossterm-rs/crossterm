@@ -41,8 +41,8 @@ impl Map
     // render the map on the screen.
     pub fn render_map(&mut self, screen: &Screen)
     {
-        let crossterm = Crossterm::new();
-        let mut cursor = crossterm.cursor(screen);
+        let crossterm = Crossterm::new(&screen);
+        let mut cursor = crossterm.cursor();
 
         for row in self.map.iter_mut()
         {

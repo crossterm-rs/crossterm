@@ -11,13 +11,13 @@ use std::time::Duration;
 /// this will capture the input until the given key.
 pub fn read_async_until() {
     // create raw screen
-    let screen = Screen::new(true);
-    let crossterm = Crossterm::new();
+    let screen = Screen::default();
+    let crossterm = Crossterm::new(&screen);
 
     // init some modules we use for this demo
-    let input = crossterm.input(&screen);
-    let terminal = crossterm.terminal(&screen);
-    let mut cursor = crossterm.cursor(&screen);
+    let input = crossterm.input();
+    let terminal = crossterm.terminal();
+    let mut cursor = crossterm.cursor();
 
     let mut stdin = input.read_until_async(b'\r').bytes();
 
@@ -44,7 +44,8 @@ pub fn read_async_until() {
 
 /// this will read pressed characters async until `x` is typed.
 pub fn read_async() {
-    let input = input(&Screen::default());
+    let screen = Screen::default();
+    let input = input(&screen);
 
     let mut stdin = input.read_async().bytes();
 
@@ -64,12 +65,12 @@ pub fn read_async() {
 
 pub fn read_async_demo() {
     let screen = Screen::new(true);
-    let crossterm = Crossterm::new();
+    let crossterm = Crossterm::new(&screen);
 
     // init some modules we use for this demo
-    let input = crossterm.input(&screen);
-    let terminal = crossterm.terminal(&screen);
-    let mut cursor = crossterm.cursor(&screen);
+    let input = crossterm.input();
+    let terminal = crossterm.terminal();
+    let mut cursor = crossterm.cursor();
 
     // this will setup the async reading.
     let mut stdin = input.read_async().bytes();
@@ -101,15 +102,16 @@ pub fn async_reading_on_alternate_screen() {
     use crossterm::screen::AlternateScreen;
 
     let screen = Screen::new(false);
-    let crossterm = Crossterm::new();
+
 
     // switch to alternate screen
     if let Ok(alternate) = screen.enable_alternate_modes(true)
     {
+        let crossterm = Crossterm::new(&alternate.screen);
         // init some modules we use for this demo
-        let input = crossterm.input(&alternate.screen);
-        let terminal = crossterm.terminal(&alternate.screen);
-        let mut cursor = crossterm.cursor(&alternate.screen);
+        let input = crossterm.input();
+        let terminal = crossterm.terminal();
+        let mut cursor = crossterm.cursor();
 
         // this will setup the async reading.
         let mut stdin = input.read_async().bytes();

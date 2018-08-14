@@ -54,13 +54,14 @@ use write::Stdout;
 /// }
 ///
 /// ```
-pub struct Crossterm { }
+pub struct Crossterm {
+    stdout: Arc<Stdout>
+}
 
 impl<'crossterm> Crossterm {
-
     /// Create a new instance of `Crossterm`
-    pub fn new() -> Crossterm {
-        Crossterm {}
+    pub fn new(screen: &Screen) -> Crossterm {
+        Crossterm { stdout: screen.stdout.clone() }
     }
 
     /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
@@ -72,12 +73,12 @@ impl<'crossterm> Crossterm {
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor(&Screen::default());
+    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let cursor = crossterm.cursor();
     ///
     /// ```
-    pub fn cursor(&self, screen: &'crossterm Screen) -> cursor::TerminalCursor {
-        cursor::TerminalCursor::new(&screen.stdout.clone())
+    pub fn cursor(&self) -> cursor::TerminalCursor {
+        cursor::TerminalCursor::new(&self.stdout)
     }
 
     /// Get an TerminalInput implementation whereon terminal related actions can be performed.
@@ -90,12 +91,12 @@ impl<'crossterm> Crossterm {
     /// use crossterm::{Crossterm, Screen};
     /// use crossterm::terminal;
     ///
-    /// let crossterm = Crossterm::new();
-    /// let input = crossterm.input(&Screen::default());
+    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let input = crossterm.input();
     ///
     /// ```
-    pub fn input(&self, screen: &'crossterm Screen) -> input::TerminalInput {
-        return input::TerminalInput::new(&screen.stdout);
+    pub fn input(&self) -> input::TerminalInput {
+        return input::TerminalInput::new(&self.stdout);
     }
 
     /// Get an Terminal implementation whereon terminal related actions can be performed.
@@ -107,12 +108,12 @@ impl<'crossterm> Crossterm {
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
-    /// let crossterm = Crossterm::new();
-    /// let mut terminal = crossterm.terminal(&Screen::default());
+    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let mut terminal = crossterm.terminal();
     ///
     /// ```
-     pub fn terminal(&self, screen: &'crossterm Screen) -> terminal::Terminal {
-         return terminal::Terminal::new(&screen.stdout);
+     pub fn terminal(&self) -> terminal::Terminal {
+         return terminal::Terminal::new(&self.stdout);
      }
 
     /// Get an TerminalColor implementation whereon color related actions can be performed.
@@ -124,12 +125,12 @@ impl<'crossterm> Crossterm {
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
-    /// let crossterm = Crossterm::new();
-    /// let mut terminal = crossterm.terminal(&Screen::default());
+    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let mut terminal = crossterm.terminal();
     ///
     /// ```
-    pub fn color(&self, screen: &'crossterm Screen) -> style::TerminalColor {
-        return style::TerminalColor::new(&screen.stdout);
+    pub fn color(&self) -> style::TerminalColor {
+        return style::TerminalColor::new(&self.stdout);
     }
 
     /// This could be used to style an Displayable with colors and attributes.

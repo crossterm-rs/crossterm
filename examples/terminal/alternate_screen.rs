@@ -8,9 +8,9 @@ use std::io::{stdout, Write};
 use std::{thread, time};
 
 fn print_wait_screen(screen: &Screen) {
-    let crossterm = Crossterm::new();
-    let terminal = crossterm.terminal(&screen);
-    let cursor = crossterm.cursor(&screen);
+    let crossterm = Crossterm::new(screen);
+    let terminal = crossterm.terminal();
+    let cursor = crossterm.cursor();
 
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);

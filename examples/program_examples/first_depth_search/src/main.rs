@@ -26,7 +26,7 @@ fn main()
 pub fn run()
 {
     // This is represents the current screen.
-    let screen = Screen::new(true);
+    let screen = Screen::default();
 
     // set size of terminal so the map we are going to draw is fitting the screen.
     terminal(&screen).set_size(60,110);
@@ -58,11 +58,12 @@ fn start_algorithm(screen: &Screen)
 
 fn print_welcome_screen(screen: &Screen)
 {
+    let crossterm = Crossterm::new(&screen);
+
     // create the handle for the cursor and terminal.
-    let crossterm = Crossterm::new();
-    let terminal = crossterm.terminal(&screen);
-    let cursor = crossterm.cursor(&screen);
-    let input = crossterm.input(&screen);
+    let terminal = crossterm.terminal();
+    let cursor = crossterm.cursor();
+    let input = crossterm.input();
 
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
@@ -88,7 +89,7 @@ fn print_welcome_screen(screen: &Screen)
 
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(48, 10);
-        crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&screen);
+        crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&crossterm.get_screen());
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));

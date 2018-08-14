@@ -9,7 +9,8 @@ use self::crossterm::Screen;
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() {
     // Get the cursor
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10, 5);
 }
@@ -17,7 +18,8 @@ pub fn goto() {
 /// get the cursor position
 pub fn pos() {
     // Get the cursor
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     // get the cursor position.
     let (x, y) = cursor.pos();
 }
@@ -25,7 +27,8 @@ pub fn pos() {
 /// Move the cursor 3 up | demonstration.
 pub fn move_up() {
     // Get the cursor
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
 
     // Move the cursor to position 3 times to the up in the terminal
     cursor.move_up(10);
@@ -33,21 +36,24 @@ pub fn move_up() {
 
 /// Move the cursor 3 to the right | demonstration.
 pub fn move_right() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     // Move the cursor to position 3 times to the right in the terminal
     cursor.move_right(3);
 }
 
 /// Move the cursor 3 down | demonstration.
 pub fn move_down() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     // Move the cursor to position 3 times to the down in the terminal
     cursor.move_down(3);
 }
 
 /// Move the cursor 3 to the left | demonstration.
 pub fn move_left() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
 
     // Move the cursor to position 3 times to the left in the terminal
     cursor.move_left(3);
@@ -81,7 +87,9 @@ pub fn move_left() {
 
 /// Save and reset cursor position | demonstration..
 pub fn safe_and_reset_position() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
+
     // Goto X: 5 Y: 5
     cursor.goto(5, 5);
     // Safe cursor position: X: 5 Y: 5
@@ -100,19 +108,22 @@ pub fn safe_and_reset_position() {
 
 /// Hide cursor display | demonstration.
 pub fn hide_cursor() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     cursor.hide();
 }
 
 /// Show cursor display | demonstration.
 pub fn show_cursor() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     cursor.show();
 }
 
 /// Show cursor display, only works on certain terminals.| demonstration
 pub fn blink_cursor() {
-    let mut cursor = cursor(&Screen::default());
+    let screen = Screen::default();
+    let mut cursor = cursor(&screen);
     cursor.blink(false);
     cursor.blink(false);
 }

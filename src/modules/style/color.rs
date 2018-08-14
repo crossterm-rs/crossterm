@@ -13,8 +13,11 @@ use Screen;
 ///
 /// ```rust
 ///
-/// use crossterm::{Screen, Crossterm}
-/// let colored_terminal = crossterm.color(&Screen::default());
+/// use crossterm::{Screen}
+/// use crossterm::color::color;
+///
+/// let screen = Screen::default();
+/// let colored_terminal = color(&screen);
 ///
 /// // set foreground color
 /// colored_terminal.set_fg(Color::Red);
@@ -24,14 +27,14 @@ use Screen;
 /// colored_terminal.reset();
 ///
 /// ```
-pub struct TerminalColor {
+pub struct TerminalColor<'stdout> {
     color: Box<ITerminalColor>,
-    stdout: Arc<Stdout>,
+    stdout: &'stdout Arc<Stdout>,
 }
 
-impl<'terminal> TerminalColor {
+impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(stdout: &Arc<Stdout>) -> TerminalColor {
+    pub fn new(stdout: &'stdout Arc<Stdout>) -> TerminalColor<'stdout> {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor>>(
             Box::from(WinApiColor::new()),
@@ -43,7 +46,7 @@ impl<'terminal> TerminalColor {
 
         TerminalColor {
             color,
-            stdout: stdout.clone(),
+            stdout: stdout,
         }
     }
 
@@ -52,7 +55,8 @@ impl<'terminal> TerminalColor {
     /// #Example
     ///
     /// ```rust
-    /// let colored_terminal = crossterm.color(&Screen::default());
+    /// let screen = Screen::default();
+    /// let colored_terminal = color(&screen);
     ///
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
@@ -70,7 +74,8 @@ impl<'terminal> TerminalColor {
     ///
     /// ```rust
     ///
-    /// let colored_terminal = crossterm.color(&Screen::default());
+    /// let screen = Screen::default();
+    /// let colored_terminal = color(&screen);
     ///
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
@@ -87,7 +92,8 @@ impl<'terminal> TerminalColor {
     ///
     /// ```rust
     ///
-    /// let colored_terminal = crossterm.color(&Screen::default());
+    /// let screen = Screen::default();
+    /// let colored_terminal = color(&screen);
     /// colored_terminal.reset();
     ///
     /// ```
@@ -114,6 +120,6 @@ impl<'terminal> TerminalColor {
 
 /// Get an Terminal Color implementation whereon color related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn color(screen: &Screen) -> TerminalColor {
+pub fn color<'stdout>(screen: &'stdout Screen) -> TerminalColor<'stdout> {
     TerminalColor::new(&screen.stdout)
 }

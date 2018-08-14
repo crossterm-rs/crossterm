@@ -52,26 +52,19 @@ use self::crossterm::style::*;
 use self::crossterm::cursor::*;
 // this mudule is used for terminal related actions
 use self::crossterm::terminal::*;
+// this mudule is used for input related actions
+use self::crossterm::terminal::*;
+// this type could be used to access the above modules.
+use self::crossterm::Crossterm;
 
 ```
 
 ## Useful Links
 
-- Code documentation: 
-version [0.1.0](https://docs.rs/crossterm/0.1.0/crossterm/), 
-[0.2.0](https://docs.rs/crossterm/0.2.0/crossterm/), 
-[0.2.1](https://docs.rs/crossterm/0.2.1/crossterm/) 
-[0.3.0](https://docs.rs/crossterm/0.3.0/crossterm/) 
-[0.4.0](https://docs.rs/crossterm/0.4.0/crossterm/) 
-- Code Examples: 
-# TO UPDATE
-version [0.1.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.1.0), 
-[0.2.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.0), 
-[0.2.1](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.2.1) 
-and [0.3.0](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.3.0)
-
+- Code [documentation](link).
+- Code [Examples]() (see [branches](LINK_TO_BRANCHES) for previous versions)
 - [Cargo Page](https://crates.io/crates/crossterm)
-- [Real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.3.0/program_examples)
+- [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
 
 # Features
 These are the features from this crate:
@@ -96,101 +89,101 @@ These are the features from this crate:
     - Set the size of the terminal.
     - Alternate screen
     - Raw screen    
+- Input
+    - Read character
+    - Read line
+    - Read async
+    - Read async until
 - Exit the current process.
 - Detailed documentation on every item.
+- Crossplatform
 
 ## Examples
 
 For detailed examples of all Crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) directory.
 
-### Crossterm wrapper | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/crossterm_type/mod.rs)
-This is a wrapper for the modules crossterm provides. This is introduced to manage the [`Context`](link_to_context) for the user.
+### Crossterm Type | [see more](Link)
+This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 ```
-let crossterm = Crossterm::new();
+// screen wheron the `Crossterm` methods will be executed.
+let screen = Screen::default();
+let crossterm = Crossterm::new(&screen);
 
 // get instance of the modules, whereafter you can use the methods the particulary module provides. 
 let color = crossterm.color();
 let cursor = crossterm.cursor();
 let terminal = crossterm.terminal();
 
-// write text to console wheter it be the main screen or the alternate screen.
-crossterm.write("some text");
-// print some styled font.
-println!("{}", crossterm.paint("Red font on blue background").with(Color::Red).on(Color::Blue));
+// styling
+let style = crossterm.style("Black font on Green background color").with(Color::Black).on(Color::Green);
+style.paint(&screen);
+
 ```
-### Styled font | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/color/mod.rs)
+### Styled Font | [see more](Link)
 This module provides the functionalities to style the terminal cursor.
 ```rust    
-use crossterm::style::{Color};
-use crossterm::Crossterm; 
-    
-// Crossterm provides method chaining so that you can style the font nicely.
-// the `with()` methods sets the foreground color and the `on()` methods sets the background color
-// You can either store the styled font.
-   
-// create instance of `Crossterm`
-let crossterm = Crossterm::new();
+use crossterm::style::{Color, style};
+use crossterm::Screen; 
 
-// store style in styled object and print it
-let mut styledobject = crossterm.paint("stored styled font in variable").with(Color::Green).on(Color::Yellow);
-println!("{}",styledobject);
+// store objcets so it could be painted later to the screen.   
+let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
+let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-// Or you can print it directly.
-println!("{}", crossterm.paint("Red font on blue background color").with(Color::Red).on(Color::Blue));
-println!("{}", crossterm.paint("Red font on default background color").with(Color::Red));
-println!("{}", crossterm.paint("Default font color on Blue background color").on(Color::Blue));
+let screen = Screen::default();
 
-/// The following code can only be used for unix systems:
+/// ! The following code only works for unix based systems.
+// some attributes
+let normal = style("Normal text");
+let bold = style("Bold text").bold();
+let italic = style("Italic text").italic();
+let slow_blink = style("Slow blinking text").slow_blink();
+let rapid_blink = style("Rapid blinking text").rapid_blink();
+let hidden = style("Hidden text").hidden();
+let underlined = style("Underlined text").underlined();
+let reversed = style("Reversed text").reverse();
+let dimmed = style("Dim text").dim();
+let crossed_out = style("Crossed out font").crossed_out();
 
-// Set background Color from RGB
-println!("RGB (10,10,10): \t {}", crossterm.paint("  ").on(Color::Rgb {r: 10, g: 10, b: 10}));
-// Set background Color from RGB
-println!("ANSI value (50): \t {}", crossterm.paint("  ").on(Color::AnsiValue(50)));
+// paint styled text to screen (this could also be called inline)
+style1.paint(&screen);
+style2.paint(&screen);
+bold.paint(&screen);
+hidden.paint(&screen);
 
-// Use attributes to syle the font.
-println!("{}", crossterm.paint("Normal text"));
-println!("{}", crossterm.paint("Bold text").bold());
-println!("{}", crossterm.paint("Italic text").italic());
-println!("{}", crossterm.paint("Slow blinking text").slow_blink());
-println!("{}", crossterm.paint("Rapid blinking text").rapid_blink());
-println!("{}", crossterm.paint("Hidden text").hidden());
-println!("{}", crossterm.paint("Underlined text").underlined());
-println!("{}", crossterm.paint("Reversed color").reverse());
-println!("{}", crossterm.paint("Dim text color").dim());
-println!("{}", crossterm.paint("Crossed out font").crossed_out());
+// cursom rgb value
+style("RGB color (10,10,10) ").with(Color::Rgb {
+    r: 10,
+    g: 10,
+    b: 10
+}).paint(&screen);
+
+// custom ansi color value
+style("ANSI color value (50) ").with(Color::AnsiValue(50)).paint(&screen);
+
 ```
-### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/cursor/mod.rs)
+### Cursor | [see more](LINK)
 This module provides the functionalities to work with the terminal cursor.
 
 ```rust 
 
-use crossterm::Context;
+use crossterm::Screen;
 use crossterm::cursor::cursor;
 
-// create context to pass to the `cursor()` function.
-let context = Context::new();
-let mut cursor = cursor(&context);
+// create Screen to wheron the `cursor()` should function.
+let screen = Screen::default();
+let mut cursor = cursor(&screen);
 
-/// Moving the cursor | demo
+/// Moving the cursor
 // Set the cursor to position X: 10, Y: 5 in the terminal
 cursor.goto(10,5);
 
-// Move the cursor to position 3 times to the up in the terminal
+// Move the cursor up,right,down,left 3 cells.
 cursor.move_up(3);
-
-// Move the cursor to position 3 times to the right in the terminal
 cursor.move_right(3);
-
-// Move the cursor to position 3 times to the down in the terminal
 cursor.move_down(3);
-
-// Move the cursor to position 3 times to the left in the terminal
 cursor.move_left(3);
 
-// Print an character at X: 10, Y: 5 (see examples for more explanation why to use this method).
-// cursor.goto(10,5).print("@");
-
-/// Safe the current cursor position to recall later | demo
+/// Safe the current cursor position to recall later
 // Goto X: 5 Y: 5
 cursor.goto(5,5);
 // Safe cursor position: X: 5 Y: 5
@@ -213,15 +206,16 @@ cursor.blink(true)
 
 ```
 
-### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/terminal.rs)
+### Terminal | [see more](LINK)
 This module provides the functionalities to work with the terminal in general.
 
 ```rust 
 use crossterm::terminal::{terminal,ClearType};
-use crossterm::Context;
+use crossterm::Screen;
 
-let mut context = Context::new();
-let mut terminal = terminal(&context);
+// create Screen to wheron the `terminal()` should function.
+let screen = Screen::default();
+let mut terminal = terminal(&screen);
 
 // Clear all lines in terminal;
 terminal.clear(ClearType::All);
@@ -235,17 +229,14 @@ terminal.clear(ClearType::CurrentLine);
 terminal.clear(ClearType::UntilNewLine);
 
 // Get terminal size
-let terminal_size = terminal.terminal_size();
-// Print results
-print!("X: {}, y: {}", terminal_size.0, terminal_size.1);
+let (width, height) = terminal.terminal_size();
+print!("X: {}, y: {}", width, height);
 
-// Scroll down 10 lines.
+// Scroll down, up 10 lines.
 terminal.scroll_down(10);
-
-// Scroll up 10 lines.
 terminal.scroll_up(10);
 
-// Set terminal size
+// Set terminal size (width, height)
 terminal.set_size(10,10);
 
 // exit the current process.
@@ -253,9 +244,6 @@ terminal.exit();
 
 // write to the terminal whether you are on the main screen or alternate screen.
 terminal.write("Some text\n Some text on new line");
-
-// use the `paint()` for styling font
-println!("{}", terminal.paint("x").with(Color::Red).on(Color::Blue));
 ```
 
 Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/raw_mode.rs) for information about how to work with these features.
@@ -272,10 +260,6 @@ Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob
 
 This crate supports all Unix terminals and windows terminals down to Windows XP but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
-    
-## How it works
-Crossterm is using ANSI escape codes by default for both Unix and Windows systems. 
-But for Windows, it is a bit more complicated since Windows versions 8 or lower are not supporting ANSI escape codes. This is why we use WinApi for those machines. For Windows 10 ANSI codes will be the default.
 
 ## Notice 
 This library is not stable yet but I expect it to not to change that much anymore. 
@@ -285,47 +269,19 @@ And if there are any changes that affect previous versions I will [describe](htt
 I still have some things in mind to implement. 
 
 - Handling mouse events 
-
     I want to be able to do something based on the clicks the user has done with its mouse.
 - Handling key events
-
     I want to be able to read key combination inputs. 
-- reading from the console.
-
-    I want to be able to read the input of the console.
-- Error handling
-
-    Currently, I am not doing that much with returned errors. This is bad since I suspect that everything is working. I want to manage this better. When you build this crate you will see the warnings about not used return values. This is what needs to be improved.
 - Tests
-
     Also, I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
 
 ## Contributing
-
-If you would like to contribute to Crossterm, than please design the code as it is now. 
-For example, a module like cursor has the following file structure:
-- mod.rs
-
-  This file contains some trait, in this case, `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
   
-- cursor.rs
+I highly appreciate it when you are contributing to this crate. 
+Also Since my native language is not English my grammar and sentence order will not be perfect. 
+So improving this by correcting these mistakes will help both me and the reader of the docs.
 
-  The end user will call this module to access the cursor functionalities. This module will decide which implementation to use based on the current platform.
-- winapi_cursor
-
-  This is the cursor trait (located in mod.rs) implementation with WinApi.
-- ansi_cursor
-
-  This is the cursor trait (located in mod.rs) implementation with ANSI escape codes.
-  
-The above structure is the same for the terminal, color, manager modules. 
-
-Why I have chosen for this design:
-- Because you can easily extend to multiple platforms by implementing the trait int the mod.rs.
-- You keep the functionalities for different platforms separated in different files. 
-- Also, you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that much. All the other code could change a lot because it has no impact on the user side.
-  
-I highly appreciate it when you are contributing to this crate. Also Since my native language is not English my grammar and sentence order will not be perfect. So improving this by correcting these mistakes will help both me and the reader of the docs.
+Check [Contributing](link) for more info about branches and code architecture.
 
 ## Authors
 

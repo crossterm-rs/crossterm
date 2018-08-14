@@ -8,6 +8,8 @@ use self::crossterm::{terminal, Screen};
 
 /// print some red font | demonstration.
 pub fn paint_foreground() {
+
+
     let screen = Screen::default();
     // Pass an string to the `paint()` method with you want to paint.
     // This will give you an object back wits can be styled and displayed.
@@ -66,7 +68,7 @@ pub fn print_all_foreground_colors() {
     }).paint(&screen);
 
     #[cfg(unix)]
-        style("RGB color (10,10,10) ").with(Color::AnsiValue(50)).paint(&screen);
+    style("RGB color (10,10,10) ").with(Color::AnsiValue(50)).paint(&screen);
 }
 
 /// Print all available foreground colors | demonstration.
