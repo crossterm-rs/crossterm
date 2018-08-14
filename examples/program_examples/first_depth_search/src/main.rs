@@ -26,7 +26,7 @@ fn main()
 pub fn run()
 {
     // This is represents the current screen.
-    let screen = Screen::default();
+    let screen = Screen::new(true);
 
     // set size of terminal so the map we are going to draw is fitting the screen.
     terminal(&screen).set_size(60,110);
@@ -86,10 +86,9 @@ fn print_welcome_screen(screen: &Screen)
         if let Some(Ok(b'q')) = a {
             terminal.exit();
         }
-
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(48, 10);
-        crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&crossterm.get_screen());
+        crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&screen);
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
