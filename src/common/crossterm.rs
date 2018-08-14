@@ -23,36 +23,31 @@ use common::commands::win_commands;
 use write::Stdout;
 
 /// This type could be used to access the `cursor, terminal, color, input, styling` module more easily.
-/// You need to pass a reference to the screen where on you want to perform the actions.
+/// You need to pass a reference to the screen where on you want to perform the actions to the `Crossterm` type.
 ///
-///
-/// #Example
 /// If you want to use the default screen you could do it like this:
 ///
 /// ```rust
-///
 /// extern crate crossterm;
 /// use crossterm::{Crossterm, Screen};
 ///
-/// let crossterm = Crossterm::new();
-/// let cursor = crossterm.cursor(&Screen::default());
-///
+/// let crossterm = Crossterm::new(&Screen::default());
+/// let cursor = crossterm.cursor();
 /// ```
 ///
-/// If you want to perform actions on the `AlternateScreen` make sure to pass a refrence to the screen of the `AlternateScreen`.
+/// If you want to perform actions on the `AlternateScreen` make sure to pass a reference to the screen of the `AlternateScreen`.
 ///
 /// ```
-/// /// extern crate crossterm;
+/// extern crate crossterm;
 /// use crossterm::{Crossterm, Screen};
 ///
 /// let main_screen = Screen::default();
 ///
 /// if let Ok(alternate_srceen) = main_screen.enable_alternate_modes(false)
 /// {
-///    let crossterm = Crossterm::new();
-///    let cursor = crossterm.cursor(&alternate_screen.screen);
+///    let crossterm = Crossterm::new(&alternate_screen.screen);
+///    let cursor = crossterm.cursor();
 /// }
-///
 /// ```
 pub struct Crossterm {
     stdout: Arc<Stdout>
@@ -64,85 +59,68 @@ impl<'crossterm> Crossterm {
         Crossterm { stdout: screen.stdout.clone() }
     }
 
-    /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
-    ///
-    /// #Example
+    /// Get an `TerminalCursor` implementation whereon cursor related actions can be performed.
     ///
     /// ```rust
-    ///
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
     /// let crossterm = Crossterm::new(&Screen::default());
     /// let cursor = crossterm.cursor();
-    ///
     /// ```
     pub fn cursor(&self) -> cursor::TerminalCursor {
         cursor::TerminalCursor::new(&self.stdout)
     }
 
-    /// Get an TerminalInput implementation whereon terminal related actions can be performed.
-    ///
-    /// #Example
+    /// Get an `TerminalInput` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
-    ///
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     /// use crossterm::terminal;
     ///
     /// let crossterm = Crossterm::new(&Screen::default());
     /// let input = crossterm.input();
-    ///
     /// ```
     pub fn input(&self) -> input::TerminalInput {
         return input::TerminalInput::new(&self.stdout);
     }
 
-    /// Get an Terminal implementation whereon terminal related actions can be performed.
-    ///
-    /// #Example
+    /// Get an `Terminal` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
-    ///
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
     /// let crossterm = Crossterm::new(&Screen::default());
     /// let mut terminal = crossterm.terminal();
-    ///
     /// ```
      pub fn terminal(&self) -> terminal::Terminal {
          return terminal::Terminal::new(&self.stdout);
      }
 
-    /// Get an TerminalColor implementation whereon color related actions can be performed.
-    ///
-    /// #Example
+    /// Get an `TerminalColor` implementation whereon color related actions can be performed.
     ///
     /// ```rust
-    ///
     /// extern crate crossterm;
     /// use crossterm::{Crossterm, Screen};
     ///
     /// let crossterm = Crossterm::new(&Screen::default());
     /// let mut terminal = crossterm.terminal();
-    ///
     /// ```
     pub fn color(&self) -> style::TerminalColor {
         return style::TerminalColor::new(&self.stdout);
     }
 
-    /// This could be used to style an Displayable with colors and attributes.
-    ///
-    /// #Example
+    /// This could be used to style an `Displayable` type with colors and attributes.
     ///
     /// ```rust
-    ///
-    /// use crossterm::{ Screen };
+    /// use crossterm::Screen ;
     ///
     /// // get an styled object which could be painted to the terminal.
-    /// let styled_object = style("Some Blue colored text on black background").with(Color::Blue).on(Color::Black);
+    /// let styled_object = style("Some Blue colored text on black background")
+    ///     .with(Color::Blue)
+    ///     .on(Color::Black);
     ///
     /// // create an default screen.
     /// let screen = Screen::default();

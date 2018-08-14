@@ -12,12 +12,9 @@ use std::sync::Arc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 ///
-/// Check `/examples/version/cursor` in the library for more specific examples.
-///
-/// #Example
+/// Check `/examples/cursor` in the library for more specific examples.
 ///
 /// ```rust
-///
 /// extern crate crossterm;
 /// use self::crossterm::cursor::cursor;
 /// use self::crossterm::Screen;
@@ -32,7 +29,6 @@ use std::sync::Arc;
 /// cursor.hide();
 /// cursor.blink(true);
 /// cursor.move_left(2);
-/// 
 /// ```
 pub struct TerminalCursor<'stdout> {
     screen: &'stdout Arc<Stdout>,
@@ -58,8 +54,6 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Goto some position (x,y) in the terminal.
     ///
-    /// #Example
-    ///
     /// ```rust
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
@@ -74,32 +68,25 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Get current cursor position (x,y) in the terminal.
     ///
-    /// #Example
-    ///
     /// ```rust
-    /// 
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// // get the current cursor pos
     /// let (x,y) = cursor.pos();
-    ///
     /// ```
     pub fn pos(&self) -> (u16, u16) {
         self.terminal_cursor.pos(&self.screen)
     }
 
     /// Move the current cursor position `n` times up.
-    /// #Example
     ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// // Move the cursor to position 3 times to the up in the terminal
     /// cursor.move_up(3);
-    ///
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_up(count, &self.screen);
@@ -108,16 +95,12 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Move the current cursor position `n` times right.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// // Move the cursor to position 3 times to the right in the terminal
     /// cursor.move_right(3);
-    ///
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_right(count, &self.screen);
@@ -126,16 +109,12 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Move the current cursor position `n` times down.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// // Move the cursor to position 3 times to the down in the terminal
     /// cursor.move_down(3);
-    ///
     /// ```
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_down(count, &self.screen);
@@ -144,16 +123,12 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Move the current cursor position `n` times left.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     ///  // Move the cursor to position 3 times to the left in the terminal
     ///  cursor.move_left(3);
-    ///
     /// ```
     pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
         self.terminal_cursor.move_left(count, &self.screen);
@@ -164,15 +139,11 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// Note that this position is stored program based not per instance of the `Cursor` struct.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// cursor.safe_position();
-    ///
     /// ```
     pub fn save_position(&self) {
         self.terminal_cursor.save_position(&self.screen);
@@ -182,15 +153,11 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// Note that this method reset to the position set by `save_position()` and that this position is stored program based not per instance of the `Cursor` struct.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     ///
     /// cursor.reset_position();
-    ///
     /// ```
     pub fn reset_position(&self) {
         self.terminal_cursor.reset_position(&self.screen);
@@ -198,21 +165,15 @@ impl<'stdout> TerminalCursor<'stdout> {
 
     /// Hide de cursor in the console.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let cursor = cursor(&Screen::default());
     /// cursor.hide();
-    ///
     /// ```
     pub fn hide(&self) {
         self.terminal_cursor.hide(&self.screen);
     }
 
     /// Show the cursor in the console.
-    ///
-    /// #Example
     ///
     /// ```rust
     ///
@@ -229,15 +190,11 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let cursor = cursor(&screen);
     /// cursor.blink(true);
     /// cursor.blink(false);
-    ///
     /// ```
     pub fn blink(&self, blink: bool) {
         self.terminal_cursor.blink(blink, &self.screen);

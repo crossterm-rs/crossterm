@@ -8,12 +8,9 @@ use std::io::Write;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 ///
-/// Check `/examples/version/terminal` in the library for more specific examples.
-///
-/// #Example
+/// Check `/examples/terminal` in the library for more specific examples.
 ///
 /// ```rust
-///
 /// use crossterm::terminal::terminal;
 ///
 /// let screen = Screen::default();
@@ -47,12 +44,9 @@ impl<'stdout> Terminal<'stdout> {
         }
     }
 
-    /// Clear the current cursor by specifying the clear type
-    ///
-    /// #Example
+    /// Clear the current cursor by specifying the clear type.
     ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let mut term = terminal(&screen);
     ///
@@ -66,15 +60,12 @@ impl<'stdout> Terminal<'stdout> {
     /// term.clear(terminal::ClearType::CurrentLine);
     /// // clear all cells from cursor position until new line in terminal.
     /// term.clear(terminal::ClearType::UntilNewLine);
-    ///
     /// ```
     pub fn clear(&self, clear_type: ClearType) {
         self.terminal.clear(clear_type, &self.screen);
     }
 
     /// Get the terminal size (x,y).
-    ///
-    /// #Example
     ///
     /// ```rust
     /// let screen = Screen::default();
@@ -90,8 +81,6 @@ impl<'stdout> Terminal<'stdout> {
 
     /// Scroll `n` lines up in the current terminal.
     ///
-    /// #Example
-    ///
     /// ```rust
     /// let screen = Screen::default();
     /// let mut term = terminal(&screen);
@@ -105,8 +94,6 @@ impl<'stdout> Terminal<'stdout> {
     }
 
     /// Scroll `n` lines up in the current terminal.
-    ///
-    /// #Example
     ///
     /// ```rust
     /// let screen = Screen::default();
@@ -122,8 +109,6 @@ impl<'stdout> Terminal<'stdout> {
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
     ///
-    /// #Example
-    ///
     /// ```rust
     /// let screen = Screen::default();
     /// let mut term = terminal(&screen);
@@ -138,8 +123,6 @@ impl<'stdout> Terminal<'stdout> {
 
     /// Exit the current process.
     ///
-    /// #Example
-    ///
     /// ```rust
     /// let screen = Screen::default();
     /// let mut term = terminal(&screen);
@@ -152,8 +135,6 @@ impl<'stdout> Terminal<'stdout> {
     }
 
     /// Write any displayable content to the current terminal screen.
-    ///
-    /// #Example
     ///
     /// ```rust
     /// let screen = Screen::default();

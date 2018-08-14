@@ -9,10 +9,7 @@ use super::*;
 ///
 /// Check `/examples/input` the examples folder on github for more info.
 ///
-/// #Example
-///
 /// ```rust
-///
 /// extern crate crossterm;
 /// use self::crossterm::Screen;
 /// use self::crossterm::input::input;
@@ -45,17 +42,13 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// Read one line from the user input.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let input = input(&screen);
     ///  match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
     ///  }
-    ///
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
         self.terminal_input.read_line(&self.stdout)
@@ -63,10 +56,7 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// Read one character from the user input
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let input = input(&screen);
     ///
@@ -74,7 +64,6 @@ impl<'stdout> TerminalInput<'stdout> {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
     ///   }
-    ///
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
         return self.terminal_input.read_char(&self.stdout);
@@ -82,12 +71,7 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// Read the input asynchronously from the user.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
-    /// use crossterm::{Crossterm, Screen}
-    ///
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
     /// let input = input(&screen);
@@ -115,8 +99,6 @@ impl<'stdout> TerminalInput<'stdout> {
     }
 
     ///  Read the input asynchronously until a certain character is hit.
-    ///
-    /// #Example
     ///
     /// ```rust
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.

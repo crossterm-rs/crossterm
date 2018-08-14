@@ -4,7 +4,7 @@
 //! You can just call the action you want to perform and under water it will check what to do based on the current platform.
 
 #[macro_use]
-pub mod common;
+mod common;
 
 mod kernel;
 mod modules;
@@ -14,11 +14,13 @@ pub use modules::cursor;
 pub use modules::input;
 pub use modules::write;
 pub use modules::style;
- pub use modules::terminal;
+pub use modules::terminal;
 
-pub use common::Crossterm;
-pub use write::{IStdout, Stdout};
 pub use common::screen::Screen;
+pub use common::Crossterm;
+pub use write::{Stdout};
+use write::IStdout;
+
 #[cfg(unix)]
 extern crate libc;
 #[cfg(unix)]

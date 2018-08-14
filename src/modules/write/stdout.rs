@@ -39,8 +39,6 @@ pub struct Stdout {
     pub is_in_raw_mode:bool,
 }
 
-// todo: impl Default for stdout
-
 impl Stdout {
     /// Create new screen write instance whereon screen related actions can be performed.
     pub fn new(is_in_raw_mode: bool) -> Self {

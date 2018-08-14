@@ -37,15 +37,15 @@ use std::sync::Arc;
 /// // write the above text by flushing the internal buffer of this type.
 /// screen.flush();
 ///
-/// // create raw alternate screen from normal screen.
-/// let screen = Screen::new();
+/// let screen = Screen::new(false);
 ///
+/// // create raw alternate screen from normal screen.
 /// if let Ok(alternate_screen) = screen.enable_alternate_modes(true)
 /// {
-///     let crossterm = Crossterm::new();
+///     let crossterm = Crossterm::new(&alternate_screen.screen);
 ///
 ///     // make sure to pass in the screen of the AlternateScreen.
-///     crossterm.cursor(&alternate_screen.screen);
+///     crossterm.cursor();
 /// }
 /// ```
 ///

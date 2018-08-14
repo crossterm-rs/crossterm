@@ -30,7 +30,7 @@ use super::{functions, Stdout};
 ///
 /// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 /// so that color related actions can be preformed on both unix and windows systems.
-pub trait ITerminalColor {
+trait ITerminalColor {
     /// Set the foreground color to the given color.
     fn set_fg(&self, fg_color: Color, stdout: &Arc<Stdout>);
     /// Set the background color to the given color.

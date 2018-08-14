@@ -7,12 +7,9 @@ use Screen;
 
 /// Struct that stores an specific platform implementation for color related actions.
 ///
-/// Check `/examples/version/color` in the library for more specific examples.
-///
-/// #Example
+/// Check `/examples/color` in the library for more specific examples.
 ///
 /// ```rust
-///
 /// use crossterm::{Screen}
 /// use crossterm::color::color;
 ///
@@ -25,7 +22,6 @@ use Screen;
 /// colored_terminal.set_bg(Color::Red);
 /// // reset color to default
 /// colored_terminal.reset();
-///
 /// ```
 pub struct TerminalColor<'stdout> {
     color: Box<ITerminalColor>,
@@ -52,8 +48,6 @@ impl<'stdout> TerminalColor<'stdout> {
 
     /// Set the foreground color to the given color.
     ///
-    /// #Example
-    ///
     /// ```rust
     /// let screen = Screen::default();
     /// let colored_terminal = color(&screen);
@@ -70,10 +64,7 @@ impl<'stdout> TerminalColor<'stdout> {
 
     /// Set the background color to the given color.
     ///
-    /// #Example
-    ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let colored_terminal = color(&screen);
     ///
@@ -88,14 +79,11 @@ impl<'stdout> TerminalColor<'stdout> {
     }
 
     /// Reset the terminal colors and attributes to default.
-    /// # Example
     ///
     /// ```rust
-    ///
     /// let screen = Screen::default();
     /// let colored_terminal = color(&screen);
     /// colored_terminal.reset();
-    ///
     /// ```
     pub fn reset(&self) {
         self.color.reset(&self.stdout);

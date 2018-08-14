@@ -21,8 +21,6 @@ pub struct StyledObject<D: Display> {
 impl<D: Display> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
-    /// #Example
-    ///
     /// ```rust
     /// use self::crossterm::style::{style,Color};
     ///

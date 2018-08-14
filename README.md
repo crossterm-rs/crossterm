@@ -54,8 +54,6 @@ use self::crossterm::cursor::*;
 use self::crossterm::terminal::*;
 // this mudule is used for input related actions
 use self::crossterm::terminal::*;
-// this type could be used to access the above modules.
-use self::crossterm::Crossterm;
 
 ```
 
@@ -131,7 +129,7 @@ let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Col
 
 let screen = Screen::default();
 
-/// ! The following code only works for unix based systems.
+/// !! The following code only works for unix based systems !!
 // some attributes
 let normal = style("Normal text");
 let bold = style("Bold text").bold();

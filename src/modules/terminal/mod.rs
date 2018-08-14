@@ -32,7 +32,7 @@ pub enum ClearType {
 ///
 /// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 /// so that color related actions can be preformed on both unix and windows systems.
-pub trait ITerminal {
+trait ITerminal {
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType, screen_manager: &Arc<Stdout>);
     /// Get the terminal size (x,y)
