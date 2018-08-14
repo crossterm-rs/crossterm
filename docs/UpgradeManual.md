@@ -22,7 +22,7 @@ let terminal = terminal(&context);
 let color = color(&context);
 
 /// new situation 
-use crossterm::Context;
+use crossterm::Screen;
 
 let screen: Screen = Screen::default();
 
