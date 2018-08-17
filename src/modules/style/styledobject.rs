@@ -1,7 +1,7 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
 
-use super::{Color, ObjectStyle, Stdout};
-use Screen;
+use super::{Color, ObjectStyle};
+
 
 use std::fmt::{self, Display};
 use std::io::Write;
@@ -11,6 +11,8 @@ use super::Attribute;
 
 #[cfg(windows)]
 use super::super::super::write::WinApiStdout;
+
+use color;
 
 /// Struct that contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {
@@ -152,8 +154,8 @@ impl<D: Display> StyledObject<D> {
     ///     .on(Color::Black)
     ///     .paint(&screen);
     /// ```
-    pub fn paint(&self, screen: &Screen) {
-        let mut colored_terminal = super::super::super::style::color::color(&screen);
+    pub fn paint(&self, terminal_output: &Arc<TerminalOutput>) {
+        let mut colored_terminal = color();
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
@@ -168,8 +170,7 @@ impl<D: Display> StyledObject<D> {
 
         #[cfg(unix)]
         for attr in self.object_style.attrs.iter() {
-            screen
-                .stdout
+            terminal_output
                 .write_string(format!(csi!("{}m"), *attr as i16));
             reset = true;
         }
@@ -177,8 +178,8 @@ impl<D: Display> StyledObject<D> {
         use std::fmt::Write;
         let mut content = String::new();
         write!(content, "{}", self.content).unwrap();
-        screen.stdout.write_string(content);
-        screen.stdout.flush();
+        terminal_output.write_string(content);
+        terminal_output.flush();
 
         if reset {
             colored_terminal.reset();

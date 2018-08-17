@@ -2,7 +2,7 @@
 
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
 use common::commands::unix_command::{NoncanonicalModeCommand, RawModeCommand};
-use {libc, Screen, Stdout};
+use {libc};
 pub use libc::termios;
 
 use std::sync::Arc;
@@ -13,6 +13,8 @@ use std::{fs, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 
 use Crossterm;
+use TerminalOutput;
+use ::input::TerminalInput;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -45,12 +47,11 @@ pub fn terminal_size() -> (u16, u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
-    let mut crossterm = Crossterm::new(&Screen::default());
-    let input = crossterm.input();
+pub fn pos(stdout: Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
+    let input = TerminalInput::new();
 
     let delimiter = b'R';
-    let mut stdin = input.read_until_async(delimiter);
+    let mut stdin = input.read_until_async(delimiter, raw_mode);
 
     // Where is the cursor?
     // Use `ESC [ 6 n`.

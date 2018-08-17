@@ -88,7 +88,7 @@ impl RawModeCommand {
 
 impl RawModeCommand {
     /// Enables raw mode.
-    pub fn enable(&mut self) -> Result<()> {
+    pub fn enable(&self) -> Result<()> {
         let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;

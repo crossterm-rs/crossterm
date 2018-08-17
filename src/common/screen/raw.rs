@@ -15,9 +15,10 @@
 //! With these modes you can easier design the terminal screen.
 
 use super::commands::*;
-use super::{functions, Screen, Stdout};
+use super::{functions};
 
 use std::io::{self, Write};
+
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
 pub struct RawScreen;

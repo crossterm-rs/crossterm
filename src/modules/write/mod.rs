@@ -1,7 +1,5 @@
 //! This module provides a way to work with an handle to an screen on different platforms.
 
-mod stdout;
-
 mod ansi_stdout;
 #[cfg(target_os = "windows")]
 mod winapi_stdout;
@@ -9,8 +7,6 @@ mod winapi_stdout;
 pub use self::ansi_stdout::AnsiStdout;
 #[cfg(target_os = "windows")]
 pub use self::winapi_stdout::WinApiStdout;
-
-pub use self::stdout::Stdout;
 
 use std::any::Any;
 use std::io;
@@ -32,7 +28,4 @@ pub trait IStdout: Send+Sync {
     fn write(&self, buf: &[u8]) -> io::Result<usize>;
     /// Flush the current output.
     fn flush(&self) -> io::Result<()>;
-
-    fn as_any(&self) -> &Any;
-    fn as_any_mut(&mut self) -> &mut Any;
 }

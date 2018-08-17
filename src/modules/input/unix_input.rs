@@ -5,19 +5,19 @@ use std::io::{self, Read, Write};
 use std::sync::{mpsc, Arc};
 use std::thread;
 
-use super::{AsyncReader, ITerminalInput, Stdout};
+use super::{AsyncReader, ITerminalInput};
 use kernel::unix_kernel::terminal::{get_tty, read_char};
 
 pub struct UnixInput;
 
 impl UnixInput {
     pub fn new() -> UnixInput {
-        UnixInput {}
+        UnixInput
     }
 }
 
 impl ITerminalInput for UnixInput {
-    fn read_line(&self, screen_manger: &Arc<Stdout>) -> io::Result<String> {
+    fn read_line(&self, _: bool) -> io::Result<String> {
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
         let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
@@ -25,11 +25,11 @@ impl ITerminalInput for UnixInput {
         Ok(rv)
     }
 
-    fn read_char(&self, screen_manger: &Arc<Stdout>) -> io::Result<char> {
+    fn read_char(&self, _: bool) -> io::Result<char> {
         read_char()
     }
 
-    fn read_async(&self, screen_manger: &Arc<Stdout>) -> AsyncReader {
+    fn read_async(&self, _: bool) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {
@@ -43,7 +43,7 @@ impl ITerminalInput for UnixInput {
         AsyncReader { recv: recv }
     }
 
-    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<Stdout>) -> AsyncReader {
+    fn read_until_async(&self, delimiter: u8, _: bool) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {

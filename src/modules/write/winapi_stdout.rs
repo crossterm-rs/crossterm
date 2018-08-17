@@ -25,14 +25,6 @@ impl IStdout for WinApiStdout {
     fn flush(&self) -> io::Result<()> {
         Ok(())
     }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut Any {
-        self
-    }
 }
 
 impl WinApiStdout {

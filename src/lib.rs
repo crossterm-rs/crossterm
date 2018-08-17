@@ -9,17 +9,17 @@ mod common;
 mod kernel;
 mod modules;
 
-pub use common::screen;
-pub use modules::cursor;
-pub use modules::input;
-pub use modules::write;
-pub use modules::style;
-pub use modules::terminal;
+mod cursor;
+mod input;
+mod terminal_output;
+mod crossterm;
+mod color;
 
-pub use common::screen::Screen;
-pub use common::Crossterm;
-pub use write::Stdout;
-use write::IStdout;
+pub use self::cursor::*;
+pub use self::input::*;
+pub use self::terminal_output::*;
+pub use self::crossterm::*;
+pub use self::color::*;
 
 #[cfg(unix)]
 extern crate libc;

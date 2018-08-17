@@ -1,6 +1,8 @@
 //! This module contains the `object style` that can be applied to an `styled object`.
 
-use super::{Color, Stdout, StyledObject};
+use super::{Color, StyledObject};
+
+
 
 use std::fmt::Display;
 use std::sync::Arc;

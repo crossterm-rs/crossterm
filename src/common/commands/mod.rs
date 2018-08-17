@@ -1,11 +1,10 @@
 //! This module contains some commands that could be executed for specific task.
 
-use super::super::write::Stdout;
 use std::io;
 use std::sync::Mutex;
+use TerminalOutput;
 
 pub mod shared_commands;
-use common::screen::Screen;
 
 #[cfg(not(target_os = "windows"))]
 pub mod unix_command;
@@ -26,12 +25,12 @@ pub trait IEnableAnsiCommand {
 
 // This trait provides an interface for switching to alternate screen and back.
 pub trait IAlternateScreenCommand: Send {
-    fn enable(&self, screen_manager: &mut Stdout) -> io::Result<()>;
-    fn disable(&self, screen_manager: &Stdout) -> io::Result<()>;
+    fn enable(&self, terminal_output: &mut Arc<TerminalOutput>) -> io::Result<()>;
+    fn disable(&self, terminal_output: Arc<TerminalOutput>) -> io::Result<()>;
 }
 
 // This trait provides an interface for switching to raw mode and back.
 pub trait IRawScreenCommand: Send {
-    fn enable(&mut self) -> io::Result<()>;
+    fn enable(&self) -> io::Result<()>;
     fn disable(&self) -> io::Result<()>;
 }
