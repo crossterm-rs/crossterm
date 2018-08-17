@@ -6,7 +6,7 @@ use common::commands::win_commands;
 
 use common::commands::IAlternateScreenCommand;
 
-use super::{AlternateScreen,RawScreen};
+use super::{AlternateScreen, RawScreen};
 use super::super::super::modules::write::Stdout;
 
 use std::io::Write;
@@ -49,22 +49,21 @@ use std::sync::Arc;
 /// }
 /// ```
 ///
-pub struct Screen
-{
+pub struct Screen {
     buffer: Vec<u8>,
     pub stdout: Arc<Stdout>,
 }
 
-impl Screen
-{
+impl Screen {
     /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode. Check out `RawScreen` type for more info.
     /// If you are not sure what raw mode is then pass false or use the `Screen::default()` to create an instance.
-    pub fn new(raw_mode: bool) -> Screen
-    {
-        if raw_mode
-        {
+    pub fn new(raw_mode: bool) -> Screen {
+        if raw_mode {
             RawScreen::into_raw_mode();;
-            return Screen { stdout: Arc::new(Stdout::new(true)), buffer: Vec::new() };
+            return Screen {
+                stdout: Arc::new(Stdout::new(true)),
+                buffer: Vec::new(),
+            };
         }
 
         return Screen::default();
@@ -87,7 +86,7 @@ impl Screen
     /// With these modes you can easier design the terminal screen.
     pub fn enable_raw_modes(&self) -> Result<()> {
         RawScreen::into_raw_mode()?;
-        return Ok(())
+        return Ok(());
     }
 
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
@@ -100,8 +99,7 @@ impl Screen
     pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
         let mut stdout = Stdout::new(raw_mode);
 
-        if raw_mode
-        {
+        if raw_mode {
             RawScreen::into_raw_mode();
         }
 
@@ -110,43 +108,46 @@ impl Screen
     }
 }
 
-impl From<Stdout> for Screen
-{
+impl From<Stdout> for Screen {
     /// Create an screen with the given `Stdout`
     fn from(stdout: Stdout) -> Self {
-        return Screen { stdout: Arc::new(stdout), buffer: Vec::new() };
+        return Screen {
+            stdout: Arc::new(stdout),
+            buffer: Vec::new(),
+        };
     }
 }
 
-impl From<Arc<Stdout>> for Screen
-{
+impl From<Arc<Stdout>> for Screen {
     /// Create an screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<Stdout>) -> Self {
-        return Screen { stdout: stdout, buffer: Vec::new() };
+        return Screen {
+            stdout: stdout,
+            buffer: Vec::new(),
+        };
     }
 }
 
-impl Default for Screen
-{
+impl Default for Screen {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(Stdout::new(false)), buffer: Vec::new() };
+        return Screen {
+            stdout: Arc::new(Stdout::new(false)),
+            buffer: Vec::new(),
+        };
     }
 }
 
-impl Drop for Screen
-{
+impl Drop for Screen {
     /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
-        if self.stdout.is_in_raw_mode
-        {
+        if self.stdout.is_in_raw_mode {
             RawScreen::disable_raw_modes();
         }
     }
 }
 
-impl Write for Screen
-{
+impl Write for Screen {
     /// Write buffer to an internal buffer. When you want to write the buffer to screen use `flush()`.
     ///
     /// This function is useful if you want to build up some output and when you are ready you could flush the output to the screen.

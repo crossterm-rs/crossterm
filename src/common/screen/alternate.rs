@@ -7,25 +7,22 @@
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
 use super::commands::{self, IAlternateScreenCommand};
-use super::{functions, Screen, Stdout, RawScreen};
+use super::{functions, RawScreen, Screen, Stdout};
 
 use std::convert::From;
 use std::io::{self, Write};
 use std::sync::Mutex;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
-pub struct AlternateScreen
-{
+pub struct AlternateScreen {
     command: Box<IAlternateScreenCommand + Send>,
     pub screen: Screen,
 }
 
 impl AlternateScreen {
-
     /// Create new instance of alternate screen.
-    pub fn new(command: Box<IAlternateScreenCommand + Send>, screen: Screen) -> Self
-    {
-        return AlternateScreen { command, screen }
+    pub fn new(command: Box<IAlternateScreenCommand + Send>, screen: Screen) -> Self {
+        return AlternateScreen { command, screen };
     }
 
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
@@ -57,8 +54,7 @@ impl AlternateScreen {
     }
 }
 
-impl Drop for AlternateScreen
-{
+impl Drop for AlternateScreen {
     /// This will switch back to main screen on drop.
     fn drop(&mut self) {
         self.to_main_screen();

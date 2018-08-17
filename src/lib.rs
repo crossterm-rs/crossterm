@@ -18,7 +18,7 @@ pub use modules::terminal;
 
 pub use common::screen::Screen;
 pub use common::Crossterm;
-pub use write::{Stdout};
+pub use write::Stdout;
 use write::IStdout;
 
 #[cfg(unix)]

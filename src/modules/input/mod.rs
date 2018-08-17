@@ -16,7 +16,7 @@ use self::windows_input::WindowsInput;
 pub use self::input::{input, TerminalInput};
 use super::Stdout;
 
-use std::io::{self, Read, Error, ErrorKind};
+use std::io::{self, Error, ErrorKind, Read};
 use std::sync::{mpsc, Arc};
 use Screen;
 
@@ -64,9 +64,8 @@ impl Read for AsyncReader {
                 Some(Ok(value)) => {
                     buf[total] = value;
                     total += 1;
-                },
+                }
                 _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
-
             }
         }
 

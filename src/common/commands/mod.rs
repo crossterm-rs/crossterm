@@ -31,7 +31,7 @@ pub trait IAlternateScreenCommand: Send {
 }
 
 // This trait provides an interface for switching to raw mode and back.
-pub trait IRawScreenCommand: Send{
+pub trait IRawScreenCommand: Send {
     fn enable(&mut self) -> io::Result<()>;
     fn disable(&self) -> io::Result<()>;
 }

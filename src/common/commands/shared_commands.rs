@@ -3,7 +3,7 @@
 use super::{IAlternateScreenCommand, Stdout};
 
 use std::sync::Mutex;
-use std::io::{ Result, stdout, Write};
+use std::io::{stdout, Result, Write};
 
 /// This command is used for switching to alternate screen and back to main screen.
 pub struct ToAlternateScreenCommand;
@@ -15,7 +15,6 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-
     /// enable alternate screen.
     fn enable(&self, screen_manager: &mut Stdout) -> Result<()> {
         screen_manager.write_str(csi!("?1049h"));

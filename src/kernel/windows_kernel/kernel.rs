@@ -1,9 +1,8 @@
 //! This module contains some basic winapi calls.
 
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
-use winapi::um::wincon::{
-    GetLargestConsoleWindowSize, SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, SMALL_RECT,
-};
+use winapi::um::wincon::{GetLargestConsoleWindowSize, SetConsoleTextAttribute,
+                         SetConsoleWindowInfo, COORD, SMALL_RECT};
 use winapi::um::winnt::HANDLE;
 
 use super::super::super::modules::Stdout;

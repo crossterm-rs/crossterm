@@ -35,23 +35,26 @@ use std::sync::Arc;
 ///
 /// For unix and windows 10 `stdout()` will be used for handle when on windows systems with versions lower than 10 WinApi `HANDLE` will be used.
 pub struct Stdout {
-    screen_manager: Box<IStdout + Send>,
-    pub is_in_raw_mode:bool,
+    screen_manager: Box<IStdout + Send + Sync>,
+    pub is_in_raw_mode: bool,
 }
 
 impl Stdout {
     /// Create new screen write instance whereon screen related actions can be performed.
     pub fn new(is_in_raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IStdout + Send>>(
+        let screen_manager = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send>;
+        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
-        Stdout { screen_manager , is_in_raw_mode}
+        Stdout {
+            screen_manager,
+            is_in_raw_mode,
+        }
     }
 
     /// Write String to the current screen.
@@ -82,19 +85,21 @@ impl Stdout {
     }
 }
 
-impl Default for Stdout
-{
+impl Default for Stdout {
     /// Get the default handle to the current screen.
     fn default() -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IStdout + Send>>(
+        let screen_manager = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send>;
+        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
-        Stdout { screen_manager , is_in_raw_mode: false}
+        Stdout {
+            screen_manager,
+            is_in_raw_mode: false,
+        }
     }
 }

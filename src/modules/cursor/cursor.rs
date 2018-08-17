@@ -24,7 +24,7 @@ use std::sync::Arc;
 ///
 /// // Get cursor and goto pos X: 5, Y: 10
 /// cursor.goto(5,10);
-/// 
+///
 /// cursor.show();
 /// cursor.hide();
 /// cursor.blink(true);
@@ -47,8 +47,8 @@ impl<'stdout> TerminalCursor<'stdout> {
         let cursor = AnsiCursor::new() as Box<ITerminalCursor>;
 
         TerminalCursor {
-            terminal_cursor: cursor,
             screen: screen,
+            terminal_cursor: cursor,
         }
     }
 

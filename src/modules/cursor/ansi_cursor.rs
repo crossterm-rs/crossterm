@@ -6,7 +6,6 @@ use super::{functions, ITerminalCursor, Stdout};
 
 use std::sync::Arc;
 
-
 /// This struct is an ansi implementation for cursor related actions.
 pub struct AnsiCursor;
 

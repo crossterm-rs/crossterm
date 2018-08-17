@@ -3,10 +3,9 @@
 use winapi::shared::minwindef::{FALSE, TRUE};
 use winapi::shared::ntdef::NULL;
 use winapi::um::minwinbase::SECURITY_ATTRIBUTES;
-use winapi::um::wincon::{
-    CreateConsoleScreenBuffer, GetConsoleScreenBufferInfo, SetConsoleActiveScreenBuffer,
-    SetConsoleScreenBufferSize, CONSOLE_SCREEN_BUFFER_INFO, CONSOLE_TEXTMODE_BUFFER, COORD,
-};
+use winapi::um::wincon::{CreateConsoleScreenBuffer, GetConsoleScreenBufferInfo,
+                         SetConsoleActiveScreenBuffer, SetConsoleScreenBufferSize,
+                         CONSOLE_SCREEN_BUFFER_INFO, CONSOLE_TEXTMODE_BUFFER, COORD};
 use winapi::um::winnt::HANDLE;
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 

@@ -1,4 +1,4 @@
-use super::commands::{IAlternateScreenCommand};
+use super::commands::IAlternateScreenCommand;
 
 use super::screen::{AlternateScreen, Screen};
 
@@ -6,7 +6,7 @@ use super::super::cursor;
 use super::super::input;
 use super::super::write;
 use super::super::style;
- use super::super::terminal;
+use super::super::terminal;
 
 use std::fmt::Display;
 use std::io::Write;
@@ -50,13 +50,16 @@ use write::Stdout;
 /// }
 /// ```
 pub struct Crossterm {
-    stdout: Arc<Stdout>
+    stdout: Arc<Stdout>,
 }
 
 impl<'crossterm> Crossterm {
     /// Create a new instance of `Crossterm`
     pub fn new(screen: &Screen) -> Crossterm {
-        Crossterm { stdout: screen.stdout.clone() }
+        Crossterm {
+            //stdout: screen.stdout.clone(),
+            stdout: screen.stdout.clone(),
+        }
     }
 
     /// Get an `TerminalCursor` implementation whereon cursor related actions can be performed.
@@ -95,9 +98,9 @@ impl<'crossterm> Crossterm {
     /// let crossterm = Crossterm::new(&Screen::default());
     /// let mut terminal = crossterm.terminal();
     /// ```
-     pub fn terminal(&self) -> terminal::Terminal {
-         return terminal::Terminal::new(&self.stdout);
-     }
+    pub fn terminal(&self) -> terminal::Terminal {
+        return terminal::Terminal::new(&self.stdout);
+    }
 
     /// Get an `TerminalColor` implementation whereon color related actions can be performed.
     ///
@@ -133,7 +136,8 @@ impl<'crossterm> Crossterm {
     /// ```
     pub fn style<D>(&self, val: D) -> style::StyledObject<D>
     where
-        D: Display,    {
+        D: Display,
+    {
         style::ObjectStyle::new().apply_to(val)
     }
 }

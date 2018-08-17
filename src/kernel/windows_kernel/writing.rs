@@ -3,10 +3,8 @@
 use winapi::ctypes::c_void;
 use winapi::shared::ntdef::NULL;
 use winapi::um::consoleapi::WriteConsoleW;
-use winapi::um::wincon::{
-    self, FillConsoleOutputAttribute, FillConsoleOutputCharacterA, WriteConsoleOutputA, CHAR_INFO,
-    COORD, PSMALL_RECT,
-};
+use winapi::um::wincon::{self, FillConsoleOutputAttribute, FillConsoleOutputCharacterA,
+                         WriteConsoleOutputA, CHAR_INFO, COORD, PSMALL_RECT};
 use winapi::um::winnt::HANDLE;
 
 use super::{csbi, handle, kernel, Stdout};

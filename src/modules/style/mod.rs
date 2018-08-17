@@ -17,7 +17,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::fmt::Display;
 
-pub use self::color::{TerminalColor, color};
+pub use self::color::{color, TerminalColor};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 use super::{functions, Stdout};
@@ -62,9 +62,10 @@ trait ITerminalColor {
 /// }
 /// ```
 pub fn style<D>(val: D) -> StyledObject<D>
-    where
-        D: Display,    {
-            ObjectStyle::new().apply_to(val)
+where
+    D: Display,
+{
+    ObjectStyle::new().apply_to(val)
 }
 
 /// Attributes that could be applied on some text.
