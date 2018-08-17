@@ -44,6 +44,4 @@ trait ITerminal: Send+Sync {
     fn scroll_down(&self, count: i16, screen_manager: &Arc<TerminalOutput>);
     /// Resize terminal to the given width and height.
     fn set_size(&self, width: i16, height: i16, screen_manager: &Arc<TerminalOutput>);
-    /// Close the current terminal
-    fn exit(&self, screen_manager: &Arc<TerminalOutput>);
 }

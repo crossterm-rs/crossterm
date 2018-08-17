@@ -7,9 +7,9 @@ mod ansi_color;
 #[cfg(target_os = "windows")]
 mod winapi_color;
 
-use self::ansi_color::AnsiColor;
+pub use self::ansi_color::AnsiColor;
 #[cfg(target_os = "windows")]
-use self::winapi_color::WinApiColor;
+pub use self::winapi_color::WinApiColor;
 
 use std::convert::From;
 use std::str::FromStr;
@@ -30,7 +30,7 @@ use TerminalOutput;
 ///
 /// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 /// so that color related actions can be preformed on both unix and windows systems.
-trait ITerminalColor {
+pub trait ITerminalColor {
     /// Set the foreground color to the given color.
     fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>);
     /// Set the background color to the given color.

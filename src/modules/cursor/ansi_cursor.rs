@@ -21,7 +21,7 @@ impl ITerminalCursor for AnsiCursor {
         screen_manager.write_string(format!(csi!("{};{}H"), y + 1, x + 1));
     }
 
-    fn pos(&self, stdout: Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
+    fn pos(&self, stdout: &Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
         functions::get_cursor_position(stdout, raw_mode)
     }
 

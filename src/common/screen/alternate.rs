@@ -15,7 +15,7 @@ use std::convert::From;
 use std::io::{self, Write};
 use std::sync::Mutex;
 
-type AlternateScreen = Box<IAlternateScreenCommand + Send>;
+pub type AlternateScreen = Box<IAlternateScreenCommand + Send>;
 
 pub fn alternate_screen() -> AlternateScreen {
     #[cfg(target_os = "windows")]

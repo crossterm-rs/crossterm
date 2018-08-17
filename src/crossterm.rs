@@ -9,6 +9,11 @@ use std::sync::Arc;
 use TerminalOutput;
 use std::collections::HashMap;
 
+use std::hash::Hash;
+
+use common::screen::alternate::to_main_screen;
+use terminal_output::terminal_output;
+
 #[cfg(not(windows))]
 use common::commands::unix_command;
 
@@ -42,16 +47,16 @@ use common::commands::win_commands;
 ///    let cursor = crossterm.cursor();
 /// }
 /// ```
-pub struct Crossterm<I: PartialEq, Hash> {
+pub struct Crossterm<I: Hash> {
     pub main_output: Arc<TerminalOutput>,
     pub alternate_screens: HashMap<I, Arc<TerminalOutput>>,
     pub current_output: Arc<TerminalOutput>,
     pub raw_mode: bool,
 }
 
-impl<I: PartialEq + Hash> Crossterm<I> {
+impl<I: Hash> Crossterm<I> {
     /// Create a new instance of `Crossterm`
-    pub fn new() -> Crossterm {
+    pub fn new() -> Self {
         let main = Arc::new(terminal_output());
         Crossterm {
             main_output: main.clone(),
@@ -92,13 +97,13 @@ impl<I: PartialEq + Hash> Crossterm<I> {
     }
 }
 
-impl<I> Default for Crossterm<I> {
+impl<I: Hash> Default for Crossterm<I> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<I> Drop for Crossterm<I> {
+impl<I: Hash> Drop for Crossterm<I> {
     /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
         if self.raw_mode {

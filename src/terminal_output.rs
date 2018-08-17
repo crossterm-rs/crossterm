@@ -21,6 +21,8 @@
 use super::*;
 use ::input::TerminalInput;
 
+use modules::write::IStdout;
+
 use std::any::Any;
 use std::fmt::Display;
 use std::io::{self, Write};

@@ -1,7 +1,7 @@
 //! This module provides some modules to work with the terminal screen. Like raw and alternate screen.
 
-mod alternate;
-mod raw;
+pub mod alternate;
+pub mod raw;
 
 use super::{commands, functions};
 

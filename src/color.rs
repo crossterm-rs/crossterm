@@ -4,6 +4,7 @@
 use super::*;
 use std::io;
 
+use modules::style::ITerminalColor;
 /// Struct that stores an specific platform implementation for color related actions.
 ///
 /// Check `/examples/color` in the library for more specific examples.
@@ -23,7 +24,7 @@ use std::io;
 /// colored_terminal.reset();
 /// ```
 
-pub type TerminalColor = Box<IterminalColor + Send + Sync>;
+pub type TerminalColor = Box<ITerminalColor + Send + Sync>;
 
 pub fn color() -> TerminalColor {
     #[cfg(target_os = "windows")]

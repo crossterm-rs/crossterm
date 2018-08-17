@@ -4,7 +4,7 @@ use super::{IAlternateScreenCommand};
 
 use TerminalOutput;
 
-use std::sync::Mutex;
+use std::sync::Arc;
 use std::io::{stdout, Result, Write};
 
 /// This command is used for switching to alternate screen and back to main screen.
