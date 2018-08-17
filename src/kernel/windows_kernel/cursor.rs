@@ -1,9 +1,8 @@
 //! This module handles some logic for cursor interaction in the windows console.
 
 use winapi::shared::minwindef::{FALSE, TRUE};
-use winapi::um::wincon::{
-    SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD,
-};
+use winapi::um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO,
+                         COORD};
 
 use super::super::super::modules::write::{Stdout, WinApiStdout};
 use super::{csbi, handle, kernel};

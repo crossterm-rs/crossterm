@@ -1,8 +1,8 @@
 //! This module contains all `unix` specific terminal related logic.
 
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use common::commands::unix_command::{RawModeCommand, NoncanonicalModeCommand};
-use {libc, Stdout, Screen};
+use common::commands::unix_command::{NoncanonicalModeCommand, RawModeCommand};
+use {libc};
 pub use libc::termios;
 
 use std::sync::Arc;
@@ -13,6 +13,8 @@ use std::{fs, mem};
 use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
 
 use Crossterm;
+use TerminalOutput;
+use ::input::TerminalInput;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -45,12 +47,11 @@ pub fn terminal_size() -> (u16, u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
-    let mut crossterm = Crossterm::new();
-    let input = crossterm.input(&Screen::default());
+pub fn pos(stdout: Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
+    let input = TerminalInput::new();
 
     let delimiter = b'R';
-    let mut stdin = input.read_until_async(delimiter);
+    let mut stdin = input.read_until_async(delimiter, raw_mode);
 
     // Where is the cursor?
     // Use `ESC [ 6 n`.
@@ -113,18 +114,15 @@ pub fn get_terminal_mode() -> io::Result<Termios> {
         pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
     }
     unsafe {
-        if let Some(original_mode) = ORIGINAL_TERMINAL_MODE
-        {
-            return Ok(original_mode.clone())
-        }
-        else {
+        if let Some(original_mode) = ORIGINAL_TERMINAL_MODE {
+            return Ok(original_mode.clone());
+        } else {
             let mut termios = mem::zeroed();
             is_true(tcgetattr(0, &mut termios))?;
             ORIGINAL_TERMINAL_MODE = Some(termios.clone());
 
-            return Ok(termios)
+            return Ok(termios);
         }
-
     }
 }
 

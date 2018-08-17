@@ -76,8 +76,7 @@ pub struct RawModeCommand {
     mask: DWORD,
 }
 
-impl RawModeCommand
-{
+impl RawModeCommand {
     pub fn new() -> Self {
         use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
 
@@ -89,7 +88,7 @@ impl RawModeCommand
 
 impl RawModeCommand {
     /// Enables raw mode.
-    pub fn enable(&mut self) -> Result<()> {
+    pub fn enable(&self) -> Result<()> {
         let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
@@ -147,7 +146,7 @@ impl ToAlternateScreenCommand {
     }
 }
 
-impl IAlternateScreenCommand  for ToAlternateScreenCommand {
+impl IAlternateScreenCommand for ToAlternateScreenCommand {
     fn enable(&self, screen_manager: &mut Stdout) -> Result<()> {
         use super::super::super::modules::write::WinApiStdout;
 
@@ -159,9 +158,7 @@ impl IAlternateScreenCommand  for ToAlternateScreenCommand {
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle)?;
 
-        let b: &mut WinApiStdout = match screen_manager
-            .as_any_mut()
-            .downcast_mut::<WinApiStdout>()
+        let b: &mut WinApiStdout = match screen_manager.as_any_mut().downcast_mut::<WinApiStdout>()
         {
             Some(b) => b,
             None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),

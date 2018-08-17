@@ -6,8 +6,8 @@ use super::IStdout;
 
 use std::any::Any;
 use std::cell::RefCell;
-use std::sync::{Arc,Mutex};
-use std::io::{self, Read, Write,Stdout, stdout};
+use std::sync::{Arc, Mutex};
+use std::io::{self, stdout, Read, Stdout, Write};
 use std::str::from_utf8;
 
 /// This struct is a wrapper for `Stdout`
@@ -16,11 +16,11 @@ pub struct AnsiStdout {
 }
 
 impl IStdout for AnsiStdout {
-   fn write_str(&self, string: &str) -> io::Result<usize> {
-       let out = &self.handle;
-       let mut handle = out.lock();
+    fn write_str(&self, string: &str) -> io::Result<usize> {
+        let out = &self.handle;
+        let mut handle = out.lock();
         write!(handle, "{}", string)?;
-       handle.flush();
+        handle.flush();
         Ok(0)
     }
 
@@ -36,14 +36,6 @@ impl IStdout for AnsiStdout {
         let mut handle = out.lock();
         handle.flush();
         Ok(())
-    }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut Any {
-        self
     }
 }
 

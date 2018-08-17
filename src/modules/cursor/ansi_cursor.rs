@@ -2,10 +2,10 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
 
-use super::{functions, ITerminalCursor, Stdout};
+use super::{functions, ITerminalCursor};
+use TerminalOutput;
 
 use std::sync::Arc;
-
 
 /// This struct is an ansi implementation for cursor related actions.
 pub struct AnsiCursor;
@@ -17,47 +17,47 @@ impl AnsiCursor {
 }
 
 impl ITerminalCursor for AnsiCursor {
-    fn goto(&self, x: u16, y: u16, screen_manager: &Arc<Stdout>) {
+    fn goto(&self, x: u16, y: u16, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_string(format!(csi!("{};{}H"), y + 1, x + 1));
     }
 
-    fn pos(&self, screen_manager: &Arc<Stdout>) -> (u16, u16) {
-        functions::get_cursor_position(screen_manager)
+    fn pos(&self, stdout: &Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
+        functions::get_cursor_position(stdout, raw_mode)
     }
 
-    fn move_up(&self, count: u16, screen_manager: &Arc<Stdout>) {
+    fn move_up(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_string(format!(csi!("{}A"), count));
     }
 
-    fn move_right(&self, count: u16, screen_manager: &Arc<Stdout>) {
+    fn move_right(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_string(format!(csi!("{}C"), count));
     }
 
-    fn move_down(&self, count: u16, screen_manager: &Arc<Stdout>) {
+    fn move_down(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_string(format!(csi!("{}B"), count));
     }
 
-    fn move_left(&self, count: u16, screen_manager: &Arc<Stdout>) {
+    fn move_left(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_string(format!(csi!("{}D"), count));
     }
 
-    fn save_position(&self, screen_manager: &Arc<Stdout>) {
+    fn save_position(&self, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_str(csi!("s"));
     }
 
-    fn reset_position(&self, screen_manager: &Arc<Stdout>) {
+    fn reset_position(&self, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_str(csi!("u"));
     }
 
-    fn hide(&self, screen_manager: &Arc<Stdout>) {
+    fn hide(&self, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_str(csi!("?25l"));
     }
 
-    fn show(&self, screen_manager: &Arc<Stdout>) {
+    fn show(&self, screen_manager: &Arc<TerminalOutput>) {
         screen_manager.write_str(csi!("?25h"));
     }
 
-    fn blink(&self, blink: bool, screen_manager: &Arc<Stdout>) {
+    fn blink(&self, blink: bool, screen_manager: &Arc<TerminalOutput>) {
         if blink {
             screen_manager.write_str(csi!("?12h"));
         } else {

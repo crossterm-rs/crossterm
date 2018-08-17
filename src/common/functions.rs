@@ -1,6 +1,5 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use super::Stdout;
 use std::sync::Arc;
 
 #[cfg(windows)]
@@ -17,28 +16,16 @@ use kernel::unix_kernel::terminal::{exit, pos, terminal_size};
 
 /// Get the terminal size based on the current platform.
 pub fn get_terminal_size() -> (u16, u16) {
-    #[cfg(unix)]
-    return terminal_size();
-
-    #[cfg(windows)]
     return terminal_size();
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(stdout: &Arc<Stdout>) -> (u16, u16) {
-    #[cfg(unix)]
-    return pos(stdout);
-
-    #[cfg(windows)]
-    return pos(stdout);
+pub fn get_cursor_position(stdout: Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16) {
+    return pos(stdout, raw_mode);
 }
 
 /// exit the current terminal.
 pub fn exit_terminal() {
-    #[cfg(unix)]
-    exit();
-
-    #[cfg(windows)]
     exit();
 }
 
@@ -50,17 +37,16 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut term: Option<T> = None;
     let mut does_support = true;
 
-    if !windows_supportable()
-        {
-            // Try to enable ansi on windows if not than use WINAPI.
-            does_support = try_enable_ansi_support();
+    if !windows_supportable() {
+        // Try to enable ansi on windows if not than use WINAPI.
+        does_support = try_enable_ansi_support();
 
-            // uncomment this line when you want to use the winapi implementation.
-            does_support = false;
-            if !does_support {
-                term = Some(winapi_impl);
-            }
+        // uncomment this line when you want to use the winapi implementation.
+        does_support = false;
+        if !does_support {
+            term = Some(winapi_impl);
         }
+    }
 
     if does_support {
         term = Some(unix_impl);

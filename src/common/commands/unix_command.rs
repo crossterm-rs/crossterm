@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for unix systems.
 
-use super::{ IStateCommand, IRawScreenCommand};
+use super::{IRawScreenCommand, IStateCommand};
 use kernel::unix_kernel::terminal;
 use termios::{tcsetattr, Termios, CREAD, ECHO, ICANON, TCSAFLUSH};
 
@@ -19,7 +19,7 @@ impl NoncanonicalModeCommand {
 }
 
 impl NoncanonicalModeCommand {
-    pub fn enable(&mut self) -> Result<()> {
+    pub fn enable(&self) -> Result<()> {
         // Set noncanonical mode
         if let Ok(orig) = Termios::from_fd(FD_STDIN) {
             let mut noncan = orig.clone();
@@ -60,8 +60,7 @@ pub struct RawModeCommand {
     original_mode: Result<Termios>,
 }
 
-impl RawModeCommand
-{
+impl RawModeCommand {
     pub fn new() -> Self {
         RawModeCommand {
             original_mode: terminal::get_terminal_mode(),
@@ -71,7 +70,7 @@ impl RawModeCommand
 
 impl RawModeCommand {
     /// Enables raw mode.
-    pub fn enable(&mut self) -> Result<()> {
+    pub fn enable(&self) -> Result<()> {
         if let Ok(original_mode) = self.original_mode {
             let mut new_mode = original_mode;
             terminal::make_raw(&mut new_mode);
@@ -88,7 +87,6 @@ impl RawModeCommand {
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
         if let Ok(ref original_mode) = self.original_mode {
-
             let result = terminal::set_terminal_mode(&original_mode)?;
         } else {
             return Err(Error::new(

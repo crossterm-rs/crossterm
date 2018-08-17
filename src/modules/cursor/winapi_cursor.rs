@@ -9,7 +9,6 @@ use kernel::windows_kernel::{cursor, kernel};
 
 use std::sync::Arc;
 
-
 /// This struct is an windows implementation for cursor related actions.
 pub struct WinApiCursor;
 

@@ -21,7 +21,6 @@ pub fn get_current_handle(screen_manager: &Arc<Stdout>) -> Result<HANDLE> {
             None => return Err(io::Error::new(io::ErrorKind::Other,"Could not convert to winapi screen write, this could happen when the user has an ANSI screen write and is calling the platform specific operations 'get_cursor_pos' or 'get_terminal_size'"))
         };
 
-
     handle = Ok(*winapi_screen_manager.get_handle());
 
     return handle;

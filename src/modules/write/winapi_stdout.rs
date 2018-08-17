@@ -14,7 +14,6 @@ pub struct WinApiStdout {
 }
 
 impl IStdout for WinApiStdout {
-
     fn write_str(&self, string: &str) -> io::Result<usize> {
         self.write(string.as_bytes())
     }
@@ -26,31 +25,22 @@ impl IStdout for WinApiStdout {
     fn flush(&self) -> io::Result<()> {
         Ok(())
     }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut Any {
-        self
-    }
 }
 
 impl WinApiStdout {
     pub fn new() -> Self {
-        WinApiStdout { handle: handle::get_output_handle().unwrap() }
+        WinApiStdout {
+            handle: handle::get_output_handle().unwrap(),
+        }
     }
 
-    pub fn set(&mut self, handle: HANDLE)
-    {
+    pub fn set(&mut self, handle: HANDLE) {
         self.handle = handle;
     }
 
-    pub fn get_handle(&self) -> &HANDLE
-    {
+    pub fn get_handle(&self) -> &HANDLE {
         return &self.handle;
     }
 }
 
 unsafe impl Send for WinApiStdout {}
-

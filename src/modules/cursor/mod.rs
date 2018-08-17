@@ -1,18 +1,16 @@
 //! With this module you can perform actions that are cursor related.
 //! Like moving the cursor position;saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
-mod cursor;
-
 mod ansi_cursor;
 #[cfg(target_os = "windows")]
 mod winapi_cursor;
 
-use self::ansi_cursor::AnsiCursor;
+pub use self::ansi_cursor::AnsiCursor;
 #[cfg(target_os = "windows")]
-use self::winapi_cursor::WinApiCursor;
+pub use self::winapi_cursor::WinApiCursor;
 
-pub use self::cursor::{cursor, TerminalCursor};
-use super::{functions, Stdout, Screen};
+use super::{functions};
+use TerminalOutput;
 
 use std::sync::Arc;
 
@@ -24,27 +22,27 @@ use std::sync::Arc;
 ///!
 ///! This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 ///! so that cursor related actions can be preformed on both unix and windows systems.
-trait ITerminalCursor {
+trait ITerminalCursor: Send+Sync {
     /// Goto some location (x,y) in the context.
-    fn goto(&self, x: u16, y: u16, screen_manager: &Arc<Stdout>);
+    fn goto(&self, x: u16, y: u16, terminal_output: &Arc<TerminalOutput>);
     /// Get the location (x,y) of the current cusror in the context
-    fn pos(&self, screen_manager: &Arc<Stdout>) -> (u16, u16);
+    fn pos(&self, terminal_output: &Arc<TerminalOutput>, raw_mode: bool) -> (u16, u16);
     /// Move cursor n times up
-    fn move_up(&self, count: u16, screen_manager: &Arc<Stdout>);
+    fn move_up(&self, count: u16, terminal_output: &Arc<TerminalOutput>);
     /// Move the cursor `n` times to the right.
-    fn move_right(&self, count: u16, screen_manager: &Arc<Stdout>);
+    fn move_right(&self, count: u16, terminal_output: &Arc<TerminalOutput>);
     /// Move the cursor `n` times down.
-    fn move_down(&self, count: u16, screen_manager: &Arc<Stdout>);
+    fn move_down(&self, count: u16, terminal_output: &Arc<TerminalOutput>);
     /// Move the cursor `n` times left.
-    fn move_left(&self, count: u16, screen_manager: &Arc<Stdout>);
+    fn move_left(&self, count: u16, terminal_output: &Arc<TerminalOutput>);
     /// Save cursor position so that its saved position can be recalled later. Note that this position is stored program based not per instance of the cursor struct.
-    fn save_position(&self, screen_manager: &Arc<Stdout>);
+    fn save_position(&self, terminal_output: &Arc<TerminalOutput>);
     /// Return to saved cursor position
-    fn reset_position(&self, screen_manager: &Arc<Stdout>);
+    fn reset_position(&self, terminal_output: &Arc<TerminalOutput>);
     /// Hide the terminal cursor.
-    fn hide(&self, screen_manager: &Arc<Stdout>);
+    fn hide(&self, terminal_output: &Arc<TerminalOutput>);
     /// Show the terminal cursor
-    fn show(&self, screen_manager: &Arc<Stdout>);
+    fn show(&self, terminal_output: &Arc<TerminalOutput>);
     /// Enable or disable the blinking of the cursor.
-    fn blink(&self, blink: bool, screen_manager: &Arc<Stdout>);
+    fn blink(&self, blink: bool, terminal_output: &Arc<TerminalOutput>);
 }

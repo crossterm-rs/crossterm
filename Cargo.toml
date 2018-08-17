@@ -38,3 +38,7 @@ path = "examples/program_examples/logging.rs"
 [[example]]
 name = "duplex"
 path = "examples/program_examples/duplex.rs"
+
+[[example]]
+name = "all"
+path = "examples/all.rs"
