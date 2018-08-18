@@ -46,8 +46,8 @@ pub fn terminal_size() -> (u16, u16) {
 
 /// Get the current cursor position.
 pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
-    let mut crossterm = Crossterm::new();
-    let input = crossterm.input(&Screen::default());
+    let mut crossterm = Crossterm::new(&Screen::default());
+    let input = crossterm.input();
 
     let delimiter = b'R';
     let mut stdin = input.read_until_async(delimiter);
