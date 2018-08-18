@@ -22,7 +22,7 @@ pub fn get_current_handle(screen_manager: &Arc<Stdout>) -> Result<HANDLE> {
         };
 
 
-    handle = Ok(*winapi_screen_manager.get_handle());
+    handle = Ok(winapi_screen_manager.get_handle());
 
     return handle;
 }

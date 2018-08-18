@@ -10,7 +10,7 @@ use std::sync::{Mutex,Arc, };
 
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiStdout {
-    pub handle: Arc<Mutex<HANDLE>>,
+    pub handle: Mutex<HANDLE>,
 }
 
 impl IStdout for WinApiStdout {
@@ -38,19 +38,21 @@ impl IStdout for WinApiStdout {
 
 impl WinApiStdout {
     pub fn new() -> Self {
-        WinApiStdout { handle: Arc::new(Mutex::new(handle::get_output_handle().unwrap())) }
+        WinApiStdout { handle: Mutex::new(handle::get_output_handle().unwrap()) }
     }
 
     pub fn set(&mut self, handle: HANDLE)
     {
-        self.handle = Arc::new(Mutex::new(handle));
+        self.handle = Mutex::new(handle);
     }
 
-    pub fn get_handle(&self) -> &Arc<Mutex<HANDLE>>
+    pub fn get_handle(&self) -> HANDLE
     {
-        return &self.handle;
+        let gx = self.handle.lock();
+        gx.unwrap().clone()
     }
 }
 
 unsafe impl Send for WinApiStdout {}
+
 unsafe impl Sync for WinApiStdout {}

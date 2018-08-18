@@ -43,7 +43,7 @@ impl Stdout {
     /// Create new screen write instance whereon screen related actions can be performed.
     pub fn new(is_in_raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IStdout + Send + Sync>>(
+        let screen_manager: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
@@ -87,13 +87,13 @@ impl Default for Stdout
     /// Get the default handle to the current screen.
     fn default() -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IStdout + Send>>(
+        let screen_manager = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send>;
+        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
         Stdout { screen_manager , is_in_raw_mode: false}
     }
