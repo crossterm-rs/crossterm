@@ -6,11 +6,11 @@ use winapi::um::winnt::HANDLE;
 use std::ptr::NonNull;
 use std::any::Any;
 use std::io::{self, Write};
-use std::sync::Arc;
+use std::sync::{Mutex,Arc, };
 
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiStdout {
-    pub handle: HANDLE,
+    pub handle: Arc<Mutex<HANDLE>>,
 }
 
 impl IStdout for WinApiStdout {
@@ -20,7 +20,7 @@ impl IStdout for WinApiStdout {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        writing::write_char_buffer(&self.handle, buf)
+        writing::write_char_buffer(&self.handle.lock().unwrap(), buf)
     }
 
     fn flush(&self) -> io::Result<()> {
@@ -38,19 +38,19 @@ impl IStdout for WinApiStdout {
 
 impl WinApiStdout {
     pub fn new() -> Self {
-        WinApiStdout { handle: handle::get_output_handle().unwrap() }
+        WinApiStdout { handle: Arc::new(Mutex::new(handle::get_output_handle().unwrap())) }
     }
 
     pub fn set(&mut self, handle: HANDLE)
     {
-        self.handle = handle;
+        self.handle = Arc::new(Mutex::new(handle));
     }
 
-    pub fn get_handle(&self) -> &HANDLE
+    pub fn get_handle(&self) -> &Arc<Mutex<HANDLE>>
     {
         return &self.handle;
     }
 }
 
 unsafe impl Send for WinApiStdout {}
-
+unsafe impl Sync for WinApiStdout {}

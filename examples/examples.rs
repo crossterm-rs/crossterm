@@ -17,10 +17,26 @@ mod input;
 
 use crossterm::{Screen, Crossterm};
 use std::{time, thread};
+use std::sync::mpsc;
 use crossterm::cursor::cursor;
 
 fn main() {
+    let nthreads = 5;
+    let (tx, rx) = mpsc::channel();
 
-    thread::sleep(time::Duration::from_millis(2000));
+
+    for i in 0..nthreads {
+        let tx = tx.clone();
+        thread::spawn(move || {
+            let response = Crossterm::new(&Screen::default());
+            tx.send(response).unwrap();
+        });
+    }
+
+    for _ in 0..nthreads {
+        let screen: Crossterm = rx.recv().unwrap();
+        screen.terminal();
+
+    }
 
 }
