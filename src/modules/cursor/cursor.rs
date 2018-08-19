@@ -6,9 +6,6 @@
 use super::*;
 use Screen;
 
-use std::fmt::Display;
-use std::io::Write;
-
 /// Struct that stores an specific platform implementation for cursor related actions.
 ///
 /// Check `/examples/cursor` in the library for more specific examples.

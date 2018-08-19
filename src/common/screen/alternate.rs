@@ -7,11 +7,10 @@
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
 use super::commands::{self, IAlternateScreenCommand};
-use super::{functions, Screen, TerminalOutput, RawScreen};
+use super::{functions, Screen, TerminalOutput};
 
+use std::io;
 use std::convert::From;
-use std::io::{self, Write};
-use std::sync::Mutex;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
 pub struct AlternateScreen

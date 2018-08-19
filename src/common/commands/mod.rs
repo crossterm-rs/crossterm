@@ -2,10 +2,8 @@
 
 use super::super::output::TerminalOutput;
 use std::io;
-use std::sync::Mutex;
 
 pub mod shared_commands;
-use common::screen::Screen;
 
 #[cfg(not(target_os = "windows"))]
 pub mod unix_command;
@@ -26,8 +24,8 @@ pub trait IEnableAnsiCommand {
 
 // This trait provides an interface for switching to alternate screen and back.
 pub trait IAlternateScreenCommand: Send {
-    fn enable(&self, screen_manager: &mut TerminalOutput) -> io::Result<()>;
-    fn disable(&self, screen_manager: &TerminalOutput) -> io::Result<()>;
+    fn enable(&self, stdout: &mut TerminalOutput) -> io::Result<()>;
+    fn disable(&self, stdout: &TerminalOutput) -> io::Result<()>;
 }
 
 // This trait provides an interface for switching to raw mode and back.

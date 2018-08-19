@@ -1,16 +1,12 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
 
-use super::{Color, ObjectStyle, TerminalOutput};
+use super::{Color, ObjectStyle};
 use Screen;
 
-use std::fmt::{self, Display};
-use std::io::Write;
+use std::fmt::Display;
 
 #[cfg(unix)]
 use super::Attribute;
-
-#[cfg(windows)]
-use super::super::super::output::WinApiOutput;
 
 /// Struct that contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {
@@ -154,7 +150,7 @@ impl<D: Display> StyledObject<D> {
     /// ```
     pub fn paint(&self, screen: &Screen)
     {
-        let mut colored_terminal = super::super::super::style::color::color(&screen);
+        let colored_terminal = ::color(&screen);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {

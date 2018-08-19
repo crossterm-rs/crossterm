@@ -3,7 +3,6 @@
 use super::*;
 
 use winapi::um::winnt::INT;
-use winapi::um::winuser;
 
 use std::char;
 use std::thread;
@@ -129,7 +128,7 @@ impl ITerminalInput for WindowsInput {
                     }
                 } as u8;
 
-                let end_of_stream = (pressed_char == delimiter);
+                let end_of_stream = pressed_char == delimiter;
 
                 // we could return error but maybe option to keep listening until valid character is inputted.
                 if pressed_char == 0 || pressed_char == 0xe0 || end_of_stream {

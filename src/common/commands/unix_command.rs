@@ -1,6 +1,6 @@
 //! This module contains the commands that can be used for unix systems.
 
-use super::{ IStateCommand, IRawScreenCommand};
+use super::{ IStateCommand};
 use kernel::unix_kernel::terminal;
 use termios::{tcsetattr, Termios, CREAD, ECHO, ICANON, TCSAFLUSH};
 
@@ -54,10 +54,4 @@ impl NoncanonicalModeCommand {
         Ok(())
     }
 }
-
-/// This command is used for enabling and disabling raw mode for the terminal.
-pub struct RawModeCommand {
-    original_mode: Result<Termios>,
-}
-
 

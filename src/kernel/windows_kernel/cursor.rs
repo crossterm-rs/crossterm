@@ -5,7 +5,7 @@ use winapi::um::wincon::{
     SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD,
 };
 
-use super::{csbi, handle, kernel, TerminalOutput, WinApiOutput};
+use super::{csbi, handle, kernel, TerminalOutput};
 
 use std::io;
 use std::sync::Arc;

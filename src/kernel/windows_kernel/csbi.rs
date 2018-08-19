@@ -1,6 +1,6 @@
 //! This contains the logic for working with the console buffer.
 
-use winapi::shared::minwindef::{FALSE, TRUE};
+use winapi::shared::minwindef::TRUE;
 use winapi::shared::ntdef::NULL;
 use winapi::um::minwinbase::SECURITY_ATTRIBUTES;
 use winapi::um::wincon::{
@@ -12,18 +12,18 @@ use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC
 
 use super::{handle, kernel, Empty, TerminalOutput, HANDLE};
 
-use std::io::{self, ErrorKind, Result};
+use std::io::{self, Result};
 use std::sync::{Once, ONCE_INIT};
 use std::mem::size_of;
 use std::sync::Arc;
 
 /// Create a new console screen buffer info struct.
-pub fn get_csbi(screen_manager: &Arc<TerminalOutput>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
+pub fn get_csbi(stdout: &Arc<TerminalOutput>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
     unsafe {
-        success = GetConsoleScreenBufferInfo(handle::get_current_handle(screen_manager)?, &mut csbi)
+        success = GetConsoleScreenBufferInfo(handle::get_current_handle(stdout)?, &mut csbi)
     }
 
     if success == 0 {
@@ -38,9 +38,9 @@ pub fn get_csbi(screen_manager: &Arc<TerminalOutput>) -> Result<CONSOLE_SCREEN_B
 
 /// Get buffer info and handle of the current screen.
 pub fn get_csbi_and_handle(
-    screen_manager: &Arc<TerminalOutput>,
+    stdout: &Arc<TerminalOutput>,
 ) -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
-    let handle = handle::get_current_handle(screen_manager)?;
+    let handle = handle::get_current_handle(stdout)?;
     let csbi = get_csbi_by_handle(&handle)?;
 
     return Ok((csbi, handle));
@@ -63,8 +63,8 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 }
 
 /// Set the console screen buffer size
-pub fn set_console_screen_buffer_size(size: COORD, screen_manager: &Arc<TerminalOutput>) -> bool {
-    let handle = handle::get_current_handle(screen_manager).unwrap();
+pub fn set_console_screen_buffer_size(size: COORD, stdout: &Arc<TerminalOutput>) -> bool {
+    let handle = handle::get_current_handle(stdout).unwrap();
 
     unsafe {
         if !kernel::is_true(SetConsoleScreenBufferSize(handle, size)) {

@@ -6,14 +6,13 @@ use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
 use super::*;
 
 use std::sync::Arc;
+use std::io::{self,  Result};
 
 /// Get the global stored handle whits provides access to the current screen.
-pub fn get_current_handle(screen_manager: &Arc<TerminalOutput>) -> Result<HANDLE> {
-    let mut mutex = screen_manager;
-
+pub fn get_current_handle(stdout: &Arc<TerminalOutput>) -> Result<HANDLE> {
     let handle: Result<HANDLE>;
 
-    let winapi_screen_manager: &WinApiOutput = match screen_manager
+    let winapi_stdout: &WinApiOutput = match stdout
         .as_any()
         .downcast_ref::<WinApiOutput>()
         {
@@ -22,12 +21,10 @@ pub fn get_current_handle(screen_manager: &Arc<TerminalOutput>) -> Result<HANDLE
         };
 
 
-    handle = Ok(winapi_screen_manager.get_handle());
+    handle = Ok(winapi_stdout.get_handle());
 
     return handle;
 }
-
-use std::io::{self, ErrorKind, Result};
 
 /// Get the std_output_handle of the console
 pub fn get_output_handle() -> Result<HANDLE> {

@@ -17,7 +17,7 @@ pub fn terminal_size() -> (u16, u16) {
     }
 }
 
-pub fn buffer_size(screen_manager: &Arc<TerminalOutput>) -> (u16, u16) {
+pub fn buffer_size(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {

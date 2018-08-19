@@ -13,7 +13,7 @@ use common::commands::IEnableAnsiCommand;
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
-        let mut command = EnableAnsiCommand::new();
+        let command = EnableAnsiCommand::new();
         let success = command.enable();
 
         set_is_windows_ansi_supportable(success);

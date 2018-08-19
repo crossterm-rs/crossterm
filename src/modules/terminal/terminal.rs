@@ -4,7 +4,6 @@
 use super::*;
 
 use std::fmt;
-use std::io::Write;
 
 /// Struct that stores an specific platform implementation for terminal related actions.
 ///

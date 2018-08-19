@@ -6,8 +6,6 @@ use winapi::um::wincon::{
 };
 
 use super::*;
-
-use std::io::{ErrorKind, Result};
 use std::sync::Arc;
 
 /// Get the largest console window size possible.

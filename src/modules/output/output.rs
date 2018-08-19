@@ -21,14 +21,7 @@
 use super::*;
 
 use std::any::Any;
-use std::fmt::Display;
-use std::io::{self, Write};
 use std::default::Default;
-
-#[cfg(target_os = "windows")]
-use winapi::um::winnt::HANDLE;
-
-use std::sync::Arc;
 
 /// Struct that is an handle to an terminal screen.
 /// This handle could be used to write to the current screen

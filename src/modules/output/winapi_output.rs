@@ -1,13 +1,10 @@
 use super::IStdout;
-use kernel::windows_kernel::{handle, kernel, writing};
-use winapi::um::wincon::ENABLE_PROCESSED_OUTPUT;
+use kernel::windows_kernel::{handle, writing};
 use winapi::um::winnt::HANDLE;
 
 use std::sync::Mutex;
-use std::ptr::NonNull;
 use std::any::Any;
 use std::io;
-
 
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiOutput {
@@ -23,6 +20,7 @@ impl IStdout for WinApiOutput {
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
         writing::write_char_buffer(&self.handle.lock().unwrap(), buf)
     }
+
 
     fn flush(&self) -> io::Result<()> {
         Ok(())

@@ -1,26 +1,12 @@
-use super::commands::{IAlternateScreenCommand};
-
-use super::screen::{AlternateScreen, Screen};
+use {Screen, TerminalOutput};
 
 use super::super::cursor;
 use super::super::input;
-use super::super::output;
 use super::super::style;
 use super::super::terminal;
 
 use std::fmt::Display;
-use std::io::Write;
-use std::sync::RwLock;
-use std::io::Result;
 use std::sync::Arc;
-
-#[cfg(not(windows))]
-use common::commands::unix_command;
-
-#[cfg(windows)]
-use common::commands::win_commands;
-
-use output::TerminalOutput;
 
 /// This type could be used to access the `cursor, terminal, color, input, styling` module more easily.
 /// You need to pass a reference to the screen where on you want to perform the actions to the `Crossterm` type.

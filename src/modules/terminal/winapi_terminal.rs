@@ -61,9 +61,6 @@ impl ITerminal for WinApiTerminal {
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
 
-        // Set srctWindow to the current window size and location.
-        srct_window = csbi.srWindow;
-
         // Check whether the window is too close to the screen buffer top
         if srct_window.Bottom < csbi.dwSize.Y - count {
             srct_window.Top += count; // move top down

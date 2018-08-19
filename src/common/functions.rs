@@ -7,7 +7,7 @@ use std::sync::Arc;
 use kernel::windows_kernel::ansi_support::{try_enable_ansi_support, windows_supportable};
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::{buffer_size, exit, terminal_size};
+use kernel::windows_kernel::terminal::{ exit, terminal_size};
 
 #[cfg(windows)]
 use kernel::windows_kernel::cursor::pos;

@@ -4,13 +4,13 @@ use winapi::ctypes::c_void;
 use winapi::shared::ntdef::NULL;
 use winapi::um::consoleapi::WriteConsoleW;
 use winapi::um::wincon::{
-    self, FillConsoleOutputAttribute, FillConsoleOutputCharacterA, WriteConsoleOutputA, CHAR_INFO,
+    FillConsoleOutputAttribute, FillConsoleOutputCharacterA, WriteConsoleOutputA, CHAR_INFO,
     COORD, PSMALL_RECT,
 };
 
 use super::{csbi, handle, kernel, TerminalOutput, HANDLE};
 
-use std::io::{self, ErrorKind, Result};
+use std::io::{self, Result};
 use std::str;
 use std::sync::Arc;
 
@@ -19,9 +19,9 @@ pub fn fill_console_output_character(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Arc<TerminalOutput>,
+    stdout: &Arc<TerminalOutput>,
 ) -> bool {
-    let handle = handle::get_current_handle(screen_manager).unwrap();
+    let handle = handle::get_current_handle(stdout).unwrap();
 
     unsafe {
         // fill the cells in console with blanks
@@ -41,11 +41,11 @@ pub fn fill_console_output_attribute(
     cells_written: &mut u32,
     start_location: COORD,
     cells_to_write: u32,
-    screen_manager: &Arc<TerminalOutput>,
+    stdout: &Arc<TerminalOutput>,
 ) -> bool {
     // Get the position of the current console window
 
-    let (csbi, mut handle) = csbi::get_csbi_and_handle(screen_manager).unwrap();
+    let (csbi, handle) = csbi::get_csbi_and_handle(stdout).unwrap();
 
     let success;
 
@@ -93,7 +93,7 @@ pub fn write_console_output(
 /// Write utf8 buffer to console.
 pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize> {
     // get string from u8[] and parse it to an c_str
-    let mut utf8 = match str::from_utf8(buf) {
+    let utf8 = match str::from_utf8(buf) {
         Ok(string) => string,
         Err(_) => {
             return Err(io::Error::new(

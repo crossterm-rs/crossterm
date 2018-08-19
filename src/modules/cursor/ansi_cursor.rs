@@ -27,39 +27,39 @@ impl ITerminalCursor for AnsiCursor {
         stdout.write_string(format!(csi!("{}A"), count));
     }
 
-    fn move_right(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_string(format!(csi!("{}C"), count));
+    fn move_right(&self, count: u16, stdout: &Arc<TerminalOutput>) {
+        stdout.write_string(format!(csi!("{}C"), count));
     }
 
-    fn move_down(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_string(format!(csi!("{}B"), count));
+    fn move_down(&self, count: u16, stdout: &Arc<TerminalOutput>) {
+        stdout.write_string(format!(csi!("{}B"), count));
     }
 
-    fn move_left(&self, count: u16, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_string(format!(csi!("{}D"), count));
+    fn move_left(&self, count: u16, stdout: &Arc<TerminalOutput>) {
+        stdout.write_string(format!(csi!("{}D"), count));
     }
 
-    fn save_position(&self, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_str(csi!("s"));
+    fn save_position(&self, stdout: &Arc<TerminalOutput>) {
+        stdout.write_str(csi!("s"));
     }
 
-    fn reset_position(&self, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_str(csi!("u"));
+    fn reset_position(&self, stdout: &Arc<TerminalOutput>) {
+        stdout.write_str(csi!("u"));
     }
 
-    fn hide(&self, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_str(csi!("?25l"));
+    fn hide(&self, stdout: &Arc<TerminalOutput>) {
+        stdout.write_str(csi!("?25l"));
     }
 
-    fn show(&self, screen_manager: &Arc<TerminalOutput>) {
-        screen_manager.write_str(csi!("?25h"));
+    fn show(&self, stdout: &Arc<TerminalOutput>) {
+        stdout.write_str(csi!("?25h"));
     }
 
-    fn blink(&self, blink: bool, screen_manager: &Arc<TerminalOutput>) {
+    fn blink(&self, blink: bool, stdout: &Arc<TerminalOutput>) {
         if blink {
-            screen_manager.write_str(csi!("?12h"));
+            stdout.write_str(csi!("?12h"));
         } else {
-            screen_manager.write_str(csi!("?12l"));
+            stdout.write_str(csi!("?12l"));
         }
     }
 }

@@ -1,7 +1,6 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use cursor::cursor;
 use super::*;
 
 /// This struct is an ansi escape code implementation for terminal related actions.
@@ -52,7 +51,7 @@ impl ITerminal for AnsiTerminal {
 
     fn exit(&self,stdout: &Arc<TerminalOutput>) {
         // drop the screen with the current stdout. This will make sure when in raw mode this will be disabled first.
-        let mut screen = Screen::from(stdout.clone());
+        let screen = Screen::from(stdout.clone());
         drop(screen);
         functions::exit_terminal();
     }

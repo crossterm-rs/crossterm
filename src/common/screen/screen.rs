@@ -1,11 +1,3 @@
-#[cfg(not(windows))]
-use common::commands::unix_command;
-
-#[cfg(windows)]
-use common::commands::win_commands;
-
-use common::commands::IAlternateScreenCommand;
-
 use super::{AlternateScreen,RawScreen};
 use TerminalOutput;
 
@@ -98,7 +90,7 @@ impl Screen
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
-        let mut stdout = TerminalOutput::new(raw_mode);
+        let stdout = TerminalOutput::new(raw_mode);
 
         if raw_mode
         {

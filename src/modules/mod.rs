@@ -6,4 +6,3 @@ pub mod terminal;
 
 use super::common::commands;
 use super::common::functions;
-use super::common::traits;

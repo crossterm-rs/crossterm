@@ -5,10 +5,7 @@
 use super::IStdout;
 
 use std::any::Any;
-use std::cell::RefCell;
-use std::sync::{Arc,Mutex};
-use std::io::{self, Read, Write,Stdout, stdout};
-use std::str::from_utf8;
+use std::io::{self, Write,Stdout, stdout};
 
 /// This struct is a wrapper for `Stdout`
 pub struct AnsiOutput {
