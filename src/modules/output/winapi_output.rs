@@ -3,17 +3,18 @@ use kernel::windows_kernel::{handle, kernel, writing};
 use winapi::um::wincon::ENABLE_PROCESSED_OUTPUT;
 use winapi::um::winnt::HANDLE;
 
+use std::sync::Mutex;
 use std::ptr::NonNull;
 use std::any::Any;
-use std::io::{self, Write};
-use std::sync::{Mutex,Arc, };
+use std::io;
+
 
 /// This struct is a wrapper for WINAPI `HANDLE`
-pub struct WinApiStdout {
+pub struct WinApiOutput {
     pub handle: Mutex<HANDLE>,
 }
 
-impl IStdout for WinApiStdout {
+impl IStdout for WinApiOutput {
 
     fn write_str(&self, string: &str) -> io::Result<usize> {
         self.write(string.as_bytes())
@@ -36,9 +37,9 @@ impl IStdout for WinApiStdout {
     }
 }
 
-impl WinApiStdout {
+impl WinApiOutput {
     pub fn new() -> Self {
-        WinApiStdout { handle: Mutex::new(handle::get_output_handle().unwrap()) }
+        WinApiOutput { handle: Mutex::new(handle::get_output_handle().unwrap()) }
     }
 
     pub fn set(&mut self, handle: HANDLE)
@@ -53,6 +54,6 @@ impl WinApiStdout {
     }
 }
 
-unsafe impl Send for WinApiStdout {}
+unsafe impl Send for WinApiOutput {}
 
-unsafe impl Sync for WinApiStdout {}
+unsafe impl Sync for WinApiOutput {}

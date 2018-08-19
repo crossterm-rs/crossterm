@@ -1,16 +1,16 @@
 //! This module provides a way to work with an handle to an screen on different platforms.
 
-mod stdout;
+mod output;
 
-mod ansi_stdout;
+mod ansi_output;
 #[cfg(target_os = "windows")]
-mod winapi_stdout;
+mod winapi_output;
 
-pub use self::ansi_stdout::AnsiStdout;
+pub use self::ansi_output::AnsiOutput;
 #[cfg(target_os = "windows")]
-pub use self::winapi_stdout::WinApiStdout;
+pub use self::winapi_output::WinApiOutput;
 
-pub use self::stdout::Stdout;
+pub use self::output::TerminalOutput;
 
 use std::any::Any;
 use std::io;

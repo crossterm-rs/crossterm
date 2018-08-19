@@ -11,11 +11,11 @@ use std::io::{self, Read, Write,Stdout, stdout};
 use std::str::from_utf8;
 
 /// This struct is a wrapper for `Stdout`
-pub struct AnsiStdout {
+pub struct AnsiOutput {
     pub handle: Stdout,
 }
 
-impl IStdout for AnsiStdout {
+impl IStdout for AnsiOutput {
    fn write_str(&self, string: &str) -> io::Result<usize> {
        let out = &self.handle;
        let mut handle = out.lock();
@@ -47,8 +47,8 @@ impl IStdout for AnsiStdout {
     }
 }
 
-impl AnsiStdout {
+impl AnsiOutput {
     pub fn new() -> Self {
-        AnsiStdout { handle: stdout() }
+        AnsiOutput { handle: stdout() }
     }
 }

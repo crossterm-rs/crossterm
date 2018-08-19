@@ -28,6 +28,8 @@ use crossterm::cursor::cursor;
 use std::io::Read;
 
 fn main() {
+    use crossterm::color;
+
     let input = CROSSTERM.input();
     let mut stdin = input.read_async().bytes();
     CROSSTERM.cursor().hide();

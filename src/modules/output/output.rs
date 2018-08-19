@@ -34,67 +34,67 @@ use std::sync::Arc;
 /// This handle could be used to write to the current screen
 ///
 /// For unix and windows 10 `stdout()` will be used for handle when on windows systems with versions lower than 10 WinApi `HANDLE` will be used.
-pub struct Stdout {
-    screen_manager: Box<IStdout + Send + Sync>,
+pub struct TerminalOutput {
+    stdout: Box<IStdout + Send + Sync>,
     pub is_in_raw_mode:bool,
 }
 
-impl Stdout {
+impl TerminalOutput {
     /// Create new screen write instance whereon screen related actions can be performed.
     pub fn new(is_in_raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
+        let stdout: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
+        let stdout = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
-        Stdout { screen_manager , is_in_raw_mode}
+        TerminalOutput { stdout , is_in_raw_mode}
     }
 
     /// Write String to the current screen.
     pub fn write_string(&self, string: String) -> io::Result<usize> {
-        self.screen_manager.write_str(string.as_str())
+        self.stdout.write_str(string.as_str())
     }
 
     /// Flush the current screen.
     pub fn flush(&self) -> io::Result<()> {
-        self.screen_manager.flush()
+        self.stdout.flush()
     }
 
     /// Write &str to the current screen.
     pub fn write_str(&self, string: &str) -> io::Result<usize> {
-        self.screen_manager.write_str(string)
+        self.stdout.write_str(string)
     }
 
     /// Write buffer to the screen
     pub fn write_buf(&self, buf: &[u8]) -> io::Result<usize> {
-        self.screen_manager.write(buf)
+        self.stdout.write(buf)
     }
 
     pub fn as_any(&self) -> &Any {
-        self.screen_manager.as_any()
+        self.stdout.as_any()
     }
     pub fn as_any_mut(&mut self) -> &mut Any {
-        self.screen_manager.as_any_mut()
+        self.stdout.as_any_mut()
     }
 }
 
-impl Default for Stdout
+impl Default for TerminalOutput
 {
     /// Get the default handle to the current screen.
     fn default() -> Self {
         #[cfg(target_os = "windows")]
-        let screen_manager = functions::get_module::<Box<IStdout + Send + Sync>>(
+        let stdout = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiStdout::new()),
             Box::from(AnsiStdout::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let screen_manager = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
+        let stdout = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
-        Stdout { screen_manager , is_in_raw_mode: false}
+        TerminalOutput { stdout , is_in_raw_mode: false}
     }
 }
