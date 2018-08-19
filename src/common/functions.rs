@@ -1,6 +1,6 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
-use super::Stdout;
+use super::TerminalOutput;
 use std::sync::Arc;
 
 #[cfg(windows)]
@@ -17,28 +17,16 @@ use kernel::unix_kernel::terminal::{exit, pos, terminal_size};
 
 /// Get the terminal size based on the current platform.
 pub fn get_terminal_size() -> (u16, u16) {
-    #[cfg(unix)]
-    return terminal_size();
-
-    #[cfg(windows)]
     return terminal_size();
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(stdout: &Arc<Stdout>) -> (u16, u16) {
-    #[cfg(unix)]
-    return pos(stdout);
-
-    #[cfg(windows)]
+pub fn get_cursor_position(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
     return pos(stdout);
 }
 
 /// exit the current terminal.
 pub fn exit_terminal() {
-    #[cfg(unix)]
-    exit();
-
-    #[cfg(windows)]
     exit();
 }
 

@@ -14,11 +14,11 @@ use self::unix_input::UnixInput;
 use self::windows_input::WindowsInput;
 
 pub use self::input::{input, TerminalInput};
-use super::Stdout;
 
 use std::io::{self, Read, Error, ErrorKind};
 use std::sync::{mpsc, Arc};
-use Screen;
+
+use TerminalOutput;
 
 /// This trait defines the actions that can be preformed with the terminal color.
 /// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
@@ -30,13 +30,13 @@ use Screen;
 /// Unix is using the tty and windows is using libc C functions to read the input.
 trait ITerminalInput {
     /// Read one line from the user input
-    fn read_line(&self, screen_manger: &Arc<Stdout>) -> io::Result<String>;
+    fn read_line(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<String>;
     /// Read one character from the user input
-    fn read_char(&self, screen_manger: &Arc<Stdout>) -> io::Result<char>;
+    fn read_char(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<char>;
     /// Read the input asynchronously from the user.
-    fn read_async(&self, screen_manger: &Arc<Stdout>) -> AsyncReader;
+    fn read_async(&self, screen_manger: &Arc<TerminalOutput>) -> AsyncReader;
     ///  Read the input asynchronously until a certain character is hit.
-    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<Stdout>) -> AsyncReader;
+    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<TerminalOutput>) -> AsyncReader;
 }
 
 /// This is a wrapper for reading from the input asynchronously.

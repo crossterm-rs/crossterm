@@ -1,7 +1,6 @@
 //! This module contains terminal specific logic.
 
-use super::{csbi, handle, Stdout};
-
+use super::{csbi, handle, TerminalOutput};
 use std::sync::Arc;
 
 /// Get the terminal size
@@ -18,7 +17,7 @@ pub fn terminal_size() -> (u16, u16) {
     }
 }
 
-pub fn buffer_size(screen_manager: &Arc<Stdout>) -> (u16, u16) {
+pub fn buffer_size(screen_manager: &Arc<TerminalOutput>) -> (u16, u16) {
     let handle = handle::get_output_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {

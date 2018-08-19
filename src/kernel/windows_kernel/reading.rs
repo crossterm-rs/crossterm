@@ -11,12 +11,12 @@
 //use super::kernel;
 //use winapi::ctypes::c_void;
 //
-//pub fn read(buf: &mut [u8], screen_manager: &Rc<Mutex<ScreenManager>>) {
+//pub fn read(buf: &mut [u8], stdout: &Rc<Mutex<ScreenManager>>) {
 ////    // Read more if the buffer is empty
 ////    let mut utf16: Vec<u16> = Vec::new();
 ////    let mut num: DWORD = 0;
 ////
-////    let handle = kernel::get_current_handle(&screen_manager);
+////    let handle = kernel::get_current_handle(&stdout);
 ////
 ////    unsafe {
 ////        ReadConsoleW(handle,
@@ -36,12 +36,12 @@
 //
 //}
 //
-//pub fn read_line(screen_manager: &Rc<Mutex<ScreenManager>>) -> ::std::io::Result<String>
+//pub fn read_line(stdout: &Rc<Mutex<ScreenManager>>) -> ::std::io::Result<String>
 //{
 //    const BUFFER_LENGHT: u32 = 1024;
 //    let mut buffer: &mut [CHAR_INFO; BUFFER_LENGHT as usize] = unsafe {::std::mem::zeroed() };
 //
-//    let handle = kernel::get_current_handle(&screen_manager);
+//    let handle = kernel::get_current_handle(&stdout);
 //
 //    let mut dw_mode: DWORD = 0;
 //    let console_mode = kernel::get_console_mode(&handle, &mut dw_mode);

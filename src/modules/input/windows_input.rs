@@ -1,14 +1,12 @@
 //! This is an WINDOWS specific implementation for input related action.
 
-use std::char;
-use std::io::{self, Write};
-use std::sync::{mpsc, Arc};
-use std::thread;
-
-use super::{AsyncReader, ITerminalInput, Stdout};
+use super::*;
 
 use winapi::um::winnt::INT;
 use winapi::um::winuser;
+
+use std::char;
+use std::thread;
 
 pub struct WindowsInput;
 
@@ -19,7 +17,7 @@ impl WindowsInput {
 }
 
 impl ITerminalInput for WindowsInput {
-    fn read_line(&self, screen_manger: &Arc<Stdout>) -> io::Result<String> {
+    fn read_line(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<String> {
         let mut chars: Vec<char> = Vec::new();
 
         loop {
@@ -52,7 +50,7 @@ impl ITerminalInput for WindowsInput {
         return Ok(chars.into_iter().collect());
     }
 
-    fn read_char(&self, screen_manger: &Arc<Stdout>) -> io::Result<char> {
+    fn read_char(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<char> {
         let is_raw_screen = screen_manger.is_in_raw_mode;
 
         // _getwch is without echo and _getwche is with echo
@@ -83,7 +81,7 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_async(&self, screen_manger: &Arc<Stdout>) -> AsyncReader {
+    fn read_async(&self, screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
         let is_raw_screen = screen_manger.is_in_raw_mode;
@@ -115,7 +113,7 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 
-    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<Stdout>) -> AsyncReader {
+    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
         let is_raw_screen = screen_manger.is_in_raw_mode;

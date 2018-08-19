@@ -44,8 +44,8 @@ impl TerminalOutput {
     pub fn new(is_in_raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
         let stdout: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
-            Box::from(WinApiStdout::new()),
-            Box::from(AnsiStdout::new()),
+            Box::from(WinApiOutput::new()),
+            Box::from(AnsiOutput::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
@@ -88,8 +88,8 @@ impl Default for TerminalOutput
     fn default() -> Self {
         #[cfg(target_os = "windows")]
         let stdout = functions::get_module::<Box<IStdout + Send + Sync>>(
-            Box::from(WinApiStdout::new()),
-            Box::from(AnsiStdout::new()),
+            Box::from(WinApiOutput::new()),
+            Box::from(AnsiOutput::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]

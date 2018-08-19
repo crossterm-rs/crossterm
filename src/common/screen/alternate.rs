@@ -7,7 +7,7 @@
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
 use super::commands::{self, IAlternateScreenCommand};
-use super::{functions, Screen, Stdout, RawScreen};
+use super::{functions, Screen, TerminalOutput, RawScreen};
 
 use std::convert::From;
 use std::io::{self, Write};
@@ -35,7 +35,7 @@ impl AlternateScreen {
     /// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
-    pub fn to_alternate_screen(screen_manager: Stdout) -> io::Result<AlternateScreen> {
+    pub fn to_alternate_screen(stdout: TerminalOutput) -> io::Result<AlternateScreen> {
         #[cfg(target_os = "windows")]
         let command = functions::get_module::<Box<commands::IAlternateScreenCommand + Send>>(
             Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
@@ -45,7 +45,7 @@ impl AlternateScreen {
         #[cfg(not(target_os = "windows"))]
         let command = Box::from(commands::shared_commands::ToAlternateScreenCommand::new());
 
-        let mut stdout = screen_manager;
+        let mut stdout = stdout;
         command.enable(&mut stdout)?;
         return Ok(AlternateScreen::new(command, Screen::from(stdout)));
     }

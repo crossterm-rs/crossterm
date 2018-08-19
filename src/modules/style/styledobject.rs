@@ -1,6 +1,6 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
 
-use super::{Color, ObjectStyle, Stdout};
+use super::{Color, ObjectStyle, TerminalOutput};
 use Screen;
 
 use std::fmt::{self, Display};
@@ -10,7 +10,7 @@ use std::io::Write;
 use super::Attribute;
 
 #[cfg(windows)]
-use super::super::super::write::WinApiStdout;
+use super::super::super::output::WinApiOutput;
 
 /// Struct that contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {

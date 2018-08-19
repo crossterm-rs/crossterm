@@ -1,6 +1,6 @@
 //! This module contains some commands that could be executed for specific task.
 
-use super::super::write::Stdout;
+use super::super::output::TerminalOutput;
 use std::io;
 use std::sync::Mutex;
 
@@ -26,8 +26,8 @@ pub trait IEnableAnsiCommand {
 
 // This trait provides an interface for switching to alternate screen and back.
 pub trait IAlternateScreenCommand: Send {
-    fn enable(&self, screen_manager: &mut Stdout) -> io::Result<()>;
-    fn disable(&self, screen_manager: &Stdout) -> io::Result<()>;
+    fn enable(&self, screen_manager: &mut TerminalOutput) -> io::Result<()>;
+    fn disable(&self, screen_manager: &TerminalOutput) -> io::Result<()>;
 }
 
 // This trait provides an interface for switching to raw mode and back.

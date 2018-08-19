@@ -4,11 +4,10 @@
 //! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
 use super::*;
+use Screen;
 
 use std::fmt::Display;
 use std::io::Write;
-
-use std::sync::Arc;
 
 /// Struct that stores an specific platform implementation for cursor related actions.
 ///
@@ -31,13 +30,13 @@ use std::sync::Arc;
 /// cursor.move_left(2);
 /// ```
 pub struct TerminalCursor<'stdout> {
-    screen: &'stdout Arc<Stdout>,
+    screen: &'stdout Arc<TerminalOutput>,
     terminal_cursor: Box<ITerminalCursor>,
 }
 
 impl<'stdout> TerminalCursor<'stdout> {
     /// Create new cursor instance whereon cursor related actions can be performed.
-    pub fn new(screen: &'stdout Arc<Stdout>) -> TerminalCursor<'stdout> {
+    pub fn new(screen: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
         let cursor =
             functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new())
@@ -203,6 +202,6 @@ impl<'stdout> TerminalCursor<'stdout> {
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn cursor<'stdout>(screen_manager: &'stdout Screen) -> TerminalCursor<'stdout> {
-    TerminalCursor::new(&screen_manager.stdout)
+pub fn cursor<'stdout>(stdout: &'stdout Screen) -> TerminalCursor<'stdout> {
+    TerminalCursor::new(&stdout.stdout)
 }

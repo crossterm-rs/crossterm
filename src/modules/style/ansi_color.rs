@@ -1,7 +1,7 @@
 //! This is an ANSI specific implementation for styling related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
-use std::sync::Arc;
-use super::{Color, ColorType, ITerminalColor, Stdout};
+
+use super::*;
 
 /// This struct is an ANSI escape code implementation for color related actions.
 pub struct AnsiColor;
@@ -13,21 +13,21 @@ impl AnsiColor {
 }
 
 impl ITerminalColor for AnsiColor {
-    fn set_fg(&self, fg_color: Color, stdout: &Arc<Stdout>) {
+    fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>) {
         stdout.write_string(format!(
             csi!("{}m"),
             self.color_value(fg_color, ColorType::Foreground)
         ));
     }
 
-    fn set_bg(&self, bg_color: Color, stdout: &Arc<Stdout>) {
+    fn set_bg(&self, bg_color: Color, stdout: &Arc<TerminalOutput>) {
         stdout.write_string(format!(
             csi!("{}m"),
             self.color_value(bg_color, ColorType::Background)
         ));
     }
 
-    fn reset(&self, stdout: &Arc<Stdout>) {
+    fn reset(&self, stdout: &Arc<TerminalOutput>) {
         stdout.write_str(csi!("0m"));
     }
 

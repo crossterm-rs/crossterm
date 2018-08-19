@@ -2,7 +2,7 @@
 
 use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
 use common::commands::unix_command::{RawModeCommand, NoncanonicalModeCommand};
-use {libc, Stdout, Screen};
+use {libc, TerminalOutput, Screen};
 pub use libc::termios;
 
 use std::sync::Arc;
@@ -45,7 +45,7 @@ pub fn terminal_size() -> (u16, u16) {
 }
 
 /// Get the current cursor position.
-pub fn pos(stdout: &Arc<Stdout>) -> (u16, u16) {
+pub fn pos(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
     let mut crossterm = Crossterm::new(&Screen::default());
     let input = crossterm.input();
 

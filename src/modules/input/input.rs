@@ -1,9 +1,8 @@
 //! With this module you can perform actions that are input related.
 //! Like reading a line, reading a character and reading asynchronously.
 
-use std::io;
-use std::sync::Arc;
 use super::*;
+use Screen;
 
 /// Struct that stores an specific platform implementation for input related actions.
 ///
@@ -22,12 +21,12 @@ use super::*;
 /// ```
 pub struct TerminalInput<'stdout> {
     terminal_input: Box<ITerminalInput>,
-    stdout: &'stdout Arc<Stdout>,
+    stdout: &'stdout Arc<TerminalOutput>,
 }
 
 impl<'stdout> TerminalInput<'stdout> {
     /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn new(stdout: &'stdout Arc<Stdout>) -> TerminalInput<'stdout> {
+    pub fn new(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
 

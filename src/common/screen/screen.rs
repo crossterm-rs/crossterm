@@ -7,7 +7,7 @@ use common::commands::win_commands;
 use common::commands::IAlternateScreenCommand;
 
 use super::{AlternateScreen,RawScreen};
-use super::super::super::modules::write::Stdout;
+use TerminalOutput;
 
 use std::io::Write;
 use std::io::Result;
@@ -52,7 +52,7 @@ use std::sync::Arc;
 pub struct Screen
 {
     buffer: Vec<u8>,
-    pub stdout: Arc<Stdout>,
+    pub stdout: Arc<TerminalOutput>,
 }
 
 impl Screen
@@ -64,7 +64,7 @@ impl Screen
         if raw_mode
         {
             RawScreen::into_raw_mode();;
-            return Screen { stdout: Arc::new(Stdout::new(true)), buffer: Vec::new() };
+            return Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new() };
         }
 
         return Screen::default();
@@ -98,7 +98,7 @@ impl Screen
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
-        let mut stdout = Stdout::new(raw_mode);
+        let mut stdout = TerminalOutput::new(raw_mode);
 
         if raw_mode
         {
@@ -110,18 +110,18 @@ impl Screen
     }
 }
 
-impl From<Stdout> for Screen
+impl From<TerminalOutput> for Screen
 {
     /// Create an screen with the given `Stdout`
-    fn from(stdout: Stdout) -> Self {
+    fn from(stdout: TerminalOutput) -> Self {
         return Screen { stdout: Arc::new(stdout), buffer: Vec::new() };
     }
 }
 
-impl From<Arc<Stdout>> for Screen
+impl From<Arc<TerminalOutput>> for Screen
 {
     /// Create an screen with the given 'Arc<Stdout>'
-    fn from(stdout: Arc<Stdout>) -> Self {
+    fn from(stdout: Arc<TerminalOutput>) -> Self {
         return Screen { stdout: stdout, buffer: Vec::new() };
     }
 }
@@ -130,7 +130,7 @@ impl Default for Screen
 {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(Stdout::new(false)), buffer: Vec::new() };
+        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new() };
     }
 }
 

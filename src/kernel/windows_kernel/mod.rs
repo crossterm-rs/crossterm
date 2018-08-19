@@ -8,9 +8,14 @@ pub mod kernel;
 pub mod terminal;
 pub mod writing;
 
-use super::super::modules::Stdout;
-use common::traits::Empty;
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
+use winapi::um::winnt::HANDLE;
+
+use TerminalOutput;
+use super::super::modules::output::WinApiOutput;
+
+use common::traits::Empty;
+
 
 impl Empty for COORD {
     fn empty() -> COORD {

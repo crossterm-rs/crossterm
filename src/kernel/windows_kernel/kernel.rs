@@ -4,10 +4,8 @@ use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
 use winapi::um::wincon::{
     GetLargestConsoleWindowSize, SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, SMALL_RECT,
 };
-use winapi::um::winnt::HANDLE;
 
-use super::super::super::modules::Stdout;
-use super::{handle, Empty};
+use super::*;
 
 use std::io::{ErrorKind, Result};
 use std::sync::Arc;
@@ -34,8 +32,8 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool {
 }
 
 /// Change the console text attribute.
-pub fn set_console_text_attribute(value: u16, screen_manager: &Arc<Stdout>) -> bool {
-    let handle = handle::get_current_handle(screen_manager).unwrap();
+pub fn set_console_text_attribute(value: u16, stdout: &Arc<TerminalOutput>) -> bool {
+    let handle = handle::get_current_handle(stdout).unwrap();
 
     unsafe {
         return is_true(SetConsoleTextAttribute(handle, value));
@@ -43,8 +41,8 @@ pub fn set_console_text_attribute(value: u16, screen_manager: &Arc<Stdout>) -> b
 }
 
 /// Change console info.
-pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, screen_manager: &Arc<Stdout>) -> bool {
-    let handle = handle::get_current_handle(screen_manager).unwrap();
+pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, stdout: &Arc<TerminalOutput>) -> bool {
+    let handle = handle::get_current_handle(stdout).unwrap();
 
     let absolute = match absolute {
         true => 1,

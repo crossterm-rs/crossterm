@@ -1,9 +1,9 @@
 //! This module contains the commands that can be used for windows systems.
 
-use super::{IAlternateScreenCommand, IEnableAnsiCommand, IRawScreenCommand, Stdout};
+use super::{IAlternateScreenCommand, IEnableAnsiCommand, IRawScreenCommand, TerminalOutput};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
-use modules::write::IStdout;
+use modules::output::IStdout;
 use std::mem;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
@@ -148,8 +148,8 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand  for ToAlternateScreenCommand {
-    fn enable(&self, screen_manager: &mut Stdout) -> Result<()> {
-        use super::super::super::modules::write::WinApiStdout;
+    fn enable(&self, screen_manager: &mut TerminalOutput) -> Result<()> {
+        use super::super::super::modules::output::WinApiOutput;
 
         let handle = handle::get_output_handle()?;
 
@@ -159,9 +159,9 @@ impl IAlternateScreenCommand  for ToAlternateScreenCommand {
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle)?;
 
-        let b: &mut WinApiStdout = match screen_manager
+        let b: &mut WinApiOutput = match screen_manager
             .as_any_mut()
-            .downcast_mut::<WinApiStdout>()
+            .downcast_mut::<WinApiOutput>()
         {
             Some(b) => b,
             None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
@@ -172,7 +172,7 @@ impl IAlternateScreenCommand  for ToAlternateScreenCommand {
         Ok(())
     }
 
-    fn disable(&self, screen_manager: &Stdout) -> Result<()> {
+    fn disable(&self, screen_manager: &TerminalOutput) -> Result<()> {
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 

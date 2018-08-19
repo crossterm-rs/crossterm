@@ -15,7 +15,7 @@
 //! With these modes you can easier design the terminal screen.
 
 use super::commands::*;
-use super::{functions, Screen, Stdout};
+use super::{functions, Screen, TerminalOutput};
 
 use std::io::{self, Write};
 

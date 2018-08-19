@@ -25,12 +25,12 @@ use Screen;
 /// ```
 pub struct TerminalColor<'stdout> {
     color: Box<ITerminalColor>,
-    stdout: &'stdout Arc<Stdout>,
+    stdout: &'stdout Arc<TerminalOutput>,
 }
 
 impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(stdout: &'stdout Arc<Stdout>) -> TerminalColor<'stdout> {
+    pub fn new(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor>>(
             Box::from(WinApiColor::new()),

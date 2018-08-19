@@ -3,12 +3,9 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use super::super::super::write::WinApiStdout;
-use super::{Color, ColorType, ITerminalColor, Stdout};
+use super::*;
 use kernel::windows_kernel::{csbi, kernel};
 use winapi::um::wincon;
-
-use std::sync::Arc;
 
 /// This struct is an windows implementation for color related actions.
 pub struct WinApiColor
@@ -23,7 +20,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, stdout: &Arc<Stdout>) {
+    fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
         let csbi = csbi::get_csbi(stdout).unwrap();
@@ -44,7 +41,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, stdout);
     }
 
-    fn set_bg(&self, bg_color: Color, stdout: &Arc<Stdout>) {
+    fn set_bg(&self, bg_color: Color, stdout: &Arc<TerminalOutput>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
         let (csbi, handle) = csbi::get_csbi_and_handle(stdout).unwrap();
@@ -65,7 +62,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color, stdout);
     }
 
-    fn reset(&self, stdout: &Arc<Stdout>) {
+    fn reset(&self, stdout: &Arc<TerminalOutput>) {
         kernel::set_console_text_attribute(self.original_color, stdout);
     }
 

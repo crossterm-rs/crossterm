@@ -23,12 +23,12 @@ use std::io::Write;
 /// ```
 pub struct Terminal<'stdout> {
     terminal: Box<ITerminal>,
-    screen: &'stdout Arc<Stdout>,
+    screen: &'stdout Arc<TerminalOutput>,
 }
 
 impl<'stdout> Terminal<'stdout> {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new(screen: &'stdout Arc<Stdout>) -> Terminal<'stdout> {
+    pub fn new(screen: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal>>(
             Box::new(WinApiTerminal::new()),
