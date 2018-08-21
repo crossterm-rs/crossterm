@@ -42,7 +42,7 @@ impl TerminalOutput {
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let stdout = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
+        let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
 
         TerminalOutput { stdout , is_in_raw_mode}
     }
@@ -86,7 +86,7 @@ impl Default for TerminalOutput
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let stdout = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
+        let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
 
         TerminalOutput { stdout , is_in_raw_mode: false}
     }
