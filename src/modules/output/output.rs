@@ -22,6 +22,7 @@ use super::*;
 
 use std::any::Any;
 use std::default::Default;
+use screen::RawScreen;
 
 /// Struct that is an handle to an terminal screen.
 /// This handle could be used to write to the current screen
@@ -34,7 +35,7 @@ pub struct TerminalOutput {
 
 impl TerminalOutput {
     /// Create new screen write instance whereon screen related actions can be performed.
-    pub fn new(is_in_raw_mode: bool) -> Self {
+    pub fn new() -> Self {
         #[cfg(target_os = "windows")]
         let stdout: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiOutput::new()),
@@ -44,7 +45,7 @@ impl TerminalOutput {
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiStdout::new()) as Box<IStdout + Send + Sync>;
 
-        TerminalOutput { stdout , is_in_raw_mode}
+        TerminalOutput { stdout , is_in_raw_mode: false}
     }
 
     /// Write String to the current screen.

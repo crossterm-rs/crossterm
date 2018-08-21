@@ -11,7 +11,7 @@ use Screen;
 /// ```rust
 /// extern crate crossterm;
 /// use self::crossterm::Screen;
-/// use self::crossterm::input::input;
+/// use self::crossterm::input;
 ///
 /// let screen = Screen::default();
 /// let input = input(&screen);

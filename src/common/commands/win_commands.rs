@@ -7,7 +7,9 @@ use winapi::um::wincon;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon::{ENABLE_VIRTUAL_TERMINAL_PROCESSING};
 
+use winapi::um::winnt::HANDLE;
 use std::io::{Error, ErrorKind, Result};
+use std::sync::Arc;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -72,14 +74,12 @@ impl IEnableAnsiCommand for EnableAnsiCommand {
 pub struct RawModeCommand {
     mask: DWORD,
 }
-
+use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_PROCESSED_OUTPUT};
 impl RawModeCommand
 {
     pub fn new() -> Self {
-        use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
-
         RawModeCommand {
-            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT,
+            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT,
         }
     }
 }
@@ -87,10 +87,11 @@ impl RawModeCommand
 impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
-        let input_handle = handle::get_input_handle()?;
 
         let mut dw_mode: DWORD = 0;
-        if !kernel::get_console_mode(&input_handle, &mut dw_mode) {
+        let stdout = handle::get_output_handle().unwrap();
+
+        if !kernel::get_console_mode(&stdout, &mut dw_mode) {
             return Err(Error::new(
                 ErrorKind::Other,
                 "Could not get console mode when enabling raw mode",
@@ -99,7 +100,7 @@ impl RawModeCommand {
 
         let new_mode = dw_mode & !self.mask;
 
-        if !kernel::set_console_mode(&input_handle, new_mode) {
+        if !kernel::set_console_mode(&stdout, new_mode) {
             return Err(Error::new(
                 ErrorKind::Other,
                 "Could not set console mode when enabling raw mode",
@@ -111,10 +112,10 @@ impl RawModeCommand {
 
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
-        let output_handle = handle::get_input_handle()?;
+        let stdout = handle::get_output_handle().unwrap();
 
         let mut dw_mode: DWORD = 0;
-        if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
+        if !kernel::get_console_mode(&stdout, &mut dw_mode) {
             return Err(Error::new(
                 ErrorKind::Other,
                 "Could not get console mode when disabling raw mode",
@@ -123,7 +124,7 @@ impl RawModeCommand {
 
         let new_mode = dw_mode | self.mask;
 
-        if !kernel::set_console_mode(&output_handle, new_mode) {
+        if !kernel::set_console_mode(&stdout, new_mode) {
             return Err(Error::new(
                 ErrorKind::Other,
                 "Could not set console mode when disabling raw mode",

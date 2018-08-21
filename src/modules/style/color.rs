@@ -7,11 +7,14 @@ use Screen;
 
 /// Struct that stores an specific platform implementation for color related actions.
 ///
+/// For styling text use the `::crossterm::style()` function. `TerminalColor` will set the colors of the screen permanently and the `style()` will only style the text given.
+///
 /// Check `/examples/color` in the library for more specific examples.
+///
 ///
 /// ```rust
 /// use crossterm::{Screen}
-/// use crossterm::color::color;
+/// use crossterm::style::color;
 ///
 /// let screen = Screen::default();
 /// let colored_terminal = color(&screen);

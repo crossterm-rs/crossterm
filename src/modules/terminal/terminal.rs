@@ -10,7 +10,7 @@ use std::fmt;
 /// Check `/examples/terminal` in the library for more specific examples.
 ///
 /// ```rust
-/// use crossterm::terminal::terminal;
+/// use crossterm::terminal;
 ///
 /// let screen = Screen::default();
 /// let term = terminal(&screen);
