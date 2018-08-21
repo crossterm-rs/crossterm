@@ -32,7 +32,7 @@ fn main() {
         let a = stdin.next();
 
         match a {
-            Some(Ok(13)) =>
+            Some(Ok(b'\n')) =>
             {
                 input_buf.lock().unwrap().clear();
 
