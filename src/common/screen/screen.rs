@@ -56,6 +56,7 @@ impl Screen
         if raw_mode
         {
             let screen = Screen { stdout: Arc::new(TerminalOutput::new()), buffer: Vec::new() };
+            RawScreen::into_raw_mode();
             return screen;
         }
 

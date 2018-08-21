@@ -32,7 +32,7 @@ fn main() {
         let a = stdin.next();
 
         match a {
-            Some(Ok(b'\r')) =>
+            Some(Ok(13)) =>
             {
                 input_buf.lock().unwrap().clear();
 
@@ -69,7 +69,7 @@ fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>>
 
         let join = thread::spawn( move || {
 
-            let crossterm = Crossterm::new(&Screen::default());
+            let crossterm = Crossterm::new(&Screen::new(true));
             let cursor = crossterm.cursor();
             let terminal = crossterm.terminal();
 

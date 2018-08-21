@@ -44,7 +44,7 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
             does_support = try_enable_ansi_support();
 
             // uncomment this line when you want to use the winapi implementation.
-//            does_support = true;
+            does_support = true;
             if !does_support {
                 term = Some(winapi_impl);
             }

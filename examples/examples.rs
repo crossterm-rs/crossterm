@@ -19,15 +19,15 @@ use std::io::Write;
 
 fn main()
 {
-    use crossterm::screen::RawScreen;
-    use crossterm::Screen;
-
-    let mut screen = Screen::new(true);
-
-    write!(screen, "text \n\r");
-    let a = screen.enable_alternate_modes(true).unwrap();
-
-    write!(a, "text \n\r");
+//    use crossterm::screen::RawScreen;
+//    use crossterm::Screen;
+//
+//    let mut screen = Screen::new(true);
+//
+//    write!(screen, "text \n\r");
+//    let a = screen.enable_alternate_modes(true).unwrap();
+//
+//    write!(a, "text \n\r");
 
 
 }
