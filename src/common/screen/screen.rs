@@ -55,31 +55,11 @@ impl Screen
     {
         if raw_mode
         {
-            RawScreen::into_raw_mode();;
-            return Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new() };
+            let screen = Screen { stdout: Arc::new(TerminalOutput::new()), buffer: Vec::new() };
+            return screen;
         }
 
         return Screen::default();
-    }
-
-    /// This method could be used for enabling raw mode for the terminal.
-    ///
-    /// What exactly is raw state:
-    /// - No line buffering.
-    ///    Normally the terminals uses line buffering. This means that the input will be send to the terminal line by line.
-    ///    With raw mode the input will be send one byte at a time.
-    /// - Input
-    ///   All input has to be written manually by the programmer.
-    /// - Characters
-    ///   The characters are not processed by the terminal driver, but are sent straight through.
-    ///   Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
-    /// - Escape characters
-    ///   Note that in raw modes `\n` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
-    ///
-    /// With these modes you can easier design the terminal screen.
-    pub fn enable_raw_modes(&self) -> Result<()> {
-        RawScreen::into_raw_mode()?;
-        return Ok(())
     }
 
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
@@ -90,14 +70,9 @@ impl Screen
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
-        let stdout = TerminalOutput::new(raw_mode);
+        let stdout = TerminalOutput::new();
 
-        if raw_mode
-        {
-            RawScreen::into_raw_mode();
-        }
-
-        let alternate_screen = AlternateScreen::to_alternate_screen(stdout)?;
+        let alternate_screen = AlternateScreen::to_alternate_screen(stdout, raw_mode)?;
         return Ok(alternate_screen);
     }
 }
@@ -122,7 +97,7 @@ impl Default for Screen
 {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new() };
+        return Screen { stdout: Arc::new(TerminalOutput::new()), buffer: Vec::new() };
     }
 }
 

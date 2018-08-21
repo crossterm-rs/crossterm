@@ -140,7 +140,7 @@ impl<D: Display> StyledObject<D> {
         self.attr(Attribute::CrossedOut)
     }
 
-    /// This could be used to paint the styled object on the screen. Pass a refrence to the screen whereon you want to perform the painting.
+    /// This could be used to paint the styled object on the screen. Pass a reference to the screen whereon you want to perform the painting.
     ///
     /// ``` rust
     /// style("Some colored text")

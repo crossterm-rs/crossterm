@@ -103,7 +103,6 @@ pub fn async_reading_on_alternate_screen() {
 
     let screen = Screen::new(false);
 
-
     // switch to alternate screen
     if let Ok(alternate) = screen.enable_alternate_modes(true)
     {

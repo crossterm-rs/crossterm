@@ -12,7 +12,7 @@ use Screen;
 ///
 /// ```rust
 /// extern crate crossterm;
-/// use self::crossterm::cursor::cursor;
+/// use self::crossterm::cursor;
 /// use self::crossterm::Screen;
 ///
 /// let screen = Screen::default();

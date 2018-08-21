@@ -10,7 +10,7 @@ Crossterm aims to be simple and easy to call in code.
 Though the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 You can just call whatever action you want and behind the scenes it will check what to do based on the current platform.
 
-This crate supports all unix and windows terminals down to windows XP (not all terminals are tested see [Tested Terminals](Link) for more info)
+This crate supports all unix and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](Link) for more info)
 
 ## Table of contents:
 - [Getting started](https://github.com/TimonPost/crossterm#getting-started)
@@ -167,7 +167,7 @@ This module provides the functionalities to work with the terminal cursor.
 ```rust 
 
 use crossterm::Screen;
-use crossterm::cursor::cursor;
+use crossterm::cursor;
 
 // create Screen to wheron the `cursor()` should function.
 let screen = Screen::default();
@@ -203,6 +203,32 @@ cursor.hide();
 cursor.show();
 // blink or not blinking of the cursor (not widely supported)
 cursor.blink(true)
+
+```
+
+### Input | [see more](LINK)
+This module provides the functionalities to work with terminal input.
+
+Check [this](link) for handling async input.
+
+```rust 
+
+use crossterm::Screen;
+use crossterm::input;
+
+// create Screen to wheron the `cursor()` should function.
+let screen = Screen::default();
+let mut input = input(&screen);
+
+ match input.read_char() {
+    Ok(s) => println!("char typed: {}", s),
+    Err(e) => println!("char error : {}", e),
+ }
+ 
+ match input.read_line() {
+     Ok(s) => println!("string typed: {}", s),
+     Err(e) => println!("error: {}", e),
+ }
 
 ```
 
@@ -254,11 +280,12 @@ Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob
     - Windows 10 (pro)
 - Windows CMD
     - Windows 10 (pro)
+    - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
 - Arch linux Konsole
 
-This crate supports all Unix terminals and windows terminals down to Windows XP but not all of them have been tested.
+This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
 ## Notice 

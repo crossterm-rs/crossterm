@@ -1,4 +1,6 @@
 use super::IStdout;
+use screen::RawScreen;
+use common::commands::win_commands::RawModeCommand;
 use kernel::windows_kernel::{handle, writing};
 use winapi::um::winnt::HANDLE;
 
@@ -9,6 +11,7 @@ use std::io;
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiOutput {
     pub handle: Mutex<HANDLE>,
+    raw_mode: bool,
 }
 
 impl IStdout for WinApiOutput {
@@ -20,7 +23,6 @@ impl IStdout for WinApiOutput {
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
         writing::write_char_buffer(&self.handle.lock().unwrap(), buf)
     }
-
 
     fn flush(&self) -> io::Result<()> {
         Ok(())
@@ -37,7 +39,8 @@ impl IStdout for WinApiOutput {
 
 impl WinApiOutput {
     pub fn new() -> Self {
-        WinApiOutput { handle: Mutex::new(handle::get_output_handle().unwrap()) }
+        let handle = handle::get_output_handle().unwrap();
+        WinApiOutput { raw_mode: false, handle: Mutex::new(handle) }
     }
 
     pub fn set(&mut self, handle: HANDLE)
@@ -47,8 +50,7 @@ impl WinApiOutput {
 
     pub fn get_handle(&self) -> HANDLE
     {
-        let gx = self.handle.lock();
-        gx.unwrap().clone()
+        return self.handle.lock().unwrap().clone();
     }
 }
 
