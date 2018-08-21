@@ -87,9 +87,8 @@ impl RawModeCommand
 impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
-
         let mut dw_mode: DWORD = 0;
-        let stdout = handle::get_output_handle().unwrap();
+        let stdout = handle::get_current_handle_1().unwrap();
 
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {
             return Err(Error::new(
@@ -112,7 +111,7 @@ impl RawModeCommand {
 
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
-        let stdout = handle::get_output_handle().unwrap();
+        let stdout = handle::get_current_handle_1().unwrap();
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {

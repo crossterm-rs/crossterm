@@ -20,7 +20,7 @@ use Screen;
 ///
 /// ```
 pub struct TerminalInput<'stdout> {
-    terminal_input: Box<ITerminalInput>,
+    terminal_input: Box<ITerminalInput + Sync + Send>,
     stdout: &'stdout Arc<TerminalOutput>,
 }
 

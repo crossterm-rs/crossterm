@@ -27,7 +27,7 @@ use Screen;
 /// colored_terminal.reset();
 /// ```
 pub struct TerminalColor<'stdout> {
-    color: Box<ITerminalColor>,
+    color: Box<ITerminalColor + Sync + Send>,
     stdout: &'stdout Arc<TerminalOutput>,
 }
 
@@ -35,13 +35,13 @@ impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
     pub fn new(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
         #[cfg(target_os = "windows")]
-        let color = functions::get_module::<Box<ITerminalColor>>(
+        let color = functions::get_module::<Box<ITerminalColor + Sync + Send>>(
             Box::from(WinApiColor::new()),
             Box::from(AnsiColor::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor>;
+        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;
 
         TerminalColor {
             color,

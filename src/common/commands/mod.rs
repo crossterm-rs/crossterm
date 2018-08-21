@@ -23,13 +23,13 @@ pub trait IEnableAnsiCommand {
 }
 
 // This trait provides an interface for switching to alternate screen and back.
-pub trait IAlternateScreenCommand: Send {
+pub trait IAlternateScreenCommand:  Sync + Send {
     fn enable(&self, stdout: &mut TerminalOutput) -> io::Result<()>;
     fn disable(&self, stdout: &TerminalOutput) -> io::Result<()>;
 }
 
 // This trait provides an interface for switching to raw mode and back.
-pub trait IRawScreenCommand: Send{
+pub trait IRawScreenCommand:  Sync + Send{
     fn enable(&mut self) -> io::Result<()>;
     fn disable(&self) -> io::Result<()>;
 }

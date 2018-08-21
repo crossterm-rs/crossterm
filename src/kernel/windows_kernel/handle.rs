@@ -3,27 +3,76 @@
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::GetStdHandle;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
+use winapi::um::winnt::{GENERIC_READ, GENERIC_WRITE, GENERIC_ALL, FILE_SHARE_WRITE};
+use winapi::um::fileapi::{OPEN_EXISTING, CreateFileW};
+use winapi::shared::minwindef::DWORD;
+use winapi::um::errhandlingapi::GetLastError;
 use super::*;
 
 use std::sync::Arc;
 use std::io::{self,  Result};
+use std::ptr::null_mut;
+
+use winapi::ctypes::c_void;
 
 /// Get the global stored handle whits provides access to the current screen.
 pub fn get_current_handle(stdout: &Arc<TerminalOutput>) -> Result<HANDLE> {
+//    let handle: Result<HANDLE>;
+//
+//    let winapi_stdout: &WinApiOutput = match stdout
+//        .as_any()
+//        .downcast_ref::<WinApiOutput>()
+//        {
+//            Some(win_api) => win_api,
+//            None => return Err(io::Error::new(io::ErrorKind::Other,"Could not convert to winapi screen write, this could happen when the user has an ANSI screen write and is calling the platform specific operations 'get_cursor_pos' or 'get_terminal_size'"))
+//        };
+
+    let dw: DWORD = 0;
+    unsafe {
+
+        let utf16: Vec<u16> = "CONOUT$".encode_utf16().collect();
+        let utf16_ptr: *const u16 = utf16.as_ptr();
+
+        let handle = CreateFileW(utf16_ptr, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING, dw, null_mut());
+
+        if !is_valid_handle(&handle) {
+
+            unsafe
+            {
+                let error = GetLastError();
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("Could not get output handle current handle!, error code: {}", error).as_ref(),
+                ));
+            }
+        }
+
+        Ok(handle)
+    }
+}
+
+pub fn get_current_handle_1() -> Result<HANDLE>
+{
     let handle: Result<HANDLE>;
+    use std::str;
+    unsafe
+    {
+        let dw: DWORD = 0;
 
-    let winapi_stdout: &WinApiOutput = match stdout
-        .as_any()
-        .downcast_ref::<WinApiOutput>()
-        {
-            Some(win_api) => win_api,
-            None => return Err(io::Error::new(io::ErrorKind::Other,"Could not convert to winapi screen write, this could happen when the user has an ANSI screen write and is calling the platform specific operations 'get_cursor_pos' or 'get_terminal_size'"))
-        };
+        let utf16: Vec<u16> = "CONOUT$".encode_utf16().collect();
+        let utf16_ptr: *const u16 = utf16.as_ptr();
 
+        let handle = CreateFileW(utf16_ptr, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING,dw, null_mut());
 
-    handle = Ok(winapi_stdout.get_handle());
+        if !is_valid_handle(&handle) {
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Could not get output handle 1 !",
+            ));
+        }
 
-    return handle;
+        Ok(handle)
+    }
 }
 
 /// Get the std_output_handle of the console

@@ -21,7 +21,7 @@ use std::fmt;
 ///
 /// ```
 pub struct Terminal<'stdout> {
-    terminal: Box<ITerminal>,
+    terminal: Box<ITerminal + Sync + Send>,
     screen: &'stdout Arc<TerminalOutput>,
 }
 
@@ -29,13 +29,13 @@ impl<'stdout> Terminal<'stdout> {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new(screen: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
         #[cfg(target_os = "windows")]
-        let terminal = functions::get_module::<Box<ITerminal>>(
+        let terminal = functions::get_module::<Box<ITerminal + Sync + Send>>(
             Box::new(WinApiTerminal::new()),
             Box::new(AnsiTerminal::new()),
         ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal>;
+        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
 
         Terminal {
             terminal,

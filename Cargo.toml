@@ -12,7 +12,7 @@ readme = "README.md"
 
 [dependencies]
 [target.'cfg(windows)'.dependencies]
-winapi = { version =  "0.3.5", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi"] }
+winapi = { version =  "0.3.5", features = ["winbase","winuser","consoleapi","processenv","wincon", "handleapi","errhandlingapi"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.37"

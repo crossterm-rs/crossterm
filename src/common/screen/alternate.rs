@@ -15,14 +15,14 @@ use std::convert::From;
 /// With this type you will be able to switch to alternate screen and back to main screen.
 pub struct AlternateScreen
 {
-    command: Box<IAlternateScreenCommand + Send>,
+    command: Box<IAlternateScreenCommand + Sync + Send>,
     pub screen: Screen,
 }
 
 impl AlternateScreen {
 
     /// Create new instance of alternate screen.
-    pub fn new(command: Box<IAlternateScreenCommand + Send>, screen: Screen) -> Self
+    pub fn new(command: Box<IAlternateScreenCommand + Sync + Send>, screen: Screen) -> Self
     {
         return AlternateScreen { command, screen }
     }
@@ -37,7 +37,7 @@ impl AlternateScreen {
     pub fn to_alternate_screen(stdout: TerminalOutput, raw_mode: bool) -> io::Result<AlternateScreen> {
 
         #[cfg(target_os = "windows")]
-        let command = functions::get_module::<Box<commands::IAlternateScreenCommand + Send>>(
+        let command = functions::get_module::<Box<commands::IAlternateScreenCommand + Sync + Send>>(
             Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
             Box::from(commands::shared_commands::ToAlternateScreenCommand::new()),
         ).unwrap();

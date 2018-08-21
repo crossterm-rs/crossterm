@@ -25,7 +25,7 @@ use std::sync::Arc;
 ///!
 ///! This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 ///! so that cursor related actions can be preformed on both unix and windows systems.
-trait ITerminalCursor {
+trait ITerminalCursor : Sync + Send {
     /// Goto some location (x,y) in the context.
     fn goto(&self, x: u16, y: u16, stdout: &Arc<TerminalOutput>);
     /// Get the location (x,y) of the current cusror in the context

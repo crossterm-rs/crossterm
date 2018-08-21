@@ -28,7 +28,7 @@ use Screen;
 /// ```
 pub struct TerminalCursor<'stdout> {
     screen: &'stdout Arc<TerminalOutput>,
-    terminal_cursor: Box<ITerminalCursor>,
+    terminal_cursor: Box<ITerminalCursor + Sync + Send>,
 }
 
 impl<'stdout> TerminalCursor<'stdout> {
@@ -36,11 +36,11 @@ impl<'stdout> TerminalCursor<'stdout> {
     pub fn new(screen: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
         let cursor =
-            functions::get_module::<Box<ITerminalCursor>>(WinApiCursor::new(), AnsiCursor::new())
+            functions::get_module::<Box<ITerminalCursor + Sync + Send>>(WinApiCursor::new(), AnsiCursor::new())
                 .unwrap();
 
         #[cfg(not(target_os = "windows"))]
-        let cursor = AnsiCursor::new() as Box<ITerminalCursor>;
+        let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
 
         TerminalCursor {
             terminal_cursor: cursor,
