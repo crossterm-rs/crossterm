@@ -7,20 +7,21 @@ use crossterm::style::{style, Color};
 use std::io::{stdout, Write};
 use std::{thread, time};
 
-fn print_wait_screen(screen: &Screen) {
+fn print_wait_screen(screen: &mut Screen) {
     let crossterm = Crossterm::new(screen);
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
 
     terminal.clear(ClearType::All);
-    cursor.goto(0, 0);
-    cursor.hide();
 
-    terminal.write(
-        "Welcome to the wait screen.\n\
-         Please wait a few seconds until we arrive back at the main screen.\n\
-         Progress: ",
-    );
+    cursor.hide();
+    cursor.goto(0, 0);
+    screen.write(b"Welcome to the wait screen.");
+    cursor.goto(0, 1);
+    screen.write(b"Please wait a few seconds until we arrive back at the main screen.");
+    cursor.goto(0, 2);
+    screen.write(b"Progress:");
+    cursor.goto(0, 3);
 
     // print some progress example.
     for i in 1..5 {
@@ -37,9 +38,9 @@ fn print_wait_screen(screen: &Screen) {
 pub fn print_wait_screen_on_alternate_window() {
     let screen = Screen::default();
 
-    if let Ok(alternate) = screen.enable_alternate_modes(true)
+    if let Ok(ref mut alternate) = screen.enable_alternate_modes(true)
     {
-            print_wait_screen(&alternate.screen);
+            print_wait_screen(&mut alternate.screen);
     }
 
     println!("Whe are back at the main screen");

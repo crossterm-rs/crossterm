@@ -9,9 +9,14 @@ use std::any::Any;
 use std::io;
 
 /// This struct is a wrapper for WINAPI `HANDLE`
-pub struct WinApiOutput {
-    pub handle: Mutex<HANDLE>,
-    raw_mode: bool,
+pub struct WinApiOutput;
+
+impl WinApiOutput
+{
+    pub fn new() -> WinApiOutput
+    {
+        WinApiOutput {}
+    }
 }
 
 impl IStdout for WinApiOutput {
@@ -21,7 +26,8 @@ impl IStdout for WinApiOutput {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        writing::write_char_buffer(&self.handle.lock().unwrap(), buf)
+        let handle = handle::get_current_handle().unwrap();
+        writing::write_char_buffer(&handle, buf)
     }
 
     fn flush(&self) -> io::Result<()> {
@@ -34,23 +40,6 @@ impl IStdout for WinApiOutput {
 
     fn as_any_mut(&mut self) -> &mut Any {
         self
-    }
-}
-
-impl WinApiOutput {
-    pub fn new() -> Self {
-        let handle = handle::get_output_handle().unwrap();
-        WinApiOutput { raw_mode: false, handle: Mutex::new(handle) }
-    }
-
-    pub fn set(&mut self, handle: HANDLE)
-    {
-        self.handle = Mutex::new(handle);
-    }
-
-    pub fn get_handle(&self) -> HANDLE
-    {
-        return self.handle.lock().unwrap().clone();
     }
 }
 

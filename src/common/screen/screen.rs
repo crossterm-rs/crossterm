@@ -55,7 +55,7 @@ impl Screen
     {
         if raw_mode
         {
-            let screen = Screen { stdout: Arc::new(TerminalOutput::new()), buffer: Vec::new() };
+            let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new() };
             RawScreen::into_raw_mode();
             return screen;
         }
@@ -71,10 +71,24 @@ impl Screen
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn enable_alternate_modes(&self, raw_mode: bool) -> Result<AlternateScreen> {
-        let stdout = TerminalOutput::new();
+        let stdout = TerminalOutput::new(raw_mode);
 
         let alternate_screen = AlternateScreen::to_alternate_screen(stdout, raw_mode)?;
         return Ok(alternate_screen);
+    }
+
+    /// Write buffer to an internal buffer. When you want to write the buffer to screen use `flush()`.
+   ///
+   /// This function is useful if you want to build up some output and when you are ready you could flush the output to the screen.
+    pub fn write_buf(&mut self, buf: &[u8]) -> Result<usize> {
+        self.buffer.write(buf);
+        Ok(buf.len())
+    }
+
+    /// Flush the internal buffer to the screen.
+    pub fn flush_buf(&mut self) -> Result<()> {
+        self.stdout.write_buf(&self.buffer);
+        self.stdout.flush()
     }
 }
 
@@ -98,7 +112,7 @@ impl Default for Screen
 {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(TerminalOutput::new()), buffer: Vec::new() };
+        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new() };
     }
 }
 
@@ -115,17 +129,11 @@ impl Drop for Screen
 
 impl Write for Screen
 {
-    /// Write buffer to an internal buffer. When you want to write the buffer to screen use `flush()`.
-    ///
-    /// This function is useful if you want to build up some output and when you are ready you could flush the output to the screen.
     fn write(&mut self, buf: &[u8]) -> Result<usize> {
-        self.buffer.write(buf);
-        Ok(buf.len())
+        self.stdout.write_buf(buf)
     }
 
-    /// Flush the internal buffer to the screen.
     fn flush(&mut self) -> Result<()> {
-        self.stdout.write_buf(&self.buffer);
         self.stdout.flush()
     }
 }

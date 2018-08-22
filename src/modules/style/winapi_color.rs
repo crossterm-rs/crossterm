@@ -23,7 +23,7 @@ impl ITerminalColor for WinApiColor {
     fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
-        let csbi = csbi::get_csbi(stdout).unwrap();
+        let csbi = csbi::get_csbi().unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So we need to use bitwise operators to check if the values exists or to get current console colors.
@@ -38,13 +38,13 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color, stdout);
+        kernel::set_console_text_attribute(color);
     }
 
     fn set_bg(&self, bg_color: Color, stdout: &Arc<TerminalOutput>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let (csbi, handle) = csbi::get_csbi_and_handle(stdout).unwrap();
+        let (csbi, handle) = csbi::get_csbi_and_handle().unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
@@ -59,11 +59,11 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color, stdout);
+        kernel::set_console_text_attribute(color);
     }
 
     fn reset(&self, stdout: &Arc<TerminalOutput>) {
-        kernel::set_console_text_attribute(self.original_color, stdout);
+        kernel::set_console_text_attribute(self.original_color);
     }
 
     /// This will get the winapi color value from the Color and ColorType struct

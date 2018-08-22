@@ -17,11 +17,11 @@ impl WinApiCursor {
 
 impl ITerminalCursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16, stdout: &Arc<TerminalOutput>) {
-        cursor::set_console_cursor_position(x as i16, y as i16, stdout);
+        cursor::set_console_cursor_position(x as i16, y as i16);
     }
 
     fn pos(&self, stdout: &Arc<TerminalOutput>) -> (u16, u16) {
-        cursor::pos(stdout)
+        cursor::pos()
     }
 
     fn move_up(&self, count: u16, stdout: &Arc<TerminalOutput>) {
@@ -45,19 +45,19 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn save_position(&self, stdout: &Arc<TerminalOutput>) {
-        cursor::save_cursor_pos(stdout);
+        cursor::save_cursor_pos();
     }
 
     fn reset_position(&self, stdout: &Arc<TerminalOutput>) {
-        cursor::reset_to_saved_position(stdout);
+        cursor::reset_to_saved_position();
     }
 
     fn hide(&self, stdout: &Arc<TerminalOutput>) {
-        cursor::cursor_visibility(false, stdout);
+        cursor::cursor_visibility(false);
     }
 
     fn show(&self, stdout: &Arc<TerminalOutput>) {
-        cursor::cursor_visibility(true, stdout);
+        cursor::cursor_visibility(true);
     }
     fn blink(&self, blink: bool, stdout: &Arc<TerminalOutput>) {}
 }

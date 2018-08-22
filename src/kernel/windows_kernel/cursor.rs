@@ -14,19 +14,18 @@ use std::sync::Arc;
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
 
 /// Reset to saved cursor position
-pub fn reset_to_saved_position(stdout: &Arc<TerminalOutput>) {
+pub fn reset_to_saved_position() {
     unsafe {
         set_console_cursor_position(
             SAVED_CURSOR_POS.0 as i16,
             SAVED_CURSOR_POS.1 as i16,
-            stdout,
         );
     }
 }
 
 /// Save current cursor position to recall later.
-pub fn save_cursor_pos(stdout: &Arc<TerminalOutput>) {
-    let position = pos(stdout);
+pub fn save_cursor_pos() {
+    let position = pos();
 
     unsafe {
         SAVED_CURSOR_POS = (position.0, position.1);
@@ -34,8 +33,8 @@ pub fn save_cursor_pos(stdout: &Arc<TerminalOutput>) {
 }
 
 /// get the current cursor position.
-pub fn pos(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
-    let handle = handle::get_current_handle(stdout).unwrap();
+pub fn pos() -> (u16, u16) {
+    let handle = handle::get_current_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
         (
@@ -48,7 +47,7 @@ pub fn pos(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
 }
 
 /// Set the cursor position to the given x and y. Note that this is 0 based.
-pub fn set_console_cursor_position(x: i16, y: i16, stdout: &Arc<TerminalOutput>) {
+pub fn set_console_cursor_position(x: i16, y: i16) {
     if x < 0 || x >= <i16>::max_value() {
         panic!(
             "Argument Out of Range Exception when setting cursor position to X: {}",
@@ -63,7 +62,7 @@ pub fn set_console_cursor_position(x: i16, y: i16, stdout: &Arc<TerminalOutput>)
         );
     }
 
-    let handle = handle::get_current_handle(stdout).unwrap();
+    let handle = handle::get_current_handle().unwrap();
 
     let position = COORD { X: x, Y: y };
 
@@ -77,8 +76,8 @@ pub fn set_console_cursor_position(x: i16, y: i16, stdout: &Arc<TerminalOutput>)
 }
 
 /// change the cursor visibility.
-pub fn cursor_visibility(visable: bool, stdout: &Arc<TerminalOutput>) -> io::Result<()> {
-    let handle = handle::get_current_handle(stdout).unwrap();
+pub fn cursor_visibility(visable: bool) -> io::Result<()> {
+    let handle = handle::get_current_handle().unwrap();
 
     let cursor_info = CONSOLE_CURSOR_INFO {
         dwSize: 100,

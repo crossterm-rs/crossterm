@@ -73,14 +73,10 @@ fn main() {
 
             snake.draw_snake(&screen);
 
-
-
             if snake.has_eaten_food(map.foot_pos)
             {
                 map.spawn_food(&free_positions, &screen);
             }
-
-
         }
     }
     game_over_screen();

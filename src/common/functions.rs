@@ -22,7 +22,10 @@ pub fn get_terminal_size() -> (u16, u16) {
 
 /// Get the cursor position based on the current platform.
 pub fn get_cursor_position(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
+    #[cfg(unix)]
     return pos(stdout);
+    #[cfg(windows)]
+    return pos();
 }
 
 /// exit the current terminal.

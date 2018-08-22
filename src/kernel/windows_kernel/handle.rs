@@ -15,22 +15,11 @@ use std::ptr::null_mut;
 
 use winapi::ctypes::c_void;
 
-/// Get the global stored handle whits provides access to the current screen.
-pub fn get_current_handle(stdout: &Arc<TerminalOutput>) -> Result<HANDLE> {
-//    let handle: Result<HANDLE>;
-//
-//    let winapi_stdout: &WinApiOutput = match stdout
-//        .as_any()
-//        .downcast_ref::<WinApiOutput>()
-//        {
-//            Some(win_api) => win_api,
-//            None => return Err(io::Error::new(io::ErrorKind::Other,"Could not convert to winapi screen write, this could happen when the user has an ANSI screen write and is calling the platform specific operations 'get_cursor_pos' or 'get_terminal_size'"))
-//        };
-
+/// Get the handle of the active screen.
+pub fn get_current_handle() -> Result<HANDLE> {
     let dw: DWORD = 0;
     unsafe {
-
-        let utf16: Vec<u16> = "CONOUT$".encode_utf16().collect();
+        let utf16: Vec<u16> = "CONOUT$\0".encode_utf16().collect();
         let utf16_ptr: *const u16 = utf16.as_ptr();
 
         let handle = CreateFileW(utf16_ptr, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING, dw, null_mut());
@@ -45,30 +34,6 @@ pub fn get_current_handle(stdout: &Arc<TerminalOutput>) -> Result<HANDLE> {
                     format!("Could not get output handle current handle!, error code: {}", error).as_ref(),
                 ));
             }
-        }
-
-        Ok(handle)
-    }
-}
-
-pub fn get_current_handle_1() -> Result<HANDLE>
-{
-    let handle: Result<HANDLE>;
-    use std::str;
-    unsafe
-    {
-        let dw: DWORD = 0;
-
-        let utf16: Vec<u16> = "CONOUT$".encode_utf16().collect();
-        let utf16_ptr: *const u16 = utf16.as_ptr();
-
-        let handle = CreateFileW(utf16_ptr, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING,dw, null_mut());
-
-        if !is_valid_handle(&handle) {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Could not get output handle 1 !",
-            ));
         }
 
         Ok(handle)

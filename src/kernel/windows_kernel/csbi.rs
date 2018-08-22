@@ -18,12 +18,12 @@ use std::mem::size_of;
 use std::sync::Arc;
 
 /// Create a new console screen buffer info struct.
-pub fn get_csbi(stdout: &Arc<TerminalOutput>) -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
+pub fn get_csbi() -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
     unsafe {
-        success = GetConsoleScreenBufferInfo(handle::get_current_handle(stdout)?, &mut csbi)
+        success = GetConsoleScreenBufferInfo(handle::get_current_handle()?, &mut csbi)
     }
 
     if success == 0 {
@@ -37,10 +37,8 @@ pub fn get_csbi(stdout: &Arc<TerminalOutput>) -> Result<CONSOLE_SCREEN_BUFFER_IN
 }
 
 /// Get buffer info and handle of the current screen.
-pub fn get_csbi_and_handle(
-    stdout: &Arc<TerminalOutput>,
-) -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
-    let handle = handle::get_current_handle(stdout)?;
+pub fn get_csbi_and_handle() -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
+    let handle = handle::get_current_handle()?;
     let csbi = get_csbi_by_handle(&handle)?;
 
     return Ok((csbi, handle));
@@ -63,8 +61,8 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 }
 
 /// Set the console screen buffer size
-pub fn set_console_screen_buffer_size(size: COORD, stdout: &Arc<TerminalOutput>) -> bool {
-    let handle = handle::get_current_handle(stdout).unwrap();
+pub fn set_console_screen_buffer_size(size: COORD) -> bool {
+    let handle = handle::get_current_handle().unwrap();
 
     unsafe {
         if !kernel::is_true(SetConsoleScreenBufferSize(handle, size)) {

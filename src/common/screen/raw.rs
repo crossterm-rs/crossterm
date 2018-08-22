@@ -10,7 +10,7 @@
 //!   The characters are not processed by the terminal driver, but are sent straight through.
 //!   Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
 //! - Escape characters
-//!   Note that in raw modes `\n` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
+//!   Note that in raw modes `\n` `\r` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
 //!
 //! With these modes you can easier design the terminal screen.
 

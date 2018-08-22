@@ -25,14 +25,10 @@ fn main()
 /// run the program
 pub fn run()
 {
+    print_welcome_screen();
+
     // This is represents the current screen.
     let screen = Screen::new(true);
-
-    // set size of terminal so the map we are going to draw is fitting the screen.
-    terminal(&screen).set_size(60,110);
-
-    print_welcome_screen(&screen);
-
     start_algorithm(&screen);
     drop(screen);
 }
@@ -56,8 +52,9 @@ fn start_algorithm(screen: &Screen)
     }
 }
 
-fn print_welcome_screen(screen: &Screen)
+fn print_welcome_screen()
 {
+    let screen = Screen::default();
     let crossterm = Crossterm::new(&screen);
 
     // create the handle for the cursor and terminal.
@@ -65,17 +62,20 @@ fn print_welcome_screen(screen: &Screen)
     let cursor = crossterm.cursor();
     let input = crossterm.input();
 
+    // set size of terminal so the map we are going to draw is fitting the screen.
+    terminal.set_size(60,110);
+
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);
-    terminal.write(WELCOME_MESSAGE.join("\n\r"));
+    terminal.write(WELCOME_MESSAGE.join("\r\n"));
 
     cursor.hide();
     cursor.goto(0, 10);
     terminal.write("The first depth search algorithm will start in:   Seconds");
 
     cursor.goto(0, 11);
-    terminal.write("\nPress `q` to abort the program");
+    terminal.write("Press `q` to abort the program");
 
     let mut stdin = input.read_async().bytes();
 

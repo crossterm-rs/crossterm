@@ -30,8 +30,8 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool {
 }
 
 /// Change the console text attribute.
-pub fn set_console_text_attribute(value: u16, stdout: &Arc<TerminalOutput>) -> bool {
-    let handle = handle::get_current_handle(stdout).unwrap();
+pub fn set_console_text_attribute(value: u16) -> bool {
+    let handle = handle::get_current_handle().unwrap();
 
     unsafe {
         return is_true(SetConsoleTextAttribute(handle, value));
@@ -39,8 +39,8 @@ pub fn set_console_text_attribute(value: u16, stdout: &Arc<TerminalOutput>) -> b
 }
 
 /// Change console info.
-pub fn set_console_info(absolute: bool, rect: &SMALL_RECT, stdout: &Arc<TerminalOutput>) -> bool {
-    let handle = handle::get_current_handle(stdout).unwrap();
+pub fn set_console_info(absolute: bool, rect: &SMALL_RECT) -> bool {
+    let handle = handle::get_current_handle().unwrap();
 
     let absolute = match absolute {
         true => 1,

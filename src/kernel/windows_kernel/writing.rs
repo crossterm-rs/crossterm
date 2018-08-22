@@ -18,10 +18,9 @@ use std::sync::Arc;
 pub fn fill_console_output_character(
     cells_written: &mut u32,
     start_location: COORD,
-    cells_to_write: u32,
-    stdout: &Arc<TerminalOutput>,
+    cells_to_write: u32
 ) -> bool {
-    let handle = handle::get_current_handle(stdout).unwrap();
+    let handle = handle::get_current_handle().unwrap();
 
     unsafe {
         // fill the cells in console with blanks
@@ -40,12 +39,11 @@ pub fn fill_console_output_character(
 pub fn fill_console_output_attribute(
     cells_written: &mut u32,
     start_location: COORD,
-    cells_to_write: u32,
-    stdout: &Arc<TerminalOutput>,
+    cells_to_write: u32
 ) -> bool {
     // Get the position of the current console window
 
-    let (csbi, handle) = csbi::get_csbi_and_handle(stdout).unwrap();
+    let (csbi, handle) = csbi::get_csbi_and_handle().unwrap();
 
     let success;
 

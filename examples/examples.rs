@@ -19,19 +19,6 @@ use std::io::Write;
 use std::{thread,time};
 fn main()
 {
-    use crossterm::screen::RawScreen;
-    use crossterm::Screen;
-
-    let mut screen = Screen::new(true);
-
-    cursor::goto();
-
-//    write!(screen, "text \n\r");
-    let a = screen.enable_alternate_modes(true).unwrap();
-//    cursor::goto();
+   terminal::raw_mode::print_wait_screen_on_alternate_window();
     thread::sleep(time::Duration::from_millis(2000));
-    drop(a);
-    cursor::goto();
-//
-//    write!(a, "text \n\r");
 }

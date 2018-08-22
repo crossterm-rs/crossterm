@@ -35,7 +35,7 @@ pub struct TerminalOutput {
 
 impl TerminalOutput {
     /// Create new screen write instance whereon screen related actions can be performed.
-    pub fn new() -> Self {
+    pub fn new(raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
         let stdout: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiOutput::new()),
@@ -45,7 +45,7 @@ impl TerminalOutput {
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
 
-        TerminalOutput { stdout , is_in_raw_mode: false}
+        TerminalOutput { stdout , is_in_raw_mode: raw_mode}
     }
 
     /// Write String to the current screen.

@@ -88,7 +88,7 @@ impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
         let mut dw_mode: DWORD = 0;
-        let stdout = handle::get_current_handle_1().unwrap();
+        let stdout = handle::get_current_handle().unwrap();
 
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {
             return Err(Error::new(
@@ -111,7 +111,7 @@ impl RawModeCommand {
 
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
-        let stdout = handle::get_current_handle_1().unwrap();
+        let stdout = handle::get_current_handle().unwrap();
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {
@@ -155,16 +155,6 @@ impl IAlternateScreenCommand  for ToAlternateScreenCommand {
 
         // Make the new screen buffer the active screen buffer.
         csbi::set_active_screen_buffer(new_handle)?;
-
-        let b: &mut WinApiOutput = match stdout
-            .as_any_mut()
-            .downcast_mut::<WinApiOutput>()
-        {
-            Some(b) => b,
-            None => return Err(Error::new(ErrorKind::Other, "Invalid cast exception")),
-        };
-
-        b.set(new_handle);
 
         Ok(())
     }
