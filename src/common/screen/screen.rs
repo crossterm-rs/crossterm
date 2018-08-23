@@ -123,7 +123,6 @@ impl Drop for Screen
         if self.stdout.is_in_raw_mode
         {
             RawScreen::disable_raw_modes();
-            panic!("drop");
         }
     }
 }
