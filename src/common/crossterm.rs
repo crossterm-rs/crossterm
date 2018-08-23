@@ -123,3 +123,10 @@ impl<'crossterm> Crossterm {
         style::ObjectStyle::new().apply_to(val)
     }
 }
+
+impl From<Arc<TerminalOutput>> for Crossterm
+{
+    fn from(stdout: Arc<TerminalOutput>) -> Self {
+        Crossterm { stdout: stdout }
+    }
+}

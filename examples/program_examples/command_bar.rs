@@ -1,9 +1,9 @@
 extern crate crossterm;
 
-use crossterm::{Screen, Crossterm};
+use crossterm::{Screen, Crossterm, screen};
 use crossterm::terminal::{terminal,Terminal, ClearType};
-use crossterm::cursor::TerminalCursor;
-
+use crossterm::cursor::{TerminalCursor, cursor};
+use crossterm::input::input;
 use std::sync::{Arc,Mutex};
 use std::io::Read;
 use std::{thread,time};
@@ -18,13 +18,13 @@ fn main() {
 
     let mut input_buf = Arc::new(Mutex::new(String::new()));
 
-    let mut count = 0;
-
     let threads = log(input_buf.clone(),&screen);
 
+
+    let mut count = 0;
+
     thread::spawn(move || {
-        let t = Crossterm::new(&screen);
-        let input = t.input();
+        let input = input(&screen);
         let mut stdin = input.read_async().bytes();
 
         loop
@@ -32,16 +32,16 @@ fn main() {
                 let a = stdin.next();
 
                 match a {
-                    Some(Ok(10)) =>
+                    Some(Ok(13)) =>
                         {
                             input_buf.lock().unwrap().clear();
 
                             // need to start receiving again because if pressed enter then async reading will stop
-                            stdin = input.read_async().bytes();
+//                            stdin = input.read_async().bytes();
                         }
-                    Some(Ok(val)) =>
+                        Some(Ok(val)) =>
                         {
-                            println!("{:?}",a);
+//                            println!("{:?}",a);
                             input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
                         }
                     _ => {}
@@ -50,7 +50,7 @@ fn main() {
                 thread::sleep(time::Duration::from_millis(100));
                 count += 1;
             }
-    });
+    }).join();
 
 
     for thread in threads
@@ -72,8 +72,9 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
         let input_buffer = input_buf.clone();
         let clone_stdout = screen.stdout.clone();
 
+        let crossterm = Crossterm::from(screen.stdout.clone());
+
         let join = thread::spawn( move || {
-            let crossterm = Crossterm::new(&Screen::from(clone_stdout));
             let cursor = crossterm.cursor();
             let terminal = crossterm.terminal();
 

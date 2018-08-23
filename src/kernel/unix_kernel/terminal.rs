@@ -159,10 +159,18 @@ pub fn disable_raw_mode() -> io::Result<()>
 ///
 /// This allows for getting stdio representing _only_ the TTY, and not other streams.
 pub fn get_tty() -> io::Result<fs::File> {
-    fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open("/dev/tty")
+    let mut tty_f: fs::File = unsafe { ::std::mem::zeroed() };
+
+    let fd = unsafe {
+        if libc::isatty(libc::STDIN_FILENO) == 1 {
+            libc::STDIN_FILENO
+        } else {
+            tty_f = fs::File::open("/dev/tty")?;
+            tty_f.as_raw_fd()
+        }
+    };
+
+    return Ok(tty_f);
 }
 
 pub fn read_char() -> io::Result<char> {

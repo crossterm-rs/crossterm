@@ -56,7 +56,7 @@ impl Screen
         if raw_mode
         {
             let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new() };
-            RawScreen::into_raw_mode();
+            RawScreen::into_raw_mode().unwrap();
             return screen;
         }
 
@@ -123,6 +123,7 @@ impl Drop for Screen
         if self.stdout.is_in_raw_mode
         {
             RawScreen::disable_raw_modes();
+            panic!("drop");
         }
     }
 }
