@@ -86,7 +86,7 @@ pub fn read_async_demo() {
 
         // get the next pressed key
         let pressed_key = stdin.next();
-        terminal.write(format!("\r{:?}    <- Character pressed", pressed_key));
+        terminal.write(format!("{:?}    <- Character pressed", pressed_key));
 
         // check if pressed key is enter (\r)
         if let Some(Ok(b'\r')) = pressed_key {
@@ -123,7 +123,7 @@ pub fn async_reading_on_alternate_screen() {
             // get the next pressed key
             let pressed_key = stdin.next();
 
-            terminal.write(format!("\r{:?}    <- Character pressed", pressed_key));
+            terminal.write(format!("{:?}    <- Character pressed", pressed_key));
 
             // check if pressed key is enter (\r)
             if let Some(Ok(b'\r')) = pressed_key {

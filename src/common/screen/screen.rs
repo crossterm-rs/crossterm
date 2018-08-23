@@ -45,6 +45,7 @@ pub struct Screen
 {
     buffer: Vec<u8>,
     pub stdout: Arc<TerminalOutput>,
+    drop: bool,
 }
 
 impl Screen
@@ -90,13 +91,19 @@ impl Screen
         self.stdout.write_buf(&self.buffer);
         self.stdout.flush()
     }
+
+    // this will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
+    pub fn disable_drop(&self)
+    {
+        self.drop = false;
+    }
 }
 
 impl From<TerminalOutput> for Screen
 {
     /// Create an screen with the given `Stdout`
     fn from(stdout: TerminalOutput) -> Self {
-        return Screen { stdout: Arc::new(stdout), buffer: Vec::new() };
+        return Screen { stdout: Arc::new(stdout), buffer: Vec::new(), drop: true};
     }
 }
 
@@ -104,7 +111,7 @@ impl From<Arc<TerminalOutput>> for Screen
 {
     /// Create an screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        return Screen { stdout: stdout, buffer: Vec::new() };
+        return Screen { stdout: stdout, buffer: Vec::new() drop: true};
     }
 }
 
@@ -112,7 +119,7 @@ impl Default for Screen
 {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new() };
+        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new(), drop: true};
     }
 }
 
@@ -120,7 +127,7 @@ impl Drop for Screen
 {
     /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
-        if self.stdout.is_in_raw_mode
+        if self.stdout.is_in_raw_mode && self.drop
         {
             RawScreen::disable_raw_modes();
         }

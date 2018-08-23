@@ -19,6 +19,5 @@ use std::io::Write;
 use std::{thread,time};
 fn main()
 {
-   terminal::raw_mode::print_wait_screen_on_alternate_window();
-    thread::sleep(time::Duration::from_millis(2000));
+
 }
