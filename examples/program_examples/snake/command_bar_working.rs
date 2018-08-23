@@ -1,9 +1,9 @@
 extern crate crossterm;
 
-use crossterm::{Screen, Crossterm, screen};
+use crossterm::{Screen, Crossterm};
 use crossterm::terminal::{terminal,Terminal, ClearType};
-use crossterm::cursor::{TerminalCursor, cursor};
-use crossterm::input::input;
+use crossterm::cursor::TerminalCursor;
+
 use std::sync::{Arc,Mutex};
 use std::io::Read;
 use std::{thread,time};
@@ -12,19 +12,21 @@ fn main() {
     use crossterm::color;
 
     let screen = Screen::new(true);
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Arc::new(Crossterm::new(&screen));
+
     let cursor = crossterm.cursor();
     cursor.hide();
 
     let mut input_buf = Arc::new(Mutex::new(String::new()));
 
-    let threads = log(input_buf.clone(),&screen);
-
-
     let mut count = 0;
 
+    let threads = log(input_buf.clone(),crossterm.clone());
+
+    let crossterm_clone = crossterm.clone();
+
     thread::spawn(move || {
-        let input = input(&screen);
+        let input = crossterm_clone.input();
         let mut stdin = input.read_async().bytes();
 
         loop
@@ -35,14 +37,13 @@ fn main() {
                     Some(Ok(13)) =>
                         {
                             input_buf.lock().unwrap().clear();
-
                             // need to start receiving again because if pressed enter then async reading will stop
 //                            stdin = input.read_async().bytes();
                         }
-                        Some(Ok(val)) =>
+                    Some(Ok(val)) =>
                         {
-//                            println!("{:?}",a);
-                            input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
+//                            println!("{}",val);
+                            input_buf.lock().unwrap().push(a.unwrap().unwrap() as u8 as char);
                         }
                     _ => {}
                 }
@@ -61,22 +62,20 @@ fn main() {
     cursor.show();
 }
 
-fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle<()>>
+fn log(input_buf: Arc<Mutex<String>>, crossterm: Arc<Crossterm>) -> Vec<thread::JoinHandle<()>>
 {
     let mut threads = Vec::with_capacity(10);
 
-    let (_, term_height) = terminal(&screen).terminal_size();
+    let (_, term_height) = crossterm.terminal().terminal_size();
 
     for i in 0..1
     {
         let input_buffer = input_buf.clone();
-        let clone_stdout = screen.stdout.clone();
-
-        let crossterm = Crossterm::from(screen.stdout.clone());
-
+        let crossterm_clone = crossterm.clone();
         let join = thread::spawn( move || {
-            let cursor = crossterm.cursor();
-            let terminal = crossterm.terminal();
+
+            let cursor = crossterm_clone.cursor();
+            let terminal = crossterm_clone.terminal();
 
             for j in 0..1000
             {

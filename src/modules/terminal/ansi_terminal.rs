@@ -5,6 +5,7 @@ use super::*;
 
 /// This struct is an ansi escape code implementation for terminal related actions.
 pub struct AnsiTerminal;
+use cursor::TerminalCursor;
 
 impl AnsiTerminal {
     pub fn new() -> AnsiTerminal {
@@ -17,6 +18,7 @@ impl ITerminal for AnsiTerminal {
         match clear_type {
             ClearType::All => {
                 stdout.write_str(csi!("2J"));
+                TerminalCursor::new(stdout).goto(0,0);
             }
             ClearType::FromCursorDown => {
                 stdout.write_str(csi!("J"));

@@ -42,6 +42,6 @@ pub fn print_wait_screen_on_alternate_window() {
     {
             print_wait_screen(&mut alternate.screen);
     }
-
+    drop(screen);
     println!("Whe are back at the main screen");
 }

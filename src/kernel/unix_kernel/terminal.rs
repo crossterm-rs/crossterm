@@ -107,35 +107,70 @@ pub fn make_raw(termios: &mut Termios) {
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 
-/// Get the current terminal mode.
-pub fn get_terminal_mode() -> io::Result<Termios> {
-    extern "C" {
-        pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
-    }
+pub fn into_raw_mode() -> io::Result<()>
+{
+    let tty_f;
+
+    let fd = unsafe {
+        if libc::isatty(libc::STDIN_FILENO) == 1 {
+            libc::STDIN_FILENO
+        } else {
+            tty_f = fs::File::open("/dev/tty")?;
+            tty_f.as_raw_fd()
+        }
+    };
+
+    let mut termios = Termios::from_fd(fd)?;
+    let original = termios.clone();
+
     unsafe {
-        if let Some(original_mode) = ORIGINAL_TERMINAL_MODE
+        if let None = ORIGINAL_TERMINAL_MODE
         {
-            return Ok(original_mode.clone())
+            ORIGINAL_TERMINAL_MODE = Some(original.clone())
         }
-        else {
-            let mut termios = mem::zeroed();
-            is_true(tcgetattr(0, &mut termios))?;
-            ORIGINAL_TERMINAL_MODE = Some(termios.clone());
-
-            return Ok(termios)
-        }
-
     }
+
+    make_raw(&mut termios);
+    tcsetattr(fd, TCSADRAIN, &termios)?;
+    Ok(())
+}
+
+pub fn disable_raw_mode() -> io::Result<()>
+{
+    let tty_f;
+
+    let fd = unsafe {
+        if libc::isatty(libc::STDIN_FILENO) == 1 {
+            libc::STDIN_FILENO
+        } else {
+            tty_f = fs::File::open("/dev/tty")?;
+            tty_f.as_raw_fd()
+        }
+    };
+
+    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE }
+    {
+        tcsetattr(fd, TCSADRAIN, &original)?;
+    }
+    Ok(())
 }
 
 /// Get the TTY device.
 ///
 /// This allows for getting stdio representing _only_ the TTY, and not other streams.
 pub fn get_tty() -> io::Result<fs::File> {
-    fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .open("/dev/tty")
+    let mut tty_f: fs::File = unsafe { ::std::mem::zeroed() };
+
+    let fd = unsafe {
+        if libc::isatty(libc::STDIN_FILENO) == 1 {
+            libc::STDIN_FILENO
+        } else {
+            tty_f = fs::File::open("/dev/tty")?;
+            tty_f.as_raw_fd()
+        }
+    };
+
+    return Ok(tty_f);
 }
 
 pub fn read_char() -> io::Result<char> {
