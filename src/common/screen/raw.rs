@@ -28,7 +28,7 @@ impl RawScreen {
     pub fn into_raw_mode() -> io::Result<()>
     {
         #[cfg(not(target_os = "windows"))]
-        let mut command = unix_command::NoncanonicalModeCommand::new();
+        let mut command = unix_command::RawModeCommand::new();
         #[cfg(target_os = "windows")]
         let mut command = win_commands::RawModeCommand::new();
 
@@ -40,9 +40,9 @@ impl RawScreen {
     pub fn disable_raw_modes() -> io::Result<()>
     {
         #[cfg(not(target_os = "windows"))]
-        let command = unix_command::NoncanonicalModeCommand::new();
+        let mut command = unix_command::RawModeCommand::new();
         #[cfg(target_os = "windows")]
-        let command = win_commands::RawModeCommand::new();
+        let mut command = win_commands::RawModeCommand::new();
 
         command.disable()?;
         return Ok(())

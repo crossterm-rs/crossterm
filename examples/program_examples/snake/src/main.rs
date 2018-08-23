@@ -78,7 +78,9 @@ fn main() {
                 map.spawn_food(&free_positions, &screen);
             }
         }
+        drop(screen);
     }
+
     game_over_screen();
 }
 

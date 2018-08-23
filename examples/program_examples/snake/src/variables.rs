@@ -41,7 +41,7 @@ impl Position
     pub fn remove(&self, screen: &Screen)
     {
         cursor(screen).goto(self.x as u16, self.y as u16);
-        terminal(&screen).write(" ");
+        terminal(&screen).write("  ");
     }
 }
 

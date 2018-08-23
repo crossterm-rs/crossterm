@@ -13,42 +13,45 @@ fn main() {
 
     let screen = Screen::new(true);
     let crossterm = Crossterm::new(&screen);
-
-    let input = crossterm.input();
-    let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
-
-    let mut stdin = input.read_async().bytes();
     cursor.hide();
 
     let mut input_buf = Arc::new(Mutex::new(String::new()));
 
     let mut count = 0;
 
-    let threads = log(input_buf.clone());
+    let threads = log(input_buf.clone(),&screen);
 
-    loop
-    {
-        let a = stdin.next();
+    thread::spawn(move || {
+        let t = Crossterm::new(&screen);
+        let input = t.input();
+        let mut stdin = input.read_async().bytes();
 
-        match a {
-            Some(Ok(b'\n')) =>
+        loop
             {
-                input_buf.lock().unwrap().clear();
+                let a = stdin.next();
 
-                // need to start receiving again because if pressed enter then async reading will stop
-                stdin = input.read_async().bytes();
-            }
-            Some(Ok(val)) =>
-            {
-                input_buf.lock().unwrap().push(val as char);
-            }
-            _ => {}
-        }
+                match a {
+                    Some(Ok(10)) =>
+                        {
+                            input_buf.lock().unwrap().clear();
 
-        thread::sleep(time::Duration::from_millis(100));
-        count += 1;
-    }
+                            // need to start receiving again because if pressed enter then async reading will stop
+                            stdin = input.read_async().bytes();
+                        }
+                    Some(Ok(val)) =>
+                        {
+                            println!("{:?}",a);
+                            input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
+                        }
+                    _ => {}
+                }
+
+                thread::sleep(time::Duration::from_millis(100));
+                count += 1;
+            }
+    });
+
 
     for thread in threads
     {
@@ -58,18 +61,19 @@ fn main() {
     cursor.show();
 }
 
-fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>>
+fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle<()>>
 {
     let mut threads = Vec::with_capacity(10);
-    let (_, term_height) = terminal(&Screen::default()).terminal_size();
 
-    for i in 0..10
+    let (_, term_height) = terminal(&screen).terminal_size();
+
+    for i in 0..1
     {
         let input_buffer = input_buf.clone();
+        let clone_stdout = screen.stdout.clone();
 
         let join = thread::spawn( move || {
-
-            let crossterm = Crossterm::new(&Screen::new(true));
+            let crossterm = Crossterm::new(&Screen::from(clone_stdout));
             let cursor = crossterm.cursor();
             let terminal = crossterm.terminal();
 

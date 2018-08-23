@@ -4,6 +4,9 @@ use super::{ IStateCommand};
 use kernel::unix_kernel::terminal;
 use termios::{tcsetattr, Termios, CREAD, ECHO, ICANON, TCSAFLUSH};
 
+use std::sync::{Once, ONCE_INIT};
+static TERMINAL_MODE: Once = ONCE_INIT;
+
 const FD_STDIN: ::std::os::unix::io::RawFd = 1;
 
 use std::io::{Error, ErrorKind, Result};
@@ -51,6 +54,28 @@ impl NoncanonicalModeCommand {
                 "Could not set console mode when enabling raw mode",
             ));
         }
+        Ok(())
+    }
+}
+
+// This command is used for enabling and disabling raw mode for the terminal.
+/// This command is used for enabling and disabling raw mode for the terminal.
+pub struct RawModeCommand;
+
+impl RawModeCommand {
+    pub fn new() -> Self {
+        return RawModeCommand {}
+    }
+
+    /// Enables raw mode.
+    pub fn enable(&mut self) -> Result<()> {
+        terminal::into_raw_mode();
+        Ok(())
+    }
+
+    /// Disables raw mode.
+    pub fn disable(&mut self) -> Result<()> {
+       terminal::disable_raw_mode();
         Ok(())
     }
 }

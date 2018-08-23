@@ -6,7 +6,6 @@ static mut HAS_BEEN_TRIED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
 static ENABLE_ANSI: Once = ONCE_INIT;
-
 use common::commands::win_commands::EnableAnsiCommand;
 use common::commands::IEnableAnsiCommand;
 
