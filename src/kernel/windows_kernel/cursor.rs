@@ -9,7 +9,7 @@ use super::{csbi, handle, kernel, TerminalOutput};
 
 use std::io;
 use std::sync::Arc;
-
+use kernel::windows_kernel::kernel::get_largest_console_window_size;
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
 
@@ -74,6 +74,14 @@ pub fn set_console_cursor_position(x: i16, y: i16) {
         }
     }
 }
+
+//pub fn set_relative_cursor_pos(x: i16, y: i16)
+//{
+//    let (cur_x, cur_y) = pos()?;
+//    let Relative(x, y) = *self;
+//    let (x, y) = (x + cur_x, y + cur_y);
+//    platform::set_cursor_pos(x, y)?;
+//}
 
 /// change the cursor visibility.
 pub fn cursor_visibility(visable: bool) -> io::Result<()> {

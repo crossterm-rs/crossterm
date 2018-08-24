@@ -46,6 +46,11 @@ pub struct AsyncReader {
     recv: mpsc::Receiver<io::Result<u8>>,
 }
 
+impl AsyncReader
+{
+
+}
+
 impl Read for AsyncReader {
     /// Read from the byte stream.
     ///
@@ -66,7 +71,6 @@ impl Read for AsyncReader {
                     total += 1;
                 },
                 _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
-
             }
         }
 

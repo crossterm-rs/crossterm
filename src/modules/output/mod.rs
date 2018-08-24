@@ -6,9 +6,9 @@ mod ansi_output;
 #[cfg(target_os = "windows")]
 mod winapi_output;
 
-pub use self::ansi_output::AnsiOutput;
+use self::ansi_output::AnsiOutput;
 #[cfg(target_os = "windows")]
-pub use self::winapi_output::WinApiOutput;
+use self::winapi_output::WinApiOutput;
 
 pub use self::output::TerminalOutput;
 
@@ -25,7 +25,7 @@ use super::{functions};
 ///
 /// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
 /// so that color related actions can be preformed on both unix and windows systems.
-pub trait IStdout {
+trait IStdout {
     /// Write an &str to the current stdout and flush the screen.
     fn write_str(&self, string: &str ) -> io::Result<usize>;
     /// Write [u8] buffer to console.

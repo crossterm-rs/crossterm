@@ -79,7 +79,8 @@ impl RawModeCommand
 {
     pub fn new() -> Self {
         RawModeCommand {
-            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_OUTPUT ,
+
+            mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
         }
     }
 }
@@ -146,7 +147,6 @@ impl ToAlternateScreenCommand {
 
 impl IAlternateScreenCommand  for ToAlternateScreenCommand {
     fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
-        use super::super::super::modules::output::WinApiOutput;
 
         let handle = handle::get_output_handle()?;
 

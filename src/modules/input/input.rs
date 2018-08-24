@@ -70,6 +70,9 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// Read the input asynchronously from the user.
     ///
+    /// This call will not block the current thread.
+    //  Under the hood a thread is fired which will read input on unix systems from TTY and on windows systems with '_getwch' and '_getwche'
+    ///
     /// ```rust
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
@@ -97,7 +100,9 @@ impl<'stdout> TerminalInput<'stdout> {
         self.terminal_input.read_async(&self.stdout)
     }
 
-    ///  Read the input asynchronously until a certain character is hit.
+    /// Read the input asynchronously until a certain character is hit.
+    ///
+    /// This is the same as `read_async()` but stops reading when a certain character is hit.
     ///
     /// ```rust
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.

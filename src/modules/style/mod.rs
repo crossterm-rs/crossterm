@@ -44,8 +44,6 @@ trait ITerminalColor {
 
 /// This could be used to style an Displayable with colors and attributes.
 ///
-/// #Example
-///
 /// ```rust
 ///
 /// use crossterm::Screen;

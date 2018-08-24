@@ -7,6 +7,10 @@ use std::sync::Arc;
 pub fn terminal_size() -> (u16, u16) {
     let handle = handle::get_output_handle().unwrap();
 
+//    if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
+//        println!("right: {} left: {} bottom: {}, top: {} window top {} windows width {} csbi.dwCursorPosition.X {} csbi.dwCursorPosition.Y {}", csbi.srWindow.Right, csbi.srWindow.Left, csbi.srWindow.Bottom, csbi.srWindow.Top, csbi.dwSize.X,csbi.dwSize.Y,  csbi.dwCursorPosition.X,  csbi.dwCursorPosition.Y);
+//    }
+
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
         (
             (csbi.srWindow.Right - csbi.srWindow.Left) as u16,

@@ -101,10 +101,13 @@ impl<'crossterm> Crossterm {
     /// This could be used to style an `Displayable` type with colors and attributes.
     ///
     /// ```rust
-    /// use crossterm::Screen ;
+     /// extern crate crossterm;
+    /// use crossterm::{Crossterm, Screen};
+    ///
+    /// let crossterm = Crossterm::new(&Screen::default());
     ///
     /// // get an styled object which could be painted to the terminal.
-    /// let styled_object = style("Some Blue colored text on black background")
+    /// let styled_object = crossterm.style("Some Blue colored text on black background")
     ///     .with(Color::Blue)
     ///     .on(Color::Black);
     ///

@@ -6,6 +6,6 @@ mod screen;
 
 use super::{commands, functions, TerminalOutput};
 
+pub use self::raw::RawScreen;
 pub use self::alternate::AlternateScreen;
 pub use self::screen::Screen;
-pub use self::raw::RawScreen;

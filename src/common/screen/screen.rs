@@ -13,8 +13,6 @@ use std::sync::Arc;
 ///
 /// Also this screen has an buffer where you can write to. When you want to write the buffer to the screen you could flush the screen.
 ///
-/// #Example
-///
 /// ```rust
 /// // create default screen.
 /// let screen = Screen::default();
@@ -64,7 +62,9 @@ impl Screen
         return Screen::default();
     }
 
-    /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
+    /// Switch to alternate screen. This function will return an `AlternateScreen` instance. If everything went well this type will give you control over the `AlternateScreen`.
+    ///
+    /// The bool 'raw_mode' specifies whether the alternate screen should be raw mode or not.
     ///
     /// # What is Alternate screen?
     /// *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
@@ -92,7 +92,7 @@ impl Screen
         self.stdout.flush()
     }
 
-    // this will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
+    /// This will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
     pub fn disable_drop(&mut self)
     {
         self.drop = false;

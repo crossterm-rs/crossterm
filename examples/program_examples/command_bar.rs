@@ -27,24 +27,24 @@ fn main() {
         let mut stdin = input.read_async().bytes();
 
         loop
-            {
-                let a = stdin.next();
+        {
+            let a = stdin.next();
 
-                match a {
-                    Some(Ok(13)) =>
-                        {
-                            input_buf.lock().unwrap().clear();
-                        }
-                        Some(Ok(val)) =>
-                        {
-                            input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
-                        }
-                    _ => {}
-                }
-
-                thread::sleep(time::Duration::from_millis(100));
-                count += 1;
+            match a {
+                Some(Ok(13)) =>
+                    {
+                        input_buf.lock().unwrap().clear();
+                    }
+                    Some(Ok(val)) =>
+                    {
+                        input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
+                    }
+                _ => {}
             }
+
+            thread::sleep(time::Duration::from_millis(100));
+            count += 1;
+        }
     }).join();
 
 

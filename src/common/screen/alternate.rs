@@ -1,6 +1,5 @@
 //! This module contains all the logic for switching between alternate screen and main screen.
 //!
-//!
 //! *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
 //! The alternate buffer is exactly the dimensions of the window, without any scrollback region.
 //! For an example of this behavior, consider when vim is launched from bash.
@@ -13,6 +12,7 @@ use std::io;
 use std::convert::From;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
+/// Check also the Screen type for swishing to alternate mode.
 pub struct AlternateScreen
 {
     command: Box<IAlternateScreenCommand + Sync + Send>,
@@ -28,6 +28,8 @@ impl AlternateScreen {
     }
 
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
+    ///
+    /// The bool specifies whether the screen should be in raw mode or not.
     ///
     /// # What is Alternate screen?
     /// *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.

@@ -9,14 +9,14 @@ mod common;
 mod kernel;
 mod modules;
 
-pub use common::screen;
+use common::screen;
 pub use modules::cursor;
 pub use modules::input;
 pub use modules::output;
 pub use modules::style;
 pub use modules::terminal;
 
-pub use common::screen::Screen;
+pub use common::screen::{Screen, AlternateScreen};
 pub use common::Crossterm;
 pub use output::TerminalOutput;
 pub use self::cursor::*;
@@ -24,7 +24,6 @@ pub use self::input::*;
 pub use self::output::*;
 pub use self::style::*;
 
-use output::IStdout;
 use common::functions;
 
 #[cfg(unix)]

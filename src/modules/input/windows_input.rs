@@ -102,10 +102,6 @@ impl ITerminalInput for WindowsInput {
                 }
 
                 tx.send(Ok(pressed_char as u8));
-
-                if pressed_char == 13 {
-                    return;
-                }
             }
         });
 

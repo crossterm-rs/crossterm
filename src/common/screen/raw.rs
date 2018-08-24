@@ -24,7 +24,7 @@ use std::sync::Arc;
 pub struct RawScreen;
 
 impl RawScreen {
-    /// Put terminal in raw mode.
+    /// Put terminal in raw mode. How ever using the `Screen` type to enable raw mode is much better.
     pub fn into_raw_mode() -> io::Result<()>
     {
         #[cfg(not(target_os = "windows"))]
