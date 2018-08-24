@@ -93,7 +93,7 @@ impl Screen
     }
 
     // this will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
-    pub fn disable_drop(&self)
+    pub fn disable_drop(&mut self)
     {
         self.drop = false;
     }
