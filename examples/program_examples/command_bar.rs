@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{Screen, Crossterm, screen};
+use crossterm::{Screen, Crossterm};
 use crossterm::terminal::{terminal,Terminal, ClearType};
 use crossterm::cursor::{TerminalCursor, cursor};
 use crossterm::input::input;

@@ -28,9 +28,8 @@ pub fn run()
     print_welcome_screen();
 
     // This is represents the current screen.
-    let screen = Screen::new(true);
+    let mut screen = Screen::new(true);
     start_algorithm(&screen);
-    drop(screen);
 }
 
 fn start_algorithm(screen: &Screen)
@@ -54,7 +53,8 @@ fn start_algorithm(screen: &Screen)
 
 fn print_welcome_screen()
 {
-    let screen = Screen::default();
+    let mut screen = Screen::new(true);
+
     let crossterm = Crossterm::new(&screen);
 
     // create the handle for the cursor and terminal.
