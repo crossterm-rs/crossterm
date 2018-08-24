@@ -51,7 +51,7 @@ fn main() {
         map.spawn_food(&free_positions, &screen);
 
         loop {
-            thread::sleep(time::Duration::from_millis(500));
+            thread::sleep(time::Duration::from_millis(200));
             let pressed_key = stdin.next();
 
             if let Some(Ok(key)) = pressed_key {
@@ -96,6 +96,7 @@ fn title_screen() -> Size
     println!("Enter map width:");
     cursor.goto(17, 15);
     let width = crossterm.input().read_line().unwrap();
+    cursor.goto(0, 16);
     println!("Enter map height:");
     cursor.goto(17, 16);
     let height = crossterm.input().read_line().unwrap();

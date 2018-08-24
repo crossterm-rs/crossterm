@@ -20,7 +20,6 @@ fn main() {
 
     let threads = log(input_buf.clone(),&screen);
 
-
     let mut count = 0;
 
     thread::spawn(move || {
@@ -35,13 +34,9 @@ fn main() {
                     Some(Ok(13)) =>
                         {
                             input_buf.lock().unwrap().clear();
-
-                            // need to start receiving again because if pressed enter then async reading will stop
-//                            stdin = input.read_async().bytes();
                         }
                         Some(Ok(val)) =>
                         {
-//                            println!("{:?}",a);
                             input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
                         }
                     _ => {}
@@ -72,7 +67,7 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
         let input_buffer = input_buf.clone();
         let clone_stdout = screen.stdout.clone();
 
-        let crossterm = Crossterm::new(screen.stdout.clone());
+        let crossterm = Crossterm::from(screen.stdout.clone());
 
         let join = thread::spawn( move || {
             let cursor = crossterm.cursor();

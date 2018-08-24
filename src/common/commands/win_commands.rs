@@ -79,7 +79,7 @@ impl RawModeCommand
 {
     pub fn new() -> Self {
         RawModeCommand {
-            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT,
+            mask: ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_OUTPUT ,
         }
     }
 }
