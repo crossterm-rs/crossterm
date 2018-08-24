@@ -56,7 +56,7 @@ impl Screen
     {
         if raw_mode
         {
-            let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new() };
+            let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new(), drop: true };
             RawScreen::into_raw_mode().unwrap();
             return screen;
         }
@@ -111,7 +111,7 @@ impl From<Arc<TerminalOutput>> for Screen
 {
     /// Create an screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        return Screen { stdout: stdout, buffer: Vec::new() drop: true};
+        return Screen { stdout: stdout, buffer: Vec::new(), drop: true};
     }
 }
 
