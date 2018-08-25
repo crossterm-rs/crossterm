@@ -79,8 +79,7 @@ impl RawModeCommand
 {
     pub fn new() -> Self {
         RawModeCommand {
-
-        mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
+            mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
         }
     }
 }
@@ -100,13 +99,13 @@ impl RawModeCommand {
 
         let new_mode = dw_mode & !self.mask;
 
-//        if !kernel::set_console_mode(&stdout, new_mode) {
-//            return Err(Error::new(
-//                ErrorKind::Other,
-//                "Could not set console mode when enabling raw mode",
-//            ));
-//        }
-self.disable();
+        if !kernel::set_console_mode(&stdout, new_mode) {
+            return Err(Error::new(
+                ErrorKind::Other,
+                "Could not set console mode when enabling raw mode",
+            ));
+        }
+
         Ok(())
     }
 

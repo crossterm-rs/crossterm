@@ -1,10 +1,13 @@
 # Features / Fixes in crossterm 0.4.0
 - Input support (read_line, read_char, read_async, read_until_async)
 - Styling module improved
-- This create supports multithreading (`Send`)
+- Everything is multithreaded (`Send`, `Sync`)
 - Performance enhancements: removed mutexes, removed state manager, removed context type removed unnecessarily RC types.
 - Bug fix resetting console color.
 - Bug fix whit undoing raw modes.
+- More correct error handling.
+- Overall commend improvement.
+- Overall refactor of code.
 
 # Features in crossterm 0.3.0
 

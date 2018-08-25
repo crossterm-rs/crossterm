@@ -7,15 +7,18 @@ The programs are:
 - First depth search: 
 
   This is an search algorithm implemented visually. This program uses the following functionalities: cursor movement, coloring, alternate screen and terminal clearing.
+  To run this use `cargo run` in the directory of first depth search.
   
 - Snake
   
   This is a snake game implemented with this library.
-   
+   To run this use `cargo run` in the directory of snake.
 - Command Bar: 
 
   This is a terminal application where multiple threads write to the output while you can enter commands asynchronously. 
+  To run this use `cargo run --example command_bar`
    
 -  Logging:
 
-   This is an async logging program to demonstrate asynchronous logging with an queue.
+   This is an async logging program to demonstrate asynchronous logging with an queue. 
+   To run this use `cargo run --example logging`

@@ -1,6 +1,6 @@
 # Crossterm | cross-platform terminal manipulating library written in rust.
 
-[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/tree/master/docs)
+[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/blob/master/docs/ReleaseNotes.md)
 |----|----|----|----|----|----
 
 Ever got disappointed when a terminal library for rust was only written for unix systems? 
@@ -17,9 +17,10 @@ This crate supports all unix and windows terminals down to windows 7 (not all te
 - [Useful links](https://github.com/TimonPost/crossterm#useful-links)
 - [Features](https://github.com/TimonPost/crossterm#features)
 - [Examples](https://github.com/TimonPost/crossterm#examples)
-    - [Crossterm Wrapper](https://github.com/TimonPost/crossterm#crossterm-wrapper--see-more)
-    - [Styling](https://github.com/TimonPost/crossterm#styled-font--see-more)
+    - [Crossterm Wrapper](https://github.com/TimonPost/crossterm#crossterm-type--see-more)
+    - [Styling](https://github.com/TimonPost/crossterm#crossterm-type--see-more)
     - [Cursor](https://github.com/TimonPost/crossterm#cursor--see-more)
+    - [Input](https://github.com/TimonPost/crossterm#input--see-more)
     - [Terminal](https://github.com/TimonPost/crossterm#terminal--see-more)
 - [Tested Terminals](https://github.com/TimonPost/crossterm#tested-terminals)
 - [How it works](https://github.com/TimonPost/crossterm#how-it-works)
@@ -54,16 +55,16 @@ use self::crossterm::cursor::*;
 // this mudule is used for terminal related actions
 use self::crossterm::terminal::*;
 // this mudule is used for input related actions
-use self::crossterm::terminal::*;
+use self::crossterm::input::*;
 
 ```
 
 ## Useful Links
 
-- Code [documentation](link).
-- Code [Examples]() (see [branches](LINK_TO_BRANCHES) for previous versions)
-- [Cargo Page](https://crates.io/crates/crossterm)
-- [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
+- Code [documentation](https://docs.rs/crossterm/).
+- The [Cargo Page](https://crates.io/crates/crossterm)
+- More real live [examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
+- Detailed [examples](https://github.com/TimonPost/crossterm/tree/master/examples)
 
 # Features
 These are the features from this crate:
@@ -94,14 +95,11 @@ These are the features from this crate:
     - Read async
     - Read async until
 - Exit the current process.
+- Everything is multithreaded (Send, Sync)
 - Detailed documentation on every item.
 - Crossplatform
 
-## Examples
-
-For detailed examples of all Crossterm functionalities check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) directory.
-
-### Crossterm Type | [see more](Link)
+### Crossterm Type | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/some_types/mod.rs)
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 
 ```rust
@@ -119,7 +117,7 @@ let style = crossterm.style("Black font on Green background color").with(Color::
 style.paint(&screen);
 
 ```
-### Styled Font | [see more](Link)
+### Styled Font | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/color/mod.rs)
 This module provides the functionalities to style the terminal cursor.
 ```rust    
 use crossterm::style::{Color, style};
@@ -161,7 +159,7 @@ style("RGB color (10,10,10) ").with(Color::Rgb {
 style("ANSI color value (50) ").with(Color::AnsiValue(50)).paint(&screen);
 
 ```
-### Cursor | [see more](LINK)
+### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor/mod.rs)
 This module provides the functionalities to work with the terminal cursor.
 
 ```rust 
@@ -206,10 +204,10 @@ cursor.blink(true)
 
 ```
 
-### Input | [see more](LINK)
+### Input | [see more](https://github.com/TimonPost/crossterm/tree/master/examples/input)
 This module provides the functionalities to work with terminal input.
 
-Check [this](link) for handling async input.
+Check [this](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/async_input.rs) for handling async input.
 
 ```rust 
 
@@ -232,7 +230,7 @@ let mut input = input(&screen);
 
 ```
 
-### Terminal | [see more](LINK)
+### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/terminal.rs)
 This module provides the functionalities to work with the terminal in general.
 
 ```rust 
@@ -272,7 +270,7 @@ terminal.exit();
 terminal.write("Some text\n Some text on new line");
 ```
 
-Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/raw_mode.rs) for information about how to work with these features.
+Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/raw_mode.rs) for information about how to work with these features.
 
 ## Tested terminals
 
@@ -308,7 +306,7 @@ I highly appreciate it when you are contributing to this crate.
 Also Since my native language is not English my grammar and sentence order will not be perfect. 
 So improving this by correcting these mistakes will help both me and the reader of the docs.
 
-Check [Contributing](link) for more info about branches and code architecture.
+Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Contributing.md) for more info about branches and code architecture.
 
 ## Authors
 

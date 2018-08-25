@@ -19,6 +19,4 @@ use std::io::Write;
 use std::{thread,time};
 fn main()
 {
-   ::crossterm::terminal::terminal(&::crossterm::Screen::default()).terminal_size();
-    thread::sleep(time::Duration::from_millis(2000));
 }
