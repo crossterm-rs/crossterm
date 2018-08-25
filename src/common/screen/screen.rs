@@ -11,6 +11,26 @@ use std::sync::Arc;
 /// You have to make sure that you pass the correct `Screen` to the modules `cursor, terminal, color, input, style`.
 /// Most of the time you just have one screen so you could get an instance of that screen with: `Screen::default()`.
 ///
+/// The screen can be in two modes at first:
+/// - Alternate modes:
+///
+///   *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
+/// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
+/// For an example of this behavior, consider when vim is launched from bash.
+/// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
+///
+/// - RawModes
+///     - No line buffering.
+///         Normally the terminals uses line buffering. This means that the input will be send to the terminal line by line.
+///         With raw mode the input will be send one byte at a time.
+///     - Input
+///          All input has to be written manually by the programmer.
+///     - Characters
+///         The characters are not processed by the terminal driver, but are sent straight through.
+///         Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
+///     - Escape characters
+///         Note that in raw modes `\n` `\r` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
+///
 /// Also this screen has an buffer where you can write to. When you want to write the buffer to the screen you could flush the screen.
 ///
 /// ```rust
@@ -48,7 +68,7 @@ pub struct Screen
 
 impl Screen
 {
-    /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode. Check out `RawScreen` type for more info.
+    /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode.
     /// If you are not sure what raw mode is then pass false or use the `Screen::default()` to create an instance.
     pub fn new(raw_mode: bool) -> Screen
     {

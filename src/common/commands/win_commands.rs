@@ -74,13 +74,13 @@ impl IEnableAnsiCommand for EnableAnsiCommand {
 pub struct RawModeCommand {
     mask: DWORD,
 }
-use self::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT, ENABLE_PROCESSED_OUTPUT};
+use self::wincon::{ ENABLE_LINE_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT};
 impl RawModeCommand
 {
     pub fn new() -> Self {
         RawModeCommand {
 
-            mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
+        mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
         }
     }
 }
@@ -89,7 +89,7 @@ impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
         let mut dw_mode: DWORD = 0;
-        let stdout = handle::get_current_handle().unwrap();
+        let stdout = handle::get_output_handle().unwrap();
 
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {
             return Err(Error::new(
@@ -100,19 +100,19 @@ impl RawModeCommand {
 
         let new_mode = dw_mode & !self.mask;
 
-        if !kernel::set_console_mode(&stdout, new_mode) {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Could not set console mode when enabling raw mode",
-            ));
-        }
-
+//        if !kernel::set_console_mode(&stdout, new_mode) {
+//            return Err(Error::new(
+//                ErrorKind::Other,
+//                "Could not set console mode when enabling raw mode",
+//            ));
+//        }
+self.disable();
         Ok(())
     }
 
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
-        let stdout = handle::get_current_handle().unwrap();
+        let stdout = handle::get_output_handle().unwrap();
 
         let mut dw_mode: DWORD = 0;
         if !kernel::get_console_mode(&stdout, &mut dw_mode) {
