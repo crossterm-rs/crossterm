@@ -10,7 +10,7 @@ Crossterm aims to be simple and easy to call in code.
 Though the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 You can just call whatever action you want and behind the scenes it will check what to do based on the current platform.
 
-This crate supports all unix and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](Link) for more info)
+This crate supports all unix and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](https://github.com/TimonPost/crossterm#tested-terminals) for more info)
 
 ## Table of contents:
 - [Getting started](https://github.com/TimonPost/crossterm#getting-started)
@@ -314,4 +314,4 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [https://github.com/TimonPost/crossterm/blob/master/LICENSE](LICENSE.md) file for details
