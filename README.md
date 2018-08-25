@@ -317,7 +317,3 @@ Check [Contributing](link) for more info about branches and code architecture.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-
-
-
