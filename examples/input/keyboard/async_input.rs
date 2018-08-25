@@ -99,8 +99,6 @@ pub fn read_async_demo() {
 }
 
 pub fn async_reading_on_alternate_screen() {
-    use crossterm::screen::AlternateScreen;
-
     let screen = Screen::new(false);
 
     // switch to alternate screen
