@@ -96,8 +96,7 @@ fn title_screen() -> Size
     println!("Enter map width:");
     cursor.goto(17, 15);
     let width = crossterm.input().read_line().unwrap();
-    cursor.goto(0, 16);
-    println!("Enter map height:");
+    println!("\r\nEnter map height:");
     cursor.goto(17, 16);
     let height = crossterm.input().read_line().unwrap();
 
