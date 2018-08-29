@@ -314,4 +314,4 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## License
 
-This project is licensed under the MIT License - see the [https://github.com/TimonPost/crossterm/blob/master/LICENSE](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
