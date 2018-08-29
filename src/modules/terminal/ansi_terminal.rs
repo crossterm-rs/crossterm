@@ -48,7 +48,7 @@ impl ITerminal for AnsiTerminal {
     }
 
     fn set_size(&self, width: i16, height: i16, stdout: &Arc<TerminalOutput>) {
-        stdout.write_string(format!(csi!("8;{};{}t"), width, height));
+        stdout.write_string(format!(csi!("8;{};{}t"), height, width));
     }
 
     fn exit(&self,stdout: &Arc<TerminalOutput>) {
