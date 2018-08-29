@@ -32,7 +32,7 @@ This crate supports all unix and windows terminals down to windows 7 (not all te
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.4.0` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version. 
+This documentation is only for Crossterm version `0.4.*` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version. 
 Also check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which detailed examples for all functionality of this crate.
 
 
