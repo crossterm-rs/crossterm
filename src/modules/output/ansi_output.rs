@@ -14,25 +14,23 @@ pub struct AnsiOutput {
 
 impl IStdout for AnsiOutput {
    fn write_str(&self, string: &str) -> io::Result<usize> {
-       let out = &self.handle;
-       let mut handle = out.lock();
-        write!(handle, "{}", string)?;
-       handle.flush();
-        Ok(0)
+        let out = &self.handle;
+        let mut handle = out.lock();
+        let amt = handle.write(string.as_bytes())?;
+        handle.flush()?;
+        Ok(amt)
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
         let out = &self.handle;
         let mut handle = out.lock();
-        handle.write(buf)?;
-        Ok(0)
+        handle.write(buf)
     }
 
     fn flush(&self) -> io::Result<()> {
         let out = &self.handle;
         let mut handle = out.lock();
-        handle.flush();
-        Ok(())
+        handle.flush()
     }
 
     fn as_any(&self) -> &Any {
