@@ -13,7 +13,7 @@ pub struct AnsiOutput {
 }
 
 impl IStdout for AnsiOutput {
-   fn write_str(&self, string: &str) -> io::Result<usize> {
+    fn write_str(&self, string: &str) -> io::Result<usize> {
         let out = &self.handle;
         let mut handle = out.lock();
         let amt = handle.write(string.as_bytes())?;
@@ -31,14 +31,6 @@ impl IStdout for AnsiOutput {
         let out = &self.handle;
         let mut handle = out.lock();
         handle.flush()
-    }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut Any {
-        self
     }
 }
 

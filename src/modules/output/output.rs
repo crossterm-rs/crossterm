@@ -67,13 +67,6 @@ impl TerminalOutput {
     pub fn write_buf(&self, buf: &[u8]) -> io::Result<usize> {
         self.stdout.write(buf)
     }
-
-    pub fn as_any(&self) -> &Any {
-        self.stdout.as_any()
-    }
-    pub fn as_any_mut(&mut self) -> &mut Any {
-        self.stdout.as_any_mut()
-    }
 }
 
 impl Default for TerminalOutput
