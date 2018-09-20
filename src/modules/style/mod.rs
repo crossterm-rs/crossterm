@@ -20,6 +20,7 @@ use std::fmt::Display;
 pub use self::color::{TerminalColor, color};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
+pub use self::styledobject::DisplayableObject;
 use super::functions;
 use TerminalOutput;
 

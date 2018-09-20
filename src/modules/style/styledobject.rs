@@ -14,7 +14,7 @@ pub struct StyledObject<D: Display> {
     pub content: D,
 }
 
-impl<D: Display> StyledObject<D> {
+impl<'a, D: Display> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// ```rust
@@ -178,5 +178,34 @@ impl<D: Display> StyledObject<D> {
         if reset {
             colored_terminal.reset();
         }
+    }
+
+//    pub fn get_displayable(&self, screen: &'a Screen) -> DisplayableObject<'a, D>
+//    {
+//        return DisplayableObject::new(screen, &self)
+//    }
+}
+
+use std::fmt::{Formatter, Error};
+
+pub struct DisplayableObject<'a, D:Display + 'a>
+{
+    styled_object: &'a StyledObject<D>,
+    screen: &'a Screen,
+}
+
+impl <'a, D: Display + 'a> DisplayableObject<'a, D>
+{
+    pub fn new(screen: &'a Screen, styled_object: &'a StyledObject<D>) -> DisplayableObject<'a, D>
+    {
+        DisplayableObject { screen, styled_object }
+    }
+}
+
+impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D>
+{
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        self.styled_object.paint(&self.screen);
+        return Ok(())
     }
 }

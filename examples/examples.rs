@@ -9,7 +9,7 @@
 extern crate crossterm;
 
 // modules that could be test
-mod terminal;
+//mod terminal;
 mod color;
 mod cursor;
 mod some_types;
@@ -17,6 +17,14 @@ mod input;
 
 use std::io::Write;
 use std::{thread,time};
+
+use crossterm::style::{style, Color, DisplayableObject};
+use crossterm::terminal::terminal;
+use crossterm::Screen;
+
 fn main()
 {
+    let screen = Screen::default();
+
+    println!("\nExample:\n\n\taws --profile {} s3 ls\n", DisplayableObject::new(&screen, &style("test").with(Color::Yellow)));
 }
