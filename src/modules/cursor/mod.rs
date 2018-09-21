@@ -2,6 +2,7 @@
 //! Like moving the cursor position;saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
 mod cursor;
+mod test;
 
 mod ansi_cursor;
 #[cfg(target_os = "windows")]

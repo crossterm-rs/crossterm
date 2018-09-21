@@ -1,5 +1,6 @@
 //! Module that contains all the actions related to the styling of the terminal. like coloring adding attributes etc.
 
+mod test;
 pub mod color;
 pub mod objectstyle;
 pub mod styledobject;
@@ -22,6 +23,7 @@ pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::styledobject::DisplayableObject;
 use super::functions;
+
 use TerminalOutput;
 
 /// This trait defines the actions that can be preformed with the terminal color.
@@ -61,7 +63,7 @@ trait ITerminalColor {
 ///     styled_object.paint(&screen);
 /// }
 /// ```
-pub fn style<D>(val: D) -> StyledObject<D>
+pub fn style<'a,D: 'a>(val: D) -> StyledObject<D>
     where
         D: Display,    {
             ObjectStyle::new().apply_to(val)

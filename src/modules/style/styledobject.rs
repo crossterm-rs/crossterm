@@ -14,7 +14,7 @@ pub struct StyledObject<D: Display> {
     pub content: D,
 }
 
-impl<'a, D: Display> StyledObject<D> {
+impl<'a, D: Display + 'a> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`
     ///
     /// ```rust
@@ -45,7 +45,7 @@ impl<'a, D: Display> StyledObject<D> {
     /// #Example
     ///
     /// ```rust
-   /// use self::crossterm::style::{style,Color};
+    /// use self::crossterm::style::{style,Color};
     ///
     /// // create an styled object with the background color red.
     /// let styledobject =  style("Some colored text").on(Color::Blue);
@@ -72,12 +72,10 @@ impl<'a, D: Display> StyledObject<D> {
     /// #Example
     ///
     /// ```rust
-    ///
     /// extern crate crossterm;
     /// use self::crossterm::style::{style,Attribute};
     ///
     /// style("Some colored text").attr(Attribute::Bold).paint(&screen);
-    ///
     /// ```
     #[cfg(unix)]
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
@@ -180,23 +178,37 @@ impl<'a, D: Display> StyledObject<D> {
         }
     }
 
-//    pub fn get_displayable(&self, screen: &'a Screen) -> DisplayableObject<'a, D>
-//    {
-//        return DisplayableObject::new(screen, &self)
-//    }
+    /// this converts an styled object into an `DisplayableObject` witch implements: `Display` and could be used inside the write function of the standard library's.
+    ///
+    /// ```
+    ///   let screen = Screen::default();
+    //    let styled_object = style("test").with(Color::Yellow);
+    //    let display_object = styled_object.into_displayable(&screen);
+    //    println!("Colored text: {}. Default color", display_object);
+    /// ```
+    pub fn into_displayable(self, screen: &'a Screen) -> DisplayableObject<'a, D>
+    {
+        return DisplayableObject::new(screen, self)
+    }
 }
 
 use std::fmt::{Formatter, Error};
 
+/// This is a wrapper for a styled object so that the styled object could be printed with the standard write functions in rust.
+///
+/// ```
+/// write! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));
+/// println! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object))
+/// ```
 pub struct DisplayableObject<'a, D:Display + 'a>
 {
-    styled_object: &'a StyledObject<D>,
+    styled_object: StyledObject<D>,
     screen: &'a Screen,
 }
 
 impl <'a, D: Display + 'a> DisplayableObject<'a, D>
 {
-    pub fn new(screen: &'a Screen, styled_object: &'a StyledObject<D>) -> DisplayableObject<'a, D>
+    pub fn new(screen: &'a Screen, styled_object: StyledObject<D>) -> DisplayableObject<'a, D>
     {
         DisplayableObject { screen, styled_object }
     }
