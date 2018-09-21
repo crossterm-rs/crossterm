@@ -22,9 +22,14 @@ use crossterm::style::{style, Color, DisplayableObject};
 use crossterm::terminal::terminal;
 use crossterm::Screen;
 
+use crossterm::output::TerminalOutput;
+
 fn main()
 {
     let screen = Screen::default();
+    let output = TerminalOutput::new(false);
 
-    println!("\nExample:\n\n\taws --profile {} s3 ls\n", DisplayableObject::new(&screen, &style("test").with(Color::Yellow)));
+    let bytes = "test".as_bytes();
+    let result = output.write_str("test");
+    println!("bytes: {} written: {}", bytes.len(), result.unwrap());
 }
