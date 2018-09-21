@@ -1,3 +1,6 @@
+# Bug fix crossterm to 0.4.1
+- Fixed resizing of ansi terminal with and height where in the wrong order.
+
 # Features / Fixes in crossterm 0.4.0
 - Input support (read_line, read_char, read_async, read_until_async)
 - Styling module improved

@@ -33,14 +33,6 @@ impl IStdout for WinApiOutput {
     fn flush(&self) -> io::Result<()> {
         Ok(())
     }
-
-    fn as_any(&self) -> &Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut Any {
-        self
-    }
 }
 
 unsafe impl Send for WinApiOutput {}

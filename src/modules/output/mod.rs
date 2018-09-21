@@ -33,7 +33,4 @@ trait IStdout {
     fn write(&self, buf: &[u8]) -> io::Result<usize>;
     /// Flush the current output.
     fn flush(&self) -> io::Result<()>;
-
-    fn as_any(&self) -> &Any;
-    fn as_any_mut(&mut self) -> &mut Any;
 }
