@@ -2,6 +2,8 @@
 //! Like moving the cursor position;saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
 mod cursor;
+
+#[cfg(test)]
 mod test;
 
 mod ansi_cursor;

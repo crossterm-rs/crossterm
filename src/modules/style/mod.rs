@@ -1,6 +1,5 @@
 //! Module that contains all the actions related to the styling of the terminal. like coloring adding attributes etc.
 
-mod test;
 pub mod color;
 pub mod objectstyle;
 pub mod styledobject;

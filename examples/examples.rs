@@ -23,13 +23,18 @@ use crossterm::terminal::terminal;
 use crossterm::Screen;
 
 use crossterm::output::TerminalOutput;
+use crossterm::cursor::TerminalCursor;
 
 fn main()
 {
     let screen = Screen::default();
-    let output = TerminalOutput::new(false);
+    let cursor = TerminalCursor::new(&screen.stdout);
 
-    let bytes = "test".as_bytes();
-    let result = output.write_str("test");
-    println!("bytes: {} written: {}", bytes.len(), result.unwrap());
+    cursor.goto(5, 5);
+    let (x, y) = cursor.pos();
+
+    assert_eq!(x, 5);
+    assert_eq!(y, 5);
+
+    println!("x: {} y: {}", x,y);
 }

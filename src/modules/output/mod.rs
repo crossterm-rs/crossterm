@@ -1,6 +1,8 @@
 //! This module provides a way to work with an handle to an screen on different platforms.
 
 mod output;
+
+#[cfg(test)]
 mod test;
 
 mod ansi_output;

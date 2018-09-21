@@ -5,18 +5,33 @@ use modules::output::IStdout;
 
 use Screen;
 
-/* ======================== WinApi =========================== */
-#[test]
-fn write_winapi()
-{
-    let screen = Screen::default();
-    let output = WinApiOutput::new();
+#[cfg(windows)]
+mod winapi_tests {
 
-    let bytes = "test".as_bytes();
-    let result = output.write(bytes);
-    is_valid_write(result, bytes.len());
+    use super::*;
+    /* ======================== WinApi =========================== */
+    #[test]
+    fn write_winapi()
+    {
+        let screen = Screen::default();
+        let output = WinApiOutput::new();
+
+        let bytes = "test".as_bytes();
+        let result = output.write(bytes);
+        is_valid_write(result, bytes.len());
+    }
+
+    #[test]
+    fn write_str_winapi()
+    {
+        let screen = Screen::default();
+        let output = WinApiOutput::new();
+
+        let bytes = "test".as_bytes();
+        let result = output.write_str("test");
+        is_valid_write(result, bytes.len());
+    }
 }
-
 
 /* ======================== ANSI =========================== */
 #[test]
@@ -27,10 +42,10 @@ fn write_ansi()
 
     let bytes = "test".as_bytes();
     let result = output.write(bytes);
-    println!("bytes: {} written: {}", bytes.len(), result.unwrap());
     is_valid_write(result, bytes.len());
 }
 
+#[test]
 fn write_str_ansi()
 {
     let screen = Screen::default();
@@ -40,7 +55,6 @@ fn write_str_ansi()
     let result = output.write_str("test");
     is_valid_write(result, bytes.len());
 }
-
 
 fn is_valid_write(result: ::std::io::Result<usize>, str_length: usize)
 {

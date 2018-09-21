@@ -1,5 +1,8 @@
 //! Module that contains all the actions related to the terminal. like clearing, resizing and scrolling the terminal.
 
+#[cfg(test)]
+mod test;
+
 pub mod terminal;
 
 mod ansi_terminal;

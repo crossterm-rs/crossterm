@@ -6,37 +6,40 @@ use modules::cursor::ITerminalCursor;
 use Screen;
 
 /* ======================== WinApi =========================== */
-#[test]
-fn goto_winapi()
-{
-    let screen = Screen::default();
-    let cursor = WinApiCursor::new();
+#[cfg(windows)]
+mod winapi_tests {
+    use super::*;
 
-    cursor.goto(5,5,&screen.stdout);
-    let (x,y) = cursor.pos(&screen.stdout);
+    #[test]
+    fn goto_winapi()
+    {
+        let screen = Screen::default();
+        let cursor = WinApiCursor::new();
 
-    assert_eq!(x, 5);
-    assert_eq!(y, 5);
+        cursor.goto(5, 5, &screen.stdout);
+        let (x, y) = cursor.pos(&screen.stdout);
+
+        assert_eq!(x, 5);
+        assert_eq!(y, 5);
+    }
+
+    #[test]
+    fn reset_safe_winapi()
+    {
+        let screen = Screen::default();
+        let cursor = WinApiCursor::new();
+        let (x, y) = cursor.pos(&screen.stdout);
+
+        cursor.save_position(&screen.stdout);
+        cursor.goto(5, 5, &screen.stdout);
+        cursor.reset_position(&screen.stdout);
+
+        let (x_saved, y_saved) = cursor.pos(&screen.stdout);
+
+        assert_eq!(x, x_saved);
+        assert_eq!(y, y_saved);
+    }
 }
-
-#[test]
-fn reset_safe_winapi()
-{
-    let screen = Screen::default();
-    let cursor = WinApiCursor::new();
-    let (x,y) = cursor.pos(&screen.stdout);
-
-    cursor.save_position(&screen.stdout);
-    cursor.goto(5,5,&screen.stdout);
-    cursor.reset_position(&screen.stdout);
-
-    let (x_saved,y_saved) = cursor.pos(&screen.stdout);
-
-    assert_eq!(x, x_saved);
-    assert_eq!(y, y_saved);
-}
-
-
 
 /* ======================== ANSI =========================== */
 #[test]
