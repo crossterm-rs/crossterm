@@ -63,7 +63,7 @@ fn print_welcome_screen()
     let input = crossterm.input();
 
     // set size of terminal so the map we are going to draw is fitting the screen.
-    terminal.set_size(60,110);
+    terminal.set_size(110,60);
 
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
