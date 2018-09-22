@@ -66,7 +66,7 @@ use self::crossterm::input::*;
 - More real live [examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
 - Detailed [examples](https://github.com/TimonPost/crossterm/tree/master/examples)
 
-# Features
+## Features
 These are the features from this crate:
 
 - Cursor.
@@ -98,6 +98,9 @@ These are the features from this crate:
 - Everything is multithreaded (Send, Sync)
 - Detailed documentation on every item.
 - Crossplatform
+
+## Examples
+These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
 
 ### Crossterm Type | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/some_types/mod.rs)
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
