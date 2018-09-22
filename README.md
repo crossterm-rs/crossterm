@@ -301,7 +301,7 @@ I still have some things in mind to implement.
 - Handling key events
     I want to be able to read key combination inputs. 
 - Tests
-    Also, I want to have tests for this crate, and yes maybe a little late :). But I find it difficult to test some functionalities because how would you ever test if the screen is indeed int alternate, raw modes or how would you ever test if the terminal cursor is moved certainly.
+   Find a way to test: color output, input, alternate screen, rawscreen
 
 ## Contributing
   
