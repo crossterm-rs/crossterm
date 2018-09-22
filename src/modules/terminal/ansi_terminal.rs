@@ -7,6 +7,7 @@ use super::*;
 pub struct AnsiTerminal;
 use cursor::TerminalCursor;
 
+
 impl AnsiTerminal {
     pub fn new() -> AnsiTerminal {
         AnsiTerminal {}

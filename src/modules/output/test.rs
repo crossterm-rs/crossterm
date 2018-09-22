@@ -1,4 +1,3 @@
-use modules::output::winapi_output::WinApiOutput;
 use modules::output::ansi_output::AnsiOutput;
 
 use modules::output::IStdout;
@@ -7,7 +6,7 @@ use Screen;
 
 #[cfg(windows)]
 mod winapi_tests {
-
+    use modules::output::winapi_output::WinApiOutput;
     use super::*;
     /* ======================== WinApi =========================== */
     #[test]
@@ -66,13 +65,15 @@ fn is_valid_write(result: ::std::io::Result<usize>, str_length: usize)
 
 fn try_enable_ansi() -> bool
 {
-    if cfg!(target_os = "windows") {
-        #[cfg(windows)]
-        use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
+    #[cfg(windows)]
+        {
+            if cfg!(target_os = "windows") {
+                use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
-        if !try_enable_ansi_support()
-            { return false; }
-    }
+                if !try_enable_ansi_support()
+                    { return false; }
+            }
+        }
 
     return true;
 }

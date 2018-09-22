@@ -46,11 +46,6 @@ pub struct AsyncReader {
     recv: mpsc::Receiver<io::Result<u8>>,
 }
 
-impl AsyncReader
-{
-
-}
-
 impl Read for AsyncReader {
     /// Read from the byte stream.
     ///

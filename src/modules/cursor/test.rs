@@ -1,4 +1,3 @@
-use modules::cursor::winapi_cursor::WinApiCursor;
 use modules::cursor::ansi_cursor::AnsiCursor;
 
 use modules::cursor::ITerminalCursor;
@@ -8,6 +7,7 @@ use Screen;
 /* ======================== WinApi =========================== */
 #[cfg(windows)]
 mod winapi_tests {
+    use modules::cursor::winapi_cursor::WinApiCursor;
     use super::*;
 
     #[test]
@@ -79,12 +79,14 @@ fn goto_ansi()
 
 fn try_enable_ansi() -> bool
 {
-    if cfg!(target_os = "windows") {
-        #[cfg(windows)]
-        use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
+    #[cfg(windows)]
+    {
+        if cfg!(target_os = "windows") {
+            use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
-        if !try_enable_ansi_support()
+            if !try_enable_ansi_support()
             { return false; }
+        }
     }
 
     return true;

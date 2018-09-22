@@ -44,6 +44,8 @@ impl NoncanonicalModeCommand {
                 "Could not set console mode when enabling raw mode",
             ));
         }
+
+        unsafe { terminal::RAW_MODE_ENABLED_BY_USER = true }
         Ok(())
     }
 
@@ -56,6 +58,7 @@ impl NoncanonicalModeCommand {
             }
         }
 
+        unsafe { terminal::RAW_MODE_ENABLED_BY_USER = false }
         Ok(())
     }
 }
@@ -72,12 +75,16 @@ impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
         terminal::into_raw_mode();
+
+        unsafe { terminal::RAW_MODE_ENABLED_BY_USER = true }
         Ok(())
     }
 
     /// Disables raw mode.
     pub fn disable(&mut self) -> Result<()> {
        terminal::disable_raw_mode();
+
+        unsafe { terminal::RAW_MODE_ENABLED_BY_USER = false }
         Ok(())
     }
 }

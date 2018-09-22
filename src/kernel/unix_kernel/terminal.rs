@@ -1,18 +1,22 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
-use common::commands::unix_command::NoncanonicalModeCommand;
+use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ, TIOCSWINSZ, signal, SIG_IGN, SIGWINCH};
+
+use common::commands::unix_command::RawModeCommand;
 use {libc, TerminalOutput, Screen};
 pub use libc::termios;
 
 use std::sync::Arc;
-use std::io::{self, Error, ErrorKind, Read};
+use std::io::{self, Error, ErrorKind, Read, Write};
 use std::os::unix::io::AsRawFd;
 use std::time::{Duration, SystemTime};
 use std::{fs, mem};
-use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN};
+use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN, CREAD, ECHO, ICANON, TCSAFLUSH};
+
+const FD_STDIN: ::std::os::unix::io::RawFd = 1;
 
 use Crossterm;
+use input::input;
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -35,58 +39,115 @@ pub fn terminal_size() -> (u16, u16) {
         ws_xpixel: 0,
         ws_ypixel: 0,
     };
+
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &us) };
+
     if r == 0 {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
-        (us.cols - 1, us.rows - 1)
+        (us.cols, us.rows)
     } else {
-        (0, 0)
+        (0,0)
     }
 }
 
-/// Get the current cursor position.
-pub fn pos(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
-    let mut crossterm = Crossterm::new(&Screen::default());
-    let input = crossterm.input();
+// maybe this coudl be used over ANSI escape code
+//pub fn set_terminal_size() -> io::Result<(u16,u16)>
+//{
+//    let new_size = UnixSize {
+//        rows: 40,
+//        cols: 40,
+//        ws_xpixel: 0,
+//        ws_ypixel: 0,
+//    };
+//
+//    let r = unsafe { ioctl(STDOUT_FILENO, TIOCSWINSZ, &new_size) };
+//
+//    if r == 0 {
+//        // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
+//        (us.cols, us.rows)
+//    } else {
+//        Err(ErrorKind::Other, "Could not resize try ansi escape codes")
+//        (0, 0)
+//    }
+//}
 
-    let delimiter = b'R';
-    let mut stdin = input.read_until_async(delimiter);
+pub fn pos() -> io::Result<(u16, u16)>
+{
+    let screen = Screen::new(false);
 
-    // Where is the cursor?
-    // Use `ESC [ 6 n`.
-    stdout.write_str("\x1B[6n");
+    // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in applicaition.
+    // I am not completely happy with this approach so feel free to find an other way.
 
-    let mut buf: [u8; 1] = [0];
-    let mut read_chars = Vec::new();
-
-    let timeout = Duration::from_millis(2000);
-    let now = SystemTime::now();
-
-    // Either consume all data up to R or wait for a timeout.
-    while buf[0] != delimiter && now.elapsed().unwrap() < timeout {
-        if let Ok(c) = stdin.read(&mut buf) {
-            if c >= 0 {
-                read_chars.push(buf[0]);
-            }
+    unsafe {
+        if !RAW_MODE_ENABLED_BY_USER || !RAW_MODE_ENABLED_BY_SYSTEM {
+            // set this boolean so that we know that the systems has enabled raw mode.
+            RAW_MODE_ENABLED_BY_SYSTEM = true;
+            into_raw_mode();
         }
     }
 
-    if read_chars.len() == 0 {
-        return (0, 0);
+    // Where is the cursor?
+    // Use `ESC [ 6 n`.
+    let mut stdout = io::stdout();
+
+    // Write command
+    stdout.write(b"\x1B[6n")?;
+    stdout.flush()?;
+
+    let mut buf = [0u8; 2];
+
+    // Expect `ESC[`
+    io::stdin().read_exact(&mut buf)?;
+    if buf[0] != 0x1B || buf[1] as char != '[' {
+        return Err(Error::new(ErrorKind::Other, "test"));
     }
 
-    // The answer will look like `ESC [ Cy ; Cx R`.
+    // Read rows and cols through a ad-hoc integer parsing function
+    let read_num: fn() -> Result<(i32, char), Error> = || -> Result<(i32, char), Error> {
+        let mut num = 0;
+        let mut c: char;
 
-    read_chars.pop(); // remove trailing R.
-    let read_str = String::from_utf8(read_chars).unwrap();
-    let beg = read_str.rfind('[').unwrap();
-    let coords: String = read_str.chars().skip(beg + 1).collect();
-    let mut nums = coords.split(';');
+        loop {
+            let mut buf = [0u8; 1];
+            io::stdin().read_exact(&mut buf)?;
+            c = buf[0] as char;
+            if let Some(d) = c.to_digit(10) {
+                num = if num == 0 { 0 } else { num * 10 };
+                num += d as i32;
+            } else {
+                break;
+            }
+        }
 
-    let cy = nums.next().unwrap().parse::<u16>().unwrap();
-    let cx = nums.next().unwrap().parse::<u16>().unwrap();
+        Ok((num, c))
+    };
 
-    (cx, cy)
+    // Read rows and expect `;`
+    let (rows, c) = read_num()?;
+    if c != ';' {
+        return Err(Error::new(ErrorKind::Other, "test"));
+    }
+
+    // Read cols
+    let (cols, c) = read_num()?;
+
+    // Expect `R`
+    let res = if c == 'R' {
+        Ok(((cols -1) as u16, (rows -1) as u16))
+    } else {
+        return Err(Error::new(ErrorKind::Other, "test"));
+    };
+
+    // If raw mode is enabled from else where in the application (by the user) we do not want to disable raw modes.
+    // I am not completely happy with this approach so feel free to find an other way.
+    unsafe {
+        if RAW_MODE_ENABLED_BY_SYSTEM && !RAW_MODE_ENABLED_BY_USER {
+            RAW_MODE_ENABLED_BY_SYSTEM = false;
+            disable_raw_mode();
+        }
+    }
+
+    return res
 }
 
 /// Set the terminal mode to the given mode.
@@ -106,6 +167,8 @@ pub fn make_raw(termios: &mut Termios) {
 }
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
+static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
+pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
 
 pub fn into_raw_mode() -> io::Result<()>
 {
@@ -132,6 +195,8 @@ pub fn into_raw_mode() -> io::Result<()>
 
     make_raw(&mut termios);
     tcsetattr(fd, TCSADRAIN, &termios)?;
+
+
     Ok(())
 }
 
