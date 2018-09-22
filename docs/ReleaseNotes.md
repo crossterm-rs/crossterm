@@ -1,3 +1,10 @@
+#  Changes crossterm to 0.4.2
+- Added functionality to make a styled object writable to screen [issue 33](https://github.com/TimonPost/crossterm/issues/33)
+- Added unit tests.
+- Bugfix with getting terminal size unix.
+- Bugfix with returning written bytes [pull request 31](https://github.com/TimonPost/crossterm/pull/31)
+- removed methods calls: `as_any()` and `as_any_mut()` from `TerminalOutput`
+
 # Bug fix crossterm to 0.4.1
 - Fixed resizing of ansi terminal with and height where in the wrong order.
 
