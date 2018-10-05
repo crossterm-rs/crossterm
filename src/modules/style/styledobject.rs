@@ -216,7 +216,7 @@ impl <'a, D: Display + 'a> DisplayableObject<'a, D>
 
 impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D>
 {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, _f: &mut Formatter) -> Result<(), Error> {
         self.styled_object.paint(&self.screen);
         return Ok(())
     }

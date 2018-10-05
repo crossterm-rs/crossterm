@@ -82,14 +82,14 @@ fn new_sync_flag(initial_state: bool) -> (SyncFlagTx, SyncFlagRx) {
 
 fn main()
 {
-    let (results_tx, results_rx): (Sender<String>, Receiver<String>) = mpsc::channel();
+    let (_results_tx, _results_rx): (Sender<String>, Receiver<String>) = mpsc::channel();
     let (mut more_jobs_tx, more_jobs_rx) = new_sync_flag(true);
 
     // queue with all log entry's.
     let queue = WorkQueue::new();
 
     //  queue x logs with different threads.
-    let thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
+    let _thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
 
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());

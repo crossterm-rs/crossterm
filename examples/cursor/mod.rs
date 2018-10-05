@@ -21,7 +21,7 @@ pub fn pos() {
     let screen = Screen::default();
     let mut cursor = cursor(&screen);
     // get the cursor position.
-    let (x, y) = cursor.pos();
+    let (_x, _y) = cursor.pos();
 }
 
 /// Move the cursor 3 up | demonstration.

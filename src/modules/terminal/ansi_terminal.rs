@@ -36,7 +36,7 @@ impl ITerminal for AnsiTerminal {
         };
     }
 
-    fn terminal_size(&self, stdout: &Arc<TerminalOutput>) -> (u16, u16) {
+    fn terminal_size(&self, _stdout: &Arc<TerminalOutput>) -> (u16, u16) {
         functions::get_terminal_size()
     }
 
