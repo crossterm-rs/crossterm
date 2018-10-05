@@ -36,7 +36,7 @@ mod winapi_tests {
 #[test]
 fn write_ansi()
 {
-    let screen = Screen::default();
+    let _screen = Screen::default();
     let output = AnsiOutput::new();
 
     let bytes = "test".as_bytes();
@@ -47,7 +47,7 @@ fn write_ansi()
 #[test]
 fn write_str_ansi()
 {
-    let screen = Screen::default();
+    let _screen = Screen::default();
     let output = AnsiOutput::new();
 
     let bytes = "test".as_bytes();

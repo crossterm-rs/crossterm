@@ -73,7 +73,7 @@ pub fn terminal_size() -> (u16, u16) {
 
 pub fn pos() -> io::Result<(u16, u16)>
 {
-    let screen = Screen::new(false);
+    let _screen = Screen::new(false);
 
     // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in applicaition.
     // I am not completely happy with this approach so feel free to find an other way.
@@ -226,7 +226,7 @@ pub fn disable_raw_mode() -> io::Result<()>
 pub fn get_tty() -> io::Result<fs::File> {
     let mut tty_f: fs::File = unsafe { ::std::mem::zeroed() };
 
-    let fd = unsafe {
+    let _fd = unsafe {
         if libc::isatty(libc::STDIN_FILENO) == 1 {
             libc::STDIN_FILENO
         } else {

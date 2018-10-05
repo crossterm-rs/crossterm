@@ -21,7 +21,7 @@ pub fn read_async_until() {
 
     let mut stdin = input.read_until_async(b'\r').bytes();
 
-    for i in 0..100 {
+    for _i in 0..100 {
         terminal.clear(ClearType::All);
         cursor.goto(1, 1);
         let a = stdin.next();
@@ -49,7 +49,7 @@ pub fn read_async() {
 
     let mut stdin = input.read_async().bytes();
 
-    for i in 0..100 {
+    for _i in 0..100 {
         let a = stdin.next();
 
         println!("pressed key: {:?}", a);

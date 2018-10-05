@@ -21,7 +21,7 @@ pub fn get_terminal_size() -> (u16, u16) {
 }
 
 /// Get the cursor position based on the current platform.
-pub fn get_cursor_position(stdout: &Arc<TerminalOutput>) -> (u16, u16) {
+pub fn get_cursor_position(_stdout: &Arc<TerminalOutput>) -> (u16, u16) {
     #[cfg(unix)]
         return pos().expect("Valide position");
 //    return pos().unwrap_or_else(|x| { return (0,0) });
