@@ -35,9 +35,9 @@ fn main() {
                     {
                         input_buf.lock().unwrap().clear();
                     }
-                    Some(Ok(_val)) =>
+                    Some(Ok(val)) =>
                     {
-                        input_buf.lock().unwrap().push(a.unwrap().unwrap() as char);
+                        input_buf.lock().unwrap().push(val as char);
                     }
                 _ => {}
             }
@@ -65,7 +65,7 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
     for i in 0..1
     {
         let input_buffer = input_buf.clone();
-        let _clone_stdout = screen.stdout.clone();
+        let clone_stdout = screen.stdout.clone();
 
         let crossterm = Crossterm::from(screen.stdout.clone());
 

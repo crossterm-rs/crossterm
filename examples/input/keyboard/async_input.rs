@@ -21,7 +21,7 @@ pub fn read_async_until() {
 
     let mut stdin = input.read_until_async(b'\r').bytes();
 
-    for _i in 0..100 {
+    for i in 0..100 {
         terminal.clear(ClearType::All);
         cursor.goto(1, 1);
         let a = stdin.next();

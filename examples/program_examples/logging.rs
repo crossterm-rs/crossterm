@@ -89,7 +89,7 @@ fn main()
     let queue = WorkQueue::new();
 
     //  queue x logs with different threads.
-    let _thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
+    let thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
 
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());
