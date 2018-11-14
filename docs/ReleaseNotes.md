@@ -1,3 +1,6 @@
+# Changes crossterm to 0.4.3
+- Fixed bug [issue 41](https://github.com/TimonPost/crossterm/issues/41)
+
 #  Changes crossterm to 0.4.2
 - Added functionality to make a styled object writable to screen [issue 33](https://github.com/TimonPost/crossterm/issues/33)
 - Added unit tests.
