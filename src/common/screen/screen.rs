@@ -109,7 +109,9 @@ impl Screen
     /// Flush the internal buffer to the screen.
     pub fn flush_buf(&mut self) -> Result<()> {
         self.stdout.write_buf(&self.buffer);
-        self.stdout.flush()
+        self.stdout.flush()?;
+        self.buffer.clear();
+        Ok(())
     }
 
     /// This will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
