@@ -102,13 +102,13 @@ impl Screen
    ///
    /// This function is useful if you want to build up some output and when you are ready you could flush the output to the screen.
     pub fn write_buf(&mut self, buf: &[u8]) -> Result<usize> {
-        self.buffer.write(buf);
+        self.buffer.write(buf)?;
         Ok(buf.len())
     }
 
     /// Flush the internal buffer to the screen.
     pub fn flush_buf(&mut self) -> Result<()> {
-        self.stdout.write_buf(&self.buffer);
+        self.stdout.write_buf(&self.buffer)?;
         self.stdout.flush()?;
         self.buffer.clear();
         Ok(())
