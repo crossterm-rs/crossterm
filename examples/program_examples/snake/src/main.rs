@@ -27,7 +27,7 @@ fn main() {
 
     {
         let mut screen = Screen::new(true);
-        let crossterm = Crossterm::new(&screen);
+        let crossterm = Crossterm::from_screen(&screen);
 
         let cursor = crossterm.cursor();
         let mut input = crossterm.input();
@@ -86,7 +86,7 @@ fn main() {
 
 fn title_screen() -> Size
 {
-    let crossterm = Crossterm::new(&Screen::default());
+    let crossterm = Crossterm::new();
 
     let cursor = crossterm.cursor();
     let terminal = crossterm.terminal().clear(ClearType::All);
@@ -110,7 +110,7 @@ fn title_screen() -> Size
 
 fn print_game_stats(map_size: Size, snake_lenght: usize, food_aten: usize, screen: &mut Screen)
 {
-    let crossterm = Crossterm::new(&Screen::default());
+    let crossterm = Crossterm::new();
 
     let cursor = crossterm.cursor();
     let terminal = crossterm.terminal().clear(ClearType::All);
@@ -124,7 +124,7 @@ fn print_game_stats(map_size: Size, snake_lenght: usize, food_aten: usize, scree
 
 fn game_over_screen()
 {
-    let crossterm = Crossterm::new(&Screen::default());
+    let crossterm = Crossterm::new();
 
     let cursor = crossterm.cursor();
     let terminal = crossterm.terminal();

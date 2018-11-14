@@ -22,6 +22,7 @@ use super::*;
 
 use std::any::Any;
 use std::default::Default;
+use std::io::Write;
 use screen::RawScreen;
 
 /// Struct that is an handle to an terminal screen.
@@ -66,6 +67,16 @@ impl TerminalOutput {
     /// Write buffer to the screen
     pub fn write_buf(&self, buf: &[u8]) -> io::Result<usize> {
         self.stdout.write(buf)
+    }
+}
+
+impl Write for TerminalOutput {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.write_buf(buf)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        self.flush()
     }
 }
 

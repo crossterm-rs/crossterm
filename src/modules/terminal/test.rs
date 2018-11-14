@@ -14,11 +14,12 @@ mod winapi_tests {
     fn resize_winapi()
     {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let terminal = WinApiTerminal::new();
 
-        terminal.set_size(10, 10, &screen.stdout);
+        terminal.set_size(10, 10, &stdout);
 
-        let (x, y) = terminal.terminal_size(&screen.stdout);
+        let (x, y) = terminal.terminal_size(&stdout);
 
         assert_eq!(x, 10);
         assert_eq!(y, 10);
@@ -32,14 +33,15 @@ fn resize_ansi()
     use std::{thread, time};
     if try_enable_ansi() {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let terminal = AnsiTerminal::new();
 
-        terminal.set_size(50,50, &screen.stdout);
+        terminal.set_size(50,50, &stdout);
 
         // see issue: https://github.com/eminence/terminal-size/issues/11
         thread::sleep(time::Duration::from_millis(30));
 
-        let (x, y) = terminal.terminal_size(&screen.stdout);
+        let (x, y) = terminal.terminal_size(&stdout);
 
         assert_eq!(x, 50);
         assert_eq!(y, 50);

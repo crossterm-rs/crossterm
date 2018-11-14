@@ -21,6 +21,9 @@ use std::io;
 use std::sync::Arc;
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
+///
+/// Although this type is available for you to use I would recommend using `Screen` instead.
+/// Note that when you want to use input and rawmode you should use `Screen`.
 pub struct RawScreen;
 
 impl RawScreen {

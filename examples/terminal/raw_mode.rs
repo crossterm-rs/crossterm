@@ -8,7 +8,7 @@ use std::io::{stdout, Write};
 use std::{thread, time};
 
 fn print_wait_screen(screen: &mut Screen) {
-    let crossterm = Crossterm::new(screen);
+    let crossterm = Crossterm::from_screen(screen);
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
 

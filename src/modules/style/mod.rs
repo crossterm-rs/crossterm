@@ -17,7 +17,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::fmt::Display;
 
-pub use self::color::{TerminalColor, color};
+pub use self::color::{TerminalColor, color, from_screen};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::styledobject::DisplayableObject;
@@ -35,31 +35,32 @@ use TerminalOutput;
 /// so that color related actions can be preformed on both unix and windows systems.
 trait ITerminalColor {
     /// Set the foreground color to the given color.
-    fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>);
+    fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>);
     /// Set the background color to the given color.
-    fn set_bg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>);
+    fn set_bg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>);
     /// Reset the terminal color to default.
-    fn reset(&self, stdout: &Arc<TerminalOutput>);
+    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>);
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }
 
-/// This could be used to style an Displayable with colors and attributes.
+/// This could be used to style an `Displayable` type with colors and attributes.
 ///
 /// ```rust
+/// extern crate crossterm;
+/// use crossterm::Crossterm;
 ///
-/// use crossterm::Screen;
+/// let crossterm = Crossterm::new();
 ///
 /// // get an styled object which could be painted to the terminal.
-/// let styled_object = style("Some Blue colored text on black background").with(Color::Blue).on(Color::Black);
-///
-/// // create an default screen.
-/// let screen = Screen::default();
+/// let styled_object = crossterm.style("Some Blue colored text on black background")
+///     .with(Color::Blue)
+///     .on(Color::Black);
 ///
 /// // print the styled font * times to the current screen.
 /// for i in 1..10
 /// {
-///     styled_object.paint(&screen);
+///     println!("{}", styled_object);
 /// }
 /// ```
 pub fn style<'a,D: 'a>(val: D) -> StyledObject<D>

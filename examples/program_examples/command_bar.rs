@@ -1,7 +1,7 @@
 extern crate crossterm;
 
 use crossterm::{Screen, Crossterm};
-use crossterm::terminal::{terminal,Terminal, ClearType};
+use crossterm::terminal::{from_screen,Terminal, ClearType};
 use crossterm::cursor::{TerminalCursor, cursor};
 use crossterm::input::input;
 use std::sync::{Arc,Mutex};
@@ -12,7 +12,7 @@ fn main() {
     use crossterm::color;
 
     let screen = Screen::new(true);
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Crossterm::from_screen(&screen);
     let cursor = crossterm.cursor();
     cursor.hide();
 
@@ -23,7 +23,7 @@ fn main() {
     let mut count = 0;
 
     thread::spawn(move || {
-        let input = input(&screen);
+        let input = input();
         let mut stdin = input.read_async().bytes();
 
         loop
@@ -60,7 +60,7 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
 {
     let mut threads = Vec::with_capacity(10);
 
-    let (_, term_height) = terminal(&screen).terminal_size();
+    let (_, term_height) = from_screen(screen).terminal_size();
 
     for i in 0..1
     {

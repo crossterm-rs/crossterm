@@ -9,7 +9,7 @@
 extern crate crossterm;
 
 // modules that could be test
-//mod terminal;
+mod terminal;
 mod color;
 mod cursor;
 mod some_types;

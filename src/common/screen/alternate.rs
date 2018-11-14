@@ -13,6 +13,8 @@ use std::convert::From;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
 /// Check also the Screen type for swishing to alternate mode.
+///
+/// Although this type is available for you to use I would recommend using `Screen` instead.
 pub struct AlternateScreen
 {
     command: Box<IAlternateScreenCommand + Sync + Send>,

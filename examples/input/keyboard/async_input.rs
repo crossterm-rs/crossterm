@@ -11,8 +11,7 @@ use std::time::Duration;
 /// this will capture the input until the given key.
 pub fn read_async_until() {
     // create raw screen
-    let screen = Screen::default();
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Crossterm::new();
 
     // init some modules we use for this demo
     let input = crossterm.input();
@@ -44,8 +43,7 @@ pub fn read_async_until() {
 
 /// this will read pressed characters async until `x` is typed.
 pub fn read_async() {
-    let screen = Screen::default();
-    let input = input(&screen);
+    let input = input();
 
     let mut stdin = input.read_async().bytes();
 
@@ -65,7 +63,7 @@ pub fn read_async() {
 
 pub fn read_async_demo() {
     let screen = Screen::new(true);
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Crossterm::from_screen(&screen);
 
     // init some modules we use for this demo
     let input = crossterm.input();
@@ -104,7 +102,7 @@ pub fn async_reading_on_alternate_screen() {
     // switch to alternate screen
     if let Ok(alternate) = screen.enable_alternate_modes(true)
     {
-        let crossterm = Crossterm::new(&alternate.screen);
+        let crossterm = Crossterm::from_screen(&alternate.screen);
         // init some modules we use for this demo
         let input = crossterm.input();
         let terminal = crossterm.terminal();

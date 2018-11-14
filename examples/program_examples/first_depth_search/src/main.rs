@@ -55,7 +55,7 @@ fn print_welcome_screen()
 {
     let mut screen = Screen::new(true);
 
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Crossterm::from_screen(&screen);
 
     // create the handle for the cursor and terminal.
     let terminal = crossterm.terminal();

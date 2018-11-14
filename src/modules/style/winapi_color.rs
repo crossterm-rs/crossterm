@@ -20,7 +20,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, stdout: &Arc<TerminalOutput>) {
+    fn set_fg(&self, fg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) {
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
         let csbi = csbi::get_csbi().unwrap();
@@ -41,7 +41,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color);
     }
 
-    fn set_bg(&self, bg_color: Color, stdout: &Arc<TerminalOutput>) {
+    fn set_bg(&self, bg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
         let (csbi, handle) = csbi::get_csbi_and_handle().unwrap();
@@ -62,7 +62,7 @@ impl ITerminalColor for WinApiColor {
         kernel::set_console_text_attribute(color);
     }
 
-    fn reset(&self, stdout: &Arc<TerminalOutput>) {
+    fn reset(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
         kernel::set_console_text_attribute(self.original_color);
     }
 

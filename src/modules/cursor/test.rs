@@ -14,10 +14,11 @@ mod winapi_tests {
     fn goto_winapi()
     {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let cursor = WinApiCursor::new();
 
-        cursor.goto(5, 5, &screen.stdout);
-        let (x, y) = cursor.pos(&screen.stdout);
+        cursor.goto(5, 5,&stdout);
+        let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
         assert_eq!(y, 5);
@@ -27,14 +28,15 @@ mod winapi_tests {
     fn reset_safe_winapi()
     {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let cursor = WinApiCursor::new();
-        let (x, y) = cursor.pos(&screen.stdout);
+        let (x, y) = cursor.pos();
 
-        cursor.save_position(&screen.stdout);
-        cursor.goto(5, 5, &screen.stdout);
-        cursor.reset_position(&screen.stdout);
+        cursor.save_position(&stdout);
+        cursor.goto(5, 5,&stdout);
+        cursor.reset_position(&stdout);
 
-        let (x_saved, y_saved) = cursor.pos(&screen.stdout);
+        let (x_saved, y_saved) = cursor.pos();
 
         assert_eq!(x, x_saved);
         assert_eq!(y, y_saved);
@@ -47,14 +49,15 @@ fn reset_safe_ansi()
 {
     if try_enable_ansi() {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let cursor = AnsiCursor::new();
-        let (x, y) = cursor.pos(&screen.stdout);
+        let (x, y) = cursor.pos();
 
-        cursor.save_position(&screen.stdout);
-        cursor.goto(5, 5,&screen.stdout);
-        cursor.reset_position(&screen.stdout);
+        cursor.save_position(&stdout);
+        cursor.goto(5, 5,&stdout);
+        cursor.reset_position(&stdout);
 
-        let (x_saved, y_saved) = cursor.pos(&screen.stdout);
+        let (x_saved, y_saved) = cursor.pos();
 
         assert_eq!(x, x_saved);
         assert_eq!(y, y_saved);
@@ -66,10 +69,11 @@ fn goto_ansi()
 {
     if try_enable_ansi() {
         let screen = Screen::default();
+        let stdout = Some(&screen.stdout);
         let cursor = AnsiCursor::new();
 
-        cursor.goto(5, 5, &screen.stdout);
-        let (x, y) = cursor.pos(&screen.stdout);
+        cursor.goto(5, 5,&stdout);
+        let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
         assert_eq!(y, 5);

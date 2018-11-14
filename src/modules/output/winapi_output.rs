@@ -15,7 +15,7 @@ impl WinApiOutput
 {
     pub fn new() -> WinApiOutput
     {
-        WinApiOutput {}
+        WinApiOutput
     }
 }
 
