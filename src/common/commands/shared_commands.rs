@@ -9,7 +9,7 @@ pub struct ToAlternateScreenCommand;
 
 impl ToAlternateScreenCommand {
     pub fn new() -> ToAlternateScreenCommand {
-        return ToAlternateScreenCommand;
+        ToAlternateScreenCommand
     }
 }
 
@@ -17,13 +17,13 @@ impl IAlternateScreenCommand for ToAlternateScreenCommand {
 
     /// enable alternate screen.
     fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
-        stdout.write_str(csi!("?1049h"));
+        stdout.write_str(csi!("?1049h"))?;
         Ok(())
     }
 
     /// disable alternate screen.
     fn disable(&self, stdout: &TerminalOutput) -> Result<()> {
-        stdout.write_str(csi!("?1049l"));
+        stdout.write_str(csi!("?1049l"))?;
         Ok(())
     }
 }

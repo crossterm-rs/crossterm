@@ -4,7 +4,6 @@
 
 use super::IStdout;
 
-use std::any::Any;
 use std::io::{self, Write,Stdout, stdout};
 
 /// This struct is a wrapper for `Stdout`

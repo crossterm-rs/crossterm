@@ -42,12 +42,12 @@ impl ObjectStyle {
 
     /// Get an new instance of `ObjectStyle`
     pub fn new() -> ObjectStyle {
-        return ObjectStyle {
+        ObjectStyle {
             fg_color: None,
             bg_color: None,
             #[cfg(unix)]
             attrs: Vec::new(),
-        };
+        }
     }
 
     /// Set the background color of `ObjectStyle` to the passed color.

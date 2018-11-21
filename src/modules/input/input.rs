@@ -83,7 +83,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///   }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
-        return self.terminal_input.read_char(&self.stdout);
+        self.terminal_input.read_char(&self.stdout)
     }
 
     /// Read the input asynchronously from the user.
@@ -162,11 +162,11 @@ impl<'stdout> TerminalInput<'stdout> {
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
 pub fn input<'stdout>() -> TerminalInput<'stdout> {
-    return TerminalInput::new();
+    TerminalInput::new()
 }
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalInput<'stdout> {
+pub fn from_screen(screen: &Screen) -> TerminalInput {
     TerminalInput::on_screen(&screen.stdout)
 }

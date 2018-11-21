@@ -74,7 +74,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     /// ```
     #[cfg(unix)]
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
-        &self.object_style.add_attr(attr);
+        self.object_style.add_attr(attr);
         self
     }
 
@@ -192,13 +192,13 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     /// ```
     pub fn into_displayable(self, screen: &'a Screen) -> DisplayableObject<'a, D>
     {
-        return DisplayableObject::new(screen, self)
+        DisplayableObject::new(screen, self)
     }
 }
 
 impl<D: Display> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        let mut colored_terminal = color();
+        let colored_terminal = color();
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
@@ -246,6 +246,6 @@ impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D>
 {
     fn fmt(&self, _f: &mut Formatter) -> Result<(), fmt::Error> {
         self.styled_object.paint(&self.screen);
-        return Ok(())
+        Ok(())
     }
 }

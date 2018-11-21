@@ -38,7 +38,7 @@ impl ITerminalInput for UnixInput {
             }
         });
 
-        AsyncReader { recv: recv }
+        AsyncReader { recv }
     }
 
     fn read_until_async(&self, delimiter: u8, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
@@ -48,7 +48,7 @@ impl ITerminalInput for UnixInput {
             for i in get_tty().unwrap().bytes() {
                 match i {
                     Ok(byte) => {
-                        let end_of_stream = &byte == &delimiter;
+                        let end_of_stream = byte == delimiter;
                         let send_error = send.send(Ok(byte)).is_err();
 
                         if end_of_stream || send_error {
@@ -62,6 +62,6 @@ impl ITerminalInput for UnixInput {
             }
         });
 
-        AsyncReader { recv: recv }
+        AsyncReader { recv }
     }
 }

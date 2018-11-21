@@ -90,7 +90,7 @@ impl<'stdout> Terminal<'stdout> {
     /// println!("{:?}", size);
     /// ```
     pub fn terminal_size(&self) -> (u16, u16) {
-        return self.terminal.terminal_size(&self.screen);
+        self.terminal.terminal_size(&self.screen)
     }
 
     /// Scroll `n` lines up in the current terminal.

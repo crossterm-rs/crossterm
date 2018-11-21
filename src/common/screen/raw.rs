@@ -15,10 +15,8 @@
 //! With these modes you can easier design the terminal screen.
 
 use super::commands::*;
-use TerminalOutput;
 
 use std::io;
-use std::sync::Arc;
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
 ///
@@ -49,6 +47,6 @@ impl RawScreen {
         let mut command = win_commands::RawModeCommand::new();
 
         command.disable()?;
-        return Ok(())
+        Ok(())
     }
 }

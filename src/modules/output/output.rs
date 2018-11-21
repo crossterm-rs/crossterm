@@ -20,10 +20,8 @@
 
 use super::*;
 
-use std::any::Any;
 use std::default::Default;
 use std::io::Write;
-use screen::RawScreen;
 
 /// Struct that is an handle to an terminal screen.
 /// This handle could be used to write to the current screen
@@ -76,7 +74,7 @@ impl Write for TerminalOutput {
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        self.flush()
+        self.stdout.flush()
     }
 }
 

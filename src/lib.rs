@@ -9,7 +9,6 @@ mod common;
 mod kernel;
 mod modules;
 
-use common::screen;
 pub use modules::cursor;
 pub use modules::input;
 pub use modules::output;
@@ -23,8 +22,6 @@ pub use self::cursor::*;
 pub use self::input::*;
 pub use self::output::*;
 pub use self::style::*;
-
-use common::functions;
 
 #[cfg(unix)]
 extern crate libc;

@@ -211,6 +211,6 @@ pub fn cursor() -> TerminalCursor<'static> {
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalCursor<'stdout> {
+pub fn from_screen(screen: &Screen) -> TerminalCursor {
     TerminalCursor::on_screen(&screen.stdout)
 }
