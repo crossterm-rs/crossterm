@@ -6,12 +6,11 @@ use Screen;
 
 #[cfg(windows)]
 mod winapi_tests {
-    use modules::output::winapi_output::WinApiOutput;
     use super::*;
+    use modules::output::winapi_output::WinApiOutput;
     /* ======================== WinApi =========================== */
     #[test]
-    fn write_winapi()
-    {
+    fn write_winapi() {
         let screen = Screen::default();
         let output = WinApiOutput::new();
 
@@ -21,8 +20,7 @@ mod winapi_tests {
     }
 
     #[test]
-    fn write_str_winapi()
-    {
+    fn write_str_winapi() {
         let screen = Screen::default();
         let output = WinApiOutput::new();
 
@@ -34,8 +32,7 @@ mod winapi_tests {
 
 /* ======================== ANSI =========================== */
 #[test]
-fn write_ansi()
-{
+fn write_ansi() {
     let _screen = Screen::default();
     let output = AnsiOutput::new();
 
@@ -45,8 +42,7 @@ fn write_ansi()
 }
 
 #[test]
-fn write_str_ansi()
-{
+fn write_str_ansi() {
     let _screen = Screen::default();
     let output = AnsiOutput::new();
 
@@ -55,25 +51,28 @@ fn write_str_ansi()
     is_valid_write(result, bytes.len());
 }
 
-fn is_valid_write(result: ::std::io::Result<usize>, str_length: usize)
-{
+fn is_valid_write(result: ::std::io::Result<usize>, str_length: usize) {
     match result {
         Err(_) => assert!(false),
-        Ok(length) => if str_length == length { assert!(true) } else { assert!(false) }
+        Ok(length) => if str_length == length {
+            assert!(true)
+        } else {
+            assert!(false)
+        },
     };
 }
 
-fn try_enable_ansi() -> bool
-{
+fn try_enable_ansi() -> bool {
     #[cfg(windows)]
-        {
-            if cfg!(target_os = "windows") {
-                use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
+    {
+        if cfg!(target_os = "windows") {
+            use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
-                if !try_enable_ansi_support()
-                    { return false; }
+            if !try_enable_ansi_support() {
+                return false;
             }
         }
+    }
 
     return true;
 }

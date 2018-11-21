@@ -63,7 +63,7 @@ impl<'stdout> TerminalColor<'stdout> {
 
         TerminalColor {
             color,
-            stdout: Some(stdout)
+            stdout: Some(stdout),
         }
     }
 
@@ -128,9 +128,8 @@ pub fn color<'stdout>() -> TerminalColor<'stdout> {
     TerminalColor::new()
 }
 
-
 /// Get an Terminal Color implementation whereon color related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalColor<'stdout> {
+pub fn from_screen(screen: &Screen) -> TerminalColor {
     TerminalColor::on_screen(&screen.stdout)
 }

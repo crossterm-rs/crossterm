@@ -74,7 +74,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     /// ```
     #[cfg(unix)]
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
-        &self.object_style.add_attr(attr);
+        self.object_style.add_attr(attr);
         self
     }
 
@@ -144,8 +144,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     ///
     /// You should take not that `StyledObject` implements `Display`. You don't need to call paint unless you are on alternate screen.
     /// Checkout `into_displayable()` for more information about this.
-    pub fn paint(&self, screen: &Screen)
-    {
+    pub fn paint(&self, screen: &Screen) {
         let colored_terminal = from_screen(&screen);
         let mut reset = true;
 
@@ -161,7 +160,9 @@ impl<'a, D: Display + 'a> StyledObject<D> {
 
         #[cfg(unix)]
         for attr in self.object_style.attrs.iter() {
-            screen.stdout.write_string(format!(csi!("{}m"), *attr as i16));
+            screen
+                .stdout
+                .write_string(format!(csi!("{}m"), *attr as i16));
             reset = true;
         }
 
@@ -190,15 +191,14 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     ///    let display_object = styled_object.into_displayable(&screen);
     ///    println!("Colored text: {}. Default color", display_object);
     /// ```
-    pub fn into_displayable(self, screen: &'a Screen) -> DisplayableObject<'a, D>
-    {
-        return DisplayableObject::new(screen, self)
+    pub fn into_displayable(self, screen: &'a Screen) -> DisplayableObject<'a, D> {
+        DisplayableObject::new(screen, self)
     }
 }
 
 impl<D: Display> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        let mut colored_terminal = color();
+        let colored_terminal = color();
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
@@ -221,31 +221,29 @@ impl<D: Display> Display for StyledObject<D> {
     }
 }
 
-
 /// This is a wrapper for a styled object on alternate screen so that the styled object could be printed on the alternate screen with the standard write functions in rust.
 ///
 /// ```
 /// write! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));
 /// println! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));
 /// ```
-pub struct DisplayableObject<'a, D:Display + 'a>
-{
+pub struct DisplayableObject<'a, D: Display + 'a> {
     styled_object: StyledObject<D>,
     screen: &'a Screen,
 }
 
-impl <'a, D: Display + 'a> DisplayableObject<'a, D>
-{
-    pub fn new(screen: &'a Screen, styled_object: StyledObject<D>) -> DisplayableObject<'a, D>
-    {
-        DisplayableObject { screen, styled_object }
+impl<'a, D: Display + 'a> DisplayableObject<'a, D> {
+    pub fn new(screen: &'a Screen, styled_object: StyledObject<D>) -> DisplayableObject<'a, D> {
+        DisplayableObject {
+            screen,
+            styled_object,
+        }
     }
 }
 
-impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D>
-{
+impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D> {
     fn fmt(&self, _f: &mut Formatter) -> Result<(), fmt::Error> {
         self.styled_object.paint(&self.screen);
-        return Ok(())
+        Ok(())
     }
 }

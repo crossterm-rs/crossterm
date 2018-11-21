@@ -10,4 +10,4 @@ pub mod traits;
 mod crossterm;
 
 pub use self::crossterm::Crossterm;
-use {Screen, TerminalOutput};
+use TerminalOutput;

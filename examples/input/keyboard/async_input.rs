@@ -1,12 +1,12 @@
 extern crate crossterm;
 
-use self::crossterm::{Crossterm, Screen};
-use self::crossterm::terminal::ClearType;
 use self::crossterm::input::input;
+use self::crossterm::terminal::ClearType;
+use self::crossterm::{Crossterm, Screen};
 
-use std::{thread, time};
 use std::io::{stdout, Read, Write};
 use std::time::Duration;
+use std::{thread, time};
 
 /// this will capture the input until the given key.
 pub fn read_async_until() {
@@ -100,8 +100,7 @@ pub fn async_reading_on_alternate_screen() {
     let screen = Screen::new(false);
 
     // switch to alternate screen
-    if let Ok(alternate) = screen.enable_alternate_modes(true)
-    {
+    if let Ok(alternate) = screen.enable_alternate_modes(true) {
         let crossterm = Crossterm::from_screen(&alternate.screen);
         // init some modules we use for this demo
         let input = crossterm.input();

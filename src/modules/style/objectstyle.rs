@@ -30,10 +30,7 @@ impl Default for ObjectStyle {
 
 impl ObjectStyle {
     /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<D: Display>(
-        &self,
-        val: D,
-    ) -> StyledObject<D> {
+    pub fn apply_to<D: Display>(&self, val: D) -> StyledObject<D> {
         StyledObject {
             object_style: self.clone(),
             content: val,
@@ -42,12 +39,12 @@ impl ObjectStyle {
 
     /// Get an new instance of `ObjectStyle`
     pub fn new() -> ObjectStyle {
-        return ObjectStyle {
+        ObjectStyle {
             fg_color: None,
             bg_color: None,
             #[cfg(unix)]
             attrs: Vec::new(),
-        };
+        }
     }
 
     /// Set the background color of `ObjectStyle` to the passed color.

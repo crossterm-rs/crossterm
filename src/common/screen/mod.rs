@@ -5,8 +5,8 @@ mod alternate;
 mod raw;
 mod screen;
 
-use super::{commands, functions, TerminalOutput};
+use super::{commands, TerminalOutput};
 
-pub use self::raw::RawScreen;
 pub use self::alternate::AlternateScreen;
+pub use self::raw::RawScreen;
 pub use self::screen::Screen;

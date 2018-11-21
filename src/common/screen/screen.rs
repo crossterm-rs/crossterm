@@ -1,10 +1,9 @@
-use super::{AlternateScreen,RawScreen};
+use super::{AlternateScreen, RawScreen};
 use TerminalOutput;
 
-use std::io::Write;
 use std::io::Result;
+use std::io::Write;
 use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
 
 /// This type represents an screen which could be in normal, raw and alternate modes.
 ///
@@ -60,27 +59,27 @@ use std::sync::atomic::AtomicBool;
 /// }
 /// ```
 ///
-pub struct Screen
-{
+pub struct Screen {
     buffer: Vec<u8>,
     pub stdout: Arc<TerminalOutput>,
     drop: bool,
 }
 
-impl Screen
-{
+impl Screen {
     /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode.
     /// If you are not sure what raw mode is then pass false or use the `Screen::default()` to create an instance.
-    pub fn new(raw_mode: bool) -> Screen
-    {
-        if raw_mode
-            {
-                let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new(), drop: true };
-                RawScreen::into_raw_mode().unwrap();
-                return screen;
-            }
+    pub fn new(raw_mode: bool) -> Screen {
+        if raw_mode {
+            let screen = Screen {
+                stdout: Arc::new(TerminalOutput::new(true)),
+                buffer: Vec::new(),
+                drop: true,
+            };
+            RawScreen::into_raw_mode().unwrap();
+            return screen;
+        }
 
-        return Screen::default();
+        Screen::default()
     }
 
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance. If everything went well this type will give you control over the `AlternateScreen`.
@@ -96,7 +95,7 @@ impl Screen
         let stdout = TerminalOutput::new(raw_mode);
 
         let alternate_screen = AlternateScreen::to_alternate_screen(stdout, raw_mode)?;
-        return Ok(alternate_screen);
+        Ok(alternate_screen)
     }
 
     /// Write buffer to an internal buffer. When you want to write the buffer to screen use `flush_buf()`.
@@ -112,8 +111,7 @@ impl Screen
     /// screen.write_buf(b"Some more text");
     /// ```
     pub fn write_buf(&mut self, buf: &[u8]) -> Result<usize> {
-        self.buffer.write(buf)?;
-        Ok(buf.len())
+        self.buffer.write(buf)
     }
 
     /// Flush the internal buffer to the screen.
@@ -125,49 +123,54 @@ impl Screen
     }
 
     /// This will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
-    pub fn disable_drop(&mut self)
-    {
+    pub fn disable_drop(&mut self) {
         self.drop = false;
     }
 }
 
-impl From<TerminalOutput> for Screen
-{
+impl From<TerminalOutput> for Screen {
     /// Create an screen with the given `Stdout`
     fn from(stdout: TerminalOutput) -> Self {
-        return Screen { stdout: Arc::new(stdout), buffer: Vec::new(), drop: true};
+        Screen {
+            stdout: Arc::new(stdout),
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl From<Arc<TerminalOutput>> for Screen
-{
+impl From<Arc<TerminalOutput>> for Screen {
     /// Create an screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        return Screen { stdout: stdout, buffer: Vec::new(), drop: true};
+        Screen {
+            stdout,
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl Default for Screen
-{
+impl Default for Screen {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        return Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new(), drop: true};
+        Screen {
+            stdout: Arc::new(TerminalOutput::new(false)),
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl Drop for Screen
-{
+impl Drop for Screen {
     /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
-        if self.stdout.is_in_raw_mode && self.drop
-        {
+        if self.stdout.is_in_raw_mode && self.drop {
             RawScreen::disable_raw_modes();
         }
     }
 }
 
-impl Write for Screen
-{
+impl Write for Screen {
     fn write(&mut self, buf: &[u8]) -> Result<usize> {
         self.stdout.write_buf(buf)
     }

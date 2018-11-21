@@ -1,22 +1,14 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use self::libc::{c_int, c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ, TIOCSWINSZ, signal, SIG_IGN, SIGWINCH};
+use self::libc::{c_ushort, ioctl, STDOUT_FILENO, TCSADRAIN, TIOCGWINSZ};
 
-use common::commands::unix_command::RawModeCommand;
-use {libc, TerminalOutput, Screen};
 pub use libc::termios;
+use {libc, Screen};
 
-use std::sync::Arc;
+use std::fs;
 use std::io::{self, Error, ErrorKind, Read, Write};
 use std::os::unix::io::AsRawFd;
-use std::time::{Duration, SystemTime};
-use std::{fs, mem};
-use termios::{cfmakeraw, tcsetattr, Termios, TCSADRAIN, CREAD, ECHO, ICANON, TCSAFLUSH};
-
-const FD_STDIN: ::std::os::unix::io::RawFd = 1;
-
-use Crossterm;
-use input::input;
+use termios::{tcsetattr, Termios};
 
 /// A representation of the size of the current terminal.
 #[repr(C)]
@@ -46,7 +38,7 @@ pub fn terminal_size() -> (u16, u16) {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         (us.cols, us.rows)
     } else {
-        (0,0)
+        (0, 0)
     }
 }
 
@@ -71,8 +63,7 @@ pub fn terminal_size() -> (u16, u16) {
 //    }
 //}
 
-pub fn pos() -> io::Result<(u16, u16)>
-{
+pub fn pos() -> io::Result<(u16, u16)> {
     let _screen = Screen::new(false);
 
     // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in applicaition.
@@ -82,7 +73,7 @@ pub fn pos() -> io::Result<(u16, u16)>
         if !RAW_MODE_ENABLED_BY_USER || !RAW_MODE_ENABLED_BY_SYSTEM {
             // set this boolean so that we know that the systems has enabled raw mode.
             RAW_MODE_ENABLED_BY_SYSTEM = true;
-            into_raw_mode();
+            into_raw_mode()?;
         }
     }
 
@@ -91,7 +82,7 @@ pub fn pos() -> io::Result<(u16, u16)>
     let mut stdout = io::stdout();
 
     // Write command
-    stdout.write(b"\x1B[6n")?;
+    stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
     let mut buf = [0u8; 2];
@@ -133,7 +124,7 @@ pub fn pos() -> io::Result<(u16, u16)>
 
     // Expect `R`
     let res = if c == 'R' {
-        Ok(((cols -1) as u16, (rows -1) as u16))
+        Ok(((cols - 1) as u16, (rows - 1) as u16))
     } else {
         return Err(Error::new(ErrorKind::Other, "test"));
     };
@@ -143,20 +134,16 @@ pub fn pos() -> io::Result<(u16, u16)>
     unsafe {
         if RAW_MODE_ENABLED_BY_SYSTEM && !RAW_MODE_ENABLED_BY_USER {
             RAW_MODE_ENABLED_BY_SYSTEM = false;
-            disable_raw_mode();
+            disable_raw_mode()?;
         }
     }
 
-    return res
+    res
 }
 
-/// Set the terminal mode to the given mode.
-pub fn set_terminal_mode(termios: &Termios) -> io::Result<()> {
-    extern "C" {
-        pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
-    }
-    is_true(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
-}
+static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
+static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
+pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
 
 /// Transform the given mode into an raw mode (non-canonical) mode.
 pub fn make_raw(termios: &mut Termios) {
@@ -166,12 +153,7 @@ pub fn make_raw(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
-static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
-static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
-pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
-
-pub fn into_raw_mode() -> io::Result<()>
-{
+pub fn into_raw_mode() -> io::Result<()> {
     let tty_f;
 
     let fd = unsafe {
@@ -187,8 +169,7 @@ pub fn into_raw_mode() -> io::Result<()>
     let original = termios.clone();
 
     unsafe {
-        if let None = ORIGINAL_TERMINAL_MODE
-        {
+        if ORIGINAL_TERMINAL_MODE.is_none() {
             ORIGINAL_TERMINAL_MODE = Some(original.clone())
         }
     }
@@ -196,12 +177,10 @@ pub fn into_raw_mode() -> io::Result<()>
     make_raw(&mut termios);
     tcsetattr(fd, TCSADRAIN, &termios)?;
 
-
     Ok(())
 }
 
-pub fn disable_raw_mode() -> io::Result<()>
-{
+pub fn disable_raw_mode() -> io::Result<()> {
     let tty_f;
 
     let fd = unsafe {
@@ -213,8 +192,7 @@ pub fn disable_raw_mode() -> io::Result<()>
         }
     };
 
-    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE }
-    {
+    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE } {
         tcsetattr(fd, TCSADRAIN, &original)?;
     }
     Ok(())
@@ -235,7 +213,7 @@ pub fn get_tty() -> io::Result<fs::File> {
         }
     };
 
-    return Ok(tty_f);
+    Ok(tty_f)
 }
 
 pub fn read_char() -> io::Result<char> {
@@ -254,7 +232,7 @@ pub fn read_char() -> io::Result<char> {
     };
 
     let mut termios = Termios::from_fd(fd)?;
-    let original = termios.clone();
+    let original = termios;
 
     make_raw(&mut termios);
     tcsetattr(fd, TCSADRAIN, &termios)?;
@@ -304,13 +282,4 @@ pub fn read_char() -> io::Result<char> {
 
 pub fn exit() {
     ::std::process::exit(0);
-}
-
-/// Is the return value true?
-fn is_true(value: i32) -> Result<(), Error> {
-    match value {
-        -1 => Err(io::Error::last_os_error()),
-        0 => Ok(()),
-        _ => Err(io::Error::last_os_error()),
-    }
 }

@@ -33,13 +33,14 @@ pub struct TerminalCursor<'stdout> {
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
-impl<'stdout> TerminalCursor <'stdout>{
+impl<'stdout> TerminalCursor<'stdout> {
     /// Create new cursor instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
-        let cursor =
-            functions::get_module::<Box<ITerminalCursor + Sync + Send>>(WinApiCursor::new(), AnsiCursor::new())
-                .unwrap();
+        let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
+            WinApiCursor::new(),
+            AnsiCursor::new(),
+        ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
@@ -52,9 +53,10 @@ impl<'stdout> TerminalCursor <'stdout>{
 
     pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
-        let cursor =
-            functions::get_module::<Box<ITerminalCursor + Sync + Send>>(WinApiCursor::new(), AnsiCursor::new())
-                .unwrap();
+        let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
+            WinApiCursor::new(),
+            AnsiCursor::new(),
+        ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
@@ -211,6 +213,6 @@ pub fn cursor() -> TerminalCursor<'static> {
 
 /// Get an TerminalCursor implementation whereon cursor related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalCursor<'stdout> {
+pub fn from_screen(screen: &Screen) -> TerminalCursor {
     TerminalCursor::on_screen(&screen.stdout)
 }

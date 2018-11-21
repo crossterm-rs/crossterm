@@ -3,8 +3,8 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use cursor::TerminalCursor;
 use super::*;
+use cursor::TerminalCursor;
 
 use kernel::windows_kernel::{csbi, kernel, terminal, writing};
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
@@ -151,8 +151,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     fn exit(&self, stdout: &Option<&Arc<TerminalOutput>>) {
-        if let Some(output) = stdout
-        {
+        if let Some(output) = stdout {
             // drop the screen with the current stdout. This will make sure when in raw mode this will be disabled first.
             let mut screen = Screen::from(output.to_owned().clone());
             drop(screen);
@@ -208,7 +207,10 @@ pub fn clear_before_cursor(
     clear(start_location, cells_to_write);
 }
 
-pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, stdout: &Option<&Arc<TerminalOutput>>) {
+pub fn clear_entire_screen(
+    csbi: CONSOLE_SCREEN_BUFFER_INFO,
+    stdout: &Option<&Arc<TerminalOutput>>,
+) {
     // position x at start
     let x = 0;
     // position y at start
@@ -305,11 +307,8 @@ fn clear(start_loaction: COORD, cells_to_write: u32) {
     let mut cells_written = 0;
     let mut success = false;
 
-    success = writing::fill_console_output_character(
-        &mut cells_written,
-        start_loaction,
-        cells_to_write,
-    );
+    success =
+        writing::fill_console_output_character(&mut cells_written, start_loaction, cells_to_write);
 
     if !success {
         panic!("Could not clear screen after cursor");
@@ -317,11 +316,8 @@ fn clear(start_loaction: COORD, cells_to_write: u32) {
 
     cells_written = 0;
 
-    success = writing::fill_console_output_attribute(
-        &mut cells_written,
-        start_loaction,
-        cells_to_write,
-    );
+    success =
+        writing::fill_console_output_attribute(&mut cells_written, start_loaction, cells_to_write);
 
     if !success {
         panic!("Could not reset attributes after cursor");

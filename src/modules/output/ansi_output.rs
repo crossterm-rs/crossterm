@@ -4,8 +4,7 @@
 
 use super::IStdout;
 
-use std::any::Any;
-use std::io::{self, Write,Stdout, stdout};
+use std::io::{self, stdout, Stdout, Write};
 
 /// This struct is a wrapper for `Stdout`
 pub struct AnsiOutput {

@@ -3,16 +3,13 @@
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
 
 use super::*;
-use std::io::Write;
-
 
 /// This struct is an ansi implementation for cursor related actions.
-pub struct AnsiCursor { }
+pub struct AnsiCursor {}
 
-impl AnsiCursor
-{
+impl AnsiCursor {
     pub fn new() -> Box<AnsiCursor> {
-        Box::from(AnsiCursor { })
+        Box::from(AnsiCursor {})
     }
 }
 
