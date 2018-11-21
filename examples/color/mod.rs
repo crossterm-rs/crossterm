@@ -109,7 +109,7 @@ pub fn print_all_foreground_colors() {
     );
 
     #[cfg(unix)]
-    println!("{}", style("RGB color (10,10,10) ")).with(Color::AnsiValue(50));
+    println!("{}", style("RGB color (10,10,10) ").with(Color::AnsiValue(50)));
 }
 
 /// Print all available foreground colors | demonstration.
