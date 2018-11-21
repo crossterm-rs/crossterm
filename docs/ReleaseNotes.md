@@ -1,3 +1,8 @@
+# Changes crossterm 0.5.0
+- Implemented Display for styled object.
+- Removed `Screen` from the following functions: `crossterm::cursor(), crossterm::color(), crossterm::terminal()`, you won't need to care about `Screen` unless you are working with alternate or raw screen.
+- more to come ...
+
 # Changes crossterm to 0.4.3
 - Fixed bug [issue 41](https://github.com/TimonPost/crossterm/issues/41)
 

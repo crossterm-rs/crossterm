@@ -2,7 +2,7 @@ use super::variables::{Position, Size, Direction };
 use super::snake::Snake;
 
 use crossterm::{Crossterm, Screen};
-use crossterm::cursor::cursor;
+use crossterm::cursor::from_screen;
 use crossterm::style::{ObjectStyle, StyledObject, Color, style};
 
 use rand::distributions::{IndependentSample, Range};
@@ -30,7 +30,7 @@ impl Map
     // render the map on the screen.
     pub fn render_map(&mut self, screen: &Screen, free_positions: &mut HashMap<String, Position>)
     {
-        let crossterm = Crossterm::new(screen);
+        let crossterm = Crossterm::from_screen(screen);
         let mut cursor = crossterm.cursor();
         let mut terminal = crossterm.terminal();
 
@@ -73,7 +73,7 @@ impl Map
 
     fn draw_food(&self, screen: &Screen)
     {
-        cursor(screen).goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
+        from_screen(screen).goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
         style("$").with(Color::Green).paint(screen);
         screen.stdout.flush();
     }

@@ -15,7 +15,7 @@ impl UnixInput {
 }
 
 impl ITerminalInput for UnixInput {
-    fn read_line(&self, _screen_manger: &Arc<TerminalOutput>) -> io::Result<String> {
+    fn read_line(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String> {
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
         let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
@@ -23,11 +23,11 @@ impl ITerminalInput for UnixInput {
         Ok(rv)
     }
 
-    fn read_char(&self, _screen_manger: &Arc<TerminalOutput>) -> io::Result<char> {
+    fn read_char(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
         read_char()
     }
 
-    fn read_async(&self, _screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
+    fn read_async(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {
@@ -41,7 +41,7 @@ impl ITerminalInput for UnixInput {
         AsyncReader { recv: recv }
     }
 
-    fn read_until_async(&self, delimiter: u8, _screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
+    fn read_until_async(&self, delimiter: u8, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {

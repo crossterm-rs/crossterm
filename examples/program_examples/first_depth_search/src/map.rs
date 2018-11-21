@@ -41,8 +41,7 @@ impl Map
     // render the map on the screen.
     pub fn render_map(&mut self, screen: &Screen)
     {
-        let crossterm = Crossterm::new(&screen);
-        let mut cursor = crossterm.cursor();
+        let crossterm = Crossterm::from_screen(screen);
 
         for row in self.map.iter_mut()
         {
@@ -52,7 +51,7 @@ impl Map
                 if (column.position.y == 0 || column.position.y == self.size.height - 1) || (column.position.x == 0 || column.position.x == self.size.width - 1)
                 {
                     let cell_style = crossterm.style(column.look).on(column.color);
-                    cursor.goto(column.position.x as u16, column.position.y as u16);
+                    cursor().goto(column.position.x as u16, column.position.y as u16);
                     cell_style.paint(&screen);
                 }
             }

@@ -1,9 +1,10 @@
 //! This module contains the logic to style an object that contains some state witch can be styled.
 
-use super::{Color, ObjectStyle};
+use super::{color, from_screen, Color, ObjectStyle};
 use Screen;
 
-use std::fmt::Display;
+use std::fmt::{self, Display, Formatter};
+use std::io::Write;
 
 #[cfg(unix)]
 use super::Attribute;
@@ -15,32 +16,29 @@ pub struct StyledObject<D: Display> {
 }
 
 impl<'a, D: Display + 'a> StyledObject<D> {
-    /// Set the foreground of the styled object to the passed `Color`
+    /// Set the foreground of the styled object to the passed `Color`.
     ///
     /// ```rust
     /// use self::crossterm::style::{style,Color};
     ///
     /// // create an styled object with the foreground color red.
-    /// let styledobject =  style("Some colored text").with(Color::Blue);
+    /// let styledobject =  style("Some colored text").with(Color::Red);
     /// // create an styled object with the foreground color blue.
     /// let styledobject1 = style("Some colored text").with(Color::Blue);
     ///
-    /// let screen = Screen::default();
-    ///
     /// // print the styledobject to see the result
-    /// styledobject.paint(&screen);
-    /// styledobject1.paint(&screen);
+    /// println!("{}", styledobject);
+    /// println!("{}", styledobject1);
     ///
     /// // print an styled object directly.
-    /// style("Some colored text").with(Color::Blue).paint(&screen);
-    ///
+    /// println!("{}", style("Some colored text").on(Color::Blue));
     /// ```
     pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.fg(foreground_color);
         self
     }
 
-    /// Set the background of the styled object to the passed `Color`
+    /// Set the background of the styled object to the passed `Color`.
     ///
     /// #Example
     ///
@@ -48,26 +46,23 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     /// use self::crossterm::style::{style,Color};
     ///
     /// // create an styled object with the background color red.
-    /// let styledobject =  style("Some colored text").on(Color::Blue);
+    /// let styledobject =  style("Some colored text").on(Color::Red);
     /// // create an styled object with the foreground color blue.
     /// let styledobject1 = style("Some colored text").on(Color::Blue);
     ///
-    /// let screen = Screen::default();
-    ///
     /// // print the styledobject to see the result
-    /// styledobject.paint(&screen);
-    /// styledobject1.paint(&screen);
+    /// println!("{}", styledobject);
+    /// println!("{}", styledobject1);
     ///
     /// // print an styled object directly.
-    /// style("Some colored text").on(Color::Blue).paint(&screen);
-    ///
+    /// println!("{}", style("Some colored text").on(Color::Blue));
     /// ```
     pub fn on(mut self, background_color: Color) -> StyledObject<D> {
         self.object_style = self.object_style.bg(background_color);
         self
     }
 
-    /// Set the attribute of an styled object to the passed `Attribute`
+    /// Set the attribute of an styled object to the passed `Attribute`.
     ///
     /// #Example
     ///
@@ -75,7 +70,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     /// extern crate crossterm;
     /// use self::crossterm::style::{style,Attribute};
     ///
-    /// style("Some colored text").attr(Attribute::Bold).paint(&screen);
+    /// println!("{}", style("Some bold text").attr(Attribute::Bold);
     /// ```
     #[cfg(unix)]
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
@@ -138,7 +133,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
         self.attr(Attribute::CrossedOut)
     }
 
-    /// This could be used to paint the styled object on the screen. Pass a reference to the screen whereon you want to perform the painting.
+    /// This could be used to paint the styled object onto the given screen. You have to pass a reference to the screen whereon you want to perform the painting.
     ///
     /// ``` rust
     /// style("Some colored text")
@@ -146,9 +141,12 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     ///     .on(Color::Black)
     ///     .paint(&screen);
     /// ```
+    ///
+    /// You should take not that `StyledObject` implements `Display`. You don't need to call paint unless you are on alternate screen.
+    /// Checkout `into_displayable()` for more information about this.
     pub fn paint(&self, screen: &Screen)
     {
-        let colored_terminal = ::color(&screen);
+        let colored_terminal = from_screen(&screen);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
@@ -162,7 +160,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
         }
 
         #[cfg(unix)]
-            for attr in self.object_style.attrs.iter() {
+        for attr in self.object_style.attrs.iter() {
             screen.stdout.write_string(format!(csi!("{}m"), *attr as i16));
             reset = true;
         }
@@ -178,13 +176,19 @@ impl<'a, D: Display + 'a> StyledObject<D> {
         }
     }
 
-    /// this converts an styled object into an `DisplayableObject` witch implements: `Display` and could be used inside the write function of the standard library's.
+    /// This converts an styled object into an `DisplayableObject` witch implements: `Display` and could be used inside the write function of the standard library.
+    ///
+    /// _StyledObject already implements `Display` right?_
+    ///
+    /// This is true, however there are some complex issues why this won't work on alternate screen.
+    /// That is the reason why this functions exists.
+    /// You could just pass in the 'screen' from your alternate screen to this method and your `StyledObject` will be printed to the alternate screen just fine.
     ///
     /// ```
-    ///   let screen = Screen::default();
-    //    let styled_object = style("test").with(Color::Yellow);
-    //    let display_object = styled_object.into_displayable(&screen);
-    //    println!("Colored text: {}. Default color", display_object);
+    ///    let screen = Screen::default(); /* represents the alternate screen */
+    ///    let styled_object = style("test").with(Color::Yellow);
+    ///    let display_object = styled_object.into_displayable(&screen);
+    ///    println!("Colored text: {}. Default color", display_object);
     /// ```
     pub fn into_displayable(self, screen: &'a Screen) -> DisplayableObject<'a, D>
     {
@@ -192,13 +196,37 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     }
 }
 
-use std::fmt::{Formatter, Error};
+impl<D: Display> Display for StyledObject<D> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        let mut colored_terminal = color();
+        let mut reset = true;
 
-/// This is a wrapper for a styled object so that the styled object could be printed with the standard write functions in rust.
+        if let Some(bg) = self.object_style.bg_color {
+            colored_terminal.set_bg(bg);
+            reset = true;
+        }
+        if let Some(fg) = self.object_style.fg_color {
+            colored_terminal.set_fg(fg);
+            reset = true;
+        }
+
+        fmt::Display::fmt(&self.content, f)?;
+        std::io::stdout().flush().expect("Flush stdout failed");
+
+        if reset {
+            colored_terminal.reset();
+        }
+
+        Ok(())
+    }
+}
+
+
+/// This is a wrapper for a styled object on alternate screen so that the styled object could be printed on the alternate screen with the standard write functions in rust.
 ///
 /// ```
 /// write! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));
-/// println! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object))
+/// println! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));
 /// ```
 pub struct DisplayableObject<'a, D:Display + 'a>
 {
@@ -216,7 +244,7 @@ impl <'a, D: Display + 'a> DisplayableObject<'a, D>
 
 impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D>
 {
-    fn fmt(&self, _f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, _f: &mut Formatter) -> Result<(), fmt::Error> {
         self.styled_object.paint(&self.screen);
         return Ok(())
     }

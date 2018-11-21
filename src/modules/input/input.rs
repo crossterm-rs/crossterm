@@ -13,20 +13,26 @@ use Screen;
 /// use self::crossterm::Screen;
 /// use self::crossterm::input;
 ///
-/// let screen = Screen::default();
-/// let input = input(&screen);
+/// let input = input();
 /// let result = input.read_line();
 /// let pressed_char = input.read_char();
 ///
 /// ```
+///
+/// **!! Take note when using input with raw mode you should use the `Screen` type. !!**
+///
+/// ```
+/// let screen = Screen::new(true);
+/// let input = crossterm::input::from_screen(&screen);///
+/// ```
 pub struct TerminalInput<'stdout> {
     terminal_input: Box<ITerminalInput + Sync + Send>,
-    stdout: &'stdout Arc<TerminalOutput>,
+    stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
 impl<'stdout> TerminalInput<'stdout> {
     /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn new(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
+    pub fn new() -> TerminalInput<'stdout> {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
 
@@ -35,15 +41,28 @@ impl<'stdout> TerminalInput<'stdout> {
 
         TerminalInput {
             terminal_input: input,
-            stdout: stdout,
+            stdout: None,
+        }
+    }
+
+    /// Create new instance of TerminalInput whereon input related actions could be preformed.
+    pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
+        #[cfg(target_os = "windows")]
+        let input = Box::from(WindowsInput::new());
+
+        #[cfg(not(target_os = "windows"))]
+        let input = Box::from(UnixInput::new());
+
+        TerminalInput {
+            terminal_input: input,
+            stdout: Some(stdout),
         }
     }
 
     /// Read one line from the user input.
     ///
     /// ```rust
-    /// let screen = Screen::default();
-    /// let input = input(&screen);
+    /// let input = input();
     ///  match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
@@ -56,8 +75,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// Read one character from the user input
     ///
     /// ```rust
-    /// let screen = Screen::default();
-    /// let input = input(&screen);
+    /// let input = input();
     ///
     ///  match input.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
@@ -71,12 +89,12 @@ impl<'stdout> TerminalInput<'stdout> {
     /// Read the input asynchronously from the user.
     ///
     /// This call will not block the current thread.
-    //  Under the hood a thread is fired which will read input on unix systems from TTY and on windows systems with '_getwch' and '_getwche'
+    ///  Under the hood a thread is fired which will read input on unix systems from TTY and on windows systems with '_getwch' and '_getwche'
     ///
     /// ```rust
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
-    /// let input = input(&screen);
+    /// let input = crossterm::input::from_screen(&screen);
     ///
     /// let mut stdin = input.read_async().bytes();
     ///
@@ -108,11 +126,11 @@ impl<'stdout> TerminalInput<'stdout> {
     /// // we need to enable raw mode otherwise the characters will be outputted by default before we are able to read them.
     /// let screen = Screen::new(true);
     ///
-    /// let crossterm = Crossterm::new(&screen);
+    /// // create an instance of `Crossterm` which will preform the actions on the raw screen.
+    /// let crossterm = Crossterm::from_screen(&screen);
     /// let input = crossterm.input();
     /// let terminal = crossterm.terminal();
     /// let mut cursor = crossterm.cursor();
-    ///
     ///
     /// let mut stdin = input.read_until_async(b'\r').bytes();
     ///
@@ -143,7 +161,12 @@ impl<'stdout> TerminalInput<'stdout> {
 }
 
 /// Get an Terminal Input implementation whereon input related actions can be performed.
+pub fn input<'stdout>() -> TerminalInput<'stdout> {
+    return TerminalInput::new();
+}
+
+/// Get an Terminal Input implementation whereon input related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn input<'stdout>(stdout: &'stdout Screen) -> TerminalInput<'stdout> {
-    return TerminalInput::new(&stdout.stdout);
+pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalInput<'stdout> {
+    TerminalInput::on_screen(&screen.stdout)
 }

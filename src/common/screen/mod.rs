@@ -1,4 +1,5 @@
-//! This module provides some modules to work with the terminal screen. Like raw and alternate screen.
+//! This module provides some modules to work with the terminal screen.
+//! Like allowing you to switch between raw and alternate screen.
 
 mod alternate;
 mod raw;

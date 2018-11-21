@@ -19,9 +19,9 @@ impl WinApiTerminal {
 }
 
 impl ITerminal for WinApiTerminal {
-    fn clear(&self, clear_type: ClearType, stdout: &Arc<TerminalOutput>) {
+    fn clear(&self, clear_type: ClearType, stdout: &Option<&Arc<TerminalOutput>>) {
         let csbi = csbi::get_csbi().unwrap();
-        let pos = TerminalCursor::new(stdout).pos();
+        let pos = TerminalCursor::new().pos();
 
         match clear_type {
             ClearType::All => {
@@ -34,11 +34,11 @@ impl ITerminal for WinApiTerminal {
         };
     }
 
-    fn terminal_size(&self, stdout: &Arc<TerminalOutput>) -> (u16, u16) {
+    fn terminal_size(&self, stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
         terminal::terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, stdout: &Arc<TerminalOutput>) {
+    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) {
         let csbi = csbi::get_csbi().unwrap();
 
         // Set srctWindow to the current window size and location.
@@ -56,7 +56,7 @@ impl ITerminal for WinApiTerminal {
         }
     }
 
-    fn scroll_down(&self, count: i16, stdout: &Arc<TerminalOutput>) {
+    fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) {
         let csbi = csbi::get_csbi().unwrap();
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
@@ -74,7 +74,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16, stdout: &Arc<TerminalOutput>) {
+    fn set_size(&self, width: i16, height: i16, stdout: &Option<&Arc<TerminalOutput>>) {
         if width <= 0 {
             panic!("Cannot set the terminal width lower than 1");
         }
@@ -150,18 +150,21 @@ impl ITerminal for WinApiTerminal {
         }
     }
 
-    fn exit(&self, stdout: &Arc<TerminalOutput>) {
-        // drop the screen with the current stdout. This will make sure when in raw mode this will be disabled first.
-        let mut screen = Screen::from(stdout.clone());
-        drop(screen);
-        functions::exit_terminal();
+    fn exit(&self, stdout: &Option<&Arc<TerminalOutput>>) {
+        if let Some(output) = stdout
+        {
+            // drop the screen with the current stdout. This will make sure when in raw mode this will be disabled first.
+            let mut screen = Screen::from(output.to_owned().clone());
+            drop(screen);
+            functions::exit_terminal();
+        }
     }
 }
 
 pub fn clear_after_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Arc<TerminalOutput>,
+    stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     let (mut x, mut y) = pos;
 
@@ -185,7 +188,7 @@ pub fn clear_after_cursor(
 pub fn clear_before_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Arc<TerminalOutput>,
+    stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     let (xpos, ypos) = pos;
 
@@ -205,7 +208,7 @@ pub fn clear_before_cursor(
     clear(start_location, cells_to_write);
 }
 
-pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, stdout: &Arc<TerminalOutput>) {
+pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, stdout: &Option<&Arc<TerminalOutput>>) {
     // position x at start
     let x = 0;
     // position y at start
@@ -222,14 +225,22 @@ pub fn clear_entire_screen(csbi: CONSOLE_SCREEN_BUFFER_INFO, stdout: &Arc<Termin
 
     clear(start_location, cells_to_write);
 
-    // put the cursor back at (0, 0)
-    TerminalCursor::new(stdout).goto(0, 0);
+    match stdout {
+        Some(ref output) => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::on_screen(output).goto(0, 0);
+        }
+        None => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::new().goto(0, 0);
+        }
+    }
 }
 
 pub fn clear_current_line(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Arc<TerminalOutput>,
+    stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     // position x at start
     let x = 0;
@@ -248,13 +259,22 @@ pub fn clear_current_line(
     clear(start_location, cells_to_write);
 
     // put the cursor back at 1 cell on current row
-    TerminalCursor::new(stdout).goto(0, y);
+    match stdout {
+        Some(ref output) => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::on_screen(output).goto(0, y);
+        }
+        None => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::new().goto(0, y);
+        }
+    }
 }
 
 pub fn clear_until_line(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Arc<TerminalOutput>,
+    stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     let (x, y) = pos;
 
@@ -269,7 +289,16 @@ pub fn clear_until_line(
     clear(start_location, cells_to_write);
 
     // put the cursor back at original cursor position
-    TerminalCursor::new(stdout).goto(x, y);
+    match stdout {
+        Some(ref output) => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::on_screen(output).goto(x, y);
+        }
+        None => {
+            // put the cursor back at (0, 0)
+            TerminalCursor::new().goto(x, y);
+        }
+    }
 }
 
 fn clear(start_loaction: COORD, cells_to_write: u32) {

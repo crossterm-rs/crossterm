@@ -4,12 +4,10 @@ use crossterm::{Crossterm, Screen};
 use crossterm::style::Color;
 
 /// use the `Crossterm` to get an instance to the cursor module | demonstration.
-pub fn use_crossterm_cursor()
+pub fn crossterm()
 {
-    let screen = Screen::default();
-
     // Create the crossterm type to access different modules.
-    let crossterm = Crossterm::new(&screen);
+    let crossterm = Crossterm::new();
 
     // pass a reference to the current screen.
     let cursor = crossterm.cursor();

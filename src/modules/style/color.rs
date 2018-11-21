@@ -13,11 +13,9 @@ use Screen;
 ///
 ///
 /// ```rust
-/// use crossterm::{Screen}
 /// use crossterm::style::color;
 ///
-/// let screen = Screen::default();
-/// let colored_terminal = color(&screen);
+/// let colored_terminal = color();
 ///
 /// // set foreground color
 /// colored_terminal.set_fg(Color::Red);
@@ -25,15 +23,18 @@ use Screen;
 /// colored_terminal.set_bg(Color::Red);
 /// // reset color to default
 /// colored_terminal.reset();
+///
+/// When you want to use 'color' on 'alternate screen' use the `Screen` type instead and pass it to the `color::from_screen()` function.
+/// By doing that styling actions will be performed on the alternate screen.
 /// ```
 pub struct TerminalColor<'stdout> {
     color: Box<ITerminalColor + Sync + Send>,
-    stdout: &'stdout Arc<TerminalOutput>,
+    stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
 impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
+    pub fn new() -> TerminalColor<'stdout> {
         #[cfg(target_os = "windows")]
         let color = functions::get_module::<Box<ITerminalColor + Sync + Send>>(
             Box::from(WinApiColor::new()),
@@ -45,21 +46,36 @@ impl<'stdout> TerminalColor<'stdout> {
 
         TerminalColor {
             color,
-            stdout: stdout,
+            stdout: None,
+        }
+    }
+
+    /// Create new instance of `TerminalInput` whereon input related actions could be preformed.
+    pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
+        #[cfg(target_os = "windows")]
+        let color = functions::get_module::<Box<ITerminalColor + Sync + Send>>(
+            Box::from(WinApiColor::new()),
+            Box::from(AnsiColor::new()),
+        ).unwrap();
+
+        #[cfg(not(target_os = "windows"))]
+        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;
+
+        TerminalColor {
+            color,
+            stdout: Some(stdout)
         }
     }
 
     /// Set the foreground color to the given color.
     ///
     /// ```rust
-    /// let screen = Screen::default();
-    /// let colored_terminal = color(&screen);
+    /// let colored_terminal = color();
     ///
     /// // Set foreground color of the font
     /// colored_terminal.set_fg(Color::Red);
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_fg(Color::from("Red"));
-    ///
     /// ```
     pub fn set_fg(&self, color: Color) {
         self.color.set_fg(color, &self.stdout);
@@ -68,14 +84,12 @@ impl<'stdout> TerminalColor<'stdout> {
     /// Set the background color to the given color.
     ///
     /// ```rust
-    /// let screen = Screen::default();
-    /// let colored_terminal = color(&screen);
+    /// let colored_terminal = color();
     ///
     /// // Set background color of the font
     /// colored_terminal.set_bg(Color::Red);
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_bg(Color::from("Red"));
-    ///
     /// ```
     pub fn set_bg(&self, color: Color) {
         self.color.set_bg(color, &self.stdout);
@@ -84,8 +98,7 @@ impl<'stdout> TerminalColor<'stdout> {
     /// Reset the terminal colors and attributes to default.
     ///
     /// ```rust
-    /// let screen = Screen::default();
-    /// let colored_terminal = color(&screen);
+    /// let colored_terminal = color();
     /// colored_terminal.reset();
     /// ```
     pub fn reset(&self) {
@@ -111,6 +124,13 @@ impl<'stdout> TerminalColor<'stdout> {
 
 /// Get an Terminal Color implementation whereon color related actions can be performed.
 /// Pass the reference to any screen you want this type to perform actions on.
-pub fn color<'stdout>(screen: &'stdout Screen) -> TerminalColor<'stdout> {
-    TerminalColor::new(&screen.stdout)
+pub fn color<'stdout>() -> TerminalColor<'stdout> {
+    TerminalColor::new()
+}
+
+
+/// Get an Terminal Color implementation whereon color related actions can be performed.
+/// Pass the reference to any screen you want this type to perform actions on.
+pub fn from_screen<'stdout>(screen: &'stdout Screen) -> TerminalColor<'stdout> {
+    TerminalColor::on_screen(&screen.stdout)
 }

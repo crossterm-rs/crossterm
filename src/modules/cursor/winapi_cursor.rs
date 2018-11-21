@@ -16,48 +16,49 @@ impl WinApiCursor {
 }
 
 impl ITerminalCursor for WinApiCursor {
-    fn goto(&self, x: u16, y: u16, stdout: &Arc<TerminalOutput>) {
+    fn goto(&self, x: u16, y: u16,_stdout: &Option<&Arc<TerminalOutput>>) {
         cursor::set_console_cursor_position(x as i16, y as i16);
     }
 
-    fn pos(&self, stdout: &Arc<TerminalOutput>) -> (u16, u16) {
+    fn pos(&self) -> (u16, u16) {
         cursor::pos()
     }
 
-    fn move_up(&self, count: u16, stdout: &Arc<TerminalOutput>) {
-        let (xpos, ypos) = self.pos(stdout);
-        self.goto(xpos, ypos - count, stdout);
+    fn move_up(&self, count: u16,_stdout: &Option<&Arc<TerminalOutput>>) {
+        let (xpos, ypos) = self.pos();
+        self.goto(xpos, ypos - count, _stdout);
     }
 
-    fn move_right(&self, count: u16, stdout: &Arc<TerminalOutput>) {
-        let (xpos, ypos) = self.pos(stdout);
-        self.goto(xpos + count, ypos, stdout);
+    fn move_right(&self, count: u16,_stdout: &Option<&Arc<TerminalOutput>>) {
+        let (xpos, ypos) = self.pos();
+        self.goto(xpos + count, ypos, _stdout);
     }
 
-    fn move_down(&self, count: u16, stdout: &Arc<TerminalOutput>) {
-        let (xpos, ypos) = self.pos(stdout);
-        self.goto(xpos, ypos + count, stdout);
+    fn move_down(&self, count: u16,_stdout: &Option<&Arc<TerminalOutput>>) {
+        let (xpos, ypos) = self.pos();
+        self.goto(xpos, ypos + count, _stdout);
     }
 
-    fn move_left(&self, count: u16, stdout: &Arc<TerminalOutput>) {
-        let (xpos, ypos) = self.pos(stdout);
-        self.goto(xpos - count, ypos, stdout);
+    fn move_left(&self, count: u16,_stdout: &Option<&Arc<TerminalOutput>>) {
+        let (xpos, ypos) = self.pos();
+        self.goto(xpos - count, ypos, _stdout);
     }
 
-    fn save_position(&self, stdout: &Arc<TerminalOutput>) {
+    fn save_position(&self,_stdout: &Option<&Arc<TerminalOutput>>) {
         cursor::save_cursor_pos();
     }
 
-    fn reset_position(&self, stdout: &Arc<TerminalOutput>) {
+    fn reset_position(&self,_stdout: &Option<&Arc<TerminalOutput>>) {
         cursor::reset_to_saved_position();
     }
 
-    fn hide(&self, stdout: &Arc<TerminalOutput>) {
+    fn hide(&self,_stdout: &Option<&Arc<TerminalOutput>>) {
         cursor::cursor_visibility(false);
     }
 
-    fn show(&self, stdout: &Arc<TerminalOutput>) {
+    fn show(&self,_stdout: &Option<&Arc<TerminalOutput>>) {
         cursor::cursor_visibility(true);
     }
-    fn blink(&self, blink: bool, stdout: &Arc<TerminalOutput>) {}
+
+    fn blink(&self, blink: bool,_stdout: &Option<&Arc<TerminalOutput>>) {}
 }

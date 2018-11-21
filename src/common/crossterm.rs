@@ -36,88 +36,101 @@ use std::sync::Arc;
 /// }
 /// ```
 pub struct Crossterm {
-    stdout: Arc<TerminalOutput>
+    stdout: Option<Arc<TerminalOutput>>
 }
 
 impl<'crossterm> Crossterm {
     /// Create a new instance of `Crossterm`
-    pub fn new(screen: &Screen) -> Crossterm {
-        Crossterm { stdout: screen.stdout.clone() }
+    pub fn new() -> Crossterm {
+        Crossterm { stdout: None }
+    }
+
+    /// Create a new instance of `Crossterm`
+    pub fn from_screen(screen: &Screen) -> Crossterm {
+        Crossterm { stdout: Some(screen.stdout.clone()) }
     }
 
     /// Get an `TerminalCursor` implementation whereon cursor related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
-    /// use crossterm::{Crossterm, Screen};
+    /// use crossterm::Crossterm;
     ///
-    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let crossterm = Crossterm::new();
     /// let cursor = crossterm.cursor();
     /// ```
     pub fn cursor(&self) -> cursor::TerminalCursor {
-        cursor::TerminalCursor::new(&self.stdout)
+        match &self.stdout {
+            None => { cursor::TerminalCursor::new()},
+            Some(stdout) => { cursor::TerminalCursor::on_screen(&stdout) },
+        }
     }
 
     /// Get an `TerminalInput` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
-    /// use crossterm::{Crossterm, Screen};
-    /// use crossterm::terminal;
+    /// use crossterm::Crossterm;
     ///
-    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let crossterm = Crossterm::new();
     /// let input = crossterm.input();
     /// ```
     pub fn input(&self) -> input::TerminalInput {
-        return input::TerminalInput::new(&self.stdout);
+        match &self.stdout {
+            None => input::TerminalInput::new(),
+            Some(stdout) => input::TerminalInput::on_screen(&stdout),
+        }
     }
 
     /// Get an `Terminal` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
-    /// use crossterm::{Crossterm, Screen};
+    /// use crossterm::Crossterm;
     ///
-    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let crossterm = Crossterm::new();
     /// let mut terminal = crossterm.terminal();
     /// ```
      pub fn terminal(&self) -> terminal::Terminal {
-         return terminal::Terminal::new(&self.stdout);
+        match &self.stdout {
+            None => terminal::Terminal::new(),
+            Some(stdout) => terminal::Terminal::on_screen(&stdout),
+        }
      }
 
     /// Get an `TerminalColor` implementation whereon color related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
-    /// use crossterm::{Crossterm, Screen};
+    /// use crossterm::Crossterm;
     ///
-    /// let crossterm = Crossterm::new(&Screen::default());
-    /// let mut terminal = crossterm.terminal();
+    /// let crossterm = Crossterm::new();
+    /// let mut terminal = crossterm.color();
     /// ```
     pub fn color(&self) -> style::TerminalColor {
-        return style::TerminalColor::new(&self.stdout);
+        match &self.stdout {
+            None => style::TerminalColor::new(),
+            Some(stdout) => style::TerminalColor::on_screen(&stdout),
+        }
     }
 
     /// This could be used to style an `Displayable` type with colors and attributes.
     ///
     /// ```rust
-     /// extern crate crossterm;
-    /// use crossterm::{Crossterm, Screen};
+    /// extern crate crossterm;
+    /// use crossterm::Crossterm;
     ///
-    /// let crossterm = Crossterm::new(&Screen::default());
+    /// let crossterm = Crossterm::new();
     ///
     /// // get an styled object which could be painted to the terminal.
     /// let styled_object = crossterm.style("Some Blue colored text on black background")
     ///     .with(Color::Blue)
     ///     .on(Color::Black);
     ///
-    /// // create an default screen.
-    /// let screen = Screen::default();
-    ///
     /// // print the styled font * times to the current screen.
     /// for i in 1..10
     /// {
-    ///     styled_object.paint(&screen);
+    ///     println!("{}", styled_object);
     /// }
     /// ```
     pub fn style<D>(&self, val: D) -> style::StyledObject<D>
@@ -130,6 +143,13 @@ impl<'crossterm> Crossterm {
 impl From<Arc<TerminalOutput>> for Crossterm
 {
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        Crossterm { stdout: stdout }
+        Crossterm { stdout: Some(stdout) }
+    }
+}
+
+impl From<Screen> for Crossterm
+{
+    fn from(screen: Screen) -> Self {
+        Crossterm { stdout: Some(screen.stdout.clone()) }
     }
 }

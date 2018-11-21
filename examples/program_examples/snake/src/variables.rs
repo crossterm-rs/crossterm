@@ -1,8 +1,8 @@
 extern crate crossterm;
 
-use self::crossterm::terminal::{terminal, ClearType};
+use self::crossterm::terminal::{self, ClearType};
 use self::crossterm::style::{Color, StyledObject, ObjectStyle, style };
-use self::crossterm::cursor::cursor;
+use self::crossterm::cursor;
 use self::crossterm::Screen;
 
 use std::fmt::Debug;
@@ -33,15 +33,15 @@ impl Position
 
     pub fn draw(&self, val: &str, screen: &Screen)
     {
-        cursor(screen).goto(self.x as u16, self.y as u16);
+        cursor::from_screen(screen).goto(self.x as u16, self.y as u16);
         style(val).with(Color::Red).paint(&screen);
         screen.stdout.flush();
     }
 
     pub fn remove(&self, screen: &Screen)
     {
-        cursor(screen).goto(self.x as u16, self.y as u16);
-        terminal(&screen).write("  ");
+        cursor::from_screen(screen).goto(self.x as u16, self.y as u16);
+        terminal::from_screen(&screen).write("  ");
     }
 }
 

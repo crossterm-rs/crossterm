@@ -16,11 +16,14 @@ impl WindowsInput {
 }
 
 impl ITerminalInput for WindowsInput {
-    fn read_line(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<String> {
+    fn read_line(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String> {
         let mut chars: Vec<char> = Vec::new();
 
         loop {
-            let is_raw_screen = screen_manger.is_in_raw_mode;
+            let is_raw_screen = match stdout {
+                Some(output) => output.is_in_raw_mode,
+                None => false
+            };
 
             // _getwch is without echo and _getwche is with echo
             let pressed_char = unsafe {
@@ -49,8 +52,11 @@ impl ITerminalInput for WindowsInput {
         return Ok(chars.into_iter().collect());
     }
 
-    fn read_char(&self, screen_manger: &Arc<TerminalOutput>) -> io::Result<char> {
-        let is_raw_screen = screen_manger.is_in_raw_mode;
+    fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
+        let is_raw_screen = match stdout {
+            Some(output) => output.is_in_raw_mode,
+            None => false
+        };
 
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe {
@@ -80,10 +86,13 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_async(&self, screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
+    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
-        let is_raw_screen = screen_manger.is_in_raw_mode;
+        let is_raw_screen = match stdout {
+            Some(output) => output.is_in_raw_mode,
+            None => false
+        };
 
         thread::spawn(move || {
             loop {
@@ -108,10 +117,13 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 
-    fn read_until_async(&self, delimiter: u8, screen_manger: &Arc<TerminalOutput>) -> AsyncReader {
+    fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
-        let is_raw_screen = screen_manger.is_in_raw_mode;
+        let is_raw_screen = match stdout {
+            Some(output) => output.is_in_raw_mode,
+            None => false
+        };
 
         thread::spawn(move || {
             loop {

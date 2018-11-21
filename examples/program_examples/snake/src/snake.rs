@@ -33,7 +33,7 @@ impl Snake
 
     pub fn move_snake(&mut self, direction: &Direction, screen: &Screen, free_positions: &mut HashMap<String, Position> )
     {
-        let crossterm = Crossterm::new(screen);
+        let crossterm = Crossterm::from_screen(screen);
         let cursor = crossterm.cursor();
         let terminal = crossterm.terminal();
 
