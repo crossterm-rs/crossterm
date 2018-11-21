@@ -14,4 +14,9 @@ mod input;
 mod some_types;
 mod terminal;
 
-fn main() {}
+use crossterm::input::{TerminalInput, KeyEvent};
+
+fn main() {
+    println!("Press 'x' to quit...");
+    TerminalInput::wait_until(KeyEvent::OnKeyPress(b'x'));
+}

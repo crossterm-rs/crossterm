@@ -3,6 +3,7 @@
 
 use super::*;
 use Screen;
+use std::{thread, time::Duration};
 
 /// Struct that stores an specific platform implementation for input related actions.
 ///
@@ -157,6 +158,43 @@ impl<'stdout> TerminalInput<'stdout> {
     pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         self.terminal_input
             .read_until_async(delimiter, &self.stdout)
+    }
+
+    /// This will prevent the current thread from continuing until the passed `KeyEvent` has happened.
+    ///
+    /// ```
+    /// use crossterm::input::{TerminalInput, KeyEvent};
+    ///
+    /// fn main() {
+    ///     println!("Press 'x' to quit...");
+    ///     TerminalInput::wait_until(KeyEvent::OnKeyPress(b'x'));
+    /// }
+    /// ```
+    pub fn wait_until(key_event: KeyEvent) {
+        let screen = Screen::new(true);
+        let input = from_screen(&screen);
+
+        let mut stdin = input.read_async().bytes();
+
+        loop {
+            let pressed_key: Option<Result<u8, Error>> = stdin.next();
+
+            match pressed_key {
+                Some(Ok(value)) => {
+                    match key_event {
+                        KeyEvent::OnKeyPress(ascii_code) => if value == ascii_code { break; },
+                        KeyEvent::OnEnter => if value == b'\r' { break; },
+                        KeyEvent::OnAnyKeyPress => {
+                            break;
+                        }
+                    }
+                }
+                _ => {}
+            }
+
+            // some sleeping time so that we don't 'dos' our cpu.
+            thread::sleep(Duration::from_millis(10));
+        }
     }
 }
 

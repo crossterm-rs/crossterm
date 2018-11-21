@@ -47,6 +47,16 @@ pub struct AsyncReader {
     recv: mpsc::Receiver<io::Result<u8>>,
 }
 
+// This enum represents a key event that from the user.
+pub enum KeyEvent {
+    /// Represents a specific key press.
+    OnKeyPress(u8),
+    /// Represents a key press from any key.
+    OnAnyKeyPress,
+    /// Represents a key press from enter.
+    OnEnter,
+}
+
 impl Read for AsyncReader {
     /// Read from the byte stream.
     ///
