@@ -2,7 +2,7 @@
 
 use super::{IAlternateScreenCommand, TerminalOutput};
 
-use std::io::{ Result};
+use std::io::Result;
 
 /// This command is used for switching to alternate screen and back to main screen.
 pub struct ToAlternateScreenCommand;
@@ -14,7 +14,6 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-
     /// enable alternate screen.
     fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
         stdout.write_str(csi!("?1049h"))?;

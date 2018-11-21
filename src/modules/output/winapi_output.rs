@@ -1,26 +1,23 @@
 use super::IStdout;
-use screen::RawScreen;
 use common::commands::win_commands::RawModeCommand;
 use kernel::windows_kernel::{handle, writing};
+use screen::RawScreen;
 use winapi::um::winnt::HANDLE;
 
-use std::sync::Mutex;
 use std::any::Any;
 use std::io;
+use std::sync::Mutex;
 
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiOutput;
 
-impl WinApiOutput
-{
-    pub fn new() -> WinApiOutput
-    {
+impl WinApiOutput {
+    pub fn new() -> WinApiOutput {
         WinApiOutput
     }
 }
 
 impl IStdout for WinApiOutput {
-
     fn write_str(&self, string: &str) -> io::Result<usize> {
         self.write(string.as_bytes())
     }

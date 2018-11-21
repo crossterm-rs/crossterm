@@ -1,8 +1,8 @@
 extern crate crossterm;
 
-use crossterm::{Crossterm, Screen};
-use crossterm::terminal::{self, ClearType};
 use crossterm::style::{style, Color};
+use crossterm::terminal::{self, ClearType};
+use crossterm::{Crossterm, Screen};
 
 use std::io::{stdout, Write};
 use std::{thread, time};
@@ -27,7 +27,10 @@ fn print_wait_screen(screen: &mut Screen) {
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(10, 2);
-        style(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue).paint(&screen);
+        style(format!("{} of the 5 items processed", i))
+            .with(Color::Red)
+            .on(Color::Blue)
+            .paint(&screen);
         screen.stdout.flush();
 
         // 1 second delay
@@ -38,9 +41,8 @@ fn print_wait_screen(screen: &mut Screen) {
 pub fn print_wait_screen_on_alternate_window() {
     let screen = Screen::default();
 
-    if let Ok(ref mut alternate) = screen.enable_alternate_modes(true)
-    {
-            print_wait_screen(&mut alternate.screen);
+    if let Ok(ref mut alternate) = screen.enable_alternate_modes(true) {
+        print_wait_screen(&mut alternate.screen);
     }
     drop(screen);
     println!("Whe are back at the main screen");

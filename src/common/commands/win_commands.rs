@@ -3,13 +3,13 @@
 use super::{IAlternateScreenCommand, IEnableAnsiCommand, TerminalOutput};
 
 use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
-use winapi::um::wincon;
 use winapi::shared::minwindef::DWORD;
-use winapi::um::wincon::{ENABLE_VIRTUAL_TERMINAL_PROCESSING};
+use winapi::um::wincon;
+use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-use winapi::um::winnt::HANDLE;
 use std::io::{Error, ErrorKind, Result};
 use std::sync::Arc;
+use winapi::um::winnt::HANDLE;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -74,12 +74,11 @@ impl IEnableAnsiCommand for EnableAnsiCommand {
 pub struct RawModeCommand {
     mask: DWORD,
 }
-use self::wincon::{ ENABLE_LINE_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT};
-impl RawModeCommand
-{
+use self::wincon::{ENABLE_LINE_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT};
+impl RawModeCommand {
     pub fn new() -> Self {
         RawModeCommand {
-            mask:  ENABLE_WRAP_AT_EOL_OUTPUT |  ENABLE_LINE_INPUT
+            mask: ENABLE_WRAP_AT_EOL_OUTPUT | ENABLE_LINE_INPUT,
         }
     }
 }
@@ -144,9 +143,8 @@ impl ToAlternateScreenCommand {
     }
 }
 
-impl IAlternateScreenCommand  for ToAlternateScreenCommand {
+impl IAlternateScreenCommand for ToAlternateScreenCommand {
     fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
-
         let handle = handle::get_output_handle()?;
 
         // create a new screen buffer to copy to.

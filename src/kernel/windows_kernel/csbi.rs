@@ -13,18 +13,16 @@ use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC
 use super::{handle, kernel, Empty, TerminalOutput, HANDLE};
 
 use std::io::{self, Result};
-use std::sync::{Once, ONCE_INIT};
 use std::mem::size_of;
 use std::sync::Arc;
+use std::sync::{Once, ONCE_INIT};
 
 /// Create a new console screen buffer info struct.
 pub fn get_csbi() -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
-    unsafe {
-        success = GetConsoleScreenBufferInfo(handle::get_current_handle()?, &mut csbi)
-    }
+    unsafe { success = GetConsoleScreenBufferInfo(handle::get_current_handle()?, &mut csbi) }
 
     if success == 0 {
         return Err(io::Error::new(

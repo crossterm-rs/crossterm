@@ -1,4 +1,3 @@
-
 //! This bin folder can be used to try the examples out located in the examples directory.
 //!
 //! All you need to do is:
@@ -9,12 +8,10 @@
 extern crate crossterm;
 
 // modules that could be test
-mod terminal;
 mod color;
 mod cursor;
-mod some_types;
 mod input;
+mod some_types;
+mod terminal;
 
-fn main()
-{
-}
+fn main() {}

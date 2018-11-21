@@ -8,14 +8,15 @@ use kernel::windows_kernel::{csbi, kernel};
 use winapi::um::wincon;
 
 /// This struct is an windows implementation for color related actions.
-pub struct WinApiColor
-{
-    original_color: u16
+pub struct WinApiColor {
+    original_color: u16,
 }
 
 impl WinApiColor {
     pub fn new() -> WinApiColor {
-        WinApiColor { original_color: csbi::get_original_console_color()}
+        WinApiColor {
+            original_color: csbi::get_original_console_color(),
+        }
     }
 }
 

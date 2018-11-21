@@ -13,10 +13,10 @@ use self::ansi_terminal::AnsiTerminal;
 #[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;
 
-pub use self::terminal::{terminal, from_screen, Terminal};
+pub use self::terminal::{from_screen, terminal, Terminal};
 
-use std::sync::Arc;
 use super::functions;
+use std::sync::Arc;
 use {Screen, TerminalOutput};
 
 /// Enum that specifies a way of clearing.
@@ -48,5 +48,5 @@ trait ITerminal {
     /// Resize terminal to the given width and height.
     fn set_size(&self, width: i16, height: i16, stdout: &Option<&Arc<TerminalOutput>>);
     /// Close the current terminal
-    fn exit(&self,stdout: &Option<&Arc<TerminalOutput>>);
+    fn exit(&self, stdout: &Option<&Arc<TerminalOutput>>);
 }

@@ -1,17 +1,17 @@
 //! This module contains some logic for working with the console handle.
 
+use super::*;
+use winapi::shared::minwindef::DWORD;
+use winapi::um::errhandlingapi::GetLastError;
+use winapi::um::fileapi::{CreateFileW, OPEN_EXISTING};
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::GetStdHandle;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
-use winapi::um::winnt::{GENERIC_READ, GENERIC_WRITE, GENERIC_ALL, FILE_SHARE_WRITE};
-use winapi::um::fileapi::{OPEN_EXISTING, CreateFileW};
-use winapi::shared::minwindef::DWORD;
-use winapi::um::errhandlingapi::GetLastError;
-use super::*;
+use winapi::um::winnt::{FILE_SHARE_WRITE, GENERIC_ALL, GENERIC_READ, GENERIC_WRITE};
 
-use std::sync::Arc;
-use std::io::{self,  Result};
+use std::io::{self, Result};
 use std::ptr::null_mut;
+use std::sync::Arc;
 
 use winapi::ctypes::c_void;
 
@@ -22,16 +22,25 @@ pub fn get_current_handle() -> Result<HANDLE> {
         let utf16: Vec<u16> = "CONOUT$\0".encode_utf16().collect();
         let utf16_ptr: *const u16 = utf16.as_ptr();
 
-        let handle = CreateFileW(utf16_ptr, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING, dw, null_mut());
+        let handle = CreateFileW(
+            utf16_ptr,
+            GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_WRITE,
+            null_mut(),
+            OPEN_EXISTING,
+            dw,
+            null_mut(),
+        );
 
         if !is_valid_handle(&handle) {
-
-            unsafe
-            {
+            unsafe {
                 let error = GetLastError();
                 return Err(io::Error::new(
                     io::ErrorKind::Other,
-                    format!("Could not get output handle current handle!, error code: {}", error).as_ref(),
+                    format!(
+                        "Could not get output handle current handle!, error code: {}",
+                        error
+                    ).as_ref(),
                 ));
             }
         }

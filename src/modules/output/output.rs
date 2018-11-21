@@ -29,22 +29,26 @@ use std::io::Write;
 /// For unix and windows 10 `stdout()` will be used for handle when on windows systems with versions lower than 10 WinApi `HANDLE` will be used.
 pub struct TerminalOutput {
     stdout: Box<IStdout + Send + Sync>,
-    pub is_in_raw_mode:bool,
+    pub is_in_raw_mode: bool,
 }
 
 impl TerminalOutput {
     /// Create new screen write instance whereon screen related actions can be performed.
     pub fn new(raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
-        let stdout: Box<IStdout + Send + Sync> = functions::get_module::<Box<IStdout + Send + Sync>>(
-            Box::from(WinApiOutput::new()),
-            Box::from(AnsiOutput::new()),
-        ).unwrap();
+        let stdout: Box<IStdout + Send + Sync> =
+            functions::get_module::<Box<IStdout + Send + Sync>>(
+                Box::from(WinApiOutput::new()),
+                Box::from(AnsiOutput::new()),
+            ).unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
 
-        TerminalOutput { stdout , is_in_raw_mode: raw_mode}
+        TerminalOutput {
+            stdout,
+            is_in_raw_mode: raw_mode,
+        }
     }
 
     /// Write String to the current screen.
@@ -78,8 +82,7 @@ impl Write for TerminalOutput {
     }
 }
 
-impl Default for TerminalOutput
-{
+impl Default for TerminalOutput {
     /// Get the default handle to the current screen.
     fn default() -> Self {
         #[cfg(target_os = "windows")]
@@ -91,6 +94,9 @@ impl Default for TerminalOutput
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
 
-        TerminalOutput { stdout , is_in_raw_mode: false}
+        TerminalOutput {
+            stdout,
+            is_in_raw_mode: false,
+        }
     }
 }

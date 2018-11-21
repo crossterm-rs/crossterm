@@ -7,17 +7,16 @@ use Screen;
 /* ======================== WinApi =========================== */
 #[cfg(windows)]
 mod winapi_tests {
-    use modules::cursor::winapi_cursor::WinApiCursor;
     use super::*;
+    use modules::cursor::winapi_cursor::WinApiCursor;
 
     #[test]
-    fn goto_winapi()
-    {
+    fn goto_winapi() {
         let screen = Screen::default();
         let stdout = Some(&screen.stdout);
         let cursor = WinApiCursor::new();
 
-        cursor.goto(5, 5,&stdout);
+        cursor.goto(5, 5, &stdout);
         let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
@@ -25,15 +24,14 @@ mod winapi_tests {
     }
 
     #[test]
-    fn reset_safe_winapi()
-    {
+    fn reset_safe_winapi() {
         let screen = Screen::default();
         let stdout = Some(&screen.stdout);
         let cursor = WinApiCursor::new();
         let (x, y) = cursor.pos();
 
         cursor.save_position(&stdout);
-        cursor.goto(5, 5,&stdout);
+        cursor.goto(5, 5, &stdout);
         cursor.reset_position(&stdout);
 
         let (x_saved, y_saved) = cursor.pos();
@@ -45,8 +43,7 @@ mod winapi_tests {
 
 /* ======================== ANSI =========================== */
 #[test]
-fn reset_safe_ansi()
-{
+fn reset_safe_ansi() {
     if try_enable_ansi() {
         let screen = Screen::default();
         let stdout = Some(&screen.stdout);
@@ -54,7 +51,7 @@ fn reset_safe_ansi()
         let (x, y) = cursor.pos();
 
         cursor.save_position(&stdout);
-        cursor.goto(5, 5,&stdout);
+        cursor.goto(5, 5, &stdout);
         cursor.reset_position(&stdout);
 
         let (x_saved, y_saved) = cursor.pos();
@@ -65,14 +62,13 @@ fn reset_safe_ansi()
 }
 
 #[test]
-fn goto_ansi()
-{
+fn goto_ansi() {
     if try_enable_ansi() {
         let screen = Screen::default();
         let stdout = Some(&screen.stdout);
         let cursor = AnsiCursor::new();
 
-        cursor.goto(5, 5,&stdout);
+        cursor.goto(5, 5, &stdout);
         let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
@@ -80,16 +76,15 @@ fn goto_ansi()
     }
 }
 
-
-fn try_enable_ansi() -> bool
-{
+fn try_enable_ansi() -> bool {
     #[cfg(windows)]
     {
         if cfg!(target_os = "windows") {
             use kernel::windows_kernel::ansi_support::try_enable_ansi_support;
 
-            if !try_enable_ansi_support()
-            { return false; }
+            if !try_enable_ansi_support() {
+                return false;
+            }
         }
     }
 

@@ -13,14 +13,14 @@ use self::ansi_color::AnsiColor;
 use self::winapi_color::WinApiColor;
 
 use std::convert::From;
+use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::Arc;
-use std::fmt::Display;
 
-pub use self::color::{TerminalColor, color, from_screen};
+pub use self::color::{color, from_screen, TerminalColor};
 pub use self::objectstyle::ObjectStyle;
-pub use self::styledobject::StyledObject;
 pub use self::styledobject::DisplayableObject;
+pub use self::styledobject::StyledObject;
 use super::functions;
 
 use TerminalOutput;
@@ -63,10 +63,11 @@ trait ITerminalColor {
 ///     println!("{}", styled_object);
 /// }
 /// ```
-pub fn style<'a,D: 'a>(val: D) -> StyledObject<D>
-    where
-        D: Display,    {
-            ObjectStyle::new().apply_to(val)
+pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
+where
+    D: Display,
+{
+    ObjectStyle::new().apply_to(val)
 }
 
 /// Attributes that could be applied on some text.

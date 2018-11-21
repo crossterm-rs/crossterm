@@ -1,14 +1,14 @@
 //! Some actions need to preformed platform independently since they can not be solved `ANSI escape codes`.
 
 use super::TerminalOutput;
-use std::sync::Arc;
 use std::io::{self, Write};
+use std::sync::Arc;
 
 #[cfg(windows)]
 use kernel::windows_kernel::ansi_support::{try_enable_ansi_support, windows_supportable};
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::{ exit, terminal_size};
+use kernel::windows_kernel::terminal::{exit, terminal_size};
 
 #[cfg(windows)]
 use kernel::windows_kernel::cursor::pos;
@@ -42,17 +42,16 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut term: Option<T> = None;
     let mut does_support = true;
 
-    if !windows_supportable()
-        {
-            // Try to enable ansi on windows if not than use WINAPI.
-            does_support = try_enable_ansi_support();
+    if !windows_supportable() {
+        // Try to enable ansi on windows if not than use WINAPI.
+        does_support = try_enable_ansi_support();
 
-            // uncomment this line when you want to use the winapi implementation.
-//            does_support = false;
-            if !does_support {
-                term = Some(winapi_impl);
-            }
+        // uncomment this line when you want to use the winapi implementation.
+        //            does_support = false;
+        if !does_support {
+            term = Some(winapi_impl);
         }
+    }
 
     if does_support {
         term = Some(unix_impl);
@@ -66,23 +65,21 @@ pub fn write(stdout: &Option<&Arc<TerminalOutput>>, string: String) -> io::Resul
         None => {
             print!("{}", string.as_str());
 
-            match  io::stdout().flush() {
+            match io::stdout().flush() {
                 Ok(_) => Ok(string.len()),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             }
-        },
-        Some(output) => { output.write_string(string) },
+        }
+        Some(output) => output.write_string(string),
     }
 }
 
 pub fn write_str(stdout: &Option<&Arc<TerminalOutput>>, string: &str) -> io::Result<usize> {
     match stdout {
-        None => {
-            match io::stdout().flush() {
-                Ok(_) => Ok(string.len()),
-                Err(e) => Err(e)
-            }
+        None => match io::stdout().flush() {
+            Ok(_) => Ok(string.len()),
+            Err(e) => Err(e),
         },
-        Some(output) => { output.write_str(string) },
+        Some(output) => output.write_str(string),
     }
 }

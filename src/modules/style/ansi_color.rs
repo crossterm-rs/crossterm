@@ -14,17 +14,23 @@ impl AnsiColor {
 
 impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) {
-        functions::write(stdout,format!(
-            csi!("{}m"),
-            self.color_value(fg_color, ColorType::Foreground)
-        ));
+        functions::write(
+            stdout,
+            format!(
+                csi!("{}m"),
+                self.color_value(fg_color, ColorType::Foreground)
+            ),
+        );
     }
 
     fn set_bg(&self, bg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) {
-        functions::write(stdout,format!(
-            csi!("{}m"),
-            self.color_value(bg_color, ColorType::Background)
-        ));
+        functions::write(
+            stdout,
+            format!(
+                csi!("{}m"),
+                self.color_value(bg_color, ColorType::Background)
+            ),
+        );
     }
 
     fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>) {

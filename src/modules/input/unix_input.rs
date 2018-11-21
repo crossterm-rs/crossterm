@@ -41,7 +41,11 @@ impl ITerminalInput for UnixInput {
         AsyncReader { recv }
     }
 
-    fn read_until_async(&self, delimiter: u8, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
+    fn read_until_async(
+        &self,
+        delimiter: u8,
+        __stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {

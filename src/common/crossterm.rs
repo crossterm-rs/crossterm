@@ -36,7 +36,7 @@ use std::sync::Arc;
 /// }
 /// ```
 pub struct Crossterm {
-    stdout: Option<Arc<TerminalOutput>>
+    stdout: Option<Arc<TerminalOutput>>,
 }
 
 impl<'crossterm> Crossterm {
@@ -47,7 +47,9 @@ impl<'crossterm> Crossterm {
 
     /// Create a new instance of `Crossterm`
     pub fn from_screen(screen: &Screen) -> Crossterm {
-        Crossterm { stdout: Some(screen.stdout.clone()) }
+        Crossterm {
+            stdout: Some(screen.stdout.clone()),
+        }
     }
 
     /// Get an `TerminalCursor` implementation whereon cursor related actions can be performed.
@@ -61,8 +63,8 @@ impl<'crossterm> Crossterm {
     /// ```
     pub fn cursor(&self) -> cursor::TerminalCursor {
         match &self.stdout {
-            None => { cursor::TerminalCursor::new()},
-            Some(stdout) => { cursor::TerminalCursor::on_screen(&stdout) },
+            None => cursor::TerminalCursor::new(),
+            Some(stdout) => cursor::TerminalCursor::on_screen(&stdout),
         }
     }
 
@@ -91,12 +93,12 @@ impl<'crossterm> Crossterm {
     /// let crossterm = Crossterm::new();
     /// let mut terminal = crossterm.terminal();
     /// ```
-     pub fn terminal(&self) -> terminal::Terminal {
+    pub fn terminal(&self) -> terminal::Terminal {
         match &self.stdout {
             None => terminal::Terminal::new(),
             Some(stdout) => terminal::Terminal::on_screen(&stdout),
         }
-     }
+    }
 
     /// Get an `TerminalColor` implementation whereon color related actions can be performed.
     ///
@@ -135,21 +137,24 @@ impl<'crossterm> Crossterm {
     /// ```
     pub fn style<D>(&self, val: D) -> style::StyledObject<D>
     where
-        D: Display,    {
+        D: Display,
+    {
         style::ObjectStyle::new().apply_to(val)
     }
 }
 
-impl From<Arc<TerminalOutput>> for Crossterm
-{
+impl From<Arc<TerminalOutput>> for Crossterm {
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        Crossterm { stdout: Some(stdout) }
+        Crossterm {
+            stdout: Some(stdout),
+        }
     }
 }
 
-impl From<Screen> for Crossterm
-{
+impl From<Screen> for Crossterm {
     fn from(screen: Screen) -> Self {
-        Crossterm { stdout: Some(screen.stdout.clone()) }
+        Crossterm {
+            stdout: Some(screen.stdout.clone()),
+        }
     }
 }

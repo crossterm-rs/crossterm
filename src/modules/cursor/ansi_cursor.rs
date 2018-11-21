@@ -5,12 +5,11 @@
 use super::*;
 
 /// This struct is an ansi implementation for cursor related actions.
-pub struct AnsiCursor { }
+pub struct AnsiCursor {}
 
-impl AnsiCursor
-{
+impl AnsiCursor {
     pub fn new() -> Box<AnsiCursor> {
-        Box::from(AnsiCursor { })
+        Box::from(AnsiCursor {})
     }
 }
 

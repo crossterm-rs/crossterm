@@ -15,13 +15,13 @@ pub use modules::output;
 pub use modules::style;
 pub use modules::terminal;
 
-pub use common::screen::{Screen, AlternateScreen};
-pub use common::Crossterm;
-pub use output::TerminalOutput;
 pub use self::cursor::*;
 pub use self::input::*;
 pub use self::output::*;
 pub use self::style::*;
+pub use common::screen::{AlternateScreen, Screen};
+pub use common::Crossterm;
+pub use output::TerminalOutput;
 
 #[cfg(unix)]
 extern crate libc;

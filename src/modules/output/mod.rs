@@ -27,7 +27,7 @@ use std::io;
 /// so that color related actions can be preformed on both unix and windows systems.
 trait IStdout {
     /// Write an &str to the current stdout and flush the screen.
-    fn write_str(&self, string: &str ) -> io::Result<usize>;
+    fn write_str(&self, string: &str) -> io::Result<usize>;
     /// Write [u8] buffer to console.
     fn write(&self, buf: &[u8]) -> io::Result<usize>;
     /// Flush the current output.

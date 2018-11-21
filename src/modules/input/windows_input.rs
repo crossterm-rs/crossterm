@@ -22,7 +22,7 @@ impl ITerminalInput for WindowsInput {
         loop {
             let is_raw_screen = match stdout {
                 Some(output) => output.is_in_raw_mode,
-                None => false
+                None => false,
             };
 
             // _getwch is without echo and _getwche is with echo
@@ -55,7 +55,7 @@ impl ITerminalInput for WindowsInput {
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
         let is_raw_screen = match stdout {
             Some(output) => output.is_in_raw_mode,
-            None => false
+            None => false,
         };
 
         // _getwch is without echo and _getwche is with echo
@@ -91,7 +91,7 @@ impl ITerminalInput for WindowsInput {
 
         let is_raw_screen = match stdout {
             Some(output) => output.is_in_raw_mode,
-            None => false
+            None => false,
         };
 
         thread::spawn(move || {
@@ -117,12 +117,16 @@ impl ITerminalInput for WindowsInput {
         AsyncReader { recv: rx }
     }
 
-    fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
+    fn read_until_async(
+        &self,
+        delimiter: u8,
+        stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
         let is_raw_screen = match stdout {
             Some(output) => output.is_in_raw_mode,
-            None => false
+            None => false,
         };
 
         thread::spawn(move || {

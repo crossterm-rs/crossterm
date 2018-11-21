@@ -15,7 +15,6 @@ use TerminalOutput;
 
 use common::traits::Empty;
 
-
 impl Empty for COORD {
     fn empty() -> COORD {
         COORD { X: 0, Y: 0 }

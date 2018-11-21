@@ -1,7 +1,7 @@
 //! This module contains the commands that can be used for unix systems.
 use kernel::unix_kernel::terminal;
 
-use std::io::{Result};
+use std::io::Result;
 
 // This command is used for enabling and disabling raw mode for the terminal.
 /// This command is used for enabling and disabling raw mode for the terminal.
@@ -22,10 +22,9 @@ impl RawModeCommand {
 
     /// Disables raw mode.
     pub fn disable(&mut self) -> Result<()> {
-       terminal::disable_raw_mode()?;
+        terminal::disable_raw_mode()?;
 
         unsafe { terminal::RAW_MODE_ENABLED_BY_USER = false }
         Ok(())
     }
 }
-

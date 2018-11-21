@@ -1,8 +1,8 @@
-use super::{AlternateScreen,RawScreen};
+use super::{AlternateScreen, RawScreen};
 use TerminalOutput;
 
-use std::io::Write;
 use std::io::Result;
+use std::io::Write;
 use std::sync::Arc;
 
 /// This type represents an screen which could be in normal, raw and alternate modes.
@@ -59,23 +59,24 @@ use std::sync::Arc;
 /// }
 /// ```
 ///
-pub struct Screen
-{
+pub struct Screen {
     buffer: Vec<u8>,
     pub stdout: Arc<TerminalOutput>,
     drop: bool,
 }
 
-impl Screen
-{
+impl Screen {
     /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode.
     /// If you are not sure what raw mode is then pass false or use the `Screen::default()` to create an instance.
-    pub fn new(raw_mode: bool) -> Screen
-    {
+    pub fn new(raw_mode: bool) -> Screen {
         if raw_mode {
-                let screen = Screen { stdout: Arc::new(TerminalOutput::new(true)), buffer: Vec::new(), drop: true };
-                RawScreen::into_raw_mode().unwrap();
-                return screen;
+            let screen = Screen {
+                stdout: Arc::new(TerminalOutput::new(true)),
+                buffer: Vec::new(),
+                drop: true,
+            };
+            RawScreen::into_raw_mode().unwrap();
+            return screen;
         }
 
         Screen::default()
@@ -122,49 +123,54 @@ impl Screen
     }
 
     /// This will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
-    pub fn disable_drop(&mut self)
-    {
+    pub fn disable_drop(&mut self) {
         self.drop = false;
     }
 }
 
-impl From<TerminalOutput> for Screen
-{
+impl From<TerminalOutput> for Screen {
     /// Create an screen with the given `Stdout`
     fn from(stdout: TerminalOutput) -> Self {
-        Screen { stdout: Arc::new(stdout), buffer: Vec::new(), drop: true}
+        Screen {
+            stdout: Arc::new(stdout),
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl From<Arc<TerminalOutput>> for Screen
-{
+impl From<Arc<TerminalOutput>> for Screen {
     /// Create an screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<TerminalOutput>) -> Self {
-        Screen { stdout, buffer: Vec::new(), drop: true}
+        Screen {
+            stdout,
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl Default for Screen
-{
+impl Default for Screen {
     /// Create an new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
-        Screen { stdout: Arc::new(TerminalOutput::new(false)), buffer: Vec::new(), drop: true}
+        Screen {
+            stdout: Arc::new(TerminalOutput::new(false)),
+            buffer: Vec::new(),
+            drop: true,
+        }
     }
 }
 
-impl Drop for Screen
-{
+impl Drop for Screen {
     /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
-        if self.stdout.is_in_raw_mode && self.drop
-        {
+        if self.stdout.is_in_raw_mode && self.drop {
             RawScreen::disable_raw_modes();
         }
     }
 }
 
-impl Write for Screen
-{
+impl Write for Screen {
     fn write(&mut self, buf: &[u8]) -> Result<usize> {
         self.stdout.write_buf(buf)
     }

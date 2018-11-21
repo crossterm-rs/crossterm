@@ -15,7 +15,7 @@ use self::windows_input::WindowsInput;
 
 pub use self::input::{input, TerminalInput};
 
-use std::io::{self, Read, Error, ErrorKind};
+use std::io::{self, Error, ErrorKind, Read};
 use std::sync::{mpsc, Arc};
 
 use TerminalOutput;
@@ -36,7 +36,8 @@ trait ITerminalInput {
     /// Read the input asynchronously from the user.
     fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader;
     ///  Read the input asynchronously until a certain character is hit.
-    fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader;
+    fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
+        -> AsyncReader;
 }
 
 /// This is a wrapper for reading from the input asynchronously.
@@ -64,7 +65,7 @@ impl Read for AsyncReader {
                 Some(Ok(value)) => {
                     buf[total] = value;
                     total += 1;
-                },
+                }
                 _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
             }
         }

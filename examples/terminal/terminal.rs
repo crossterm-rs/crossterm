@@ -4,8 +4,8 @@
 
 extern crate crossterm;
 
-use crossterm::terminal::{ClearType, terminal};
 use crossterm::cursor;
+use crossterm::terminal::{terminal, ClearType};
 fn print_test_data() {
     for i in 0..100 {
         println!("Test data to test terminal: {}", i);
@@ -25,7 +25,7 @@ pub fn clear_all_lines() {
 /// Clear all lines from cursor position X:4, Y:4 down | demonstration
 pub fn clear_from_cursor_down() {
     let mut terminal = terminal();
-    
+
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
@@ -55,7 +55,7 @@ pub fn clear_current_line() {
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-   cursor().goto(4, 4);
+    cursor().goto(4, 4);
 
     // Clear current line cells.
     terminal.clear(ClearType::CurrentLine);
@@ -87,7 +87,6 @@ pub fn print_terminal_size() {
 
 /// Set the terminal size to width 10, height: 10 | demonstration.
 pub fn set_terminal_size() {
-    
     let mut terminal = terminal();
 
     terminal.set_size(10, 10);
@@ -95,7 +94,6 @@ pub fn set_terminal_size() {
 
 /// Scroll down 10 lines | demonstration.
 pub fn scroll_down() {
-    
     let mut terminal = terminal();
 
     print_test_data();
@@ -106,7 +104,6 @@ pub fn scroll_down() {
 
 /// Scroll down 10 lines | demonstration.
 pub fn scroll_up() {
-    
     let mut terminal = terminal();
 
     print_test_data();
@@ -117,7 +114,6 @@ pub fn scroll_up() {
 
 /// Resize the terminal to X: 10, Y: 10 | demonstration.
 pub fn resize_terminal() {
-    
     let mut terminal = terminal();
 
     // Get terminal size
@@ -126,7 +122,6 @@ pub fn resize_terminal() {
 
 /// exit the current proccess.
 pub fn exit() {
-    
     let mut terminal = terminal();
     terminal.exit();
 }

@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::style::{Color, style};
+use crossterm::style::{style, Color};
 use crossterm::terminal::{self, ClearType};
 use crossterm::{Crossterm, Screen};
 
@@ -26,7 +26,10 @@ fn print_wait_screen(screen: &Screen) {
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(10, 2);
-        style(format!("{} of the 5 items processed", i)).with(Color::Red).on(Color::Blue).paint(&screen);
+        style(format!("{} of the 5 items processed", i))
+            .with(Color::Red)
+            .on(Color::Blue)
+            .paint(&screen);
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
@@ -35,11 +38,9 @@ fn print_wait_screen(screen: &Screen) {
 
 /// print wait screen on alternate screen, then switch back.
 pub fn print_wait_screen_on_alternate_window() {
-
     let screen = Screen::default();
 
-    if let Ok(alternate) = screen.enable_alternate_modes(false)
-    {
+    if let Ok(alternate) = screen.enable_alternate_modes(false) {
         print_wait_screen(&alternate.screen);
     }
 }

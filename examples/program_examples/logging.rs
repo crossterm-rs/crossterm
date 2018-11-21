@@ -1,12 +1,12 @@
 extern crate crossterm;
 
 use crossterm::Screen;
-use std::sync::Mutex;
 use std::collections::VecDeque;
-use std::sync::Arc;
 use std::io::Write;
 use std::sync::mpsc::{self, Receiver, Sender};
-use std::thread::{JoinHandle, self};
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread::{self, JoinHandle};
 
 /// This is an que that could be shared between threads safely.
 #[derive(Clone)]
@@ -16,7 +16,9 @@ struct WorkQueue<T: Send + Clone> {
 
 impl<T: Send + Clone> WorkQueue<T> {
     fn new() -> Self {
-        Self { inner: Arc::new(Mutex::new(VecDeque::new())) }
+        Self {
+            inner: Arc::new(Mutex::new(VecDeque::new())),
+        }
     }
 
     // get an item from the que if exists
@@ -74,14 +76,17 @@ impl SyncFlagRx {
 
 fn new_sync_flag(initial_state: bool) -> (SyncFlagTx, SyncFlagRx) {
     let state = Arc::new(Mutex::new(initial_state));
-    let tx = SyncFlagTx { inner: state.clone() };
-    let rx = SyncFlagRx { inner: state.clone() };
+    let tx = SyncFlagTx {
+        inner: state.clone(),
+    };
+    let rx = SyncFlagRx {
+        inner: state.clone(),
+    };
 
     return (tx, rx);
 }
 
-fn main()
-{
+fn main() {
     let (_results_tx, _results_rx): (Sender<String>, Receiver<String>) = mpsc::channel();
     let (mut more_jobs_tx, more_jobs_rx) = new_sync_flag(true);
 
@@ -94,15 +99,14 @@ fn main()
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());
 
-//    for handle in thread_handles
-//    {
-//        handle.join();
-//    }
+    //    for handle in thread_handles
+    //    {
+    //        handle.join();
+    //    }
 }
 
-fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>)
-{
-    thread::spawn( move || {
+fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>) {
+    thread::spawn(move || {
         let mut screen: Screen = Screen::default();
 
         // Loop while there's expected to be work, looking for work.
@@ -121,23 +125,25 @@ fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>)
 }
 
 // start different threads that log contiguously.
-fn log_with_different_threads(more_jobs_tx: SyncFlagTx, queue: WorkQueue<String>) -> Vec<JoinHandle<()>>
-{
+fn log_with_different_threads(
+    more_jobs_tx: SyncFlagTx,
+    queue: WorkQueue<String>,
+) -> Vec<JoinHandle<()>> {
     // one vector that will have the thread handles in it.
     let mut threads = Vec::new();
 
-    for thread_num in 1..5
-    {
+    for thread_num in 1..5 {
         let mut more_jobs = more_jobs_tx.clone();
         let thread_queue = queue.clone();
 
         // create new thread
         let thread = thread::spawn(move || {
-
             // log 400 messages
-            for log_entry_count in 1..400
-            {
-                thread_queue.add_work(format!("Log {} from thread {} ",log_entry_count, thread_num));
+            for log_entry_count in 1..400 {
+                thread_queue.add_work(format!(
+                    "Log {} from thread {} ",
+                    log_entry_count, thread_num
+                ));
                 more_jobs.set(true);
             }
         });

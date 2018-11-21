@@ -1,13 +1,13 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use self::libc::{c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ, TCSADRAIN};
+use self::libc::{c_ushort, ioctl, STDOUT_FILENO, TCSADRAIN, TIOCGWINSZ};
 
-use {libc, Screen};
 pub use libc::termios;
+use {libc, Screen};
 
+use std::fs;
 use std::io::{self, Error, ErrorKind, Read, Write};
 use std::os::unix::io::AsRawFd;
-use std::fs;
 use termios::{tcsetattr, Termios};
 
 /// A representation of the size of the current terminal.
@@ -38,7 +38,7 @@ pub fn terminal_size() -> (u16, u16) {
         // because crossterm works starts counting at 0 and unix terminal starts at cell 1 you have subtract one to get 0-based results.
         (us.cols, us.rows)
     } else {
-        (0,0)
+        (0, 0)
     }
 }
 
@@ -63,8 +63,7 @@ pub fn terminal_size() -> (u16, u16) {
 //    }
 //}
 
-pub fn pos() -> io::Result<(u16, u16)>
-{
+pub fn pos() -> io::Result<(u16, u16)> {
     let _screen = Screen::new(false);
 
     // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in applicaition.
@@ -125,7 +124,7 @@ pub fn pos() -> io::Result<(u16, u16)>
 
     // Expect `R`
     let res = if c == 'R' {
-        Ok(((cols -1) as u16, (rows -1) as u16))
+        Ok(((cols - 1) as u16, (rows - 1) as u16))
     } else {
         return Err(Error::new(ErrorKind::Other, "test"));
     };
@@ -154,8 +153,7 @@ pub fn make_raw(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
-pub fn into_raw_mode() -> io::Result<()>
-{
+pub fn into_raw_mode() -> io::Result<()> {
     let tty_f;
 
     let fd = unsafe {
@@ -171,8 +169,7 @@ pub fn into_raw_mode() -> io::Result<()>
     let original = termios.clone();
 
     unsafe {
-        if ORIGINAL_TERMINAL_MODE.is_none()
-        {
+        if ORIGINAL_TERMINAL_MODE.is_none() {
             ORIGINAL_TERMINAL_MODE = Some(original.clone())
         }
     }
@@ -180,12 +177,10 @@ pub fn into_raw_mode() -> io::Result<()>
     make_raw(&mut termios);
     tcsetattr(fd, TCSADRAIN, &termios)?;
 
-
     Ok(())
 }
 
-pub fn disable_raw_mode() -> io::Result<()>
-{
+pub fn disable_raw_mode() -> io::Result<()> {
     let tty_f;
 
     let fd = unsafe {
@@ -197,8 +192,7 @@ pub fn disable_raw_mode() -> io::Result<()>
         }
     };
 
-    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE }
-    {
+    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE } {
         tcsetattr(fd, TCSADRAIN, &original)?;
     }
     Ok(())
