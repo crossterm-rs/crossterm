@@ -1,7 +1,7 @@
 use super::IStdout;
 use common::commands::win_commands::RawModeCommand;
 use kernel::windows_kernel::{handle, writing};
-use screen::RawScreen;
+use common::screen::RawScreen;
 use winapi::um::winnt::HANDLE;
 
 use std::any::Any;
