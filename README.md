@@ -1,46 +1,54 @@
 # Crossterm | cross-platform terminal manipulating library written in rust.
+[![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
 
-[![Latest Version](https://img.shields.io/crates/v/crossterm.svg)](https://crates.io/crates/crossterm) | [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) | [![docs.rs](https://docs.rs/crossterm/badge.svg)](https://docs.rs/crossterm/) | [Examples](https://github.com/TimonPost/crossterm/tree/master/examples) | [Changelog](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) | [Release Nodes](https://github.com/TimonPost/crossterm/blob/master/docs/ReleaseNotes.md)
-|----|----|----|----|----|----
+[s1]: https://img.shields.io/crates/v/crossterm.svg
+[l1]: https://crates.io/crates/crossterm
 
-Ever got disappointed when a terminal library for rust was only written for unix systems? 
-Crossterm provides the same core functionalities for both windows and unix systems.
+[s2]: https://img.shields.io/badge/license-MIT-blue.svg
+[l2]: ./LICENSE
+
+[s3]: https://docs.rs/crossterm/badge.svg
+[l3]: https://docs.rs/crossterm/
+
+[s3]: https://docs.rs/crossterm/badge.svg
+[l3]: https://docs.rs/crossterm/
+
+[s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
+
+Ever got disappointed when a terminal library for rust was only written for UNIX systems? 
+Crossterm provides the same core functionalities for both Windows and UNIX systems.
 
 Crossterm aims to be simple and easy to call in code. 
-Though the simplicity of Crossterm, you do not have to worry about the platform you are working with.
-You can just call whatever action you want and behind the scenes it will check what to do based on the current platform.
+Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 
-This crate supports all unix and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](https://github.com/TimonPost/crossterm#tested-terminals) for more info)
+This crate supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
 
 ## Table of contents:
-- [Getting started](https://github.com/TimonPost/crossterm#getting-started)
-- [Useful links](https://github.com/TimonPost/crossterm#useful-links)
-- [Features](https://github.com/TimonPost/crossterm#features)
-- [Examples](https://github.com/TimonPost/crossterm#examples)
-    - [Crossterm Wrapper](https://github.com/TimonPost/crossterm#crossterm-type--see-more)
-    - [Styling](https://github.com/TimonPost/crossterm#crossterm-type--see-more)
-    - [Cursor](https://github.com/TimonPost/crossterm#cursor--see-more)
-    - [Input](https://github.com/TimonPost/crossterm#input--see-more)
-    - [Terminal](https://github.com/TimonPost/crossterm#terminal--see-more)
-- [Tested Terminals](https://github.com/TimonPost/crossterm#tested-terminals)
-- [How it works](https://github.com/TimonPost/crossterm#how-it-works)
-- [Notice](https://github.com/TimonPost/crossterm#notice)
-- [Todo](https://github.com/TimonPost/crossterm#todo)
-- [Contributing](https://github.com/TimonPost/crossterm#contributing)
-- [Authors](https://github.com/TimonPost/crossterm#authors)
-- [License](https://github.com/TimonPost/crossterm#license)
+- [Getting started](#getting-started)
+- [Useful links](#useful-links)
+- [Features](#features)
+- [Examples](#examples)
+    - [Crossterm Wrapper](#crossterm-type--see-more)
+    - [Styling](#crossterm-type--see-more)
+    - [Cursor](#cursor--see-more)
+    - [Input](#input--see-more)
+    - [Terminal](#terminal--see-more)
+- [Tested Terminals](#tested-terminals)
+- [Notice](#notice)
+- [Todo](#todo)
+- [Contributing](#contributing)
+- [Authors](#authors)
+- [License](#license)
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.4.*` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) for more information about how to upgrade to a newer version. 
-Also check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which detailed examples for all functionality of this crate.
-
+This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.4.0"
+crossterm = "0.5.0"
 
 ```
 And import the Crossterm modules you want to use.
@@ -49,55 +57,56 @@ And import the Crossterm modules you want to use.
 extern crate crossterm;
 
 // this module is used for styling the terminal
-use self::crossterm::style::*;
+use crossterm::style::*;
 // this module is used for cursor related actions
-use self::crossterm::cursor::*;
+use crossterm::cursor::*;
 // this mudule is used for terminal related actions
-use self::crossterm::terminal::*;
+use crossterm::terminal::*;
 // this mudule is used for input related actions
-use self::crossterm::input::*;
+use crossterm::input::*;
 
 ```
 
-## Useful Links
+### Useful Links
 
-- Code [documentation](https://docs.rs/crossterm/).
-- The [Cargo Page](https://crates.io/crates/crossterm)
-- More real live [examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
-- Detailed [examples](https://github.com/TimonPost/crossterm/tree/master/examples)
+- [Documentation](https://docs.rs/crossterm/)
+- [Crates.io](https://crates.io/crates/crossterm)
+- [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
+- [Examples](https://github.com/TimonPost/crossterm/tree/master/examples)
 
 ## Features
 These are the features from this crate:
 
+- Cross-platform
+- Everything is multithreaded (Send, Sync)
+- Detailed documentation on every item
 - Cursor.
-    - Moving _n_ times Up, Down, Left, Right.
-    - Goto a certain position.
+    - Moving _n_ times Up, Down, Left, Right
+    - Goto a certain position
     - Get cursor position
-    - Storing the current cursor position and resetting to that stored cursor position later.
-    - Hiding an showing the cursor. 
-    - Control over blinking of the terminal cursor (only some terminals are supporting this).
+    - Storing the current cursor position and resetting to that stored cursor position later
+    - Hiding an showing the cursor
+    - Control over blinking of the terminal cursor (only some terminals are supporting this)
 - Styled output
     - Foreground color (16 base colors)
     - Background color (16 base colors)
-    - 256 color support (unix only). 
-    - Text Attributes like: bold, italic, underscore and crossed word ect (unix only). 
-    - Custom ANSI color code input to set fore- and background color (unix only).
+    - 256 color support (unix only)
+    - Text Attributes like: bold, italic, underscore and crossed word ect (unix only) 
+    - Custom ANSI color code input to set fore- and background color (unix only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (Up, down)
     - Get the size of the terminal
-    - Set the size of the terminal.
+    - Set the size of the terminal
     - Alternate screen
-    - Raw screen    
+    - Raw screen   
+    - Exit the current process
 - Input
     - Read character
     - Read line
     - Read async
     - Read async until
-- Exit the current process.
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item.
-- Crossplatform
+    - Wait for key event (terminal pause)
 
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
@@ -107,8 +116,7 @@ This is a wrapper for all the modules crossterm provides like terminal, cursor, 
 
 ```rust
 // screen wheron the `Crossterm` methods will be executed.
-let screen = Screen::default();
-let crossterm = Crossterm::new(&screen);
+let crossterm = Crossterm::new();
 
 // get instance of the modules, whereafter you can use the methods the particulary module provides. 
 let color = crossterm.color();
@@ -116,21 +124,17 @@ let cursor = crossterm.cursor();
 let terminal = crossterm.terminal();
 
 // styling
-let style = crossterm.style("Black font on Green background color").with(Color::Black).on(Color::Green);
-style.paint(&screen);
+println!("{}", crossterm.style("Black font on Green background color").with(Color::Black).on(Color::Green));
 
 ```
 ### Styled Font | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/color/mod.rs)
-This module provides the functionalities to style the terminal cursor.
+This module provides the functionalities to style the terminal.
 ```rust    
 use crossterm::style::{Color, style};
-use crossterm::Screen; 
 
 // store objcets so it could be painted later to the screen.   
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
-
-let screen = Screen::default();
 
 /// !! The following code only works for unix based systems !!
 // some attributes
@@ -146,33 +150,30 @@ let dimmed = style("Dim text").dim();
 let crossed_out = style("Crossed out font").crossed_out();
 
 // paint styled text to screen (this could also be called inline)
-style1.paint(&screen);
-style2.paint(&screen);
-bold.paint(&screen);
-hidden.paint(&screen);
+println!("{}", style1);
+println!("{}", style2);
+println!("{}", bold);
+println!("{}", hidden);
+...
 
 // cursom rgb value
 style("RGB color (10,10,10) ").with(Color::Rgb {
     r: 10,
     g: 10,
     b: 10
-}).paint(&screen);
+}));
 
 // custom ansi color value
-style("ANSI color value (50) ").with(Color::AnsiValue(50)).paint(&screen);
+style("ANSI color value (50) ").with(Color::AnsiValue(50));
 
 ```
 ### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor/mod.rs)
 This module provides the functionalities to work with the terminal cursor.
 
 ```rust 
-
-use crossterm::Screen;
 use crossterm::cursor;
 
-// create Screen to wheron the `cursor()` should function.
-let screen = Screen::default();
-let mut cursor = cursor(&screen);
+let mut cursor = cursor();
 
 /// Moving the cursor
 // Set the cursor to position X: 10, Y: 5 in the terminal
@@ -210,16 +211,13 @@ cursor.blink(true)
 ### Input | [see more](https://github.com/TimonPost/crossterm/tree/master/examples/input)
 This module provides the functionalities to work with terminal input.
 
-Check [this](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/async_input.rs) for handling async input.
+Check [this](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/async_input.rs) for handling input asyncronous.
 
 ```rust 
-
-use crossterm::Screen;
 use crossterm::input;
 
 // create Screen to wheron the `cursor()` should function.
-let screen = Screen::default();
-let mut input = input(&screen);
+let mut input = input();
 
  match input.read_char() {
     Ok(s) => println!("char typed: {}", s),
@@ -238,11 +236,9 @@ This module provides the functionalities to work with the terminal in general.
 
 ```rust 
 use crossterm::terminal::{terminal,ClearType};
-use crossterm::Screen;
 
 // create Screen to wheron the `terminal()` should function.
-let screen = Screen::default();
-let mut terminal = terminal(&screen);
+let mut terminal = terminal();
 
 // Clear all lines in terminal;
 terminal.clear(ClearType::All);
@@ -273,7 +269,8 @@ terminal.exit();
 terminal.write("Some text\n Some text on new line");
 ```
 
-Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/raw_mode.rs) for information about how to work with these features.
+### Alternate and Raw Screen
+These concepts are a little more complex, please checkout the following links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/raw_mode.rs) for more information.
 
 ## Tested terminals
 
@@ -284,14 +281,14 @@ Check these links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob
     - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
-- Arch linux Konsole
+- (Arch, Manjaro) KDE Konsole
 
 This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
 ## Notice 
-This library is not stable yet but I expect it to not to change that much anymore. 
-And if there are any changes that affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change when upgrading Crossterm to a newer version.
+This library is average stable now but I don't expect it to not to change that much. 
+If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
 
 ## Todo
 I still have some things in mind to implement. 
