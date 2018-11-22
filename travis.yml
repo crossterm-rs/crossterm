@@ -1,0 +1,25 @@
+# Set up the Rust toolchain.
+language: rust
+rust:
+- stable
+- beta
+- nightly
+
+before_script:
+- export PATH=$PATH:/home/travis/.cargo/bin
+- export RUSTFLAGS="-D warnings"
+
+os:
+- linux
+- osx
+- windows
+
+branches:
+  only:
+  - staging
+  - trying
+  - master
+  - /release-.*/
+
+script:
+- cargo build

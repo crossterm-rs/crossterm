@@ -7,7 +7,7 @@
 
 use super::commands::{self, IAlternateScreenCommand};
 use super::{RawScreen, Screen, TerminalOutput};
-
+use common::functions;
 use std::convert::From;
 use std::io;
 
