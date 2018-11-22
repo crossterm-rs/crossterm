@@ -7,7 +7,6 @@ rust:
 
 before_script:
 - export PATH=$PATH:/home/travis/.cargo/bin
-- export RUSTFLAGS="-D warnings"
 
 os:
 - linux
@@ -16,10 +15,7 @@ os:
 
 branches:
   only:
-  - staging
-  - trying
   - master
-  - /release-.*/
 
 script:
 - cargo build
