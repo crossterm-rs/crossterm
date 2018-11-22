@@ -37,7 +37,7 @@ let input = TerminalInput::new();
 
 #### 2. When working with alternate or raw screen. 
 
-When working with alternate and or raw screen you still have to provide a `Screen` instance since information of the alternate and raw screen is stored in it.
+When working with alternate and or raw screen you still have to provide a `Screen` instance since information of the alternate and raw screen is stored in it. When you do this the actions of the module will be perfomed on the alternate screen. If you don't do this you actions will be done on the main screen.
 
 ```
 use crossterm::cursor;
