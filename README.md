@@ -1,5 +1,5 @@
 # Crossterm | cross-platform terminal manipulating library written in rust.
-[![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
@@ -14,6 +14,7 @@
 [l3]: https://docs.rs/crossterm/
 
 [s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
+[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 Ever got disappointed when a terminal library for rust was only written for UNIX systems? 
 Crossterm provides the same core functionalities for both Windows and UNIX systems.
