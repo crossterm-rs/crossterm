@@ -2,11 +2,11 @@
 
 ***WARNING*** 
 
-I have maked some changes to the user API to make it more conviniant. The problem with `0.4` is that you need to pass a `Screen` to the modules: `cursor(), color(), terminal()`. Like
+I workded on making the user API more conviniant therefore I had to make some chages to the user API. The problem with `0.4` is that you need to pass a `Screen` to the modules: `cursor(), color(), terminal()`.
 
-In the new situation you only have to do this when working with raw or alternate screen. When you just want to perform actions like styling on the main screenyou don't have to to pass in the `Screen` any more. This will look like the following:
+In the new situation you only have to do this when working with raw or alternate screen. When you just want to perform actions like styling on the main screen you don't have to to pass in the `Screen` any more. This will look like the following:
 
-#### 1. Remove `Screen` from the function calls: `cursor(), color(), terminal()`
+#### 1. Remove `Screen` from the function calls: `cursor(), color(), terminal(), input()`
 
 _**old**_
 ```
@@ -37,7 +37,7 @@ let input = TerminalInput::new();
 
 #### 2. When working with alternate or raw screen. 
 
-When working with alternate and or raw screen you still have to provide a `Screen` instance since information of the alternate and raw screen is stored in it. When you do this the actions of the module will be perfomed on the alternate screen. If you don't do this you actions will be done on the main screen.
+When working with alternate and or raw screen you still have to provide a `Screen` instance since information of the alternate and raw screen is stored in it. When doing this, the actions of the module will be perfomed on the alternate screen. If you don't do this your actions will executed at the main screen.
 
 ```
 use crossterm::cursor;
@@ -48,16 +48,17 @@ use crossterm::terminal;
 let screen = Screen::default();
 
 if let Ok(alternate) = screen.enable_alternate_modes(false) {
-    let color = color::from_screen(&alternate.screen);
-    let cursor = cursor::from_screen(&alternate.screen);
-    let input = input::from_screen(&alternate.screen);
-    let terminal = terminal::from_screen(&alternate.screen);
-    let crossterm = Crossterm::from_screen(&alternate.screen);
+    let screen = alternate.screen;
+    let color = color::from_screen(&screen);
+    let cursor = cursor::from_screen(&screen);
+    let input = input::from_screen(&screen);
+    let terminal = terminal::from_screen(&screen);
+    let crossterm = Crossterm::from_screen(&screen);
     
-    let terminal = Terminal::from_output(&alternate.screen.stdout);
-    let cursor = TerminalCursor::from_output(&alternate.screen.stdout);
-    let color = TerminalColor::from_output(&alternate.screen.stdout);
-    let input = TerminalInput::from_output(&alternate.screen.stdout);
+    let terminal = Terminal::from_output(&screen.stdout);
+    let cursor = TerminalCursor::from_output(&screen.stdout);
+    let color = TerminalColor::from_output(&screen.stdout);
+    let input = TerminalInput::from_output(&screen.stdout);
 }
 
 ```
