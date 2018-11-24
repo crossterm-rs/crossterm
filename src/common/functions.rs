@@ -77,7 +77,7 @@ pub fn write(stdout: &Option<&Arc<TerminalOutput>>, string: String) -> io::Resul
 pub fn write_str(stdout: &Option<&Arc<TerminalOutput>>, string: &str) -> io::Result<usize> {
     match stdout {
         None => match io::stdout().flush() {
-            Ok(_) => Ok(string.len()),
+            Ok(_) => { write!(io::stdout(), "{}", string)?; Ok(string.len()) },
             Err(e) => Err(e),
         },
         Some(output) => output.write_str(string),
