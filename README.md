@@ -70,6 +70,7 @@ use crossterm::input::*;
 
 ### Useful Links
 
+- [Book](http://atcentra.com/crossterm/)
 - [Documentation](https://docs.rs/crossterm/)
 - [Crates.io](https://crates.io/crates/crossterm)
 - [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
@@ -128,7 +129,7 @@ let terminal = crossterm.terminal();
 println!("{}", crossterm.style("Black font on Green background color").with(Color::Black).on(Color::Green));
 
 ```
-### Styled Font | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/color/mod.rs)
+### Styled Font | [see more](http://atcentra.com/crossterm/styling.html)
 This module provides the functionalities to style the terminal.
 ```rust    
 use crossterm::style::{Color, style};
@@ -209,10 +210,8 @@ cursor.blink(true)
 
 ```
 
-### Input | [see more](https://github.com/TimonPost/crossterm/tree/master/examples/input)
+### Input | [see more](http://atcentra.com/crossterm/input.html)
 This module provides the functionalities to work with terminal input.
-
-Check [this](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/async_input.rs) for handling input asyncronous.
 
 ```rust 
 use crossterm::input;
@@ -271,7 +270,7 @@ terminal.write("Some text\n Some text on new line");
 ```
 
 ### Alternate and Raw Screen
-These concepts are a little more complex, please checkout the following links: [AlternateScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/alternate_screen.rs) and [RawScreen](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/raw_mode.rs) for more information.
+These concepts are a little more complex, please checkout the [book](http://atcentra.com/crossterm/screen.html) topics about these subjects.
 
 ## Tested terminals
 
@@ -283,6 +282,7 @@ These concepts are a little more complex, please checkout the following links: [
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
 - (Arch, Manjaro) KDE Konsole
+- Linux Mint
 
 This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
