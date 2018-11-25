@@ -8,8 +8,6 @@ use winapi::um::wincon;
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 use std::io::{Error, ErrorKind, Result};
-use std::sync::Arc;
-use winapi::um::winnt::HANDLE;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.

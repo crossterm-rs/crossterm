@@ -6,7 +6,6 @@ use winapi::um::wincon::{
 };
 
 use super::*;
-use std::sync::Arc;
 
 /// Get the largest console window size possible.
 pub fn get_largest_console_window_size() -> COORD {

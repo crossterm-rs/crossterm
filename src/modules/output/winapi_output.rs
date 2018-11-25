@@ -1,12 +1,7 @@
 use super::IStdout;
-use common::commands::win_commands::RawModeCommand;
 use kernel::windows_kernel::{handle, writing};
-use common::screen::RawScreen;
-use winapi::um::winnt::HANDLE;
 
-use std::any::Any;
 use std::io;
-use std::sync::Mutex;
 
 /// This struct is a wrapper for WINAPI `HANDLE`
 pub struct WinApiOutput;

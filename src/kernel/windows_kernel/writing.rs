@@ -8,11 +8,10 @@ use winapi::um::wincon::{
     PSMALL_RECT,
 };
 
-use super::{csbi, handle, kernel, TerminalOutput, HANDLE};
+use super::{csbi, handle, kernel, HANDLE};
 
 use std::io::{self, Result};
 use std::str;
-use std::sync::Arc;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(

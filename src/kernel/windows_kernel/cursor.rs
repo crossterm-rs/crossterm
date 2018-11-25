@@ -5,11 +5,9 @@ use winapi::um::wincon::{
     SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD,
 };
 
-use super::{csbi, handle, kernel, TerminalOutput};
-
-use kernel::windows_kernel::kernel::get_largest_console_window_size;
+use super::{csbi, handle, kernel};
 use std::io;
-use std::sync::Arc;
+
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
 
