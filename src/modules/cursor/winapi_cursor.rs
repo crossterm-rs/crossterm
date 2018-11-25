@@ -60,5 +60,5 @@ impl ITerminalCursor for WinApiCursor {
         cursor::cursor_visibility(true);
     }
 
-    fn blink(&self, blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) {}
+    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) {}
 }

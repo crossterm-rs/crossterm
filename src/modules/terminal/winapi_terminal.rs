@@ -34,11 +34,11 @@ impl ITerminal for WinApiTerminal {
         };
     }
 
-    fn terminal_size(&self, stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
+    fn terminal_size(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
         terminal::terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) {
+    fn scroll_up(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) {
         let csbi = csbi::get_csbi().unwrap();
 
         // Set srctWindow to the current window size and location.
@@ -56,7 +56,7 @@ impl ITerminal for WinApiTerminal {
         }
     }
 
-    fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) {
+    fn scroll_down(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) {
         let csbi = csbi::get_csbi().unwrap();
         // Set srctWindow to the current window size and location.
         let mut srct_window = csbi.srWindow;
@@ -74,7 +74,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16, stdout: &Option<&Arc<TerminalOutput>>) {
+    fn set_size(&self, width: i16, height: i16, _stdout: &Option<&Arc<TerminalOutput>>) {
         if width <= 0 {
             panic!("Cannot set the terminal width lower than 1");
         }
@@ -163,7 +163,7 @@ impl ITerminal for WinApiTerminal {
 pub fn clear_after_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Option<&Arc<TerminalOutput>>,
+    _stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     let (mut x, mut y) = pos;
 
@@ -187,7 +187,7 @@ pub fn clear_after_cursor(
 pub fn clear_before_cursor(
     pos: (u16, u16),
     csbi: CONSOLE_SCREEN_BUFFER_INFO,
-    stdout: &Option<&Arc<TerminalOutput>>,
+    _stdout: &Option<&Arc<TerminalOutput>>,
 ) {
     let (xpos, ypos) = pos;
 

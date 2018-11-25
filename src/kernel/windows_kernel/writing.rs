@@ -107,7 +107,7 @@ pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize
     let csbi = csbi::get_csbi_by_handle(handle)?;
 
     // get current position
-    let current_pos = COORD {
+    let _current_pos = COORD {
         X: csbi.dwCursorPosition.X,
         Y: csbi.dwCursorPosition.Y,
     };

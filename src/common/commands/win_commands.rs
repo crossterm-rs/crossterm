@@ -142,8 +142,8 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-    fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
-        let handle = handle::get_output_handle()?;
+    fn enable(&self, _stdout: &mut TerminalOutput) -> Result<()> {
+        let _handle = handle::get_output_handle()?;
 
         // create a new screen buffer to copy to.
         let new_handle = csbi::create_console_screen_buffer();
@@ -154,7 +154,7 @@ impl IAlternateScreenCommand for ToAlternateScreenCommand {
         Ok(())
     }
 
-    fn disable(&self, stdout: &TerminalOutput) -> Result<()> {
+    fn disable(&self, _stdout: &TerminalOutput) -> Result<()> {
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 

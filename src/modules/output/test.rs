@@ -11,7 +11,7 @@ mod winapi_tests {
     /* ======================== WinApi =========================== */
     #[test]
     fn write_winapi() {
-        let screen = Screen::default();
+        let _screen = Screen::default();
         let output = WinApiOutput::new();
 
         let bytes = "test".as_bytes();
@@ -21,7 +21,7 @@ mod winapi_tests {
 
     #[test]
     fn write_str_winapi() {
-        let screen = Screen::default();
+        let _screen = Screen::default();
         let output = WinApiOutput::new();
 
         let bytes = "test".as_bytes();
