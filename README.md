@@ -43,7 +43,7 @@ This crate supports all UNIX and windows terminals down to windows 7 (not all te
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders which detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
@@ -95,7 +95,6 @@ These are the features from this crate:
     - 256 color support (Windows 10 and UNIX only)
     - RGB support (Windows 10 and UNIX only)
     - Text Attributes like: bold, italic, underscore and crossed word ect (unix only) 
-    - Custom ANSI color code input to set fore- and background color (unix only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (Up, down)
@@ -139,8 +138,7 @@ use crossterm::style::{Color, style};
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-/// !! The following code only works for unix based systems !!
-// some attributes
+// attributes are only supported for UNIX terminals.
 let normal = style("Normal text");
 let bold = style("Bold text").bold();
 let italic = style("Italic text").italic();
@@ -217,7 +215,6 @@ This module provides the functionalities to work with terminal input.
 ```rust 
 use crossterm::input;
 
-// create Screen to wheron the `cursor()` should function.
 let mut input = input();
 
  match input.read_char() {
@@ -238,7 +235,6 @@ This module provides the functionalities to work with the terminal in general.
 ```rust 
 use crossterm::terminal::{terminal,ClearType};
 
-// create Screen to wheron the `terminal()` should function.
 let mut terminal = terminal();
 
 // Clear all lines in terminal;
@@ -300,7 +296,7 @@ I still have some things in mind to implement.
 - Handling key events
     I want to be able to read key combination inputs. 
 - Tests
-   Find a way to test: color output, input, alternate screen, rawscreen
+   Find a way to test: color, alternate screen, rawscreen
 
 ## Contributing
   
