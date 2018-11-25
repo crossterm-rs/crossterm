@@ -220,7 +220,6 @@ impl<D: Display> Display for StyledObject<D> {
         std::io::stdout().flush().expect("Flush stdout failed");
 
         if reset {
-//            write!(f, "\x1b[0m")?;
             colored_terminal.reset();
             std::io::stdout().flush().expect("Flush stdout failed");
         }

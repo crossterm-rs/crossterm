@@ -38,7 +38,7 @@ When running the above code you are supposed to see colored text with foreground
 _note: you don't have to color both backround an foreground, if not specified they remain as they are_.
 
 ### RGB
-Most UNIX terminals are supporting [True color(24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme.
+Most UNIX terminals and all Windows 10 consoles are supporting [True color(24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme.
 You can set the color of the terminal by using `Color::RGB(r,g,b)`.
 
 ```
@@ -49,7 +49,7 @@ let styled_object = style("'Light green' text on 'Black' background")
 This will print some light green text on black background.
 
 ### Custom ANSI color value
-When working on unix you could also specify a custom ANSI value ranging up from 0 to 256.
+When working on UNIX or Windows 10 you could also specify a custom ANSI value ranging up from 0 to 256.
 See [256 (Xterm, 8-bit) colors](https://jonasjacek.github.io/colors/) for more information.
 
 ```
@@ -62,7 +62,7 @@ println!("{}", styled_object);
 ```
 
 ## Attributes
-When working in Linux you could also use attributes to style your font. For example you could cross your text with a line and make it bold.
+When working with UNIX terminals you could also use attributes to style your font. For example you could cross your text with a line and make it bold.
 See [above](styling.md#Attributes) for more information.
 
 ```

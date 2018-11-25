@@ -92,7 +92,8 @@ These are the features from this crate:
 - Styled output
     - Foreground color (16 base colors)
     - Background color (16 base colors)
-    - 256 color support (unix only)
+    - 256 color support (Windows 10 and UNIX only)
+    - RGB support (Windows 10 and UNIX only)
     - Text Attributes like: bold, italic, underscore and crossed word ect (unix only) 
     - Custom ANSI color code input to set fore- and background color (unix only)
 - Terminal

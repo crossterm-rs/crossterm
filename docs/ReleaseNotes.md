@@ -1,7 +1,9 @@
 # Changes crossterm 0.5.0
-- Implemented Display for styled object.
-- More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/TimonPost/crossterm/pull/44)
 - Added ability to pause the terminal [issue](https://github.com/TimonPost/crossterm/issues/39)
+- RGB support for Windows 10 systems
+- ANSI color value (255) color support
+- More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/TimonPost/crossterm/pull/44)
+- Implemented Display for styled object
 
 # Changes crossterm to 0.4.3
 - Fixed bug [issue 41](https://github.com/TimonPost/crossterm/issues/41)

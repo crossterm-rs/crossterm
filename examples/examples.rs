@@ -18,8 +18,8 @@ use crossterm::style::{style, Color, Attribute};
 
 fn main() {
     let styled_object = style("'Red' text on 'White' background")
-        .with(Color::AnsiValue(9))
-        .on(Color::AnsiValue(15));
+        .with(Color::Rgb { r: 34, g: 80, b: 23 })
+        .on(Color::Rgb { r: 34, g: 80, b: 23 });
 
     println!("{}", styled_object);
 }
