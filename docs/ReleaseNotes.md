@@ -1,12 +1,12 @@
 # Changes crossterm 0.5.0
 - Implemented Display for styled object.
-- Removed `Screen` from the following functions: `crossterm::cursor(), crossterm::color(), crossterm::terminal()`, you won't need to care about `Screen` unless you are working with alternate or raw screen.
-- more to come ...
+- More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/TimonPost/crossterm/pull/44)
+- Added ability to pause the terminal [issue](https://github.com/TimonPost/crossterm/issues/39)
 
 # Changes crossterm to 0.4.3
 - Fixed bug [issue 41](https://github.com/TimonPost/crossterm/issues/41)
 
-#  Changes crossterm to 0.4.2
+# Changes crossterm to 0.4.2
 - Added functionality to make a styled object writable to screen [issue 33](https://github.com/TimonPost/crossterm/issues/33)
 - Added unit tests.
 - Bugfix with getting terminal size unix.

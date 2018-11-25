@@ -13,7 +13,7 @@ use self::unix_input::UnixInput;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
-pub use self::input::{input, TerminalInput};
+pub use self::input::{input, from_screen, TerminalInput};
 
 use std::io::{self, Error, ErrorKind, Read};
 use std::sync::{mpsc, Arc};

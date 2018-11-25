@@ -210,13 +210,20 @@ impl<D: Display> Display for StyledObject<D> {
             reset = true;
         }
 
+        #[cfg(unix)]
+        for attr in self.object_style.attrs.iter() {
+            write!(f, "{}", format!(csi!("{}m"), *attr as i16));
+            reset = true;
+        }
+
         fmt::Display::fmt(&self.content, f)?;
         std::io::stdout().flush().expect("Flush stdout failed");
 
         if reset {
+//            write!(f, "\x1b[0m")?;
             colored_terminal.reset();
+            std::io::stdout().flush().expect("Flush stdout failed");
         }
-
         Ok(())
     }
 }

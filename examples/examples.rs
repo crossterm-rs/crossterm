@@ -8,15 +8,18 @@
 extern crate crossterm;
 
 // modules that could be test
-mod color;
-mod cursor;
-mod input;
-mod some_types;
-mod terminal;
+//mod color;
+//mod cursor;
+//mod input;
+//mod some_types;
+//mod terminal;
 
-use crossterm::input::{TerminalInput, KeyEvent};
+use crossterm::style::{style, Color, Attribute};
 
 fn main() {
-    println!("Press 'x' to quit...");
-    TerminalInput::wait_until(KeyEvent::OnKeyPress(b'x'));
+    let styled_object = style("'Red' text on 'White' background")
+        .with(Color::AnsiValue(9))
+        .on(Color::AnsiValue(15));
+
+    println!("{}", styled_object);
 }

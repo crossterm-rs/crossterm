@@ -1,3 +1,68 @@
+## Upgrade crossterm to 0.5.0
+
+***WARNING*** 
+
+I workded on making the user API more conviniant therefore I had to make some chages to the user API. The problem with `0.4` is that you need to pass a `Screen` to the modules: `cursor(), color(), terminal()`.
+
+In the new situation you only have to do this when working with raw or alternate screen. When you just want to perform actions like styling on the main screen you don't have to to pass in the `Screen` any more. This will look like the following:
+
+#### 1. Remove `Screen` from the function calls: `cursor(), color(), terminal(), input()`
+
+_**old**_
+```
+let screen = Screen::default();
+
+let color = color(&screen);
+let cursor = cursor(&screen);
+let input = input(&screen);
+let terminal = terminal(&screen);
+let crossterm = Crossterm::new(&screen);
+let terminal = Terminal::new(&screen.stdout);
+let cursor = TerminalCursor::new(&screen.stdout);
+let color = TerminalColor::new(&screen.stdout);
+let input = TerminalInput::new(&screen.stdout);
+```
+_**new**_
+```
+let color = color();
+let cursor = cursor();
+let input = input();
+let terminal = terminal();
+let crossterm = Crossterm::new();
+let terminal = Terminal::new();
+let cursor = TerminalCursor::new();
+let color = TerminalColor::new();
+let input = TerminalInput::new();
+```
+
+#### 2. When working with alternate or raw screen. 
+
+When working with alternate and or raw screen you still have to provide a `Screen` instance since information of the alternate and raw screen is stored in it. When doing this, the actions of the module will be perfomed on the alternate screen. If you don't do this your actions will executed at the main screen.
+
+```
+use crossterm::cursor;
+use crossterm::color;
+use crossterm::input;
+use crossterm::terminal;
+
+let screen = Screen::default();
+
+if let Ok(alternate) = screen.enable_alternate_modes(false) {
+    let screen = alternate.screen;
+    let color = color::from_screen(&screen);
+    let cursor = cursor::from_screen(&screen);
+    let input = input::from_screen(&screen);
+    let terminal = terminal::from_screen(&screen);
+    let crossterm = Crossterm::from_screen(&screen);
+    
+    let terminal = Terminal::from_output(&screen.stdout);
+    let cursor = TerminalCursor::from_output(&screen.stdout);
+    let color = TerminalColor::from_output(&screen.stdout);
+    let input = TerminalInput::from_output(&screen.stdout);
+}
+
+```
+
 ## Upgrade crossterm to 0.4.0
 
 ***WARNING*** 
@@ -7,12 +72,12 @@ I really did not want to do this but it had to be done for some reasons.
 
 #### 1. You need to pass a reference to an `Screen` to the modules: `cursor(), color(), terminal()`
 
+_**old**_
 ```
 use crossterm::terminal::terminal;
 use crossterm::cursor::cursor;
 use crossterm::style::color;
 
-/// Old situation
 use crossterm::Context;
 
 let context: Rc<Context> = Context::new();
@@ -20,8 +85,9 @@ let context: Rc<Context> = Context::new();
 let cursor = cursor(&context);
 let terminal = terminal(&context);
 let color = color(&context);
-
-/// new situation 
+```
+_**new**_
+```
 use crossterm::Screen;
 
 let screen: Screen = Screen::default();
@@ -95,8 +161,8 @@ I really did not want to do this but it had to be done for some reasons. Check `
 
 First thing  that has changed is that you need to pass a reference to an `Rc<Context>` to the modules: `cursor(), color(), terminal()`
 
+_**old**_
 ```
-
 use crossterm::terminal::terminal;
 use crossterm::cursor::cursor;
 use crossterm::style::color;
@@ -105,8 +171,9 @@ use crossterm::style::color;
 let cursor = cursor();
 let terminal = terminal();
 let color = color();
-
-/// new situation 
+```
+_**new**_
+```
 use crossterm::Context;
 
 let context: Rc<Context> = Context::new();
