@@ -45,7 +45,6 @@ impl ITerminalColor for AnsiColor {
             ColorType::Background => ansi_value.push_str("48;"),
         }
 
-        #[cfg(unix)]
         let rgb_val: String;
 
         let color_val = match color {
@@ -64,12 +63,11 @@ impl ITerminalColor for AnsiColor {
             Color::DarkCyan => "5;6",
             Color::Grey => "5;15",
             Color::White => "5;7",
-            #[cfg(unix)]
+
             Color::Rgb { r, g, b } => {
                 rgb_val = format!("2;{};{};{}", r, g, b);
                 rgb_val.as_str()
             }
-            #[cfg(unix)]
             Color::AnsiValue(val) => {
                 rgb_val = format!("5;{}", val);
                 rgb_val.as_str()

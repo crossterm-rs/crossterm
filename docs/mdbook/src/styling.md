@@ -17,12 +17,11 @@ There are 16 base colors which available for almost all terminals even windows 7
 |       Cyan     |      DarkCyan   | 
 |       White    |      DarkWhite  | 
 
-In addition to 16 colours, most unix terminals also support more colors.
-For example, GNOME-terminals are supporting the [True color (24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme which allows you to use [RGB](https://nl.wikipedia.org/wiki/RGB-kleursysteem) for setting the terminal color.
-All xterm terminals are at least supporting the [256 (Xterm, 8-bit)](https://jonasjacek.github.io/colors/) colors.
+In addition to 16 colours, most UNIX terminals and Windows 10 consoles are also supporting more colors.
+Those colors could be: [True color (24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme, which allows you to use [RGB](https://nl.wikipedia.org/wiki/RGB-kleursysteem), and [256 (Xterm, 8-bit)](https://jonasjacek.github.io/colors/) colors.
 
 ## Attributes
-UNIX terminals are supporting attributes on top of text. Crossterm allows you to add attributes to the text.
+Only UNIX terminals are supporting attributes on top of text. Crossterm allows you to add attributes to the text.
 Not all attributes are widely supported for all terminals, keep that in mind when working with this.
 
 | Attribute      | Note         |

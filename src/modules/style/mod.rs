@@ -110,13 +110,11 @@ pub enum Color {
     Grey,
     White,
 
-    #[cfg(unix)]
     Rgb {
         r: u8,
         g: u8,
         b: u8,
     },
-    #[cfg(unix)]
     AnsiValue(u8),
 }
 
