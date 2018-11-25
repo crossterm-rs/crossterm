@@ -10,11 +10,10 @@ use winapi::um::wincon::{
 
 use winapi::um::winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
-use super::{handle, kernel, Empty, TerminalOutput, HANDLE};
+use super::{handle, kernel, Empty, HANDLE};
 
 use std::io::{self, Result};
 use std::mem::size_of;
-use std::sync::Arc;
 use std::sync::{Once, ONCE_INIT};
 
 /// Create a new console screen buffer info struct.

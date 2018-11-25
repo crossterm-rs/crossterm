@@ -45,7 +45,7 @@ impl ITerminalColor for WinApiColor {
     fn set_bg(&self, bg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) {
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let (csbi, handle) = csbi::get_csbi_and_handle().unwrap();
+        let (csbi, _handle) = csbi::get_csbi_and_handle().unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
@@ -103,8 +103,8 @@ impl ITerminalColor for WinApiColor {
                     Color::White => fg_intensity | fg_red | fg_green | fg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb{ r, g, b } => { 0 }
-                    Color::AnsiValue(val) => { 0 }
+                    Color::Rgb{ r: _, g: _, b: _ } => { 0 }
+                    Color::AnsiValue(_val) => { 0 }
                 };
             }
             ColorType::Background => {
@@ -126,8 +126,8 @@ impl ITerminalColor for WinApiColor {
                     Color::White => bg_intensity | bg_red | bg_green | bg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb{ r, g, b } => { 0 }
-                    Color::AnsiValue(val) => { 0 }
+                    Color::Rgb{ r: _, g: _, b: _ } => { 0 }
+                    Color::AnsiValue(_val) => { 0 }
                 };
             }
         };

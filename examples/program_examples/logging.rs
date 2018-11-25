@@ -88,13 +88,13 @@ fn new_sync_flag(initial_state: bool) -> (SyncFlagTx, SyncFlagRx) {
 
 fn main() {
     let (_results_tx, _results_rx): (Sender<String>, Receiver<String>) = mpsc::channel();
-    let (mut more_jobs_tx, more_jobs_rx) = new_sync_flag(true);
+    let (more_jobs_tx, more_jobs_rx) = new_sync_flag(true);
 
     // queue with all log entry's.
     let queue = WorkQueue::new();
 
     //  queue x logs with different threads.
-    let thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
+    let _thread_handles = log_with_different_threads(more_jobs_tx.clone(), queue.clone());
 
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());
@@ -107,7 +107,7 @@ fn main() {
 
 fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>) {
     thread::spawn(move || {
-        let mut screen: Screen = Screen::default();
+        let screen: Screen = Screen::default();
 
         // Loop while there's expected to be work, looking for work.
         while more_jobs_rx.get().unwrap() {

@@ -8,11 +8,10 @@ use winapi::um::wincon::{
     PSMALL_RECT,
 };
 
-use super::{csbi, handle, kernel, TerminalOutput, HANDLE};
+use super::{csbi, handle, kernel, HANDLE};
 
 use std::io::{self, Result};
 use std::str;
-use std::sync::Arc;
 
 /// Fill a certain block with characters.
 pub fn fill_console_output_character(
@@ -108,7 +107,7 @@ pub fn write_char_buffer(handle: &HANDLE, buf: &[u8]) -> ::std::io::Result<usize
     let csbi = csbi::get_csbi_by_handle(handle)?;
 
     // get current position
-    let current_pos = COORD {
+    let _current_pos = COORD {
         X: csbi.dwCursorPosition.X,
         Y: csbi.dwCursorPosition.Y,
     };

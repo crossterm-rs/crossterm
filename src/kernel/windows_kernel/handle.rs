@@ -7,13 +7,10 @@ use winapi::um::fileapi::{CreateFileW, OPEN_EXISTING};
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::GetStdHandle;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
-use winapi::um::winnt::{FILE_SHARE_WRITE, GENERIC_ALL, GENERIC_READ, GENERIC_WRITE};
+use winapi::um::winnt::{FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
 
 use std::io::{self, Result};
 use std::ptr::null_mut;
-use std::sync::Arc;
-
-use winapi::ctypes::c_void;
 
 /// Get the handle of the active screen.
 pub fn get_current_handle() -> Result<HANDLE> {

@@ -1,7 +1,6 @@
 //! This module contains terminal specific logic.
 
-use super::{csbi, handle, TerminalOutput};
-use std::sync::Arc;
+use super::{csbi, handle};
 
 /// Get the terminal size
 pub fn terminal_size() -> (u16, u16) {

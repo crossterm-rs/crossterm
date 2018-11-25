@@ -11,8 +11,6 @@ pub mod writing;
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use winapi::um::winnt::HANDLE;
 
-use TerminalOutput;
-
 use common::traits::Empty;
 
 impl Empty for COORD {

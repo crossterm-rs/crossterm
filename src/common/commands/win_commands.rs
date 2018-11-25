@@ -8,8 +8,6 @@ use winapi::um::wincon;
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 use std::io::{Error, ErrorKind, Result};
-use std::sync::Arc;
-use winapi::um::winnt::HANDLE;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -144,8 +142,8 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-    fn enable(&self, stdout: &mut TerminalOutput) -> Result<()> {
-        let handle = handle::get_output_handle()?;
+    fn enable(&self, _stdout: &mut TerminalOutput) -> Result<()> {
+        let _handle = handle::get_output_handle()?;
 
         // create a new screen buffer to copy to.
         let new_handle = csbi::create_console_screen_buffer();
@@ -156,7 +154,7 @@ impl IAlternateScreenCommand for ToAlternateScreenCommand {
         Ok(())
     }
 
-    fn disable(&self, stdout: &TerminalOutput) -> Result<()> {
+    fn disable(&self, _stdout: &TerminalOutput) -> Result<()> {
         let handle = handle::get_output_handle()?;
         csbi::set_active_screen_buffer(handle);
 
