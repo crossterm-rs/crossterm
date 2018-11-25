@@ -1,47 +1,51 @@
-# Basic usage of screen
-As you may have seen crossterm has some type called `Screen`. This type should be used when working with the alternate or raw screen.
-Before we continue I'll explain what those concepts are.
+# Basic Usage of Screen
+As you may have seen crossterm has a type called `Screen`. This type should be used when working with the alternate or raw screen.
+
+Before we continue, I'll explain what those concepts are.
 
 ## Screen Buffer
-A screen buffer is a two-dimensional array of characters and color data for output in a console window. 
-A console/terminal can have multiple screen buffers. 
-The active screen buffer is the one that is displayed on the screen.
+A screen buffer is a two-dimensional array of characters and color data to be output in a console window. An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.
 
-Crossterm allows you to switch between those buffers, the screen where you are working in normally is the 'main screen' we call the other screen 'alternate screen'.
+Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'.
 
 ### Alternate Screen
-Normally you are working on the main screen but an alternate screen is somewhat different to a normal screen.
-It has for example exactly the dimensions of the terminal window, without any scrollback region.
-You could take for example vim when it is launched from bash.
-Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
+Normally you are working on the main screen but an alternate screen is somewhat different from a normal screen.
+For example, it has the exact dimensions of the terminal window, without any scrollback region. An example of this is vim when it is launched from bash.
 
-Crossterm provides the ability to switch to the alternate screen, make some changes, and go back to the main screen.
-The main screen still has it's original data since we have made all the edits on the alternate screen.
+Vim uses the entirety of the screen to edit the file, then exits to bash leaving the original buffer unchanged.
+
+Crossterm provides the ability to switch to the alternate screen, make some changes, and then go back to the main screen. The main screen will still have its original data since we made all the edits on the alternate screen.
 
 ## Raw screen
-To understand the concept of 'raw screen' let's look at the following points.
+To understand the concept of a 'raw screen' let's look at the following points:
 
-- No line buffering.
-   Normally the terminals use line buffering. This means that the input will be sent to the terminal line by line.
-   With raw mode, the input will send one byte at a time.
-- Input
-  All input has to be written to the screen buffer manually by the programmer.
-- Characters
-  The characters are not processed by the terminal driver but are sent straight through.
-  Special character have no meaning, like backspace will not be interpreted as backspace but instead will be directly sent to the terminal.
-- Escape characters
-  Note that in raw modes `\n` `\r` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
- 
- _example of what I mean_
-  ```
-  some text
-           some text
-  ```
+**No line buffering.**
+Normally the terminals use line buffering. This means that the input will be sent to the terminal line by line. With raw mode, the input will send one byte at a time.
+
+**Input**
+
+ All input has to be written to the screen buffer manually by the programmer.
+
+**Characters**
+
+The characters are not processed by the terminal driver. Also, special character have no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.
+
+**Escape Characters**
+Note that in raw mode `\n` `\r` will move the cursor to a new line but it will be at the same position as it was on the previous line.
+
+_example of what I mean_
+ ```
+ some text
+                some text
+ ```
+
+To start at the beginning of the next line, use `\n\r`.
 
 # Important Notice
-When we want to print some text to the alternate screen we can't just write on it using `print!(), println!(), write!()`. 
-Same goes for coloring, cursor movement, input and terminal actions. Crossterm provides a solution for that by introducing the `Screen` type. 
-Please checkout this [example](screen_example.md) for more information on how to use it in practice.
+When we want to print some text to the alternate screen we can't just write on it using `print!(), println!(), or write!()`.
+The same goes for coloring, cursor movement, input, and terminal actions. Crossterm provides a solution for that by introducing the `Screen` type.
+Please checkout this [example](screen_example.md) for more information on how to use it.
+
 
 ```
 use crossterm::cursor;
