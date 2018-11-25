@@ -1,4 +1,4 @@
-# Crossterm | cross-platform terminal manipulating library written in rust.
+# Crossterm | cross-platform terminal manipulating library.
  ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
