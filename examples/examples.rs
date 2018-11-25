@@ -17,9 +17,9 @@ extern crate crossterm;
 use crossterm::style::{style, Color, Attribute};
 
 fn main() {
-    let styled_object = style("'Red' text on 'White' background")
-        .with(Color::AnsiValue(9))
-        .on(Color::AnsiValue(15));
-
-    println!("{}", styled_object);
+    for i in 0..255 {
+        let styled_object = style("'Red' text on 'White' background")
+            .with(Color::Rgb { r: i, g: i, b:i });
+        println!("{}", styled_object);
+    }
 }

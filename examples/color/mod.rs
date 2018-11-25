@@ -175,7 +175,7 @@ pub fn print_all_background_colors() {
         style(format!("White : \t {} \n", "■")).on(Color::White)
     );
 
-    #[cfg(unix)]
+    // Take note that RGB is only supported for Windows 10.
     println!(
         "{}",
         style("RGB color (10,10,10) ").on(Color::Rgb {

@@ -19,6 +19,7 @@
 //! This is the reason why this module exits: it is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
 
 use super::*;
+use common::functions;
 
 use std::default::Default;
 use std::io::Write;
