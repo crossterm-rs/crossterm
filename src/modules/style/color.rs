@@ -23,10 +23,10 @@ use Screen;
 /// colored_terminal.set_bg(Color::Red);
 /// // reset color to default
 /// colored_terminal.reset();
+/// ```
 ///
 /// When you want to use 'color' on 'alternate screen' use the `Screen` type instead and pass it to the `color::from_screen()` function.
 /// By doing that styling actions will be performed on the alternate screen.
-/// ```
 pub struct TerminalColor<'stdout> {
     color: Box<ITerminalColor + Sync + Send>,
     stdout: Option<&'stdout Arc<TerminalOutput>>,
