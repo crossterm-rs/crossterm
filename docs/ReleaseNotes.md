@@ -1,3 +1,7 @@
+# Changes crossterm 0.5.1
+- Documentation refactor.
+- Fixed broken API documentation [PR 53](https://github.com/TimonPost/crossterm/pull/53).
+
 # Changes crossterm 0.5.0
 - Added ability to pause the terminal [issue](https://github.com/TimonPost/crossterm/issues/39)
 - RGB support for Windows 10 systems
