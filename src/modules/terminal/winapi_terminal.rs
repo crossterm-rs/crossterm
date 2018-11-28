@@ -230,7 +230,7 @@ pub fn clear_entire_screen(
     match stdout {
         Some(ref output) => {
             // put the cursor back at (0, 0)
-            TerminalCursor::on_screen(output).goto(0, 0);
+            TerminalCursor::from_output(output).goto(0, 0);
         }
         None => {
             // put the cursor back at (0, 0)
@@ -264,7 +264,7 @@ pub fn clear_current_line(
     match stdout {
         Some(ref output) => {
             // put the cursor back at (0, 0)
-            TerminalCursor::on_screen(output).goto(0, y);
+            TerminalCursor::from_output(output).goto(0, y);
         }
         None => {
             // put the cursor back at (0, 0)
@@ -294,7 +294,7 @@ pub fn clear_until_line(
     match stdout {
         Some(ref output) => {
             // put the cursor back at (0, 0)
-            TerminalCursor::on_screen(output).goto(x, y);
+            TerminalCursor::from_output(output).goto(x, y);
         }
         None => {
             // put the cursor back at (0, 0)
@@ -303,12 +303,12 @@ pub fn clear_until_line(
     }
 }
 
-fn clear(start_loaction: COORD, cells_to_write: u32) {
+fn clear(start_location: COORD, cells_to_write: u32) {
     let mut cells_written = 0;
     let mut success = false;
 
     success =
-        writing::fill_console_output_character(&mut cells_written, start_loaction, cells_to_write);
+        writing::fill_console_output_character(&mut cells_written, start_location, cells_to_write);
 
     if !success {
         panic!("Could not clear screen after cursor");
@@ -317,7 +317,7 @@ fn clear(start_loaction: COORD, cells_to_write: u32) {
     cells_written = 0;
 
     success =
-        writing::fill_console_output_attribute(&mut cells_written, start_loaction, cells_to_write);
+        writing::fill_console_output_attribute(&mut cells_written, start_location, cells_to_write);
 
     if !success {
         panic!("Could not reset attributes after cursor");
