@@ -1,4 +1,4 @@
-//! This module contains some commands that could be executed for specific task.
+//! This module contains some commands that could be executed for a specific task. A `Command` is just a little wrapper.
 
 use super::super::output::TerminalOutput;
 use std::io;

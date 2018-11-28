@@ -1,5 +1,7 @@
-//! With this module you can perform actions that are cursor related.
-//! Like moving the cursor position;saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
+//! A module that contains all the actions related to cursor movement in the terminal.
+//! Like: moving the cursor position; saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
+//!
+//! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
 mod cursor;
 
@@ -20,18 +22,18 @@ use super::functions;
 use std::sync::Arc;
 use TerminalOutput;
 
-///! This trait defines the actions that can be preformed with the terminal cursor.
-///! This trait can be implemented so that an concrete implementation of the ITerminalCursor can forfill
-///! the wishes to work on an specific platform.
+///! This trait defines the actions that can be performed with the terminal cursor.
+///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill
+///! the wishes to work on a specific platform.
 ///!
 ///! ## For example:
 ///!
-///! This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
-///! so that cursor related actions can be preformed on both unix and windows systems.
+///! This trait is implemented for `WinApi` (Windows specific) and `ANSI` (Unix specific),
+///! so that cursor related actions can be performed on both UNIX and Windows systems.
 trait ITerminalCursor: Sync + Send {
     /// Goto some location (x,y) in the context.
     fn goto(&self, x: u16, y: u16, stdout: &Option<&Arc<TerminalOutput>>);
-    /// Get the location (x,y) of the current cusror in the context
+    /// Get the location (x,y) of the current cursor in the context
     fn pos(&self) -> (u16, u16);
     /// Move cursor n times up
     fn move_up(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>);

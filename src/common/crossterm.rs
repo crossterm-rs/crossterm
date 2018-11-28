@@ -9,7 +9,7 @@ use std::fmt::Display;
 use std::sync::Arc;
 
 /// This type could be used to access the `cursor, terminal, color, input, styling` module more easily.
-/// You need to pass a reference to the screen where on you want to perform the actions to the `Crossterm` type.
+/// You need to pass a reference to the screen whereon you want to perform the actions to the `Crossterm` type.
 ///
 /// If you want to use the default screen you could do it like this:
 ///
@@ -52,7 +52,7 @@ impl<'crossterm> Crossterm {
         }
     }
 
-    /// Get an `TerminalCursor` implementation whereon cursor related actions can be performed.
+    /// Get a `TerminalCursor` implementation whereon cursor related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
@@ -64,11 +64,11 @@ impl<'crossterm> Crossterm {
     pub fn cursor(&self) -> cursor::TerminalCursor {
         match &self.stdout {
             None => cursor::TerminalCursor::new(),
-            Some(stdout) => cursor::TerminalCursor::on_screen(&stdout),
+            Some(stdout) => cursor::TerminalCursor::from_output(&stdout),
         }
     }
 
-    /// Get an `TerminalInput` implementation whereon terminal related actions can be performed.
+    /// Get a `TerminalInput` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
@@ -80,11 +80,11 @@ impl<'crossterm> Crossterm {
     pub fn input(&self) -> input::TerminalInput {
         match &self.stdout {
             None => input::TerminalInput::new(),
-            Some(stdout) => input::TerminalInput::on_screen(&stdout),
+            Some(stdout) => input::TerminalInput::from_output(&stdout),
         }
     }
 
-    /// Get an `Terminal` implementation whereon terminal related actions can be performed.
+    /// Get a `Terminal` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
@@ -96,11 +96,11 @@ impl<'crossterm> Crossterm {
     pub fn terminal(&self) -> terminal::Terminal {
         match &self.stdout {
             None => terminal::Terminal::new(),
-            Some(stdout) => terminal::Terminal::on_screen(&stdout),
+            Some(stdout) => terminal::Terminal::from_output(&stdout),
         }
     }
 
-    /// Get an `TerminalColor` implementation whereon color related actions can be performed.
+    /// Get a `TerminalColor` implementation whereon color related actions can be performed.
     ///
     /// ```rust
     /// extern crate crossterm;
@@ -112,11 +112,11 @@ impl<'crossterm> Crossterm {
     pub fn color(&self) -> style::TerminalColor {
         match &self.stdout {
             None => style::TerminalColor::new(),
-            Some(stdout) => style::TerminalColor::on_screen(&stdout),
+            Some(stdout) => style::TerminalColor::from_output(&stdout),
         }
     }
 
-    /// This could be used to style an `Displayable` type with colors and attributes.
+    /// This could be used to style a `Displayable` type with colors and attributes.
     ///
     /// ```rust
     /// extern crate crossterm;

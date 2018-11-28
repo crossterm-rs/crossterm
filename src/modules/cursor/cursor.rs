@@ -1,12 +1,12 @@
-//! With this module you can perform actions that are cursor related.
-//! Like changing and display the position of the cursor in terminal.
+//! A module that contains all the actions related to cursor movement in the terminal.
+//! Like: moving the cursor position; saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 //!
 //! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
 use super::*;
 use Screen;
 
-/// Struct that stores an specific platform implementation for cursor related actions.
+/// Struct that stores a platform-specific implementation for cursor related actions.
 ///
 /// Check `/examples/cursor` in the library for more specific examples.
 ///
@@ -34,7 +34,7 @@ pub struct TerminalCursor<'stdout> {
 }
 
 impl<'stdout> TerminalCursor<'stdout> {
-    /// Create new cursor instance whereon cursor related actions can be performed.
+    /// Create new `TerminalCursor` instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
@@ -51,7 +51,23 @@ impl<'stdout> TerminalCursor<'stdout> {
         }
     }
 
-    pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
+    /// Create a new instance of `TerminalCursor` whereon cursor related actions could be preformed on the given output.
+    ///
+    /// **Note**
+    ///
+    /// Use this function when you want your terminal to operate with a specific output.
+    /// This could be useful when you have a screen which is in 'alternate mode'.
+    /// And you want your actions from the `TerminalCursor`, created by this function, to operate on the 'alternate screen'.
+    ///
+    /// # Example
+    /// ```
+    /// let screen = Screen::default();
+    //
+    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
+    ///    let terminal = TerminalCursor::from_output(&alternate.screen.stdout);
+    /// }
+    /// ```
+    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
         #[cfg(target_os = "windows")]
         let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
             WinApiCursor::new(),
@@ -206,13 +222,13 @@ impl<'stdout> TerminalCursor<'stdout> {
     }
 }
 
-/// Get an TerminalCursor implementation whereon cursor related actions can be performed.
+/// Get a `TerminalCursor` instance whereon cursor related actions can be performed.
 pub fn cursor() -> TerminalCursor<'static> {
     TerminalCursor::new()
 }
 
-/// Get an TerminalCursor implementation whereon cursor related actions can be performed.
-/// Pass the reference to any screen you want this type to perform actions on.
+/// Get a `TerminalCursor` instance whereon cursor related actions can be performed.
+/// Pass the reference to any `Screen` you want this type to perform actions on.
 pub fn from_screen(screen: &Screen) -> TerminalCursor {
-    TerminalCursor::on_screen(&screen.stdout)
+    TerminalCursor::from_output(&screen.stdout)
 }

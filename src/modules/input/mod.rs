@@ -1,4 +1,4 @@
-//! With this module you can perform actions that are input related.
+//! A module that contains all the actions related to reading input from the terminal.
 //! Like reading a line, reading a character and reading asynchronously.
 
 mod input;
@@ -20,14 +20,14 @@ use std::sync::{mpsc, Arc};
 
 use TerminalOutput;
 
-/// This trait defines the actions that can be preformed with the terminal color.
-/// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
-/// the wishes to work on an specific platform.
+/// This trait defines the actions that can be preformed with the terminal input.
+/// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
+/// the wishes to work on a specific platform.
 ///
 /// ## For example:
 ///
 /// This trait is implemented for Windows and UNIX systems.
-/// Unix is using the tty and windows is using libc C functions to read the input.
+/// Unix is using the 'TTY' and windows is using 'libc' C functions to read the input.
 trait ITerminalInput {
     /// Read one line from the user input
     fn read_line(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String>;
@@ -47,7 +47,7 @@ pub struct AsyncReader {
     recv: mpsc::Receiver<io::Result<u8>>,
 }
 
-// This enum represents a key event that from the user.
+/// This enum represents key events which could be caused by the user.
 pub enum KeyEvent {
     /// Represents a specific key press.
     OnKeyPress(u8),

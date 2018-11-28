@@ -1,4 +1,4 @@
-//! This is an UNIX specific implementation for input related action.
+//! This is a UNIX specific implementation for input related action.
 
 use super::*;
 use kernel::unix_kernel::terminal::{get_tty, read_char};

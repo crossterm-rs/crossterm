@@ -1,5 +1,5 @@
-//! This is an ANSI specific implementation for styling related action.
-//! This module is used for windows 10 terminals and unix terminals by default.
+//! This is a ANSI specific implementation for styling related action.
+//! This module is used for Windows 10 terminals and Unix terminals by default.
 
 use super::*;
 

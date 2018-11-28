@@ -1,4 +1,4 @@
-//! This module contains the commands that can be used for both unix and windows 10 systems because they support ANSI escape codes
+//! A module which contains the commands that can be used for both unix and windows 10 systems because they support ANSI escape codes
 
 use super::{IAlternateScreenCommand, TerminalOutput};
 

@@ -60,7 +60,7 @@ impl ObjectStyle {
     }
 
     #[cfg(unix)]
-    /// Add an attribute to the current text. Like italic or bold.
+    /// Add an `Attribute` to the current text. Like italic or bold.
     pub fn add_attr(&mut self, attr: Attribute) {
         self.attrs.push(attr);
     }

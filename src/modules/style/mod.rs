@@ -1,4 +1,5 @@
-//! Module that contains all the actions related to the styling of the terminal. like coloring adding attributes etc.
+//! A module that contains all the actions related to the styling of the terminal.
+//! Like applying attributes to font and changing the foreground and background.
 
 pub mod color;
 pub mod objectstyle;
@@ -25,14 +26,14 @@ use super::functions;
 
 use TerminalOutput;
 
-/// This trait defines the actions that can be preformed with the terminal color.
-/// This trait can be implemented so that an concrete implementation of the ITerminalColor can forfill
+/// This trait defines the actions that can be preformed with terminal color.
+/// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
 /// the wishes to work on an specific platform.
 ///
 /// ## For example:
 ///
-/// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
-/// so that color related actions can be preformed on both unix and windows systems.
+/// This trait is implemented for `WinApi` (Windows specific) and `ANSI` (Unix specific),
+/// so that color-related actions can be performed on both UNIX and Windows systems.
 trait ITerminalColor {
     /// Set the foreground color to the given color.
     fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>);
@@ -118,7 +119,7 @@ pub enum Color {
     AnsiValue(u8),
 }
 
-/// Color types that can be used to determine if the Color enum is an Fore- or Background Color
+/// Color types that can be used to determine if the Color enum is a Fore- or Background Color.
 #[derive(Debug, Copy, Clone)]
 pub enum ColorType {
     Background,
@@ -126,14 +127,14 @@ pub enum ColorType {
 }
 
 impl<'a> From<&'a str> for Color {
-    /// Get an color from an &str like `Color::from("blue")`
+    /// Get an color from an &str like `Color::from("blue")`.
     fn from(src: &str) -> Self {
         src.parse().unwrap_or(Color::White)
     }
 }
 
 impl From<String> for Color {
-    /// Get an color from an &str like `Color::from(String::from(blue))`
+    /// Get an color from an &str like `Color::from(String::from(blue))`.
     fn from(src: String) -> Self {
         src.parse().unwrap_or(Color::White)
     }

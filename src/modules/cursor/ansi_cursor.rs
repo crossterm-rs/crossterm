@@ -1,10 +1,10 @@
 //! This is an ANSI specific implementation for cursor related action.
-//! This module is used for windows 10 terminals and unix terminals by default.
-//! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position ect.
+//! This module is used for windows 10 terminals and UNIX terminals by default.
+//! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position etc.
 
 use super::*;
 
-/// This struct is an ansi implementation for cursor related actions.
+/// This struct is an ANSI implementation for cursor related actions.
 pub struct AnsiCursor {}
 
 impl AnsiCursor {

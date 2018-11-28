@@ -1,9 +1,8 @@
-//! This module contains the commands that can be used for unix systems.
+//! A module which contains the commands that can be used for UNIX systems.
 use kernel::unix_kernel::terminal;
 
 use std::io::Result;
 
-// This command is used for enabling and disabling raw mode for the terminal.
 /// This command is used for enabling and disabling raw mode for the terminal.
 pub struct RawModeCommand;
 

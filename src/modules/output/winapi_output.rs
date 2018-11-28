@@ -3,7 +3,7 @@ use kernel::windows_kernel::{handle, writing};
 
 use std::io;
 
-/// This struct is a wrapper for WINAPI `HANDLE`
+/// This struct is a wrapper for WinApi output.
 pub struct WinApiOutput;
 
 impl WinApiOutput {

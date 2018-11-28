@@ -1,39 +1,36 @@
 //! This module provides one place to work with the screen.
 //!
-//!   In Rust we can call `stdout()` to get an handle to the current default console handle.
-//!   For example when in unix systems you want to print something to the main screen you can use the following code:
+//!   In Rust we can call `stdout()` to get a handle to the current default console handle.
+//!   When working with UNIX or Windows10 systems you could print some text to the screen by doing the following:
 //!
 //!   ```
 //!   write!(std::io::stdout(), "{}", "some text").
 //!   ```
 //!
 //!   But things change when we are in alternate screen modes.
-//!   We can not simply use `stdout()` to get a handle to the alternate screen, since this call returns the current default console handle (mainscreen).
+//!   We can not simply use `stdout()` to get a handle to the 'alternate screen', since this call returns the current default console handle (main screen).
 //!
-//!   Instead we need to store an handle to the screen output.
-//!   This handle could be used to put into alternate screen modes and back into main screen modes.
-//!   Through this stored handle Crossterm can execute its command on the current screen whether it be alternate screen or main screen.
+//!   To get the handle to the `alternate screen` we first need to store this handle so that we are able to call it later on.
+//!   Through this stored handle, crossterm can write to or execute commands at the current screen whether it be an alternate screen or main screen.
 //!
-//!   For unix systems we store the handle gotten from `stdout()` for windows systems that are not supporting ANSI escape codes we store WinApi `HANDLE` struct witch will provide access to the current screen.
-//!
-//! This is the reason why this module exits: it is to provide access to the current terminal screen whether it will be the alternate screen and main screen.
+//!   For UNIX and Windows10 systems, we store the handle gotten from `stdout()`. For Windows systems who are not supporting ANSI escape codes, we can call `CONOUT$` to get the current screen `HANDLE`.
 
 use super::*;
 
 use std::default::Default;
 use std::io::Write;
 
-/// Struct that is an handle to an terminal screen.
+/// Struct that is a handle to a terminal screen.
 /// This handle could be used to write to the current screen
 ///
-/// For unix and windows 10 `stdout()` will be used for handle when on windows systems with versions lower than 10 WinApi `HANDLE` will be used.
+/// For UNIX and Windows 10 `stdout()` will be used as handle. And for Windows systems, not supporting ANSI escape codes, will use WinApi's `HANDLE` as handle.
 pub struct TerminalOutput {
     stdout: Box<IStdout + Send + Sync>,
     pub is_in_raw_mode: bool,
 }
 
 impl TerminalOutput {
-    /// Create new screen write instance whereon screen related actions can be performed.
+    /// Create a new screen write instance whereon screen related actions can be performed.
     pub fn new(raw_mode: bool) -> Self {
         #[cfg(target_os = "windows")]
         let stdout: Box<IStdout + Send + Sync> =

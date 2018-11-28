@@ -1,4 +1,4 @@
-//! This module provides a way to work with an handle to an screen on different platforms.
+//! A module provides a uniformed way to write to the output no matter if it is in main, alternate or raw  mode.
 
 mod output;
 
@@ -24,8 +24,8 @@ use super::functions;
 ///
 /// ## For example:
 ///
-/// This trait is implemented for `WINAPI` (Windows specific) and `ANSI` (Unix specific),
-/// so that color related actions can be preformed on both unix and windows systems.
+/// This trait is implemented for `WinApi` (Windows specific) and `ANSI` (Unix specific),
+/// so that output related actions can be preformed on both unix and windows systems.
 trait IStdout {
     /// Write an &str to the current stdout and flush the screen.
     fn write_str(&self, string: &str) -> io::Result<usize>;

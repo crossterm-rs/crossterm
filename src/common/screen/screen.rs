@@ -5,9 +5,9 @@ use std::io::Result;
 use std::io::Write;
 use std::sync::Arc;
 
-/// This type represents an screen which could be in normal, raw and alternate modes.
+/// This type represents a screen which could be in normal, raw and alternate modes.
 ///
-/// Lets talk about the different modes a bit:
+/// Let's talk about the different modes a bit:
 ///
 /// - Alternate modes:
 ///
@@ -18,13 +18,13 @@ use std::sync::Arc;
 ///
 /// - RawModes
 ///     - No line buffering.
-///         Normally the terminals uses line buffering. This means that the input will be send to the terminal line by line.
-///         With raw mode the input will be send one byte at a time.
+///         Normally the terminals use line buffering. This means that the input will be sent to the terminal line by line.
+///         With raw mode the input will send one byte at a time.
 ///     - Input
 ///          All input has to be written manually by the programmer.
 ///     - Characters
-///         The characters are not processed by the terminal driver, but are sent straight through.
-///         Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
+///         The characters are not processed by the terminal driver but are sent straight through.
+///         Special character have no meaning, like backspace will not be interpreted as backspace but instead will be directly sent to the terminal.
 ///     - Escape characters
 ///         Note that in raw modes `\n` `\r` will move to the new line but the cursor will be at the same position as before on the new line therefor use `\n\r` to start at the new line at the first cell.
 ///
@@ -66,8 +66,8 @@ pub struct Screen {
 }
 
 impl Screen {
-    /// Create new instance of the Screen also specify if the current screen should be in raw mode or normal mode.
-    /// If you are not sure what raw mode is then pass false or use the `Screen::default()` to create an instance.
+    /// Create a new instance of the Screen also specify if the current screen should be in raw mode or normal mode.
+    /// If you are not sure what raw mode is then passed false or use the `Screen::default()` to create an instance.
     pub fn new(raw_mode: bool) -> Screen {
         if raw_mode {
             let screen = Screen {
@@ -122,14 +122,14 @@ impl Screen {
         Ok(())
     }
 
-    /// This will disable the drop which will cause raw modes not to be undone on drop of `Screen`.
+    /// This will disable the drop which will cause raw modes not to be undone on the drop of `Screen`.
     pub fn disable_drop(&mut self) {
         self.drop = false;
     }
 }
 
 impl From<TerminalOutput> for Screen {
-    /// Create an screen with the given `Stdout`
+    /// Create a screen with the given `Stdout`
     fn from(stdout: TerminalOutput) -> Self {
         Screen {
             stdout: Arc::new(stdout),
@@ -140,7 +140,7 @@ impl From<TerminalOutput> for Screen {
 }
 
 impl From<Arc<TerminalOutput>> for Screen {
-    /// Create an screen with the given 'Arc<Stdout>'
+    /// Create a screen with the given 'Arc<Stdout>'
     fn from(stdout: Arc<TerminalOutput>) -> Self {
         Screen {
             stdout,
@@ -151,7 +151,7 @@ impl From<Arc<TerminalOutput>> for Screen {
 }
 
 impl Default for Screen {
-    /// Create an new screen which will not be in raw mode or alternate mode.
+    /// Create a new screen which will not be in raw mode or alternate mode.
     fn default() -> Self {
         Screen {
             stdout: Arc::new(TerminalOutput::new(false)),
@@ -162,7 +162,7 @@ impl Default for Screen {
 }
 
 impl Drop for Screen {
-    /// If the current screen is in raw mode whe need to disable it when the instance goes out of scope.
+    /// If the current screen is in raw mode we need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
         if self.stdout.is_in_raw_mode && self.drop {
             RawScreen::disable_raw_modes();

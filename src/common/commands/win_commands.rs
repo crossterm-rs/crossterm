@@ -1,4 +1,4 @@
-//! This module contains the commands that can be used for windows systems.
+//! A module which contains the commands that can be used for windows systems.
 
 use super::{IAlternateScreenCommand, IEnableAnsiCommand, TerminalOutput};
 

@@ -1,4 +1,4 @@
-//! This module contains the logic to style an object that contains some state witch can be styled.
+//! This module contains the logic to style an object that contains some 'content' which can be styled.
 
 use super::{color, from_screen, Color, ObjectStyle};
 use Screen;
@@ -227,7 +227,7 @@ impl<D: Display> Display for StyledObject<D> {
     }
 }
 
-/// This is a wrapper for a styled object on alternate screen so that the styled object could be printed on the alternate screen with the standard write functions in rust.
+/// This is a wrapper for a styled object on 'alternate screen' so that the styled object could be printed on the 'alternate screen' with the standard write functions in rust.
 ///
 /// ```
 /// write! ("some normal text, {} <- some colored text", DisplayableObject::new(&screen, styled_object));

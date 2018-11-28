@@ -1,11 +1,11 @@
-//! With this module you can perform actions that are input related.
+//! A module that contains all the actions related to reading input from the terminal.
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
 use Screen;
 use std::{thread, time::Duration};
 
-/// Struct that stores an specific platform implementation for input related actions.
+/// Struct that stores a platform-specific implementation for input related actions.
 ///
 /// Check `/examples/input` the examples folder on github for more info.
 ///
@@ -17,22 +17,23 @@ use std::{thread, time::Duration};
 /// let input = input();
 /// let result = input.read_line();
 /// let pressed_char = input.read_char();
-///
-/// ```
+///```
 ///
 /// **!! Take note when using input with raw mode you should use the `Screen` type. !!**
 ///
 /// ```
 /// let screen = Screen::new(true);
-/// let input = crossterm::input::from_screen(&screen);///
+/// let input = crossterm::input::from_screen(&screen);
 /// ```
+/// When you want to use 'input' related actions on 'alternate screen' use the `Screen` type instead, and pass it to the `terminal::from_screen()` function.
+/// By doing that terminal actions will be performed on the alternate screen.
 pub struct TerminalInput<'stdout> {
     terminal_input: Box<ITerminalInput + Sync + Send>,
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
 impl<'stdout> TerminalInput<'stdout> {
-    /// Create new instance of TerminalInput whereon input related actions could be preformed.
+    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
     pub fn new() -> TerminalInput<'stdout> {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
@@ -46,8 +47,23 @@ impl<'stdout> TerminalInput<'stdout> {
         }
     }
 
-    /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
+    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
+    ///
+    /// **Note**
+    ///
+    /// Use this function when you want your terminal to operate with a specific output.
+    /// This could be useful when you have a screen which is in 'alternate mode'.
+    /// And you want your actions from the `TerminalInput`, created by this function, to operate on the 'alternate screen'.
+    ///
+    /// # Example
+    /// ```
+    /// let screen = Screen::default();
+    //
+    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
+    ///    let terminal = TerminalInput::from_output(&alternate.screen.stdout);
+    /// }
+    /// ```
+    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
         #[cfg(target_os = "windows")]
         let input = Box::from(WindowsInput::new());
 
@@ -162,6 +178,8 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// This will prevent the current thread from continuing until the passed `KeyEvent` has happened.
     ///
+    /// This function will put the terminal into raw mode so that any key presses will not be shown at the screen.
+    ///
     /// ```
     /// use crossterm::input::{TerminalInput, KeyEvent};
     ///
@@ -198,13 +216,13 @@ impl<'stdout> TerminalInput<'stdout> {
     }
 }
 
-/// Get an Terminal Input implementation whereon input related actions can be performed.
+/// Get a `TerminalInput` instance whereon input related actions can be performed.
 pub fn input<'stdout>() -> TerminalInput<'stdout> {
     TerminalInput::new()
 }
 
-/// Get an Terminal Input implementation whereon input related actions can be performed.
-/// Pass the reference to any screen you want this type to perform actions on.
+/// Get a `TerminalInput` instance whereon input related actions can be performed.
+/// Pass the reference to any `Screen` you want this type to perform actions on.
 pub fn from_screen(screen: &Screen) -> TerminalInput {
-    TerminalInput::on_screen(&screen.stdout)
+    TerminalInput::from_output(&screen.stdout)
 }

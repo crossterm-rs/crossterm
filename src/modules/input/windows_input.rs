@@ -1,4 +1,4 @@
-//! This is an WINDOWS specific implementation for input related action.
+//! This is a WINDOWS specific implementation for input related action.
 
 use super::*;
 

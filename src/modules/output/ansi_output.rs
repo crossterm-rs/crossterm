@@ -1,5 +1,5 @@
 //! This is an ANSI specific implementation for the screen write
-//! This module is used for windows 10 terminals and unix terminals by default.
+//! This module is used for Windows 10 terminals and UNIX terminals by default.
 //! This module uses the stdout to write to the console.
 
 use super::IStdout;

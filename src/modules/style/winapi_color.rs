@@ -1,13 +1,11 @@
-//! This is an `WINAPI` specific implementation for styling related action.
-//! This module is used for non supporting `ANSI` windows terminals.
-//!
-//! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
+//! This is an `WinApi` specific implementation for styling related action.
+//! This module is used for non supporting `ANSI` Windows terminals.
 
 use super::*;
 use kernel::windows_kernel::{csbi, kernel};
 use winapi::um::wincon;
 
-/// This struct is an windows implementation for color related actions.
+/// This struct is a WinApi implementation for color related actions.
 pub struct WinApiColor {
     original_color: u16,
 }

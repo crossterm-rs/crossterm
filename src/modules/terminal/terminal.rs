@@ -1,11 +1,11 @@
-//! With this module you can perform actions that are terminal related.
-//! Like clearing and scrolling in the terminal or getting the size of the terminal.
+//! A module that contains all the actions related to the terminal.
+//! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::*;
 
 use std::fmt;
 
-/// Struct that stores an specific platform implementation for terminal related actions.
+/// Struct that stores a platform-specific platform implementation for terminal related actions.
 ///
 /// Check `/examples/terminal` in the library for more specific examples.
 ///
@@ -17,10 +17,9 @@ use std::fmt;
 /// term.scroll_down(5);
 /// term.scroll_up(4);
 /// let (with, height) = term.terminal_size();
-///
-/// When you want to use 'terminal' actions on 'alternate screen' use the `Screen` type instead, and pass it to the `terminal::from_screen()` function.
-/// By doing that terminal actions will be performed on the alternate screen.
 /// ```
+/// When you want to use 'terminal' related actions on 'alternate screen' use the `Screen` type instead, and pass it to the `terminal::from_screen()` function.
+/// By doing that terminal actions will be performed on the alternate screen.
 pub struct Terminal<'stdout> {
     terminal: Box<ITerminal + Sync + Send>,
     screen: Option<&'stdout Arc<TerminalOutput>>,
@@ -44,8 +43,23 @@ impl<'stdout> Terminal<'stdout> {
         }
     }
 
-    /// Create new instance of TerminalInput whereon input related actions could be preformed.
-    pub fn on_screen(stdout: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
+    /// Create a new instance of `Terminal` whereon terminal related actions could be preformed on the given output.
+    ///
+    /// **Note**
+    ///
+    /// Use this function when you want your terminal to operate with a specific output.
+    /// This could be useful when you have a screen which is in 'alternate mode'.
+    /// And you want your actions from the `Terminal`, created by this function, to operate on the 'alternate screen'.
+    ///
+    /// # Example
+    /// ```
+    /// let screen = Screen::default();
+    //
+    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
+    ///    let terminal = Terminal::from_output(&alternate.screen.stdout);
+    /// }
+    /// ```
+    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
         #[cfg(target_os = "windows")]
         let terminal = functions::get_module::<Box<ITerminal + Sync + Send>>(
             Box::new(WinApiTerminal::new()),
@@ -155,14 +169,13 @@ impl<'stdout> Terminal<'stdout> {
     }
 }
 
-/// Get an terminal implementation whereon terminal related actions could performed.
-/// Pass the reference to any screen you want this type to perform actions on.
+/// Get a `Terminal` instance whereon terminal related actions could performed.
 pub fn terminal<'stdout>() -> Terminal<'stdout> {
     Terminal::new()
 }
 
-/// Get an Terminal Color implementation whereon color related actions can be performed.
-/// Pass the reference to any screen you want this type to perform actions on.
+/// Get a `Terminal` instance whereon terminal related actions can be performed.
+/// Pass the reference to any `Screen` you want this type to perform actions on.
 pub fn from_screen(screen: &Screen) -> Terminal {
-    Terminal::on_screen(&screen.stdout)
+    Terminal::from_output(&screen.stdout)
 }
