@@ -61,9 +61,9 @@ extern crate crossterm;
 use crossterm::style::*;
 // this module is used for cursor related actions
 use crossterm::cursor::*;
-// this mudule is used for terminal related actions
+// this module is used for terminal related actions
 use crossterm::terminal::*;
-// this mudule is used for input related actions
+// this module is used for input related actions
 use crossterm::input::*;
 
 ```
