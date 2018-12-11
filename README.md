@@ -82,6 +82,7 @@ These are the features from this crate:
 - Cross-platform
 - Everything is multithreaded (Send, Sync)
 - Detailed documentation on every item
+- Very few dependenties.
 - Cursor.
     - Moving _n_ times Up, Down, Left, Right
     - Goto a certain position
