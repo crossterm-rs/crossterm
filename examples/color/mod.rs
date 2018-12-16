@@ -207,6 +207,15 @@ pub fn print_font_with_attributes() {
     println!("{}", style("Crossed out font").crossed_out());
 }
 
+/// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
+#[cfg(windows)]
+pub fn print_font_with_attributes() {
+    println!("{}", style("Normal text"));
+    println!("{}", style("Bold text").bold());
+    println!("{}", style("Underlined text").underlined());
+    println!("{}", style("Negative text").negative());
+}
+
 /// Print all supported RGB colors  | demonstration.
 #[cfg(unix)]
 pub fn print_supported_colors() {
