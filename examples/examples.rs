@@ -14,4 +14,4 @@ extern crate crossterm;
 //mod some_types;
 //mod terminal;
 
-fn main() {}
+fn main() { }
