@@ -15,14 +15,6 @@ impl UnixInput {
 }
 
 impl ITerminalInput for UnixInput {
-    fn read_line(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String> {
-        let mut rv = String::new();
-        io::stdin().read_line(&mut rv)?;
-        let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
-        rv.truncate(len);
-        Ok(rv)
-    }
-
     fn read_char(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
         read_char()
     }

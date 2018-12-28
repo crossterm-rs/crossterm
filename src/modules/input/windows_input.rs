@@ -2,10 +2,10 @@
 
 use super::*;
 
-use winapi::um::winnt::INT;
-use kernel::windows_kernel::reading::{Input, InputBuffer};
+use kernel::windows_kernel::reading::read_line;
 use std::char;
 use std::thread;
+use winapi::um::winnt::INT;
 
 pub struct WindowsInput;
 
@@ -16,73 +16,6 @@ impl WindowsInput {
 }
 
 impl ITerminalInput for WindowsInput {
-    fn read_line(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String> {
-
-        let mut chars: Vec<char> = Vec::new();
-        let mut key_pressed = false;
-        let mut last_pressed: u8 = 0;
-
-        let input = InputBuffer::new()?;
-
-        loop {
-            if input.available_input().unwrap() > 0 {
-                let input = input.read_input().unwrap();
-                for i in input {
-                    if let Input::Key { key_code, key_down, .. } = i {
-
-                        if key_down != false {
-                          println!("pressed: {} code: {}", key_down, key_code);
-
-                        }
-
-                        if key_code == 13 && key_down == true {
-                            return Ok(chars.into_iter().collect());
-                        } else {
-                            if key_down {
-                                let string = String::from_utf16(&[key_code]).unwrap();
-                                chars.push(key_code as u8 as char);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-//        let mut done = false;
-//
-//        while !done {
-//            let is_raw_screen = match stdout {
-//                Some(output) => output.is_in_raw_mode,
-//                None => false,
-//            };
-//
-//            // _getwch is without echo and _getwche is with echo
-//            let pressed_char = unsafe {
-//                if is_raw_screen {
-//                    _getwch()
-//                } else {
-//                    _getwche()
-//                }
-//            };
-//
-//            // if 0 or 0xe0 we need to listen again because the next key will be an special key
-//            if pressed_char != 0 || pressed_char != 0xe0 {
-//                match char::from_u32(pressed_char as u32) {
-//                    Some(c) => {
-//                        if is_line_end(c) {
-//                            done = true;
-//                        } else {
-//                            chars.push(c);
-//                        }
-//                    }
-//                    None => panic!("Some error needs to be returned"),
-//                };
-//            }
-//        }
-//
-//        return Ok(chars.into_iter().collect());
-    }
-
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
         let is_raw_screen = match stdout {
             Some(output) => output.is_in_raw_mode,

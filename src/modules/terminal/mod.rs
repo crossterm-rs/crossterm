@@ -13,7 +13,7 @@ use self::ansi_terminal::AnsiTerminal;
 #[cfg(target_os = "windows")]
 use self::winapi_terminal::WinApiTerminal;
 
-pub use self::terminal::{terminal, from_screen, Terminal};
+pub use self::terminal::{from_screen, terminal, Terminal};
 
 use super::functions;
 use std::sync::Arc;

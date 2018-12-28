@@ -2,8 +2,8 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use Screen;
 use std::{thread, time::Duration};
+use Screen;
 
 /// Struct that stores a platform-specific implementation for input related actions.
 ///
@@ -78,6 +78,9 @@ impl<'stdout> TerminalInput<'stdout> {
 
     /// Read one line from the user input.
     ///
+    /// Note that this function only works when rawscreen is not turned on.
+    /// When you do want to read a line in raw mode please checkout `read_async` or `read_async_until`.
+    ///
     /// ```rust
     /// let input = input();
     ///  match input.read_line() {
@@ -86,7 +89,17 @@ impl<'stdout> TerminalInput<'stdout> {
     ///  }
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
-        self.terminal_input.read_line(&self.stdout)
+        if let Some(stdout) = self.stdout {
+            if stdout.is_in_raw_mode {
+                return Err(Error::new(ErrorKind::Other, "Crossterm does not support readline in raw mode this should be done instead whit `read_async` or `read_async_until`"));
+            }
+        }
+
+        let mut rv = String::new();
+        io::stdin().read_line(&mut rv)?;
+        let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
+        rv.truncate(len);
+        Ok(rv)
     }
 
     /// Read one character from the user input
@@ -198,15 +211,21 @@ impl<'stdout> TerminalInput<'stdout> {
             let pressed_key: Option<Result<u8, Error>> = stdin.next();
 
             match pressed_key {
-                Some(Ok(value)) => {
-                    match key_event {
-                        KeyEvent::OnKeyPress(ascii_code) => if value == ascii_code { break; },
-                        KeyEvent::OnEnter => if value == b'\r' { break; },
-                        KeyEvent::OnAnyKeyPress => {
+                Some(Ok(value)) => match key_event {
+                    KeyEvent::OnKeyPress(ascii_code) => {
+                        if value == ascii_code {
                             break;
                         }
                     }
-                }
+                    KeyEvent::OnEnter => {
+                        if value == b'\r' {
+                            break;
+                        }
+                    }
+                    KeyEvent::OnAnyKeyPress => {
+                        break;
+                    }
+                },
                 _ => {}
             }
 

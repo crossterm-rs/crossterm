@@ -121,7 +121,8 @@ fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>) {
             }
             std::thread::yield_now();
         }
-    }).join();
+    })
+    .join();
 }
 
 // start different threads that log contiguously.

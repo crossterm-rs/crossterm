@@ -32,7 +32,8 @@ impl<'stdout> Terminal<'stdout> {
         let terminal = functions::get_module::<Box<ITerminal + Sync + Send>>(
             Box::new(WinApiTerminal::new()),
             Box::new(AnsiTerminal::new()),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
@@ -64,7 +65,8 @@ impl<'stdout> Terminal<'stdout> {
         let terminal = functions::get_module::<Box<ITerminal + Sync + Send>>(
             Box::new(WinApiTerminal::new()),
             Box::new(AnsiTerminal::new()),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
