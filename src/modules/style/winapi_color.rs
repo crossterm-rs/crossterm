@@ -101,8 +101,8 @@ impl ITerminalColor for WinApiColor {
                     Color::White => fg_intensity | fg_red | fg_green | fg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb{ r: _, g: _, b: _ } => { 0 }
-                    Color::AnsiValue(_val) => { 0 }
+                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::AnsiValue(_val) => 0,
                 };
             }
             ColorType::Background => {
@@ -124,8 +124,8 @@ impl ITerminalColor for WinApiColor {
                     Color::White => bg_intensity | bg_red | bg_green | bg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb{ r: _, g: _, b: _ } => { 0 }
-                    Color::AnsiValue(_val) => { 0 }
+                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::AnsiValue(_val) => 0,
                 };
             }
         };

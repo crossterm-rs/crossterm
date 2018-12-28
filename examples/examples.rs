@@ -14,12 +14,4 @@ extern crate crossterm;
 //mod some_types;
 //mod terminal;
 
-use crossterm::style::{style, Color};
-
-fn main() {
-    let styled_object = style("'Red' text on 'White' background")
-        .with(Color::Rgb { r: 0xFF, g: 0, b: 0 })
-        .on(Color::Rgb { r: 0xFF, g: 0xFF, b: 0xFF });
-
-    println!("{}", styled_object);
-}
+fn main() { }

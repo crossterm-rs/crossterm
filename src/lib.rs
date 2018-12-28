@@ -12,17 +12,20 @@ mod common;
 mod kernel;
 mod modules;
 
-pub use modules::terminal;
 pub use modules::cursor;
 pub use modules::input;
 pub use modules::output;
 pub use modules::style;
+pub use modules::terminal;
 
-pub use self::style::{color, style, Color, ColorType, Attribute, TerminalColor, ObjectStyle, StyledObject, DisplayableObject};
 pub use self::cursor::{cursor, TerminalCursor};
-pub use self::input::{input, TerminalInput, AsyncReader, KeyEvent};
-pub use self::terminal::{terminal, Terminal};
+pub use self::input::{input, AsyncReader, KeyEvent, TerminalInput};
 pub use self::output::TerminalOutput;
+pub use self::style::{
+    color, style, Attribute, Color, ColorType, DisplayableObject, ObjectStyle, StyledObject,
+    TerminalColor,
+};
+pub use self::terminal::{terminal, Terminal};
 pub use common::screen::{AlternateScreen, Screen};
 pub use common::Crossterm;
 

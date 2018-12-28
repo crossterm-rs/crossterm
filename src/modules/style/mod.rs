@@ -111,11 +111,7 @@ pub enum Color {
     Grey,
     White,
 
-    Rgb {
-        r: u8,
-        g: u8,
-        b: u8,
-    },
+    Rgb { r: u8, g: u8, b: u8 },
     AnsiValue(u8),
 }
 

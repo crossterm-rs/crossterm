@@ -40,7 +40,8 @@ impl<'stdout> TerminalCursor<'stdout> {
         let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
             WinApiCursor::new(),
             AnsiCursor::new(),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
@@ -72,7 +73,8 @@ impl<'stdout> TerminalCursor<'stdout> {
         let cursor = functions::get_module::<Box<ITerminalCursor + Sync + Send>>(
             WinApiCursor::new(),
             AnsiCursor::new(),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;

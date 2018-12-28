@@ -37,7 +37,8 @@ impl TerminalOutput {
             functions::get_module::<Box<IStdout + Send + Sync>>(
                 Box::from(WinApiOutput::new()),
                 Box::from(AnsiOutput::new()),
-            ).unwrap();
+            )
+            .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
@@ -86,7 +87,8 @@ impl Default for TerminalOutput {
         let stdout = functions::get_module::<Box<IStdout + Send + Sync>>(
             Box::from(WinApiOutput::new()),
             Box::from(AnsiOutput::new()),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;

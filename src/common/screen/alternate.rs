@@ -44,7 +44,8 @@ impl AlternateScreen {
             functions::get_module::<Box<commands::IAlternateScreenCommand + Sync + Send>>(
                 Box::from(commands::win_commands::ToAlternateScreenCommand::new()),
                 Box::from(commands::shared_commands::ToAlternateScreenCommand::new()),
-            ).unwrap();
+            )
+            .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let command = Box::from(commands::shared_commands::ToAlternateScreenCommand::new());

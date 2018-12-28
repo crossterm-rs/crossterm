@@ -19,7 +19,7 @@ pub fn fill_console_output_character(
     start_location: COORD,
     cells_to_write: u32,
 ) -> bool {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     unsafe {
         // fill the cells in console with blanks

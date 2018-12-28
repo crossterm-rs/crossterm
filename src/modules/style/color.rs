@@ -39,7 +39,8 @@ impl<'stdout> TerminalColor<'stdout> {
         let color = functions::get_module::<Box<ITerminalColor + Sync + Send>>(
             Box::from(WinApiColor::new()),
             Box::from(AnsiColor::new()),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;
@@ -71,7 +72,8 @@ impl<'stdout> TerminalColor<'stdout> {
         let color = functions::get_module::<Box<ITerminalColor + Sync + Send>>(
             Box::from(WinApiColor::new()),
             Box::from(AnsiColor::new()),
-        ).unwrap();
+        )
+        .unwrap();
 
         #[cfg(not(target_os = "windows"))]
         let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;

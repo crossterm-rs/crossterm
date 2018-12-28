@@ -1,84 +1,73 @@
-//use { Context, ScreenManager };
-//use std::rc::Rc;
-//use std::sync::Mutex;
-//
-//use winapi::um::consoleapi::ReadConsoleW;
-//use winapi::um::winnt::HANDLE;
-//use winapi::um::wincon::{ COORD, PSMALL_RECT, ReadConsoleOutputA, CHAR_INFO, };
-//use winapi::shared::minwindef::{ DWORD, LPDWORD, LPVOID };
-//use winapi::shared::ntdef::NULL;
-//
-//use super::kernel;
-//use winapi::ctypes::c_void;
-//
-//pub fn read(buf: &mut [u8], stdout: &Rc<Mutex<ScreenManager>>) {
-////    // Read more if the buffer is empty
-////    let mut utf16: Vec<u16> = Vec::new();
-////    let mut num: DWORD = 0;
-////
-////    let handle = kernel::get_current_handle(&stdout);
-////
-////    unsafe {
-////        ReadConsoleW(handle,
-////                                utf16.as_mut_ptr() as LPVOID,
-////                                utf16.len() as u32,
-////                                &mut num as LPDWORD,
-////                                ptr::mut_null())
-////    };
-////
-////    utf16.truncate(num as uint);
-////    let utf8 = match from_utf16(utf16.as_slice()) {
-////        Some(utf8) => utf8.into_bytes(),
-////        None => {}
-////    };
-////
-////    panic!(utf8);
-//
-//}
-//
-//pub fn read_line(stdout: &Rc<Mutex<ScreenManager>>) -> ::std::io::Result<String>
-//{
-//    const BUFFER_LENGHT: u32 = 1024;
-//    let mut buffer: &mut [CHAR_INFO; BUFFER_LENGHT as usize] = unsafe {::std::mem::zeroed() };
-//
-//    let handle = kernel::get_current_handle(&stdout);
-//
-//    let mut dw_mode: DWORD = 0;
-//    let console_mode = kernel::get_console_mode(&handle, &mut dw_mode);
-//
-//    let ptr = buffer.as_ptr() as *const _ as *mut c_void;
-//    let mut chars_read: u32 = 0;
-//
-//    panic!();
-//    unsafe
-//    {
-//        ReadConsoleW(handle, ptr, BUFFER_LENGHT , &mut chars_read, unsafe {::std::mem::zeroed() });
-//    }
-//
-//    Ok(String::new())
-//}
-//
-///// Read the console outptut.
-//pub fn read_console_output(
-//    read_buffer: &HANDLE,
-//    copy_buffer: &mut [CHAR_INFO; 160],
-//    buffer_size: COORD,
-//    buffer_coord: COORD,
-//    source_buffer: PSMALL_RECT,
-//) {
-//
-//
-//    unsafe {
-//        if !kernel::is_true(
-//            ReadConsoleOutputA(
-//                *read_buffer,             // screen buffer to read from
-//                copy_buffer.as_mut_ptr(), // buffer to copy into
-//                buffer_size,              // col-row size of chiBuffer
-//                buffer_coord,             // top left dest. cell in chiBuffer
-//                source_buffer,
-//            ), // screen buffer source rectangle
-//        ) {
-//            panic!("Cannot read console output");
-//        }
-//    }
-//}
+use super::handle::get_current_in_handle;
+use std::io::{self, Error, Result};
+
+use std::{
+    mem::{self, zeroed},
+    ptr::{null, null_mut},
+};
+
+use winapi::{
+    shared::minwindef::{LPVOID, ULONG},
+    um::consoleapi::{ReadConsoleInputW, ReadConsoleW},
+    um::wincon::CONSOLE_READCONSOLE_CONTROL,
+    um::wincon::{CHAR_INFO, CONSOLE_FONT_INFOEX, INPUT_RECORD, PCONSOLE_READCONSOLE_CONTROL},
+};
+
+use std::io::Write;
+
+/// Could be used to read a line from the stdin.
+/// Note that this is a blocking call and it continues when user pressed enter.
+pub fn read_line(buf: &mut Vec<u8>) -> io::Result<usize> {
+    let handle = get_current_in_handle()?;
+
+    let mut utf16 = vec![0u16; 0x1000];
+    let mut num = 0;
+    let mut input_control = readconsole_input_control(CTRL_Z_MASK);
+
+    unsafe {
+        ReadConsoleW(
+            handle,
+            utf16.as_mut_ptr() as LPVOID,
+            utf16.len() as u32,
+            &mut num,
+            &mut input_control as PCONSOLE_READCONSOLE_CONTROL,
+        )
+    };
+
+    utf16.truncate(num as usize);
+
+    let mut data = match String::from_utf16(&utf16) {
+        Ok(utf8) => utf8.into_bytes(),
+        Err(..) => return Err(invalid_encoding()),
+    };
+
+    if let Some(&last_byte) = data.last() {
+        if last_byte == CTRL_Z {
+            data.pop();
+        }
+    };
+
+    let a = &data
+        .into_iter()
+        .filter(|&x| x != 10 || x != 13)
+        .collect::<Vec<u8>>();
+
+    buf.write(a);
+    Ok(num as usize)
+}
+
+pub fn readconsole_input_control(wakeup_mask: ULONG) -> CONSOLE_READCONSOLE_CONTROL {
+    CONSOLE_READCONSOLE_CONTROL {
+        nLength: mem::size_of::<CONSOLE_READCONSOLE_CONTROL>() as ULONG,
+        nInitialChars: 0,
+        dwCtrlWakeupMask: wakeup_mask,
+        dwControlKeyState: 0,
+    }
+}
+
+fn invalid_encoding() -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidData, "text was not valid unicode")
+}
+
+const CTRL_Z: u8 = 0x1A;
+const CTRL_Z_MASK: ULONG = 0x4000000; //1 << 0x1A

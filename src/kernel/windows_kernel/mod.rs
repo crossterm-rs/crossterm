@@ -5,6 +5,7 @@ pub mod csbi;
 pub mod cursor;
 pub mod handle;
 pub mod kernel;
+pub mod reading;
 pub mod terminal;
 pub mod writing;
 

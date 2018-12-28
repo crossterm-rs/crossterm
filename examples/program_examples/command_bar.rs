@@ -42,7 +42,8 @@ fn main() {
             thread::sleep(time::Duration::from_millis(100));
             count += 1;
         }
-    }).join();
+    })
+    .join();
 
     for thread in threads {
         thread.join();

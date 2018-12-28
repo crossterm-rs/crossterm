@@ -13,7 +13,7 @@ use self::unix_input::UnixInput;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
-pub use self::input::{input, from_screen, TerminalInput};
+pub use self::input::{from_screen, input, TerminalInput};
 
 use std::io::{self, Error, ErrorKind, Read};
 use std::sync::{mpsc, Arc};
@@ -29,8 +29,6 @@ use TerminalOutput;
 /// This trait is implemented for Windows and UNIX systems.
 /// Unix is using the 'TTY' and windows is using 'libc' C functions to read the input.
 trait ITerminalInput {
-    /// Read one line from the user input
-    fn read_line(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String>;
     /// Read one character from the user input
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char>;
     /// Read the input asynchronously from the user.

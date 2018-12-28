@@ -2,56 +2,20 @@
 
 use super::*;
 
-use winapi::um::winnt::INT;
-
+use kernel::windows_kernel::reading::read_line;
 use std::char;
 use std::thread;
+use winapi::um::winnt::INT;
 
 pub struct WindowsInput;
 
 impl WindowsInput {
     pub fn new() -> WindowsInput {
-        WindowsInput {}
+        WindowsInput
     }
 }
 
 impl ITerminalInput for WindowsInput {
-    fn read_line(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<String> {
-        let mut chars: Vec<char> = Vec::new();
-
-        loop {
-            let is_raw_screen = match stdout {
-                Some(output) => output.is_in_raw_mode,
-                None => false,
-            };
-
-            // _getwch is without echo and _getwche is with echo
-            let pressed_char = unsafe {
-                if is_raw_screen {
-                    _getwch()
-                } else {
-                    _getwche()
-                }
-            };
-
-            // if 0 or 0xe0 we need to listen again because the next key will be an special key
-            if pressed_char != 0 || pressed_char != 0xe0 {
-                match char::from_u32(pressed_char as u32) {
-                    Some(c) => {
-                        if is_line_end(c) {
-                            break;
-                        } else {
-                            chars.push(c);
-                        }
-                    }
-                    None => panic!("Some error needs to be returned"),
-                };
-            }
-        }
-
-        return Ok(chars.into_iter().collect());
-    }
-
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
         let is_raw_screen = match stdout {
             Some(output) => output.is_in_raw_mode,

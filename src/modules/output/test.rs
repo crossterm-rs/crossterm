@@ -54,11 +54,13 @@ fn write_str_ansi() {
 fn is_valid_write(result: ::std::io::Result<usize>, str_length: usize) {
     match result {
         Err(_) => assert!(false),
-        Ok(length) => if str_length == length {
-            assert!(true)
-        } else {
-            assert!(false)
-        },
+        Ok(length) => {
+            if str_length == length {
+                assert!(true)
+            } else {
+                assert!(false)
+            }
+        }
     };
 }
 

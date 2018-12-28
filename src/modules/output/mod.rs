@@ -15,8 +15,8 @@ use self::winapi_output::WinApiOutput;
 
 pub use self::output::TerminalOutput;
 
-use std::io;
 use super::functions;
+use std::io;
 
 /// This trait defines represents an stdout of an screen.
 /// This trait can be implemented so that an concrete implementation of the IStdout can forfill

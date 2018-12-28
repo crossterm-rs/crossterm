@@ -30,7 +30,7 @@ pub fn get_console_mode(handle: &HANDLE, current_mode: &mut u32) -> bool {
 
 /// Change the console text attribute.
 pub fn set_console_text_attribute(value: u16) -> bool {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     unsafe {
         return is_true(SetConsoleTextAttribute(handle, value));
@@ -39,7 +39,7 @@ pub fn set_console_text_attribute(value: u16) -> bool {
 
 /// Change console info.
 pub fn set_console_info(absolute: bool, rect: &SMALL_RECT) -> bool {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     let absolute = match absolute {
         true => 1,
