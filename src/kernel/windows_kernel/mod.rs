@@ -7,6 +7,7 @@ pub mod handle;
 pub mod kernel;
 pub mod terminal;
 pub mod writing;
+pub mod reading;
 
 use winapi::um::wincon::{CONSOLE_SCREEN_BUFFER_INFO, COORD, SMALL_RECT};
 use winapi::um::winnt::HANDLE;

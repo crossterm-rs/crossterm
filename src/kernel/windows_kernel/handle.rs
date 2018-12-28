@@ -7,43 +7,45 @@ use winapi::um::fileapi::{CreateFileW, OPEN_EXISTING};
 use winapi::um::handleapi::INVALID_HANDLE_VALUE;
 use winapi::um::processenv::GetStdHandle;
 use winapi::um::winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE};
-use winapi::um::winnt::{FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE};
+use winapi::um::winnt::{FILE_SHARE_WRITE, FILE_SHARE_READ, GENERIC_READ, GENERIC_WRITE};
 
 use std::io::{self, Result};
 use std::ptr::null_mut;
 
 /// Get the handle of the active screen.
-pub fn get_current_handle() -> Result<HANDLE> {
-    let dw: DWORD = 0;
-    unsafe {
-        let utf16: Vec<u16> = "CONOUT$\0".encode_utf16().collect();
-        let utf16_ptr: *const u16 = utf16.as_ptr();
+pub fn get_current_out_handle() -> Result<HANDLE> {
+    let utf16: Vec<u16> = "CONOUT$\0".encode_utf16().collect();
+    let utf16_ptr: *const u16 = utf16.as_ptr();
 
-        let handle = CreateFileW(
-            utf16_ptr,
-            GENERIC_READ | GENERIC_WRITE,
-            FILE_SHARE_WRITE,
-            null_mut(),
-            OPEN_EXISTING,
-            dw,
-            null_mut(),
-        );
+    let handle = unsafe { CreateFileW(
+        utf16_ptr, GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING,
+        0, null_mut(),
+    )};
 
-        if !is_valid_handle(&handle) {
-            unsafe {
-                let error = GetLastError();
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!(
-                        "Could not get output handle current handle!, error code: {}",
-                        error
-                    ).as_ref(),
-                ));
-            }
-        }
-
-        Ok(handle)
+    if !is_valid_handle(&handle) {
+        return Err(io::Error::last_os_error());
     }
+
+    Ok(handle)
+}
+
+/// Get the handle of the active screen.
+pub fn get_current_in_handle() -> Result<HANDLE> {
+    let utf16: Vec<u16> = "CONIN$\0".encode_utf16().collect();
+    let utf16_ptr: *const u16 = utf16.as_ptr();
+
+    let handle = unsafe { CreateFileW(
+        utf16_ptr, GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE, null_mut(), OPEN_EXISTING,
+        0, null_mut(),
+    )};
+
+    if !is_valid_handle(&handle) {
+        return Err(io::Error::last_os_error());
+    }
+
+    Ok(handle)
 }
 
 /// Get the std_output_handle of the console

@@ -21,7 +21,7 @@ pub fn get_csbi() -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
     let mut csbi = CONSOLE_SCREEN_BUFFER_INFO::empty();
     let success;
 
-    unsafe { success = GetConsoleScreenBufferInfo(handle::get_current_handle()?, &mut csbi) }
+    unsafe { success = GetConsoleScreenBufferInfo(handle::get_current_out_handle()?, &mut csbi) }
 
     if success == 0 {
         return Err(io::Error::new(
@@ -35,7 +35,7 @@ pub fn get_csbi() -> Result<CONSOLE_SCREEN_BUFFER_INFO> {
 
 /// Get buffer info and handle of the current screen.
 pub fn get_csbi_and_handle() -> Result<(CONSOLE_SCREEN_BUFFER_INFO, HANDLE)> {
-    let handle = handle::get_current_handle()?;
+    let handle = handle::get_current_out_handle()?;
     let csbi = get_csbi_by_handle(&handle)?;
 
     return Ok((csbi, handle));
@@ -59,7 +59,7 @@ pub fn get_csbi_by_handle(handle: &HANDLE) -> Result<CONSOLE_SCREEN_BUFFER_INFO>
 
 /// Set the console screen buffer size
 pub fn set_console_screen_buffer_size(size: COORD) -> bool {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     unsafe {
         if !kernel::is_true(SetConsoleScreenBufferSize(handle, size)) {

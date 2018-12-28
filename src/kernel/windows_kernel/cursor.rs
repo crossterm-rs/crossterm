@@ -29,7 +29,7 @@ pub fn save_cursor_pos() {
 
 /// get the current cursor position.
 pub fn pos() -> (u16, u16) {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     if let Ok(csbi) = csbi::get_csbi_by_handle(&handle) {
         (
@@ -57,7 +57,7 @@ pub fn set_console_cursor_position(x: i16, y: i16) {
         );
     }
 
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     let position = COORD { X: x, Y: y };
 
@@ -80,7 +80,7 @@ pub fn set_console_cursor_position(x: i16, y: i16) {
 
 /// change the cursor visibility.
 pub fn cursor_visibility(visable: bool) -> io::Result<()> {
-    let handle = handle::get_current_handle().unwrap();
+    let handle = handle::get_current_out_handle().unwrap();
 
     let cursor_info = CONSOLE_CURSOR_INFO {
         dwSize: 100,
