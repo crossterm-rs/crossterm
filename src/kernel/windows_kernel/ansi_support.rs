@@ -13,7 +13,7 @@ use common::commands::IEnableAnsiCommand;
 pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
         let command = EnableAnsiCommand::new();
-        let success = command.enable();
+        let success = command.enable().unwrap();
 
         set_is_windows_ansi_supportable(success);
         set_ansi_enabled(success);

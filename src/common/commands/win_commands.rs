@@ -2,12 +2,12 @@
 
 use super::{IAlternateScreenCommand, IEnableAnsiCommand, TerminalOutput};
 
-use kernel::windows_kernel::{ansi_support, csbi, handle, kernel};
+use kernel::windows_kernel::{ansi_support, ConsoleMode, Handle, ScreenBuffer};
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-use std::io::{Error, ErrorKind, Result};
+use std::io::Result;
 
 /// This command is used for enabling and disabling ANSI code support for windows systems,
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences.
@@ -26,43 +26,35 @@ impl EnableAnsiCommand {
 }
 
 impl IEnableAnsiCommand for EnableAnsiCommand {
-    fn enable(&self) -> bool {
+    fn enable(&self) -> Result<bool> {
         // we need to check whether we tried to enable ansi before. If we have we can just return if that had succeeded.
         if ansi_support::has_been_tried_to_enable_ansi() && ansi_support::ansi_enabled() {
-            return ansi_support::windows_supportable();
+            return Ok(ansi_support::windows_supportable());
         } else {
-            let output_handle = handle::get_output_handle().unwrap();
+            let console_mode = ConsoleMode::new()?;
 
-            let mut dw_mode: DWORD = 0;
-            if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
-                return false;
-            }
+            let mut dw_mode = console_mode.mode()?;
 
             dw_mode |= self.mask;
-            if !kernel::set_console_mode(&output_handle, dw_mode) {
-                return false;
-            }
-            return true;
+
+            console_mode.set_mode(dw_mode)?;
+            Ok(true)
         }
     }
 
-    fn disable(&self) -> bool {
+    fn disable(&self) -> Result<()> {
         if ansi_support::ansi_enabled() {
-            let output_handle = handle::get_output_handle().unwrap();
+            let console_mode = ConsoleMode::new()?;
 
-            let mut dw_mode: DWORD = 0;
-            if !kernel::get_console_mode(&output_handle, &mut dw_mode) {
-                return false;
-            }
+            let mut dw_mode = console_mode.mode()?;
 
             dw_mode &= !self.mask;
-            if !kernel::set_console_mode(&output_handle, dw_mode) {
-                return false;
-            }
+
+            console_mode.set_mode(dw_mode)?;
 
             ansi_support::set_ansi_enabled(false);
         }
-        return true;
+        Ok(())
     }
 }
 
@@ -84,48 +76,26 @@ impl RawModeCommand {
 impl RawModeCommand {
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
-        let mut dw_mode: DWORD = 0;
-        let stdout = handle::get_output_handle().unwrap();
+        let console_mode = ConsoleMode::new()?;
 
-        if !kernel::get_console_mode(&stdout, &mut dw_mode) {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Could not get console mode when enabling raw mode",
-            ));
-        }
+        let mut dw_mode = console_mode.mode()?;
 
         let new_mode = dw_mode & !self.mask;
 
-        if !kernel::set_console_mode(&stdout, new_mode) {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Could not set console mode when enabling raw mode",
-            ));
-        }
+        console_mode.set_mode(new_mode)?;
 
         Ok(())
     }
 
     /// Disables raw mode.
     pub fn disable(&self) -> Result<()> {
-        let stdout = handle::get_output_handle().unwrap();
+        let console_mode = ConsoleMode::new()?;
 
-        let mut dw_mode: DWORD = 0;
-        if !kernel::get_console_mode(&stdout, &mut dw_mode) {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Could not get console mode when disabling raw mode",
-            ));
-        }
+        let mut dw_mode = console_mode.mode()?;
 
         let new_mode = dw_mode | self.mask;
 
-        if !kernel::set_console_mode(&stdout, new_mode) {
-            return Err(Error::new(
-                ErrorKind::Other,
-                "Could not set console mode when disabling raw mode",
-            ));
-        }
+        console_mode.set_mode(new_mode)?;
 
         return Ok(());
     }
@@ -143,21 +113,14 @@ impl ToAlternateScreenCommand {
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
     fn enable(&self, _stdout: &mut TerminalOutput) -> Result<()> {
-        let _handle = handle::get_output_handle()?;
-
-        // create a new screen buffer to copy to.
-        let new_handle = csbi::create_console_screen_buffer();
-
-        // Make the new screen buffer the active screen buffer.
-        csbi::set_active_screen_buffer(new_handle)?;
-
+        let alternate_screen = ScreenBuffer::create();
+        alternate_screen.show();
         Ok(())
     }
 
     fn disable(&self, _stdout: &TerminalOutput) -> Result<()> {
-        let handle = handle::get_output_handle()?;
-        csbi::set_active_screen_buffer(handle);
-
+        let screen_buffer = ScreenBuffer::from(Handle::output_handle()?);
+        screen_buffer.show()?;
         Ok(())
     }
 }

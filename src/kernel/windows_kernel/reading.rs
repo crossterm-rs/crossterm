@@ -1,24 +1,22 @@
-use super::handle::get_current_in_handle;
-use std::io::{self, Error, Result};
+use crossterm_winapi::{Handle, HandleType};
 
 use std::{
-    mem::{self, zeroed},
-    ptr::{null, null_mut},
+    io::{self, Write},
+    mem,
 };
 
 use winapi::{
     shared::minwindef::{LPVOID, ULONG},
-    um::consoleapi::{ReadConsoleInputW, ReadConsoleW},
-    um::wincon::CONSOLE_READCONSOLE_CONTROL,
-    um::wincon::{CHAR_INFO, CONSOLE_FONT_INFOEX, INPUT_RECORD, PCONSOLE_READCONSOLE_CONTROL},
+    um::{
+        consoleapi::ReadConsoleW,
+        wincon::{CONSOLE_READCONSOLE_CONTROL, PCONSOLE_READCONSOLE_CONTROL},
+    },
 };
-
-use std::io::Write;
 
 /// Could be used to read a line from the stdin.
 /// Note that this is a blocking call and it continues when user pressed enter.
 pub fn read_line(buf: &mut Vec<u8>) -> io::Result<usize> {
-    let handle = get_current_in_handle()?;
+    let handle = Handle::current_in_handle()?;
 
     let mut utf16 = vec![0u16; 0x1000];
     let mut num = 0;

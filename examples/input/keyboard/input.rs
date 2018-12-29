@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::input::{input, TerminalInput, KeyEvent};
+use self::crossterm::input::{input, KeyEvent, TerminalInput};
 use self::crossterm::Screen;
 
 pub fn read_char() {

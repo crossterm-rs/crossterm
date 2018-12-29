@@ -1,0 +1,2 @@
+Power shell does not interpreter 'DarkYellow' and is instead using gray Winapi.
+Arc and manjaro konsole are not seeming to resize the terminal instead they are resizeing the buffer. 

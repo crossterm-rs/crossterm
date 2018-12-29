@@ -2,32 +2,34 @@
 //! This module is used for non supporting `ANSI` Windows terminals.
 
 use super::*;
-use kernel::windows_kernel::{csbi, kernel};
+use kernel::windows_kernel::{Console, Handle, HandleType, ScreenBuffer};
+use std::io;
+use std::sync::{Once, ONCE_INIT};
 use winapi::um::wincon;
 
 /// This struct is a WinApi implementation for color related actions.
-pub struct WinApiColor {
-    original_color: u16,
-}
+pub struct WinApiColor;
 
 impl WinApiColor {
     pub fn new() -> WinApiColor {
-        WinApiColor {
-            original_color: csbi::get_original_console_color(),
-        }
+        WinApiColor
     }
 }
 
 impl ITerminalColor for WinApiColor {
     fn set_fg(&self, fg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) {
+        // init the original color in case it is not set.
+        let _ = init_console_color().unwrap();
+
         let color_value = &self.color_value(fg_color, ColorType::Foreground);
 
-        let csbi = csbi::get_csbi().unwrap();
+        let screen_buffer = ScreenBuffer::current().unwrap();
+        let csbi = screen_buffer.info().unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So we need to use bitwise operators to check if the values exists or to get current console colors.
         let mut color: u16;
-        let attrs = csbi.wAttributes;
+        let attrs = csbi.attributes();
         let bg_color = attrs & 0x0070;
         color = color_value.parse::<u16>().unwrap() | bg_color;
 
@@ -37,18 +39,24 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color);
+        Console::from(**screen_buffer.get_handle())
+            .set_text_attribute(color)
+            .unwrap();
     }
 
     fn set_bg(&self, bg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) {
+        // init the original color in case it is not set.
+        let _ = init_console_color().unwrap();
+
         let color_value = &self.color_value(bg_color, ColorType::Background);
 
-        let (csbi, _handle) = csbi::get_csbi_and_handle().unwrap();
+        let screen_buffer = ScreenBuffer::current().unwrap();
+        let csbi = screen_buffer.info().unwrap();
 
         // Notice that the color values are stored in wAttribute.
         // So wee need to use bitwise operators to check if the values exists or to get current console colors.
         let mut color: u16;
-        let attrs = csbi.wAttributes;
+        let attrs = csbi.attributes();
         let fg_color = attrs & 0x0007;
         color = fg_color | color_value.parse::<u16>().unwrap();
 
@@ -58,11 +66,17 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        kernel::set_console_text_attribute(color);
+        Console::from(**screen_buffer.get_handle())
+            .set_text_attribute(color)
+            .unwrap();
     }
 
     fn reset(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        kernel::set_console_text_attribute(self.original_color);
+        // init the original color in case it is not set.
+        let original_color = original_console_color();
+        Console::from(Handle::new(HandleType::CurrentOutputHandle).unwrap())
+            .set_text_attribute(original_color)
+            .unwrap();
     }
 
     /// This will get the winapi color value from the Color and ColorType struct
@@ -133,3 +147,21 @@ impl ITerminalColor for WinApiColor {
         winapi_color.to_string()
     }
 }
+
+fn init_console_color() -> io::Result<()> {
+    let screen_buffer = ScreenBuffer::current()?;
+
+    let attr = screen_buffer.info()?.attributes();
+
+    GET_ORIGINAL_CONSOLE_COLOR.call_once(|| {
+        unsafe { ORIGINAL_CONSOLE_COLOR = attr };
+    });
+    Ok(())
+}
+
+fn original_console_color() -> u16 {
+    return unsafe { ORIGINAL_CONSOLE_COLOR };
+}
+
+static GET_ORIGINAL_CONSOLE_COLOR: Once = ONCE_INIT;
+static mut ORIGINAL_CONSOLE_COLOR: u16 = 0;

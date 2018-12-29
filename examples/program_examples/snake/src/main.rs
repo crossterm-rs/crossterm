@@ -131,7 +131,7 @@ fn game_over_screen()
 
     terminal.clear(ClearType::All);
 
-    println!("{}",messages::END_MESSAGE.join("\n\r"));
+    println!("{}", crossterm.style(format!("{}",messages::END_MESSAGE.join("\n\r"))).with(Color::Red));
 //    cursor.goto()
     cursor.show();
 }
