@@ -71,7 +71,8 @@ where
     ObjectStyle::new().apply_to(val)
 }
 
-/// Attributes that could be applied on some text.
+/// Attributes that could be applied on some text. (*nix values)
+#[cfg(unix)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum Attribute {
     Bold = 1,
@@ -83,6 +84,18 @@ pub enum Attribute {
     Reverse = 7,
     Hidden = 8,
     CrossedOut = 9,
+}
+
+/// Attributes that could be applied on some text. (Windows specific)
+#[cfg(windows)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
+pub enum Attribute {
+    Reset = 0,
+    Bold = 1,
+    Underlined = 4,
+    NoUnderline = 24,
+    Negative = 7,
+    Positive = 27,
 }
 
 /// Colors that are available for coloring the terminal font.

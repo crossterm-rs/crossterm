@@ -6,7 +6,6 @@ use Screen;
 use std::fmt::{self, Display, Formatter};
 use std::io::Write;
 
-#[cfg(unix)]
 use super::Attribute;
 
 /// Struct that contains both the style and the content wits can be styled.
@@ -72,14 +71,12 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     ///
     /// println!("{}", style("Some bold text").attr(Attribute::Bold);
     /// ```
-    #[cfg(unix)]
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
         self.object_style.add_attr(attr);
         self
     }
 
     /// Increase the font intensity.
-    #[cfg(unix)]
     #[inline(always)]
     pub fn bold(self) -> StyledObject<D> {
         self.attr(Attribute::Bold)
@@ -97,10 +94,15 @@ impl<'a, D: Display + 'a> StyledObject<D> {
         self.attr(Attribute::Italic)
     }
     /// Underline font.
-    #[cfg(unix)]
     #[inline(always)]
     pub fn underlined(self) -> StyledObject<D> {
         self.attr(Attribute::Underlined)
+    }
+    /// Invert colours.
+    #[cfg(windows)]
+    #[inline(always)]
+    pub fn negative(self) -> StyledObject<D> {
+        self.attr(Attribute::Negative)
     }
     /// Slow Blink (less than 150 per minute; not widely supported).
     #[cfg(unix)]
@@ -158,7 +160,6 @@ impl<'a, D: Display + 'a> StyledObject<D> {
             reset = true;
         }
 
-        #[cfg(unix)]
         for attr in self.object_style.attrs.iter() {
             screen
                 .stdout
@@ -210,7 +211,6 @@ impl<D: Display> Display for StyledObject<D> {
             reset = true;
         }
 
-        #[cfg(unix)]
         for attr in self.object_style.attrs.iter() {
             write!(f, "{}", format!(csi!("{}m"), *attr as i16));
             reset = true;
