@@ -2,7 +2,7 @@
 //! This module is used for Windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
-use kernel::windows_kernel::cursor;
+use kernel::windows_kernel::Cursor;
 
 use super::*;
 
@@ -11,17 +11,19 @@ pub struct WinApiCursor;
 
 impl WinApiCursor {
     pub fn new() -> Box<WinApiCursor> {
-        Box::from(WinApiCursor {})
+        Box::from(WinApiCursor)
     }
 }
 
 impl ITerminalCursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
-        cursor::set_console_cursor_position(x as i16, y as i16);
+        let cursor = Cursor::new().unwrap();
+        cursor.goto(x as i16, y as i16);
     }
 
     fn pos(&self) -> (u16, u16) {
-        cursor::pos()
+        let cursor = Cursor::new().unwrap();
+        cursor.position().unwrap().into()
     }
 
     fn move_up(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
@@ -45,19 +47,19 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn save_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        cursor::save_cursor_pos();
+        Cursor::save_cursor_pos();
     }
 
     fn reset_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        cursor::reset_to_saved_position();
+        Cursor::reset_to_saved_position();
     }
 
     fn hide(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        cursor::cursor_visibility(false);
+        Cursor::new().unwrap().set_visibility(false);
     }
 
     fn show(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        cursor::cursor_visibility(true);
+        Cursor::new().unwrap().set_visibility(true);
     }
 
     fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) {}

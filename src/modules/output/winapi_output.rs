@@ -1,5 +1,5 @@
 use super::IStdout;
-use kernel::windows_kernel::{handle, writing};
+use kernel::windows_kernel::{writing, Handle};
 
 use std::io;
 
@@ -18,7 +18,7 @@ impl IStdout for WinApiOutput {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        let handle = handle::get_current_out_handle().unwrap();
+        let handle = Handle::current_out_handle().unwrap();
         writing::write_char_buffer(&handle, buf)
     }
 

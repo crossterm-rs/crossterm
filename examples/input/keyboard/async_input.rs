@@ -16,11 +16,11 @@ pub fn read_async_until() {
     // init some modules we use for this demo
     let input = crossterm.input();
     let terminal = crossterm.terminal();
-    let mut cursor = crossterm.cursor();
+    let cursor = crossterm.cursor();
 
     let mut stdin = input.read_until_async(b'\r').bytes();
 
-    for i in 0..100 {
+    for _i in 0..100 {
         terminal.clear(ClearType::All);
         cursor.goto(1, 1);
         let a = stdin.next();
@@ -68,7 +68,7 @@ pub fn read_async_demo() {
     // init some modules we use for this demo
     let input = crossterm.input();
     let terminal = crossterm.terminal();
-    let mut cursor = crossterm.cursor();
+    let cursor = crossterm.cursor();
 
     // this will setup the async reading.
     let mut stdin = input.read_async().bytes();

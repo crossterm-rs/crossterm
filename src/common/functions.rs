@@ -8,25 +8,49 @@ use std::sync::Arc;
 use kernel::windows_kernel::ansi_support::{try_enable_ansi_support, windows_supportable};
 
 #[cfg(windows)]
-use kernel::windows_kernel::terminal::{exit, terminal_size};
+use kernel::windows_kernel::exit;
+#[cfg(windows)]
+use kernel::windows_kernel::ScreenBuffer;
 
 #[cfg(windows)]
-use kernel::windows_kernel::cursor::pos;
+use kernel::windows_kernel::Cursor;
 
 #[cfg(unix)]
 use kernel::unix_kernel::terminal::{exit, pos, terminal_size};
 
 /// Get the terminal size based on the current platform.
+#[cfg(unix)]
 pub fn get_terminal_size() -> (u16, u16) {
     terminal_size()
 }
 
+#[cfg(windows)]
+pub fn get_terminal_size() -> (u16, u16) {
+    if let Ok(buffer) = ScreenBuffer::current() {
+        let size = buffer.info().unwrap().terminal_size();
+        (size.width as u16, size.height as u16)
+    } else {
+        (0, 0)
+    }
+}
+
 /// Get the cursor position based on the current platform.
+#[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {
-    #[cfg(unix)]
-    return pos().expect("Valide position");
-    #[cfg(windows)]
-    return pos();
+    if let Ok(pos) = pos() {
+        pos
+    } else {
+        (0, 0)
+    }
+}
+
+#[cfg(windows)]
+pub fn get_cursor_position() -> (u16, u16) {
+    if let Ok(cursor) = Cursor::new() {
+        cursor.position().unwrap().into()
+    } else {
+        (0, 0)
+    }
 }
 
 /// exit the current terminal.
@@ -40,18 +64,18 @@ pub fn exit_terminal() {
 /// If the current platform is unix it will return the ansi implementation.
 pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut term: Option<T> = None;
-    let mut does_support = true;
+    let does_support = false;
 
-    if !windows_supportable() {
-        // Try to enable ansi on windows if not than use WINAPI.
-        does_support = try_enable_ansi_support();
+    //    if !windows_supportable() {
+    // Try to enable ansi on windows if not than use WINAPI.
+    //        does_support = try_enable_ansi_support();
 
-        // uncomment this line when you want to use the winapi implementation.
-        //            does_support = false;
-        if !does_support {
-            term = Some(winapi_impl);
-        }
+    // uncomment this line when you want to use the winapi implementation.
+    //                    does_support = false;
+    if !does_support {
+        term = Some(winapi_impl);
     }
+    //    }
 
     if does_support {
         term = Some(unix_impl);

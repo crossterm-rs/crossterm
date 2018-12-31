@@ -2,7 +2,6 @@
 
 use super::*;
 
-use kernel::windows_kernel::reading::read_line;
 use std::char;
 use std::thread;
 use winapi::um::winnt::INT;

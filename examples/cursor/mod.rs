@@ -9,7 +9,7 @@ use self::crossterm::Screen;
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() {
     // Get the cursor
-    let mut cursor = cursor();
+    let cursor = cursor();
     // Set the cursor to position X: 10, Y: 5 in the terminal
     cursor.goto(10, 5);
 }
@@ -17,9 +17,11 @@ pub fn goto() {
 /// get the cursor position
 pub fn pos() {
     // Get the cursor
-    let mut cursor = cursor();
+    let cursor = cursor();
     // get the cursor position.
     let (x, y) = cursor.pos();
+
+    println!("{} {}", x, y);
 }
 
 /// Move the cursor 3 up | demonstration.
@@ -81,7 +83,7 @@ pub fn move_left() {
 
 /// Save and reset cursor position | demonstration..
 pub fn safe_and_reset_position() {
-    let mut cursor = cursor();
+    let cursor = cursor();
 
     // Goto X: 5 Y: 5
     cursor.goto(5, 5);
@@ -101,19 +103,19 @@ pub fn safe_and_reset_position() {
 
 /// Hide cursor display | demonstration.
 pub fn hide_cursor() {
-    let mut cursor = cursor();
+    let cursor = cursor();
     cursor.hide();
 }
 
 /// Show cursor display | demonstration.
 pub fn show_cursor() {
-    let mut cursor = cursor();
+    let cursor = cursor();
     cursor.show();
 }
 
 /// Show cursor display, only works on certain terminals.| demonstration
 pub fn blink_cursor() {
-    let mut cursor = cursor();
+    let cursor = cursor();
     cursor.blink(false);
     cursor.blink(false);
 }

@@ -18,8 +18,8 @@ pub trait IStateCommand {
 }
 
 pub trait IEnableAnsiCommand {
-    fn enable(&self) -> bool;
-    fn disable(&self) -> bool;
+    fn enable(&self) -> io::Result<bool>;
+    fn disable(&self) -> io::Result<()>;
 }
 
 // This trait provides an interface for switching to alternate screen and back.

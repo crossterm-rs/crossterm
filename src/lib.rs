@@ -6,6 +6,16 @@
 //!
 //! This crate supports all UNIX and Windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals] in the README.
 
+#[cfg(unix)]
+extern crate libc;
+#[cfg(unix)]
+extern crate termios;
+
+#[cfg(windows)]
+extern crate winapi;
+#[cfg(windows)]
+extern crate crossterm_winapi;
+
 #[macro_use]
 mod common;
 
@@ -28,11 +38,3 @@ pub use self::style::{
 pub use self::terminal::{terminal, Terminal};
 pub use common::screen::{AlternateScreen, Screen};
 pub use common::Crossterm;
-
-#[cfg(unix)]
-extern crate libc;
-#[cfg(unix)]
-extern crate termios;
-
-#[cfg(windows)]
-extern crate winapi;

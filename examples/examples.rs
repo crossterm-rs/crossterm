@@ -8,10 +8,21 @@
 extern crate crossterm;
 
 // modules that could be test
-//mod color;
-//mod cursor;
-//mod input;
+mod color;
+mod cursor;
+mod input;
 //mod some_types;
-//mod terminal;
+mod terminal;
 
-fn main() { }
+fn main() {
+    use input::keyboard::input;
+
+    //    color::print_all_foreground_colors();
+    //    color::print_all_background_colors();
+
+    use terminal::alternate_screen;
+    //    color::print_all_background_colors();
+    //    color::print_all_foreground_colors();
+
+    alternate_screen::print_wait_screen_on_alternate_window();
+}

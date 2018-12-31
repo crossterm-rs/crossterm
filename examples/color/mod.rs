@@ -10,7 +10,7 @@ use self::crossterm::{terminal, Screen};
 pub fn paint_foreground() {
     // Create a styled object.
     // Call the method `with()` on the object given by `style()` and pass in any Color from the Color enum.
-    let mut styledobject = style("Red foreground").with(Color::Red);
+    let styledobject = style("Red foreground").with(Color::Red);
 
     // Print the object to the given screen and.
     println!("Colored text: {}", styledobject);
@@ -26,7 +26,7 @@ pub fn paint_foreground() {
 pub fn paint_background() {
     // Create a styled object.
     // Call the method `with()` on the object given by `style()` and pass in any Color from the Color enum.
-    let mut styledobject = style("Red foreground").on(Color::Red);
+    let styledobject = style("Red foreground").on(Color::Red);
 
     // Print the object to the given screen and.
     println!("Colored text: {}", styledobject);
@@ -109,7 +109,10 @@ pub fn print_all_foreground_colors() {
     );
 
     #[cfg(unix)]
-    println!("{}", style("RGB color (10,10,10) ").with(Color::AnsiValue(50)));
+    println!(
+        "{}",
+        style("RGB color (10,10,10) ").with(Color::AnsiValue(50))
+    );
 }
 
 /// Print all available foreground colors | demonstration.

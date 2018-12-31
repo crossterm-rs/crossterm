@@ -16,11 +16,11 @@ mod winapi_tests {
         let stdout = Some(&screen.stdout);
         let terminal = WinApiTerminal::new();
 
-        terminal.set_size(10, 10, &stdout);
+        terminal.set_size(20, 10, &stdout);
 
         let (x, y) = terminal.terminal_size(&stdout);
 
-        assert_eq!(x, 10);
+        assert_eq!(x, 20);
         assert_eq!(y, 10);
     }
 }
