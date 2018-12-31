@@ -95,7 +95,7 @@ These are the features from this crate:
     - Background color (16 base colors)
     - 256 color support (Windows 10 and UNIX only)
     - RGB support (Windows 10 and UNIX only)
-    - Text Attributes like: bold, italic, underscore and crossed word ect (unix only) 
+    - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (Up, down)
@@ -139,7 +139,7 @@ use crossterm::style::{Color, style};
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-// attributes are only supported for UNIX terminals.
+// supported attributes vary on platform, only Windows 10 and UNIX terminals support attributes.
 let normal = style("Normal text");
 let bold = style("Bold text").bold();
 let italic = style("Italic text").italic();
