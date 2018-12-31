@@ -13,7 +13,7 @@ extern crate termios;
 
 #[cfg(windows)]
 extern crate winapi;
-
+#[cfg(windows)]
 extern crate crossterm_winapi;
 
 #[macro_use]
