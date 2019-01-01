@@ -5,10 +5,10 @@ use std::{
     io,
 };
 
-/// The `amethyst_network` result type.
+/// The `crossterm` result type.
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 
-/// Wrapper for all errors who could occur in `amethyst_network`.
+/// Wrapper for all errors who could occur in `crossterm`.
 #[derive(Debug)]
 pub enum ErrorKind {
     IoError(io::Error),
