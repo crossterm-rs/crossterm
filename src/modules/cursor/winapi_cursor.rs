@@ -2,7 +2,7 @@
 //! This module is used for Windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
-use kernel::windows_kernel::Cursor;
+use kernel::windows_kernel::{Cursor, Handle};
 use common::error::Result;
 use super::*;
 
@@ -62,12 +62,12 @@ impl ITerminalCursor for WinApiCursor {
     }
 
     fn hide(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        Cursor::new().unwrap().set_visibility(false)?;
+        Cursor::from(Handle::current_out_handle()?).set_visibility(false)?;
         Ok(())
     }
 
     fn show(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        Cursor::new().unwrap().set_visibility(true)?;
+        Cursor::from(Handle::current_out_handle()?).set_visibility(true)?;
         Ok(())
     }
 

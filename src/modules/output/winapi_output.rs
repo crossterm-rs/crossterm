@@ -18,7 +18,7 @@ impl IStdout for WinApiOutput {
     }
 
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        let handle = Handle::current_out_handle().unwrap();
+        let handle = Handle::current_out_handle()?;
         writing::write_char_buffer(&handle, buf)
     }
 

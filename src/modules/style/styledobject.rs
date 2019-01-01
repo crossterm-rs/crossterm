@@ -171,7 +171,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
 
         use std::fmt::Write;
         let mut content = String::new();
-        write!(content, "{}", self.content).unwrap();
+        write!(content, "{}", self.content)?;
         screen.stdout.write_string(content)?;
         screen.stdout.flush()?;
 
@@ -215,7 +215,7 @@ impl<D: Display> Display for StyledObject<D> {
         }
 
         for attr in self.object_style.attrs.iter() {
-            write!(f, "{}", format!(csi!("{}m"), *attr as i16)).unwrap();
+            write!(f, "{}", format!(csi!("{}m"), *attr as i16))?;
             reset = true;
         }
 
