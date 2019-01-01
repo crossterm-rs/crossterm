@@ -22,7 +22,7 @@ pub use self::color::{color, from_screen, TerminalColor};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::DisplayableObject;
 pub use self::styledobject::StyledObject;
-use super::functions;
+use common::{functions, error::Result};
 
 use TerminalOutput;
 
@@ -36,11 +36,11 @@ use TerminalOutput;
 /// so that color-related actions can be performed on both UNIX and Windows systems.
 trait ITerminalColor {
     /// Set the foreground color to the given color.
-    fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>);
+    fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Set the background color to the given color.
-    fn set_bg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>);
+    fn set_bg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Reset the terminal color to default.
-    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>);
+    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, color: Color, color_type: ColorType) -> String;
 }
@@ -153,7 +153,7 @@ impl FromStr for Color {
     type Err = ();
 
     /// Convert a string to an Color value
-    fn from_str(src: &str) -> Result<Self, Self::Err> {
+    fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
         let src = src.to_lowercase();
 
         match src.as_ref() {

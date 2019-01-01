@@ -3,7 +3,7 @@
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
 use kernel::windows_kernel::Cursor;
-
+use common::error::Result;
 use super::*;
 
 /// This struct is a windows implementation for cursor related actions.
@@ -16,9 +16,10 @@ impl WinApiCursor {
 }
 
 impl ITerminalCursor for WinApiCursor {
-    fn goto(&self, x: u16, y: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
-        let cursor = Cursor::new().unwrap();
-        cursor.goto(x as i16, y as i16);
+    fn goto(&self, x: u16, y: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        let cursor = Cursor::new()?;
+        cursor.goto(x as i16, y as i16)?;
+        Ok(())
     }
 
     fn pos(&self) -> (u16, u16) {
@@ -26,41 +27,49 @@ impl ITerminalCursor for WinApiCursor {
         cursor.position().unwrap().into()
     }
 
-    fn move_up(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
+    fn move_up(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos - count, _stdout);
+        self.goto(xpos, ypos - count, _stdout)?;
+        Ok(())
     }
 
-    fn move_right(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
+    fn move_right(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos + count, ypos, _stdout);
+        self.goto(xpos + count, ypos, _stdout)?;
+        Ok(())
     }
 
-    fn move_down(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
+    fn move_down(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos + count, _stdout);
+        self.goto(xpos, ypos + count, _stdout)?;
+        Ok(())
     }
 
-    fn move_left(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) {
+    fn move_left(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos - count, ypos, _stdout);
+        self.goto(xpos - count, ypos, _stdout)?;
+        Ok(())
     }
 
-    fn save_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        Cursor::save_cursor_pos();
+    fn save_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        Cursor::save_cursor_pos()?;
+        Ok(())
     }
 
-    fn reset_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        Cursor::reset_to_saved_position();
+    fn reset_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        Cursor::reset_to_saved_position()?;
+        Ok(())
     }
 
-    fn hide(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        Cursor::new().unwrap().set_visibility(false);
+    fn hide(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        Cursor::new().unwrap().set_visibility(false)?;
+        Ok(())
     }
 
-    fn show(&self, _stdout: &Option<&Arc<TerminalOutput>>) {
-        Cursor::new().unwrap().set_visibility(true);
+    fn show(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        Cursor::new().unwrap().set_visibility(true)?;
+        Ok(())
     }
 
-    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) {}
+    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> { Ok(()) }
 }

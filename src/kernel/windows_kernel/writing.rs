@@ -12,6 +12,7 @@ use std::io::{self, Result};
 use std::str;
 
 /// Write console output.
+#[allow(unused)]
 pub fn write_console_output(
     write_buffer: &HANDLE,
     copy_buffer: &mut [CHAR_INFO; 160],

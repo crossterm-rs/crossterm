@@ -6,6 +6,7 @@ pub mod commands;
 pub mod functions;
 pub mod screen;
 pub mod traits;
+pub mod error;
 
 mod crossterm;
 

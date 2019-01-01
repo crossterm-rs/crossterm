@@ -2,7 +2,7 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::*;
-
+use common::error::Result;
 use std::fmt;
 
 /// Struct that stores a platform-specific platform implementation for terminal related actions.
@@ -93,8 +93,8 @@ impl<'stdout> Terminal<'stdout> {
     /// // clear all cells from cursor position until new line in terminal.
     /// term.clear(terminal::ClearType::UntilNewLine);
     /// ```
-    pub fn clear(&self, clear_type: ClearType) {
-        self.terminal.clear(clear_type, &self.screen);
+    pub fn clear(&self, clear_type: ClearType) -> Result<()> {
+        self.terminal.clear(clear_type, &self.screen)
     }
 
     /// Get the terminal size (x,y).
@@ -117,8 +117,8 @@ impl<'stdout> Terminal<'stdout> {
     /// // scroll up by 5 lines
     /// let size = term.scroll_up(5);
     /// ```
-    pub fn scroll_up(&self, count: i16) {
-        self.terminal.scroll_up(count, &self.screen);
+    pub fn scroll_up(&self, count: i16) -> Result<()> {
+        self.terminal.scroll_up(count, &self.screen)
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -129,8 +129,8 @@ impl<'stdout> Terminal<'stdout> {
     /// // scroll down by 5 lines
     /// let size = term.scroll_down(5);
     /// ```
-    pub fn scroll_down(&self, count: i16) {
-        self.terminal.scroll_down(count, &self.screen);
+    pub fn scroll_down(&self, count: i16) -> Result<()> {
+        self.terminal.scroll_down(count, &self.screen)
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -141,8 +141,8 @@ impl<'stdout> Terminal<'stdout> {
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
     /// ```
-    pub fn set_size(&self, width: i16, height: i16) {
-        self.terminal.set_size(width, height, &self.screen);
+    pub fn set_size(&self, width: i16, height: i16) -> Result<()> {
+        self.terminal.set_size(width, height, &self.screen)
     }
 
     /// Exit the current process.
@@ -163,11 +163,12 @@ impl<'stdout> Terminal<'stdout> {
     ///
     /// let size = term.write("Some text \n Some text on new line");
     /// ```
-    pub fn write<D: fmt::Display>(&self, value: D) {
+    pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
         use std::fmt::Write;
         let mut string = String::new();
-        write!(string, "{}", value).unwrap();
-        functions::write(&self.screen, string);
+        write!(string, "{}", value)?;
+        let size = functions::write(&self.screen, string)?;
+        Ok(size)
     }
 }
 

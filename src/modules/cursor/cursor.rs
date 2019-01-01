@@ -4,6 +4,7 @@
 //! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
 use super::*;
+use common::error::Result;
 use Screen;
 
 /// Struct that stores a platform-specific implementation for cursor related actions.
@@ -94,8 +95,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.goto(4,5);
     ///
     /// ```
-    pub fn goto(&self, x: u16, y: u16) {
-        self.terminal_cursor.goto(x, y, &self.stdout);
+    pub fn goto(&self, x: u16, y: u16) -> Result<()> {
+        self.terminal_cursor.goto(x, y, &self.stdout)
     }
 
     /// Get current cursor position (x,y) in the terminal.
@@ -119,7 +120,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.move_up(3);
     /// ```
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_up(count, &self.stdout);
+        self.terminal_cursor.move_up(count, &self.stdout).unwrap();
         self
     }
 
@@ -132,7 +133,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.move_right(3);
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_right(count, &self.stdout);
+        self.terminal_cursor.move_right(count, &self.stdout).unwrap();
         self
     }
 
@@ -145,7 +146,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.move_down(3);
     /// ```
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_down(count, &self.stdout);
+        self.terminal_cursor.move_down(count, &self.stdout).unwrap();
         self
     }
 
@@ -158,7 +159,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///  cursor.move_left(3);
     /// ```
     pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_left(count, &self.stdout);
+        self.terminal_cursor.move_left(count, &self.stdout).unwrap();
         self
     }
 
@@ -171,8 +172,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// cursor.safe_position();
     /// ```
-    pub fn save_position(&self) {
-        self.terminal_cursor.save_position(&self.stdout);
+    pub fn save_position(&self) -> Result<()> {
+        self.terminal_cursor.save_position(&self.stdout)
     }
 
     /// Return to saved cursor position
@@ -184,8 +185,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// cursor.reset_position();
     /// ```
-    pub fn reset_position(&self) {
-        self.terminal_cursor.reset_position(&self.stdout);
+    pub fn reset_position(&self) -> Result<()> {
+        self.terminal_cursor.reset_position(&self.stdout)
     }
 
     /// Hide de cursor in the console.
@@ -194,8 +195,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// let cursor = cursor();
     /// cursor.hide();
     /// ```
-    pub fn hide(&self) {
-        self.terminal_cursor.hide(&self.stdout);
+    pub fn hide(&self) -> Result<()> {
+        self.terminal_cursor.hide(&self.stdout)
     }
 
     /// Show the cursor in the console.
@@ -206,8 +207,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.show();
     ///
     /// ```
-    pub fn show(&self) {
-        self.terminal_cursor.show(&self.stdout);
+    pub fn show(&self) -> Result<()> {
+        self.terminal_cursor.show(&self.stdout)
     }
 
     /// Enable or disable blinking of the terminal.
@@ -219,8 +220,8 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.blink(true);
     /// cursor.blink(false);
     /// ```
-    pub fn blink(&self, blink: bool) {
-        self.terminal_cursor.blink(blink, &self.stdout);
+    pub fn blink(&self, blink: bool) -> Result<()> {
+        self.terminal_cursor.blink(blink, &self.stdout)
     }
 }
 

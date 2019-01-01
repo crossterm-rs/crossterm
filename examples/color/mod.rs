@@ -18,7 +18,7 @@ pub fn paint_foreground() {
     // Or print inline
     println!(
         "Colored text: {}",
-        style("Red foreground").with(Color::Blue)
+        style("Blue foreground").with(Color::Blue)
     );
 }
 

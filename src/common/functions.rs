@@ -64,18 +64,18 @@ pub fn exit_terminal() {
 /// If the current platform is unix it will return the ansi implementation.
 pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut term: Option<T> = None;
-    let does_support = false;
+    let mut does_support = false;
 
-    //    if !windows_supportable() {
-    // Try to enable ansi on windows if not than use WINAPI.
-    //        does_support = try_enable_ansi_support();
-
-    // uncomment this line when you want to use the winapi implementation.
-    //                    does_support = false;
-    if !does_support {
-        term = Some(winapi_impl);
+    if !windows_supportable() {
+//     Try to enable ansi on windows if not than use WINAPI.
+        does_support = try_enable_ansi_support();
+//
+//     uncomment this line when you want to use the winapi implementation.
+//        does_support = false;
+        if !does_support {
+            term = Some(winapi_impl);
+        }
     }
-    //    }
 
     if does_support {
         term = Some(unix_impl);
