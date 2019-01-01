@@ -1,4 +1,4 @@
-use crossterm_winapi::{Handle, HandleType};
+use crossterm_winapi::Handle;
 
 use std::{
     io::{self, Write},
@@ -50,7 +50,7 @@ pub fn read_line(buf: &mut Vec<u8>) -> io::Result<usize> {
         .filter(|&x| x != 10 || x != 13)
         .collect::<Vec<u8>>();
 
-    buf.write(a);
+    buf.write(a)?;
     Ok(num as usize)
 }
 

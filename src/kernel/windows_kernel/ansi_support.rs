@@ -5,9 +5,10 @@ use std::sync::{Once, ONCE_INIT};
 static mut HAS_BEEN_TRIED_TO_ENABLE: bool = false;
 static mut IS_ANSI_ON_WINDOWS_ENABLED: Option<bool> = None;
 static mut DOES_WINDOWS_SUPPORT_ANSI: Option<bool> = None;
-static ENABLE_ANSI: Once = ONCE_INIT;
 use common::commands::win_commands::EnableAnsiCommand;
 use common::commands::IEnableAnsiCommand;
+
+static ENABLE_ANSI: Once = ONCE_INIT;
 
 /// Try enable `ANSI escape codes` and return the result.
 pub fn try_enable_ansi_support() -> bool {

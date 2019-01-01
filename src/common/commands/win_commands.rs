@@ -78,7 +78,7 @@ impl RawModeCommand {
     pub fn enable(&mut self) -> Result<()> {
         let console_mode = ConsoleMode::new()?;
 
-        let mut dw_mode = console_mode.mode()?;
+        let dw_mode = console_mode.mode()?;
 
         let new_mode = dw_mode & !self.mask;
 
@@ -91,7 +91,7 @@ impl RawModeCommand {
     pub fn disable(&self) -> Result<()> {
         let console_mode = ConsoleMode::new()?;
 
-        let mut dw_mode = console_mode.mode()?;
+        let dw_mode = console_mode.mode()?;
 
         let new_mode = dw_mode | self.mask;
 
@@ -114,7 +114,7 @@ impl ToAlternateScreenCommand {
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
     fn enable(&self, _stdout: &mut TerminalOutput) -> Result<()> {
         let alternate_screen = ScreenBuffer::create();
-        alternate_screen.show();
+        alternate_screen.show()?;
         Ok(())
     }
 

@@ -73,7 +73,9 @@ impl ITerminalInput for WindowsInput {
                     return;
                 }
 
-                tx.send(Ok(pressed_char as u8));
+                if let Err(_) = tx.send(Ok(pressed_char as u8)) {
+                    println!("Could not send pressed char to receiver.")
+                }
             }
         });
 
@@ -110,20 +112,14 @@ impl ITerminalInput for WindowsInput {
                     return;
                 }
 
-                tx.send(Ok(pressed_char as u8));
+                if let Err(_) = tx.send(Ok(pressed_char as u8)) {
+                    println!("Could not send pressed char to receiver.")
+                }
             }
         });
 
         AsyncReader { recv: rx }
     }
-}
-
-fn is_line_end(key: char) -> bool {
-    if key as u8 == 13 {
-        return true;
-    }
-
-    return false;
 }
 
 extern "C" {

@@ -165,7 +165,7 @@ impl Drop for Screen {
     /// If the current screen is in raw mode we need to disable it when the instance goes out of scope.
     fn drop(&mut self) {
         if self.stdout.is_in_raw_mode && self.drop {
-            RawScreen::disable_raw_modes();
+            RawScreen::disable_raw_modes().unwrap();
         }
     }
 }

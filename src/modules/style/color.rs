@@ -94,8 +94,8 @@ impl<'stdout> TerminalColor<'stdout> {
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_fg(Color::from("Red"));
     /// ```
-    pub fn set_fg(&self, color: Color) {
-        self.color.set_fg(color, &self.stdout);
+    pub fn set_fg(&self, color: Color)-> Result<()> {
+        self.color.set_fg(color, &self.stdout)
     }
 
     /// Set the background color to the given color.
@@ -108,8 +108,8 @@ impl<'stdout> TerminalColor<'stdout> {
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_bg(Color::from("Red"));
     /// ```
-    pub fn set_bg(&self, color: Color) {
-        self.color.set_bg(color, &self.stdout);
+    pub fn set_bg(&self, color: Color) -> Result<()>{
+        self.color.set_bg(color, &self.stdout)
     }
 
     /// Reset the terminal colors and attributes to default.
@@ -118,8 +118,8 @@ impl<'stdout> TerminalColor<'stdout> {
     /// let colored_terminal = color();
     /// colored_terminal.reset();
     /// ```
-    pub fn reset(&self) {
-        self.color.reset(&self.stdout);
+    pub fn reset(&self)-> Result<()> {
+        self.color.reset(&self.stdout)
     }
 
     /// Get available color count.

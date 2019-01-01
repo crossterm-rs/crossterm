@@ -15,14 +15,11 @@ mod input;
 mod terminal;
 
 fn main() {
-    use input::keyboard::input;
+    let cursor = crossterm::cursor();
+    cursor.goto(5,5);
 
-    //    color::print_all_foreground_colors();
-    //    color::print_all_background_colors();
+    let integer = 10;
+    let float: f32 = integert as f32;
 
-    use terminal::alternate_screen;
-    //    color::print_all_background_colors();
-    //    color::print_all_foreground_colors();
-
-    alternate_screen::print_wait_screen_on_alternate_window();
+    println!("5.515151");
 }

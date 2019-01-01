@@ -5,6 +5,8 @@ use Screen;
 
 use std::fmt::{self, Display, Formatter};
 use std::io::Write;
+use common::error::Result;
+use std::result;
 
 use super::Attribute;
 
@@ -146,36 +148,37 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     ///
     /// You should take not that `StyledObject` implements `Display`. You don't need to call paint unless you are on alternate screen.
     /// Checkout `into_displayable()` for more information about this.
-    pub fn paint(&self, screen: &Screen) {
+    pub fn paint(&self, screen: &Screen) -> Result<()> {
         let colored_terminal = from_screen(&screen);
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
-            colored_terminal.set_bg(bg);
+            colored_terminal.set_bg(bg)?;
             reset = true;
         }
 
         if let Some(fg) = self.object_style.fg_color {
-            colored_terminal.set_fg(fg);
+            colored_terminal.set_fg(fg)?;
             reset = true;
         }
 
         for attr in self.object_style.attrs.iter() {
             screen
                 .stdout
-                .write_string(format!(csi!("{}m"), *attr as i16));
+                .write_string(format!(csi!("{}m"), *attr as i16))?;
             reset = true;
         }
 
         use std::fmt::Write;
         let mut content = String::new();
-        write!(content, "{}", self.content).unwrap();
-        screen.stdout.write_string(content);
-        screen.stdout.flush();
+        write!(content, "{}", self.content)?;
+        screen.stdout.write_string(content)?;
+        screen.stdout.flush()?;
 
         if reset {
-            colored_terminal.reset();
+            colored_terminal.reset()?;
         }
+        Ok(())
     }
 
     /// This converts an styled object into an `DisplayableObject` witch implements: `Display` and could be used inside the write function of the standard library.
@@ -198,30 +201,30 @@ impl<'a, D: Display + 'a> StyledObject<D> {
 }
 
 impl<D: Display> Display for StyledObject<D> {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
         let colored_terminal = color();
         let mut reset = true;
 
         if let Some(bg) = self.object_style.bg_color {
-            colored_terminal.set_bg(bg);
+            colored_terminal.set_bg(bg).unwrap();
             reset = true;
         }
         if let Some(fg) = self.object_style.fg_color {
-            colored_terminal.set_fg(fg);
+            colored_terminal.set_fg(fg).unwrap();
             reset = true;
         }
 
         for attr in self.object_style.attrs.iter() {
-            write!(f, "{}", format!(csi!("{}m"), *attr as i16));
+            write!(f, "{}", format!(csi!("{}m"), *attr as i16))?;
             reset = true;
         }
 
         fmt::Display::fmt(&self.content, f)?;
-        std::io::stdout().flush().expect("Flush stdout failed");
+        std::io::stdout().flush().unwrap();
 
         if reset {
-            colored_terminal.reset();
-            std::io::stdout().flush().expect("Flush stdout failed");
+            colored_terminal.reset().unwrap();
+            std::io::stdout().flush().unwrap();
         }
         Ok(())
     }
@@ -248,8 +251,8 @@ impl<'a, D: Display + 'a> DisplayableObject<'a, D> {
 }
 
 impl<'a, D: Display + 'a> Display for DisplayableObject<'a, D> {
-    fn fmt(&self, _f: &mut Formatter) -> Result<(), fmt::Error> {
-        self.styled_object.paint(&self.screen);
+    fn fmt(&self, _f: &mut Formatter) -> result::Result<(), fmt::Error> {
+        self.styled_object.paint(&self.screen).unwrap();
         Ok(())
     }
 }

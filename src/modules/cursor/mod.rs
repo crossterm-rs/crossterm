@@ -17,7 +17,7 @@ use self::ansi_cursor::AnsiCursor;
 use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{cursor, from_screen, TerminalCursor};
-
+use common::error::Result;
 use super::functions;
 use std::sync::Arc;
 use TerminalOutput;
@@ -32,25 +32,25 @@ use TerminalOutput;
 ///! so that cursor related actions can be performed on both UNIX and Windows systems.
 trait ITerminalCursor: Sync + Send {
     /// Goto some location (x,y) in the context.
-    fn goto(&self, x: u16, y: u16, stdout: &Option<&Arc<TerminalOutput>>);
+    fn goto(&self, x: u16, y: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Get the location (x,y) of the current cursor in the context
     fn pos(&self) -> (u16, u16);
     /// Move cursor n times up
-    fn move_up(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>);
+    fn move_up(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Move the cursor `n` times to the right.
-    fn move_right(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>);
+    fn move_right(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Move the cursor `n` times down.
-    fn move_down(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>);
+    fn move_down(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Move the cursor `n` times left.
-    fn move_left(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>);
+    fn move_left(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Save cursor position so that its saved position can be recalled later. Note that this position is stored program based not per instance of the cursor struct.
-    fn save_position(&self, stdout: &Option<&Arc<TerminalOutput>>);
+    fn save_position(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Return to saved cursor position
-    fn reset_position(&self, stdout: &Option<&Arc<TerminalOutput>>);
+    fn reset_position(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Hide the terminal cursor.
-    fn hide(&self, stdout: &Option<&Arc<TerminalOutput>>);
+    fn hide(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Show the terminal cursor
-    fn show(&self, stdout: &Option<&Arc<TerminalOutput>>);
+    fn show(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
     /// Enable or disable the blinking of the cursor.
-    fn blink(&self, blink: bool, stdout: &Option<&Arc<TerminalOutput>>);
+    fn blink(&self, blink: bool, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
 }
