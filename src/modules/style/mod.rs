@@ -22,7 +22,7 @@ pub use self::color::{color, from_screen, TerminalColor};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::DisplayableObject;
 pub use self::styledobject::StyledObject;
-use common::{functions, error::Result};
+use common::{error::Result, functions};
 
 use TerminalOutput;
 

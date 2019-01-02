@@ -16,7 +16,7 @@ mod terminal;
 
 fn main() {
     let cursor = crossterm::cursor();
-    cursor.goto(5,5);
+    cursor.goto(5, 5);
 
     let integer = 10;
     let float: f32 = integert as f32;

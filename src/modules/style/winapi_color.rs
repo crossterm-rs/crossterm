@@ -2,11 +2,11 @@
 //! This module is used for non supporting `ANSI` Windows terminals.
 
 use super::*;
+use common::error::Result;
 use kernel::windows_kernel::{Console, Handle, HandleType, ScreenBuffer};
 use std::io;
 use std::sync::{Once, ONCE_INIT};
 use winapi::um::wincon;
-use common::error::Result;
 
 /// This struct is a WinApi implementation for color related actions.
 pub struct WinApiColor;
@@ -18,7 +18,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>{
+    fn set_fg(&self, fg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         // init the original color in case it is not set.
         let _ = init_console_color()?;
 
@@ -40,8 +40,7 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        Console::from(**screen_buffer.get_handle())
-            .set_text_attribute(color)?;
+        Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
 
         Ok(())
     }
@@ -68,8 +67,7 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        Console::from(**screen_buffer.get_handle())
-            .set_text_attribute(color)?;
+        Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
 
         Ok(())
     }

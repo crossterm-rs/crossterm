@@ -1,9 +1,9 @@
 //! This module contains the `windows` (unsafe) logic.
 
-#[allow(unused)]
-mod reading;
 pub mod ansi_support;
 mod cursor;
+#[allow(unused)]
+mod reading;
 pub mod writing;
 
 pub use self::cursor::Cursor;

@@ -15,7 +15,7 @@ use self::winapi_terminal::WinApiTerminal;
 
 pub use self::terminal::{from_screen, terminal, Terminal};
 
-use common::{functions, error};
+use common::{error, functions};
 use std::sync::Arc;
 use {Screen, TerminalOutput};
 
@@ -38,7 +38,11 @@ pub enum ClearType {
 /// so that terminal related actions can be preformed on both Unix and Windows systems.
 trait ITerminal {
     /// Clear the current cursor by specifying the clear type
-    fn clear(&self, clear_type: ClearType, stdout: &Option<&Arc<TerminalOutput>>) -> error::Result<()>;
+    fn clear(
+        &self,
+        clear_type: ClearType,
+        stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> error::Result<()>;
     /// Get the terminal size (x,y)
     fn terminal_size(&self, stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16);
     /// Scroll `n` lines up in the current terminal.
@@ -46,7 +50,12 @@ trait ITerminal {
     /// Scroll `n` lines down in the current terminal.
     fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> error::Result<()>;
     /// Resize terminal to the given width and height.
-    fn set_size(&self, width: i16, height: i16, stdout: &Option<&Arc<TerminalOutput>>) -> error::Result<()>;
+    fn set_size(
+        &self,
+        width: i16,
+        height: i16,
+        stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> error::Result<()>;
     /// Close the current terminal
     fn exit(&self, stdout: &Option<&Arc<TerminalOutput>>);
 }

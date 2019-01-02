@@ -17,8 +17,8 @@ use self::ansi_cursor::AnsiCursor;
 use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{cursor, from_screen, TerminalCursor};
-use common::error::Result;
 use super::functions;
+use common::error::Result;
 use std::sync::Arc;
 use TerminalOutput;
 

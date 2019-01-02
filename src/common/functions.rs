@@ -67,11 +67,11 @@ pub fn get_module<T>(winapi_impl: T, unix_impl: T) -> Option<T> {
     let mut does_support = false;
 
     if !windows_supportable() {
-//     Try to enable ansi on windows if not than use WINAPI.
+        //     Try to enable ansi on windows if not than use WINAPI.
         does_support = try_enable_ansi_support();
-//
-//     uncomment this line when you want to use the winapi implementation.
-//        does_support = false;
+        //
+        //     uncomment this line when you want to use the winapi implementation.
+        //        does_support = false;
         if !does_support {
             term = Some(winapi_impl);
         }
