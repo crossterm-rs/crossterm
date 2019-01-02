@@ -45,7 +45,7 @@ This thread send all input via an 'mpsc' channel to the `AsyncReader` we got bac
 
 By calling `bytes()` on the `AsyncReader` we get an iterator back over the characters (bytes).
 
-```
+```rust
 let mut stdin = input.read_async().bytes();
 
 /* next code here */
@@ -55,7 +55,7 @@ Now we got an iterator back we can call `next()` on it to get the next pressed c
 If an character is pressed we will get `Some(Ok(u8))` back which we compare to see if 'x' is pressed.
 If the 'x' is pressed we break the loop.
 
-```
+```rust
 loop {
     let pressed_char: Option<Result<u8>> = stdin.next();
 
