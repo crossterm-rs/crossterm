@@ -133,7 +133,9 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// cursor.move_right(3);
     /// ```
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_right(count, &self.stdout).unwrap();
+        self.terminal_cursor
+            .move_right(count, &self.stdout)
+            .unwrap();
         self
     }
 

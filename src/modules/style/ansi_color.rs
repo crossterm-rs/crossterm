@@ -25,7 +25,7 @@ impl ITerminalColor for AnsiColor {
         Ok(())
     }
 
-    fn set_bg(&self, bg_color: Color, stdout: &Option<&Arc<TerminalOutput>>)-> Result<()> {
+    fn set_bg(&self, bg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write(
             stdout,
             format!(
@@ -36,7 +36,7 @@ impl ITerminalColor for AnsiColor {
         Ok(())
     }
 
-    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>)-> Result<()>{
+    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write_str(stdout, csi!("0m"))?;
         Ok(())
     }

@@ -94,7 +94,7 @@ impl<'stdout> TerminalColor<'stdout> {
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_fg(Color::from("Red"));
     /// ```
-    pub fn set_fg(&self, color: Color)-> Result<()> {
+    pub fn set_fg(&self, color: Color) -> Result<()> {
         self.color.set_fg(color, &self.stdout)
     }
 
@@ -108,7 +108,7 @@ impl<'stdout> TerminalColor<'stdout> {
     /// // crossterm provides to set the background from &str or String
     /// colored_terminal.set_bg(Color::from("Red"));
     /// ```
-    pub fn set_bg(&self, color: Color) -> Result<()>{
+    pub fn set_bg(&self, color: Color) -> Result<()> {
         self.color.set_bg(color, &self.stdout)
     }
 
@@ -118,7 +118,7 @@ impl<'stdout> TerminalColor<'stdout> {
     /// let colored_terminal = color();
     /// colored_terminal.reset();
     /// ```
-    pub fn reset(&self)-> Result<()> {
+    pub fn reset(&self) -> Result<()> {
         self.color.reset(&self.stdout)
     }
 

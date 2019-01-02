@@ -303,9 +303,9 @@ extern crate libc;
 extern crate termios;
 
 #[cfg(windows)]
-extern crate winapi;
-#[cfg(windows)]
 extern crate crossterm_winapi;
+#[cfg(windows)]
+extern crate winapi;
 
 #[macro_use]
 mod common;

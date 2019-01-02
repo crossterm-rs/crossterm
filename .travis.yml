@@ -2,11 +2,11 @@
 language: rust
 rust:
 - stable
-- beta
 - nightly
 
 before_script:
 - export PATH=$PATH:/home/travis/.cargo/bin
+- rustup component add rustfmt-preview
 
 os:
 - linux
@@ -19,3 +19,4 @@ branches:
 
 script:
 - cargo build
+- cargo fmt -- --check

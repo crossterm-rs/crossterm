@@ -3,10 +3,10 @@
 #[macro_use]
 pub mod macros;
 pub mod commands;
+pub mod error;
 pub mod functions;
 pub mod screen;
 pub mod traits;
-pub mod error;
 
 mod crossterm;
 

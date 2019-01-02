@@ -2,9 +2,9 @@
 //! This module is used for Windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
-use kernel::windows_kernel::{Cursor, Handle};
-use common::error::Result;
 use super::*;
+use common::error::Result;
+use kernel::windows_kernel::{Cursor, Handle};
 
 /// This struct is a windows implementation for cursor related actions.
 pub struct WinApiCursor;
@@ -71,5 +71,7 @@ impl ITerminalCursor for WinApiCursor {
         Ok(())
     }
 
-    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> { Ok(()) }
+    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        Ok(())
+    }
 }

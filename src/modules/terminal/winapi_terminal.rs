@@ -4,7 +4,7 @@
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
 use super::*;
-use common::error::{Result, ErrorKind};
+use common::error::{ErrorKind, Result};
 use kernel::windows_kernel::{Console, Coord, Cursor, Handle, ScreenBuffer, Size};
 
 /// This struct is an winapi implementation for terminal related actions.
@@ -56,31 +56,39 @@ impl ITerminal for WinApiTerminal {
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>{
+    fn scroll_down(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
         let mut window = csbi.terminal_window();
-        let buffer_size =csbi.buffer_size();
+        let buffer_size = csbi.buffer_size();
 
         // Check whether the window is too close to the screen buffer top
         if window.bottom < buffer_size.height - count {
             window.top += count; // move top down
             window.bottom += count; // move bottom down
 
-            Console::new()?
-                .set_console_info(false, window)?;
+            Console::new()?.set_console_info(false, window)?;
         }
         Ok(())
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn set_size(
+        &self,
+        width: i16,
+        height: i16,
+        _stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> Result<()> {
         if width <= 0 {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from("Cannot set the terminal width lower than 1")));
+            return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                "Cannot set the terminal width lower than 1",
+            )));
         }
 
         if height <= 0 {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from("Cannot set the terminal height lower then 1")));
+            return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                "Cannot set the terminal height lower then 1",
+            )));
         }
 
         // Get the position of the current console window
@@ -99,7 +107,9 @@ impl ITerminal for WinApiTerminal {
 
         if current_size.width < window.left + width {
             if window.left >= i16::max_value() - width {
-                return Err(ErrorKind::ResizingTerminalFailure(String::from("Argument out of range when setting terminal width.")));
+                return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                    "Argument out of range when setting terminal width.",
+                )));
             }
 
             new_size.width = window.left + width;
@@ -107,7 +117,9 @@ impl ITerminal for WinApiTerminal {
         }
         if current_size.height < window.top + height {
             if window.top >= i16::max_value() - height {
-                return Err(ErrorKind::ResizingTerminalFailure(String::from("Argument out of range when setting terminal height.")));
+                return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                    "Argument out of range when setting terminal height.",
+                )));
             }
 
             new_size.height = window.top + height;
@@ -116,7 +128,9 @@ impl ITerminal for WinApiTerminal {
 
         if resize_buffer {
             if let Err(_) = screen_buffer.set_size(new_size.width, new_size.height) {
-                return Err(ErrorKind::ResizingTerminalFailure(String::from("Something went wrong when setting screen buffer size.")));
+                return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                    "Something went wrong when setting screen buffer size.",
+                )));
             }
         }
 
@@ -129,17 +143,25 @@ impl ITerminal for WinApiTerminal {
         // If we resized the buffer, un-resize it.
         if resize_buffer {
             if let Err(_) = screen_buffer.set_size(current_size.width, current_size.height) {
-                return Err(ErrorKind::ResizingTerminalFailure(String::from("Something went wrong when setting screen buffer size.")));
+                return Err(ErrorKind::ResizingTerminalFailure(String::from(
+                    "Something went wrong when setting screen buffer size.",
+                )));
             }
         }
 
         let bounds = console.largest_window_size();
 
         if width > bounds.x {
-            return Err(ErrorKind::ResizingTerminalFailure(format!("Argument width: {} out of range when setting terminal width.", width)));
+            return Err(ErrorKind::ResizingTerminalFailure(format!(
+                "Argument width: {} out of range when setting terminal width.",
+                width
+            )));
         }
         if height > bounds.y {
-            return Err(ErrorKind::ResizingTerminalFailure(format!("Argument height: {} out of range when setting terminal height", width)));
+            return Err(ErrorKind::ResizingTerminalFailure(format!(
+                "Argument height: {} out of range when setting terminal height",
+                width
+            )));
         }
 
         Ok(())
@@ -155,7 +177,11 @@ impl ITerminal for WinApiTerminal {
     }
 }
 
-pub fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+pub fn clear_after_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> Result<()> {
     let (mut x, mut y) = (location.x, location.y);
 
     // if cursor position is at the outer right position
@@ -173,7 +199,11 @@ pub fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute:
     clear(start_location, cells_to_write, current_attribute)
 }
 
-pub fn clear_before_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+pub fn clear_before_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> Result<()> {
     let (xpos, ypos) = (location.x, location.y);
 
     // one cell after cursor position
@@ -207,7 +237,11 @@ pub fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<
     Ok(())
 }
 
-pub fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+pub fn clear_current_line(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> Result<()> {
     // location where to start clearing
     let start_location = Coord::new(0, location.y);
 
@@ -243,10 +277,8 @@ pub fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u
 
 fn clear(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> Result<()> {
     let console = Console::from(Handle::current_out_handle()?);
-    let _ = console
-        .fill_whit_character(start_location, cells_to_write, ' ')?;
-    console
-        .fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
+    let _ = console.fill_whit_character(start_location, cells_to_write, ' ')?;
+    console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
 
     Ok(())
 }

@@ -49,7 +49,7 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.5.0"
+crossterm = "0.6"
 
 ```
 And import the Crossterm modules you want to use.
@@ -95,7 +95,7 @@ These are the features from this crate:
     - Background color (16 base colors)
     - 256 color support (Windows 10 and UNIX only)
     - RGB support (Windows 10 and UNIX only)
-    - Text Attributes like: bold, italic, underscore and crossed word ect (unix only) 
+    - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (Up, down)
@@ -139,7 +139,7 @@ use crossterm::style::{Color, style};
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-// attributes are only supported for UNIX terminals.
+// syling font with (Windows 10 and UNIX systems)
 let normal = style("Normal text");
 let bold = style("Bold text").bold();
 let italic = style("Italic text").italic();
@@ -151,21 +151,21 @@ let reversed = style("Reversed text").reverse();
 let dimmed = style("Dim text").dim();
 let crossed_out = style("Crossed out font").crossed_out();
 
-// paint styled text to screen (this could also be called inline)
+// paint styled text to screen (this could also be called inline) 
 println!("{}", style1);
 println!("{}", style2);
 println!("{}", bold);
 println!("{}", hidden);
 ...
 
-// cursom rgb value
+// cursom rgb value (Windows 10 and UNIX systems)
 style("RGB color (10,10,10) ").with(Color::Rgb {
     r: 10,
     g: 10,
     b: 10
 }));
 
-// custom ansi color value
+// custom ansi color value (Windows 10 and UNIX systems)
 style("ANSI color value (50) ").with(Color::AnsiValue(50));
 
 ```

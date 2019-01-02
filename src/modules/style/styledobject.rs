@@ -3,9 +3,9 @@
 use super::{color, from_screen, Color, ObjectStyle};
 use Screen;
 
+use common::error::Result;
 use std::fmt::{self, Display, Formatter};
 use std::io::Write;
-use common::error::Result;
 use std::result;
 
 use super::Attribute;

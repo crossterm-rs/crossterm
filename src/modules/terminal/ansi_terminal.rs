@@ -41,7 +41,7 @@ impl ITerminal for AnsiTerminal {
         functions::get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>{
+    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write(&stdout, format!(csi!("{}S"), count))?;
         Ok(())
     }
@@ -51,7 +51,12 @@ impl ITerminal for AnsiTerminal {
         Ok(())
     }
 
-    fn set_size(&self, width: i16, height: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn set_size(
+        &self,
+        width: i16,
+        height: i16,
+        stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> Result<()> {
         functions::write(&stdout, format!(csi!("8;{};{}t"), height, width))?;
         Ok(())
     }

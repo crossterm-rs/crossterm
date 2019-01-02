@@ -49,22 +49,22 @@ impl ITerminalCursor for AnsiCursor {
         Ok(())
     }
 
-    fn reset_position(&self, stdout: &Option<&Arc<TerminalOutput>>)-> Result<()> {
+    fn reset_position(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write_str(stdout, csi!("u"))?;
         Ok(())
     }
 
-    fn hide(&self, stdout: &Option<&Arc<TerminalOutput>>)-> Result<()> {
+    fn hide(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write_str(stdout, csi!("?25l"))?;
         Ok(())
     }
 
-    fn show(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>{
+    fn show(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         functions::write_str(stdout, csi!("?25h"))?;
         Ok(())
     }
 
-    fn blink(&self, blink: bool, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>{
+    fn blink(&self, blink: bool, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         if blink {
             functions::write_str(stdout, csi!("?12h"))?;
         } else {

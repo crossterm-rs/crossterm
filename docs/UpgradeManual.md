@@ -2,7 +2,7 @@
 
 ***WARNING*** 
 
-I workded on making the user API more conviniant therefore I had to make some chages to the user API. The problem with `0.4` is that you need to pass a `Screen` to the modules: `cursor(), color(), terminal()`.
+I workded on making the user API more convenient therefore I had to make some changes to the user API. The problem with `0.4` is that you need to pass a `Screen` to the modules: `cursor(), color(), terminal()`.
 
 In the new situation you only have to do this when working with raw or alternate screen. When you just want to perform actions like styling on the main screen you don't have to to pass in the `Screen` any more. This will look like the following:
 
