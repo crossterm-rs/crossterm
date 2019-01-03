@@ -1,4 +1,4 @@
-# Changes crossterm 0.6.0
+# Changes crossterm 0.5.2
 - WinApi rewrite and correctly error handled [PR 67](https://github.com/TimonPost/crossterm/pull/67)
 - Windows attribute support [PR 62](https://github.com/TimonPost/crossterm/pull/62)
 - Readline bug fix windows systems [PR 62](https://github.com/TimonPost/crossterm/pull/62)

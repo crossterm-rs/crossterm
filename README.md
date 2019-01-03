@@ -43,7 +43,7 @@ This crate supports all UNIX and windows terminals down to windows 7 (not all te
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.5.^` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
