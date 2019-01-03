@@ -10,9 +10,6 @@
 [s3]: https://docs.rs/crossterm/badge.svg
 [l3]: https://docs.rs/crossterm/
 
-[s3]: https://docs.rs/crossterm/badge.svg
-[l3]: https://docs.rs/crossterm/
-
 [s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
@@ -49,7 +46,7 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.5.2"
+crossterm = "0.5.3"
 
 ```
 And import the Crossterm modules you want to use.
@@ -139,7 +136,7 @@ use crossterm::style::{Color, style};
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-// syling font with (Windows 10 and UNIX systems)
+// styling font with (Windows 10 and UNIX systems)
 let normal = style("Normal text");
 let bold = style("Bold text").bold();
 let italic = style("Italic text").italic();
@@ -158,7 +155,7 @@ println!("{}", bold);
 println!("{}", hidden);
 ...
 
-// cursom rgb value (Windows 10 and UNIX systems)
+// custom rgb value (Windows 10 and UNIX systems)
 style("RGB color (10,10,10) ").with(Color::Rgb {
     r: 10,
     g: 10,
@@ -286,17 +283,17 @@ This crate supports all Unix terminals and windows terminals down to Windows 7 b
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
 ## Notice 
-This library is average stable now but I don't expect it to not to change that much. 
+This library is quite stable now, changes could be expected but they will probably be not that big. 
 If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
 
 ## Todo
 I still have some things in mind to implement. 
 
-- Handling mouse events 
+- Handling mouse events:
     I want to be able to do something based on the clicks the user has done with its mouse.
-- Handling key events
+- Handling key events:
     I want to be able to read key combination inputs. 
-- Tests
+- Tests:
    Find a way to test: color, alternate screen, rawscreen
 
 ## Contributing

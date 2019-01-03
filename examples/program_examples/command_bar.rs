@@ -14,6 +14,7 @@ fn main() {
     let screen = Screen::new(true);
     let crossterm = Crossterm::from_screen(&screen);
     let cursor = crossterm.cursor();
+
     cursor.hide();
 
     let input_buf = Arc::new(Mutex::new(String::new()));
@@ -62,7 +63,6 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
         let _clone_stdout = screen.stdout.clone();
 
         let crossterm = Crossterm::from(screen.stdout.clone());
-
         let join = thread::spawn(move || {
             let cursor = crossterm.cursor();
             let terminal = crossterm.terminal();

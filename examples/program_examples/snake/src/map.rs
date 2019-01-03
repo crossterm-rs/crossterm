@@ -41,7 +41,7 @@ impl Map
                 if (y == 0 || y == self.size.height - 1) || (x == 0 || x == self.size.width - 1)
                 {
                     cursor.goto(x as u16, y as u16);
-                    terminal.write("█")
+                    terminal.write("█");
                 }else {
                     free_positions.insert(format!("{},{}",x,y), Position::new(x,y));
                 }
