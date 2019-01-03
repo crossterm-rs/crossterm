@@ -304,7 +304,6 @@ extern crate termios;
 
 #[cfg(windows)]
 extern crate crossterm_winapi;
-extern crate crossterm_winapi;
 #[cfg(windows)]
 extern crate winapi;
 
