@@ -31,7 +31,7 @@
 //!
 //! ```
 //! [dependencies]
-//! crossterm = "0.5.0"
+//! crossterm = "0.5.2"
 //!
 //! ```
 //! And import the Crossterm modules you want to use.
