@@ -15,8 +15,8 @@ pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
         let command = EnableAnsiCommand::new();
         let success = match command.enable() {
-            Ok(success) => { success },
-            Err(_) => { false },
+            Ok(success) => success,
+            Err(_) => false,
         };
 
         set_is_windows_ansi_supportable(success);
