@@ -14,7 +14,10 @@ static ENABLE_ANSI: Once = ONCE_INIT;
 pub fn try_enable_ansi_support() -> bool {
     ENABLE_ANSI.call_once(|| {
         let command = EnableAnsiCommand::new();
-        let success = command.enable().unwrap();
+        let success = match command.enable() {
+            Ok(success) => { success },
+            Err(_) => { false },
+        };
 
         set_is_windows_ansi_supportable(success);
         set_ansi_enabled(success);
