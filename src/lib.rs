@@ -342,5 +342,6 @@ pub use self::style::{
     TerminalColor,
 };
 pub use self::terminal::{terminal, Terminal};
+pub use common::error;
 pub use common::screen::{AlternateScreen, Screen};
 pub use common::Crossterm;
