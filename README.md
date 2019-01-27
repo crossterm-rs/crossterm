@@ -24,7 +24,7 @@ Through the simplicity of Crossterm, you do not have to worry about the platform
 
 This crate supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
 
-This crate is exists out of six modules who are behind feature flags so that you can define which features you'd like to have:
+This crate is exists out of five modules who are behind feature flags so that you can define which features you'd like to have:
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
@@ -58,8 +58,6 @@ Add the Crossterm package to your `Cargo.toml` file.
 [dependencies]
 crossterm = "0.6"
 ```
-
-
 
 ### Useful Links
 
@@ -107,7 +105,7 @@ These are the features from this crate:
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
 
-### Crossterm Type | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/some_types/mod.rs)
+### Crossterm Type | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs)
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 
 ```rust
@@ -162,7 +160,7 @@ style("RGB color (10,10,10) ").with(Color::Rgb {
 style("ANSI color value (50) ").with(Color::AnsiValue(50));
 
 ```
-### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor/mod.rs)
+### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor.rs)
 This module provides the functionalities to work with the terminal cursor.
 
 ```rust 
@@ -203,8 +201,7 @@ cursor.blink(true)
 
 ```
 
-
-### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/terminal.rs)
+### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/terminal.rs)
 This module provides the functionalities to work with the terminal in general.
 
 ```rust 
