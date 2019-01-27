@@ -11,7 +11,7 @@
 //! For UNIX and Windows10 systems, we store the handle gotten from `stdout()`. For Windows systems who are not supporting ANSI escape codes, we can call `CONOUT$` to get the current screen `HANDLE`.
 
 use super::*;
-
+use crate::functions;
 use std::default::Default;
 use std::io::Write;
 
