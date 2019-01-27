@@ -46,6 +46,7 @@ impl<'crossterm> Crossterm {
             stdout: Some(screen.stdout.clone()),
         }
     }
+
     /// Get a `TerminalCursor` implementation whereon cursor related actions can be performed.
     ///
     /// ```rust

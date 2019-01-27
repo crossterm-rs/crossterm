@@ -2,7 +2,7 @@
 name = "crossterm_style"
 version = "0.1.0"
 authors = ["T. Post"]
-description = "An crossplatform library styling the terminal output."
+description = "A cross-platform library styling the terminal output."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://docs.rs/crossterm_style/"
 license = "MIT"

@@ -28,11 +28,7 @@ Other sub-crates are:
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
 When you want to use other modules as well you might want to use crossterm with [feature flags](https://doc.rust-lang.org/1.30.0/book/first-edition/conditional-compilation.html)
-
-When we want to print some text to the alternate screen we can't just write on it using print!(), println!(), or write!(). 
-The same goes for coloring, cursor movement, input, and terminal actions.
-However it is possible to do so, and [crossterm](https://crates.io/crates/crossterm) offers some help with that. 
-  
+ 
 In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](http://atcentra.com/crossterm/screen.html) describing this in more detail.
   
 ## Table of contents:

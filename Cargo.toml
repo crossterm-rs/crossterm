@@ -22,8 +22,6 @@ input = ["crossterm_input"]
 [workspace]
 
 members = [
-    "examples/program_examples/snake",
-    "examples/program_examples/first_depth_search",
     "crossterm_winapi",
     "crossterm_utils",
     "crossterm_cursor",
@@ -31,7 +29,6 @@ members = [
     "crossterm_terminal",
     "crossterm_input",
     "crossterm_screen",
-
 ]
 
 [dependencies]
@@ -53,7 +50,3 @@ path = "examples/program_examples/logging.rs"
 [[example]]
 name = "command_bar"
 path = "examples/program_examples/command_bar.rs"
-
-[[example]]
-name = "try"
-path = "examples/terminal.rs"

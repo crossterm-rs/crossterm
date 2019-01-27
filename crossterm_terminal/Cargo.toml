@@ -2,7 +2,7 @@
 name = "crossterm_terminal"
 version = "0.1.0"
 authors = ["T. Post"]
-description = "An crossplatform library for doing terminal related actions."
+description = "A cross-platform library for doing terminal related actions."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://docs.rs/crossterm_terminal/"
 license = "MIT"
