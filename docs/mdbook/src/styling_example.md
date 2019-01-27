@@ -4,7 +4,7 @@ _setup the basics_
 ```rust
 extern crate crossterm;
 
-use crossterm::style::{style, Color, Attribute};
+use crossterm::{style, Color, Attribute};
 
 fn main() {
     /* your code here */
@@ -18,7 +18,8 @@ let styled_object = style("This is some text converted into a styled object");
 ```
 
 The function `style()` takes in any type that implement `Display`
-and returns a `StyledObject`. A `StyledObject` is just a wrapper crossterm uses to store the text and style together.
+and returns a `StyledObject`. 
+A `StyledObject` is just a wrapper crossterm uses to store the text and style together.
 
 The above code will not do any coloring magic yet. Lets play around with some colors to see it in working.
 
@@ -62,8 +63,8 @@ println!("{}", styled_object);
 ```
 
 ## Attributes
-When working with UNIX terminals you could also use attributes to style your font. For example you could cross your text with a line and make it bold.
-See [above](styling.md#Attributes) for more information.
+When working with UNIX or Windows 10 terminals you could also use attributes to style your font. For example you could cross your text with a line and make it bold.
+See [this](styling.md#Attributes) for more information.
 
 ```
 let styled_object = style("'Red' text on 'White' background")
@@ -74,4 +75,4 @@ println!("{}", styled_object);
 ```
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
-More examples could be found at this [link](https://github.com/TimonPost/crossterm/blob/master/examples/color/mod.rs).
+More examples could be found at this [link](https://github.com/TimonPost/crossterm/blob/master/examples/style.rs).

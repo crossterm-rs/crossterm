@@ -36,40 +36,53 @@ Note that in raw mode `\n` `\r` will move the cursor to a new line but it will b
 _example of what I mean_
  ```
  some text
-                some text
+          some text
  ```
 
 To start at the beginning of the next line, use `\n\r`.
 
-# Important Notice
+# Crossterm's implementation
+
 When we want to print some text to the alternate screen we can't just write on it using `print!(), println!(), or write!()`.
-The same goes for coloring, cursor movement, input, and terminal actions. Crossterm provides a solution for that by introducing the `Screen` type.
+
+This is because those functions are writing to the standard output and not to our alternate screen we are currently on.  
+The same goes for coloring, cursor movement, input, and terminal actions.
+ 
+Crossterm provides a solution for that by introducing the `Screen` type. 
+You can use the 'alternate' or 'raw' screen functionalities by either using the [crossterm](https://crates.io/crates/crossterm) or [crossterm_screen](https://crates.io/crates/crossterm_screen) crate.
+
 Please checkout this [example](screen_example.md) for more information on how to use it.
 
-
+_Cargo.toml_
+```rust
+crossterm = { version =  "0.6.0", features = ["screen","terminal","cursor", "style", "input"] }
 ```
-use crossterm::cursor;
-use crossterm::color;
-use crossterm::input;
-use crossterm::terminal;
+
+```rust
+use crossterm::{cursor, TerminalCursor};
+use crossterm::{color, TerminalColor};
+use crossterm::{input, TerminalInput};
+use crossterm::{terminal, Terminal};
 
 let screen = Screen::default();
 
 if let Ok(alternate) = screen.enable_alternate_modes(false) {
+
+    // by calling 'from_screen' you force crossterm to use the screen of the alternate screen to perform actions on.
+    let crossterm = Crossterm::from_screen(&alternate.screen);
+    let cursor = crossterm.cursor();
+    let terminal =crossterm.terminal();
+    let input = crossterm.input();
+    let color = crossterm.color();
+        
+    // you can also create instances directly without `Crossterm`
     let screen = alternate.screen;
-    
-    let color = color::from_screen(&screen);
-    let cursor = cursor::from_screen(&screen);
-    let input = input::from_screen(&screen);
-    let terminal = terminal::from_screen(&screen);
-    let crossterm = Crossterm::from_screen(&screen);
     
     let terminal = Terminal::from_output(&screen.stdout);
     let cursor = TerminalCursor::from_output(&screen.stdout);
     let color = TerminalColor::from_output(&screen.stdout);
     let input = TerminalInput::from_output(&screen.stdout);
 }
-
 ```
 
 The above modules will now all be executed at the 'alternate screen'.

@@ -1,10 +1,4 @@
 # Changes crossterm 0.5.4
-- Windows panic bug when trying to enable ANSI flag windows console [PR](https://github.com/TimonPost/crossterm/pull/73).
-
-# Changes crossterm 0.5.3
-- Fixed crucial bug for windows systems, this was accidentally introduced when working on 0.5.2
-
-# Changes crossterm 0.5.2 (yanked)
 - WinApi rewrite and correctly error handled [PR 67](https://github.com/TimonPost/crossterm/pull/67)
 - Windows attribute support [PR 62](https://github.com/TimonPost/crossterm/pull/62)
 - Readline bug fix windows systems [PR 62](https://github.com/TimonPost/crossterm/pull/62)

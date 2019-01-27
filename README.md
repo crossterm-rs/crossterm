@@ -5,7 +5,10 @@
 [l1]: https://crates.io/crates/crossterm
 
 [s2]: https://img.shields.io/badge/license-MIT-blue.svg
-[l2]: ./LICENSE
+[l2]: crossterm/LICENSE
+
+[s3]: https://docs.rs/crossterm/badge.svg
+[l3]: https://docs.rs/crossterm/
 
 [s3]: https://docs.rs/crossterm/badge.svg
 [l3]: https://docs.rs/crossterm/
@@ -20,6 +23,13 @@ Crossterm aims to be simple and easy to call in code.
 Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 
 This crate supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
+
+This crate is exists out of six modules who are behind feature flags so that you can define which features you'd like to have:
+- [Crossterm Style](https://crates.io/crates/crossterm_style) 
+- [Crossterm Input](https://crates.io/crates/crossterm_input) 
+- [Crossterm Screen](https://crates.io/crates/crossterm_screen)
+- [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
+- [Crossterm Terminal](https://crates.io/crates/crossterm_terminal)
 
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -40,30 +50,16 @@ This crate supports all UNIX and windows terminals down to windows 7 (not all te
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.5.^` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.5.4"
-
+crossterm = "0.6"
 ```
-And import the Crossterm modules you want to use.
 
-```rust  
-extern crate crossterm;
 
-// this module is used for styling the terminal
-use crossterm::style::*;
-// this module is used for cursor related actions
-use crossterm::cursor::*;
-// this module is used for terminal related actions
-use crossterm::terminal::*;
-// this module is used for input related actions
-use crossterm::input::*;
-
-```
 
 ### Useful Links
 
@@ -79,7 +75,7 @@ These are the features from this crate:
 - Cross-platform
 - Everything is multithreaded (Send, Sync)
 - Detailed documentation on every item
-- Very few dependencies.
+- Very few dependenties.
 - Cursor.
     - Moving _n_ times Up, Down, Left, Right
     - Goto a certain position
@@ -130,13 +126,13 @@ println!("{}", crossterm.style("Black font on Green background color").with(Colo
 ### Styled Font | [see more](http://atcentra.com/crossterm/styling.html)
 This module provides the functionalities to style the terminal.
 ```rust    
-use crossterm::style::{Color, style};
+use crossterm::{Color, style};
 
 // store objcets so it could be painted later to the screen.   
 let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
 let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
 
-// styling font with (Windows 10 and UNIX systems)
+// syling font with (Windows 10 and UNIX systems)
 let normal = style("Normal text");
 let bold = style("Bold text").bold();
 let italic = style("Italic text").italic();
@@ -155,7 +151,7 @@ println!("{}", bold);
 println!("{}", hidden);
 ...
 
-// custom rgb value (Windows 10 and UNIX systems)
+// cursom rgb value (Windows 10 and UNIX systems)
 style("RGB color (10,10,10) ").with(Color::Rgb {
     r: 10,
     g: 10,
@@ -207,31 +203,12 @@ cursor.blink(true)
 
 ```
 
-### Input | [see more](http://atcentra.com/crossterm/input.html)
-This module provides the functionalities to work with terminal input.
-
-```rust 
-use crossterm::input;
-
-let mut input = input();
-
- match input.read_char() {
-    Ok(s) => println!("char typed: {}", s),
-    Err(e) => println!("char error : {}", e),
- }
- 
- match input.read_line() {
-     Ok(s) => println!("string typed: {}", s),
-     Err(e) => println!("error: {}", e),
- }
-
-```
 
 ### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/terminal/terminal.rs)
 This module provides the functionalities to work with the terminal in general.
 
 ```rust 
-use crossterm::terminal::{terminal,ClearType};
+use crossterm::{terminal,ClearType};
 
 let mut terminal = terminal();
 
@@ -283,17 +260,17 @@ This crate supports all Unix terminals and windows terminals down to Windows 7 b
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
 ## Notice 
-This library is quite stable now, changes could be expected but they will probably be not that big. 
+This library is average stable now but I don't expect it to not to change that much. 
 If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
 
 ## Todo
 I still have some things in mind to implement. 
 
-- Handling mouse events:
+- Handling mouse events 
     I want to be able to do something based on the clicks the user has done with its mouse.
-- Handling key events:
+- Handling key events
     I want to be able to read key combination inputs. 
-- Tests:
+- Tests
    Find a way to test: color, alternate screen, rawscreen
 
 ## Contributing

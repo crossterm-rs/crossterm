@@ -1,0 +1,13 @@
+[package]
+name = "crossterm_utils"
+version = "0.1.0"
+authors = ["Timon Post <timonpost@hotmail.nl>"]
+edition = "2018"
+
+[target.'cfg(windows)'.dependencies]
+crossterm_winapi = { path = "../crossterm_winapi" }
+winapi = { version =  "0.3.5", features = ["wincon"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.43"
+termios = "0.3.1"

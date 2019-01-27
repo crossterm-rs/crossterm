@@ -1,5 +1,5 @@
 [package]
-name = "first_depth_search"
+name = "snake"
 version = "0.1.0"
 authors = ["TimonPost <timonpost@hotmail.nl>"]
 
@@ -8,4 +8,3 @@ rand = "0.4.2"
 
 [dependencies.crossterm]
 path = "../../../"
-branch = "development"
