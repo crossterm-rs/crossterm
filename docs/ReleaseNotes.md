@@ -1,3 +1,15 @@
+# Changes crossterm 0.6.0
+- Introduced feature flags; input, cursor, style, terminal, screen.
+- All modules are moved to their own crate.
+- Introduced crossterm workspace
+- Less dependencies.
+- Improved namespaces.
+
+[PR 84](https://github.com/TimonPost/crossterm/pull/84)
+
+# Changes crossterm 0.5.5
+- Error module is made public [PR 78](https://github.com/TimonPost/crossterm/pull/78).
+
 # Changes crossterm 0.5.4
 - WinApi rewrite and correctly error handled [PR 67](https://github.com/TimonPost/crossterm/pull/67)
 - Windows attribute support [PR 62](https://github.com/TimonPost/crossterm/pull/62)

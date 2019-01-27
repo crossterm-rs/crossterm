@@ -1,3 +1,59 @@
+## Upgrade crossterm to 0.6.0
+#### Namespace refactor
+Some namespaces have been changed. All types of could be used directly by `use crossterm::*;` instead of having to go to a specific module for importing a type.
+
+_**old**_
+```rust
+crossterm::input::{TerminalInput, ...};
+crossterm::style::style;
+crossterm::cursor::*;
+crossterm::teriminal::{Terminal, ...};
+```
+_**new**_
+```rust
+crossterm::{TerminalInput, style, TerminalColor, StyledObject, Terminal, ...}
+```
+
+#### Removed unclear methods
+
+```rust
+let screen = Screen::new();
+
+// the below methods are not available anymore
+cursor::from_screen(&screen);
+input::from_screen(&screen);
+terminal::from_screen(&screen);
+color::from_screen(&screen);
+```
+
+Instead of this you should make use of `Crossterm` type
+
+```rust
+let screen = Screen::new();
+let crossterm = Crossterm::from_screen(screen);
+let cursor = crossterm.cursor();
+....
+```
+
+Or you can use the `from_output()`; this takes in the output stored in `Screen`
+
+```rust
+let screen = Screen::new();
+let cursor = TerminalCursor::from_output(&screen.stdout);
+let input = TerminalInput::from_output(&screen.stdout);
+```
+ 
+#### Wait until takes in a self now.
+_**old**_
+```rust
+TerminalInput::wait_until(KeyEvent::OnKeyPress(b'x'));
+```
+_**new**_
+```rust
+let terminal_input = TerminalInput::new();
+terminal_input.wait_until(KeyEvent::OnKeyPress(b'x'));
+```
+
 ## Upgrade crossterm to 0.5.0
 
 ***WARNING*** 

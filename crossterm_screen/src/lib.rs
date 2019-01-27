@@ -9,9 +9,6 @@ extern crate winapi;
 #[cfg(windows)]
 extern crate crossterm_winapi;
 
-#[cfg(unix)]
-extern crate libc;
-
 mod screen;
 mod sys;
 
