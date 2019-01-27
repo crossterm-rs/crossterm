@@ -1,10 +1,10 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use libc::{self, c_ushort, ioctl, termios, STDOUT_FILENO, TCSADRAIN, TIOCGWINSZ};
+use libc::{self, TCSADRAIN};
 
 use crate::termios::{tcsetattr, Termios};
 use std::fs;
-use std::io::{self, Error, ErrorKind, Read, Write};
+use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;

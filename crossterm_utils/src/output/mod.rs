@@ -1,6 +1,4 @@
 //! A module that provides a uniformed way to write to the output no matter if it is in main, alternate or raw  mode.
-use crate::*;
-
 mod output;
 
 #[cfg(test)]

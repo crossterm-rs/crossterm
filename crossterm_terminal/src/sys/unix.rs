@@ -1,4 +1,4 @@
-use libc::{c_ushort, ioctl, STDOUT_FILENO, TCSADRAIN, TIOCGWINSZ};
+use libc::{c_ushort, ioctl, STDOUT_FILENO, TIOCGWINSZ};
 
 pub fn exit() {
     ::std::process::exit(0);

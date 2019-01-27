@@ -55,7 +55,7 @@ pub fn read_char() -> io::Result<char> {
         }
     };
 
-    unix::disable_raw_mode();
+    unix::disable_raw_mode()?;
 
     // if the user hit ^C we want to signal SIGINT to outselves.
     if let Err(ref err) = rv {
