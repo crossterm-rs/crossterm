@@ -1,0 +1,27 @@
+[package]
+name = "crossterm_terminal"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An crossplatform library for doing terminal related actions."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://docs.rs/crossterm_terminal/"
+license = "MIT"
+keywords = ["terminal", "clear", "crossplatform", "crossterm", "terminal size"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+edition = "2018"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+crossterm_winapi = { path = "../crossterm_winapi" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.43"
+
+[dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+crossterm_cursor = { path = "../crossterm_cursor" }
+
+[[example]]
+name = "terminal"
+path = "examples/terminal.rs"

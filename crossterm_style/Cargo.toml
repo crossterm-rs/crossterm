@@ -1,0 +1,23 @@
+[package]
+name = "crossterm_style"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An crossplatform library styling the terminal output."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://docs.rs/crossterm_style/"
+license = "MIT"
+keywords = ["style", "color", "attributes", "crossterm", "terminal"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+edition = "2018"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+crossterm_winapi = { path = "../crossterm_winapi" }
+
+[dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+
+[[example]]
+name = "style"
+path = "examples/style.rs"

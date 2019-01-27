@@ -1,0 +1,19 @@
+language: rust
+rust:
+- stable
+- nightly
+
+before_script:
+- export PATH=$PATH:/home/travis/.cargo/bin
+- rustup component add rustfmt-preview
+
+os:
+- windows
+
+branches:
+only:
+- master
+
+script:
+- cargo build
+- cargo fmt -- --check

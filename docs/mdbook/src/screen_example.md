@@ -42,7 +42,7 @@ let text = std::io::stdin().read_line(&mut string);
 println!("{:?}", text);
 ```
 
-Note that we spoke about the reason why this [previously](screen.md#raw-screen).
+Note that we spoke about the reason why this is [previously](screen.md#raw-screen).
 However, if you want to read input in raw mode you should checkout [Async Input](input.md).
 
 # Alternate Screen
@@ -118,7 +118,7 @@ Some basics steps the following code will do:
 ```rust
 let alternate_screen = &mut alternate.screen;
 
-// could manage styling and cursor movement.
+// by calling 'from_screen' the cursor will be moved at the passed screen. 
 let crossterm = Crossterm::from_screen(alternate_screen);
 let cursor = crossterm.cursor();
 
@@ -148,7 +148,7 @@ thread::sleep(time::Duration::from_secs(2));
 
 As you might have noticed, you need to to manually move the cursor, flush the buffer. This is because the terminal is in raw modes.
 Also, by printing with `paint` or calling `into_displayable` you pass in a reference to the alternate screen.
-Tip: Take a look at [how](screen.md#important-notice) you should use other modules crossterm provides on the alternate screen.
+Tip: Take a look at [how](screen.md#Crossterm's implementation) you should use other modules crossterm provides on the alternate screen.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 More examples could be found at this [link](https://github.com/TimonPost/crossterm/tree/master/examples/terminal).

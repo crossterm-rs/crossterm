@@ -1,0 +1,23 @@
+[package]
+name = "crossterm_cursor"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An crossplatform library for moving the terminal cursor."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://docs.rs/crossterm_cursor/"
+license = "MIT"
+keywords = ["cursor", "cli", "crossterm", "crossplatform", "terminal"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+edition = "2018"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+crossterm_winapi = { path = "../crossterm_winapi" }
+
+[dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+
+[[example]]
+name = "cursor"
+path = "examples/cursor.rs"

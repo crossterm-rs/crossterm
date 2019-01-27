@@ -21,14 +21,16 @@ In addition to 16 colours, most UNIX terminals and Windows 10 consoles are also 
 Those colors could be: [True color (24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme, which allows you to use [RGB](https://nl.wikipedia.org/wiki/RGB-kleursysteem), and [256 (Xterm, 8-bit)](https://jonasjacek.github.io/colors/) colors.
 
 ## Attributes
-Only UNIX terminals are supporting attributes on top of text. Crossterm allows you to add attributes to the text.
+Only UNIX and Windows 10 terminals are supporting attributes on top of text. Crossterm allows you to add attributes to the text.
 Not all attributes are widely supported for all terminals, keep that in mind when working with this.
+
+**Unix Attributes**
 
 | Attribute      | Note         |
 | :-------------: | :-------------: |
-|       Bold       |      | 
-|       Underlined |      | 
-|       Dim        |      | 
+|       Bold       |      _ | 
+|       Underlined |      _| 
+|       Dim        |      _| 
 |       SlowBlink  |    less than 150 per minute  | 
 |       CrosseOut  |    characters legible, but marked for deletion. | 
 |       Italic     |    not widely supported; Sometimes treated as inverse  | 
@@ -36,6 +38,15 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 |       Reverse    |    not widely supported | 
 |       Hidden     |    not widely supported | 
 
+**Windows Attributes**
+
+| Attribute      | Note         |
+| :-------------: | :-------------: |
+|       Reset      |     _        | 
+|       Underlined |     _        | 
+|       NoUnderline |    _        |
+|       Negative |       _        |
+|       Positive |       _        |
 
 Now we have covered the basics of styling lets go some [examples](styling_example.md).
  

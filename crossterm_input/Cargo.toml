@@ -1,0 +1,30 @@
+[package]
+name = "crossterm_input"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An crossplatform library for reading userinput."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://docs.rs/crossterm_input/"
+license = "MIT"
+keywords = ["input", "keys", "crossterm", "crossplatform", "terminal"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+edition = "2018"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+crossterm_winapi = { path = "../crossterm_winapi" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.43"
+
+[dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+
+[[example]]
+name = "input"
+path = "examples/input.rs"
+
+[[example]]
+name = "async_input"
+path = "examples/async_input.rs"

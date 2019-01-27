@@ -1,0 +1,22 @@
+[package]
+name = "crossterm_screen"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An crossplatform library for raw and alternate screen."
+repository = "https://github.com/TimonPost/crossterm"
+documentation = "https://docs.rs/crossterm_screen/"
+license = "MIT"
+keywords = ["screen", "alternate", "raw", "crossterm", "terminal"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+edition = "2018"
+
+[dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+crossterm_winapi = { path = "../crossterm_winapi" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.43"

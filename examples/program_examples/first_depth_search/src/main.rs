@@ -1,30 +1,26 @@
-extern crate rand;
 extern crate crossterm;
+extern crate rand;
 
-mod map;
 mod algorithm;
+mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{ Crossterm, Screen};
-use self::crossterm::terminal::{terminal, ClearType};
-use self::crossterm::style::Color;
+use self::crossterm::{terminal, ClearType, Color, Crossterm, Screen};
 
-use self::variables::{Size, Position };
 use self::messages::WELCOME_MESSAGE;
+use self::variables::{Position, Size};
 
 use std::io::Read;
 use std::iter::Iterator;
 use std::{thread, time};
 
-fn main()
-{
+fn main() {
     run();
 }
 
 /// run the program
-pub fn run()
-{
+pub fn run() {
     print_welcome_screen();
 
     // This is represents the current screen.
@@ -32,13 +28,11 @@ pub fn run()
     start_algorithm(&screen);
 }
 
-fn start_algorithm(screen: &Screen)
-{
+fn start_algorithm(screen: &Screen) {
     // we first want to switch to alternate screen. On the alternate screen we are going to run or firstdepthsearch algorithm
-    if let Ok(ref alternate_screen) = screen.enable_alternate_modes(true)
-    {
+    if let Ok(ref alternate_screen) = screen.enable_alternate_modes(true) {
         // setup the map size and the position to start searching for a path.
-        let map_size = Size::new(100, 40);
+        let map_size = Size::new(50, 40);
         let start_pos = Position::new(10, 10);
 
         // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
@@ -46,13 +40,13 @@ fn start_algorithm(screen: &Screen)
         map.render_map(&alternate_screen.screen);
 
         // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
-        let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos, &alternate_screen.screen);
+        let mut algorithm =
+            algorithm::FirstDepthSearch::new(map, start_pos, &alternate_screen.screen);
         algorithm.start();
     }
 }
 
-fn print_welcome_screen()
-{
+fn print_welcome_screen() {
     let mut screen = Screen::new(true);
 
     let crossterm = Crossterm::from_screen(&screen);
@@ -63,7 +57,7 @@ fn print_welcome_screen()
     let input = crossterm.input();
 
     // set size of terminal so the map we are going to draw is fitting the screen.
-    terminal.set_size(110,60);
+    terminal.set_size(110, 60);
 
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
@@ -84,11 +78,18 @@ fn print_welcome_screen()
         let a = stdin.next();
 
         if let Some(Ok(b'q')) = a {
+            drop(screen);
             terminal.exit();
+            break;
+        } else {
+            // print the current counter at the line of `Seconds to Go: {counter}`
+            cursor.goto(48, 10);
+            crossterm
+                .style(format!("{}", i))
+                .with(Color::Red)
+                .on(Color::Blue)
+                .paint(&screen.stdout);
         }
-        // print the current counter at the line of `Seconds to Go: {counter}`
-        cursor.goto(48, 10);
-        crossterm.style(format!("{}", i)).with(Color::Red).on(Color::Blue).paint(&screen);
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));

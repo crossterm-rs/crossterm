@@ -1,0 +1,14 @@
+[package]
+name = "crossterm_winapi"
+version = "0.1.0"
+authors = ["T. Post"]
+description = "An WinApi wrapper that provides some basic simple abstractions aground common WinApi calls"
+repository = "https://github.com/TimonPost/crossterm_winapi"
+documentation = "https://docs.rs/crossterm_winapi/"
+license = "MIT"
+keywords = ["winapi", "abstractions", "crossterm", "windows", "screen_buffer"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+
+[dependencies]
+winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }

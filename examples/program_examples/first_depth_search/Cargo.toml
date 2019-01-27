@@ -8,4 +8,4 @@ rand = "0.4.2"
 
 [dependencies.crossterm]
 path = "../../../"
-branch = "development"
+branch = "master"
