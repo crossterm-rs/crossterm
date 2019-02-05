@@ -46,13 +46,54 @@ pub struct AsyncReader {
 }
 
 /// This enum represents key events which could be caused by the user.
+// pub enum KeyEvent {
+//     /// Represents a specific key press.
+//     OnKeyPress(u8),
+//     /// Represents a key press from any key.
+//     OnAnyKeyPress,
+//     /// Represents a key press from enter.
+//     OnEnter,
+// }
+
+pub enum InputEvent {
+    Keyboard(KeyEvent),
+    Mouse(MouseEvent),
+    Unsupported(Vec<u8>),
+    Unknown,
+}
+
+pub enum MouseEvent {
+    Press(MouseButton, u16, u16),
+    Release(u16, u16),
+    Hold(u16, u16),
+}
+
+pub enum MouseButton {
+    Left,
+    Right,
+    Middle,
+    WheelUp,
+    WheelDown,
+}
+
 pub enum KeyEvent {
-    /// Represents a specific key press.
-    OnKeyPress(u8),
-    /// Represents a key press from any key.
-    OnAnyKeyPress,
-    /// Represents a key press from enter.
-    OnEnter,
+    Backspace,
+    Left,
+    Right,
+    Up,
+    Down,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Delete,
+    Insert,
+    F(u8),
+    Char(char),
+    Alt(char),
+    Ctrl(char),
+    Null,
+    Esc,
 }
 
 impl Read for AsyncReader {

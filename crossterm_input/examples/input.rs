@@ -20,10 +20,10 @@ pub fn read_line() {
     }
 }
 
-pub fn pause_terminal() {
-    println!("Press 'x' to quit...");
-    let terminal_input = TerminalInput::new();
-    terminal_input.wait_until(KeyEvent::OnKeyPress(b'x'));
-}
+// pub fn pause_terminal() {
+//     println!("Press 'x' to quit...");
+//     let terminal_input = TerminalInput::new();
+//     terminal_input.wait_until(KeyEvent::OnKeyPress(b'x'));
+// }
 
 fn main() {}
