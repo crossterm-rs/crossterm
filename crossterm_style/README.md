@@ -80,46 +80,50 @@ These are the features of this crate:
     - RGB support (Windows 10 and UNIX only)
     - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
     
-Planned features:
-- Easier usage; e.g. `println!("{}Bold{}Blue", Attribute::Bold, Color::Blue)`
-
 ## Examples
 Check out the [examples](/examples/) for more information about how to use this crate.
-```rust    
-use crossterm::style::{Color, style};
 
-// store objcets so it could be painted later to the screen.   
-let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
-let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
+_style font with attributes_
+```rust
+use crossterm_style::{Colored, Color, Colorize, Styler, Attribute};
 
-// syling font with (Windows 10 and UNIX systems)
-let normal = style("Normal text");
-let bold = style("Bold text").bold();
-let italic = style("Italic text").italic();
-let slow_blink = style("Slow blinking text").slow_blink();
-let rapid_blink = style("Rapid blinking text").rapid_blink();
-let hidden = style("Hidden text").hidden();
-let underlined = style("Underlined text").underlined();
-let reversed = style("Reversed text").reverse();
-let dimmed = style("Dim text").dim();
-let crossed_out = style("Crossed out font").crossed_out();
+// pass any `Attribute` value to the formatting braces.
+println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUnderline);
 
-// paint styled text to screen (this could also be called inline) 
-println!("{}", style1);
-println!("{}", style2);
-println!("{}", bold);
-println!("{}", hidden);
-...
+// you could also call different attribute methods on a `&str` and keep on chaining if needed.
+let styled_text = "Bold Underlined".bold().underlined();
+println!("{}", styled_text);
 
-// cursom rgb value (Windows 10 and UNIX systems)
-style("RGB color (10,10,10) ").with(Color::Rgb {
+// old-way but still usable
+let styled_text = style("Bold Underlined").bold().underlined();
+```
+
+_style font with colors_
+```rust
+use crossterm_style::{Colored, Color, Colorize};
+
+
+println!("{} Red foreground color", Colored::Fg(Color::Red));
+println!("{} Blue background color", Colored::Bg(Color::Blue));
+
+// you can also call different coloring methods on a `&str`.
+let styled_text = "Bold Underlined".red().on_blue();
+println!("{}", styled_text);
+
+// old-way but still usable
+let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
+```
+_style font with RGB and ANSI Value_
+```rust
+// custom rgb value (Windows 10 and UNIX systems)
+println!("{} some colored text", Colored::Fg(Color::Rgb {
     r: 10,
     g: 10,
     b: 10
 }));
 
 // custom ansi color value (Windows 10 and UNIX systems)
-style("ANSI color value (50) ").with(Color::AnsiValue(50));
+println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 
 ```
 ## Tested terminals

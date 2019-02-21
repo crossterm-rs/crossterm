@@ -1,7 +1,7 @@
 //! This is an `WinApi` specific implementation for styling related action.
 //! This module is used for non supporting `ANSI` Windows terminals.
 
-use crate::{Color, ColorType, ITerminalColor};
+use crate::{Color, Colored, ITerminalColor};
 use crossterm_utils::{Result, TerminalOutput};
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
 use std::io;
@@ -23,7 +23,7 @@ impl ITerminalColor for WinApiColor {
         // init the original color in case it is not set.
         let _ = init_console_color()?;
 
-        let color_value = &self.color_value(fg_color, ColorType::Foreground);
+        let color_value = &self.color_value(Colored::Fg(fg_color));
 
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
@@ -50,7 +50,7 @@ impl ITerminalColor for WinApiColor {
         // init the original color in case it is not set.
         let _ = init_console_color()?;
 
-        let color_value = &self.color_value(bg_color, ColorType::Background);
+        let color_value = &self.color_value(Colored::Bg(bg_color));
 
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
@@ -83,7 +83,7 @@ impl ITerminalColor for WinApiColor {
     }
 
     /// This will get the winapi color value from the Color and ColorType struct
-    fn color_value(&self, color: Color, color_type: ColorType) -> String {
+    fn color_value(&self, color: Colored) -> String {
         let winapi_color: u16;
 
         let fg_green = wincon::FOREGROUND_GREEN;
@@ -96,8 +96,8 @@ impl ITerminalColor for WinApiColor {
         let bg_blue = wincon::BACKGROUND_BLUE;
         let bg_intensity = wincon::BACKGROUND_INTENSITY;
 
-        match color_type {
-            ColorType::Foreground => {
+        match color {
+            Colored::Fg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
                     Color::Red => fg_intensity | fg_red,
@@ -120,7 +120,7 @@ impl ITerminalColor for WinApiColor {
                     Color::AnsiValue(_val) => 0,
                 };
             }
-            ColorType::Background => {
+            Colored::Bg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
                     Color::Red => bg_intensity | bg_red,

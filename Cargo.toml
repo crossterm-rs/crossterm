@@ -50,3 +50,7 @@ path = "examples/program_examples/logging.rs"
 [[example]]
 name = "command_bar"
 path = "examples/program_examples/command_bar.rs"
+
+[[example]]
+name = "style"
+path = "examples/style.rs"
