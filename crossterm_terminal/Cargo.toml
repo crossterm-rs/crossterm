@@ -12,14 +12,14 @@ readme = "README.md"
 edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = { path = "../crossterm_winapi" }
+crossterm_winapi = "0.1.1"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.43"
 
 [dependencies]
-crossterm_utils = { path = "../crossterm_utils" }
-crossterm_cursor = { path = "../crossterm_cursor" }
+crossterm_utils = "0.1.0"
+crossterm_cursor = "0.1.0"
 
 [[example]]
 name = "terminal"

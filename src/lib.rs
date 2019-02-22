@@ -22,7 +22,7 @@ pub use self::crossterm_input::{input, AsyncReader, KeyEvent, TerminalInput};
 pub use self::crossterm_screen::{AlternateScreen, Screen};
 #[cfg(feature = "style")]
 pub use self::crossterm_style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler,
+    color, style, Attribute, Color, ColorType, ObjectStyle, StyledObject,
     TerminalColor,
 };
 #[cfg(feature = "terminal")]
