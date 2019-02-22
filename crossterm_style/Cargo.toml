@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_style"
-version = "0.2"
+version = "0.2.0"
 authors = ["T. Post"]
 description = "A cross-platform library styling the terminal output."
 repository = "https://github.com/TimonPost/crossterm"

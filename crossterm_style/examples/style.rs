@@ -373,10 +373,10 @@ pub fn print_font_with_attributes() {
 // Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(windows)]
 pub fn print_font_with_attributes() {
-    println!("{}", style("Normal text"));
-    println!("{}", style("Bold text").bold());
-    println!("{}", style("Underlined text").underlined());
-    println!("{}", style("Negative text").negative());
+    println!("{}", "Normal text");
+    println!("{}", "Bold text".bold());
+    println!("{}", "Underlined text".underlined());
+    println!("{}", "Negative text".negative());
 }
 
 /// Print all supported RGB colors, not supported for Windows systems < 10  | demonstration.
@@ -384,9 +384,6 @@ pub fn print_supported_colors() {
     let count = color().get_available_color_count().unwrap();
 
     for i in 0..count {
-        println!(
-            "{}",
-            style(format!("White : \t {}", i)).on(Color::AnsiValue(i as u8))
-        );
+        println!("Test {}", Colored::Bg(Color::AnsiValue(i as u8)));
     }
 }
