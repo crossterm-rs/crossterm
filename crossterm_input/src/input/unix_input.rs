@@ -3,7 +3,7 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char, read_char_raw};
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{write, Result, TerminalOutput};
 use std::char;
 use std::thread;
 
@@ -47,7 +47,7 @@ impl ITerminalInput for UnixInput {
         &self,
         delimiter: u8,
         __stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> AsyncReader {
+        ) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {
@@ -69,5 +69,23 @@ impl ITerminalInput for UnixInput {
         });
 
         AsyncReader { recv }
+    }
+
+    fn enable_mouse(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        write(stdout, format!("{}h{}h{}h{}h"
+            , csi!("?1000")
+            , csi!("?1002")
+            , csi!("?1015")
+            , csi!("?1006")))?;
+        Ok(())
+    }
+
+    fn disable_mouse(&self,m stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        write(stdout, format!("{}l{}l{}l{}l"
+            , csi!("?1006")
+            , csi!("?1015")
+            , csi!("?1002")
+            , csi!("?1000")))?;
+        Ok(())
     }
 }

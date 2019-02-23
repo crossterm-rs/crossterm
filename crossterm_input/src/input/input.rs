@@ -4,7 +4,7 @@
 use super::*;
 use std::{thread, time::Duration};
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{TerminalOutput, Result};
 
 /// Allows you to preform actions with the < option >.
 ///
@@ -251,6 +251,28 @@ impl<'stdout> TerminalInput<'stdout> {
             // some sleeping time so that we don't 'dos' our cpu.
             thread::sleep(Duration::from_millis(10));
         }
+    }
+
+    /// Enable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.enable_mouse();
+    /// ```
+    pub fn enable_mouse(&self) -> Result<()> {
+        // TODO: needs a test
+        self.terminal_input.enable_mouse(&self.stdout)
+    }
+
+    /// Disable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.disable_mouse();
+    /// ```
+    pub fn disable_mouse(&self) -> Result<()> {
+        // TODO: needs a test
+        self.terminal_input.disable_mouse(&self.stdout)
     }
 }
 
