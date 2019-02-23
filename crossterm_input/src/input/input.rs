@@ -7,7 +7,7 @@ use std::io::{Error, ErrorKind};
 use std::iter::Iterator;
 use std::str;
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{TerminalOutput, Result};
 
 /// Allows you to preform actions with the < option >.
 ///
@@ -418,6 +418,28 @@ fn parse_xterm<I>(iter: &mut I) -> InputEvent
         32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
         3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
         _ => InputEvent::Unknown,
+    }
+
+    /// Enable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.enable_mouse();
+    /// ```
+    pub fn enable_mouse(&self) -> Result<()> {
+        // TODO: needs a test
+        self.terminal_input.enable_mouse(&self.stdout)
+    }
+
+    /// Disable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.disable_mouse();
+    /// ```
+    pub fn disable_mouse(&self) -> Result<()> {
+        // TODO: needs a test
+        self.terminal_input.disable_mouse(&self.stdout)
     }
 }
 

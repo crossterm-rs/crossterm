@@ -13,13 +13,13 @@ edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.5", features = ["winnt"] }
-crossterm_winapi = { path = "../crossterm_winapi" }
+crossterm_winapi = "0.1.1"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.43"
 
 [dependencies]
-crossterm_utils = { path = "../crossterm_utils" }
+crossterm_utils = "0.1.0"
 
 [[example]]
 name = "input"

@@ -102,9 +102,9 @@ impl<'stdout> TerminalColor<'stdout> {
     }
 
     /// Get available color count.
+    /// (This does not always provide a good result.)
     pub fn get_available_color_count(&self) -> io::Result<u16> {
         use std::env;
-
         Ok(match env::var_os("TERM") {
             Some(val) => {
                 if val.to_str().unwrap_or("").contains("256color") {

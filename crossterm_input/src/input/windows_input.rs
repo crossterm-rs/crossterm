@@ -2,10 +2,11 @@
 
 use super::*;
 
-use crossterm_utils::TerminalOutput;
-use std::char;
+use crossterm_utils::{TerminalOutput, Result};
+use std::{char, io};
 use std::thread;
 use winapi::um::winnt::INT;
+use crossterm_winapi::{ConsoleMode, Handle};
 
 use std::mem::zeroed;
 use std::io::{Error, ErrorKind, Result};
@@ -109,7 +110,7 @@ impl ITerminalInput for WindowsInput {
         delimiter: u8,
         stdout: &Option<&Arc<TerminalOutput>>,
         ) -> AsyncReader {
-            let (tx, rx) = mpsc::channel();
+        let (tx, rx) = mpsc::channel();
 
             // let is_raw_screen = match stdout {
             //     Some(output) => output.is_in_raw_mode,
@@ -153,6 +154,24 @@ impl ITerminalInput for WindowsInput {
             });
 
             AsyncReader { recv: rx }
+    }
+
+    fn enable_mouse(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        let console_mode = ConsoleMode::new()?;
+        let dw_mode = console_mode.mode()?;
+        let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
+        let new_mode = dw_mode | ENABLE_MOUSE_MODE;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
+    }
+
+    fn disable_mouse(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+        let console_mode = ConsoleMode::new()?;
+        let dw_mode = console_mode.mode()?;
+        let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
+        let new_mode = dw_mode & !ENABLE_MOUSE_MODE;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
     }
 }
 
