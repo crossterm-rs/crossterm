@@ -13,12 +13,12 @@ use self::unix_input::UnixInput;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
-pub use self::input::{input, TerminalInput};
+pub use self::input::{input, TerminalInput, parse_event};
 
 use std::io::{self, Error, ErrorKind, Read};
 use std::sync::{mpsc, Arc};
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{TerminalOutput};
 
 /// This trait defines the actions that can be preformed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
@@ -36,6 +36,8 @@ trait ITerminalInput {
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
         -> AsyncReader;
+    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()>;
+    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()>;
 }
 
 /// This is a wrapper for reading from the input asynchronously.

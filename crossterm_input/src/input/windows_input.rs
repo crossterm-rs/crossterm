@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crossterm_utils::{TerminalOutput, Result};
+use crossterm_utils::{TerminalOutput};
 use std::{char, io};
 use std::thread;
 use winapi::um::winnt::INT;
@@ -156,7 +156,7 @@ impl ITerminalInput for WindowsInput {
             AsyncReader { recv: rx }
     }
 
-    fn enable_mouse(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
         let console_mode = ConsoleMode::new()?;
         let dw_mode = console_mode.mode()?;
         let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
@@ -165,7 +165,7 @@ impl ITerminalInput for WindowsInput {
         Ok(())
     }
 
-    fn disable_mouse(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
         let console_mode = ConsoleMode::new()?;
         let dw_mode = console_mode.mode()?;
         let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
@@ -184,26 +184,11 @@ extern "C" {
 /// https://github.com/retep998/wio-rs/blob/master/src/console.rs#L130
 fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
     let handle = Handle::current_in_handle()?;
-    // TODO: abstract this into a mode setting function for both *nix and Windows
-    // let mut restore_mode: DWORD = 0;
-    // let restore_mode_ptr: LPDWORD = &mut restore_mode;
-    // if unsafe { GetConsoleMode(handle, restore_mode_ptr) } == 0 {
-    //     return Err(Error::new(
-    //         ErrorKind::Other, "Problem occurred getting the Console mode")
-    //     )
-    // }
-    // let console_mode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
-    // if unsafe { SetConsoleMode(handle, console_mode) } == 0 {
-    //     return Err(Error::new(
-    //         ErrorKind::Other, "Problem occurred setting the Console mode")
-    //     )
-    // }
-
     // NOTE: confirm size of 0x1000
     let mut buf: [INPUT_RECORD; 0x1000] = unsafe { zeroed() };
     let mut size = 0;
     let res = unsafe { ReadConsoleInputW(handle, buf.as_mut_ptr(), buf.len() as DWORD, &mut size) };
-    if res == 0 { 
+    if res == 0 {
         return Err(Error::new(
             ErrorKind::Other, "Problem occurred reading the Console input")
         )
@@ -224,7 +209,7 @@ fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
                     vts = Vec::new();
                 },
                 e => unreachable!("invalid event type: {}", e),
-                // TODO (maybe): 
+                // NOTE (@imdaveho): ignore below
                 // WINDOW_BUFFER_SIZE_EVENT => {
                 //     let s = input.Event.WindowBufferSizeEvent().dwSize;
                 //     Input::WindowBufferSize(s.X, s.Y)
@@ -234,12 +219,6 @@ fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
             }
         }
     };
-    // TODO: abstract this into a mode setting function for both *nix and Windows
-    // if unsafe { SetConsoleMode(handle, console_mode) } == 0 {
-    //     return Err(Error::new(
-    //         ErrorKind::Other, "Problem occurred setting the Console mode")
-    //     )
-    // }
     return Ok(vts);
 }
 
@@ -251,56 +230,68 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             // ignore SHIFT, CTRL, ALT standalone presses
             seq.push(b'\x00');
         },
-        0x70 | 0x71 | 0x72 | 0x73 | 0x74 => {
-            // F1 - F5
+        0x70 | 0x71 | 0x72 | 0x73 => {
+            // F1 - F4 are support by default VT100
+            seq.push(b'\x1B');
+            seq.push(b'O');
+            seq.push([b'P', b'Q', b'R', b'S']
+                     [(virtual_key - 0x70) as usize]);
+        },
+        0x74 | 0x75 | 0x76 | 0x77 => {
+            // NOTE: F Key Escape Codes:
+            // http://aperiodic.net/phil/archives/Geekery/term-function-keys.html
+            // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+            // F5 - F8
             seq.push(b'\x1B');
             seq.push(b'[');
-            seq.push(b'[');
-            let f_key_values_one_to_five = [b'A', b'B', b'C', b'D', b'E'];
-            seq.push(f_key_values_one_to_five[(virtual_key - 0x70) as usize]);
+            seq.push(b'1');
+            seq.push([b'5', b'7', b'8', b'9']
+                     [(virtual_key - 0x74) as usize]);
+            seq.push(b'~');
         },
-        0x75 | 0x76 | 0x77 | 0x78 | 0x79 | 0x7A | 0x7B => {
-            // TODO: handle F6 to F12
-            // seq.push(b'\x1B');
-            // seq.push(b'[');
-            // NOTE (imdaveho): not sure if this is how parse_event()
-            // handles remaining F keys
-            // seq.push(b'0');
-            // seq.push(b'~');
-            seq.push(b'\x00');
+        0x78 | 0x79 | 0x7A | 0x7B => {
+            // F9 - F12
+            seq.push(b'\x1B');
+            seq.push(b'[');
+            seq.push(b'2');
+            seq.push([b'0', b'1', b'3', b'4']
+                     [(virtual_key - 0x78) as usize]);
+            seq.push(b'~');
         },
         0x25 | 0x26 | 0x27 | 0x28 => {
             // LEFT, UP, RIGHT, DOWN
             seq.push(b'\x1B');
             seq.push(b'[');
-            let arrow_key_values = [b'D', b'A', b'C', b'B'];
-            seq.push(arrow_key_values[(virtual_key - 0x25) as usize]);
+            seq.push([b'D', b'A', b'C', b'B']
+                     [(virtual_key - 0x25) as usize]);
         },
-        0x21 | 0x22 | 0x23 | 0x24 => {
-            // PAGEUP, PAGEDOWN, END, HOME
-            // seq.push(b'\x1B');
-            // seq.push(b'[');
-            // NOTE (imdaveho): not sure if this is how parse_event()
-            // handles remaining keys
-            // seq.push(b'0');
-            // seq.push(b'~');
-            // linenums(254 - 263)
-            seq.push(b'\x00');
+        0x21 | 0x22 => {
+            // PAGEUP, PAGEDOWN
+            seq.push(b'\x1B');
+            seq.push(b'[');
+            seq.push([b'5', b'6']
+                     [(virtual_key - 0x21) as usize]);
+            seq.push(b'~');
+        },
+        0x23 | 0x24 => {
+            // END, HOME
+            seq.push(b'\x1B');
+            seq.push(b'[');
+            seq.push([b'F', b'H']
+                     [(virtual_key - 0x23) as usize]);
         },
         0x2D | 0x2E => {
             // INSERT, DELETE
-            // seq.push(b'\x1B');
-            // seq.push(b'[');
-            // NOTE (imdaveho): not sure if this is how parse_event()
-            // handles remaining keys
-            // seq.push(b'0');
-            // seq.push(b'~');
-            // linenums(254 - 263)
-            seq.push(b'\x00');
+            seq.push(b'\x1B');
+            seq.push(b'[');
+            seq.push([b'2', b'3']
+                     [(virtual_key - 0x21) as usize]);
+            seq.push(b'~');
         },
         _ => {
-            // modifier key support
-            // TODO: add support for acceptable symbols (semicolon, comma, plus, minus)
+            // Modifier Keys (Ctrl, Alt, Shift) Support
+            // NOTE (@imdaveho): test to check if characters outside of
+            // alphabet or alphanumerics are supported
             let chars: [u8; 2] = {
                 (unsafe {
                     *e.uChar.UnicodeChar()
@@ -316,7 +307,7 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
                 },
                 0x0008 | 0x0104 | 0x0004 => {
                     // Ctrl + key support (only Ctrl + {a-z})
-                    // NOTE (imdaveho): Ctrl + Shift + key support has same output
+                    // NOTE (@imdaveho): Ctrl + Shift + key support has same output
                     let alphabet: Vec<u8> = (b'\x01'..b'\x1B').collect();
                     for ch in chars.iter() {
                         // Constrain to only Aa-Zz keys
@@ -328,31 +319,19 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
                     };
                 },
                 0x000A | 0x0105 | 0x0005 => {
-                    // Alt + Ctrl + key only contains Virt Key signatures
-                    // TODO: update parse_rxvt() in events.rs 
-                    // (linenums: 247 - 251) to handle multiple modifiers
-                    // seq.push(b'\x1B');
-                    // seq.push(b'[');
-                    // NOTE (imdaveho): not sure if this is how parse_event()
-                    // handles multiple modifiers
-                    // seq.push(b'0');
-                    // seq.push(b'~');
+                    // TODO: Alt + Ctrl + Key support
+                    // mainly updating the Alt section of parse_event()
+                    // and updating parse_utf8_char()
                     seq.push(b'\x00');
                 },
                 0x001A | 0x0115 | 0x0015 => {
-                    // Alt + Ctrl + + Shift key only contains Virt Key signatures
-                    // TODO: update parse_rxvt() in events.rs 
-                    // (linenums: 247 - 251) to handle multiple modifiers
-                    // seq.push(b'\x1B');
-                    // seq.push(b'[');
-                    // NOTE (imdaveho): not sure if this is how parse_event()
-                    // handles multiple modifiers
-                    // seq.push(b'0');
-                    // seq.push(b'~');
+                    // TODO: Alt + Ctrl + Shift Key support
+                    // mainly updating the Alt section of parse_event()
+                    // and updating parse_utf8_char()
                     seq.push(b'\x00');
                 },
                 0x0000 => {
-                    // Single key press 
+                    // Single key press
                     for ch in chars.iter() {
                         seq.push(*ch);
                     };
@@ -367,7 +346,6 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
                     };
                 },
                 _ => {
-                    // TODO: additional support?
                     seq.push(b'\x00');
                 }
             }

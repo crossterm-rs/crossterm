@@ -2,12 +2,11 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::{thread, time::Duration};
+use std::str;
 use std::io::{Error, ErrorKind};
 use std::iter::Iterator;
-use std::str;
 
-use crossterm_utils::{TerminalOutput, Result};
+use crossterm_utils::{TerminalOutput};
 
 /// Allows you to preform actions with the < option >.
 ///
@@ -256,6 +255,28 @@ impl<'stdout> TerminalInput<'stdout> {
     //         thread::sleep(Duration::from_millis(10));
     //     }
     // }
+
+    /// Enable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.enable_mouse();
+    /// ```
+    pub fn enable_mouse_mode(&self) -> crossterm_utils::Result<()> {
+        // TODO: needs a test
+        self.terminal_input.enable_mouse_mode(&self.stdout)
+    }
+
+    /// Disable mouse events to be captured.
+    ///
+    /// ```rust
+    /// let input = input();
+    /// input.disable_mouse();
+    /// ```
+    pub fn disable_mouse_mode(&self) -> crossterm_utils::Result<()> {
+        // TODO: needs a test
+        self.terminal_input.disable_mouse_mode(&self.stdout)
+    }
 }
 
 /// Get a `TerminalInput` instance whereon input related actions can be performed.
@@ -263,13 +284,8 @@ pub fn input<'stdout>() -> TerminalInput<'stdout> {
     TerminalInput::new()
 }
 
-pub fn read_async_events<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error> 
-    where I: Iterator<Item = Result<u8, Error>> {
-        parse_event(item, iter)
-}
-
 /// Parse an Event from `item` and possibly subsequent bytes through `iter`.
-fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error> 
+pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error>
     where I: Iterator<Item = Result<u8, Error>> {
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
     match item {
@@ -285,11 +301,7 @@ fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error>
                     }
                     Some(Ok(b'[')) => {
                         // This is a CSI sequence.
-                        let csi = parse_csi(iter);
-                        match csi {
-                            InputEvent::Unknown => return Err(error),
-                            _ => csi,
-                        }
+                        parse_csi(iter)
                     }
                     Some(Ok(c)) => {
                         let ch = parse_utf8_char(c, iter);
@@ -316,9 +328,11 @@ fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error>
 /// Parses a CSI sequence, just after reading ^[
 /// Returns Event::Unknown if an unrecognized sequence is found.
 fn parse_csi<I>(iter: &mut I) -> InputEvent
-    where I: Iterator<Item = Result<u8, Error>> {
+where I: Iterator<Item = Result<u8, Error>> {
     match iter.next() {
         Some(Ok(b'[')) => match iter.next() {
+            // NOTE (@imdaveho): cannot find when this occurs;
+            // having another '[' after ESC[ not a likely scenario
             Some(Ok(val @ b'A'...b'E')) => InputEvent::Keyboard(KeyEvent::F(1 + val - b'A')),
             _ => InputEvent::Unknown,
         },
@@ -330,6 +344,7 @@ fn parse_csi<I>(iter: &mut I) -> InputEvent
         Some(Ok(b'F')) => InputEvent::Keyboard(KeyEvent::End),
         Some(Ok(b'M')) => {
             // X10 emulation mouse encoding: ESC [ CB Cx Cy (6 characters only).
+            // NOTE (@imdaveho): cannot find documentation on this
             let mut next = || iter.next().unwrap().unwrap();
             let cb = next() as i8 - 32;
             // (1, 1) are the coords for upper left.
@@ -356,155 +371,118 @@ fn parse_csi<I>(iter: &mut I) -> InputEvent
             }
         },
         Some(Ok(b'<')) => {
-            // xterm mouse encoding:
+            // xterm mouse handling:
             // ESC [ < Cb ; Cx ; Cy (;) (M or m)
-            parse_xterm(iter)
-        },
-        Some(Ok(c @ b'0'...b'9')) => {
-            // Numbered escape code.
-            // rxvt mouse encoding:
-            // ESC [ Cb ; Cx ; Cy ; M
-            parse_rxvt(c, iter)
-        },
-        _ => InputEvent::Unknown,
-    }
-}
-
-fn parse_xterm<I>(iter: &mut I) -> InputEvent
-    where I: Iterator<Item = Result<u8, Error>> {
-    // xterm mouse encoding:
-    // ESC [ < Cb ; Cx ; Cy (;) (M or m)
-    let mut buf = Vec::new();
-    let mut c = iter.next().unwrap().unwrap();
-    while match c {
+            let mut buf = Vec::new();
+            let mut c = iter.next().unwrap().unwrap();
+            while match c {
                 b'm' | b'M' => false,
                 _ => true,
             } {
-        buf.push(c);
-        c = iter.next().unwrap().unwrap();
-    }
-    let str_buf = String::from_utf8(buf).unwrap();
-    let nums = &mut str_buf.split(';');
-
-    let cb = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
-    let cx = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
-    let cy = nums.next()
-        .unwrap()
-        .parse::<u16>()
-        .unwrap();
-
-    match cb {
-        0...2 | 64...65 => {
-            let button = match cb {
-                0 => MouseButton::Left,
-                1 => MouseButton::Middle,
-                2 => MouseButton::Right,
-                64 => MouseButton::WheelUp,
-                65 => MouseButton::WheelDown,
-                _ => unreachable!(),
-            };
-            match c {
-                b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
-                b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-                _ => InputEvent::Unknown,
+                buf.push(c);
+                c = iter.next().unwrap().unwrap();
             }
-        }
-        32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-        3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-        _ => InputEvent::Unknown,
-    }
-
-    /// Enable mouse events to be captured.
-    ///
-    /// ```rust
-    /// let input = input();
-    /// input.enable_mouse();
-    /// ```
-    pub fn enable_mouse(&self) -> Result<()> {
-        // TODO: needs a test
-        self.terminal_input.enable_mouse(&self.stdout)
-    }
-
-    /// Disable mouse events to be captured.
-    ///
-    /// ```rust
-    /// let input = input();
-    /// input.disable_mouse();
-    /// ```
-    pub fn disable_mouse(&self) -> Result<()> {
-        // TODO: needs a test
-        self.terminal_input.disable_mouse(&self.stdout)
-    }
-}
-
-fn parse_rxvt<I>(c: u8, iter: &mut I) -> InputEvent 
-    where I: Iterator<Item = Result<u8, Error>> {
-    // Numbered escape code.
-    let mut buf = Vec::new();
-    buf.push(c);
-    let mut c = iter.next().unwrap().unwrap();
-    // The final byte of a CSI sequence can be in the range 64-126, so
-    // let's keep reading anything else.
-    while c < 64 || c > 126 {
-        buf.push(c);
-        c = iter.next().unwrap().unwrap();
-    }
-    match c {
-        // rxvt mouse encoding:
-        // ESC [ Cb ; Cx ; Cy ; M
-        b'M' => {
             let str_buf = String::from_utf8(buf).unwrap();
+            let nums = &mut str_buf.split(';');
 
-            let nums: Vec<u16> = str_buf.split(';').map(|n| n.parse().unwrap()).collect();
-
-            let cb = nums[0];
-            let cx = nums[1];
-            let cy = nums[2];
+            let cb = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
+            let cx = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
+            let cy = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
 
             match cb {
-                32 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Left, cx, cy)),
-                33 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Middle, cx, cy)),
-                34 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Right, cx, cy)),
-                35 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-                64 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-                96 | 97 => InputEvent::Mouse(MouseEvent::Press(MouseButton::WheelUp, cx, cy)),
+                0...2 | 64...65 => {
+                    let button = match cb {
+                        0 => MouseButton::Left,
+                        1 => MouseButton::Middle,
+                        2 => MouseButton::Right,
+                        64 => MouseButton::WheelUp,
+                        65 => MouseButton::WheelDown,
+                        _ => unreachable!(),
+                    };
+                    match c {
+                        b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
+                        b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+                        _ => InputEvent::Unknown,
+                    }
+                }
+                32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
+                3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
                 _ => InputEvent::Unknown,
             }
         },
-        // Special key code.
-        b'~' => {
-            let str_buf = String::from_utf8(buf).unwrap();
-
-            // This CSI sequence can be a list of semicolon-separated
-            // numbers.
-            let nums: Vec<u8> = str_buf.split(';').map(|n| n.parse().unwrap()).collect();
-
-            if nums.is_empty() {
-                return InputEvent::Unknown;
+        Some(Ok(c @ b'0'...b'9')) => {
+            // Numbered escape code.
+            let mut buf = Vec::new();
+            buf.push(c);
+            let mut c = iter.next().unwrap().unwrap();
+            // The final byte of a CSI sequence can be in the range 64-126, so
+            // let's keep reading anything else.
+            while c < 64 || c > 126 {
+                buf.push(c);
+                c = iter.next().unwrap().unwrap();
             }
+            match c {
+                // rxvt mouse encoding:
+                // ESC [ Cb ; Cx ; Cy ; M
+                b'M' => {
+                    let str_buf = String::from_utf8(buf).unwrap();
 
-            // TODO: handle multiple values for key modififiers (ex: values
-            // [3, 2] means Shift+Delete)
-            if nums.len() > 1 {
-                return InputEvent::Unknown;
-            }
+                    let nums: Vec<u16> = str_buf.split(';').map(|n| n.parse().unwrap()).collect();
 
-            match nums[0] {
-                1 | 7 => InputEvent::Keyboard(KeyEvent::Home),
-                2 => InputEvent::Keyboard(KeyEvent::Insert),
-                3 => InputEvent::Keyboard(KeyEvent::Delete),
-                4 | 8 => InputEvent::Keyboard(KeyEvent::End),
-                5 => InputEvent::Keyboard(KeyEvent::PageUp),
-                6 => InputEvent::Keyboard(KeyEvent::PageDown),
-                v @ 11...15 => InputEvent::Keyboard(KeyEvent::F(v - 10)),
-                v @ 17...21 => InputEvent::Keyboard(KeyEvent::F(v - 11)),
-                v @ 23...24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
+                    let cb = nums[0];
+                    let cx = nums[1];
+                    let cy = nums[2];
+
+                    match cb {
+                        32 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Left, cx, cy)),
+                        33 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Middle, cx, cy)),
+                        34 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Right, cx, cy)),
+                        35 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+                        64 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
+                        96 | 97 => InputEvent::Mouse(MouseEvent::Press(MouseButton::WheelUp, cx, cy)),
+                        _ => InputEvent::Unknown,
+                    }
+                },
+                // Special key code.
+                b'~' => {
+                    let str_buf = String::from_utf8(buf).unwrap();
+
+                    // This CSI sequence can be a list of semicolon-separated
+                    // numbers.
+                    let nums: Vec<u8> = str_buf.split(';').map(|n| n.parse().unwrap()).collect();
+
+                    if nums.is_empty() {
+                        return InputEvent::Unknown;
+                    }
+
+                    // TODO: handle multiple values for key modififiers (ex: values
+                    // [3, 2] means Shift+Delete)
+                    if nums.len() > 1 {
+                        return InputEvent::Unknown;
+                    }
+
+                    match nums[0] {
+                        1 | 7 => InputEvent::Keyboard(KeyEvent::Home),
+                        2 => InputEvent::Keyboard(KeyEvent::Insert),
+                        3 => InputEvent::Keyboard(KeyEvent::Delete),
+                        4 | 8 => InputEvent::Keyboard(KeyEvent::End),
+                        5 => InputEvent::Keyboard(KeyEvent::PageUp),
+                        6 => InputEvent::Keyboard(KeyEvent::PageDown),
+                        v @ 11...15 => InputEvent::Keyboard(KeyEvent::F(v - 10)),
+                        v @ 17...21 => InputEvent::Keyboard(KeyEvent::F(v - 11)),
+                        v @ 23...24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
+                        _ => InputEvent::Unknown,
+                    }
+                },
                 _ => InputEvent::Unknown,
             }
         },
@@ -514,7 +492,7 @@ fn parse_rxvt<I>(c: u8, iter: &mut I) -> InputEvent
 
 /// Parse `c` as either a single byte ASCII char or a variable size UTF-8 char.
 fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char, Error>
-    where I: Iterator<Item = Result<u8, Error>> {
+where I: Iterator<Item = Result<u8, Error>> {
     let error = Err(Error::new(ErrorKind::Other, "Input character is not valid UTF-8"));
     if c.is_ascii() {
         Ok(c as char)
