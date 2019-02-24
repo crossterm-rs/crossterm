@@ -9,6 +9,8 @@ use std::result;
 use std::sync::Arc;
 
 use super::Attribute;
+use crate::Colorize;
+use crate::Styler;
 
 /// Struct that contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {
@@ -48,65 +50,6 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
         self.object_style.add_attr(attr);
         self
-    }
-
-    /// Increase the font intensity.
-    #[inline(always)]
-    pub fn bold(self) -> StyledObject<D> {
-        self.attr(Attribute::Bold)
-    }
-    /// Faint (decreased intensity) (Not widely supported).
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn dim(self) -> StyledObject<D> {
-        self.attr(Attribute::Dim)
-    }
-    /// Make the font italic (Not widely supported; Sometimes treated as inverse).
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn italic(self) -> StyledObject<D> {
-        self.attr(Attribute::Italic)
-    }
-    /// Underline font.
-    #[inline(always)]
-    pub fn underlined(self) -> StyledObject<D> {
-        self.attr(Attribute::Underlined)
-    }
-    /// Invert colours.
-    #[cfg(windows)]
-    #[inline(always)]
-    pub fn negative(self) -> StyledObject<D> {
-        self.attr(Attribute::Negative)
-    }
-    /// Slow Blink (less than 150 per minute; not widely supported).
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn slow_blink(self) -> StyledObject<D> {
-        self.attr(Attribute::SlowBlink)
-    }
-    /// Rapid Blink (MS-DOS ANSI.SYS; 150+ per minute; not widely supported).
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn rapid_blink(self) -> StyledObject<D> {
-        self.attr(Attribute::RapidBlink)
-    }
-    /// Swap foreground and background colors.
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn reverse(self) -> StyledObject<D> {
-        self.attr(Attribute::Reverse)
-    }
-    /// Hide text (Not widely supported).
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn hidden(self) -> StyledObject<D> {
-        self.attr(Attribute::Hidden)
-    }
-    /// Characters legible, but marked for deletion. Not widely supported.
-    #[cfg(unix)]
-    #[inline(always)]
-    pub fn crossed_out(self) -> StyledObject<D> {
-        self.attr(Attribute::CrossedOut)
     }
 
     /// This converts an styled object into an `DisplayableObject` witch implements: `Display` and could be used inside the write function of the standard library.
@@ -197,6 +140,56 @@ impl<D: Display> Display for StyledObject<D> {
 
         Ok(())
     }
+}
+
+impl<D: Display> Colorize<D> for StyledObject<D> {
+    // foreground colors
+    def_color!(fg_color: black => Color::Black);
+    def_color!(fg_color: red => Color::Red);
+    def_color!(fg_color: dark_red => Color::DarkRed);
+    def_color!(fg_color: green => Color::Green);
+    def_color!(fg_color: dark_green => Color::DarkGreen);
+    def_color!(fg_color: yellow => Color::Yellow);
+    def_color!(fg_color: dark_yellow => Color::DarkYellow);
+    def_color!(fg_color: blue => Color::Blue);
+    def_color!(fg_color: dark_blue => Color::DarkBlue);
+    def_color!(fg_color: magenta => Color::Magenta);
+    def_color!(fg_color: dark_magenta => Color::DarkMagenta);
+    def_color!(fg_color: cyan => Color::Cyan);
+    def_color!(fg_color: dark_cyan => Color::DarkCyan);
+    def_color!(fg_color: white => Color::White);
+    def_color!(fg_color: grey => Color::Grey);
+
+    // background colors
+    def_color!(bg_color: on_black => Color::Black);
+    def_color!(bg_color: on_red => Color::Red);
+    def_color!(bg_color: on_dark_red => Color::DarkRed);
+    def_color!(bg_color: on_green => Color::Green);
+    def_color!(bg_color: on_dark_green => Color::DarkGreen);
+    def_color!(bg_color: on_yellow => Color::Yellow);
+    def_color!(bg_color: on_dark_yellow => Color::DarkYellow);
+    def_color!(bg_color: on_blue => Color::Blue);
+    def_color!(bg_color: on_dark_blue => Color::DarkBlue);
+    def_color!(bg_color: on_magenta => Color::Magenta);
+    def_color!(bg_color: on_dark_magenta => Color::DarkMagenta);
+    def_color!(bg_color: on_cyan => Color::Cyan);
+    def_color!(bg_color: on_dark_cyan => Color::DarkCyan);
+    def_color!(bg_color: on_white => Color::White);
+    def_color!(bg_color: on_grey => Color::Grey);
+}
+
+impl<D: Display> Styler<D> for StyledObject<D> {
+    def_attr!(reset => Attribute::Reset);
+    def_attr!(bold => Attribute::Bold);
+    def_attr!(underlined => Attribute::Underlined);
+    def_attr!(reverse => Attribute::Reverse);
+    def_attr!(dim => Attribute::Dim);
+    def_attr!(italic => Attribute::Italic);
+    def_attr!(negative => Attribute::Reverse);
+    def_attr!(slow_blink => Attribute::SlowBlink);
+    def_attr!(rapid_blink => Attribute::RapidBlink);
+    def_attr!(hidden => Attribute::Hidden);
+    def_attr!(crossed_out => Attribute::CrossedOut);
 }
 
 /// This is a wrapper for a styled object on 'alternate screen' so that the styled object could be printed on the 'alternate screen' with the standard write functions in rust.

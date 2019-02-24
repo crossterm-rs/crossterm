@@ -1,9 +1,10 @@
 //! This is a ANSI specific implementation for styling related action.
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
-use crate::{Color, ColorType, ITerminalColor};
+use crate::{Color, ITerminalColor};
 use crossterm_utils::{write, write_str, Result, TerminalOutput};
 
+use crate::Colored;
 use std::sync::Arc;
 
 /// This struct is an ANSI escape code implementation for color related actions.
@@ -19,10 +20,7 @@ impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         write(
             stdout,
-            format!(
-                csi!("{}m"),
-                self.color_value(fg_color, ColorType::Foreground)
-            ),
+            format!(csi!("{}m"), self.color_value(Colored::Fg(fg_color))),
         )?;
         Ok(())
     }
@@ -30,10 +28,7 @@ impl ITerminalColor for AnsiColor {
     fn set_bg(&self, bg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         write(
             stdout,
-            format!(
-                csi!("{}m"),
-                self.color_value(bg_color, ColorType::Background)
-            ),
+            format!(csi!("{}m"), self.color_value(Colored::Bg(bg_color))),
         )?;
         Ok(())
     }
@@ -43,12 +38,20 @@ impl ITerminalColor for AnsiColor {
         Ok(())
     }
 
-    fn color_value(&self, color: Color, color_type: ColorType) -> String {
+    fn color_value(&self, colored: Colored) -> String {
         let mut ansi_value = String::new();
 
-        match color_type {
-            ColorType::Foreground => ansi_value.push_str("38;"),
-            ColorType::Background => ansi_value.push_str("48;"),
+        let mut color = Color::White;
+
+        match colored {
+            Colored::Fg(new_color) => {
+                ansi_value.push_str("38;");
+                color = new_color;
+            }
+            Colored::Bg(new_color) => {
+                ansi_value.push_str("48;");
+                color = new_color;
+            }
         }
 
         let rgb_val: String;

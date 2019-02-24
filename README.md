@@ -123,6 +123,9 @@ println!("{}", crossterm.style("Black font on Green background color").with(Colo
 ```
 ### Styled Font | [see more](http://atcentra.com/crossterm/styling.html)
 This module provides the functionalities to style the terminal.
+
+**[crossterm_style](https://github.com/TimonPost/crossterm/tree/master/crossterm_style) 0.2 has a new way to style the terminal more easily and will be usable in crossterm soon. 
+If you only use the styling you might want to use that crate.**
 ```rust    
 use crossterm::{Color, style};
 
@@ -258,7 +261,7 @@ If you have used this library for a terminal other than the above list without i
 
 ## Notice 
 This library is average stable now but I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
+If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
 
 ## Todo
 I still have some things in mind to implement. 
