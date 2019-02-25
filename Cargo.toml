@@ -35,7 +35,7 @@ members = [
 crossterm_screen =   { optional = true, version = "0.1.0" }
 crossterm_cursor =   { optional = true, version = "0.1.0" }
 crossterm_terminal = { optional = true, version = "0.1.0" }
-crossterm_style =    { optional = true, version = "0.1.0" }
+crossterm_style =    { optional = true, version = "0.2.0" }
 crossterm_input =    { optional = true, version = "0.1.0" }
 crossterm_utils =    { version = "0.1.0" }
 
