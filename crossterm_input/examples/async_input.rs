@@ -42,7 +42,7 @@ pub fn read_async_until() {
                     match k {
                         KeyEvent::Char(c) => {
                             match c {
-                                '\n' => {
+                                '\x0D' => {
                                     let mut msg = String::new();
                                     write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\t").unwrap();
                                     write(&Some(&screen.stdout), msg).unwrap();

@@ -10,7 +10,6 @@ use crossterm_winapi::{ConsoleMode, Handle};
 
 use std::mem::zeroed;
 use std::io::{Error, ErrorKind, Result};
-use crossterm_winapi::Handle;
 use winapi::um::{
     consoleapi::ReadConsoleInputW,
     wincon::{
