@@ -1,6 +1,14 @@
 extern crate crossterm_input;
+// this is included to enable raw mode
+extern crate crossterm_screen;
+use crossterm_screen::Screen;
+// this is included to enable writing in raw mode
+extern crate crossterm_utils;
+use crossterm_utils::write;
+use std::fmt::Write;
 
-use crossterm_input::{input, parse_event};
+
+use crossterm_input::{input, TerminalInput, parse_event, InputEvent, KeyEvent};
 
 use std::io::{Read};
 use std::{thread, time};
@@ -13,33 +21,66 @@ pub fn read_async_until() {
     // for more information checkout `crossterm_screen` or  use crossterm with the `screen` feature flag.
 
     // init some modules we use for this demo
-    let input = input();
+    let screen = Screen::new(true);
+    let input = TerminalInput::from_output(&screen.stdout);
 
-    let mut stdin = input.read_until_async(b'\r').bytes();
+    let mut stdin = input.read_async().bytes();
 
     for _i in 0..100 {
-        let a = stdin.next();
-        let event = parse_event(a.unwrap().unwrap(), &mut stdin);
+        let a = stdin.next().unwrap();
+        if !a.is_ok() {
+            thread::sleep(time::Duration::from_millis(100));
+            continue
+        } else {
+            // let mut msg = String::new();
+            // write!(msg, "{}\n\t", format!("pressed key: {:?}", a)).unwrap();
+            // write(&Some(&screen.stdout), msg).unwrap();
 
-        println!("pressed key: {:?}", a);
+            let event = parse_event(a.unwrap(), &mut stdin);
+            match event.unwrap() {
+                InputEvent::Keyboard(k) => {
+                    match k {
+                        KeyEvent::Char(c) => {
+                            match c {
+                                '\n' => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\t").unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
 
-        // if let Some(Ok(b'\r')) = a {
-        //     println!("The enter key is hit and program is not listening to input anymore.");
-        //     break;
-        // }
+                                    break;
+                                },
+                                'q' => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", "The 'q' key is hit and the program is not listening to input anymore.\n\t").unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
 
-        // if let Some(Ok(b'x')) = a {
-        //     println!("The key: x was pressed and program is terminated.");
-        //     break;
-        // }
+                                    break;
+                                },
+                                _ => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("'{}' pressed", c)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                }
+                            }
+                        },
+                        KeyEvent::Alt(c) => {
+                            let mut msg = String::new();
+                            write!(msg, "{}", format!("alt+'{}' pressed", c)).unwrap();
+                            write(&Some(&screen.stdout), msg).unwrap();
+                        },
+                        KeyEvent::Ctrl(c) => {
+                            let mut msg = String::new();
+                            write!(msg, "{}", format!("ctrl+'{}' pressed", c)).unwrap();
+                            write(&Some(&screen.stdout), msg).unwrap();
+                        },
+                        _ => { () }
+                    }
+                },
+                _ => { () }
+            };
+            thread::sleep(time::Duration::from_millis(100));
+        };
 
-        match event {
-            InputEvent::KeyEvent::Char(25) {
-                println!("...");
-            }
-        }
-
-        thread::sleep(time::Duration::from_millis(100));
     }
 }
 
@@ -143,5 +184,5 @@ fn main() {
     // `cargo run --example async_input`:
 
     // read_async();
-    // read_async_until();
+    read_async_until();
 }

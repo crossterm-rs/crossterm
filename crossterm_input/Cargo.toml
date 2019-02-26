@@ -20,6 +20,7 @@ libc = "0.2.43"
 
 [dependencies]
 crossterm_utils = "0.1.0"
+crossterm_screen =  "0.1.0"
 
 [[example]]
 name = "input"
