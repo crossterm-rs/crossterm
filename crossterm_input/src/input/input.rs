@@ -286,7 +286,7 @@ pub fn input<'stdout>() -> TerminalInput<'stdout> {
 
 /// Parse an Event from `item` and possibly subsequent bytes through `iter`.
 pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error>
-    where I: Iterator<Item = Result<u8, Error>> {
+where I: Iterator<Item = Result<u8, Error>> {
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
     match item {
         b'\x1B' => {

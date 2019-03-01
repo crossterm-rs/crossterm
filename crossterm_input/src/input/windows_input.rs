@@ -200,6 +200,11 @@ fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
             match input.EventType {
                 KEY_EVENT => {
                     let e = input.Event.KeyEvent();
+                    if e.bKeyDown == 0 {
+                        // NOTE (@imdaveho): only handle key down
+                        // this is because unix limits key events to key press
+                        continue
+                    }
                     vts = handle_key_event(e);
                 },
                 MOUSE_EVENT => {
@@ -228,6 +233,18 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
         0x10 | 0x11 | 0x12 => {
             // ignore SHIFT, CTRL, ALT standalone presses
             seq.push(b'\x00');
+        },
+        0x08 => {
+            // BACKSPACE 
+            seq.push(b'\x7F'); 
+        },
+        0x1B => { 
+            // ESC
+            seq.push(b'\x1B');
+        },
+        0x0D => {
+            // ENTER
+            seq.push(b'\n');
         },
         0x70 | 0x71 | 0x72 | 0x73 => {
             // F1 - F4 are support by default VT100
@@ -284,7 +301,7 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             seq.push(b'\x1B');
             seq.push(b'[');
             seq.push([b'2', b'3']
-                     [(virtual_key - 0x21) as usize]);
+                     [(virtual_key - 0x2D) as usize]);
             seq.push(b'~');
         },
         _ => {

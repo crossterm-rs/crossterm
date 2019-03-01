@@ -24,64 +24,82 @@ pub fn read_async_until() {
     let screen = Screen::new(true);
     let input = TerminalInput::from_output(&screen.stdout);
 
-    let mut stdin = input.read_async().bytes();
-
+    let mut stdin = input.read_async();
+    let mut res = stdin.bytes();
     for _i in 0..100 {
-        let a = stdin.next().unwrap();
+        // let res = match stdin.read(&mut buff) {
+        //     Ok(0) => println!("0"),
+        //     Ok(1) => (),
+        //     Ok(2) => println!("{:?}", buff),
+        //     Ok(_) => (), // unreachable!(),
+        //     Err(e) => println!(""),
+        // };
+        // thread::sleep(time::Duration::from_millis(100));
+        
+        let a = res.next().unwrap();
         if !a.is_ok() {
             thread::sleep(time::Duration::from_millis(100));
             continue
         } else {
-            // let mut msg = String::new();
-            // write!(msg, "{}\n\t", format!("pressed key: {:?}", a)).unwrap();
-            // write(&Some(&screen.stdout), msg).unwrap();
-
-            let event = parse_event(a.unwrap(), &mut stdin);
-            match event.unwrap() {
-                InputEvent::Keyboard(k) => {
-                    match k {
-                        KeyEvent::Char(c) => {
-                            match c {
-                                '\x0D' => {
-                                    let mut msg = String::new();
-                                    write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\t").unwrap();
-                                    write(&Some(&screen.stdout), msg).unwrap();
-
-                                    break;
-                                },
-                                'q' => {
-                                    let mut msg = String::new();
-                                    write!(msg, "{}", "The 'q' key is hit and the program is not listening to input anymore.\n\t").unwrap();
-                                    write(&Some(&screen.stdout), msg).unwrap();
-
-                                    break;
-                                },
-                                _ => {
-                                    let mut msg = String::new();
-                                    write!(msg, "{}", format!("'{}' pressed", c)).unwrap();
-                                    write(&Some(&screen.stdout), msg).unwrap();
-                                }
-                            }
-                        },
-                        KeyEvent::Alt(c) => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("alt+'{}' pressed", c)).unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
-                        },
-                        KeyEvent::Ctrl(c) => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("ctrl+'{}' pressed", c)).unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
-                        },
-                        _ => { () }
-                    }
-                },
-                _ => { () }
-            };
             thread::sleep(time::Duration::from_millis(100));
-        };
-
+        }
     }
+
+    // for _i in 0..100 {
+    //     let a = stdin.next().unwrap();
+    //     if !a.is_ok() {
+    //         thread::sleep(time::Duration::from_millis(100));
+    //         continue
+    //     } else {
+    //         // let mut msg = String::new();
+    //         // write!(msg, "{}\n\t", format!("pressed key: {:?}", a)).unwrap();
+    //         // write(&Some(&screen.stdout), msg).unwrap();
+
+    //         let event = parse_event(a.unwrap(), &mut stdin);
+    //         match event.unwrap() {
+    //             InputEvent::Keyboard(k) => {
+    //                 match k {
+    //                     KeyEvent::Char(c) => {
+    //                         match c {
+    //                             '\x0D' => {
+    //                                 let mut msg = String::new();
+    //                                 write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\n").unwrap();
+    //                                 write(&Some(&screen.stdout), msg).unwrap();
+
+    //                                 break;
+    //                             },
+    //                             'q' => {
+    //                                 let mut msg = String::new();
+    //                                 write!(msg, "{}", "The 'q' key is hit and the program is not listening to input anymore.\n\n").unwrap();
+    //                                 write(&Some(&screen.stdout), msg).unwrap();
+
+    //                                 break;
+    //                             },
+    //                             _ => {
+    //                                 let mut msg = String::new();
+    //                                 write!(msg, "{}", format!("'{}' pressed\n\n", c)).unwrap();
+    //                                 write(&Some(&screen.stdout), msg).unwrap();
+    //                             }
+    //                         }
+    //                     },
+    //                     KeyEvent::Alt(c) => {
+    //                         let mut msg = String::new();
+    //                         write!(msg, "{}", format!("alt+'{}' pressed\n\n", c)).unwrap();
+    //                         write(&Some(&screen.stdout), msg).unwrap();
+    //                     },
+    //                     KeyEvent::Ctrl(c) => {
+    //                         let mut msg = String::new();
+    //                         write!(msg, "{}", format!("ctrl+'{}' pressed\n\n", c)).unwrap();
+    //                         write(&Some(&screen.stdout), msg).unwrap();
+    //                     },
+    //                     _ => { () }
+    //                 }
+    //             },
+    //             _ => { () }
+    //         };
+    //         thread::sleep(time::Duration::from_millis(100));
+    //     };
+    // }
 }
 
 /// this will read pressed characters async until `x` is typed.

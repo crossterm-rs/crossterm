@@ -114,13 +114,14 @@ impl Read for AsyncReader {
 
             match self.recv.try_iter().next() {
                 Some(Ok(value)) => {
+                    println!("Ok{}", value);
                     buf[total] = value;
                     total += 1;
                 }
                 _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
             }
         }
-
+        println!("{}\n", total);
         Ok(total)
     }
 }
