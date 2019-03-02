@@ -15,6 +15,7 @@ use winapi::um::{
     wincon::{
         INPUT_RECORD, KEY_EVENT, MOUSE_EVENT, KEY_EVENT_RECORD
         // , MOUSE_EVENT_RECORD
+        , WINDOW_BUFFER_SIZE_EVENT, FOCUS_EVENT, MENU_EVENT
     },
 };
 use winapi::shared::minwindef::DWORD;
@@ -63,7 +64,7 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
+    fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
         // let is_raw_screen = match stdout {
@@ -107,7 +108,7 @@ impl ITerminalInput for WindowsInput {
     fn read_until_async(
         &self,
         delimiter: u8,
-        stdout: &Option<&Arc<TerminalOutput>>,
+        _stdout: &Option<&Arc<TerminalOutput>>,
         ) -> AsyncReader {
         let (tx, rx) = mpsc::channel();
 
@@ -158,7 +159,7 @@ impl ITerminalInput for WindowsInput {
     fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
         let console_mode = ConsoleMode::new()?;
         let dw_mode = console_mode.mode()?;
-        let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
+        const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080;
         let new_mode = dw_mode | ENABLE_MOUSE_MODE;
         console_mode.set_mode(new_mode)?;
         Ok(())
@@ -167,7 +168,7 @@ impl ITerminalInput for WindowsInput {
     fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
         let console_mode = ConsoleMode::new()?;
         let dw_mode = console_mode.mode()?;
-        let ENABLE_MOUSE_MODE = 0x0010 | 0x0080;
+        const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080;
         let new_mode = dw_mode & !ENABLE_MOUSE_MODE;
         console_mode.set_mode(new_mode)?;
         Ok(())
@@ -208,18 +209,15 @@ fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
                     vts = handle_key_event(e);
                 },
                 MOUSE_EVENT => {
-                    let e = input.Event.MouseEvent();
+                    let _e = input.Event.MouseEvent();
                     // TODO: handle mouse events
                     vts = Vec::new();
                 },
-                e => unreachable!("invalid event type: {}", e),
                 // NOTE (@imdaveho): ignore below
-                // WINDOW_BUFFER_SIZE_EVENT => {
-                //     let s = input.Event.WindowBufferSizeEvent().dwSize;
-                //     Input::WindowBufferSize(s.X, s.Y)
-                // },
-                // MENU_EVENT => Input::Menu(input.Event.MenuEvent().dwCommandId),
-                // FOCUS_EVENT => Input::Focus(input.Event.FocusEvent().bSetFocus != 0),
+                WINDOW_BUFFER_SIZE_EVENT => (),
+                FOCUS_EVENT => (),
+                MENU_EVENT => (),
+                e => unreachable!("invalid event type: {}", e),
             }
         }
     };

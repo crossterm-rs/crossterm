@@ -15,7 +15,7 @@ use self::windows_input::WindowsInput;
 
 pub use self::input::{input, TerminalInput, parse_event};
 
-use std::io::{self, Error, ErrorKind, Read};
+use std::io::{self, Read};
 use std::sync::{mpsc, Arc};
 
 use crossterm_utils::{TerminalOutput};
@@ -112,16 +112,16 @@ impl Read for AsyncReader {
                 break;
             }
 
-            match self.recv.try_iter().next() {
-                Some(Ok(value)) => {
-                    println!("Ok{}", value);
+            match self.recv.try_recv() {
+                Ok(Ok(value)) => {
                     buf[total] = value;
                     total += 1;
                 }
-                _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
+                Ok(Err(e)) => return Err(e),
+                Err(_) => break,
             }
         }
-        println!("{}\n", total);
+
         Ok(total)
     }
 }

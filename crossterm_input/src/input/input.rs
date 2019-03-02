@@ -307,7 +307,9 @@ where I: Iterator<Item = Result<u8, Error>> {
                         let ch = parse_utf8_char(c, iter);
                         InputEvent::Keyboard(KeyEvent::Alt(ch?))
                     }
-                    Some(Err(_)) | None => return Err(error),
+                    // Some(Err(_)) => return Err(error),
+                    Some(Err(e)) => return Err(e),
+                    None => InputEvent::Keyboard(KeyEvent::Esc),
             })
         },
         b'\n' | b'\r' => Ok(InputEvent::Keyboard(KeyEvent::Char('\n'))),
