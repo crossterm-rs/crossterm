@@ -71,7 +71,7 @@ impl ITerminalInput for UnixInput {
         AsyncReader { recv }
     }
 
-    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
+    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
         write(stdout, format!("{}h{}h{}h{}h"
             , csi!("?1000")
             , csi!("?1002")
@@ -80,7 +80,7 @@ impl ITerminalInput for UnixInput {
         Ok(())
     }
 
-    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
+    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
         write(stdout, format!("{}l{}l{}l{}l"
             , csi!("?1006")
             , csi!("?1015")

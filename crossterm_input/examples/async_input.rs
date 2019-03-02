@@ -8,7 +8,7 @@ use crossterm_utils::write;
 use std::fmt::Write;
 
 
-use crossterm_input::{input, TerminalInput, parse_event, InputEvent, KeyEvent};
+use crossterm_input::{input, TerminalInput, parse_event, InputEvent, KeyEvent, MouseEvent, MouseButton};
 
 use std::io::{Read};
 use std::{thread, time};
@@ -23,6 +23,8 @@ pub fn read_async_until() {
     // init some modules we use for this demo
     let screen = Screen::new(true);
     let input = TerminalInput::from_output(&screen.stdout);
+
+    input.enable_mouse_mode().unwrap();
 
     let mut stdin = input.read_async().bytes();
     for _i in 0..100 {
@@ -76,11 +78,56 @@ pub fn read_async_until() {
                         _ => { () }
                     }
                 },
+                InputEvent::Mouse(m) => {
+                    match m {
+                        MouseEvent::Press(b, x, y) => {
+                            match b {
+                                MouseButton::Left => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("left mouse press @ {}, {}\n\n", x, y)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                },
+                                MouseButton::Right => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("right mouse press @ {}, {}\n\n", x, y)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                },
+                                MouseButton::Middle => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("mid mouse press @ {}, {}\n\n", x, y)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                },
+                                MouseButton::WheelUp => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("wheel up @ {}, {}\n\n", x, y)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                },
+                                MouseButton::WheelDown => {
+                                    let mut msg = String::new();
+                                    write!(msg, "{}", format!("wheel down @ {}, {}\n\n", x, y)).unwrap();
+                                    write(&Some(&screen.stdout), msg).unwrap();
+                                },
+                            }
+                        },
+                        MouseEvent::Release(x, y) => {
+                            let mut msg = String::new();
+                            write!(msg, "{}", format!("mouse released @ {}, {}\n\n", x, y)).unwrap();
+                            write(&Some(&screen.stdout), msg).unwrap();
+                        },
+                        MouseEvent::Hold(x, y) => {
+                            let mut msg = String::new();
+                            write!(msg, "{}", format!("dragging @ {}, {}\n\n", x, y)).unwrap();
+                            write(&Some(&screen.stdout), msg).unwrap();
+                        }
+                    }
+                },
                 _ => { () }
             };
         };
         thread::sleep(time::Duration::from_millis(100));
     }
+
+    input.disable_mouse_mode().unwrap();
 }
 
 /// this will read pressed characters async until `x` is typed.

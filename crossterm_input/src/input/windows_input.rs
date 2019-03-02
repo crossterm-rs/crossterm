@@ -6,16 +6,16 @@ use crossterm_utils::{TerminalOutput};
 use std::{char, io};
 use std::thread;
 use winapi::um::winnt::INT;
-use crossterm_winapi::{ConsoleMode, Handle};
+use crossterm_winapi::{Handle, is_true};
 
 use std::mem::zeroed;
-use std::io::{Error, ErrorKind, Result};
+use std::io::{Error, ErrorKind};
 use winapi::um::{
-    consoleapi::ReadConsoleInputW,
+    consoleapi::{ReadConsoleInputW, GetConsoleMode, SetConsoleMode},
     wincon::{
-        INPUT_RECORD, KEY_EVENT, MOUSE_EVENT, KEY_EVENT_RECORD
-        // , MOUSE_EVENT_RECORD
-        , WINDOW_BUFFER_SIZE_EVENT, FOCUS_EVENT, MENU_EVENT
+        INPUT_RECORD, KEY_EVENT, KEY_EVENT_RECORD,
+        MOUSE_EVENT, MOUSE_EVENT_RECORD,
+        WINDOW_BUFFER_SIZE_EVENT, FOCUS_EVENT, MENU_EVENT
     },
 };
 use winapi::shared::minwindef::DWORD;
@@ -28,6 +28,10 @@ impl WindowsInput {
         WindowsInput
     }
 }
+
+const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
+// NOTE (@imdaveho): this global var is terrible -> move it elsewhere...
+static mut orig_mode: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
@@ -156,21 +160,41 @@ impl ITerminalInput for WindowsInput {
             AsyncReader { recv: rx }
     }
 
-    fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
-        let console_mode = ConsoleMode::new()?;
-        let dw_mode = console_mode.mode()?;
-        const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080;
-        let new_mode = dw_mode | ENABLE_MOUSE_MODE;
-        console_mode.set_mode(new_mode)?;
+    fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+        let handle = Handle::current_in_handle()?;
+        unsafe {
+            if !is_true(GetConsoleMode(handle, &mut orig_mode)) {
+                println!("Getting mode failed");
+                return Err(Error::last_os_error());
+            }
+        }
+        
+        let new_mode = ENABLE_MOUSE_MODE;
+        unsafe {
+            if !is_true(SetConsoleMode(handle, new_mode)) {
+                return Err(Error::last_os_error());
+            }
+        }
         Ok(())
     }
 
-    fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()> {
-        let console_mode = ConsoleMode::new()?;
-        let dw_mode = console_mode.mode()?;
-        const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080;
-        let new_mode = dw_mode & !ENABLE_MOUSE_MODE;
-        console_mode.set_mode(new_mode)?;
+    fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+        let handle = Handle::current_in_handle()?;
+        let dw_mode: Result<u32> = {
+            let mut console_mode = 0;
+            unsafe {
+                if !is_true(GetConsoleMode(handle, &mut console_mode)) {
+                    println!("Getting mode failed");
+                    return Err(Error::last_os_error());
+                }
+            }
+            Ok(console_mode)
+        };
+        unsafe {
+            if !is_true(SetConsoleMode(handle, orig_mode)) {
+                return Err(Error::last_os_error());
+            }
+        }
         Ok(())
     }
 }
@@ -209,9 +233,10 @@ fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
                     vts = handle_key_event(e);
                 },
                 MOUSE_EVENT => {
-                    let _e = input.Event.MouseEvent();
+                    let e = input.Event.MouseEvent();
                     // TODO: handle mouse events
-                    vts = Vec::new();
+                    // println!("{:?}", e.dwButtonState);
+                    vts = handle_mouse_event(e);
                 },
                 // NOTE (@imdaveho): ignore below
                 WINDOW_BUFFER_SIZE_EVENT => (),
@@ -364,6 +389,104 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
                 }
             }
         },
+    };
+    return seq;
+}
+
+fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
+    let mut seq = Vec::new();
+    let button = e.dwButtonState;
+    let movemt = e.dwEventFlags;
+    let coords = e.dwMousePosition; // NOTE (@imdaveho) coords can be larger than u8 (255)
+    let cx = coords.X as u8;
+    let cy = coords.Y as u8;
+    match movemt {
+        0x0 => {
+            // Single click
+            match button {
+                0 => {
+                    // release
+                    // seq = vec![b'\x1B', b'[', b'<', b'\x03', b';', cx, b';', cy, b';', b'm'];
+                    seq.push(b'\x1B');
+                    seq.push(b'[');
+                    seq.push(b'M');
+                    seq.push(3 + 32);
+                    seq.push(cx);
+                    seq.push(cy);
+                }
+                1 => {
+                    // left click
+                    // seq = vec![b'\x1B', b'[', b'<', b'\x00', b';', cx, b';', cy, b';', b'M'];
+                    seq.push(b'\x1B');
+                    seq.push(b'[');
+                    seq.push(b'M');
+                    seq.push(0 + 32);
+                    seq.push(cx);
+                    seq.push(cy);
+                },
+                2 => {
+                    // right click
+                    // seq = vec![b'\x1B', b'[', b'<', b'\x02', b';', cx, b';', cy, b';', b'M'];
+                    seq.push(b'\x1B');
+                    seq.push(b'[');
+                    seq.push(b'M');                    
+                    seq.push(2 + 32);
+                    seq.push(cx);
+                    seq.push(cy);
+                },
+                4 => {
+                    // middle click
+                    // seq = vec![b'\x1B', b'[', b'<', b'\x01', b';', cx, b';', cy, b';', b'M'];
+                    seq.push(b'\x1B');
+                    seq.push(b'[');
+                    seq.push(b'M');                    
+                    seq.push(1 + 32);
+                    seq.push(cx);
+                    seq.push(cy);
+                }
+                _ => (),
+            }
+        },
+        0x1 => {
+            // Move
+            // seq = vec![b'\x1B', b'[', b'<', 32, cx, cy, b'M'];
+            ()
+            // seq.push(b'\x1B');
+            // seq.push(b'[');
+            // seq.push(b'<');
+            // seq.push(32);
+            // seq.push(b';');
+            // seq.push(cx);
+            // seq.push(b';');
+            // seq.push(cy);
+            // seq.push(b';');
+            // seq.push(b'M');
+        },
+        0x4 => {
+            // Vertical scroll
+            if button >= 0 {
+                // WheelUp
+                // seq = vec![b'\x1B', b'[', b'<', 64, b';', cx, b';', cy, b';', b'M'];
+                seq.push(b'\x1B');
+                seq.push(b'[');
+                seq.push(b'M');
+                seq.push(0);
+                seq.push(cx);
+                seq.push(cy);
+            } else {
+                // WheelDown
+                // seq = vec![b'\x1B', b'[', b'<', 65, b';', cx, b';', cy, b';', b'M'];
+                seq.push(b'\x1B');
+                seq.push(b'[');
+                seq.push(b'M');
+                seq.push(1);
+                seq.push(cx);
+                seq.push(cy);
+            }
+        },
+        0x2 => (), // NOTE (@imdaveho): double click not supported by unix terminals
+        0x8 => (), // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
+        _ => (), // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
     };
     return seq;
 }

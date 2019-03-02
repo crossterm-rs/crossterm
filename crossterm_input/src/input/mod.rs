@@ -15,7 +15,7 @@ use self::windows_input::WindowsInput;
 
 pub use self::input::{input, TerminalInput, parse_event};
 
-use std::io::{self, Read};
+use std::io::{self, Read, Result};
 use std::sync::{mpsc, Arc};
 
 use crossterm_utils::{TerminalOutput};
@@ -36,15 +36,15 @@ trait ITerminalInput {
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
         -> AsyncReader;
-    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()>;
-    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> crossterm_utils::Result<()>;
+    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
+    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
 }
 
 /// This is a wrapper for reading from the input asynchronously.
 /// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
 /// You only need to check whether there are new characters available.
 pub struct AsyncReader {
-    recv: mpsc::Receiver<io::Result<u8>>,
+    recv: mpsc::Receiver<Result<u8>>,
 }
 
 /// This enum represents key events which could be caused by the user.

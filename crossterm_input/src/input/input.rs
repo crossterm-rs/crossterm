@@ -262,7 +262,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// let input = input();
     /// input.enable_mouse();
     /// ```
-    pub fn enable_mouse_mode(&self) -> crossterm_utils::Result<()> {
+    pub fn enable_mouse_mode(&self) -> io::Result<()> {
         // TODO: needs a test
         self.terminal_input.enable_mouse_mode(&self.stdout)
     }
@@ -273,7 +273,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// let input = input();
     /// input.disable_mouse();
     /// ```
-    pub fn disable_mouse_mode(&self) -> crossterm_utils::Result<()> {
+    pub fn disable_mouse_mode(&self) -> io::Result<()> {
         // TODO: needs a test
         self.terminal_input.disable_mouse_mode(&self.stdout)
     }
@@ -285,8 +285,8 @@ pub fn input<'stdout>() -> TerminalInput<'stdout> {
 }
 
 /// Parse an Event from `item` and possibly subsequent bytes through `iter`.
-pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent, Error>
-where I: Iterator<Item = Result<u8, Error>> {
+pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
+where I: Iterator<Item = Result<u8>> {
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
     match item {
         b'\x1B' => {
@@ -307,8 +307,7 @@ where I: Iterator<Item = Result<u8, Error>> {
                         let ch = parse_utf8_char(c, iter);
                         InputEvent::Keyboard(KeyEvent::Alt(ch?))
                     }
-                    // Some(Err(_)) => return Err(error),
-                    Some(Err(e)) => return Err(e),
+                    Some(Err(_)) => return Err(error),
                     None => InputEvent::Keyboard(KeyEvent::Esc),
             })
         },
@@ -330,7 +329,7 @@ where I: Iterator<Item = Result<u8, Error>> {
 /// Parses a CSI sequence, just after reading ^[
 /// Returns Event::Unknown if an unrecognized sequence is found.
 fn parse_csi<I>(iter: &mut I) -> InputEvent
-where I: Iterator<Item = Result<u8, Error>> {
+where I: Iterator<Item = Result<u8>> {
     match iter.next() {
         Some(Ok(b'[')) => match iter.next() {
             // NOTE (@imdaveho): cannot find when this occurs;
@@ -387,39 +386,40 @@ where I: Iterator<Item = Result<u8, Error>> {
             let str_buf = String::from_utf8(buf).unwrap();
             let nums = &mut str_buf.split(';');
 
-            let cb = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
-            let cx = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
-            let cy = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
+            // let cb = nums.next()
+            //     .unwrap()
+            //     .parse::<u16>()
+            //     .unwrap();
+            // let cx = nums.next()
+            //     .unwrap()
+            //     .parse::<u16>()
+            //     .unwrap();
+            // let cy = nums.next()
+            //     .unwrap()
+            //     .parse::<u16>()
+            //     .unwrap();
 
-            match cb {
-                0...2 | 64...65 => {
-                    let button = match cb {
-                        0 => MouseButton::Left,
-                        1 => MouseButton::Middle,
-                        2 => MouseButton::Right,
-                        64 => MouseButton::WheelUp,
-                        65 => MouseButton::WheelDown,
-                        _ => unreachable!(),
-                    };
-                    match c {
-                        b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
-                        b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-                        _ => InputEvent::Unknown,
-                    }
-                }
-                32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-                3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-                _ => InputEvent::Unknown,
-            }
+            // match cb {
+            //     0...2 | 64...65 => {
+            //         let button = match cb {
+            //             0 => MouseButton::Left,
+            //             1 => MouseButton::Middle,
+            //             2 => MouseButton::Right,
+            //             64 => MouseButton::WheelUp,
+            //             65 => MouseButton::WheelDown,
+            //             _ => unreachable!(),
+            //         };
+            //         match c {
+            //             b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
+            //             b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+            //             _ => InputEvent::Unknown,
+            //         }
+            //     }
+            //     32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
+            //     3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+            //     _ => InputEvent::Unknown,
+            // }
+            InputEvent::Unknown
         },
         Some(Ok(c @ b'0'...b'9')) => {
             // Numbered escape code.
@@ -493,8 +493,8 @@ where I: Iterator<Item = Result<u8, Error>> {
 }
 
 /// Parse `c` as either a single byte ASCII char or a variable size UTF-8 char.
-fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char, Error>
-where I: Iterator<Item = Result<u8, Error>> {
+fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char>
+where I: Iterator<Item = Result<u8>> {
     let error = Err(Error::new(ErrorKind::Other, "Input character is not valid UTF-8"));
     if c.is_ascii() {
         Ok(c as char)
