@@ -386,40 +386,39 @@ where I: Iterator<Item = Result<u8>> {
             let str_buf = String::from_utf8(buf).unwrap();
             let nums = &mut str_buf.split(';');
 
-            // let cb = nums.next()
-            //     .unwrap()
-            //     .parse::<u16>()
-            //     .unwrap();
-            // let cx = nums.next()
-            //     .unwrap()
-            //     .parse::<u16>()
-            //     .unwrap();
-            // let cy = nums.next()
-            //     .unwrap()
-            //     .parse::<u16>()
-            //     .unwrap();
+            let cb = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
+            let cx = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
+            let cy = nums.next()
+                .unwrap()
+                .parse::<u16>()
+                .unwrap();
 
-            // match cb {
-            //     0...2 | 64...65 => {
-            //         let button = match cb {
-            //             0 => MouseButton::Left,
-            //             1 => MouseButton::Middle,
-            //             2 => MouseButton::Right,
-            //             64 => MouseButton::WheelUp,
-            //             65 => MouseButton::WheelDown,
-            //             _ => unreachable!(),
-            //         };
-            //         match c {
-            //             b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
-            //             b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-            //             _ => InputEvent::Unknown,
-            //         }
-            //     }
-            //     32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-            //     3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-            //     _ => InputEvent::Unknown,
-            // }
-            InputEvent::Unknown
+            match cb {
+                0...2 | 64...65 => {
+                    let button = match cb {
+                        0 => MouseButton::Left,
+                        1 => MouseButton::Middle,
+                        2 => MouseButton::Right,
+                        64 => MouseButton::WheelUp,
+                        65 => MouseButton::WheelDown,
+                        _ => unreachable!(),
+                    };
+                    match c {
+                        b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
+                        b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+                        _ => InputEvent::Unknown,
+                    }
+                }
+                32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
+                3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
+                _ => InputEvent::Unknown,
+            }
         },
         Some(Ok(c @ b'0'...b'9')) => {
             // Numbered escape code.

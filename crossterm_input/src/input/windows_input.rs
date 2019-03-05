@@ -449,12 +449,13 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
         },
         0x1 => {
             // Move
-            // seq = vec![b'\x1B', b'[', b'<', 32, cx, cy, b'M'];
+            // seq = vec![b'\x1B', b'[', b'<', 3, 2, cx, cy, b'M'];
             ()
             // seq.push(b'\x1B');
             // seq.push(b'[');
             // seq.push(b'<');
-            // seq.push(32);
+            // seq.push(3);
+            // seq.push(2);
             // seq.push(b';');
             // seq.push(cx);
             // seq.push(b';');
