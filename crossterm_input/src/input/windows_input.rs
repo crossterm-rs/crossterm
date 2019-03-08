@@ -6,7 +6,7 @@ use crossterm_utils::{TerminalOutput};
 use std::{char, io};
 use std::thread;
 use winapi::um::winnt::INT;
-use crossterm_winapi::{Handle, is_true};
+use crossterm_winapi::{Handle, is_true, ScreenBuffer};
 
 use std::mem::zeroed;
 use std::io::{Error, ErrorKind};
@@ -397,97 +397,130 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
     let mut seq = Vec::new();
     let button = e.dwButtonState;
     let movemt = e.dwEventFlags;
-    let coords = e.dwMousePosition; // NOTE (@imdaveho) coords can be larger than u8 (255)
-    let cx = coords.X as u8;
-    let cy = coords.Y as u8;
+    // NOTE (@imdaveho) coords can be larger than u8 (255)
+    let coords = e.dwMousePosition;
+    // NOTE (@imdaveho) xterm emulation takes the digits of the coords and passes them
+    // individually as bytes into a buffer; the below cxbs and cybs replicates that and
+    // mimicks the behavior; additionally, in xterm, mouse move is only handled when a 
+    // mouse button is held down (ie. mouse drag)
+    let cx = coords.X;
+    let cy = coords.Y;
+    let cxbs: Vec<u8> = cx.to_string().chars().map(|d| d as u8).collect();
+    let cybs: Vec<u8> = cy.to_string().chars().map(|d| d as u8).collect();
+    // TODO (@imdaveho): check if linux only provides coords for visible terminal window vs the total buffer
+    // let size = ScreenBuffer::current().unwrap().info().unwrap().terminal_size().into();
+
     match movemt {
         0x0 => {
             // Single click
             match button {
                 0 => {
                     // release
-                    // seq = vec![b'\x1B', b'[', b'<', b'\x03', b';', cx, b';', cy, b';', b'm'];
-                    seq.push(b'\x1B');
-                    seq.push(b'[');
-                    seq.push(b'M');
-                    seq.push(3 + 32);
-                    seq.push(cx);
-                    seq.push(cy);
+                    seq = vec![b'\x1B', b'[', b'<', b'3', b';'];
+                    for x in cxbs {
+                        seq.push(x);
+                    }
+                    seq.push(b';');
+                    for y in cybs {
+                        seq.push(y);
+                    }
+                    seq.push(b';');
+                    seq.push(b'm');
                 }
                 1 => {
                     // left click
-                    // seq = vec![b'\x1B', b'[', b'<', b'\x00', b';', cx, b';', cy, b';', b'M'];
-                    seq.push(b'\x1B');
-                    seq.push(b'[');
+                    seq = vec![b'\x1B', b'[', b'<', b'0', b';'];
+                    for x in cxbs {
+                        seq.push(x);
+                    }
+                    seq.push(b';');
+                    for y in cybs {
+                        seq.push(y);
+                    }
+                    seq.push(b';');
                     seq.push(b'M');
-                    seq.push(0 + 32);
-                    seq.push(cx);
-                    seq.push(cy);
                 },
                 2 => {
                     // right click
-                    // seq = vec![b'\x1B', b'[', b'<', b'\x02', b';', cx, b';', cy, b';', b'M'];
-                    seq.push(b'\x1B');
-                    seq.push(b'[');
-                    seq.push(b'M');                    
-                    seq.push(2 + 32);
-                    seq.push(cx);
-                    seq.push(cy);
+                    seq = vec![b'\x1B', b'[', b'<', b'2', b';'];
+                    for x in cxbs {
+                        seq.push(x);
+                    }
+                    seq.push(b';');
+                    for y in cybs {
+                        seq.push(y);
+                    }
+                    seq.push(b';');
+                    seq.push(b'M');
                 },
                 4 => {
                     // middle click
-                    // seq = vec![b'\x1B', b'[', b'<', b'\x01', b';', cx, b';', cy, b';', b'M'];
-                    seq.push(b'\x1B');
-                    seq.push(b'[');
-                    seq.push(b'M');                    
-                    seq.push(1 + 32);
-                    seq.push(cx);
-                    seq.push(cy);
+                    seq = vec![b'\x1B', b'[', b'<', b'1', b';'];
+                    for x in cxbs {
+                        seq.push(x);
+                    }
+                    seq.push(b';');
+                    for y in cybs {
+                        seq.push(y);
+                    }
+                    seq.push(b';');
+                    seq.push(b'M');
                 }
                 _ => (),
             }
         },
         0x1 => {
-            // Move
-            // seq = vec![b'\x1B', b'[', b'<', 3, 2, cx, cy, b'M'];
-            ()
-            // seq.push(b'\x1B');
-            // seq.push(b'[');
-            // seq.push(b'<');
-            // seq.push(3);
-            // seq.push(2);
-            // seq.push(b';');
-            // seq.push(cx);
-            // seq.push(b';');
-            // seq.push(cy);
-            // seq.push(b';');
-            // seq.push(b'M');
+            // Click + Move
+            // NOTE (@imdaveho) only register when mouse is not released
+            if button != 0 {
+                seq = vec![b'\x1B', b'[', b'<', b'3', b'2', b';'];
+                for x in cxbs {
+                    seq.push(x);
+                }
+                seq.push(b';');
+                for y in cybs {
+                    seq.push(y);
+                }
+                seq.push(b';');
+                seq.push(b'M');
+            } else { 
+                () 
+            }
         },
         0x4 => {
             // Vertical scroll
-            if button >= 0 {
+            // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
+            // MOUSE_WHEELED events are positive if wheeled up and negative when wheeled down...
+            // from testing it looks like getting the "high word" or (button >> 16) as a signed int
+            if ((button >> 16) as i16) >= 0 {
                 // WheelUp
-                // seq = vec![b'\x1B', b'[', b'<', 64, b';', cx, b';', cy, b';', b'M'];
-                seq.push(b'\x1B');
-                seq.push(b'[');
+                seq = vec![b'\x1B', b'[', b'<', b'6', b'4', b';'];
+                for x in cxbs {
+                    seq.push(x);
+                }
+                seq.push(b';');
+                for y in cybs {
+                    seq.push(y);
+                }
+                seq.push(b';');
                 seq.push(b'M');
-                seq.push(0);
-                seq.push(cx);
-                seq.push(cy);
             } else {
                 // WheelDown
-                // seq = vec![b'\x1B', b'[', b'<', 65, b';', cx, b';', cy, b';', b'M'];
-                seq.push(b'\x1B');
-                seq.push(b'[');
+                seq = vec![b'\x1B', b'[', b'<', b'6', b'5', b';'];
+                for x in cxbs {
+                    seq.push(x);
+                }
+                seq.push(b';');
+                for y in cybs {
+                    seq.push(y);
+                }
+                seq.push(b';');
                 seq.push(b'M');
-                seq.push(1);
-                seq.push(cx);
-                seq.push(cy);
             }
         },
         0x2 => (), // NOTE (@imdaveho): double click not supported by unix terminals
         0x8 => (), // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
-        _ => (), // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
+        _ => (),   // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
     };
     return seq;
 }
