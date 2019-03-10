@@ -1,6 +1,6 @@
 extern crate crossterm_input;
 
-use self::crossterm_input::{input, KeyEvent, Screen, TerminalInput};
+use self::crossterm_input::{input};
 
 pub fn read_char() {
     let input = input();
@@ -20,10 +20,16 @@ pub fn read_line() {
     }
 }
 
-pub fn pause_terminal() {
-    println!("Press 'x' to quit...");
-    let terminal_input = TerminalInput::new();
-    terminal_input.wait_until(KeyEvent::OnKeyPress(b'x'));
-}
+// pub fn pause_terminal() {
+//     println!("Press 'x' to quit...");
+//     let terminal_input = TerminalInput::new();
+//     terminal_input.wait_until(KeyEvent::OnKeyPress(b'x'));
+// }
 
-fn main() {}
+fn main() {
+    // un-comment below and run with
+    // `cargo run --example input`:
+
+    // read_char();
+    // read_line();
+}

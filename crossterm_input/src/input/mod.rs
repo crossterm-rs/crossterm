@@ -13,12 +13,12 @@ use self::unix_input::UnixInput;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
-pub use self::input::{input, TerminalInput};
+pub use self::input::{input, TerminalInput, parse_event};
 
-use std::io::{self, Error, ErrorKind, Read};
+use std::io::{self, Read, Result};
 use std::sync::{mpsc, Arc};
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{TerminalOutput};
 
 /// This trait defines the actions that can be preformed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
@@ -36,23 +36,66 @@ trait ITerminalInput {
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
         -> AsyncReader;
+    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
+    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
 }
 
 /// This is a wrapper for reading from the input asynchronously.
 /// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
 /// You only need to check whether there are new characters available.
 pub struct AsyncReader {
-    recv: mpsc::Receiver<io::Result<u8>>,
+    recv: mpsc::Receiver<Result<u8>>,
 }
 
 /// This enum represents key events which could be caused by the user.
+// pub enum KeyEvent {
+//     /// Represents a specific key press.
+//     OnKeyPress(u8),
+//     /// Represents a key press from any key.
+//     OnAnyKeyPress,
+//     /// Represents a key press from enter.
+//     OnEnter,
+// }
+
+pub enum InputEvent {
+    Keyboard(KeyEvent),
+    Mouse(MouseEvent),
+    Unsupported(Vec<u8>),
+    Unknown,
+}
+
+pub enum MouseEvent {
+    Press(MouseButton, u16, u16),
+    Release(u16, u16),
+    Hold(u16, u16),
+}
+
+pub enum MouseButton {
+    Left,
+    Right,
+    Middle,
+    WheelUp,
+    WheelDown,
+}
+
 pub enum KeyEvent {
-    /// Represents a specific key press.
-    OnKeyPress(u8),
-    /// Represents a key press from any key.
-    OnAnyKeyPress,
-    /// Represents a key press from enter.
-    OnEnter,
+    Backspace,
+    Left,
+    Right,
+    Up,
+    Down,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Delete,
+    Insert,
+    F(u8),
+    Char(char),
+    Alt(char),
+    Ctrl(char),
+    Null,
+    Esc,
 }
 
 impl Read for AsyncReader {
@@ -69,12 +112,13 @@ impl Read for AsyncReader {
                 break;
             }
 
-            match self.recv.try_iter().next() {
-                Some(Ok(value)) => {
+            match self.recv.try_recv() {
+                Ok(Ok(value)) => {
                     buf[total] = value;
                     total += 1;
                 }
-                _ => return Err(Error::new(ErrorKind::Other, "No characters pressed.")),
+                Ok(Err(e)) => return Err(e),
+                Err(_) => break,
             }
         }
 
