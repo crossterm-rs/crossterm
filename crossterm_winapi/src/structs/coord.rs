@@ -5,7 +5,7 @@
 use winapi::um::wincon::COORD;
 
 /// This is type represents the position of something on a certain 'x' and 'y'.
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialOrd, PartialEq)]
 pub struct Coord {
     /// the position on the x axis
     pub x: i16,

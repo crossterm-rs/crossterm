@@ -1,5 +1,5 @@
 # Crossterm Terminal | cross-platform terminal actions.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
 
 [s1]: https://img.shields.io/crates/v/crossterm_terminal.svg
 [l1]: https://crates.io/crates/crossterm_terminal
@@ -13,8 +13,7 @@
 [s3]: https://docs.rs/crossterm_terminal/badge.svg
 [l3]: https://docs.rs/crossterm_terminal/
 
-[s6]: https://tokei.rs/b1/github/TimonPost/crossterm_terminal?category=code
-[s7]: https://travis-ci.org/TimonPost/crossterm_terminal.svg?branch=master
+[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 This crate allows you to perform terminal related actions cross-platform e.g clearing, resizing etc. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
@@ -27,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://doc.rust-lang.org/1.30.0/book/first-edition/conditional-compilation.html)
+When you want to use other modules as well you might want to use crossterm with [feature flags](http://atcentra.com/crossterm/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -42,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_terminal` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_terminal` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_terminal/examples) folders with detailed examples for all functionality of this crate.
 
 Add the `crossterm_terminal` package to your `Cargo.toml` file.
 

@@ -1,3 +1,10 @@
+# Changes crossterm 0.8.0
+- Upgraded to `crossterm_input 0.2.0`; Input key, mouse events support.
+- Upgraded crossterm_winapi 0.2
+
+# Changes crossterm 0.7.0
+- Upgraded to `crossterm_style 0.2`; easier styling.
+
 # Changes crossterm 0.6.0
 - Introduced feature flags; input, cursor, style, terminal, screen.
 - All modules are moved to their own crate.

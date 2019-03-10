@@ -1,5 +1,5 @@
 # Crossterm Utils | crossterm common used code.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
 
 [s1]: https://img.shields.io/crates/v/crossterm_utils.svg
 [l1]: https://crates.io/crates/crossterm_utils
@@ -13,8 +13,7 @@
 [s3]: https://docs.rs/crossterm_utils/badge.svg
 [l3]: https://docs.rs/crossterm_utils/
 
-[s6]: https://tokei.rs/b1/github/TimonPost/crossterm_utils?category=code
-[s7]: https://travis-ci.org/TimonPost/crossterm_utils.svg?branch=master
+[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 This crate is a utilities crate used by the following [crossterm](https://crates.io/crates/crossterm) modules:
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 

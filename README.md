@@ -98,35 +98,35 @@ These are the features from this crate:
 - Input
     - Read character
     - Read line
-    - Read async
-    - Read async until
-    - Wait for key event (terminal pause)
+    - Read key input events async / sync (ALT + Key, CTRL + Key, FN, Arrows, ESC, BackSpace, HOME, DELETE. INSERT, PAGEUP/DOWN, and more)
+    - Read mouse input events (Press, Release, Position, Button)
 
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
 
-### Crossterm Type | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs)
+### Crossterm Type
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
+
 ```rust
-// screen wheron the `Crossterm` methods will be executed.
+// screen whereon the `Crossterm` methods will be executed.
 let crossterm = Crossterm::new();
 
-// get instance of the modules, whereafter you can use the methods the particulary module provides. 
+// get instance of the modules, whereafter you can use the methods the particularly module provides. 
 let color = crossterm.color();
 let cursor = crossterm.cursor();
 let terminal = crossterm.terminal();
-
-// styling
-println!("{}", crossterm.style("Black font on Green background color").with(Color::Black).on(Color::Green));
-
+let input = crossterm.input();
 ```
-### Styled Font | [see more](http://atcentra.com/crossterm/styling.html)
+
+### Styled Font
 This module provides the functionalities to style the terminal.
 
-First include those types: 
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_style/), [book](http://atcentra.com/crossterm/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
-```rust
+_imports_
+```rust 
 use crossterm::{Colored, Color, Colorize, Styler, Attribute};
 ```
 _style font with attributes_
@@ -168,8 +168,10 @@ println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 ```
 
 
-### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor.rs)
+### Cursor
 This module provides the functionalities to work with the terminal cursor.
+
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_cursor/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/cursor.rs)
 
 ```rust 
 use crossterm::cursor;
@@ -209,8 +211,10 @@ cursor.blink(true)
 
 ```
 
-### Terminal | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/terminal.rs)
+### Terminal
 This module provides the functionalities to work with the terminal in general.
+
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_terminal/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/terminal.rs).
 
 ```rust 
 use crossterm::{terminal,ClearType};
@@ -246,8 +250,67 @@ terminal.exit();
 terminal.write("Some text\n Some text on new line");
 ```
 
+### Input Reading
+This module provides the functionalities to read user input events.
+
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](http://atcentra.com/crossterm/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+
+_available imports_
+```rust
+use crossterm_input::{
+    input, InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput, AsyncReader, SyncReader, Screen
+};
+```
+
+_Simple Readings_
+```rust 
+let mut input = input();
+
+ match input.read_char() {
+    Ok(s) => println!("char typed: {}", s),
+    Err(e) => println!("char error : {}", e),
+ }
+ 
+ match input.read_line() {
+     Ok(s) => println!("string typed: {}", s),
+     Err(e) => println!("error: {}", e),
+ }
+```
+
+_Read input events synchronously or asynchronously._
+```rust
+// make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
+let screen = Screen::new(true);
+    
+let mut input = input();
+
+// either read the input synchronously 
+let stdin = input.read_sync();
+ 
+// or asynchronously
+let stdin = input.read_async();
+
+if let Some(key_event) = stdin.next() {
+     match key_event {
+         InputEvent::Keyboard(event: KeyEvent) => match event { /* check key event */ }
+         InputEvent::Mouse(event: MouseEvent) => match event { /* check mouse event */ }
+     }
+ }
+```
+
+_Enable mouse input events._
+```rust
+let input = input();
+
+// enable mouse events to be captured.
+input.enable_mouse_mode().unwrap();
+
+// disable mouse events to be captured.
+input.disable_mouse_mode().unwrap();
+```
+
 ### Alternate and Raw Screen
-These concepts are a little more complex, please checkout the [book](http://atcentra.com/crossterm/screen.html) topics about these subjects.
+These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](http://atcentra.com/crossterm/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
 
 ## Tested terminals
 
@@ -269,12 +332,6 @@ This library is average stable now but I don't expect it to not to change that m
 If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
 
 ## Todo
-I still have some things in mind to implement. 
-
-- Handling mouse events 
-    I want to be able to do something based on the clicks the user has done with its mouse.
-- Handling key events
-    I want to be able to read key combination inputs. 
 - Tests
    Find a way to test: color, alternate screen, rawscreen
 

@@ -5,7 +5,7 @@ authors = ["Timon Post <timonpost@hotmail.nl>"]
 edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.1.1"
+crossterm_winapi = "0.1.2"
 winapi = { version =  "0.3.5", features = ["wincon"] }
 
 [target.'cfg(unix)'.dependencies]
