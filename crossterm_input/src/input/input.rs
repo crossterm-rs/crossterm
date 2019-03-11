@@ -2,11 +2,11 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::str;
 use std::io::{Error, ErrorKind};
 use std::iter::Iterator;
+use std::str;
 
-use crossterm_utils::{TerminalOutput};
+use crossterm_utils::TerminalOutput;
 
 /// Allows you to preform actions with the < option >.
 ///
@@ -211,51 +211,6 @@ impl<'stdout> TerminalInput<'stdout> {
             .read_until_async(delimiter, &self.stdout)
     }
 
-    /// This will prevent the current thread from continuing until the passed `KeyEvent` has happened.
-    ///
-    /// # Remark
-    /// - Requires 'raw screen to be enabled'.
-    ///   Not sure what this is, please checkout the 'crossterm_screen' crate.
-    ///
-    /// ```
-    /// use crossterm::input::{TerminalInput, KeyEvent};
-    ///
-    /// fn main() {
-    ///     println!("Press 'x' to quit...");
-    ///     TerminalInput::wait_until(KeyEvent::OnKeyPress(b'x'));
-    /// }
-    /// ```
-    // pub fn wait_until(&self, key_event: KeyEvent) {
-    //     let mut stdin = self.read_async().bytes();
-
-    //     loop {
-    //         let pressed_key: Option<Result<u8, Error>> = stdin.next();
-
-    //         match pressed_key {
-    //             Some(Ok(value)) => match key_event {
-    //                 // TODO: Fix
-    //                 // KeyEvent::OnKeyPress(ascii_code) => {
-    //                 //     if value == ascii_code {
-    //                 //         break;
-    //                 //     }
-    //                 // }
-    //                 // KeyEvent::OnEnter => {
-    //                 //     if value == b'\r' {
-    //                 //         break;
-    //                 //     }
-    //                 // }
-    //                 // KeyEvent::OnAnyKeyPress => {
-    //                 //     break;
-    //                 // }
-    //             },
-    //             _ => {}
-    //         }
-
-    //         // some sleeping time so that we don't 'dos' our cpu.
-    //         thread::sleep(Duration::from_millis(10));
-    //     }
-    // }
-
     /// Enable mouse events to be captured.
     ///
     /// ```rust
@@ -263,7 +218,6 @@ impl<'stdout> TerminalInput<'stdout> {
     /// input.enable_mouse();
     /// ```
     pub fn enable_mouse_mode(&self) -> io::Result<()> {
-        // TODO: needs a test
         self.terminal_input.enable_mouse_mode(&self.stdout)
     }
 
@@ -274,7 +228,6 @@ impl<'stdout> TerminalInput<'stdout> {
     /// input.disable_mouse();
     /// ```
     pub fn disable_mouse_mode(&self) -> io::Result<()> {
-        // TODO: needs a test
         self.terminal_input.disable_mouse_mode(&self.stdout)
     }
 }
@@ -286,50 +239,58 @@ pub fn input<'stdout>() -> TerminalInput<'stdout> {
 
 /// Parse an Event from `item` and possibly subsequent bytes through `iter`.
 pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
-where I: Iterator<Item = Result<u8>> {
+where
+    I: Iterator<Item = Result<u8>>,
+{
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
     match item {
         b'\x1B' => {
             // This is an escape character, leading a control sequence.
             Ok(match iter.next() {
-                    Some(Ok(b'O')) => {
-                        match iter.next() {
-                            // F1-F4
-                            Some(Ok(val @ b'P'...b'S')) => InputEvent::Keyboard(KeyEvent::F(1 + val - b'P')),
-                            _ => return Err(error),
+                Some(Ok(b'O')) => {
+                    match iter.next() {
+                        // F1-F4
+                        Some(Ok(val @ b'P'...b'S')) => {
+                            InputEvent::Keyboard(KeyEvent::F(1 + val - b'P'))
                         }
+                        _ => return Err(error),
                     }
-                    Some(Ok(b'[')) => {
-                        // This is a CSI sequence.
-                        parse_csi(iter)
-                    }
-                    Some(Ok(c)) => {
-                        let ch = parse_utf8_char(c, iter);
-                        InputEvent::Keyboard(KeyEvent::Alt(ch?))
-                    }
-                    Some(Err(_)) => return Err(error),
-                    None => InputEvent::Keyboard(KeyEvent::Esc),
+                }
+                Some(Ok(b'[')) => {
+                    // This is a CSI sequence.
+                    parse_csi(iter)
+                }
+                Some(Ok(c)) => {
+                    let ch = parse_utf8_char(c, iter);
+                    InputEvent::Keyboard(KeyEvent::Alt(ch?))
+                }
+                Some(Err(_)) => return Err(error),
+                None => InputEvent::Keyboard(KeyEvent::Esc),
             })
-        },
+        }
         b'\n' | b'\r' => Ok(InputEvent::Keyboard(KeyEvent::Char('\n'))),
         b'\t' => Ok(InputEvent::Keyboard(KeyEvent::Char('\t'))),
         b'\x7F' => Ok(InputEvent::Keyboard(KeyEvent::Backspace)),
-        c @ b'\x01'...b'\x1A' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))),
-        c @ b'\x1C'...b'\x1F' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char))),
+        c @ b'\x01'...b'\x1A' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl(
+            (c as u8 - 0x1 + b'a') as char,
+        ))),
+        c @ b'\x1C'...b'\x1F' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl(
+            (c as u8 - 0x1C + b'4') as char,
+        ))),
         b'\0' => Ok(InputEvent::Keyboard(KeyEvent::Null)),
-        c => {
-            Ok({
-                   let ch = parse_utf8_char(c, iter);
-                   InputEvent::Keyboard(KeyEvent::Char(ch?))
-               })
-        }
+        c => Ok({
+            let ch = parse_utf8_char(c, iter);
+            InputEvent::Keyboard(KeyEvent::Char(ch?))
+        }),
     }
 }
 
 /// Parses a CSI sequence, just after reading ^[
 /// Returns Event::Unknown if an unrecognized sequence is found.
 fn parse_csi<I>(iter: &mut I) -> InputEvent
-where I: Iterator<Item = Result<u8>> {
+where
+    I: Iterator<Item = Result<u8>>,
+{
     match iter.next() {
         Some(Ok(b'[')) => match iter.next() {
             // NOTE (@imdaveho): cannot find when this occurs;
@@ -370,7 +331,7 @@ where I: Iterator<Item = Result<u8>> {
                 3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
                 _ => InputEvent::Unknown,
             }
-        },
+        }
         Some(Ok(b'<')) => {
             // xterm mouse handling:
             // ESC [ < Cb ; Cx ; Cy (;) (M or m)
@@ -386,18 +347,9 @@ where I: Iterator<Item = Result<u8>> {
             let str_buf = String::from_utf8(buf).unwrap();
             let nums = &mut str_buf.split(';');
 
-            let cb = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
-            let cx = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
-            let cy = nums.next()
-                .unwrap()
-                .parse::<u16>()
-                .unwrap();
+            let cb = nums.next().unwrap().parse::<u16>().unwrap();
+            let cx = nums.next().unwrap().parse::<u16>().unwrap();
+            let cy = nums.next().unwrap().parse::<u16>().unwrap();
 
             match cb {
                 0...2 | 64...65 => {
@@ -419,7 +371,7 @@ where I: Iterator<Item = Result<u8>> {
                 3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
                 _ => InputEvent::Unknown,
             }
-        },
+        }
         Some(Ok(c @ b'0'...b'9')) => {
             // Numbered escape code.
             let mut buf = Vec::new();
@@ -449,10 +401,12 @@ where I: Iterator<Item = Result<u8>> {
                         34 => InputEvent::Mouse(MouseEvent::Press(MouseButton::Right, cx, cy)),
                         35 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
                         64 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-                        96 | 97 => InputEvent::Mouse(MouseEvent::Press(MouseButton::WheelUp, cx, cy)),
+                        96 | 97 => {
+                            InputEvent::Mouse(MouseEvent::Press(MouseButton::WheelUp, cx, cy))
+                        }
                         _ => InputEvent::Unknown,
                     }
-                },
+                }
                 // Special key code.
                 b'~' => {
                     let str_buf = String::from_utf8(buf).unwrap();
@@ -483,29 +437,34 @@ where I: Iterator<Item = Result<u8>> {
                         v @ 23...24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
                         _ => InputEvent::Unknown,
                     }
-                },
+                }
                 _ => InputEvent::Unknown,
             }
-        },
+        }
         _ => InputEvent::Unknown,
     }
 }
 
 /// Parse `c` as either a single byte ASCII char or a variable size UTF-8 char.
 fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char>
-where I: Iterator<Item = Result<u8>> {
-    let error = Err(Error::new(ErrorKind::Other, "Input character is not valid UTF-8"));
+where
+    I: Iterator<Item = Result<u8>>,
+{
+    let error = Err(Error::new(
+        ErrorKind::Other,
+        "Input character is not valid UTF-8",
+    ));
     if c.is_ascii() {
         Ok(c as char)
     } else {
-        let bytes = &mut Vec::new();
+        let mut bytes = Vec::new();
         bytes.push(c);
 
         loop {
             match iter.next() {
                 Some(Ok(next)) => {
                     bytes.push(next);
-                    if let Ok(st) = str::from_utf8(bytes) {
+                    if let Ok(st) = str::from_utf8(&bytes) {
                         return Ok(st.chars().next().unwrap());
                     }
                     if bytes.len() >= 4 {

@@ -3,7 +3,7 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char, read_char_raw};
 
-use crossterm_utils::{write, TerminalOutput, csi};
+use crossterm_utils::{csi, write, TerminalOutput};
 use std::char;
 use std::thread;
 
@@ -47,7 +47,7 @@ impl ITerminalInput for UnixInput {
         &self,
         delimiter: u8,
         __stdout: &Option<&Arc<TerminalOutput>>,
-        ) -> AsyncReader {
+    ) -> AsyncReader {
         let (send, recv) = mpsc::channel();
 
         thread::spawn(move || {
@@ -72,20 +72,30 @@ impl ITerminalInput for UnixInput {
     }
 
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
-        write(stdout, format!("{}h{}h{}h{}h"
-            , csi!("?1000")
-            , csi!("?1002")
-            , csi!("?1015")
-            , csi!("?1006")))?;
+        write(
+            stdout,
+            format!(
+                "{}h{}h{}h{}h",
+                csi!("?1000"),
+                csi!("?1002"),
+                csi!("?1015"),
+                csi!("?1006")
+            ),
+        )?;
         Ok(())
     }
 
     fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
-        write(stdout, format!("{}l{}l{}l{}l"
-            , csi!("?1006")
-            , csi!("?1015")
-            , csi!("?1002")
-            , csi!("?1000")))?;
+        write(
+            stdout,
+            format!(
+                "{}l{}l{}l{}l",
+                csi!("?1006"),
+                csi!("?1015"),
+                csi!("?1002"),
+                csi!("?1000")
+            ),
+        )?;
         Ok(())
     }
 }

@@ -13,12 +13,12 @@ use self::unix_input::UnixInput;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
-pub use self::input::{input, TerminalInput, parse_event};
+pub use self::input::{input, parse_event, TerminalInput};
 
 use std::io::{self, Read, Result};
 use std::sync::{mpsc, Arc};
 
-use crossterm_utils::{TerminalOutput};
+use crossterm_utils::TerminalOutput;
 
 /// This trait defines the actions that can be preformed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
@@ -47,37 +47,43 @@ pub struct AsyncReader {
     recv: mpsc::Receiver<Result<u8>>,
 }
 
-/// This enum represents key events which could be caused by the user.
-// pub enum KeyEvent {
-//     /// Represents a specific key press.
-//     OnKeyPress(u8),
-//     /// Represents a key press from any key.
-//     OnAnyKeyPress,
-//     /// Represents a key press from enter.
-//     OnEnter,
-// }
-
+/// Enum to specify which input event has occurred.
 pub enum InputEvent {
+    /// A single key or a combination is pressed.
     Keyboard(KeyEvent),
+    /// A mouse event occurred.
     Mouse(MouseEvent),
+    /// A unsupported event has occurred.
     Unsupported(Vec<u8>),
+    /// An unknown event has occurred.
     Unknown,
 }
 
+/// Enum to specify which mouse event has occurred.
 pub enum MouseEvent {
+    /// A mouse press has occurred, this contains the pressed button and the position of the press.
     Press(MouseButton, u16, u16),
+    /// A mouse button was released.
     Release(u16, u16),
+    /// A mouse button was hold.
     Hold(u16, u16),
 }
 
+/// Enum to define mouse buttons.
 pub enum MouseButton {
+    /// Left mouse button
     Left,
+    /// Right mouse button
     Right,
+    /// Middle mouse button
     Middle,
+    /// Scroll up
     WheelUp,
+    /// Scroll down
     WheelDown,
 }
 
+/// Enum with different key or key combinations.
 pub enum KeyEvent {
     Backspace,
     Left,
