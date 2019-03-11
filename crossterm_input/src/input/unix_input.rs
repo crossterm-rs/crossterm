@@ -30,17 +30,22 @@ impl ITerminalInput for UnixInput {
     }
 
     fn read_async(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
-        let (send, recv) = mpsc::channel();
+        let (event_tx, event_rx) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
             for i in get_tty().unwrap().bytes() {
-                if send.send(i).is_err() {
+                if event_tx.send(i).is_err() {
+                    return;
+                }
+
+                if let Some(cancellation) = cancel_rx.try_recv() {
                     return;
                 }
             }
         });
 
-        AsyncReader { recv }
+        AsyncReader { event_rx, cancel_tx }
     }
 
     fn read_until_async(
@@ -49,9 +54,10 @@ impl ITerminalInput for UnixInput {
         __stdout: &Option<&Arc<TerminalOutput>>,
     ) -> AsyncReader {
         let (send, recv) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
 
         thread::spawn(move || {
-            for i in get_tty().unwrap().bytes() {
+            for i in get_tty().unwrap().by {
                 match i {
                     Ok(byte) => {
                         let end_of_stream = byte == delimiter;
@@ -65,10 +71,14 @@ impl ITerminalInput for UnixInput {
                         return;
                     }
                 }
+
+                if let Some(cancellation) = cancel_rx.try_recv() {
+                    return;
+                }
             }
         });
 
-        AsyncReader { recv }
+        AsyncReader { event_rx, cancel_tx }
     }
 
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {

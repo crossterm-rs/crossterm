@@ -13,12 +13,24 @@ use std::io::Read;
 use std::{thread, time};
 
 pub fn read_async() {
-    let screen = Screen::new(true);
-    let input = TerminalInput::from_output(&screen.stdout);
+    let mut screen = Screen::new(true);
 
+    let input = TerminalInput::from_output(&screen.stdout);
     input.enable_mouse_mode().unwrap();
 
-    let mut stdin = input.read_async().bytes();
+    let mut stdin = {
+        input.read_async().bytes()
+    };
+
+    let stdin = input.read_async();
+
+    for key_event in stdin.iter() {
+        match key_event {
+            InputEvent::Keyboard(k) => match k {
+                // ...
+            }
+        }
+    }
 
     for _i in 0..100 {
         let a = stdin.next();
@@ -36,7 +48,6 @@ pub fn read_async() {
                         }
                         'q' => {
                             screen.stdout.write_str("The 'q' key is hit and the program is not listening to input anymore.\n\n").unwrap();
-
                             break;
                         }
                         _ => {
@@ -60,10 +71,10 @@ pub fn read_async() {
                             screen.stdout.write_string(format!("left mouse press @ {}, {}\n\n", x, y)).unwrap();
                         }
                         MouseButton::Right => {
-                            screen.stdout.write_string(format!("right mouse press @ {}, {}\n\n", x, y)).unwrap();
+                            screen.stdout.write_string(format!("right mouse press @ {}, {}\n\n", x, y) ).unwrap();
                         }
                         MouseButton::Middle => {
-                            screen.stdout.write_string(format!("mid mouse press @ {}, {}\n\n", x, y)).unwrap();
+                            screen.stdout.write_string(format!("mid mouse press @ {}, {}\n\n", x, y) ).unwrap();
                         }
                         MouseButton::WheelUp => {
                             screen.stdout.write_string(format!("wheel up @ {}, {}\n\n", x, y)).unwrap();

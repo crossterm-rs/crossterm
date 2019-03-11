@@ -19,6 +19,11 @@ use std::io::{self, Read, Result};
 use std::sync::{mpsc, Arc};
 
 use crossterm_utils::TerminalOutput;
+use std::sync::atomic::AtomicBool;
+use std::sync::mpsc::Sender;
+use std::sync::mpsc::Receiver;
+use std::thread;
+use std::sync::atomic::Ordering;
 
 /// This trait defines the actions that can be preformed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
@@ -32,19 +37,12 @@ trait ITerminalInput {
     /// Read one character from the user input
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char>;
     /// Read the input asynchronously from the user.
-    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader;
+    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)>;
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
-        -> AsyncReader;
+        -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)>;
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
     fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
-}
-
-/// This is a wrapper for reading from the input asynchronously.
-/// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
-/// You only need to check whether there are new characters available.
-pub struct AsyncReader {
-    recv: mpsc::Receiver<Result<u8>>,
 }
 
 /// Enum to specify which input event has occurred.
@@ -104,30 +102,106 @@ pub enum KeyEvent {
     Esc,
 }
 
-impl Read for AsyncReader {
-    /// Read from the byte stream.
-    ///
-    /// This will never block, but try to drain the event queue until empty. If the total number of
-    /// bytes written is lower than the buffer's length, the event queue is empty or that the event
-    /// stream halted.
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        let mut total = 0;
+/// This is a wrapper for reading from the input asynchronously.
+/// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
+/// You only need to check whether there are new characters available.
+pub struct AsyncReader<F: Fn(&Sender<MyEnum>)> {
+    function: F,
+    cancel_tx: Sender<bool>,
+    cancel_rx: Receiver<bool>,
+    shutdown: Arc<AtomicBool>,
+    event_rx: Receiver<u8>,
+    event_tx: Sender<u8>
+}
+// (dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static)
+impl<F: Fn(&Sender<InputEvent>)> AsyncReader<F> {
+    pub fn new(function: F) -> AsyncReader<F> {
+        let (event_tx, event_rx) = mpsc::channel();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
 
-        loop {
-            if total >= buf.len() {
-                break;
-            }
+        AsyncReader {
+            function: Box::from(function),
+            cancel_tx,
+            cancel_rx,
+            shutdown: Arc::new(AtomicBool::new(false)),
+            event_rx,
+            event_tx
+        }
+    }
 
-            match self.recv.try_recv() {
-                Ok(Ok(value)) => {
-                    buf[total] = value;
-                    total += 1;
+    pub fn start_receiving(&mut self) {
+        let shutdown = self.shutdown.clone();
+        let sender = self.event_tx.clone();
+
+        thread::spawn(|| {
+            loop {
+                self.function(&sender);
+
+                if self.cancellation_requested() || shutdown.load(Ordering::SeqCst) {
+                    return;
                 }
-                Ok(Err(e)) => return Err(e),
-                Err(_) => break,
             }
+        });
+    }
+
+    pub fn stop_receiving(&mut self) {
+        self.shutdown.store(true, Ordering::SeqCst);
+    }
+
+    fn cancellation_requested(&self) -> bool {
+        if let Some(cancellation) = self.cancel_rx.try_recv() {
+            return true;
         }
 
-        Ok(total)
+        false
     }
 }
+
+impl<F: for<'r> Fn(&'r Sender<InputEvent>) + 'static> Iterator for AsyncReader<F> {
+    type Item = InputEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.event_rx.try_recv() {
+            Ok(char_value) => {
+                parse_event(char_value, self)
+                    .map(|x| Some(x))
+                    .unwrap_or(None)
+            },
+            Err(e) => { None },
+        }
+    }
+}
+
+impl<F: for<'r> Fn(&'r Sender<InputEvent>) + 'static> Drop for AsyncReader<F> {
+    fn drop(&mut self) {
+        self.stop_receiving();
+    }
+}
+
+//impl Read for AsyncReader {
+//    /// Read from the byte stream.
+//    ///
+//    /// This will never block, but try to drain the event queue until empty. If the total number of
+//    /// bytes written is lower than the buffer's length, the event queue is empty or that the event
+//    /// stream halted.
+//    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+//        let mut total = 0;
+//
+//        loop {
+//            if *self.atomic_bool.get_mut() == true || total >= buf.len() {
+//                break;
+//            }
+//
+//            match self.event_rx.try_recv() {
+//                Ok(Ok(value)) => {
+//                    buf[total] = value;
+//                    total += 1;
+//                }
+//                Ok(Err(e)) => return Err(e),
+//                Err(_) => break,
+//            }
+//        }
+//
+//        Ok(total)
+//    }
+//}

@@ -159,7 +159,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// }
     ///
     /// ```
-    pub fn read_async(&self) -> AsyncReader {
+    pub fn read_async(&self) -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)> {
         self.terminal_input.read_async(&self.stdout)
     }
 
@@ -206,7 +206,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///     thread::sleep(time::Duration::from_millis(100));
     /// }
     /// ```
-    pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
+    pub fn read_until_async(&self, delimiter: u8) -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)> {
         self.terminal_input
             .read_until_async(delimiter, &self.stdout)
     }
@@ -243,10 +243,10 @@ where
     I: Iterator<Item = Result<u8>>,
 {
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
-    match item {
+    let input_event = match item {
         b'\x1B' => {
             // This is an escape character, leading a control sequence.
-            Ok(match iter.next() {
+            match iter.next() {
                 Some(Ok(b'O')) => {
                     match iter.next() {
                         // F1-F4
@@ -266,23 +266,23 @@ where
                 }
                 Some(Err(_)) => return Err(error),
                 None => InputEvent::Keyboard(KeyEvent::Esc),
-            })
+            }
         }
-        b'\n' | b'\r' => Ok(InputEvent::Keyboard(KeyEvent::Char('\n'))),
-        b'\t' => Ok(InputEvent::Keyboard(KeyEvent::Char('\t'))),
-        b'\x7F' => Ok(InputEvent::Keyboard(KeyEvent::Backspace)),
-        c @ b'\x01'...b'\x1A' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl(
-            (c as u8 - 0x1 + b'a') as char,
-        ))),
-        c @ b'\x1C'...b'\x1F' => Ok(InputEvent::Keyboard(KeyEvent::Ctrl(
+        b'\n' | b'\r' => InputEvent::Keyboard(KeyEvent::Char('\n')),
+        b'\t' => InputEvent::Keyboard(KeyEvent::Char('\t')),
+        b'\x7F' => InputEvent::Keyboard(KeyEvent::Backspace),
+        c @ b'\x01'...b'\x1A' => InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char)),
+        c @ b'\x1C'...b'\x1F' => InputEvent::Keyboard(KeyEvent::Ctrl(
             (c as u8 - 0x1C + b'4') as char,
-        ))),
-        b'\0' => Ok(InputEvent::Keyboard(KeyEvent::Null)),
-        c => Ok({
+        )),
+        b'\0' => InputEvent::Keyboard(KeyEvent::Null),
+        c => {
             let ch = parse_utf8_char(c, iter);
             InputEvent::Keyboard(KeyEvent::Char(ch?))
-        }),
-    }
+        },
+    };
+
+    Ok(input_event)
 }
 
 /// Parses a CSI sequence, just after reading ^[
@@ -307,11 +307,14 @@ where
         Some(Ok(b'M')) => {
             // X10 emulation mouse encoding: ESC [ CB Cx Cy (6 characters only).
             // NOTE (@imdaveho): cannot find documentation on this
+
             let mut next = || iter.next().unwrap().unwrap();
+
             let cb = next() as i8 - 32;
             // (1, 1) are the coords for upper left.
             let cx = next().saturating_sub(32) as u16;
             let cy = next().saturating_sub(32) as u16;
+
             match cb & 0b11 {
                 0 => {
                     if cb & 0x40 != 0 {
@@ -454,25 +457,23 @@ where
         ErrorKind::Other,
         "Input character is not valid UTF-8",
     ));
+
     if c.is_ascii() {
         Ok(c as char)
     } else {
         let mut bytes = Vec::new();
         bytes.push(c);
 
-        loop {
-            match iter.next() {
-                Some(Ok(next)) => {
-                    bytes.push(next);
-                    if let Ok(st) = str::from_utf8(&bytes) {
-                        return Ok(st.chars().next().unwrap());
-                    }
-                    if bytes.len() >= 4 {
-                        return error;
-                    }
-                }
-                _ => return error,
+        while let Some(Ok(next)) = iter.next() {
+            bytes.push(next);
+            if let Ok(st) = str::from_utf8(&bytes) {
+                return Ok(st.chars().next().unwrap()); // todo: can this be st.chars().first()
+            }
+            if bytes.len() >= 4 {
+                return error;
             }
         }
+
+        return error;
     }
 }
