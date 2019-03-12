@@ -72,7 +72,7 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<dyn for<'r> std::ops::Fn(&'r Sender<InputEvent>) + 'static> {
+    fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
        AsyncReader::new(|event_tx|
        {
             for i in into_virtual_terminal_sequence().unwrap() {
@@ -87,7 +87,7 @@ impl ITerminalInput for WindowsInput {
         &self,
         delimiter: u8,
         _stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> AsyncReader<dyn for<'r> std::ops::Fn(&'r Sender<InputEvent>) + 'static> {
+    ) ->AsyncReader<impl Fn(&Sender<InputEvent>)> {
         AsyncReader::new(|event_tx|
          {
              for i in into_virtual_terminal_sequence().unwrap() {

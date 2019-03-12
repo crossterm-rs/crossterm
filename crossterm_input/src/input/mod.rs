@@ -37,10 +37,10 @@ trait ITerminalInput {
     /// Read one character from the user input
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char>;
     /// Read the input asynchronously from the user.
-    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)>;
+    fn read_async(&self, stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<impl Fn(&Sender<InputEvent>)>;
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8, stdout: &Option<&Arc<TerminalOutput>>)
-        -> AsyncReader<(Box<dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static>)>;
+        -> AsyncReader<impl Fn(&Sender<InputEvent>)>;
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
     fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
 }
@@ -105,7 +105,7 @@ pub enum KeyEvent {
 /// This is a wrapper for reading from the input asynchronously.
 /// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
 /// You only need to check whether there are new characters available.
-pub struct AsyncReader<F: Fn(&Sender<MyEnum>)> {
+pub struct AsyncReader<F: Fn(&Sender<InputEvent>)> {
     function: F,
     cancel_tx: Sender<bool>,
     cancel_rx: Receiver<bool>,
@@ -120,7 +120,7 @@ impl<F: Fn(&Sender<InputEvent>)> AsyncReader<F> {
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
         AsyncReader {
-            function: Box::from(function),
+            function,
             cancel_tx,
             cancel_rx,
             shutdown: Arc::new(AtomicBool::new(false)),
@@ -149,7 +149,7 @@ impl<F: Fn(&Sender<InputEvent>)> AsyncReader<F> {
     }
 
     fn cancellation_requested(&self) -> bool {
-        if let Some(cancellation) = self.cancel_rx.try_recv() {
+        if let Ok(cancellation) = self.cancel_rx.try_recv() {
             return true;
         }
 
@@ -157,7 +157,7 @@ impl<F: Fn(&Sender<InputEvent>)> AsyncReader<F> {
     }
 }
 
-impl<F: for<'r> Fn(&'r Sender<InputEvent>) + 'static> Iterator for AsyncReader<F> {
+impl<F> Iterator for AsyncReader<F>  where F: Fn(&Sender<InputEvent>) {
     type Item = InputEvent;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -172,7 +172,7 @@ impl<F: for<'r> Fn(&'r Sender<InputEvent>) + 'static> Iterator for AsyncReader<F
     }
 }
 
-impl<F: for<'r> Fn(&'r Sender<InputEvent>) + 'static> Drop for AsyncReader<F> {
+impl<F> Drop for AsyncReader<F> where F: Fn(&Sender<InputEvent>) {
     fn drop(&mut self) {
         self.stop_receiving();
     }
