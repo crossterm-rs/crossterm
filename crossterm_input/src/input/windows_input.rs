@@ -72,34 +72,34 @@ impl ITerminalInput for WindowsInput {
         }
     }
 
-    fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
-       AsyncReader::new(|event_tx|
+    fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
+       AsyncReader::new(Box::new(move |event_tx|
        {
             for i in into_virtual_terminal_sequence().unwrap() {
                 if event_tx.send(Ok(i)).is_err() {
                     return;
                 }
             }
-        })
+        }))
     }
 
     fn read_until_async(
         &self,
         delimiter: u8,
         _stdout: &Option<&Arc<TerminalOutput>>,
-    ) ->AsyncReader<impl Fn(&Sender<InputEvent>)> {
-        AsyncReader::new(|event_tx|
-         {
-             for i in into_virtual_terminal_sequence().unwrap() {
-                 if i == delimiter {
-                     return;
-                 } else {
-                     if tx.send(Ok(i)).is_err() {
-                         return;
-                     }
-                 }
-             }
-         })
+    ) -> AsyncReader {
+        AsyncReader::new(Box::new(move |event_tx: &Sender<InputEvent>|
+            {
+                for i in into_virtual_terminal_sequence().unwrap() {
+                    if i == delimiter {
+                        return;
+                    } else {
+                        if event_tx.send(Ok(i)).is_err() {
+                            return;
+                        }
+                    }
+                }
+            }))
     }
 
     fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {

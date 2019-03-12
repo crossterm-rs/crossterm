@@ -159,7 +159,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// }
     ///
     /// ```
-    pub fn read_async(&self) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
+    pub fn read_async(&self) -> AsyncReader {
         self.terminal_input.read_async(&self.stdout)
     }
 
@@ -206,7 +206,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///     thread::sleep(time::Duration::from_millis(100));
     /// }
     /// ```
-    pub fn read_until_async(&self, delimiter: u8) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
+    pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         self.terminal_input
             .read_until_async(delimiter, &self.stdout)
     }
