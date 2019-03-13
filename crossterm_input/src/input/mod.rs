@@ -161,11 +161,15 @@ impl Iterator for AsyncReader {
     type Item = InputEvent;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.event_rx.try_recv() {
+        let mut iterator = self.event_rx.iter();
+
+        match iterator.next(){
             Ok(char_value) => {
-                parse_event(char_value, self)
-                    .map(|x| Some(x))
-                    .unwrap_or(None)
+                if let Ok(char_value) = parse_event(char_value, &mut iterator) {
+                    Some(char)
+                } else {
+                    None
+                }
             },
             Err(e) => { None },
         }
