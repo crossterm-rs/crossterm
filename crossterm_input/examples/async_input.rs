@@ -35,27 +35,23 @@ pub fn read_async() {
                         _ => {
                             screen
                                 .stdout
-                                .write_string(format!("'{}' pressed\n\n", c))
-                                .unwrap();
+                                .write_string(format!("'{}' pressed\n\n", c));
                         }
                     },
                     KeyEvent::Alt(c) => {
                         screen
                             .stdout
-                            .write_string(format!("alt+'{}' pressed\n\n", c))
-                            .unwrap();
+                            .write_string(format!("alt+'{}' pressed\n\n", c));
                     }
                     KeyEvent::Ctrl(c) => {
                         screen
                             .stdout
-                            .write_string(format!("ctrl+'{}' pressed\n\n", c))
-                            .unwrap();
+                            .write_string(format!("ctrl+'{}' pressed\n\n", c));
                     }
                     KeyEvent::Esc => {
                         screen
                             .stdout
-                            .write_string(format!("esc pressed\n\n"))
-                            .unwrap();
+                            .write_string(format!("esc pressed\n\n"));
                     }
                     _ => (),
                 },
@@ -64,49 +60,44 @@ pub fn read_async() {
                         MouseButton::Left => {
                             screen
                                 .stdout
-                                .write_string(format!("left mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
+                                .write_string(format!("left mouse press @ {}, {}\n\n", x, y));
                         }
                         MouseButton::Right => {
                             screen
                                 .stdout
-                                .write_string(format!("right mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
+                                .write_string(format!("right mouse press @ {}, {}\n\n", x, y));
                         }
                         MouseButton::Middle => {
                             screen
                                 .stdout
-                                .write_string(format!("mid mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
+                                .write_string(format!("mid mouse press @ {}, {}\n\n", x, y));
                         }
                         MouseButton::WheelUp => {
                             screen
                                 .stdout
-                                .write_string(format!("wheel up @ {}, {}\n\n", x, y))
-                                .unwrap();
+                                .write_string(format!("wheel up @ {}, {}\n\n", x, y));
                         }
                         MouseButton::WheelDown => {
                             screen
                                 .stdout
-                                .write_string(format!("wheel down @ {}, {}\n\n", x, y))
-                                .unwrap();
+                                .write_string(format!("wheel down @ {}, {}\n\n", x, y));
                         }
                     },
                     MouseEvent::Release(x, y) => {
                         screen
                             .stdout
-                            .write_string(format!("mouse released @ {}, {}\n\n", x, y))
-                            .unwrap();
+                            .write_string(format!("mouse released @ {}, {}\n\n", x, y));
                     }
                     MouseEvent::Hold(x, y) => {
                         screen
                             .stdout
-                            .write_string(format!("dragging @ {}, {}\n\n", x, y))
-                            .unwrap();
+                            .write_string(format!("dragging @ {}, {}\n\n", x, y));
                     }
                 },
                 _ => println!("Unknown!"),
             }
+        } else {
+            println!("None Key");
         }
     }
 

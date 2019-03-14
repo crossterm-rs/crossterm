@@ -32,62 +32,36 @@ impl ITerminalInput for UnixInput {
     fn read_async(
         &self,
         __stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
-        let (event_tx, event_rx) = mpsc::channel();
-        let (cancel_tx, cancel_rx) = mpsc::channel();
-
-        thread::spawn(move || {
+    ) -> AsyncReader {
+        AsyncReader::new(Box::new(move | event_tx, cancellation_token | {
             for i in get_tty().unwrap().bytes() {
-                if event_tx.send(i).is_err() {
+                if event_tx.send(i.unwrap()).is_err() {
                     return;
                 }
 
-                if let Some(cancellation) = cancel_rx.try_recv() {
+                if cancellation_token.load(Ordering::SeqCst) {
                     return;
                 }
             }
-        });
-
-        AsyncReader {
-            event_rx,
-            cancel_tx,
-        }
+        }))
     }
 
     fn read_until_async(
         &self,
         delimiter: u8,
         __stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
-        let (send, recv) = mpsc::channel();
-        let (cancel_tx, cancel_rx) = mpsc::channel();
+    ) -> AsyncReader {
+        AsyncReader::new(Box::new(move | event_tx, cancellation_token |  {
+            for byte in get_tty().unwrap().bytes() {
+                let byte = byte.unwrap();
+                let end_of_stream = byte == delimiter;
+                let send_error = event_tx.send(byte).is_err();
 
-        thread::spawn(move || {
-            for i in get_tty().unwrap().by {
-                match i {
-                    Ok(byte) => {
-                        let end_of_stream = byte == delimiter;
-                        let send_error = send.send(Ok(byte)).is_err();
-
-                        if end_of_stream || send_error {
-                            return;
-                        }
-                    }
-                    Err(_) => {
-                        return;
-                    }
-                }
-
-                if let Some(cancellation) = cancel_rx.try_recv() {
+                if end_of_stream || send_error || cancellation_token.load(Ordering::SeqCst) {
                     return;
                 }
             }
-        });
-
-        AsyncReader {
-            event_rx,
-            cancel_tx,
-        }
+        }))
     }
 
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {

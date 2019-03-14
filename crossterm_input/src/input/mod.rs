@@ -106,11 +106,11 @@ pub enum KeyEvent {
 /// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
 /// You only need to check whether there are new characters available.
 pub struct AsyncReader {
-    function: Box<Fn(&Sender<u8>) + Send>,
+    function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>,
 }
-// (dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static)
+
 impl AsyncReader {
-    pub fn new(function: Box<Fn(&Sender<u8>) + Send>) -> AsyncReader {
+    pub fn new(function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
         AsyncReader { function }
     }
 
@@ -123,11 +123,7 @@ impl AsyncReader {
         let function = self.function;
 
         thread::spawn(move || loop {
-            function(&event_tx);
-
-            if thread_shutdown.load(Ordering::SeqCst) {
-                return;
-            }
+            function(&event_tx, &thread_shutdown);
         });
 
         AsyncReadHandle {
