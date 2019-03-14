@@ -29,7 +29,10 @@ impl ITerminalInput for UnixInput {
         }
     }
 
-    fn read_async(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
+    fn read_async(
+        &self,
+        __stdout: &Option<&Arc<TerminalOutput>>,
+    ) -> AsyncReader<impl Fn(&Sender<InputEvent>)> {
         let (event_tx, event_rx) = mpsc::channel();
         let (cancel_tx, cancel_rx) = mpsc::channel();
 
@@ -45,7 +48,10 @@ impl ITerminalInput for UnixInput {
             }
         });
 
-        AsyncReader { event_rx, cancel_tx }
+        AsyncReader {
+            event_rx,
+            cancel_tx,
+        }
     }
 
     fn read_until_async(
@@ -78,7 +84,10 @@ impl ITerminalInput for UnixInput {
             }
         });
 
-        AsyncReader { event_rx, cancel_tx }
+        AsyncReader {
+            event_rx,
+            cancel_tx,
+        }
     }
 
     fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {

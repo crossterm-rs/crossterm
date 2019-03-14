@@ -240,46 +240,47 @@ pub fn input<'stdout>() -> TerminalInput<'stdout> {
 /// Parse an Event from `item` and possibly subsequent bytes through `iter`.
 pub fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
 where
-    I: Iterator<Item = Result<u8>>,
+    I: Iterator<Item = u8>,
 {
     let error = Error::new(ErrorKind::Other, "Could not parse an event");
     let input_event = match item {
         b'\x1B' => {
             // This is an escape character, leading a control sequence.
             match iter.next() {
-                Some(Ok(b'O')) => {
+                Some(b'O') => {
                     match iter.next() {
                         // F1-F4
-                        Some(Ok(val @ b'P'...b'S')) => {
+                        Some(val @ b'P'...b'S') => {
                             InputEvent::Keyboard(KeyEvent::F(1 + val - b'P'))
                         }
                         _ => return Err(error),
                     }
                 }
-                Some(Ok(b'[')) => {
+                Some(b'[') => {
                     // This is a CSI sequence.
                     parse_csi(iter)
                 }
-                Some(Ok(c)) => {
+                Some(c) => {
                     let ch = parse_utf8_char(c, iter);
                     InputEvent::Keyboard(KeyEvent::Alt(ch?))
                 }
-                Some(Err(_)) => return Err(error),
                 None => InputEvent::Keyboard(KeyEvent::Esc),
             }
         }
         b'\n' | b'\r' => InputEvent::Keyboard(KeyEvent::Char('\n')),
         b'\t' => InputEvent::Keyboard(KeyEvent::Char('\t')),
         b'\x7F' => InputEvent::Keyboard(KeyEvent::Backspace),
-        c @ b'\x01'...b'\x1A' => InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char)),
-        c @ b'\x1C'...b'\x1F' => InputEvent::Keyboard(KeyEvent::Ctrl(
-            (c as u8 - 0x1C + b'4') as char,
-        )),
+        c @ b'\x01'...b'\x1A' => {
+            InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))
+        }
+        c @ b'\x1C'...b'\x1F' => {
+            InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char))
+        }
         b'\0' => InputEvent::Keyboard(KeyEvent::Null),
         c => {
             let ch = parse_utf8_char(c, iter);
             InputEvent::Keyboard(KeyEvent::Char(ch?))
-        },
+        }
     };
 
     Ok(input_event)
@@ -289,26 +290,26 @@ where
 /// Returns Event::Unknown if an unrecognized sequence is found.
 fn parse_csi<I>(iter: &mut I) -> InputEvent
 where
-    I: Iterator<Item = Result<u8>>,
+    I: Iterator<Item = u8>,
 {
     match iter.next() {
-        Some(Ok(b'[')) => match iter.next() {
+        Some(b'[') => match iter.next() {
             // NOTE (@imdaveho): cannot find when this occurs;
             // having another '[' after ESC[ not a likely scenario
-            Some(Ok(val @ b'A'...b'E')) => InputEvent::Keyboard(KeyEvent::F(1 + val - b'A')),
+            Some(val @ b'A'...b'E') => InputEvent::Keyboard(KeyEvent::F(1 + val - b'A')),
             _ => InputEvent::Unknown,
         },
-        Some(Ok(b'D')) => InputEvent::Keyboard(KeyEvent::Left),
-        Some(Ok(b'C')) => InputEvent::Keyboard(KeyEvent::Right),
-        Some(Ok(b'A')) => InputEvent::Keyboard(KeyEvent::Up),
-        Some(Ok(b'B')) => InputEvent::Keyboard(KeyEvent::Down),
-        Some(Ok(b'H')) => InputEvent::Keyboard(KeyEvent::Home),
-        Some(Ok(b'F')) => InputEvent::Keyboard(KeyEvent::End),
-        Some(Ok(b'M')) => {
+        Some(b'D') => InputEvent::Keyboard(KeyEvent::Left),
+        Some(b'C') => InputEvent::Keyboard(KeyEvent::Right),
+        Some(b'A') => InputEvent::Keyboard(KeyEvent::Up),
+        Some(b'B') => InputEvent::Keyboard(KeyEvent::Down),
+        Some(b'H') => InputEvent::Keyboard(KeyEvent::Home),
+        Some(b'F') => InputEvent::Keyboard(KeyEvent::End),
+        Some(b'M') => {
             // X10 emulation mouse encoding: ESC [ CB Cx Cy (6 characters only).
             // NOTE (@imdaveho): cannot find documentation on this
 
-            let mut next = || iter.next().unwrap().unwrap();
+            let mut next = || iter.next().unwrap();
 
             let cb = next() as i8 - 32;
             // (1, 1) are the coords for upper left.
@@ -335,17 +336,17 @@ where
                 _ => InputEvent::Unknown,
             }
         }
-        Some(Ok(b'<')) => {
+        Some(b'<') => {
             // xterm mouse handling:
             // ESC [ < Cb ; Cx ; Cy (;) (M or m)
             let mut buf = Vec::new();
-            let mut c = iter.next().unwrap().unwrap();
+            let mut c = iter.next().unwrap();
             while match c {
                 b'm' | b'M' => false,
                 _ => true,
             } {
                 buf.push(c);
-                c = iter.next().unwrap().unwrap();
+                c = iter.next().unwrap();
             }
             let str_buf = String::from_utf8(buf).unwrap();
             let nums = &mut str_buf.split(';');
@@ -375,18 +376,19 @@ where
                 _ => InputEvent::Unknown,
             }
         }
-        Some(Ok(c @ b'0'...b'9')) => {
+        Some(c @ b'0'...b'9') => {
             // Numbered escape code.
             let mut buf = Vec::new();
             buf.push(c);
-            let mut c = iter.next().unwrap().unwrap();
+            let mut c = iter.next().unwrap();
             // The final byte of a CSI sequence can be in the range 64-126, so
             // let's keep reading anything else.
             while c < 64 || c > 126 {
                 buf.push(c);
-                c = iter.next().unwrap().unwrap();
+                c = iter.next().unwrap();
             }
             match c {
+                // rxvt mouse encoding:
                 // rxvt mouse encoding:
                 // ESC [ Cb ; Cx ; Cy ; M
                 b'M' => {
@@ -451,7 +453,7 @@ where
 /// Parse `c` as either a single byte ASCII char or a variable size UTF-8 char.
 fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char>
 where
-    I: Iterator<Item = Result<u8>>,
+    I: Iterator<Item = u8>,
 {
     let error = Err(Error::new(
         ErrorKind::Other,
@@ -464,7 +466,7 @@ where
         let mut bytes = Vec::new();
         bytes.push(c);
 
-        while let Some(Ok(next)) = iter.next() {
+        while let Some(next) = iter.next() {
             bytes.push(next);
             if let Ok(st) = str::from_utf8(&bytes) {
                 return Ok(st.chars().next().unwrap()); // todo: can this be st.chars().first()

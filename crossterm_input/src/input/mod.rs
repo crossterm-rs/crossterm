@@ -20,10 +20,10 @@ use std::sync::{mpsc, Arc};
 
 use crossterm_utils::TerminalOutput;
 use std::sync::atomic::AtomicBool;
-use std::sync::mpsc::Sender;
-use std::sync::mpsc::Receiver;
-use std::thread;
 use std::sync::atomic::Ordering;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::thread;
 
 /// This trait defines the actions that can be preformed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
@@ -106,77 +106,68 @@ pub enum KeyEvent {
 /// This wrapper has a channel receiver that receives the input from the user whenever it typed something.
 /// You only need to check whether there are new characters available.
 pub struct AsyncReader {
-    function: Box<Fn(&Sender<InputEvent>)>,
-    cancel_tx: Sender<bool>,
-    cancel_rx: Receiver<bool>,
-    shutdown: Arc<AtomicBool>,
-    event_rx: Receiver<u8>,
-    event_tx: Sender<u8>
+    function: Box<Fn(&Sender<u8>) + Send>,
 }
 // (dyn for<'r> Fn(&'r Sender<InputEvent>) + 'static)
 impl AsyncReader {
-    pub fn new(function: Box<Fn(&Sender<InputEvent>)>) -> AsyncReader {
-        let (event_tx, event_rx) = mpsc::channel();
-        let (cancel_tx, cancel_rx) = mpsc::channel();
-
-        AsyncReader {
-            function,
-            cancel_tx,
-            cancel_rx,
-            shutdown: Arc::new(AtomicBool::new(false)),
-            event_rx,
-            event_tx
-        }
+    pub fn new(function: Box<Fn(&Sender<u8>) + Send>) -> AsyncReader {
+        AsyncReader { function }
     }
 
-    pub fn start_receiving(&mut self) {
-        let shutdown = self.shutdown.clone();
-        let sender = self.event_tx.clone();
+    pub fn start_receiving(mut self) -> AsyncReadHandle {
+        let shutdown_handle = Arc::new(AtomicBool::new(false));
 
-        thread::spawn(|| {
-            loop {
-                self.function(&sender);
+        let (event_tx, event_rx) = mpsc::channel();
+        let thread_shutdown = shutdown_handle.clone();
 
-                if self.cancellation_requested() || shutdown.load(Ordering::SeqCst) {
-                    return;
-                }
+        let function = self.function;
+
+        thread::spawn(move || loop {
+            function(&event_tx);
+
+            if thread_shutdown.load(Ordering::SeqCst) {
+                return;
             }
         });
-    }
 
-    pub fn stop_receiving(&mut self) {
-        self.shutdown.store(true, Ordering::SeqCst);
-    }
-
-    fn cancellation_requested(&self) -> bool {
-        if let Ok(cancellation) = self.cancel_rx.try_recv() {
-            return true;
+        AsyncReadHandle {
+            event_rx,
+            shutdown: shutdown_handle,
         }
-
-        false
     }
 }
 
-impl Iterator for AsyncReader {
+pub struct AsyncReadHandle {
+    event_rx: Receiver<u8>,
+    shutdown: Arc<AtomicBool>,
+}
+
+impl AsyncReadHandle {
+    pub fn stop_receiving(&mut self) {
+        self.shutdown.store(true, Ordering::SeqCst);
+    }
+}
+
+impl Iterator for AsyncReadHandle {
     type Item = InputEvent;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut iterator = self.event_rx.iter();
 
-        match iterator.next(){
-            Ok(char_value) => {
+        match iterator.next() {
+            Some(char_value) => {
                 if let Ok(char_value) = parse_event(char_value, &mut iterator) {
-                    Some(char)
+                    Some(char_value)
                 } else {
                     None
                 }
-            },
-            Err(e) => { None },
+            }
+            None => None,
         }
     }
 }
 
-impl Drop for AsyncReader {
+impl Drop for AsyncReadHandle {
     fn drop(&mut self) {
         self.stop_receiving();
     }

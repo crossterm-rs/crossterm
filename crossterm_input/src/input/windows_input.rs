@@ -13,6 +13,8 @@ use winapi::um::winnt::INT;
 
 use std::io::{Error, ErrorKind};
 use std::mem::zeroed;
+use std::sync::atomic::Ordering;
+use std::sync::mpsc::Receiver;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::{
     consoleapi::{GetConsoleMode, ReadConsoleInputW, SetConsoleMode},
@@ -21,8 +23,6 @@ use winapi::um::{
         MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_EVENT,
     },
 };
-use std::sync::atomic::Ordering;
-use std::sync::mpsc::Receiver;
 
 pub struct WindowsInput;
 
@@ -73,10 +73,9 @@ impl ITerminalInput for WindowsInput {
     }
 
     fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
-       AsyncReader::new(Box::new(move |event_tx|
-       {
+        AsyncReader::new(Box::new(move |event_tx| {
             for i in into_virtual_terminal_sequence().unwrap() {
-                if event_tx.send(Ok(i)).is_err() {
+                if event_tx.send(i).is_err() {
                     return;
                 }
             }
@@ -88,18 +87,17 @@ impl ITerminalInput for WindowsInput {
         delimiter: u8,
         _stdout: &Option<&Arc<TerminalOutput>>,
     ) -> AsyncReader {
-        AsyncReader::new(Box::new(move |event_tx: &Sender<InputEvent>|
-            {
-                for i in into_virtual_terminal_sequence().unwrap() {
-                    if i == delimiter {
+        AsyncReader::new(Box::new(move |event_tx| {
+            for i in into_virtual_terminal_sequence().unwrap() {
+                if i == delimiter {
+                    return;
+                } else {
+                    if event_tx.send(i).is_err() {
                         return;
-                    } else {
-                        if event_tx.send(Ok(i)).is_err() {
-                            return;
-                        }
                     }
                 }
-            }))
+            }
+        }))
     }
 
     fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
