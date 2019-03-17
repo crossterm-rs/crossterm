@@ -48,7 +48,7 @@ pub fn move_down() {
 }
 
 /// Save and reset cursor position | demonstration..
-pub fn safe_and_reset_position() {
+pub fn save_and_reset_position() {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5

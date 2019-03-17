@@ -3,7 +3,7 @@
 //!
 extern crate crossterm;
 
-use self::crossterm::{style, Color};
+use self::crossterm::{style, Color, color};
 
 /// print some red font | demonstration.
 pub fn paint_foreground() {
@@ -229,4 +229,10 @@ pub fn print_supported_colors() {
             style(format!("White : \t {}", i)).on(Color::AnsiValue(i as u8))
         );
     }
+}
+
+fn main() {
+    print_all_background_colors();
+    print_all_foreground_colors();
+    print_font_with_attributes();
 }
