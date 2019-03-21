@@ -1,3 +1,9 @@
+## Upgrade crossterm to 0.7.0
+Upgrade to `crossterm_style 0.2` caused some API changes. 
+ - Introduced more `Attributes`
+ - Introduced easier ways to style text [issue 87](https://github.com/TimonPost/crossterm/issues/87).
+ - Removed `ColorType` since it was unnecessary.
+
 ## Upgrade crossterm to 0.6.0
 #### Namespace refactor
 Some namespaces have been changed. All types of could be used directly by `use crossterm::*;` instead of having to go to a specific module for importing a type.

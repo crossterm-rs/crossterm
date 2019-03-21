@@ -1,238 +1,394 @@
 //!
 //! Examples of coloring the terminal.
 //!
-extern crate crossterm;
+#[macro_use]
+extern crate crosstterm;
 
-use self::crossterm::{style, Color, color};
+use self::crossterm_style::{
+    color, style, Attribute, Color, Colored, Colorize, Styler, TerminalColor,
+};
 
 /// print some red font | demonstration.
 pub fn paint_foreground() {
-    // Create a styled object.
-    // Call the method `with()` on the object given by `style()` and pass in any Color from the Color enum.
-    let styledobject = style("Red foreground").with(Color::Red);
-
-    // Print the object to the given screen and.
-    println!("Colored text: {}", styledobject);
-
-    // Or print inline
-    println!(
-        "Colored text: {}",
-        style("Blue foreground").with(Color::Blue)
-    );
+    println!("{}", "Red foreground text: {}".red());
+    println!("{} Red foreground text", Colored::Fg(Color::Red));
 }
 
 /// print some font on red background | demonstration.
 pub fn paint_background() {
-    // Create a styled object.
-    // Call the method `with()` on the object given by `style()` and pass in any Color from the Color enum.
-    let styledobject = style("Red foreground").on(Color::Red);
-
-    // Print the object to the given screen and.
-    println!("Colored text: {}", styledobject);
-
-    // Or print inline
-    println!("Colored text: {}", style("Red foreground").on(Color::Blue));
+    println!("{}", "Red background text: {}".on_red());
+    println!("{} Red background text", Colored::Bg(Color::Red));
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_foreground_colors() {
+pub fn print_all_foreground_colors_with_enum() {
+    // we use `Reset` to restore the foreground back to normal at the end of the line.
     println!(
-        "{}",
-        style(format!("Black : \t\t {} \n", "■")).with(Color::Black)
+        "Black : \t\t      {} ■ {}\n",
+        Colored::Fg(Color::Black),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Red : \t\t {} \n", "■")).with(Color::Red)
+        "Red : \t\t        {} ■ {}\n",
+        Colored::Fg(Color::Red),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Cyan : \t\t {} \n", "■")).with(Color::Cyan)
+        "DarkRed : \t\t    {} ■ {}\n",
+        Colored::Fg(Color::DarkRed),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkCyan : \t {} \n", "■")).with(Color::DarkCyan)
+        "Cyan : \t\t       {} ■ {}\n",
+        Colored::Fg(Color::Cyan),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkRed : \t {} \n", "■")).with(Color::DarkRed)
+        "DarkCyan : \t\t   {} ■ {}\n",
+        Colored::Fg(Color::DarkCyan),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Green : \t {} \n", "■")).with(Color::Green)
+        "Green : \t\t      {} ■ {}\n",
+        Colored::Fg(Color::Green),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkGreen : \t {} \n", "■")).with(Color::DarkGreen)
+        "DarkGreen : \t\t  {} ■ {}\n",
+        Colored::Fg(Color::DarkGreen),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Blue : \t\t {} \n", "■")).with(Color::Blue)
+        "Blue : \t\t       {} ■ {}\n",
+        Colored::Fg(Color::Blue),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkBlue : \t {} \n", "■")).with(Color::DarkBlue)
+        "DarkBlue : \t\t   {} ■ {}\n",
+        Colored::Fg(Color::DarkBlue),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Magenta : \t {} \n", "■")).with(Color::Magenta)
+        "Magenta : \t\t    {} ■ {}\n",
+        Colored::Fg(Color::Magenta),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkMagenta : \t {} \n", "■")).with(Color::DarkMagenta)
+        "DarkMagenta : \t\t{} ■ {}\n",
+        Colored::Fg(Color::DarkMagenta),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Yellow : \t {} \n", "■")).with(Color::Yellow)
+        "Yellow : \t\t     {} ■ {}\n",
+        Colored::Fg(Color::Yellow),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkYellow : \t {} \n", "■")).with(Color::DarkYellow)
+        "DarkYellow : \t\t {} ■ {}\n",
+        Colored::Fg(Color::DarkYellow),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Grey : \t\t {} \n", "■")).with(Color::Grey)
+        "Grey : \t\t       {} ■ {}\n",
+        Colored::Fg(Color::Grey),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("White : \t {} \n", "■")).with(Color::White)
+        "White : \t\t      {} ■ {}\n",
+        Colored::Fg(Color::White),
+        Attribute::Reset
     );
 
-    #[cfg(unix)]
+    // custom rgb value (Windows 10 and UNIX systems)
     println!(
-        "{}",
-        style("RGB color (10,10,10) ").with(Color::Rgb {
+        "{} some colored text",
+        Colored::Fg(Color::Rgb {
             r: 10,
             g: 10,
             b: 10
         })
     );
 
-    #[cfg(unix)]
+    // custom ansi color value (Windows 10 and UNIX systems)
+    println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
+}
+
+/// Print all available foreground colors | demonstration.
+pub fn print_all_foreground_colors_with_method() {
     println!(
-        "{}",
-        style("RGB color (10,10,10) ").with(Color::AnsiValue(50))
+        "Black : \t\t       {} {}\n",
+        "■".black(),
+        Attribute::Reset
+    );
+    println!("Red : \t\t         {} {}\n", "■".red(), Attribute::Reset);
+    println!(
+        "DarkRed : \t\t     {} {}\n",
+        "■".dark_red(),
+        Attribute::Reset
+    );
+    println!("Cyan : \t\t        {} {}\n", "■".cyan(), Attribute::Reset);
+    println!(
+        "DarkCyan : \t\t    {} {}\n",
+        "■".dark_cyan(),
+        Attribute::Reset
+    );
+    println!(
+        "Green : \t\t       {} {}\n",
+        "■".green(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkGreen : \t\t   {} {}\n",
+        "■".dark_green(),
+        Attribute::Reset
+    );
+    println!("Blue : \t\t        {} {}\n", "■".blue(), Attribute::Reset);
+    println!(
+        "DarkBlue : \t\t    {} {}\n",
+        "■".dark_blue(),
+        Attribute::Reset
+    );
+    println!(
+        "Magenta : \t\t     {} {}\n",
+        "■".magenta(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkMagenta : \t\t {} {}\n",
+        "■".dark_magenta(),
+        Attribute::Reset
+    );
+    println!(
+        "Yellow : \t\t      {} {}\n",
+        "■".yellow(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkYellow : \t\t  {} {}\n",
+        "■".dark_yellow(),
+        Attribute::Reset
+    );
+    println!("Grey : \t\t        {} {}\n", "■".grey(), Attribute::Reset);
+    println!(
+        "White : \t\t       {} {}\n",
+        "■".white(),
+        Attribute::Reset
     );
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_background_colors() {
+pub fn print_all_background_colors_with_enum() {
     println!(
-        "{}",
-        style(format!("Black : \t {} \n", "■")).on(Color::Black)
+        "Black : \t\t      {} ■ {}\n",
+        Colored::Bg(Color::Black),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Red : \t\t {} \n", "■")).on(Color::Red)
+        "Red : \t\t        {} ■ {}\n",
+        Colored::Bg(Color::Red),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Cyan : \t\t {} \n", "■")).on(Color::Cyan)
+        "DarkRed : \t\t    {} ■ {}\n",
+        Colored::Bg(Color::DarkRed),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkCyan : \t {} \n", "■")).on(Color::DarkCyan)
+        "Cyan : \t\t       {} ■ {}\n",
+        Colored::Bg(Color::Cyan),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkRed : \t {} \n", "■")).on(Color::DarkRed)
+        "DarkCyan : \t\t   {} ■ {}\n",
+        Colored::Bg(Color::DarkCyan),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Green : \t {} \n", "■")).on(Color::Green)
+        "Green : \t\t      {} ■ {}\n",
+        Colored::Bg(Color::Green),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkGreen : \t {} \n", "■")).on(Color::DarkGreen)
+        "DarkGreen : \t\t  {} ■ {}\n",
+        Colored::Bg(Color::DarkGreen),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Blue : \t\t {} \n", "■")).on(Color::Blue)
+        "Blue : \t\t       {} ■ {}\n",
+        Colored::Bg(Color::Blue),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkBlue : \t {} \n", "■")).on(Color::DarkBlue)
+        "DarkBlue : \t\t   {} ■ {}\n",
+        Colored::Bg(Color::DarkBlue),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Magenta : \t {} \n", "■")).on(Color::Magenta)
+        "Magenta : \t\t    {} ■ {}\n",
+        Colored::Bg(Color::Magenta),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkMagenta : \t {} \n", "■")).on(Color::DarkMagenta)
+        "DarkMagenta : \t\t{} ■ {}\n",
+        Colored::Bg(Color::DarkMagenta),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Yellow : \t {} \n", "■")).on(Color::Yellow)
+        "Yellow : \t\t     {} ■ {}\n",
+        Colored::Bg(Color::Yellow),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("DarkYellow : \t {} \n", "■")).on(Color::DarkYellow)
+        "DarkYellow : \t\t {} ■ {}\n",
+        Colored::Bg(Color::DarkYellow),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("Grey : \t\t {} \n", "■")).on(Color::Grey)
+        "Grey : \t\t       {} ■ {}\n",
+        Colored::Bg(Color::Grey),
+        Attribute::Reset
     );
     println!(
-        "{}",
-        style(format!("White : \t {} \n", "■")).on(Color::White)
+        "White : \t\t      {} ■ {}\n",
+        Colored::Bg(Color::White),
+        Attribute::Reset
     );
 
-    #[cfg(unix)]
+    // custom rgb value (Windows 10 and UNIX systems)
     println!(
-        "{}",
-        style("RGB color (10,10,10) ").on(Color::Rgb {
-            r: 10,
+        "{} some colored text",
+        Colored::Bg(Color::Rgb {
+            r: 80,
             g: 10,
             b: 10
         })
     );
 
-    #[cfg(unix)]
+    // custom ansi color value (Windows 10 and UNIX systems)
+    println!("{} some colored text", Colored::Bg(Color::AnsiValue(10)));
+}
+
+/// Print all available foreground colors | demonstration.
+pub fn print_all_background_colors_with_method() {
     println!(
-        "{}",
-        style("RGB color (10,10,10) ").on(Color::AnsiValue(50))
+        "Black : \t\t       {} {}\n",
+        "■".on_black(),
+        Attribute::Reset
+    );
+    println!(
+        "Red : \t\t         {} {}\n",
+        "■".on_red(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkRed : \t\t     {} {}\n",
+        "■".on_dark_red(),
+        Attribute::Reset
+    );
+    println!(
+        "Cyan : \t\t        {} {}\n",
+        "■".on_cyan(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkCyan : \t\t    {} {}\n",
+        "■".on_dark_cyan(),
+        Attribute::Reset
+    );
+    println!(
+        "Green : \t\t       {} {}\n",
+        "■".on_green(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkGreen : \t\t   {} {}\n",
+        "■".on_dark_green(),
+        Attribute::Reset
+    );
+    println!(
+        "Blue : \t\t        {} {}\n",
+        "■".on_blue(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkBlue : \t\t    {} {}\n",
+        "■".on_dark_blue(),
+        Attribute::Reset
+    );
+    println!(
+        "Magenta : \t\t     {} {}\n",
+        "■".on_magenta(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkMagenta : \t\t {} {}\n",
+        "■".on_dark_magenta(),
+        Attribute::Reset
+    );
+    println!(
+        "Yellow : \t\t      {} {}\n",
+        "■".on_yellow(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkYellow : \t\t  {} {}\n",
+        "■".on_dark_yellow(),
+        Attribute::Reset
+    );
+    println!(
+        "Grey : \t\t        {} {}\n",
+        "■".on_grey(),
+        Attribute::Reset
+    );
+    println!(
+        "White : \t\t       {} {}\n",
+        "■".on_white(),
+        Attribute::Reset
     );
 }
 
 /// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(unix)]
 pub fn print_font_with_attributes() {
-    println!("{}", style("Normal text"));
-    println!("{}", style("Bold text").bold());
-    println!("{}", style("Italic text").italic());
-    println!("{}", style("Slow blinking text").slow_blink());
-    println!("{}", style("Rapid blinking text").rapid_blink());
-    println!("{}", style("Hidden text").hidden());
-    println!("{}", style("Underlined text").underlined());
-    println!("{}", style("Reversed text").reverse());
-    println!("{}", style("Dim text").dim());
-    println!("{}", style("Crossed out font").crossed_out());
+    println!("{}", "Normal text");
+    println!("{}", "Bold text".bold());
+    println!("{}", "Italic text".italic());
+    println!("{}", "Slow blinking text".slow_blink());
+    println!("{}", "Rapid blinking text".rapid_blink());
+    println!("{}", "Hidden text".hidden());
+    println!("{}", "Underlined text".underlined());
+    println!("{}", "Reversed text".reverse());
+    println!("{}", "Dim text".dim());
+    println!("{}", "Crossed out font".crossed_out());
+    // ...
+
+    println!(
+        "{} Underlined {} No Underline",
+        Attribute::Underlined,
+        Attribute::NoUnderline
+    );
+    // ...
 }
 
-/// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
+// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(windows)]
 pub fn print_font_with_attributes() {
-    println!("{}", style("Normal text"));
-    println!("{}", style("Bold text").bold());
-    println!("{}", style("Underlined text").underlined());
-    println!("{}", style("Negative text").negative());
+    println!("{}", "Normal text");
+    println!("{}", "Bold text".bold());
+    println!("{}", "Underlined text".underlined());
+    println!("{}", "Negative text".negative());
 }
 
-/// Print all supported RGB colors  | demonstration.
-#[cfg(unix)]
+/// Print all supported RGB colors, not supported for Windows systems < 10  | demonstration.
 pub fn print_supported_colors() {
     let count = color().get_available_color_count().unwrap();
 
     for i in 0..count {
-        println!(
-            "{}",
-            style(format!("White : \t {}", i)).on(Color::AnsiValue(i as u8))
-        );
+        println!("Test {}", Colored::Bg(Color::AnsiValue(i as u8)));
     }
 }
 
 fn main() {
-    print_all_background_colors();
-    print_all_foreground_colors();
-    print_font_with_attributes();
+    print_all_background_colors_with_method();
+    print_all_foreground_colors_with_method();
 }
