@@ -124,45 +124,50 @@ println!("{}", crossterm.style("Black font on Green background color").with(Colo
 ### Styled Font | [see more](http://atcentra.com/crossterm/styling.html)
 This module provides the functionalities to style the terminal.
 
-**[crossterm_style](https://github.com/TimonPost/crossterm/tree/master/crossterm_style) 0.2 has a new way to style the terminal more easily and will be usable in crossterm soon. 
-If you only use the styling you might want to use that crate.**
-```rust    
-use crossterm::{Color, style};
+First include those types: 
 
-// store objcets so it could be painted later to the screen.   
-let style1 = style("Some Blue font on Black background").with(Color::Blue).on(Color::Black);
-let style2 = style("Some Red font on Yellow background").with(Color::Red).on(Color::Yellow);
+```rust
+use crossterm::{Colored, Color, Colorize, Styler, Attribute};
+```
+_style font with attributes_
+```rust
+// pass any `Attribute` value to the formatting braces.
+println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUnderline);
 
-// syling font with (Windows 10 and UNIX systems)
-let normal = style("Normal text");
-let bold = style("Bold text").bold();
-let italic = style("Italic text").italic();
-let slow_blink = style("Slow blinking text").slow_blink();
-let rapid_blink = style("Rapid blinking text").rapid_blink();
-let hidden = style("Hidden text").hidden();
-let underlined = style("Underlined text").underlined();
-let reversed = style("Reversed text").reverse();
-let dimmed = style("Dim text").dim();
-let crossed_out = style("Crossed out font").crossed_out();
+// you could also call different attribute methods on a `&str` and keep on chaining if needed.
+let styled_text = "Bold Underlined".bold().underlined();
+println!("{}", styled_text);
 
-// paint styled text to screen (this could also be called inline) 
-println!("{}", style1);
-println!("{}", style2);
-println!("{}", bold);
-println!("{}", hidden);
-...
+// old-way but still usable
+let styled_text = style("Bold Underlined").bold().underlined();
+```
 
-// cursom rgb value (Windows 10 and UNIX systems)
-style("RGB color (10,10,10) ").with(Color::Rgb {
+_style font with colors_
+```rust
+println!("{} Red foreground color", Colored::Fg(Color::Red));
+println!("{} Blue background color", Colored::Bg(Color::Blue));
+
+// you can also call different coloring methods on a `&str`.
+let styled_text = "Bold Underlined".red().on_blue();
+println!("{}", styled_text);
+
+// old-way but still usable
+let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
+```
+_style font with RGB and ANSI Value_
+```rust
+// custom rgb value (Windows 10 and UNIX systems)
+println!("{} some colored text", Colored::Fg(Color::Rgb {
     r: 10,
     g: 10,
     b: 10
 }));
 
 // custom ansi color value (Windows 10 and UNIX systems)
-style("ANSI color value (50) ").with(Color::AnsiValue(50));
-
+println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 ```
+
+
 ### Cursor | [see more](https://github.com/TimonPost/crossterm/blob/master/examples/cursor.rs)
 This module provides the functionalities to work with the terminal cursor.
 
