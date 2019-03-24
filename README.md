@@ -292,4 +292,4 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
+This project, crossterm and all it's sub-modules: crossterm_screen, crossterm_cursor, crossterm_style, crossterm_input, crossterm_terminal, crossterm_winapi, crossterm_utils are licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
