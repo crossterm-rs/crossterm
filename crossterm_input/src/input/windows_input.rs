@@ -3,21 +3,13 @@
 use super::*;
 
 use crossterm_utils::TerminalOutput;
-use crossterm_winapi::{is_true, ConsoleMode, Handle, ScreenBuffer};
+use crossterm_winapi::{
+    ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
+    MouseEvent,
+};
 use std::thread;
 use std::{char, io};
 use winapi::um::winnt::INT;
-
-use std::io::{Error, ErrorKind};
-use std::mem::zeroed;
-use winapi::shared::minwindef::DWORD;
-use winapi::um::{
-    consoleapi::{GetConsoleMode, ReadConsoleInputW, SetConsoleMode},
-    wincon::{
-        FOCUS_EVENT, INPUT_RECORD, KEY_EVENT, KEY_EVENT_RECORD, MENU_EVENT, MOUSE_EVENT,
-        MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_EVENT,
-    },
-};
 
 pub struct WindowsInput;
 
@@ -129,53 +121,40 @@ extern "C" {
 
 /// https://github.com/retep998/wio-rs/blob/master/src/console.rs#L130
 fn into_virtual_terminal_sequence() -> Result<Vec<u8>> {
-    let handle = Handle::current_in_handle()?;
-    // NOTE: confirm size of 0x1000
-    let mut buf: [INPUT_RECORD; 0x1000] = unsafe { zeroed() };
-    let mut size = 0;
-    let res = unsafe { ReadConsoleInputW(handle, buf.as_mut_ptr(), buf.len() as DWORD, &mut size) };
-    if res == 0 {
-        return Err(Error::new(
-            ErrorKind::Other,
-            "Problem occurred reading the Console input",
-        ));
-    }
+    let console = Console::from(Handle::current_in_handle()?);
 
     let mut vts: Vec<u8> = Vec::new();
 
-    for input in buf[..(size as usize)].iter() {
+    for input in console.read_console_input()? {
         unsafe {
-            match input.EventType {
-                KEY_EVENT => {
-                    let e = input.Event.KeyEvent();
-                    if e.bKeyDown == 0 {
+            match input.event_type {
+                InputEventType::KeyEvent => {
+                    let key_event = KeyEventRecord::from(*input.event.KeyEvent());
+                    if key_event.key_down {
                         // NOTE (@imdaveho): only handle key down
                         // this is because unix limits key events to key press
                         continue;
                     }
-                    vts = handle_key_event(e);
+                    handle_key_event(&key_event, &mut vts);
                 }
-                MOUSE_EVENT => {
-                    let e = input.Event.MouseEvent();
+                InputEventType::MouseEvent => {
+                    let mouse_event = MouseEvent::from(*input.event.MouseEvent());
                     // TODO: handle mouse events
-                    // println!("{:?}", e.dwButtonState);
-                    vts = handle_mouse_event(e);
+                    handle_mouse_event(&mouse_event, &mut vts);
                 }
                 // NOTE (@imdaveho): ignore below
-                WINDOW_BUFFER_SIZE_EVENT => (),
-                FOCUS_EVENT => (),
-                MENU_EVENT => (),
-                e => unreachable!("invalid event type: {}", e),
+                InputEventType::WindowBufferSizeEvent => (),
+                InputEventType::FocusEvent => (),
+                InputEventType::MenuEvent => (),
             }
         }
     }
+
     return Ok(vts);
 }
 
-fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
-    let mut seq = Vec::new();
-    let virtual_key = e.wVirtualKeyCode;
-    match virtual_key {
+fn handle_key_event(key_event: &KeyEventRecord, seq: &mut Vec<u8>) {
+    match key_event.virtual_key_code {
         0x10 | 0x11 | 0x12 => {
             // ignore SHIFT, CTRL, ALT standalone presses
             seq.push(b'\x00');
@@ -196,7 +175,7 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             // F1 - F4 are support by default VT100
             seq.push(b'\x1B');
             seq.push(b'O');
-            seq.push([b'P', b'Q', b'R', b'S'][(virtual_key - 0x70) as usize]);
+            seq.push([b'P', b'Q', b'R', b'S'][(key_event.virtual_key_code - 0x70) as usize]);
         }
         0x74 | 0x75 | 0x76 | 0x77 => {
             // NOTE: F Key Escape Codes:
@@ -206,7 +185,7 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             seq.push(b'\x1B');
             seq.push(b'[');
             seq.push(b'1');
-            seq.push([b'5', b'7', b'8', b'9'][(virtual_key - 0x74) as usize]);
+            seq.push([b'5', b'7', b'8', b'9'][(key_event.virtual_key_code - 0x74) as usize]);
             seq.push(b'~');
         }
         0x78 | 0x79 | 0x7A | 0x7B => {
@@ -214,41 +193,42 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             seq.push(b'\x1B');
             seq.push(b'[');
             seq.push(b'2');
-            seq.push([b'0', b'1', b'3', b'4'][(virtual_key - 0x78) as usize]);
+            seq.push([b'0', b'1', b'3', b'4'][(key_event.virtual_key_code - 0x78) as usize]);
             seq.push(b'~');
         }
         0x25 | 0x26 | 0x27 | 0x28 => {
             // LEFT, UP, RIGHT, DOWN
             seq.push(b'\x1B');
             seq.push(b'[');
-            seq.push([b'D', b'A', b'C', b'B'][(virtual_key - 0x25) as usize]);
+            seq.push([b'D', b'A', b'C', b'B'][(key_event.virtual_key_code - 0x25) as usize]);
         }
         0x21 | 0x22 => {
             // PAGEUP, PAGEDOWN
             seq.push(b'\x1B');
             seq.push(b'[');
-            seq.push([b'5', b'6'][(virtual_key - 0x21) as usize]);
+            seq.push([b'5', b'6'][(key_event.virtual_key_code - 0x21) as usize]);
             seq.push(b'~');
         }
         0x23 | 0x24 => {
             // END, HOME
             seq.push(b'\x1B');
             seq.push(b'[');
-            seq.push([b'F', b'H'][(virtual_key - 0x23) as usize]);
+            seq.push([b'F', b'H'][(key_event.virtual_key_code - 0x23) as usize]);
         }
         0x2D | 0x2E => {
             // INSERT, DELETE
             seq.push(b'\x1B');
             seq.push(b'[');
-            seq.push([b'2', b'3'][(virtual_key - 0x2D) as usize]);
+            seq.push([b'2', b'3'][(key_event.virtual_key_code - 0x2D) as usize]);
             seq.push(b'~');
         }
         _ => {
             // Modifier Keys (Ctrl, Alt, Shift) Support
             // NOTE (@imdaveho): test to check if characters outside of
             // alphabet or alphanumerics are supported
-            let chars: [u8; 2] = { (unsafe { *e.uChar.UnicodeChar() } as u16).to_ne_bytes() };
-            match e.dwControlKeyState {
+            let chars: [u8; 2] =
+                { (unsafe { *key_event.u_char.UnicodeChar() } as u16).to_ne_bytes() };
+            match key_event.control_key_state {
                 0x0002 | 0x0101 | 0x0001 => {
                     // Alt + chr support
                     seq.push(b'\x1B');
@@ -302,37 +282,37 @@ fn handle_key_event(e: &KEY_EVENT_RECORD) -> Vec<u8> {
             }
         }
     };
-    return seq;
 }
 
-fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
-    let mut seq = Vec::new();
-    let button = e.dwButtonState;
-    let movemt = e.dwEventFlags;
-
-    // NOTE (@imdaveho) coords can be larger than u8 (255)
-
-    let coords = e.dwMousePosition;
-
-    // NOTE (@imdaveho) xterm emulation takes the digits of the coords and passes them
+fn handle_mouse_event(event: &MouseEvent, seq: &mut Vec<u8>) {
+    // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
     // mouse button is held down (ie. mouse drag)
 
-    let cx = coords.X;
-    let cy = coords.Y;
-    let cxbs: Vec<u8> = cx.to_string().chars().map(|d| d as u8).collect();
-    let cybs: Vec<u8> = cy.to_string().chars().map(|d| d as u8).collect();
+    let cxbs: Vec<u8> = event
+        .mouse_position
+        .x
+        .to_string()
+        .chars()
+        .map(|d| d as u8)
+        .collect();
+    let cybs: Vec<u8> = event
+        .mouse_position
+        .x
+        .to_string()
+        .chars()
+        .map(|d| d as u8)
+        .collect();
 
     // TODO (@imdaveho): check if linux only provides coords for visible terminal window vs the total buffer
 
-    match movemt {
-        0x0 => {
+    match event.event_flags {
+        EventFlags::PressOrRelease => {
             // Single click
-            match button {
-                0 => {
-                    // release
-                    seq = vec![b'\x1B', b'[', b'<', b'3', b';'];
+            match event.button_state {
+                ButtonState::Release => {
+                    seq.append(&mut vec![b'\x1B', b'[', b'<', b'3', b';']);
                     for x in cxbs {
                         seq.push(x);
                     }
@@ -343,9 +323,9 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                     seq.push(b';');
                     seq.push(b'm');
                 }
-                1 => {
+                ButtonState::FromLeft1stButtonPressed => {
                     // left click
-                    seq = vec![b'\x1B', b'[', b'<', b'0', b';'];
+                    seq.append(&mut vec![b'\x1B', b'[', b'<', b'0', b';']);
                     for x in cxbs {
                         seq.push(x);
                     }
@@ -356,9 +336,9 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                     seq.push(b';');
                     seq.push(b'M');
                 }
-                2 => {
+                ButtonState::RightmostButtonPressed => {
                     // right click
-                    seq = vec![b'\x1B', b'[', b'<', b'2', b';'];
+                    seq.append(&mut vec![b'\x1B', b'[', b'<', b'2', b';']);
                     for x in cxbs {
                         seq.push(x);
                     }
@@ -369,9 +349,9 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                     seq.push(b';');
                     seq.push(b'M');
                 }
-                4 => {
+                ButtonState::FromLeft2ndButtonPressed => {
                     // middle click
-                    seq = vec![b'\x1B', b'[', b'<', b'1', b';'];
+                    seq.append(&mut vec![b'\x1B', b'[', b'<', b'1', b';']);
                     for x in cxbs {
                         seq.push(x);
                     }
@@ -385,11 +365,11 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                 _ => (),
             }
         }
-        0x1 => {
+        EventFlags::MouseMoved => {
             // Click + Move
             // NOTE (@imdaveho) only register when mouse is not released
-            if button != 0 {
-                seq = vec![b'\x1B', b'[', b'<', b'3', b'2', b';'];
+            if event.button_state != ButtonState::Release {
+                seq.append(&mut vec![b'\x1B', b'[', b'<', b'3', b'2', b';']);
                 for x in cxbs {
                     seq.push(x);
                 }
@@ -403,14 +383,14 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                 ()
             }
         }
-        0x4 => {
+        EventFlags::MouseWheeled => {
             // Vertical scroll
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
-            // MOUSE_WHEELED events are positive if wheeled up and negative when wheeled down...
+            // MouseWheeled events are positive if wheeled up and negative when wheeled down...
             // from testing it looks like getting the "high word" or (button >> 16) as a signed int
-            if ((button >> 16) as i16) >= 0 {
+            if ((event.button_state as u32 >> 16) as i16) >= 0 {
                 // WheelUp
-                seq = vec![b'\x1B', b'[', b'<', b'6', b'4', b';'];
+                seq.append(&mut vec![b'\x1B', b'[', b'<', b'6', b'4', b';']);
                 for x in cxbs {
                     seq.push(x);
                 }
@@ -422,7 +402,7 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                 seq.push(b'M');
             } else {
                 // WheelDown
-                seq = vec![b'\x1B', b'[', b'<', b'6', b'5', b';'];
+                seq.append(&mut vec![b'\x1B', b'[', b'<', b'6', b'5', b';']);
                 for x in cxbs {
                     seq.push(x);
                 }
@@ -434,9 +414,8 @@ fn handle_mouse_event(e: &MOUSE_EVENT_RECORD) -> Vec<u8> {
                 seq.push(b'M');
             }
         }
-        0x2 => (), // NOTE (@imdaveho): double click not supported by unix terminals
-        0x8 => (), // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
-        _ => (),   // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
+        EventFlags::DoubleClick => (), // NOTE (@imdaveho): double click not supported by unix terminals
+        EventFlags::MouseHwheeled => (), // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
+                                         // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
     };
-    return seq;
 }

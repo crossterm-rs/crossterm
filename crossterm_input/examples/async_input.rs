@@ -35,7 +35,7 @@ pub fn read_async() {
                             write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\n").unwrap();
                             write(&Some(&screen.stdout), msg).unwrap();
 
-                            break;
+//                            break;
                         }
                         'q' => {
                             let mut msg = String::new();
