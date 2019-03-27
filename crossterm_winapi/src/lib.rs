@@ -13,7 +13,10 @@ pub use self::{
     csbi::ScreenBufferInfo,
     handle::{Handle, HandleType},
     screen_buffer::ScreenBuffer,
-    structs::{Coord, Size, WindowPositions},
+    structs::{
+        ButtonState, ControlKeyState, Coord, EventFlags, InputEventType, InputRecord,
+        KeyEventRecord, MouseEvent, Size, WindowPositions,
+    },
 };
 
 /// Parses the given integer to an bool by checking if the value is 0 or 1.
