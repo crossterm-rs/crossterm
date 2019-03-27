@@ -168,31 +168,3 @@ impl Drop for AsyncReadHandle {
         self.stop_receiving();
     }
 }
-
-//impl Read for AsyncReader {
-//    /// Read from the byte stream.
-//    ///
-//    /// This will never block, but try to drain the event queue until empty. If the total number of
-//    /// bytes written is lower than the buffer's length, the event queue is empty or that the event
-//    /// stream halted.
-//    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-//        let mut total = 0;
-//
-//        loop {
-//            if *self.atomic_bool.get_mut() == true || total >= buf.len() {
-//                break;
-//            }
-//
-//            match self.event_rx.try_recv() {
-//                Ok(Ok(value)) => {
-//                    buf[total] = value;
-//                    total += 1;
-//                }
-//                Ok(Err(e)) => return Err(e),
-//                Err(_) => break,
-//            }
-//        }
-//
-//        Ok(total)
-//    }
-//}

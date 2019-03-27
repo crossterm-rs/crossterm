@@ -33,9 +33,7 @@ pub fn read_async() {
                             break;
                         }
                         _ => {
-                            screen
-                                .stdout
-                                .write_string(format!("'{}' pressed\n\n", c));
+                            screen.stdout.write_string(format!("'{}' pressed\n\n", c));
                         }
                     },
                     KeyEvent::Alt(c) => {
@@ -49,9 +47,7 @@ pub fn read_async() {
                             .write_string(format!("ctrl+'{}' pressed\n\n", c));
                     }
                     KeyEvent::Esc => {
-                        screen
-                            .stdout
-                            .write_string(format!("esc pressed\n\n"));
+                        screen.stdout.write_string(format!("esc pressed\n\n"));
                     }
                     _ => (),
                 },

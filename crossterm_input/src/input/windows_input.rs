@@ -15,6 +15,7 @@ use std::io::{Error, ErrorKind};
 use std::mem::zeroed;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::Receiver;
+use std::time::Duration;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::{
     consoleapi::{GetConsoleMode, ReadConsoleInputW, SetConsoleMode},
@@ -23,7 +24,6 @@ use winapi::um::{
         MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_EVENT,
     },
 };
-use std::time::Duration;
 
 pub struct WindowsInput;
 
@@ -74,19 +74,17 @@ impl ITerminalInput for WindowsInput {
     }
 
     fn read_async(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
-        AsyncReader::new(Box::new(move |event_tx| {
-            loop {
-                for i in into_virtual_terminal_sequence().unwrap() {
-                    if event_tx.send(i).is_err() {
-                        return;
-                    }
-                }
-
-                if cancellation_token.load(Ordering::SeqCst) {
+        AsyncReader::new(Box::new(move |event_tx, cancellation_token| loop {
+            for i in into_virtual_terminal_sequence().unwrap() {
+                if event_tx.send(i).is_err() {
                     return;
                 }
-                thread::sleep(Duration::from_millis(1));
             }
+
+            if cancellation_token.load(Ordering::SeqCst) {
+                return;
+            }
+            thread::sleep(Duration::from_millis(1));
         }))
     }
 
@@ -95,19 +93,17 @@ impl ITerminalInput for WindowsInput {
         delimiter: u8,
         _stdout: &Option<&Arc<TerminalOutput>>,
     ) -> AsyncReader {
-        AsyncReader::new(Box::new(move |event_tx, cancellation_token| {
-            loop {
-                for i in into_virtual_terminal_sequence().unwrap() {
-                    if i == delimiter || cancellation_token.load(Ordering::SeqCst) {
+        AsyncReader::new(Box::new(move |event_tx, cancellation_token| loop {
+            for i in into_virtual_terminal_sequence().unwrap() {
+                if i == delimiter || cancellation_token.load(Ordering::SeqCst) {
+                    return;
+                } else {
+                    if event_tx.send(i).is_err() {
                         return;
-                    } else {
-                        if event_tx.send(i).is_err() {
-                            return;
-                        }
                     }
-
-                    thread::sleep(Duration::from_millis(1));
                 }
+
+                thread::sleep(Duration::from_millis(1));
             }
         }))
     }

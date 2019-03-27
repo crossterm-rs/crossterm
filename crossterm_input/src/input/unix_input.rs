@@ -29,11 +29,8 @@ impl ITerminalInput for UnixInput {
         }
     }
 
-    fn read_async(
-        &self,
-        __stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> AsyncReader {
-        AsyncReader::new(Box::new(move | event_tx, cancellation_token | {
+    fn read_async(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> AsyncReader {
+        AsyncReader::new(Box::new(move |event_tx, cancellation_token| {
             for i in get_tty().unwrap().bytes() {
                 if event_tx.send(i.unwrap()).is_err() {
                     return;
@@ -51,7 +48,7 @@ impl ITerminalInput for UnixInput {
         delimiter: u8,
         __stdout: &Option<&Arc<TerminalOutput>>,
     ) -> AsyncReader {
-        AsyncReader::new(Box::new(move | event_tx, cancellation_token |  {
+        AsyncReader::new(Box::new(move |event_tx, cancellation_token| {
             for byte in get_tty().unwrap().bytes() {
                 let byte = byte.unwrap();
                 let end_of_stream = byte == delimiter;
