@@ -8,7 +8,7 @@ use crossterm_input::{
 use crossterm_screen::Screen;
 use crossterm_utils::write;
 
-use std::fmt::Write;
+use std::io::Write;
 use std::io::Read;
 use std::{thread, time};
 
@@ -31,82 +31,52 @@ pub fn read_async() {
                 InputEvent::Keyboard(k) => match k {
                     KeyEvent::Char(c) => match c {
                         '\n' => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", "The enter key is hit and the program is not listening to input anymore.\n\n").unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
-
+                            screen.stdout.write_str("The enter key is hit and the program is not listening to input anymore.\n\n").unwrap();
 //                            break;
                         }
                         'q' => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", "The 'q' key is hit and the program is not listening to input anymore.\n\n").unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_str("The 'q' key is hit and the program is not listening to input anymore.\n\n").unwrap();
 
                             break;
                         }
                         _ => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("'{}' pressed\n\n", c)).unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("'{}' pressed\n\n", c)).unwrap();
                         }
                     },
                     KeyEvent::Alt(c) => {
-                        let mut msg = String::new();
-                        write!(msg, "{}", format!("alt+'{}' pressed\n\n", c)).unwrap();
-                        write(&Some(&screen.stdout), msg).unwrap();
+                        screen.stdout.write_string(format!("alt+'{}' pressed\n\n", c)).unwrap();
                     }
                     KeyEvent::Ctrl(c) => {
-                        let mut msg = String::new();
-                        write!(msg, "{}", format!("ctrl+'{}' pressed\n\n", c)).unwrap();
-                        write(&Some(&screen.stdout), msg).unwrap();
+                        screen.stdout.write_string(format!("ctrl+'{}' pressed\n\n", c)).unwrap();
                     }
                     KeyEvent::Esc => {
-                        let mut msg = String::new();
-                        write!(msg, "{}", format!("esc pressed\n\n")).unwrap();
-                        write(&Some(&screen.stdout), msg).unwrap();
+                        screen.stdout.write_string(format!("esc pressed\n\n")).unwrap();
                     }
                     _ => (),
                 },
                 InputEvent::Mouse(m) => match m {
                     MouseEvent::Press(b, x, y) => match b {
                         MouseButton::Left => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("left mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("left mouse press @ {}, {}\n\n", x, y)).unwrap();
                         }
                         MouseButton::Right => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("right mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("right mouse press @ {}, {}\n\n", x, y)).unwrap();
                         }
                         MouseButton::Middle => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("mid mouse press @ {}, {}\n\n", x, y))
-                                .unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("mid mouse press @ {}, {}\n\n", x, y)).unwrap();
                         }
                         MouseButton::WheelUp => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("wheel up @ {}, {}\n\n", x, y)).unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("wheel up @ {}, {}\n\n", x, y)).unwrap();
                         }
                         MouseButton::WheelDown => {
-                            let mut msg = String::new();
-                            write!(msg, "{}", format!("wheel down @ {}, {}\n\n", x, y)).unwrap();
-                            write(&Some(&screen.stdout), msg).unwrap();
+                            screen.stdout.write_string(format!("wheel down @ {}, {}\n\n", x, y)).unwrap();
                         }
                     },
                     MouseEvent::Release(x, y) => {
-                        let mut msg = String::new();
-                        write!(msg, "{}", format!("mouse released @ {}, {}\n\n", x, y)).unwrap();
-                        write(&Some(&screen.stdout), msg).unwrap();
+                        screen.stdout.write_string(format!("mouse released @ {}, {}\n\n", x, y)).unwrap();
                     }
                     MouseEvent::Hold(x, y) => {
-                        let mut msg = String::new();
-                        write!(msg, "{}", format!("dragging @ {}, {}\n\n", x, y)).unwrap();
-                        write(&Some(&screen.stdout), msg).unwrap();
+                        screen.stdout.write_string(format!("dragging @ {}, {}\n\n", x, y)).unwrap();
                     }
                 },
                 _ => (),
