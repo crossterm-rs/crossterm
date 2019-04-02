@@ -41,14 +41,13 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_input` version `0.2` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_input/examples) folders with detailed examples for all functionalities of this crate.
+This documentation is only for `crossterm_input` version `0.2` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_input/examples) folders with detailed examples for all functionalities of this crate.
 
 Add the `crossterm_input` package to your `Cargo.toml` file.
 
 ```
 [dependencies]
 `crossterm_input` = "0.2"
-
 ```
 And import the `crossterm_input` modules you want to use.
 
@@ -154,7 +153,7 @@ If you have used this library for a terminal other than the above list without i
 ## Notice 
 
 This library is average stable now, I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
+If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
 
 ## Contributing
 
@@ -165,6 +164,7 @@ So improving this by correcting these mistakes will help both me and the reader 
 ## Authors
 
 * **Timon Post** - *Project Owner & creator*
+* **Dave Ho** - *Contributor*
 
 ## License
 
