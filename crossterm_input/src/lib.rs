@@ -8,8 +8,7 @@ mod input;
 mod sys;
 
 pub use self::input::{
-    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader,
-    TerminalInput,
+    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 
 pub use self::crossterm_screen::Screen;

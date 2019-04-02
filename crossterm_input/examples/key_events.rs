@@ -2,9 +2,7 @@ extern crate crossterm_input;
 extern crate crossterm_screen;
 extern crate crossterm_utils;
 
-use crossterm_input::{
-    InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput,
-};
+use crossterm_input::{InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput};
 
 use crossterm_screen::Screen;
 
