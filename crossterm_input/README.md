@@ -1,5 +1,5 @@
 # Crossterm Input | cross-platform input reading .
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
 
 [s1]: https://img.shields.io/crates/v/crossterm_input.svg
 [l1]: https://crates.io/crates/crossterm_input
@@ -13,13 +13,12 @@
 [s3]: https://docs.rs/crossterm_input/badge.svg
 [l3]: https://docs.rs/crossterm_input/
 
-[s6]: https://tokei.rs/b1/github/TimonPost/crossterm_input?category=code
-[s7]: https://travis-ci.org/TimonPost/crossterm_input.svg?branch=master
+[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 This crate allows you to read the user input cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
 
-This crate is a sub-crate of [crossterm](https://crates.io/crates/crossterm) to read the user input, and can be use individually.
+This crate is a sub-crate of [crossterm](https://crates.io/crates/crossterm) to read the user input and can be used individually.
 
 Other sub-crates are:
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
@@ -27,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://doc.rust-lang.org/1.30.0/book/first-edition/conditional-compilation.html)
+When you want to use other modules as well you might want to use crossterm with [feature flags](http://atcentra.com/crossterm/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -42,13 +41,13 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_input` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_input` version `0.2` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_input/examples) folders with detailed examples for all functionalities of this crate.
 
 Add the `crossterm_input` package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-`crossterm_input` = "0.1"
+`crossterm_input` = "0.2"
 
 ```
 And import the `crossterm_input` modules you want to use.
@@ -72,24 +71,26 @@ These are the features of this crate:
 - Cross-platform
 - Everything is multithreaded (Send, Sync)
 - Detailed documentation on every item
-- Very few dependenties.
 - Input
     - Read character
     - Read line
-    - Read async
-    - Read async until
-    - Wait for key event (terminal pause)
+    - Read key input events async / sync (ALT + Key, CTRL + Key, FN, Arrows, ESC, BackSpace, HOME, DELETE. INSERT, PAGEUP/DOWN, and more)
+    - Read mouse input events (Press, Release, Position, Button)
     
- Planned features:
- - Read mouse events
- - Read special keys events
-
 ## Examples
-Check out the [examples](/examples/) for more information about how to use this crate.
+The examples folder has more complete and verbose examples, please have a look at that as well.
 
+Good documentation could be found in the  [docs][l3] as well in the [book](http://atcentra.com/crossterm/input.html).
+
+_available imports_
+```rust
+use crossterm_input::{
+    input, InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput, AsyncReader, SyncReader, Screen
+};
+```
+
+_Simple Readings_
 ```rust 
-use crossterm_input::input;
-
 let mut input = input();
 
  match input.read_char() {
@@ -101,8 +102,40 @@ let mut input = input();
      Ok(s) => println!("string typed: {}", s),
      Err(e) => println!("error: {}", e),
  }
-
 ```
+
+_Read input events synchronously or asynchronously._
+```rust
+// make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
+let screen = Screen::new(true);
+    
+let mut input = input();
+
+// either read the input synchronously 
+let stdin = input.read_sync();
+ 
+// or asynchronously
+let stdin = input.read_async();
+
+if let Some(key_event) = stdin.next() {
+     match key_event {
+         InputEvent::Keyboard(event: KeyEvent) => matche vent { /* check key event */ }
+         InputEvent::Mouse(event: MouseEvent) => match event { /* check mouse event */ }
+     }
+ }
+```
+
+_Enable mouse input events._
+```rust
+let input = input();
+
+// enable mouse events to be captured.
+input.enable_mouse_mode().unwrap();
+
+// disable mouse events to be captured.
+input.disable_mouse_mode().unwrap();
+```
+
 ## Tested terminals
 
 - Windows Powershell

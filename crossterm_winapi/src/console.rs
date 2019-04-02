@@ -2,16 +2,20 @@ use super::{is_true, Coord, Handle, HandleType, WindowPositions};
 use std::io::{self, Error, Result};
 use std::str;
 
+use std::mem::zeroed;
 use winapi::ctypes::c_void;
+use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
+use winapi::um::consoleapi::ReadConsoleInputW;
 use winapi::um::{
     consoleapi::WriteConsoleW,
     wincon::{
         FillConsoleOutputAttribute, FillConsoleOutputCharacterA, GetLargestConsoleWindowSize,
-        SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, SMALL_RECT,
+        SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, INPUT_RECORD, SMALL_RECT,
     },
     winnt::HANDLE,
 };
+use InputRecord;
 
 /// Could be used to do some basic things with the console.
 pub struct Console {
@@ -158,6 +162,30 @@ impl Console {
             }
         }
         Ok(utf8.as_bytes().len())
+    }
+
+    pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
+        let mut buf: [INPUT_RECORD; 0x1000] = unsafe { zeroed() };
+        let mut size = 0;
+
+        if !is_true(unsafe {
+            ReadConsoleInputW(
+                *self.handle,
+                buf.as_mut_ptr(),
+                buf.len() as DWORD,
+                &mut size,
+            )
+        }) {
+            return Err(Error::last_os_error());
+        }
+
+        Ok((
+            size,
+            buf[..(size as usize)]
+                .iter()
+                .map(|x| InputRecord::from(*x))
+                .collect::<Vec<InputRecord>>(),
+        ))
     }
 }
 

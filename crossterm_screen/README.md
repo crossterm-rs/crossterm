@@ -1,5 +1,5 @@
 # Crossterm Screen | cross-platform alternate, raw screen.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
 
 [s1]: https://img.shields.io/crates/v/crossterm_screen.svg
 [l1]: https://crates.io/crates/crossterm_screen
@@ -13,8 +13,7 @@
 [s3]: https://docs.rs/crossterm_screen/badge.svg
 [l3]: https://docs.rs/crossterm_screen/
 
-[s6]: https://tokei.rs/b1/github/TimonPost/crossterm_screen?category=code
-[s7]: https://travis-ci.org/TimonPost/crossterm_screen.svg?branch=master
+[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 This crate allows you to work with alternate and raw screen cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
@@ -27,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Input](https://crates.io/crates/crossterm_input)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://doc.rust-lang.org/1.30.0/book/first-edition/conditional-compilation.html)
+When you want to use other modules as well you might want to use crossterm with [feature flags](http://atcentra.com/crossterm/feature_flags.html).
  
 In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](http://atcentra.com/crossterm/screen.html) describing this in more detail.
   
@@ -45,7 +44,7 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 ## Getting Started
 
 This documentation is only for `crossterm_screen` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md).
-Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate
+Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_screen/examples) folders with detailed examples for all functionality of this crate
 and the [book](http://atcentra.com/crossterm/screen.html) for more information about how to use the alternate or raw screen options.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.

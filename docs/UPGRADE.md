@@ -1,7 +1,10 @@
+## Upgrade crossterm to 0.8.0
+This update will cause problems with `read_async`. `read_async` first returned a type implementing `Read` it returns an `Iterator` of input events now. 
+See the examples for details on how this works. 
+
 ## Upgrade crossterm to 0.7.0
 Upgrade to `crossterm_style 0.2` caused some API changes. 
- - Introduced more `Attributes`
- - Introduced easier ways to style text [issue 87](https://github.com/TimonPost/crossterm/issues/87).
+ - Introduced more `Attributes` and renamed some. 
  - Removed `ColorType` since it was unnecessary.
 
 ## Upgrade crossterm to 0.6.0
