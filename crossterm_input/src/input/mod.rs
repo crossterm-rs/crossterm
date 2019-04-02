@@ -126,7 +126,6 @@ pub struct SyncReader;
 /// - Threads spawned will be disposed of as soon the `AsyncReader` goes out of scope.
 /// - MPSC-channels are used to queue input events, this type implements an iterator of the rx side of the queue.
 pub struct AsyncReader {
-    function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>,
     event_rx: Receiver<u8>,
     shutdown: Arc<AtomicBool>,
 }
@@ -140,14 +139,11 @@ impl AsyncReader {
         let (event_tx, event_rx) = mpsc::channel();
         let thread_shutdown = shutdown_handle.clone();
 
-        let function = function.function;
-
         thread::spawn(move || loop {
             function(&event_tx, &thread_shutdown);
         });
 
         AsyncReader {
-            function,
             event_rx,
             shutdown: shutdown_handle,
         }
