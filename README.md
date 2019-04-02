@@ -17,14 +17,14 @@
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 Ever got disappointed when a terminal library for rust was only written for UNIX systems? 
-Crossterm provides the same core functionalities for both Windows and UNIX systems.
+Crossterm provides, clearing, input handling, styling, cursor movement, terminal actions for both Windows and UNIX systems.
 
 Crossterm aims to be simple and easy to call in code. 
 Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 
 This crate supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
 
-This crate is exists out of five modules who are behind feature flags so that you can define which features you'd like to have:
+This crate is exists out of five modules who are behind [feature flags](http://atcentra.com/crossterm/feature_flags.html) so that you can define which features you'd like to have, by default all features are enabled.
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
@@ -50,13 +50,13 @@ This crate is exists out of five modules who are behind feature flags so that yo
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.5` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.8` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.6"
+crossterm = "0.8"
 ```
 
 ### Useful Links

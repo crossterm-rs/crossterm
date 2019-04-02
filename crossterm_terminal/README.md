@@ -41,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_terminal` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_terminal/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_terminal` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_terminal/examples) folders with detailed examples for all functionality of this crate.
 
 Add the `crossterm_terminal` package to your `Cargo.toml` file.
 
@@ -135,7 +135,7 @@ If you have used this library for a terminal other than the above list without i
 ## Notice 
 
 This library is average stable now, I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UpgradeManual.md) what to change to upgrade.
+If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
 
 ## Contributing
 
