@@ -6,7 +6,7 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{terminal, ClearType, Color, Crossterm, Screen};
+use self::crossterm::{Color, Crossterm, Screen, ClearType, InputEvent, KeyEvent};
 
 use self::messages::WELCOME_MESSAGE;
 use self::variables::{Position, Size};
@@ -62,7 +62,11 @@ fn print_welcome_screen() {
     // clear the screen and print the welcome message.
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);
-    terminal.write(WELCOME_MESSAGE.join("\r\n"));
+
+    crossterm
+        .style(format!("{}", messages::WELCOME_MESSAGE.join("\n\r")))
+        .with(Color::Cyan)
+        .paint(&screen.stdout);
 
     cursor.hide();
     cursor.goto(0, 10);
@@ -71,13 +75,11 @@ fn print_welcome_screen() {
     cursor.goto(0, 11);
     terminal.write("Press `q` to abort the program");
 
-    let mut stdin = input.read_async().bytes();
+    let mut stdin = input.read_async();
 
     // print some progress example.
     for i in (1..5).rev() {
-        let a = stdin.next();
-
-        if let Some(Ok(b'q')) = a {
+        if let Some(InputEvent::Keyboard(KeyEvent::Char('q'))) = stdin.next() {
             drop(screen);
             terminal.exit();
             break;
@@ -95,3 +97,4 @@ fn print_welcome_screen() {
         thread::sleep(time::Duration::from_secs(1));
     }
 }
+

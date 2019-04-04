@@ -1,11 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::{
-    cursor, style, ClearType, Color, Crossterm, ObjectStyle, Screen, StyledObject, TerminalCursor,
-};
-
-use std::fmt;
-use std::fmt::Debug;
+use self::crossterm::{style, Color, Crossterm, Screen, TerminalCursor};
 
 #[derive(Copy, Clone, Debug)]
 pub enum Direction {

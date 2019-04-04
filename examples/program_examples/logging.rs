@@ -2,10 +2,7 @@ extern crate crossterm;
 
 use crossterm::Screen;
 use std::collections::VecDeque;
-use std::io::Write;
-use std::sync::mpsc::{self, Receiver, Sender};
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex, mpsc::{self, Receiver, Sender}};
 use std::thread::{self, JoinHandle};
 
 /// This is an que that could be shared between threads safely.
@@ -98,11 +95,6 @@ fn main() {
 
     // a thread that will log all logs in the queue.
     handle_incoming_logs(more_jobs_rx.clone(), queue.clone());
-
-    //    for handle in thread_handles
-    //    {
-    //        handle.join();
-    //    }
 }
 
 fn handle_incoming_logs(more_jobs_rx: SyncFlagRx, queue: WorkQueue<String>) {

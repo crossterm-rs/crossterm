@@ -1,6 +1,6 @@
 //! Implementation of the first depth search algorithm
+
 use super::map::Map;
-use super::messages::END_MESSAGE;
 use super::variables::{Direction, Position};
 
 use crossterm::{Color, Crossterm, Screen};
@@ -8,7 +8,7 @@ use crossterm::{Color, Crossterm, Screen};
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
 
-use std::io::{stdout, Write};
+use std::io::Write;
 use std::{thread, time};
 
 pub struct FirstDepthSearch<'screen> {
@@ -28,7 +28,7 @@ impl<'screen> FirstDepthSearch<'screen> {
     ) -> FirstDepthSearch<'screen> {
         FirstDepthSearch {
             direction: Direction::Up,
-            map: map,
+            map,
             stack: Vec::new(),
             root_pos: start_pos,
             is_terminated: false,

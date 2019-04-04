@@ -1,16 +1,10 @@
-use super::snake::Snake;
-use super::variables::{Direction, Position, Size};
+use super::variables::{Position, Size};
 
-use crossterm::{
-    style, Color, ColorType, Crossterm, ObjectStyle, Screen, StyledObject, TerminalCursor,
-};
+use crossterm::{style, Color, Colorize, Crossterm, Screen, TerminalCursor};
 
 use rand::distributions::{IndependentSample, Range};
 
 use std::collections::HashMap;
-use std::fmt::Display;
-use std::hash::Hash;
-use std::ops::Index;
 
 use rand;
 
@@ -30,14 +24,14 @@ impl Map {
     // render the map on the screen.
     pub fn render_map(&mut self, screen: &Screen, free_positions: &mut HashMap<String, Position>) {
         let crossterm = Crossterm::from_screen(screen);
-        let mut cursor = crossterm.cursor();
-        let mut terminal = crossterm.terminal();
+        let cursor = crossterm.cursor();
+        let terminal = crossterm.terminal();
 
         for y in 0..self.size.height {
             for x in 0..self.size.height {
                 if (y == 0 || y == self.size.height - 1) || (x == 0 || x == self.size.width - 1) {
                     cursor.goto(x as u16, y as u16);
-                    terminal.write("█");
+                    "█".magenta().paint(&screen.stdout);
                 } else {
                     free_positions.insert(format!("{},{}", x, y), Position::new(x, y));
                 }
@@ -68,7 +62,6 @@ impl Map {
     fn draw_food(&self, screen: &Screen) {
         let cursor = TerminalCursor::from_output(&screen.stdout);
         cursor.goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
-        style("$").with(Color::Green).paint(&screen.stdout);
-        screen.stdout.flush();
+        "$".green().paint(&screen.stdout);
     }
 }

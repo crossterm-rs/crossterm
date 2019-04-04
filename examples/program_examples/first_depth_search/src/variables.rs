@@ -1,10 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::{terminal, ClearType};
 use self::crossterm::{Color, ObjectStyle, StyledObject};
-
-use std::fmt;
-use std::fmt::Debug;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Direction {

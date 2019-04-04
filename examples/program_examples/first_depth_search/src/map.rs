@@ -1,7 +1,5 @@
 use super::variables::{Cell, Position, Size};
-use crossterm::{cursor, Color, Crossterm, ObjectStyle, Screen, StyledObject};
-
-use std::fmt::Display;
+use crossterm::{cursor, Color, Crossterm, Screen};
 
 pub struct Map {
     pub map: Vec<Vec<Cell>>,
@@ -38,7 +36,7 @@ impl Map {
         }
 
         Map {
-            map: map,
+            map,
             size: Size::new(map_size.width, map_size.height),
         }
     }

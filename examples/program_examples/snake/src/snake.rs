@@ -1,5 +1,5 @@
 use super::variables::{Direction, Position, Size};
-use crossterm::{Color, Crossterm, Screen};
+use crossterm::{Crossterm, Screen};
 
 use std::collections::HashMap;
 
@@ -18,16 +18,14 @@ impl Part {
 pub struct Snake {
     pub snake_parts: Vec<Part>,
     pub parent_pos: Position,
-    map_size: Size,
 }
 
 impl Snake {
-    pub fn new(map_size: Size) -> Snake {
-        return Snake {
-            map_size,
+    pub fn new() -> Snake {
+        Snake {
             snake_parts: vec![Part::new(9, 10), Part::new(8, 10)],
             parent_pos: Position::new(0, 0),
-        };
+        }
     }
 
     pub fn move_snake(
@@ -41,7 +39,6 @@ impl Snake {
         let terminal = crossterm.terminal();
 
         let count = self.snake_parts.len();
-        let is_food_eaten = false;
 
         for (index, ref mut snake_part) in self.snake_parts.iter_mut().enumerate() {
             if index == count - 1 {
@@ -74,7 +71,7 @@ impl Snake {
     }
 
     pub fn draw_snake(&mut self, screen: &Screen) {
-        for (index, ref mut snake_part) in self.snake_parts.iter_mut().enumerate() {
+        for snake_part in self.snake_parts.iter_mut() {
             snake_part.position.draw("■", screen);
         }
     }
@@ -93,10 +90,4 @@ impl Snake {
     pub fn get_parts(&self) -> &Vec<Part> {
         return &self.snake_parts;
     }
-}
-
-pub enum SnakeState {
-    MovedOutMap,
-    Moved,
-    AteFood,
 }

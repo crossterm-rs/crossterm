@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{cursor, input, ClearType, Crossterm, Screen, Terminal, TerminalCursor};
+use crossterm::{input, ClearType, Crossterm, Screen, Terminal, TerminalCursor, InputEvent, KeyEvent};
 
 use std::io::Read;
 use std::sync::{Arc, Mutex};
@@ -22,22 +22,20 @@ fn main() {
 
     thread::spawn(move || {
         let input = input();
-        let mut stdin = input.read_async().bytes();
+        let mut stdin = input.read_async();
 
         loop {
-            let a = stdin.next();
-
-            match a {
-                Some(Ok(13)) => {
+            match stdin.next() {
+                Some(InputEvent::Keyboard(KeyEvent::Char('\n')))  => {
                     input_buf.lock().unwrap().clear();
                 }
-                Some(Ok(val)) => {
-                    input_buf.lock().unwrap().push(val as char);
+                Some(InputEvent::Keyboard(KeyEvent::Char(character)))  => {
+                    input_buf.lock().unwrap().push(character as char);
                 }
                 _ => {}
             }
 
-            thread::sleep(time::Duration::from_millis(100));
+            thread::sleep(time::Duration::from_millis(10));
             count += 1;
         }
     })
@@ -73,7 +71,7 @@ fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle
                     &cursor,
                     term_height,
                 );
-                thread::sleep(time::Duration::from_millis(300));
+                thread::sleep(time::Duration::from_millis(100));
             }
         });
 

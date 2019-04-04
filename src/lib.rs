@@ -17,7 +17,9 @@ mod crossterm;
 #[cfg(feature = "cursor")]
 pub use self::crossterm_cursor::{cursor, TerminalCursor};
 #[cfg(feature = "input")]
-pub use self::crossterm_input::{input, AsyncReader, KeyEvent, TerminalInput};
+pub use self::crossterm_input::{
+    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
+};
 #[cfg(feature = "screen")]
 pub use self::crossterm_screen::{AlternateScreen, Screen};
 #[cfg(feature = "style")]
