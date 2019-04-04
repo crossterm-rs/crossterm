@@ -2,7 +2,10 @@ extern crate crossterm;
 
 use crossterm::Screen;
 use std::collections::VecDeque;
-use std::sync::{Arc, Mutex, mpsc::{self, Receiver, Sender}};
+use std::sync::{
+    mpsc::{self, Receiver, Sender},
+    Arc, Mutex,
+};
 use std::thread::{self, JoinHandle};
 
 /// This is an que that could be shared between threads safely.

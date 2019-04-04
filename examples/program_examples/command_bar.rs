@@ -1,6 +1,8 @@
 extern crate crossterm;
 
-use crossterm::{input, ClearType, Crossterm, Screen, Terminal, TerminalCursor, InputEvent, KeyEvent};
+use crossterm::{
+    input, ClearType, Crossterm, InputEvent, KeyEvent, Screen, Terminal, TerminalCursor,
+};
 
 use std::io::Read;
 use std::sync::{Arc, Mutex};
@@ -26,10 +28,10 @@ fn main() {
 
         loop {
             match stdin.next() {
-                Some(InputEvent::Keyboard(KeyEvent::Char('\n')))  => {
+                Some(InputEvent::Keyboard(KeyEvent::Char('\n'))) => {
                     input_buf.lock().unwrap().clear();
                 }
-                Some(InputEvent::Keyboard(KeyEvent::Char(character)))  => {
+                Some(InputEvent::Keyboard(KeyEvent::Char(character))) => {
                     input_buf.lock().unwrap().push(character as char);
                 }
                 _ => {}

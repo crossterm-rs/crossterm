@@ -6,7 +6,7 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{Color, Crossterm, Screen, ClearType, InputEvent, KeyEvent};
+use self::crossterm::{ClearType, Color, Crossterm, InputEvent, KeyEvent, Screen};
 
 use self::messages::WELCOME_MESSAGE;
 use self::variables::{Position, Size};
@@ -97,4 +97,3 @@ fn print_welcome_screen() {
         thread::sleep(time::Duration::from_secs(1));
     }
 }
-
