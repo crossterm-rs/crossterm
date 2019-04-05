@@ -12,8 +12,8 @@ readme = "README.md"
 edition = "2018"
 
 [dependencies]
-crossterm_utils = "0.1.0"
+crossterm_utils = { path = "../crossterm_utils" }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.5", features = ["minwindef", "wincon"] }
-crossterm_winapi = "0.1.1"
+crossterm_winapi = "0.1.2"

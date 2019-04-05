@@ -16,7 +16,6 @@ impl IStdout for AnsiOutput {
         let out = &self.handle;
         let mut handle = out.lock();
         let amt = handle.write(string.as_bytes())?;
-        handle.flush()?;
         Ok(amt)
     }
 

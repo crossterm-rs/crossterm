@@ -7,7 +7,7 @@ use crossterm_utils::{write, Result, TerminalOutput};
 #[cfg(windows)]
 use super::WinApiTerminal;
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 use std::fmt;
 use std::sync::Arc;
@@ -37,18 +37,18 @@ pub struct Terminal<'stdout> {
 impl<'stdout> Terminal<'stdout> {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new() -> Terminal<'stdout> {
-        #[cfg(target_os = "windows")]
-        let terminal = get_module::<Box<ITerminal + Sync + Send>>(
-            Box::new(WinApiTerminal::new()),
-            Box::new(AnsiTerminal::new()),
-        )
-        .unwrap();
+        #[cfg(windows)]
+            let instance = if supports_ansi() {
+            AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        } else {
+            WinApiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
+        #[cfg(unix)]
+        let instance = AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>;
 
         Terminal {
-            terminal,
+            terminal: instance,
             stdout: None,
         }
     }
@@ -72,18 +72,18 @@ impl<'stdout> Terminal<'stdout> {
     /// }
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
-        #[cfg(target_os = "windows")]
-        let terminal = get_module::<Box<ITerminal + Sync + Send>>(
-            Box::new(WinApiTerminal::new()),
-            Box::new(AnsiTerminal::new()),
-        )
-        .unwrap();
+        #[cfg(windows)]
+            let instance = if supports_ansi() {
+            AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        } else {
+            WinApiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
+        #[cfg(unix)]
+        let instance = AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>;
 
         Terminal {
-            terminal,
+            terminal: instance,
             stdout: Some(stdout),
         }
     }

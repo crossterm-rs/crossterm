@@ -8,7 +8,7 @@ use crate::{Color, ITerminalColor};
 use crossterm_utils::{Result, TerminalOutput};
 
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 use std::sync::Arc;
 
@@ -35,18 +35,18 @@ pub struct TerminalColor<'stdout> {
 impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
     pub fn new() -> TerminalColor<'stdout> {
-        #[cfg(target_os = "windows")]
-        let color = get_module::<Box<ITerminalColor + Sync + Send>>(
-            Box::from(WinApiColor::new()),
-            Box::from(AnsiColor::new()),
-        )
-        .expect("could not extract module");
+        #[cfg(windows)]
+            let instance = if supports_ansi() {
+            AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        } else {
+            WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;
+        #[cfg(unix)]
+        let instance = AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>;
 
         TerminalColor {
-            color,
+            color: instance,
             stdout: None,
         }
     }
@@ -70,18 +70,18 @@ impl<'stdout> TerminalColor<'stdout> {
     /// }
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
-        #[cfg(target_os = "windows")]
-        let color = get_module::<Box<ITerminalColor + Sync + Send>>(
-            Box::from(WinApiColor::new()),
-            Box::from(AnsiColor::new()),
-        )
-        .unwrap();
+        #[cfg(windows)]
+            let instance = if supports_ansi() {
+            AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        } else {
+            WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let color = Box::from(AnsiColor::new()) as Box<ITerminalColor + Sync + Send>;
+        #[cfg(unix)]
+            let instance = AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>;
 
         TerminalColor {
-            color,
+            color: instance,
             stdout: Some(stdout),
         }
     }

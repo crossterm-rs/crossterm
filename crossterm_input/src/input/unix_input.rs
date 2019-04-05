@@ -1,7 +1,7 @@
 //! This is a UNIX specific implementation for input related action.
 
 use super::*;
-use crate::sys::unix::{get_tty, read_char, read_char_raw};
+use crate::sys::unix::{get_tty, read_char_raw};
 
 use crossterm_utils::{csi, write, TerminalOutput};
 use std::char;
@@ -17,16 +17,7 @@ impl UnixInput {
 
 impl ITerminalInput for UnixInput {
     fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
-        let is_raw_screen = match stdout {
-            Some(output) => output.is_in_raw_mode,
-            None => false,
-        };
-
-        if is_raw_screen {
-            read_char_raw()
-        } else {
-            read_char()
-        }
+        read_char_raw()
     }
 
     fn read_async(&self) -> AsyncReader {

@@ -9,12 +9,10 @@ use crossterm_utils::{write, write_str, Result, TerminalOutput};
 use std::sync::Arc;
 
 /// This struct is an ANSI implementation for cursor related actions.
-pub struct AnsiCursor {}
+pub struct AnsiCursor;
 
 impl AnsiCursor {
-    pub fn new() -> Box<AnsiCursor> {
-        Box::from(AnsiCursor {})
-    }
+    pub fn new() -> Box<AnsiCursor> { Box::from(AnsiCursor) }
 }
 
 impl ITerminalCursor for AnsiCursor {

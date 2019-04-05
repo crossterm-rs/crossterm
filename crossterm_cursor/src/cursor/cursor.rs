@@ -7,7 +7,7 @@ use std::sync::Arc;
 use crossterm_utils::{Result, TerminalOutput};
 
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 /// Allows you to preform actions with the terminal cursor.
 ///
@@ -28,25 +28,25 @@ use crossterm_utils::get_module;
 ///
 /// When you want to use 'cursor' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalCursor<'stdout> {
-    terminal_cursor: Box<ITerminalCursor + Sync + Send>,
+    terminal_cursor: Box<(dyn ITerminalCursor + Sync + Send)>,
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
 impl<'stdout> TerminalCursor<'stdout> {
     /// Create new `TerminalCursor` instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor<'stdout> {
-        #[cfg(target_os = "windows")]
-        let cursor = get_module::<Box<ITerminalCursor + Sync + Send>>(
-            WinApiCursor::new(),
-            AnsiCursor::new(),
-        )
-        .unwrap();
+        #[cfg(windows)]
+        let instance = if supports_ansi() {
+            AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        } else {
+            WinApiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
+        #[cfg(unix)]
+        let instance = AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>;
 
         TerminalCursor {
-            terminal_cursor: cursor,
+            terminal_cursor: instance,
             stdout: None,
         }
     }
@@ -70,18 +70,18 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// }
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
-        #[cfg(target_os = "windows")]
-        let cursor = get_module::<Box<ITerminalCursor + Sync + Send>>(
-            WinApiCursor::new(),
-            AnsiCursor::new(),
-        )
-        .unwrap();
+        #[cfg(windows)]
+            let instance = if supports_ansi() {
+            AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        } else {
+            WinApiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let cursor = AnsiCursor::new() as Box<ITerminalCursor + Sync + Send>;
+        #[cfg(unix)]
+            let instance = AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>;
 
         TerminalCursor {
-            terminal_cursor: cursor,
+            terminal_cursor: instance,
             stdout: Some(stdout),
         }
     }

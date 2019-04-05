@@ -1,5 +1,5 @@
 use super::AnsiCursor;
-use super::ITerminalCursor;
+use super::Cursor;
 
 /* ======================== WinApi =========================== */
 #[cfg(windows)]

@@ -6,26 +6,23 @@ use std::sync::Arc;
 use crate::sys::winapi::ansi::set_virtual_terminal_processing;
 
 #[cfg(windows)]
-/// Get an module specific implementation of a the generic given type based on the current platform.
-/// If the current platform is windows and it supports ansi escape codes it will return the ansi implementation and if not it will return the winapi implementation.
-/// If the current platform is unix it will return the ansi implementation.
-pub fn get_module<T>(winapi_impl: T, ansi_impl: T) -> Option<T> {
+pub fn supports_ansi() -> bool {
     // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.
     // Because of that we should check first if the TERM-variable is set and see if the current terminal is a terminal who does support ANSI.
     let supports_ansi = is_specific_term();
 
     match supports_ansi {
         true => {
-            return Some(ansi_impl);
+            return true;
         }
         false => {
             // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
             match set_virtual_terminal_processing(true) {
                 Ok(_) => {
-                    return Some(ansi_impl);
+                    return true;
                 }
                 Err(_) => {
-                    return Some(winapi_impl);
+                    return false;
                 }
             }
         }
