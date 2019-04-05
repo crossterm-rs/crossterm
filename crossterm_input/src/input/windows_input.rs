@@ -123,6 +123,13 @@ impl ITerminalInput for WindowsInput {
     }
 }
 
+/// This type allows you to read input synchronously, which means that reading call will be blocking ones.
+///
+/// This type is an iterator, and could be used to iterate over input events.
+///
+/// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
+pub struct SyncReader;
+
 impl Iterator for SyncReader {
     type Item = InputEvent;
 

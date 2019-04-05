@@ -44,7 +44,9 @@ impl ITerminalInput for UnixInput {
     }
 
     fn read_sync(&self) -> SyncReader {
-        SyncReader
+        SyncReader {
+            bytes: Box::new(get_tty().unwrap().bytes().flatten()),
+        }
     }
 
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
@@ -90,6 +92,15 @@ impl ITerminalInput for UnixInput {
     }
 }
 
+/// This type allows you to read input synchronously, which means that reading call will be blocking ones.
+///
+/// This type is an iterator, and could be used to iterate over input events.
+///
+/// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
+pub struct SyncReader {
+    bytes: Box<Iterator<Item = u8>>,
+}
+
 impl Iterator for SyncReader {
     type Item = InputEvent;
     /// Read input from the user.
@@ -97,10 +108,8 @@ impl Iterator for SyncReader {
     /// If there are no keys pressed this will be a blocking call until there are.
     /// This will return `None` in case of a failure and `Some(InputEvent) in case of an occurred input event.`
     fn next(&mut self) -> Option<Self::Item> {
-        let mut iterator = get_tty().unwrap().bytes().flatten();
-
+        let mut iterator = self.bytes.as_mut();
         match iterator.next() {
-            None => None,
             Some(byte) => {
                 if let Ok(event) = parse_event(byte, &mut iterator) {
                     Some(event)
@@ -108,6 +117,7 @@ impl Iterator for SyncReader {
                     None
                 }
             }
+            None => None,
         }
     }
 }

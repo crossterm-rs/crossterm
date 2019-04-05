@@ -9,7 +9,12 @@ mod unix_input;
 mod windows_input;
 
 #[cfg(not(target_os = "windows"))]
+pub use self::unix_input::SyncReader;
+#[cfg(not(target_os = "windows"))]
 use self::unix_input::UnixInput;
+
+#[cfg(target_os = "windows")]
+pub use self::windows_input::SyncReader;
 #[cfg(target_os = "windows")]
 use self::windows_input::WindowsInput;
 
@@ -107,13 +112,6 @@ pub enum KeyEvent {
     Null,
     Esc,
 }
-
-/// This type allows you to read input synchronously, which means that reading call will be blocking ones.
-///
-/// This type is an iterator, and could be used to iterate over input events.
-///
-/// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
-pub struct SyncReader;
 
 /// This type allows you to read the input asynchronously which means that input events are gathered on the background and will be queued for you to read.
 ///

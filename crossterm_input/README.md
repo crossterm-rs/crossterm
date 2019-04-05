@@ -118,7 +118,7 @@ let stdin = input.read_async();
 
 if let Some(key_event) = stdin.next() {
      match key_event {
-         InputEvent::Keyboard(event: KeyEvent) => matche vent { /* check key event */ }
+         InputEvent::Keyboard(event: KeyEvent) => match event { /* check key event */ }
          InputEvent::Mouse(event: MouseEvent) => match event { /* check mouse event */ }
      }
  }
