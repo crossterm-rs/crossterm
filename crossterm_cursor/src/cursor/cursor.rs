@@ -28,7 +28,10 @@ use crossterm_utils::supports_ansi;
 ///
 /// When you want to use 'cursor' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalCursor<'stdout> {
+    #[cfg(windows)]
     terminal_cursor: Box<(dyn ITerminalCursor + Sync + Send)>,
+    #[cfg(unix)]
+    terminal_cursor: AnsiCursor,
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
@@ -43,7 +46,7 @@ impl<'stdout> TerminalCursor<'stdout> {
         };
 
         #[cfg(unix)]
-        let instance = AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>;
+        let instance= AnsiCursor::new();
 
         TerminalCursor {
             terminal_cursor: instance,
