@@ -25,11 +25,16 @@ macro_rules! write_cout {
                 }
             }
             Some(output) => {
-                output.write_str($string)?;
-                match output.flush() {
+             write!(std::io::stdout(), "{}", $string)?;
+                match std::io::stdout().flush() {
                     Ok(_) => Ok($string.len()),
                     Err(e) => Err(e),
                 }
+//                output.write_str($string)?;
+//                match output.flush() {
+//                    Ok(_) => Ok($string.len()),
+//                    Err(e) => Err(e),
+//                }
             }
         }
     };

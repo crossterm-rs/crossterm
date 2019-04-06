@@ -29,6 +29,7 @@ members = [
     "crossterm_terminal",
     "crossterm_input",
     "crossterm_screen",
+    "examples/program_examples/snake"
 ]
 
 [dependencies]

@@ -19,7 +19,7 @@ libc = "0.2.51"
 
 [dependencies]
 crossterm_utils = { path = "../crossterm_utils" }
-crossterm_cursor = "0.1.0"
+crossterm_cursor = { path = "../crossterm_cursor" }
 
 [[example]]
 name = "terminal"

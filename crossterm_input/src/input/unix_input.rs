@@ -3,9 +3,9 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char_raw};
 
-use crossterm_utils::TerminalOutput;
+use crossterm_utils::{TerminalOutput, write_cout, csi};
 use std::char;
-use std::io::Read;
+use std::io::{Read, Write};
 
 pub struct UnixInput;
 
@@ -63,7 +63,7 @@ impl ITerminalInput for UnixInput {
                 csi!("?1002"),
                 csi!("?1015"),
                 csi!("?1006")
-            ),
+            )
         )?;
         Ok(())
     }
@@ -77,8 +77,8 @@ impl ITerminalInput for UnixInput {
                 csi!("?1015"),
                 csi!("?1002"),
                 csi!("?1000")
-            ),
-        )?;
+            )
+        );
         Ok(())
     }
 }

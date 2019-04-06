@@ -24,7 +24,7 @@ pub struct AlternateScreen {
     #[cfg(windows)]
     command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
     #[cfg(unix)]
-    command: ToAlternateScreenCommand,
+    command: sys::ToAlternateScreenCommand,
 
     pub screen: Screen,
 }

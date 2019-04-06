@@ -20,7 +20,7 @@ libc = "0.2.51"
 
 [dependencies]
 crossterm_utils = { path = "../crossterm_utils" }
-crossterm_screen =  "0.1.0"
+crossterm_screen =  { path = "../crossterm_screen" }
 
 [[example]]
 name = "input"

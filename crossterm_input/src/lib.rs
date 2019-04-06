@@ -1,5 +1,5 @@
-extern crate crossterm_screen;
 extern crate crossterm_utils;
+extern crate crossterm_screen;
 
 #[cfg(unix)]
 extern crate libc;

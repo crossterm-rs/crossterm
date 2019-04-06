@@ -3,8 +3,8 @@ extern crate crossterm_winapi;
 #[cfg(windows)]
 extern crate winapi;
 
-pub mod error;
 pub mod macros;
+pub mod error;
 pub mod sys;
 
 mod functions;

@@ -127,7 +127,7 @@ pub fn read_asynchronously() {
     // enable mouse events to be captured.
     input.enable_mouse_mode().unwrap();
 
-    let stdin = input.read_async();
+    let mut stdin = input.read_async();
 
     loop {
         if let Some(key_event) = stdin.next() {
@@ -146,7 +146,7 @@ pub fn read_synchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
     let screen = Screen::new(true);
 
-    let input = TerminalInput::from_output(&screen.stdout);
+    let mut input = TerminalInput::from_output(&screen.stdout);
 
     // enable mouse events to be captured.
     input.enable_mouse_mode().unwrap();
@@ -167,9 +167,31 @@ pub fn read_synchronously() {
     input.disable_mouse_mode().unwrap();
 }
 
+fn test() {
+    use crossterm::{InputEvent, KeyEvent, Screen};
+
+        let screen = Screen::new(true);
+
+        let alternate =  screen.enable_alternate_modes(true).unwrap();
+
+        let crossterm = crossterm::Crossterm::from_screen(&alternate.screen);
+        let mut input = crossterm.input();
+        let mut crosstem_events = input.read_sync();
+        loop {
+            println!("wait for event");
+            let event = crosstem_events.next();
+            println!(" => crossterm event={:?}", event);
+            if let Some(InputEvent::Keyboard(KeyEvent::Ctrl('q'))) = event {
+                println!("ctrl-Q");
+                break;
+            }
+        }
+}
+
 fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
     // read_synchronously();
-    read_asynchronously();
+//    read_asynchronously();
+    test();
 }
