@@ -1,15 +1,22 @@
 //! This module contains all `unix` specific terminal related logic.
 
+use libc::c_int;
+pub use libc::termios as Termios;
 use libc::{self, TCSADRAIN};
-pub use self::libc::termios as Termios;
-use super::libc::c_int;
 
-//use crate::termios::{tcsetattr};
 use std::{fs, io, mem};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
 pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
+
+fn cvt(t: i32) -> io::Result<()> {
+    if t == -1 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
 
 /// Transform the given mode into an raw mode (non-canonical) mode.
 pub fn raw_terminal_attr(termios: &mut Termios) {
@@ -43,7 +50,7 @@ pub fn into_raw_mode() -> io::Result<()> {
 
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_none() {
-            ORIGINAL_TERMINAL_MODE = Some(original.clone())
+            ORIGINAL_TERMINAL_MODE = Some(prev_ios.clone())
         }
     }
 
@@ -53,6 +60,10 @@ pub fn into_raw_mode() -> io::Result<()> {
 }
 
 pub fn disable_raw_mode() -> io::Result<()> {
-    set_terminal_attr(unsafe { ORIGINAL_TERMINAL_MODE })?;
+    unsafe {
+        if ORIGINAL_TERMINAL_MODE.is_some() {
+            set_terminal_attr(unsafe { &ORIGINAL_TERMINAL_MODE.unwrap() })?;
+        }
+    }
     Ok(())
 }

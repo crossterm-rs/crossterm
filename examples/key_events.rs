@@ -1,8 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{
-    InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput, Screen
-};
+use crossterm::{InputEvent, KeyEvent, MouseButton, MouseEvent, Screen, TerminalInput};
 
 use std::{thread, time::Duration};
 

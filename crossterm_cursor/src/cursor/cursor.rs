@@ -29,9 +29,10 @@ use crossterm_utils::supports_ansi;
 /// When you want to use 'cursor' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalCursor<'stdout> {
     #[cfg(windows)]
-    terminal_cursor: Box<(dyn ITerminalCursor + Sync + Send)>,
+    cursor: Box<(dyn ITerminalCursor + Sync + Send)>,
     #[cfg(unix)]
-    terminal_cursor: AnsiCursor,
+    cursor: AnsiCursor,
+
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
@@ -39,17 +40,17 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// Create new `TerminalCursor` instance whereon cursor related actions can be performed.
     pub fn new() -> TerminalCursor<'stdout> {
         #[cfg(windows)]
-        let instance = if supports_ansi() {
-            AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        let cursor = if supports_ansi() {
+            Box::from(AnsiCursor::new()) as Box<(dyn ITerminalCursor + Sync + Send)>
         } else {
             WinApiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
         };
 
         #[cfg(unix)]
-        let instance= AnsiCursor::new();
+        let cursor = AnsiCursor::new();
 
         TerminalCursor {
-            terminal_cursor: instance,
+            cursor,
             stdout: None,
         }
     }
@@ -74,17 +75,17 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalCursor<'stdout> {
         #[cfg(windows)]
-            let instance = if supports_ansi() {
-            AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
+        let cursor = if supports_ansi() {
+            Box::from(AnsiCursor::new()) as Box<(dyn ITerminalCursor + Sync + Send)>
         } else {
             WinApiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>
         };
 
         #[cfg(unix)]
-            let instance = AnsiCursor::new() as Box<(dyn ITerminalCursor + Sync + Send)>;
+        let cursor = AnsiCursor::new();
 
         TerminalCursor {
-            terminal_cursor: instance,
+            cursor,
             stdout: Some(stdout),
         }
     }
@@ -94,7 +95,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// # Remarks
     /// position is 0-based, which means we start counting at 0.
     pub fn goto(&self, x: u16, y: u16) -> Result<()> {
-        self.terminal_cursor.goto(x, y, &self.stdout)
+        self.cursor.goto(x, y, &self.stdout)
     }
 
     /// Get current cursor position (x,y) in the terminal.
@@ -102,32 +103,30 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// # Remarks
     /// position is 0-based, which means we start counting at 0.
     pub fn pos(&self) -> (u16, u16) {
-        self.terminal_cursor.pos()
+        self.cursor.pos()
     }
 
     /// Move the current cursor position `n` times up.
     pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_up(count, &self.stdout).unwrap();
+        self.cursor.move_up(count, &self.stdout).unwrap();
         self
     }
 
     /// Move the current cursor position `n` times right.
     pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor
-            .move_right(count, &self.stdout)
-            .unwrap();
+        self.cursor.move_right(count, &self.stdout).unwrap();
         self
     }
 
     /// Move the current cursor position `n` times down.
     pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_down(count, &self.stdout).unwrap();
+        self.cursor.move_down(count, &self.stdout).unwrap();
         self
     }
 
     /// Move the current cursor position `n` times left.
     pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor<'stdout> {
-        self.terminal_cursor.move_left(count, &self.stdout).unwrap();
+        self.cursor.move_left(count, &self.stdout).unwrap();
         self
     }
 
@@ -135,22 +134,22 @@ impl<'stdout> TerminalCursor<'stdout> {
     ///
     /// Note that this position is stored program based not per instance of the `Cursor` struct.
     pub fn save_position(&self) -> Result<()> {
-        self.terminal_cursor.save_position(&self.stdout)
+        self.cursor.save_position(&self.stdout)
     }
 
     /// Return to saved cursor position
     pub fn reset_position(&self) -> Result<()> {
-        self.terminal_cursor.reset_position(&self.stdout)
+        self.cursor.reset_position(&self.stdout)
     }
 
     /// Hide de cursor in the console.
     pub fn hide(&self) -> Result<()> {
-        self.terminal_cursor.hide(&self.stdout)
+        self.cursor.hide(&self.stdout)
     }
 
     /// Show the cursor in the console.
     pub fn show(&self) -> Result<()> {
-        self.terminal_cursor.show(&self.stdout)
+        self.cursor.show(&self.stdout)
     }
 
     /// Enable or disable blinking of the terminal.
@@ -158,7 +157,7 @@ impl<'stdout> TerminalCursor<'stdout> {
     /// # Remarks
     /// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
     pub fn blink(&self, blink: bool) -> Result<()> {
-        self.terminal_cursor.blink(blink, &self.stdout)
+        self.cursor.blink(blink, &self.stdout)
     }
 }
 

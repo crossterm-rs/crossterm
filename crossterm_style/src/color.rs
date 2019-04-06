@@ -28,7 +28,11 @@ use std::sync::Arc;
 ///
 /// When you want to 'style' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalColor<'stdout> {
-    color: Box<ITerminalColor + Sync + Send>,
+    #[cfg(windows)]
+    color: Box<(dyn ITerminalColor + Sync + Send)>,
+    #[cfg(unix)]
+    color: AnsiColor,
+
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
@@ -36,17 +40,17 @@ impl<'stdout> TerminalColor<'stdout> {
     /// Create new instance whereon color related actions can be performed.
     pub fn new() -> TerminalColor<'stdout> {
         #[cfg(windows)]
-            let instance = if supports_ansi() {
-            AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        let color = if supports_ansi() {
+            Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
         } else {
             WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
         };
 
         #[cfg(unix)]
-        let instance = AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>;
+        let color = AnsiColor::new();
 
         TerminalColor {
-            color: instance,
+            color,
             stdout: None,
         }
     }
@@ -71,17 +75,17 @@ impl<'stdout> TerminalColor<'stdout> {
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
         #[cfg(windows)]
-            let instance = if supports_ansi() {
-            AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        let color = if supports_ansi() {
+            Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
         } else {
             WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
         };
 
         #[cfg(unix)]
-            let instance = AnsiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>;
+        let color = AnsiColor::new();
 
         TerminalColor {
-            color: instance,
+            color,
             stdout: Some(stdout),
         }
     }

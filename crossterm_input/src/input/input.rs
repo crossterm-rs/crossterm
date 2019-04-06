@@ -36,21 +36,25 @@ use crossterm_utils::TerminalOutput;
 ///
 /// When you want to use 'input' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalInput<'stdout> {
-    terminal_input: Box<ITerminalInput + Sync + Send>,
+    #[cfg(windows)]
+    input: WindowsInput,
+    #[cfg(unix)]
+    input: UnixInput,
+
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
 impl<'stdout> TerminalInput<'stdout> {
     /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
     pub fn new() -> TerminalInput<'stdout> {
-        #[cfg(target_os = "windows")]
-        let input = Box::from(WindowsInput::new());
+        #[cfg(windows)]
+        let input = WindowsInput::new();
 
-        #[cfg(not(target_os = "windows"))]
-        let input = Box::from(UnixInput::new());
+        #[cfg(unix)]
+        let input = UnixInput::new();
 
         TerminalInput {
-            terminal_input: input,
+            input,
             stdout: None,
         }
     }
@@ -73,14 +77,14 @@ impl<'stdout> TerminalInput<'stdout> {
     /// }
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
-        #[cfg(target_os = "windows")]
-        let input = Box::from(WindowsInput::new());
+        #[cfg(windows)]
+        let input = WindowsInput::new();
 
-        #[cfg(not(target_os = "windows"))]
-        let input = Box::from(UnixInput::new());
+        #[cfg(unix)]
+        let input = UnixInput::new();
 
         TerminalInput {
-            terminal_input: input,
+            input,
             stdout: Some(stdout),
         }
     }
@@ -125,7 +129,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///   }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
-        self.terminal_input.read_char(&self.stdout)
+        self.input.read_char(&self.stdout)
     }
 
     /// Read the input asynchronously, which means that input events are gathered on the background and will be queued for you to read.
@@ -146,7 +150,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_async(&self) -> AsyncReader {
-        self.terminal_input.read_async()
+        self.input.read_async()
     }
 
     /// Read the input asynchronously until a certain character is hit, which means that input events are gathered on the background and will be queued for you to read.
@@ -167,7 +171,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
-        self.terminal_input.read_until_async(delimiter)
+        self.input.read_until_async(delimiter)
     }
 
     /// Read the input synchronously from the user, which means that reading call wil be blocking ones.
@@ -181,7 +185,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_sync(&self) -> SyncReader {
-        self.terminal_input.read_sync()
+        self.input.read_sync()
     }
 
     /// Enable mouse events to be captured.
@@ -191,14 +195,14 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Remark
     /// - Mouse events will be send over the reader created with `read_async`, `read_async_until`, `read_sync`.
     pub fn enable_mouse_mode(&self) -> io::Result<()> {
-        self.terminal_input.enable_mouse_mode(&self.stdout)
+        self.input.enable_mouse_mode(&self.stdout)
     }
 
     /// Disable mouse events to be captured.
     ///
     /// When disabling mouse input you won't be able to capture, mouse movements, pressed buttons and locations anymore.
     pub fn disable_mouse_mode(&self) -> io::Result<()> {
-        self.terminal_input.disable_mouse_mode(&self.stdout)
+        self.input.disable_mouse_mode(&self.stdout)
     }
 }
 

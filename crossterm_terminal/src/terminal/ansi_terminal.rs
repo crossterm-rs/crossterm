@@ -4,7 +4,8 @@
 use super::ITerminal;
 use crate::{sys::get_terminal_size, ClearType};
 use crossterm_cursor::TerminalCursor;
-use crossterm_utils::{write, write_str, Result, TerminalOutput};
+use crossterm_utils::{Result, TerminalOutput};
+use std::io::Write;
 use std::sync::Arc;
 
 /// This struct is an ansi escape code implementation for terminal related actions.
@@ -20,20 +21,20 @@ impl ITerminal for AnsiTerminal {
     fn clear(&self, clear_type: ClearType, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
         match clear_type {
             ClearType::All => {
-                write_str(&stdout, csi!("2J"))?;
+                write_cout!(stdout, csi!("2J"))?;
                 TerminalCursor::new().goto(0, 0)?;
             }
             ClearType::FromCursorDown => {
-                write_str(&stdout, csi!("J"))?;
+                write_cout!(stdout, csi!("J"))?;
             }
             ClearType::FromCursorUp => {
-                write_str(&stdout, csi!("1J"))?;
+                wwrite_cout!(stdout, csi!("1J"))?;
             }
             ClearType::CurrentLine => {
-                write_str(&stdout, csi!("2K"))?;
+                write_cout!(stdout, csi!("2K"))?;
             }
             ClearType::UntilNewLine => {
-                write_str(&stdout, csi!("K"))?;
+                write_cout!(stdout, csi!("K"))?;
             }
         };
         Ok(())
@@ -44,12 +45,12 @@ impl ITerminal for AnsiTerminal {
     }
 
     fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(&stdout, format!(csi!("{}S"), count))?;
+        write_cout!(stdout, &format!(csi!("{}S"), count))?;
         Ok(())
     }
 
     fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(&stdout, format!(csi!("{}T"), count))?;
+        write_cout!(stdout, &format!(csi!("{}T"), count))?;
         Ok(())
     }
 
@@ -59,7 +60,7 @@ impl ITerminal for AnsiTerminal {
         height: i16,
         stdout: &Option<&Arc<TerminalOutput>>,
     ) -> Result<()> {
-        write(&stdout, format!(csi!("8;{};{}t"), height, width))?;
+        write_cout!(stdout, &format!(csi!("8;{};{}t"), height, width))?;
         Ok(())
     }
 }

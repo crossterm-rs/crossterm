@@ -2,9 +2,10 @@
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
 use crate::{Color, ITerminalColor};
-use crossterm_utils::{write, write_str, Result, TerminalOutput};
+use crossterm_utils::{Result, TerminalOutput};
 
 use crate::Colored;
+use std::io::Write;
 use std::sync::Arc;
 
 /// This struct is an ANSI escape code implementation for color related actions.
@@ -18,23 +19,23 @@ impl AnsiColor {
 
 impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(
+        write_cout!(
             stdout,
-            format!(csi!("{}m"), self.color_value(Colored::Fg(fg_color))),
+            &format!(csi!("{}m"), self.color_value(Colored::Fg(fg_color)))
         )?;
         Ok(())
     }
 
     fn set_bg(&self, bg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(
+        write_cout!(
             stdout,
-            format!(csi!("{}m"), self.color_value(Colored::Bg(bg_color))),
+            &format!(csi!("{}m"), self.color_value(Colored::Bg(bg_color)))
         )?;
         Ok(())
     }
 
     fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_str(stdout, csi!("0m"))?;
+        write_cout!(stdout, csi!("0m"))?;
         Ok(())
     }
 

@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{ClearType, Color, Crossterm, Screen, style};
+use crossterm::{style, ClearType, Color, Crossterm, Screen};
 
 use std::io::{stdout, Write};
 use std::{thread, time};

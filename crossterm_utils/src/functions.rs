@@ -1,3 +1,4 @@
+#[macro_export]
 use crate::output::TerminalOutput;
 use std::io::{self, Write};
 use std::sync::Arc;
@@ -26,43 +27,6 @@ pub fn supports_ansi() -> bool {
                 }
             }
         }
-    }
-}
-
-/// This function is used by 'ANSI' modules. Those modules are using an `Option` of `TerminalOutput`.
-/// Because it is an option it could be either 'None' or 'Some'.
-/// When the `TerminalOutput` is 'None' we write our 'ANSI' escape codes to the default `stdout()` if it is a `Some`
-/// - which means we are in alternate screen modes or we have raw screen enabled - we should write to the screen passed by the user.
-/// This way our commands or our writes will be done with the passed `TerminalOutput`.
-pub fn write(stdout: &Option<&Arc<TerminalOutput>>, string: String) -> io::Result<usize> {
-    match stdout {
-        None => {
-            print!("{}", string.as_str());
-
-            match io::stdout().flush() {
-                Ok(_) => Ok(string.len()),
-                Err(e) => Err(e),
-            }
-        }
-        Some(output) => output.write_string(string),
-    }
-}
-
-/// This function is used by 'ANSI' modules. Those modules are using an `Option` of `TerminalOutput`.
-/// Because it is an option it could be either 'None' or 'Some'.
-/// When the `TerminalOutput` is 'None' we write our 'ANSI' escape codes to the default `stdout()` if it is a `Some`
-/// - which means we are in alternate screen modes or we have raw screen enabled - we should write to the screen passed by the user.
-/// This way our commands or our writes will be done with the passed `TerminalOutput`.
-pub fn write_str(stdout: &Option<&Arc<TerminalOutput>>, string: &str) -> io::Result<usize> {
-    match stdout {
-        None => match io::stdout().flush() {
-            Ok(_) => {
-                write!(io::stdout(), "{}", string)?;
-                Ok(string.len())
-            }
-            Err(e) => Err(e),
-        },
-        Some(output) => output.write_str(string),
     }
 }
 

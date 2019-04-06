@@ -6,8 +6,7 @@ edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
 crossterm_winapi = "0.1.1"
-winapi = { version =  "0.3.5", features = ["wincon"] }
+winapi = { version =  "0.3.7", features = ["wincon"] }
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.43"
-termios = "0.3.1"
+libc = "0.2.51"

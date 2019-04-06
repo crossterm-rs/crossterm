@@ -30,7 +30,11 @@ use std::sync::Arc;
 ///
 /// When you want to perform terminal actions on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct Terminal<'stdout> {
-    terminal: Box<ITerminal + Sync + Send>,
+    #[cfg(windows)]
+    terminal: Box<(dyn ITerminal + Sync + Send)>,
+    #[cfg(unix)]
+    terminal: AnsiTerminal,
+
     stdout: Option<&'stdout Arc<TerminalOutput>>,
 }
 
@@ -38,17 +42,17 @@ impl<'stdout> Terminal<'stdout> {
     /// Create new terminal instance whereon terminal related actions can be performed.
     pub fn new() -> Terminal<'stdout> {
         #[cfg(windows)]
-            let instance = if supports_ansi() {
-            AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        let terminal = if supports_ansi() {
+            Box::from(AnsiTerminal::new()) as Box<(dyn ITerminal + Sync + Send)>
         } else {
             WinApiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
         };
 
         #[cfg(unix)]
-        let instance = AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>;
+        let terminal = AnsiTerminal::new();
 
         Terminal {
-            terminal: instance,
+            terminal,
             stdout: None,
         }
     }
@@ -73,17 +77,17 @@ impl<'stdout> Terminal<'stdout> {
     /// ```
     pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
         #[cfg(windows)]
-            let instance = if supports_ansi() {
-            AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        let terminal = if supports_ansi() {
+            Box::from(AnsiTerminal::new()) as Box<(dyn ITerminal + Sync + Send)>
         } else {
             WinApiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
         };
 
         #[cfg(unix)]
-        let instance = AnsiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>;
+        let terminal = AnsiTerminal::new();
 
         Terminal {
-            terminal: instance,
+            terminal,
             stdout: Some(stdout),
         }
     }

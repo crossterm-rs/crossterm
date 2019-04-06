@@ -12,11 +12,11 @@ readme = "README.md"
 edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version =  "0.3.5", features = ["winnt", "winuser"] }
+winapi = { version =  "0.3.7", features = ["winnt", "winuser"] }
 crossterm_winapi = "0.1.2"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.43"
+libc = "0.2.51"
 
 [dependencies]
 crossterm_utils = { path = "../crossterm_utils" }
