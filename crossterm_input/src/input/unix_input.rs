@@ -56,7 +56,6 @@ impl ITerminalInput for UnixInput {
 
     fn enable_mouse_mode(&self) -> io::Result<()> {
         write_cout!(
-            stdout,
             &format!(
                 "{}h{}h{}h{}h",
                 csi!("?1000"),
@@ -64,13 +63,12 @@ impl ITerminalInput for UnixInput {
                 csi!("?1015"),
                 csi!("?1006")
             )
-        )?;
+        );
         Ok(())
     }
 
     fn disable_mouse_mode(&self) -> io::Result<()> {
         write_cout!(
-            stdout,
             &format!(
                 "{}l{}l{}l{}l",
                 csi!("?1006"),

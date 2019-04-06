@@ -24,7 +24,7 @@ fn main() {
 
     // screen has to be in raw mode in order for the key presses not to be printed to the screen.
     let screen = Screen::new(true);
-    let crossterm = Crossterm::from_screen(&screen);
+    let crossterm = Crossterm::new();
 
     crossterm.cursor().hide();
 

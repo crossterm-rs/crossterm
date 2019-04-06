@@ -34,7 +34,7 @@ impl Snake {
         screen: &Screen,
         free_positions: &mut HashMap<String, Position>,
     ) {
-        let crossterm = Crossterm::from_screen(screen);
+        let crossterm = Crossterm::new();
         let cursor = crossterm.cursor();
         let terminal = crossterm.terminal();
 

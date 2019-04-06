@@ -23,7 +23,7 @@ impl Map {
 
     // render the map on the screen.
     pub fn render_map(&mut self, screen: &Screen, free_positions: &mut HashMap<String, Position>) {
-        let crossterm = Crossterm::from_screen(screen);
+        let crossterm = Crossterm::new();
         let cursor = crossterm.cursor();
         let terminal = crossterm.terminal();
 
@@ -31,7 +31,7 @@ impl Map {
             for x in 0..self.size.height {
                 if (y == 0 || y == self.size.height - 1) || (x == 0 || x == self.size.width - 1) {
                     cursor.goto(x as u16, y as u16);
-                    "█".magenta().paint(&screen.stdout);
+                    print!("{}", "█".magenta());
                 } else {
                     free_positions.insert(format!("{},{}", x, y), Position::new(x, y));
                 }
@@ -60,8 +60,8 @@ impl Map {
     }
 
     fn draw_food(&self, screen: &Screen) {
-        let cursor = TerminalCursor::from_output(&screen.stdout);
+        let cursor = TerminalCursor::new();
         cursor.goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
-        "$".green().paint(&screen.stdout);
+        print!("{}", "$".green());
     }
 }
