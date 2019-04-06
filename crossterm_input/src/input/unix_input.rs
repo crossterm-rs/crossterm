@@ -61,7 +61,7 @@ impl ITerminalInput for UnixInput {
             csi!("?1002"),
             csi!("?1015"),
             csi!("?1006")
-        ))?;
+        ));
         Ok(())
     }
 
@@ -72,7 +72,7 @@ impl ITerminalInput for UnixInput {
             csi!("?1015"),
             csi!("?1002"),
             csi!("?1000")
-        ))?;
+        ));
         Ok(())
     }
 }
