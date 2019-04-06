@@ -37,7 +37,7 @@ pub struct TerminalInput {
     #[cfg(windows)]
     input: WindowsInput,
     #[cfg(unix)]
-    input: UnixInput
+    input: UnixInput,
 }
 
 impl TerminalInput {
@@ -49,9 +49,7 @@ impl TerminalInput {
         #[cfg(unix)]
         let input = UnixInput::new();
 
-        TerminalInput {
-            input
-        }
+        TerminalInput { input }
     }
 
     /// Read one line from the user input.

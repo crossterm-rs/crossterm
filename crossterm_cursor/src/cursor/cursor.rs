@@ -2,7 +2,6 @@
 //! Like: moving the cursor position; saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
 use super::*;
-use std::sync::Arc;
 
 use crossterm_utils::Result;
 
@@ -31,7 +30,7 @@ pub struct TerminalCursor {
     #[cfg(windows)]
     cursor: Box<(dyn ITerminalCursor + Sync + Send)>,
     #[cfg(unix)]
-    cursor: AnsiCursor
+    cursor: AnsiCursor,
 }
 
 impl TerminalCursor {
@@ -47,9 +46,7 @@ impl TerminalCursor {
         #[cfg(unix)]
         let cursor = AnsiCursor::new();
 
-        TerminalCursor {
-            cursor
-        }
+        TerminalCursor { cursor }
     }
 
     /// Goto some position (x,y) in the terminal.

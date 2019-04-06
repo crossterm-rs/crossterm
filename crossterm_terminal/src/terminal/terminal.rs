@@ -11,7 +11,6 @@ use crossterm_utils::supports_ansi;
 
 use std::fmt;
 use std::io::Write;
-use std::sync::Arc;
 
 /// Allows you to preform actions on the terminal.
 ///
@@ -50,9 +49,7 @@ impl Terminal {
         #[cfg(unix)]
         let terminal = AnsiTerminal::new();
 
-        Terminal {
-            terminal,
-        }
+        Terminal { terminal }
     }
 
     /// Clear the current cursor by specifying the `ClearType`.
@@ -134,7 +131,7 @@ impl Terminal {
         use std::fmt::Write;
         let mut string = String::new();
         write!(string, "{}", value)?;
-        write_cout!(string);
+        write_cout!(string)?;
         Ok(0)
     }
 }

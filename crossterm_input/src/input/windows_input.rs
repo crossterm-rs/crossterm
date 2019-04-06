@@ -38,10 +38,10 @@ static mut ORIG_MODE: u32 = 0;
 impl ITerminalInput for WindowsInput {
     fn read_char(&self) -> io::Result<char> {
         let is_raw_screen = true;
-//        match stdout {
-//            Some(output) => output.is_in_raw_mode,
-//            None => false,
-//        };
+        //        match stdout {
+        //            Some(output) => output.is_in_raw_mode,
+        //            None => false,
+        //        };
 
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe {

@@ -74,11 +74,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(
-        &self,
-        width: i16,
-        height: i16,
-    ) -> Result<()> {
+    fn set_size(&self, width: i16, height: i16) -> Result<()> {
         if width <= 0 {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(
                 "Cannot set the terminal width lower than 1",

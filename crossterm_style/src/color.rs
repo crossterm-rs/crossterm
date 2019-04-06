@@ -10,8 +10,6 @@ use crossterm_utils::Result;
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
 
-use std::sync::Arc;
-
 /// Allows you to style the terminal.
 ///
 /// # Features:
@@ -31,7 +29,7 @@ pub struct TerminalColor {
     #[cfg(windows)]
     color: Box<(dyn ITerminalColor + Sync + Send)>,
     #[cfg(unix)]
-    color: AnsiColor
+    color: AnsiColor,
 }
 
 impl TerminalColor {
@@ -47,9 +45,7 @@ impl TerminalColor {
         #[cfg(unix)]
         let color = AnsiColor::new();
 
-        TerminalColor {
-            color
-        }
+        TerminalColor { color }
     }
 
     /// Set the foreground color to the given color.

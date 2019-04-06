@@ -6,7 +6,6 @@ use crossterm_utils::Result;
 use std::fmt::{self, Display, Formatter};
 use std::io::Write;
 use std::result;
-use std::sync::Arc;
 
 use super::Attribute;
 use crate::Colorize;

@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate crossterm_utils;
 
 #[cfg(feature = "cursor")]

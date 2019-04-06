@@ -1,8 +1,6 @@
 extern crate crossterm;
 
 use crossterm::{style, ClearType, Color, Crossterm, Screen};
-
-use std::io::{stdout, Write};
 use std::{thread, time};
 
 fn print_wait_screen(screen: &Screen) {
@@ -22,9 +20,12 @@ fn print_wait_screen(screen: &Screen) {
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(10, 2);
-        println!("{}", style(format!("{} of the 5 items processed", i))
-            .with(Color::Red)
-            .on(Color::Blue));
+        println!(
+            "{}",
+            style(format!("{} of the 5 items processed", i))
+                .with(Color::Red)
+                .on(Color::Blue)
+        );
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));

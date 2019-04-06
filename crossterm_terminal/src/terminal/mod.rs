@@ -16,8 +16,6 @@ pub use self::terminal::{terminal, Terminal};
 
 use crossterm_utils::Result;
 
-use std::sync::Arc;
-
 /// Enum that specifies a way of clearing.
 pub enum ClearType {
     /// clear all cells in terminal.
@@ -50,9 +48,5 @@ trait ITerminal {
     /// Scroll `n` lines down in the current terminal.
     fn scroll_down(&self, count: i16) -> Result<()>;
     /// Resize terminal to the given width and height.
-    fn set_size(
-        &self,
-        width: i16,
-        height: i16,
-    ) -> Result<()>;
+    fn set_size(&self, width: i16, height: i16) -> Result<()>;
 }

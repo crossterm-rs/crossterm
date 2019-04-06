@@ -5,7 +5,6 @@ use crate::{Color, Colored, ITerminalColor};
 use crossterm_utils::Result;
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
 use std::io;
-use std::sync::Arc;
 use std::sync::{Once, ONCE_INIT};
 use winapi::um::wincon;
 

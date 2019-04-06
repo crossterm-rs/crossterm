@@ -1,6 +1,4 @@
 use std::fmt::Display;
-use std::io::{self, Write};
-use std::sync::Arc;
 
 /// This type offers a easy way to use functionalities like `cursor, terminal, color, input, styling`.
 ///
@@ -105,52 +103,5 @@ impl<'crossterm> Crossterm {
         D: Display,
     {
         crossterm_style::ObjectStyle::new().apply_to(val)
-    }
-
-    /// This could be used to paint the styled object onto the given screen. You have to pass a reference to the screen whereon you want to perform the painting.
-    ///
-    /// ``` rust
-    /// style("Some colored text")
-    ///     .with(Color::Blue)
-    ///     .on(Color::Black)
-    ///     .paint(&screen);
-    /// ```
-    ///
-    /// You should take note that `StyledObject` implements `Display`. You don't need to call paint unless you are on alternate screen.
-    /// Checkout `StyledObject::into_displayable()` for more information about this.
-    #[cfg(feature = "style")]
-    #[cfg(feature = "screen")]
-    pub fn paint<'a, D: Display + 'a>(
-        &self,
-        styled_object: crossterm_style::StyledObject<D>,
-    ) -> super::crossterm_utils::Result<()> {
-        let colored_terminal = super::TerminalColor::new();
-
-        let mut reset = false;
-
-        if let Some(bg) = styled_object.object_style.bg_color {
-            colored_terminal.set_bg(bg)?;
-            reset = true;
-        }
-
-        if let Some(fg) = styled_object.object_style.fg_color {
-            colored_terminal.set_fg(fg)?;
-            reset = true;
-        }
-
-        let mut stdout = io::stdout();
-
-        for attr in styled_object.object_style.attrs.iter() {
-            write_cout!(&format!(csi!("{}m"), *attr as i16));
-            reset = true;
-        }
-
-        write!(stdout, "{}", styled_object.content)?;
-
-        if reset {
-            colored_terminal.reset()?;
-        }
-
-        Ok(())
     }
 }

@@ -170,28 +170,28 @@ pub fn read_synchronously() {
 fn test() {
     use crossterm::{InputEvent, KeyEvent, Screen};
 
-        let screen = Screen::new(true);
+    let screen = Screen::new(true);
 
-        let alternate =  screen.enable_alternate_modes(true).unwrap();
+    let alternate = screen.enable_alternate_modes(true).unwrap();
 
-        let crossterm = crossterm::Crossterm::from_screen(&alternate.screen);
-        let mut input = crossterm.input();
-        let mut crosstem_events = input.read_sync();
-        loop {
-            println!("wait for event");
-            let event = crosstem_events.next();
-            println!(" => crossterm event={:?}", event);
-            if let Some(InputEvent::Keyboard(KeyEvent::Ctrl('q'))) = event {
-                println!("ctrl-Q");
-                break;
-            }
+    let crossterm = crossterm::Crossterm::from_screen(&alternate.screen);
+    let mut input = crossterm.input();
+    let mut crosstem_events = input.read_sync();
+    loop {
+        println!("wait for event");
+        let event = crosstem_events.next();
+        println!(" => crossterm event={:?}", event);
+        if let Some(InputEvent::Keyboard(KeyEvent::Ctrl('q'))) = event {
+            println!("ctrl-Q");
+            break;
         }
+    }
 }
 
 fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
     // read_synchronously();
-//    read_asynchronously();
+    //    read_asynchronously();
     test();
 }

@@ -1,5 +1,4 @@
 use std::io::{self, Write};
-use std::sync::Arc;
 
 #[cfg(windows)]
 use crate::sys::winapi::ansi::set_virtual_terminal_processing;

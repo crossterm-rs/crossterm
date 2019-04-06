@@ -5,7 +5,6 @@
 use super::ITerminalCursor;
 use crate::sys::winapi::{Cursor, Handle};
 use crossterm_utils::Result;
-use std::sync::Arc;
 
 /// This struct is a windows implementation for cursor related actions.
 pub struct WinApiCursor;

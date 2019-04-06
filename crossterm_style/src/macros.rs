@@ -1,5 +1,3 @@
-use crate::{ObjectStyle, StyledObject};
-
 macro_rules! def_attr {
     ($name: ident => $attr: path) => {
         fn $name(self) -> StyledObject<D> {

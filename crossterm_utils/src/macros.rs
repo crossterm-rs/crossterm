@@ -16,10 +16,22 @@ macro_rules! csi {
 #[macro_export]
 macro_rules! write_cout {
     ($string:expr) => {
-        write!(std::io::stdout(), "{}", $string);
-        match std::io::stdout().flush() {
-            Ok(_) => Ok( $ string.len()),
-            Err(e) => Err(e),
-        };
-    }
+        {
+           let mut size = 0;
+
+            let result = write!(::std::io::stdout(), "{}", $string);
+
+            match result {
+                Ok(size) => size,
+                Err(e) => return Err(crossterm_utils::ErrorKind::IoError(e))
+            };
+
+            match ::std::io::stdout().flush() {
+                Ok(_) => Ok(size),
+                Err(e) => Err(crossterm_utils::ErrorKind::IoError(e)),
+            }
+        }
+    };
 }
+
+use std::io::Write;

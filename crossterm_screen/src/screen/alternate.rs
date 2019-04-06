@@ -39,9 +39,7 @@ impl AlternateScreen {
     /// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
-    pub fn to_alternate_screen(
-        raw_mode: bool,
-    ) -> io::Result<AlternateScreen> {
+    pub fn to_alternate_screen(raw_mode: bool) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
         let command = if supports_ansi() {
             Box::from(ToAlternateScreenCommand::new())

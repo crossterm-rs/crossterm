@@ -1,9 +1,8 @@
 use super::{AlternateScreen, RawScreen};
 
+use std::io::stdout;
 use std::io::Result;
 use std::io::Write;
-use std::sync::Arc;
-use std::io::stdout;
 
 /// This type represents a screen which could be in normal, raw and alternate modes.
 ///
@@ -138,8 +137,7 @@ impl Default for Screen {
 
 impl Drop for Screen {
     /// If the current screen is in raw mode we need to disable it when the instance goes out of scope.
-    fn drop(&mut self) {
-    }
+    fn drop(&mut self) {}
 }
 
 impl Write for Screen {

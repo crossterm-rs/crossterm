@@ -22,10 +22,7 @@ use self::ansi_color::AnsiColor;
 #[cfg(target_os = "windows")]
 use self::winapi_color::WinApiColor;
 
-use std::convert::From;
 use std::fmt::Display;
-use std::str::FromStr;
-use std::sync::Arc;
 
 pub use self::color::{color, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
@@ -33,8 +30,6 @@ pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
 use crossterm_utils::Result;
-use std::io::stdout;
-use std::io::Write;
 
 /// This trait defines the actions that can be preformed with terminal color.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
