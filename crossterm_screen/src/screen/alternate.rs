@@ -8,7 +8,7 @@
 #[cfg(windows)]
 use crate::sys::winapi::ToAlternateScreenCommand;
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 use crate::sys::{self, IAlternateScreenCommand};
 
@@ -21,16 +21,15 @@ use std::io;
 ///
 /// Although this type is available for you to use I would recommend using `Screen` instead.
 pub struct AlternateScreen {
-    command: Box<IAlternateScreenCommand + Sync + Send>,
+    #[cfg(windows)]
+    command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
+    #[cfg(unix)]
+    command: ToAlternateScreenCommand,
+
     pub screen: Screen,
 }
 
 impl AlternateScreen {
-    /// Create new instance of alternate screen.
-    pub fn new(command: Box<IAlternateScreenCommand + Sync + Send>, screen: Screen) -> Self {
-        AlternateScreen { command, screen }
-    }
-
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
     ///
     /// The bool specifies whether the screen should be in raw mode or not.
@@ -44,15 +43,17 @@ impl AlternateScreen {
         stdout: TerminalOutput,
         raw_mode: bool,
     ) -> io::Result<AlternateScreen> {
-        #[cfg(target_os = "windows")]
-        let command = get_module::<Box<IAlternateScreenCommand + Sync + Send>>(
-            Box::from(ToAlternateScreenCommand::new()),
-            Box::from(sys::ToAlternateScreenCommand::new()),
-        )
-        .unwrap();
+        #[cfg(windows)]
+        let command = if supports_ansi() {
+            Box::from(ToAlternateScreenCommand::new())
+                as Box<(dyn IAlternateScreenCommand + Sync + Send)>
+        } else {
+            Box::from(sys::ToAlternateScreenCommand::new())
+                as Box<(dyn IAlternateScreenCommand + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let command = Box::from(sys::ToAlternateScreenCommand::new());
+        #[cfg(unix)]
+        let command = sys::ToAlternateScreenCommand::new();
 
         let mut stdout = stdout;
         command.enable(&mut stdout)?;
@@ -63,7 +64,7 @@ impl AlternateScreen {
             RawScreen::into_raw_mode()?;
         }
 
-        Ok(AlternateScreen::new(command, screen))
+        Ok(AlternateScreen { command, screen })
     }
 
     /// Switch the alternate screen back to main screen.

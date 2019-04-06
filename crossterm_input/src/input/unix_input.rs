@@ -3,7 +3,7 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char_raw};
 
-use crossterm_utils::{csi, write, TerminalOutput};
+use crossterm_utils::TerminalOutput;
 use std::char;
 use std::io::Read;
 

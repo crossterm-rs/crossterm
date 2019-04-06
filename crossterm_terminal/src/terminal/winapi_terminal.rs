@@ -12,8 +12,8 @@ use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 pub struct WinApiTerminal;
 
 impl WinApiTerminal {
-    pub fn new() -> WinApiTerminal {
-        WinApiTerminal {}
+    pub fn new() -> Box<WinApiTerminal> {
+        Box::from(WinApiTerminal {})
     }
 }
 

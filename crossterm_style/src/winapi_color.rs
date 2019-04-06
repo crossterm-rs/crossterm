@@ -13,8 +13,8 @@ use winapi::um::wincon;
 pub struct WinApiColor;
 
 impl WinApiColor {
-    pub fn new() -> WinApiColor {
-        WinApiColor
+    pub fn new() -> Box<WinApiColor> {
+        Box::from(WinApiColor)
     }
 }
 

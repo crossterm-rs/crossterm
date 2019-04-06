@@ -13,7 +13,7 @@ pub struct AnsiTerminal;
 
 impl AnsiTerminal {
     pub fn new() -> AnsiTerminal {
-        AnsiTerminal {}
+        AnsiTerminal
     }
 }
 
@@ -22,13 +22,13 @@ impl ITerminal for AnsiTerminal {
         match clear_type {
             ClearType::All => {
                 write_cout!(stdout, csi!("2J"))?;
-                TerminalCursor::new().goto(0, 0)?;
+                TerminalCursor::new().goto(0, 0);
             }
             ClearType::FromCursorDown => {
                 write_cout!(stdout, csi!("J"))?;
             }
             ClearType::FromCursorUp => {
-                wwrite_cout!(stdout, csi!("1J"))?;
+                write_cout!(stdout, csi!("1J"))?;
             }
             ClearType::CurrentLine => {
                 write_cout!(stdout, csi!("2K"))?;

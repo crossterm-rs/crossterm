@@ -2,7 +2,7 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::{write, Result, TerminalOutput};
+use crossterm_utils::{Result, TerminalOutput};
 
 #[cfg(windows)]
 use super::WinApiTerminal;
@@ -10,6 +10,7 @@ use super::WinApiTerminal;
 use crossterm_utils::supports_ansi;
 
 use std::fmt;
+use std::io::Write;
 use std::sync::Arc;
 
 /// Allows you to preform actions on the terminal.
@@ -171,7 +172,7 @@ impl<'stdout> Terminal<'stdout> {
         use std::fmt::Write;
         let mut string = String::new();
         write!(string, "{}", value)?;
-        let size = write(&self.stdout, string)?;
+        let size = write_cout!(&self.stdout, &string)?;
         Ok(size)
     }
 }

@@ -11,7 +11,7 @@
 //! For UNIX and Windows10 systems, we store the handle gotten from `stdout()`. For Windows systems who are not supporting ANSI escape codes, we can call `CONOUT$` to get the current screen `HANDLE`.
 
 use super::*;
-use crate::functions;
+use crate::functions::supports_ansi;
 use std::default::Default;
 use std::io::Write;
 
@@ -19,7 +19,10 @@ use std::io::Write;
 ///
 /// For UNIX and Windows 10 `stdout()` will be used as handle. And for Windows systems, not supporting ANSI escape codes, will use WinApi's `HANDLE` as handle.
 pub struct TerminalOutput {
-    stdout: Box<IStdout + Send + Sync>,
+    #[cfg(windows)]
+    stdout: Box<(dyn IStdout + Sync + Send)>,
+    #[cfg(unix)]
+    stdout: AnsiOutput,
     /// checks if this output is in raw mode.
     pub is_in_raw_mode: bool,
 }
@@ -27,16 +30,15 @@ pub struct TerminalOutput {
 impl TerminalOutput {
     /// Create a new screen write instance whereon screen related actions can be performed.
     pub fn new(raw_mode: bool) -> Self {
-        #[cfg(target_os = "windows")]
-        let stdout: Box<IStdout + Send + Sync> =
-            functions::get_module::<Box<IStdout + Send + Sync>>(
-                Box::from(WinApiOutput::new()),
-                Box::from(AnsiOutput::new()),
-            )
-            .unwrap();
+        #[cfg(windows)]
+        let stdout = if supports_ansi() {
+            Box::from(AnsiOutput::new()) as Box<(dyn IStdout + Sync + Send)>
+        } else {
+            WinApiOutput::new() as Box<(dyn IStdout + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
+        #[cfg(unix)]
+        let stdout = AnsiOutput::new();
 
         TerminalOutput {
             stdout,
@@ -78,15 +80,15 @@ impl Write for TerminalOutput {
 impl Default for TerminalOutput {
     /// Get the default handle to the current screen.
     fn default() -> Self {
-        #[cfg(target_os = "windows")]
-        let stdout = functions::get_module::<Box<IStdout + Send + Sync>>(
-            Box::from(WinApiOutput::new()),
-            Box::from(AnsiOutput::new()),
-        )
-        .unwrap();
+        #[cfg(windows)]
+        let stdout = if supports_ansi() {
+            Box::from(AnsiOutput::new()) as Box<(dyn IStdout + Sync + Send)>
+        } else {
+            WinApiOutput::new() as Box<(dyn IStdout + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let stdout = Box::from(AnsiOutput::new()) as Box<IStdout + Send + Sync>;
+        #[cfg(unix)]
+        let stdout = AnsiOutput::new();
 
         TerminalOutput {
             stdout,

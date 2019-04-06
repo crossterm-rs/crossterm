@@ -3,7 +3,7 @@ use crate::{ObjectStyle, StyledObject};
 macro_rules! def_attr {
     ($name: ident => $attr: path) => {
         fn $name(self) -> StyledObject<D> {
-             let mut so = self;
+             let so = self;
 
              so.attr($attr)
         }

@@ -7,8 +7,8 @@ use std::io;
 pub struct WinApiOutput;
 
 impl WinApiOutput {
-    pub fn new() -> WinApiOutput {
-        WinApiOutput
+    pub fn new() -> Box<WinApiOutput> {
+        Box::from(WinApiOutput)
     }
 }
 
