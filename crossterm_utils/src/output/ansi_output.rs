@@ -4,18 +4,16 @@
 
 use super::IStdout;
 
-use std::io::{self, stdout, Stdout, Write};
+use std::io::{self, stdout, Stdout, BufWriter, Write};
 
 /// This struct is a wrapper for `Stdout`
 pub struct AnsiOutput {
-    pub handle: Stdout,
+    pub handle: BufWriter<Stdout>
 }
 
 impl IStdout for AnsiOutput {
     fn write_str(&self, string: &str) -> io::Result<usize> {
-        let out = &self.handle;
-        let mut handle = out.lock();
-        let amt = handle.write(string.as_bytes())?;
+        let amt = self.handle.get_mut().write(string.as_bytes())?;
         Ok(amt)
     }
 
