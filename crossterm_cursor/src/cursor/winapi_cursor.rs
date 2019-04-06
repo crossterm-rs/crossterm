@@ -4,7 +4,7 @@
 
 use super::ITerminalCursor;
 use crate::sys::winapi::{Cursor, Handle};
-use crossterm_utils::{Result, TerminalOutput};
+use crossterm_utils::Result;
 use std::sync::Arc;
 
 /// This struct is a windows implementation for cursor related actions.
@@ -17,7 +17,7 @@ impl WinApiCursor {
 }
 
 impl ITerminalCursor for WinApiCursor {
-    fn goto(&self, x: u16, y: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn goto(&self, x: u16, y: u16) -> Result<()> {
         let cursor = Cursor::new()?;
         cursor.goto(x as i16, y as i16)?;
         Ok(())
@@ -28,51 +28,51 @@ impl ITerminalCursor for WinApiCursor {
         cursor.position().unwrap().into()
     }
 
-    fn move_up(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn move_up(&self, count: u16) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos - count, _stdout)?;
+        self.goto(xpos, ypos - count)?;
         Ok(())
     }
 
-    fn move_right(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn move_right(&self, count: u16) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos + count, ypos, _stdout)?;
+        self.goto(xpos + count, ypos)?;
         Ok(())
     }
 
-    fn move_down(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn move_down(&self, count: u16) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos, ypos + count, _stdout)?;
+        self.goto(xpos, ypos + count)?;
         Ok(())
     }
 
-    fn move_left(&self, count: u16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn move_left(&self, count: u16) -> Result<()> {
         let (xpos, ypos) = self.pos();
-        self.goto(xpos - count, ypos, _stdout)?;
+        self.goto(xpos - count, ypos)?;
         Ok(())
     }
 
-    fn save_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn save_position(&self) -> Result<()> {
         Cursor::save_cursor_pos()?;
         Ok(())
     }
 
-    fn reset_position(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn reset_position(&self) -> Result<()> {
         Cursor::reset_to_saved_position()?;
         Ok(())
     }
 
-    fn hide(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn hide(&self) -> Result<()> {
         Cursor::from(Handle::current_out_handle()?).set_visibility(false)?;
         Ok(())
     }
 
-    fn show(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn show(&self) -> Result<()> {
         Cursor::from(Handle::current_out_handle()?).set_visibility(true)?;
         Ok(())
     }
 
-    fn blink(&self, _blink: bool, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn blink(&self, _blink: bool) -> Result<()> {
         Ok(())
     }
 }

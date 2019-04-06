@@ -5,7 +5,7 @@ use std::io;
 
 use super::*;
 use crate::{Color, ITerminalColor};
-use crossterm_utils::{Result, TerminalOutput};
+use crossterm_utils::Result;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
@@ -27,18 +27,16 @@ use std::sync::Arc;
 /// # Remarks
 ///
 /// When you want to 'style' on 'alternate screen' use the 'crossterm_screen' crate.
-pub struct TerminalColor<'stdout> {
+pub struct TerminalColor {
     #[cfg(windows)]
     color: Box<(dyn ITerminalColor + Sync + Send)>,
     #[cfg(unix)]
-    color: AnsiColor,
-
-    stdout: Option<&'stdout Arc<TerminalOutput>>,
+    color: AnsiColor
 }
 
-impl<'stdout> TerminalColor<'stdout> {
+impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
-    pub fn new() -> TerminalColor<'stdout> {
+    pub fn new() -> TerminalColor {
         #[cfg(windows)]
         let color = if supports_ansi() {
             Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
@@ -50,59 +48,23 @@ impl<'stdout> TerminalColor<'stdout> {
         let color = AnsiColor::new();
 
         TerminalColor {
-            color,
-            stdout: None,
-        }
-    }
-
-    /// Create a new instance of `TerminalColor` whereon coloring could be preformed on the given output.
-    ///
-    /// # Remarks
-    ///
-    /// Use this function when you want your terminal to operate with a specific output.
-    /// This could be useful when you have a screen which is in 'alternate mode',
-    /// and you want your actions from the `TerminalColor`, created by this function, to operate on the 'alternate screen'.
-    ///
-    /// You should checkout the 'crossterm_screen' crate for more information about this.
-    ///
-    /// # Example
-    /// ```
-    /// let screen = Screen::default();
-    //
-    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
-    ///    let terminal = TerminalColor::from_output(&alternate.screen.stdout);
-    /// }
-    /// ```
-    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalColor<'stdout> {
-        #[cfg(windows)]
-        let color = if supports_ansi() {
-            Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
-        } else {
-            WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
-        };
-
-        #[cfg(unix)]
-        let color = AnsiColor::new();
-
-        TerminalColor {
-            color,
-            stdout: Some(stdout),
+            color
         }
     }
 
     /// Set the foreground color to the given color.
     pub fn set_fg(&self, color: Color) -> Result<()> {
-        self.color.set_fg(color, &self.stdout)
+        self.color.set_fg(color)
     }
 
     /// Set the background color to the given color.
     pub fn set_bg(&self, color: Color) -> Result<()> {
-        self.color.set_bg(color, &self.stdout)
+        self.color.set_bg(color)
     }
 
     /// Reset the terminal colors and attributes to default.
     pub fn reset(&self) -> Result<()> {
-        self.color.reset(&self.stdout)
+        self.color.reset()
     }
 
     /// Get available color count.
@@ -123,6 +85,6 @@ impl<'stdout> TerminalColor<'stdout> {
 }
 
 /// Get a `TerminalColor` implementation whereon color related actions can be performed.
-pub fn color<'stdout>() -> TerminalColor<'stdout> {
+pub fn color() -> TerminalColor {
     TerminalColor::new()
 }

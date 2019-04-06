@@ -7,8 +7,7 @@ use super::IStdout;
 use std::io::{self, stdout, Stdout, BufWriter, Write};
 
 /// This struct is a wrapper for `Stdout`
-pub struct AnsiOutput {
-}
+pub struct AnsiOutput { }
 
 impl IStdout for AnsiOutput {
     fn write_str(&self, string: &str) -> io::Result<usize> {

@@ -12,7 +12,7 @@ use self::ansi_output::AnsiOutput;
 #[cfg(target_os = "windows")]
 use self::winapi_output::WinApiOutput;
 
-pub use self::output::TerminalOutput;
+use crate::Result;
 
 use std::io;
 

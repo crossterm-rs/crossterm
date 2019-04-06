@@ -6,7 +6,7 @@ use std::io::{stdout, Write};
 use std::{thread, time};
 
 fn print_wait_screen(screen: &Screen) {
-    let crossterm = Crossterm::from_screen(screen);
+    let crossterm = Crossterm::new();
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
 
@@ -22,10 +22,9 @@ fn print_wait_screen(screen: &Screen) {
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(10, 2);
-        style(format!("{} of the 5 items processed", i))
+        println!("{}", style(format!("{} of the 5 items processed", i))
             .with(Color::Red)
-            .on(Color::Blue)
-            .paint(&screen.stdout);
+            .on(Color::Blue));
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));

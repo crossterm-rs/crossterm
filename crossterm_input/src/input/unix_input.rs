@@ -3,7 +3,7 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char_raw};
 
-use crossterm_utils::{TerminalOutput, write_cout, csi};
+use crossterm_utils::{write_cout, csi};
 use std::char;
 use std::io::{Read, Write};
 
@@ -16,7 +16,7 @@ impl UnixInput {
 }
 
 impl ITerminalInput for UnixInput {
-    fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
+    fn read_char(&self) -> io::Result<char> {
         read_char_raw()
     }
 
@@ -54,7 +54,7 @@ impl ITerminalInput for UnixInput {
         }))
     }
 
-    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn enable_mouse_mode(&self) -> io::Result<()> {
         write_cout!(
             stdout,
             &format!(
@@ -68,7 +68,7 @@ impl ITerminalInput for UnixInput {
         Ok(())
     }
 
-    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn disable_mouse_mode(&self) -> io::Result<()> {
         write_cout!(
             stdout,
             &format!(

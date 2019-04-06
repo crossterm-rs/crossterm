@@ -5,8 +5,6 @@ mod alternate;
 mod raw;
 mod screen;
 
-use crossterm_utils::TerminalOutput;
-
 pub use self::alternate::AlternateScreen;
 pub use self::raw::RawScreen;
 pub use self::screen::Screen;

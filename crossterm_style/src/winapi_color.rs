@@ -2,7 +2,7 @@
 //! This module is used for non supporting `ANSI` Windows terminals.
 
 use crate::{Color, Colored, ITerminalColor};
-use crossterm_utils::{Result, TerminalOutput};
+use crossterm_utils::Result;
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
 use std::io;
 use std::sync::Arc;
@@ -19,7 +19,7 @@ impl WinApiColor {
 }
 
 impl ITerminalColor for WinApiColor {
-    fn set_fg(&self, fg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn set_fg(&self, fg_color: Color) -> Result<()> {
         // init the original color in case it is not set.
         let _ = init_console_color()?;
 
@@ -46,7 +46,7 @@ impl ITerminalColor for WinApiColor {
         Ok(())
     }
 
-    fn set_bg(&self, bg_color: Color, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn set_bg(&self, bg_color: Color) -> Result<()> {
         // init the original color in case it is not set.
         let _ = init_console_color()?;
 
@@ -73,7 +73,7 @@ impl ITerminalColor for WinApiColor {
         Ok(())
     }
 
-    fn reset(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn reset(&self) -> Result<()> {
         // init the original color in case it is not set.
         let original_color = original_console_color();
         Console::from(Handle::new(HandleType::CurrentOutputHandle)?)

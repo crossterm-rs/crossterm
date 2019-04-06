@@ -5,7 +5,7 @@
 
 use super::*;
 use crossterm_cursor::sys::winapi::Cursor;
-use crossterm_utils::{ErrorKind, Result, TerminalOutput};
+use crossterm_utils::{ErrorKind, Result};
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
 /// This struct is an winapi implementation for terminal related actions.
@@ -18,7 +18,7 @@ impl WinApiTerminal {
 }
 
 impl ITerminal for WinApiTerminal {
-    fn clear(&self, clear_type: ClearType, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn clear(&self, clear_type: ClearType) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
 
@@ -38,12 +38,12 @@ impl ITerminal for WinApiTerminal {
         Ok(())
     }
 
-    fn terminal_size(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
+    fn terminal_size(&self) -> (u16, u16) {
         let csbi = ScreenBuffer::current().unwrap();
         csbi.info().unwrap().terminal_size().into()
     }
 
-    fn scroll_up(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn scroll_up(&self, count: i16) -> Result<()> {
         let csbi = ScreenBuffer::current()?;
         let mut window = csbi.info()?.terminal_window();
 
@@ -57,7 +57,7 @@ impl ITerminal for WinApiTerminal {
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16, _stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn scroll_down(&self, count: i16) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
         let mut window = csbi.terminal_window();
@@ -78,7 +78,6 @@ impl ITerminal for WinApiTerminal {
         &self,
         width: i16,
         height: i16,
-        _stdout: &Option<&Arc<TerminalOutput>>,
     ) -> Result<()> {
         if width <= 0 {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(

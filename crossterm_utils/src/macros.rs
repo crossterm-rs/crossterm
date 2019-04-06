@@ -15,27 +15,11 @@ macro_rules! csi {
 /// That's exactly what this macro does.
 #[macro_export]
 macro_rules! write_cout {
-    ($stdout:expr, $string:expr) => {
-        match $stdout {
-            None => {
-                write!(std::io::stdout(), "{}", $string)?;
-                match std::io::stdout().flush() {
-                    Ok(_) => Ok($string.len()),
-                    Err(e) => Err(e),
-                }
-            }
-            Some(output) => {
-             write!(std::io::stdout(), "{}", $string)?;
-                match std::io::stdout().flush() {
-                    Ok(_) => Ok($string.len()),
-                    Err(e) => Err(e),
-                }
-//                output.write_str($string)?;
-//                match output.flush() {
-//                    Ok(_) => Ok($string.len()),
-//                    Err(e) => Err(e),
-//                }
-            }
-        }
-    };
+    ($string:expr) => {
+        write!(std::io::stdout(), "{}", $string);
+        match std::io::stdout().flush() {
+            Ok(_) => Ok( $ string.len()),
+            Err(e) => Err(e),
+        };
+    }
 }

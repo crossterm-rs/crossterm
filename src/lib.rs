@@ -31,4 +31,3 @@ pub use self::crossterm_style::{
 pub use self::crossterm_terminal::*;
 
 pub use self::crossterm::Crossterm;
-pub use self::crossterm_utils::{error, TerminalOutput};

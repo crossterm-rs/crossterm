@@ -6,8 +6,6 @@ use std::io::{Error, ErrorKind};
 use std::iter::Iterator;
 use std::str;
 
-use crossterm_utils::TerminalOutput;
-
 /// Allows you to preform actions with the < option >.
 ///
 /// # Features:
@@ -35,18 +33,16 @@ use crossterm_utils::TerminalOutput;
 /// # Remarks
 ///
 /// When you want to use 'input' on 'alternate screen' use the 'crossterm_screen' crate.
-pub struct TerminalInput<'stdout> {
+pub struct TerminalInput {
     #[cfg(windows)]
     input: WindowsInput,
     #[cfg(unix)]
-    input: UnixInput,
-
-    stdout: Option<&'stdout Arc<TerminalOutput>>,
+    input: UnixInput
 }
 
-impl<'stdout> TerminalInput<'stdout> {
+impl TerminalInput {
     /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
-    pub fn new() -> TerminalInput<'stdout> {
+    pub fn new() -> TerminalInput {
         #[cfg(windows)]
         let input = WindowsInput::new();
 
@@ -54,38 +50,7 @@ impl<'stdout> TerminalInput<'stdout> {
         let input = UnixInput::new();
 
         TerminalInput {
-            input,
-            stdout: None,
-        }
-    }
-
-    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
-    ///
-    /// # Remarks
-    ///
-    /// Use this function when you want your terminal to operate with a specific output.
-    /// This could be useful when you have a screen which is in 'alternate mode',
-    /// and you want your actions from the `TerminalInput`, created by this function, to operate on the 'alternate screen'.
-    ///
-    /// You should checkout the 'crossterm_screen' crate for more information about this.
-    /// # Example
-    /// ```rust
-    /// let screen = Screen::default();
-    //
-    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
-    ///    let terminal = TerminalInput::from_output(&alternate.screen.stdout);
-    /// }
-    /// ```
-    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
-        #[cfg(windows)]
-        let input = WindowsInput::new();
-
-        #[cfg(unix)]
-        let input = UnixInput::new();
-
-        TerminalInput {
-            input,
-            stdout: Some(stdout),
+            input
         }
     }
 
@@ -105,12 +70,6 @@ impl<'stdout> TerminalInput<'stdout> {
     ///  }
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
-        if let Some(stdout) = self.stdout {
-            if stdout.is_in_raw_mode {
-                return Err(Error::new(ErrorKind::Other, "Crossterm does not support readline in raw mode this should be done instead whit `read_async` or `read_async_until`"));
-            }
-        }
-
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
         let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
@@ -129,7 +88,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///   }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
-        self.input.read_char(&self.stdout)
+        self.input.read_char()
     }
 
     /// Read the input asynchronously, which means that input events are gathered on the background and will be queued for you to read.
@@ -195,19 +154,19 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Remark
     /// - Mouse events will be send over the reader created with `read_async`, `read_async_until`, `read_sync`.
     pub fn enable_mouse_mode(&self) -> io::Result<()> {
-        self.input.enable_mouse_mode(&self.stdout)
+        self.input.enable_mouse_mode()
     }
 
     /// Disable mouse events to be captured.
     ///
     /// When disabling mouse input you won't be able to capture, mouse movements, pressed buttons and locations anymore.
     pub fn disable_mouse_mode(&self) -> io::Result<()> {
-        self.input.disable_mouse_mode(&self.stdout)
+        self.input.disable_mouse_mode()
     }
 }
 
 /// Get a `TerminalInput` instance whereon input related actions can be performed.
-pub fn input<'stdout>() -> TerminalInput<'stdout> {
+pub fn input() -> TerminalInput {
     TerminalInput::new()
 }
 

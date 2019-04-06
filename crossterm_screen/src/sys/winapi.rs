@@ -1,5 +1,4 @@
 use super::IAlternateScreenCommand;
-use crossterm_utils::TerminalOutput;
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 use std::io;
 use winapi::shared::minwindef::DWORD;
@@ -59,13 +58,13 @@ impl ToAlternateScreenCommand {
 }
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
-    fn enable(&self, _stdout: &mut TerminalOutput) -> io::Result<()> {
+    fn enable(&self) -> io::Result<()> {
         let alternate_screen = ScreenBuffer::create();
         alternate_screen.show()?;
         Ok(())
     }
 
-    fn disable(&self, _stdout: &TerminalOutput) -> io::Result<()> {
+    fn disable(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::output_handle()?);
         screen_buffer.show()?;
         Ok(())

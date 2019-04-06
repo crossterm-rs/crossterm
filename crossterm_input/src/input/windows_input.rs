@@ -2,7 +2,6 @@
 
 use super::*;
 
-use crossterm_utils::TerminalOutput;
 use crossterm_winapi::{
     ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
     MouseEvent,
@@ -37,11 +36,12 @@ const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 static mut ORIG_MODE: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
-    fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
-        let is_raw_screen = match stdout {
-            Some(output) => output.is_in_raw_mode,
-            None => false,
-        };
+    fn read_char(&self) -> io::Result<char> {
+        let is_raw_screen = true;
+//        match stdout {
+//            Some(output) => output.is_in_raw_mode,
+//            None => false,
+//        };
 
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe {
@@ -88,7 +88,7 @@ impl ITerminalInput for WindowsInput {
     }
 
     fn read_sync(&self) -> SyncReader {
-        SyncReader {}
+        SyncReader
     }
 
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
@@ -107,7 +107,7 @@ impl ITerminalInput for WindowsInput {
         }))
     }
 
-    fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn enable_mouse_mode(&self) -> io::Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
 
         unsafe {
@@ -117,7 +117,7 @@ impl ITerminalInput for WindowsInput {
         Ok(())
     }
 
-    fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn disable_mouse_mode(&self) -> io::Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
         mode.set_mode(unsafe { ORIG_MODE })
     }

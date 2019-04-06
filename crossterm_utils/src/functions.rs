@@ -1,5 +1,3 @@
-#[macro_export]
-use crate::output::TerminalOutput;
 use std::io::{self, Write};
 use std::sync::Arc;
 

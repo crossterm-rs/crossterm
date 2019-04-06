@@ -4,7 +4,7 @@
 use super::ITerminal;
 use crate::{sys::get_terminal_size, ClearType};
 use crossterm_cursor::TerminalCursor;
-use crossterm_utils::{Result, TerminalOutput};
+use crossterm_utils::Result;
 use std::io::Write;
 use std::sync::Arc;
 
@@ -18,39 +18,39 @@ impl AnsiTerminal {
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn clear(&self, clear_type: ClearType) -> Result<()> {
         match clear_type {
             ClearType::All => {
-                write_cout!(stdout, csi!("2J"))?;
+                write_cout!( csi!("2J"));
                 TerminalCursor::new().goto(0, 0);
             }
             ClearType::FromCursorDown => {
-                write_cout!(stdout, csi!("J"))?;
+                write_cout!( csi!("J"));
             }
             ClearType::FromCursorUp => {
-                write_cout!(stdout, csi!("1J"))?;
+                write_cout!( csi!("1J"));
             }
             ClearType::CurrentLine => {
-                write_cout!(stdout, csi!("2K"))?;
+                write_cout!( csi!("2K"));
             }
             ClearType::UntilNewLine => {
-                write_cout!(stdout, csi!("K"))?;
+                write_cout!( csi!("K"));
             }
         };
         Ok(())
     }
 
-    fn terminal_size(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
+    fn terminal_size(&self) -> (u16, u16) {
         get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_cout!(stdout, &format!(csi!("{}S"), count))?;
+    fn scroll_up(&self, count: i16) -> Result<()> {
+        write_cout!( &format!(csi!("{}S"), count));
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_cout!(stdout, &format!(csi!("{}T"), count))?;
+    fn scroll_down(&self, count: i16) -> Result<()> {
+        write_cout!( &format!(csi!("{}T"), count));
         Ok(())
     }
 
@@ -58,9 +58,8 @@ impl ITerminal for AnsiTerminal {
         &self,
         width: i16,
         height: i16,
-        stdout: &Option<&Arc<TerminalOutput>>,
     ) -> Result<()> {
-        write_cout!(stdout, &format!(csi!("8;{};{}t"), height, width))?;
+        write_cout!( &format!(csi!("8;{};{}t"), height, width));
         Ok(())
     }
 }

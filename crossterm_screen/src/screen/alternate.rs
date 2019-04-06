@@ -12,7 +12,7 @@ use crossterm_utils::supports_ansi;
 
 use crate::sys::{self, IAlternateScreenCommand};
 
-use super::{RawScreen, Screen, TerminalOutput};
+use super::{RawScreen, Screen};
 use std::convert::From;
 use std::io;
 
@@ -40,7 +40,6 @@ impl AlternateScreen {
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn to_alternate_screen(
-        stdout: TerminalOutput,
         raw_mode: bool,
     ) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
@@ -55,10 +54,9 @@ impl AlternateScreen {
         #[cfg(unix)]
         let command = sys::ToAlternateScreenCommand::new();
 
-        let mut stdout = stdout;
-        command.enable(&mut stdout)?;
+        command.enable()?;
 
-        let screen = Screen::from(stdout);
+        let screen = Screen::new(raw_mode);
 
         if raw_mode {
             RawScreen::into_raw_mode()?;
@@ -69,7 +67,7 @@ impl AlternateScreen {
 
     /// Switch the alternate screen back to main screen.
     pub fn to_main_screen(&self) -> io::Result<()> {
-        self.command.disable(&self.screen.stdout)?;
+        self.command.disable()?;
         Ok(())
     }
 }
