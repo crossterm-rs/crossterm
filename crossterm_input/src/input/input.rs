@@ -2,7 +2,7 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::io::{Error, ErrorKind};
+use std::io;
 use std::iter::Iterator;
 use std::str;
 
@@ -151,14 +151,14 @@ impl TerminalInput {
     ///
     /// # Remark
     /// - Mouse events will be send over the reader created with `read_async`, `read_async_until`, `read_sync`.
-    pub fn enable_mouse_mode(&self) -> io::Result<()> {
+    pub fn enable_mouse_mode(&self) -> Result<()> {
         self.input.enable_mouse_mode()
     }
 
     /// Disable mouse events to be captured.
     ///
     /// When disabling mouse input you won't be able to capture, mouse movements, pressed buttons and locations anymore.
-    pub fn disable_mouse_mode(&self) -> io::Result<()> {
+    pub fn disable_mouse_mode(&self) -> Result<()> {
         self.input.disable_mouse_mode()
     }
 }
@@ -173,7 +173,7 @@ pub(crate) fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
 where
     I: Iterator<Item = u8>,
 {
-    let error = Error::new(ErrorKind::Other, "Could not parse an event");
+    let error = ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Could not parse an event"));
     let input_event = match item {
         b'\x1B' => {
             let a = iter.next();
@@ -387,10 +387,10 @@ fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char>
 where
     I: Iterator<Item = u8>,
 {
-    let error = Err(Error::new(
-        ErrorKind::Other,
+    let error = Err(ErrorKind::IoError(io::Error::new(
+        io::ErrorKind::Other,
         "Input character is not valid UTF-8",
-    ));
+    )));
 
     if c.is_ascii() {
         Ok(c as char)

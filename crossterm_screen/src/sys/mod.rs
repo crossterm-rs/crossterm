@@ -19,7 +19,7 @@ impl ToAlternateScreenCommand {
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
     /// enable alternate screen.
     fn enable(&self) -> Result<()> {
-        write_cout!(csi!("?1049h"))?;
+        write_cout!(csi!("?1049h")).unwrap();
         Ok(())
     }
 

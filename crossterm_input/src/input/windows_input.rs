@@ -107,7 +107,7 @@ impl ITerminalInput for WindowsInput {
         }))
     }
 
-    fn enable_mouse_mode(&self) -> io::Result<()> {
+    fn enable_mouse_mode(&self) -> Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
 
         unsafe {
@@ -117,7 +117,7 @@ impl ITerminalInput for WindowsInput {
         Ok(())
     }
 
-    fn disable_mouse_mode(&self) -> io::Result<()> {
+    fn disable_mouse_mode(&self) -> Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
         mode.set_mode(unsafe { ORIG_MODE })
     }

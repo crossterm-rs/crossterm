@@ -3,7 +3,7 @@
 use super::*;
 use crate::sys::unix::{get_tty, read_char_raw};
 
-use crossterm_utils::{csi, write_cout};
+use crossterm_utils::{csi, write_cout, Result};
 use std::char;
 use std::io::{Read, Write};
 
@@ -54,25 +54,25 @@ impl ITerminalInput for UnixInput {
         }))
     }
 
-    fn enable_mouse_mode(&self) -> io::Result<()> {
+    fn enable_mouse_mode(&self) -> Result<()> {
         write_cout!(&format!(
             "{}h{}h{}h{}h",
             csi!("?1000"),
             csi!("?1002"),
             csi!("?1015"),
             csi!("?1006")
-        ));
+        ))?;
         Ok(())
     }
 
-    fn disable_mouse_mode(&self) -> io::Result<()> {
+    fn disable_mouse_mode(&self) -> Result<()> {
         write_cout!(&format!(
             "{}l{}l{}l{}l",
             csi!("?1006"),
             csi!("?1015"),
             csi!("?1002"),
             csi!("?1000")
-        ));
+        ))?;
         Ok(())
     }
 }

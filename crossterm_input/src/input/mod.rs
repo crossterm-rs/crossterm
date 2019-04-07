@@ -20,8 +20,8 @@ use self::windows_input::WindowsInput;
 
 use self::input::parse_event;
 pub use self::input::{input, TerminalInput};
-
-use std::io::{self, Result};
+use crossterm_utils::{Result, ErrorKind};
+use std::io;
 use std::sync::{mpsc, Arc};
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -45,8 +45,8 @@ trait ITerminalInput {
     fn read_until_async(&self, delimiter: u8) -> AsyncReader;
     /// Read the input synchronously from the user.
     fn read_sync(&self) -> SyncReader;
-    fn enable_mouse_mode(&self) -> io::Result<()>;
-    fn disable_mouse_mode(&self) -> io::Result<()>;
+    fn enable_mouse_mode(&self) -> Result<()>;
+    fn disable_mouse_mode(&self) -> Result<()>;
 }
 
 /// Enum to specify which input event has occurred.
