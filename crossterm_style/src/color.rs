@@ -21,10 +21,6 @@ use crossterm_utils::supports_ansi;
 /// - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
 ///
 /// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to 'style' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalColor {
     #[cfg(windows)]
     color: Box<(dyn ITerminalColor + Sync + Send)>,

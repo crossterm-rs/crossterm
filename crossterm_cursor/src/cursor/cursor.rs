@@ -22,10 +22,6 @@ use crossterm_utils::supports_ansi;
 /// Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 ///
 /// Check `/examples/cursor` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to use 'cursor' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalCursor {
     #[cfg(windows)]
     cursor: Box<(dyn ITerminalCursor + Sync + Send)>,

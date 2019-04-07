@@ -1,6 +1,6 @@
 use super::IAlternateScreenCommand;
-use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 use crossterm_utils::Result;
+use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 use std::io;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;

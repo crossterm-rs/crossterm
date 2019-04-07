@@ -33,10 +33,10 @@ impl Display for Colored {
 
         match *self {
             Colored::Fg(color) => {
-                colored_terminal.set_fg(color);
+                colored_terminal.set_fg(color).unwrap();
             }
             Colored::Bg(color) => {
-                colored_terminal.set_bg(color);
+                colored_terminal.set_bg(color).unwrap();
             }
         }
 

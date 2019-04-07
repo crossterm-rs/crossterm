@@ -29,10 +29,6 @@ use std::str;
 /// - Wait for key event (terminal pause)
 ///
 /// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to use 'input' on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct TerminalInput {
     #[cfg(windows)]
     input: WindowsInput,
@@ -173,7 +169,10 @@ pub(crate) fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
 where
     I: Iterator<Item = u8>,
 {
-    let error = ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Could not parse an event"));
+    let error = ErrorKind::IoError(io::Error::new(
+        io::ErrorKind::Other,
+        "Could not parse an event",
+    ));
     let input_event = match item {
         b'\x1B' => {
             let a = iter.next();

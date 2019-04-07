@@ -37,20 +37,8 @@ static mut ORIG_MODE: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
     fn read_char(&self) -> io::Result<char> {
-        let is_raw_screen = true;
-        //        match stdout {
-        //            Some(output) => output.is_in_raw_mode,
-        //            None => false,
-        //        };
-
         // _getwch is without echo and _getwche is with echo
-        let pressed_char = unsafe {
-            if is_raw_screen {
-                _getwch()
-            } else {
-                _getwche()
-            }
-        };
+        let pressed_char = unsafe { _getwche() };
 
         // we could return error but maybe option to keep listening until valid character is inputted.
         if pressed_char == 0 || pressed_char == 0xe0 {
@@ -119,7 +107,8 @@ impl ITerminalInput for WindowsInput {
 
     fn disable_mouse_mode(&self) -> Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
-        mode.set_mode(unsafe { ORIG_MODE })
+        mode.set_mode(unsafe { ORIG_MODE })?;
+        Ok(())
     }
 }
 

@@ -42,7 +42,7 @@ impl<'screen> FirstDepthSearch<'screen> {
         // push first position on the stack
         self.stack.push(self.root_pos);
 
-        let crossterm = Crossterm::from_screen(&self.screen);
+        let crossterm = Crossterm::new();
         let mut cursor = crossterm.cursor();
         cursor.hide();
 
@@ -60,17 +60,13 @@ impl<'screen> FirstDepthSearch<'screen> {
 
             self.update_position();
 
-            let cell = crossterm.style(" ").on(Color::Blue);
-
             let pos = self.root_pos.clone();
 
             let x = pos.x as u16;
             let y = pos.y as u16;
 
             cursor.goto(x, y);
-            cell.paint(&self.screen.stdout);
-            self.screen.stdout.flush();
-
+            print!("{}", crossterm.style(" ").on(Color::Blue));
             thread::sleep(time::Duration::from_millis(1));
         }
     }

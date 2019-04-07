@@ -53,8 +53,8 @@ impl From<fmt::Error> for ErrorKind {
 impl From<ErrorKind> for io::Error {
     fn from(e: ErrorKind) -> io::Error {
         match e {
-            ErrorKind::IoError(io) => { return io },
-            _ => io::Error::new(io::ErrorKind::Other, "can not convert error to IO error")
+            ErrorKind::IoError(io) => return io,
+            _ => io::Error::new(io::ErrorKind::Other, "can not convert error to IO error"),
         }
     }
 }

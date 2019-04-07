@@ -20,7 +20,7 @@ use self::windows_input::WindowsInput;
 
 use self::input::parse_event;
 pub use self::input::{input, TerminalInput};
-use crossterm_utils::{Result, ErrorKind};
+use crossterm_utils::{ErrorKind, Result};
 use std::io;
 use std::sync::{mpsc, Arc};
 

@@ -1,24 +1,19 @@
 extern crate crossterm;
 
 use crossterm::{
-    input, ClearType, Crossterm, InputEvent, KeyEvent, Screen, Terminal, TerminalCursor,
+    input, cursor, terminal, ClearType, Crossterm, InputEvent, KeyEvent, Screen, Terminal, TerminalCursor,
 };
 
-use std::io::Read;
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
 
 fn main() {
-    use crossterm::color;
-
     let screen = Screen::new(true);
-    let crossterm = Crossterm::from_screen(&screen);
-    let cursor = crossterm.cursor();
-    cursor.hide();
+    cursor().hide();
 
     let input_buf = Arc::new(Mutex::new(String::new()));
 
-    let threads = log(input_buf.clone(), &screen);
+    let threads = log(input_buf.clone());
 
     let mut count = 0;
 
@@ -47,19 +42,18 @@ fn main() {
         thread.join();
     }
 
-    cursor.show();
+    cursor().show();
 }
 
-fn log(input_buf: Arc<Mutex<String>>, screen: &Screen) -> Vec<thread::JoinHandle<()>> {
+fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>> {
     let mut threads = Vec::with_capacity(10);
 
-    let (_, term_height) = Terminal::from_output(&screen.stdout).terminal_size();
+    let (_, term_height) = terminal().terminal_size();
 
     for i in 0..1 {
         let input_buffer = input_buf.clone();
-        let _clone_stdout = screen.stdout.clone();
 
-        let crossterm = Crossterm::from(screen.stdout.clone());
+        let crossterm = Crossterm::new();
 
         let join = thread::spawn(move || {
             let cursor = crossterm.cursor();
@@ -93,5 +87,5 @@ pub fn swap_write(
     cursor.goto(0, term_height);
     terminal.clear(ClearType::CurrentLine);
     terminal.write(format!("{}\r\n", msg));
-    terminal.write(format!(">{}", input_buf));
+    terminal.write(format!("> {}", input_buf));
 }

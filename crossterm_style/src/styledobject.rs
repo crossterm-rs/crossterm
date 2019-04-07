@@ -1,8 +1,6 @@
 //! This module contains the logic to style an object that contains some 'content' which can be styled.
 
 use super::{color, Color, ObjectStyle};
-//use Screen;
-use crossterm_utils::Result;
 use std::fmt::{self, Display, Formatter};
 use std::io::Write;
 use std::result;

@@ -6,7 +6,7 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{ClearType, Color, Crossterm, InputEvent, KeyEvent, Screen};
+use self::crossterm::{ClearType, Color, Crossterm, InputEvent, KeyEvent, Screen, Colored};
 
 use self::messages::WELCOME_MESSAGE;
 use self::variables::{Position, Size};
@@ -49,7 +49,7 @@ fn start_algorithm(screen: &Screen) {
 fn print_welcome_screen() {
     let mut screen = Screen::new(true);
 
-    let crossterm = Crossterm::from_screen(&screen);
+    let crossterm = Crossterm::new();
 
     // create the handle for the cursor and terminal.
     let terminal = crossterm.terminal();
@@ -63,10 +63,9 @@ fn print_welcome_screen() {
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);
 
-    crossterm
-        .style(format!("{}", messages::WELCOME_MESSAGE.join("\n\r")))
-        .with(Color::Cyan)
-        .paint(&screen.stdout);
+    print!("{}",
+        crossterm.style(format!("{}", messages::WELCOME_MESSAGE.join("\n\r")))
+        .with(Color::Cyan));
 
     cursor.hide();
     cursor.goto(0, 10);
@@ -86,11 +85,7 @@ fn print_welcome_screen() {
         } else {
             // print the current counter at the line of `Seconds to Go: {counter}`
             cursor.goto(48, 10);
-            crossterm
-                .style(format!("{}", i))
-                .with(Color::Red)
-                .on(Color::Blue)
-                .paint(&screen.stdout);
+            print!("{}{}{}", Colored::Fg(Color::Red), Colored::Bg(Color::Blue), i);
         }
 
         // 1 second delay

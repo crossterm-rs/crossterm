@@ -25,10 +25,6 @@ use std::io::Write;
 /// - Exit the current process
 ///
 /// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to perform terminal actions on 'alternate screen' use the 'crossterm_screen' crate.
 pub struct Terminal {
     #[cfg(windows)]
     terminal: Box<(dyn ITerminal + Sync + Send)>,

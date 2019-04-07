@@ -137,7 +137,7 @@ pub enum Attribute {
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", format!(csi!("{}m"), *self as i16))?;
-        stdout().flush();
+        stdout().flush().unwrap();
         Ok(())
     }
 }

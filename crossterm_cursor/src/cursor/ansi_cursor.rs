@@ -3,8 +3,8 @@
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position etc.
 
 use super::ITerminalCursor;
-use std::io::Write;
 use crate::sys::get_cursor_position;
+use std::io::Write;
 
 use crossterm_utils::Result;
 

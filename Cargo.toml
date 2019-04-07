@@ -29,7 +29,8 @@ members = [
     "crossterm_terminal",
     "crossterm_input",
     "crossterm_screen",
-    "examples/program_examples/snake"
+    "examples/program_examples/snake",
+        "examples/program_examples/first_depth_search"
 ]
 
 [dependencies]
@@ -43,3 +44,11 @@ crossterm_utils =    { optional = false, path = "./crossterm_utils" }
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
+
+[[example]]
+name="log"
+path="examples/program_examples/logging.rs"
+
+[[example]]
+name="command"
+path="examples/program_examples/command_bar.rs"
