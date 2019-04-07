@@ -3,6 +3,8 @@ use super::{AlternateScreen, RawScreen};
 use std::io::stdout;
 use std::io::Result;
 use std::io::Write;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::RwLock;
 
 /// This type represents a screen which could be in normal, raw and alternate modes.
 ///
@@ -62,6 +64,7 @@ use std::io::Write;
 pub struct Screen {
     buffer: Vec<u8>,
     drop: bool,
+    raw_modes: bool
 }
 
 impl Screen {
@@ -72,6 +75,7 @@ impl Screen {
             let screen = Screen {
                 buffer: Vec::new(),
                 drop: true,
+                raw_modes: true
             };
             RawScreen::into_raw_mode().unwrap();
             return screen;
@@ -131,13 +135,18 @@ impl Default for Screen {
         Screen {
             buffer: Vec::new(),
             drop: true,
+            raw_modes: false
         }
     }
 }
 
 impl Drop for Screen {
     /// If the current screen is in raw mode we need to disable it when the instance goes out of scope.
-    fn drop(&mut self) {}
+    fn drop(&mut self) {
+        if self.raw_modes {
+            RawScreen::disable_raw_modes();
+        }
+    }
 }
 
 impl Write for Screen {
