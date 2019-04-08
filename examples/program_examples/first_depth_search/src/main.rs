@@ -6,7 +6,7 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{ClearType, Color, Crossterm, InputEvent, KeyEvent, Screen, Colored};
+use self::crossterm::{ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, Screen};
 
 use self::messages::WELCOME_MESSAGE;
 use self::variables::{Position, Size};
@@ -63,9 +63,12 @@ fn print_welcome_screen() {
     terminal.clear(ClearType::All);
     cursor.goto(0, 0);
 
-    print!("{}",
-        crossterm.style(format!("{}", messages::WELCOME_MESSAGE.join("\n\r")))
-        .with(Color::Cyan));
+    print!(
+        "{}",
+        crossterm
+            .style(format!("{}", messages::WELCOME_MESSAGE.join("\n\r")))
+            .with(Color::Cyan)
+    );
 
     cursor.hide();
     cursor.goto(0, 10);
@@ -85,7 +88,12 @@ fn print_welcome_screen() {
         } else {
             // print the current counter at the line of `Seconds to Go: {counter}`
             cursor.goto(48, 10);
-            print!("{}{}{}", Colored::Fg(Color::Red), Colored::Bg(Color::Blue), i);
+            print!(
+                "{}{}{}",
+                Colored::Fg(Color::Red),
+                Colored::Bg(Color::Blue),
+                i
+            );
         }
 
         // 1 second delay

@@ -1,8 +1,7 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use libc::c_int;
-pub use libc::termios as Termios;
 use libc::{self, TCSADRAIN};
+pub use libc::{c_int, termios as Termios};
 
 use std::{fs, io, mem};
 
@@ -10,7 +9,7 @@ static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
 pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
 
-fn cvt(t: i32) -> io::Result<()> {
+fn unwrap(t: i32) -> io::Result<()> {
     if t == -1 {
         Err(io::Error::last_os_error())
     } else {
@@ -32,7 +31,7 @@ pub fn get_terminal_attr() -> io::Result<Termios> {
     }
     unsafe {
         let mut termios = mem::zeroed();
-        cvt(tcgetattr(0, &mut termios))?;
+        unwrap(tcgetattr(0, &mut termios))?;
         Ok(termios)
     }
 }
@@ -41,7 +40,7 @@ pub fn set_terminal_attr(termios: &Termios) -> io::Result<()> {
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
-    cvt(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
+    unwrap(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
 }
 
 pub fn into_raw_mode() -> io::Result<()> {

@@ -5,11 +5,11 @@ mod test;
 mod terminal;
 
 mod ansi_terminal;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod winapi_terminal;
 
 use self::ansi_terminal::AnsiTerminal;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::winapi_terminal::WinApiTerminal;
 
 pub use self::terminal::{terminal, Terminal};

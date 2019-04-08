@@ -7,19 +7,13 @@ use std::fmt::Display;
 /// ```rust
 /// let crossterm = Crossterm::new();
 /// let cursor = crossterm.cursor();
-/// ```
-///
-/// If you want to perform actions on the `AlternateScreen` make sure to pass a reference to the screen of the `AlternateScreen`.
-/// If you don't do this you actions won't be performed on the alternate screen but on the main screen.
-///
-/// ```
-/// let main_screen = Screen::default();
-///
-/// if let Ok(alternate_srceen) = main_screen.enable_alternate_modes(false)
-/// {
-///    let crossterm = Crossterm::new(&alternate_screen.screen);
-///    let cursor = crossterm.cursor();
-/// }
+//  let color = crossterm.color();
+//  let terminal = crossterm.terminal();
+//  let terminal = crossterm.input();
+//  let style = crossterm
+//        .style(format!("{} {}", 0, "Black font on green background"))
+//        .with(Color::Black)
+//        .on(Color::Green);
 /// ```
 ///
 /// # Remark

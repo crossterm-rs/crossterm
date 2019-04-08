@@ -45,16 +45,7 @@ use std::io::Write;
 /// // create 'raw alternate screen' from normal screen.
 /// if let Ok(alternate_screen) = screen.enable_alternate_modes(true)
 /// {
-///    // 'alternate screen' is an instance which you should use when you want your actions like: coloring and cursor movement happening at the alternate screen.
-///    // For that you can use `Crossterm::from_screen(alternate.screen)` so that all modules like: cursor, input, terminal will be executed on alternate screen.
-///     let crossterm = Crossterm::from_screen(&alternate_screen.screen);
-///     crossterm.cursor();
-///     crossterm.terminal();
 ///
-///     // If you want access modules directly without the `Crossterm` type. You should do the following:
-///     let cursor = crossterm::cursor::from_screen(&alternate_screen.screen);
-///     let terminal = crossterm::terminal::from_screen(&alternate_screen.screen);
-///     let input = crossterm::input::from_screen(&alternate_screen.screen);
 /// }
 /// ```
 /// # Remarks

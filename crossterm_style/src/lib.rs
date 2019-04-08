@@ -3,7 +3,7 @@
 
 #[macro_use]
 extern crate crossterm_utils;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 extern crate crossterm_winapi;
 
 #[macro_use]
@@ -15,11 +15,11 @@ pub mod styledobject;
 mod traits;
 
 mod ansi_color;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod winapi_color;
 
 use self::ansi_color::AnsiColor;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::winapi_color::WinApiColor;
 
 use std::fmt::Display;

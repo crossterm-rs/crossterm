@@ -27,9 +27,9 @@ pub struct RawScreen;
 impl RawScreen {
     /// Put terminal in raw mode.
     pub fn into_raw_mode() -> io::Result<()> {
-        #[cfg(not(target_os = "windows"))]
+        #[cfg(unix)]
         let mut command = sys::unix::RawModeCommand::new();
-        #[cfg(target_os = "windows")]
+        #[cfg(windows)]
         let mut command = sys::winapi::RawModeCommand::new();
 
         let _result = command.enable();
@@ -39,9 +39,9 @@ impl RawScreen {
 
     /// Put terminal back in original modes.
     pub fn disable_raw_modes() -> io::Result<()> {
-        #[cfg(not(target_os = "windows"))]
+        #[cfg(unix)]
         let mut command = sys::unix::RawModeCommand::new();
-        #[cfg(target_os = "windows")]
+        #[cfg(windows)]
         let command = sys::winapi::RawModeCommand::new();
 
         command.disable()?;

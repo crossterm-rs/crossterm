@@ -23,7 +23,6 @@ pub fn read_line() {
 fn main() {
     // un-comment below and run with
     // `cargo run --example input`:
-
     read_char();
     read_line();
 }

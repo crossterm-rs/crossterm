@@ -3,7 +3,7 @@ extern crate crossterm;
 use crossterm::{style, ClearType, Color, Crossterm, Screen};
 use std::{thread, time};
 
-fn print_wait_screen(screen: &Screen) {
+fn print_wait_screen() {
     let crossterm = Crossterm::new();
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
@@ -37,7 +37,7 @@ pub fn print_wait_screen_on_alternate_window() {
     let screen = Screen::default();
 
     if let Ok(alternate) = screen.enable_alternate_modes(false) {
-        print_wait_screen(&alternate.screen);
+        print_wait_screen();
     }
 }
 

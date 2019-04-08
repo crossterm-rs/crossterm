@@ -34,12 +34,6 @@ impl ITerminalInput for UnixInput {
         }))
     }
 
-    fn read_sync(&self) -> SyncReader {
-        SyncReader {
-            bytes: Box::new(get_tty().unwrap().bytes().flatten()),
-        }
-    }
-
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         AsyncReader::new(Box::new(move |event_tx, cancellation_token| {
             for byte in get_tty().unwrap().bytes() {
@@ -52,6 +46,12 @@ impl ITerminalInput for UnixInput {
                 }
             }
         }))
+    }
+
+    fn read_sync(&self) -> SyncReader {
+        SyncReader {
+            bytes: Box::new(get_tty().unwrap().bytes().flatten()),
+        }
     }
 
     fn enable_mouse_mode(&self) -> Result<()> {

@@ -17,7 +17,3 @@ crossterm_winapi = "0.1.2"
 
 [dependencies]
 crossterm_utils = { path = "../crossterm_utils" }
-
-[[example]]
-name = "style"
-path = "examples/style.rs"

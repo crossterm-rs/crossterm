@@ -2,21 +2,7 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::io;
-use std::iter::Iterator;
-use std::str;
-
-/// Allows you to preform actions with the < option >.
-///
-/// # Features:
-///
-/// - features
-///
-/// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to use '< name >' on 'alternate screen' use the 'crossterm_screen' crate.
+use std::{io, str, Iterator};
 
 /// Allows you to read user input.
 ///
@@ -26,6 +12,7 @@ use std::str;
 /// - Read line
 /// - Read async
 /// - Read async until
+/// - Read sync
 /// - Wait for key event (terminal pause)
 ///
 /// Check `/examples/` in the library for more specific examples.
@@ -52,7 +39,7 @@ impl TerminalInput {
     ///
     /// # Remark
     /// This function is not work when raw screen is turned on.
-    /// When you do want to read a line in raw mode please, checkout `read_async` or `read_async_until`.
+    /// When you do want to read a line in raw mode please, checkout `read_async`, `read_async_until` or `read_sync`.
     /// Not sure what 'raw mode' is, checkout the 'crossterm_screen' crate.
     ///
     /// # Example

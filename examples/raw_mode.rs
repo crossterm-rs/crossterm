@@ -6,7 +6,7 @@ use std::io::{stdout, Write};
 use std::{thread, time};
 
 fn print_wait_screen(screen: &mut Screen) {
-    let crossterm = Crossterm::from_screen(screen);
+    let crossterm = Crossterm::new();
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
 
@@ -25,10 +25,13 @@ fn print_wait_screen(screen: &mut Screen) {
     for i in 1..5 {
         // print the current counter at the line of `Seconds to Go: {counter}`
         cursor.goto(10, 2);
-        style(format!("{} of the 5 items processed", i))
-            .with(Color::Red)
-            .on(Color::Blue)
-            .paint(&screen.stdout);
+        print!(
+            "{}",
+            style(format!("{} of the 5 items processed", i))
+                .with(Color::Red)
+                .on(Color::Blue)
+        );
+
         screen.stdout.flush();
 
         // 1 second delay
@@ -41,7 +44,7 @@ pub fn print_wait_screen_on_alternate_window() {
 
     // by passing in 'true' the alternate screen will be in raw modes.
     if let Ok(ref mut alternate) = screen.enable_alternate_modes(true) {
-        print_wait_screen(&mut alternate.screen);
+        print_wait_screen();
     } // <- drop alternate screen; this will cause the alternate screen to drop.
 
     drop(screen); // <- drop screen; this will cause raw mode to be turned off.

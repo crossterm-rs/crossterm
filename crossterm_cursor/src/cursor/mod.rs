@@ -9,11 +9,11 @@ mod cursor;
 mod test;
 
 mod ansi_cursor;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod winapi_cursor;
 
 use self::ansi_cursor::AnsiCursor;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{cursor, TerminalCursor};

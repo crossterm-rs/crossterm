@@ -11,7 +11,6 @@ use super::Attribute;
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,
-
     pub attrs: Vec<Attribute>,
 }
 

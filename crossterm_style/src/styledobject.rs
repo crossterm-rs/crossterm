@@ -9,7 +9,7 @@ use super::Attribute;
 use crate::Colorize;
 use crate::Styler;
 
-/// Struct that contains both the style and the content wits can be styled.
+/// Contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {
     pub object_style: ObjectStyle,
     pub content: D,

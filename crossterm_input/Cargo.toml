@@ -21,11 +21,3 @@ libc = "0.2.51"
 [dependencies]
 crossterm_utils = { path = "../crossterm_utils" }
 crossterm_screen =  { path = "../crossterm_screen" }
-
-[[example]]
-name = "input"
-path = "examples/input.rs"
-
-[[example]]
-name = "key_events"
-path = "examples/key_events.rs"

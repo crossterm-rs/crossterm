@@ -1,46 +1,48 @@
 extern crate crossterm;
 
-use crossterm::{InputEvent, KeyEvent, MouseButton, MouseEvent, Screen, TerminalInput};
+use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, Screen};
 use std::{thread, time::Duration};
 
 fn process_input_event(key_event: InputEvent) -> bool {
     match key_event {
-        InputEvent::Keyboard(k) => match k {
-            KeyEvent::Char(c) => match c {
-                'q' => {
-                    println!("The 'q' key is hit and the program is not listening to input anymore.\n\n");
-                    return true;
+        InputEvent::Keyboard(k) => {
+            match k {
+                KeyEvent::Char(c) => match c {
+                    'q' => {
+                        println!("The 'q' key is hit and the program is not listening to input anymore.\n\n");
+                        return true;
+                    }
+                    _ => {
+                        println!("{}", format!("'{}' pressed\n\n", c));
+                    }
+                },
+                KeyEvent::Alt(c) => {
+                    println!("{}", format!("ALT +'{}' pressed\n\n", c));
+                }
+                KeyEvent::Ctrl(c) => {
+                    println!("{}", format!("CTRL +'{}' Pressed\n\n", c));
+                }
+                KeyEvent::Esc => {
+                    println!("{}", format!("ESC pressed\n\n"));
+                }
+                KeyEvent::F(number) => {
+                    println!("{}", format!("F{} key pressed\n\n", number));
+                }
+                KeyEvent::PageUp => {
+                    println!("{}", format!("Page Up\n\n"));
+                }
+                KeyEvent::PageDown => {
+                    println!("{}", format!("Page Down\n\n"));
+                }
+                KeyEvent::Delete => {
+                    println!("{}", format!("Delete\n\n"));
                 }
                 _ => {
-                    println!("{}", format!("'{}' pressed\n\n", c));
+                    println!("{}", format!("OTHER: {:?}\n\n", k));
+                    ()
                 }
-            },
-            KeyEvent::Alt(c) => {
-                println!("{}", format!("ALT +'{}' pressed\n\n", c));
             }
-            KeyEvent::Ctrl(c) => {
-                println!("{}", format!("CTRL +'{}' Pressed\n\n", c));
-            }
-            KeyEvent::Esc => {
-                println!("{}", format!("ESC pressed\n\n"));
-            }
-            KeyEvent::F(number) => {
-                println!("{}", format!("F{} key pressed\n\n", number));
-            }
-            KeyEvent::PageUp => {
-                println!("{}", format!("Page Up\n\n"));
-            }
-            KeyEvent::PageDown => {
-                println!("{}", format!("Page Down\n\n"));
-            }
-            KeyEvent::Delete => {
-                println!("{}", format!("Delete\n\n"));
-            }
-            _ => {
-                println!("{}", format!("OTHER: {:?}\n\n", k));
-                ()
-            }
-        },
+        }
         InputEvent::Mouse(m) => match m {
             MouseEvent::Press(b, x, y) => match b {
                 MouseButton::Left => {
@@ -52,9 +54,7 @@ fn process_input_event(key_event: InputEvent) -> bool {
                 MouseButton::Middle => {
                     println!("{}", format!("mid mouse press @ {}, {}\n\n", x, y));
                 }
-                MouseButton::WheelUp => {
-                    println!("{}", format!("wheel up @ {}, {}\n\n", x, y))
-                }
+                MouseButton::WheelUp => println!("{}", format!("wheel up @ {}, {}\n\n", x, y)),
                 MouseButton::WheelDown => {
                     println!("{}", format!("wheel down @ {}, {}\n\n", x, y));
                 }
@@ -77,9 +77,9 @@ fn process_input_event(key_event: InputEvent) -> bool {
 
 pub fn read_asynchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    let screen = Screen::new(true);
+    let _ = Screen::new(true);
 
-    let input = TerminalInput::new();
+    let input = input();
 
     // enable mouse events to be captured.
     input.enable_mouse_mode().unwrap();
@@ -101,9 +101,9 @@ pub fn read_asynchronously() {
 
 pub fn read_synchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    let screen = Screen::new(true);
+    let _ = Screen::new(true);
 
-    let mut input = TerminalInput::new();
+    let input = input();
 
     // enable mouse events to be captured.
     input.enable_mouse_mode().unwrap();
@@ -128,5 +128,5 @@ fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
     // read_synchronously();
-     read_asynchronously();
+    //     read_asynchronously();
 }

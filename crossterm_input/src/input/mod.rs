@@ -3,19 +3,19 @@
 
 mod input;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 mod unix_input;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod windows_input;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 pub use self::unix_input::SyncReader;
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 use self::unix_input::UnixInput;
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 pub use self::windows_input::SyncReader;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::windows_input::WindowsInput;
 
 use self::input::parse_event;

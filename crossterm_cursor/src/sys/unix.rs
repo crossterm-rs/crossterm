@@ -12,7 +12,7 @@ pub fn get_cursor_position() -> (u16, u16) {
 }
 
 pub fn pos() -> io::Result<(u16, u16)> {
-    // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in applicaition.
+    // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in application.
     // I am not completely happy with this approach so feel free to find an other way.
 
     unsafe {
