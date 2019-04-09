@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, Screen};
+use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent};
 use std::{thread, time::Duration};
 
 fn process_input_event(key_event: InputEvent) -> bool {

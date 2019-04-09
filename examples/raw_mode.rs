@@ -14,11 +14,11 @@ fn print_wait_screen() {
 
     cursor.hide();
     cursor.goto(0, 0);
-    screen.write(b"Welcome to the wait screen.");
+    println!("Welcome to the wait screen.");
     cursor.goto(0, 1);
-    screen.write(b"Please wait a few seconds until we arrive back at the main screen.");
+    println!("Please wait a few seconds until we arrive back at the main screen.");
     cursor.goto(0, 2);
-    screen.write(b"Progress:");
+    println!("Progress:");
     cursor.goto(0, 3);
 
     // print some progress example.
@@ -32,7 +32,7 @@ fn print_wait_screen() {
                 .on(Color::Blue)
         );
 
-        screen.stdout.flush();
+        stdout().flush();
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));

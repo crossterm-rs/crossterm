@@ -283,7 +283,7 @@ let mut input = input();
 _Read input events synchronously or asynchronously._
 ```rust
 // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-let screen = Screen::new(true);
+let screen = RawScreen::into_raw_mode();
     
 let mut input = input();
 
