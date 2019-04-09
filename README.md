@@ -1,5 +1,5 @@
 # Crossterm | cross-platform terminal manipulating library.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
@@ -12,6 +12,9 @@
 
 [s3]: https://docs.rs/crossterm/badge.svg
 [l3]: https://docs.rs/crossterm/
+
+[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
+[l5]: https://discord.gg/K4nyTDB.
 
 [s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
@@ -50,7 +53,7 @@ This crate is exists out of five modules who are behind [feature flags](http://a
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.8` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.9` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 

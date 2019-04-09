@@ -2,7 +2,7 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::{io, str, Iterator};
+use std::{io, str};
 
 /// Allows you to read user input.
 ///

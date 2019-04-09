@@ -1,5 +1,3 @@
-use std::io::{self, Write};
-
 #[cfg(windows)]
 use crate::sys::winapi::ansi::set_virtual_terminal_processing;
 

@@ -3,8 +3,6 @@
 
 mod alternate;
 mod raw;
-mod screen;
 
 pub use self::alternate::AlternateScreen;
-pub use self::raw::RawScreen;
-pub use self::screen::Screen;
+pub use self::raw::{IntoRawMode, RawScreen};

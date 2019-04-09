@@ -20,7 +20,7 @@ pub use self::crossterm_input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
-pub use self::crossterm_screen::{AlternateScreen, Screen};
+pub use self::crossterm_screen::{AlternateScreen, IntoRawMode, RawScreen};
 #[cfg(feature = "style")]
 pub use self::crossterm_style::{
     color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler,

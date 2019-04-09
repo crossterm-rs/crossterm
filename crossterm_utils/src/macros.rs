@@ -1,5 +1,3 @@
-use std::io::Write;
-
 /// Append a the first few characters of an ANSI escape code to the given string.
 #[macro_export]
 macro_rules! csi {

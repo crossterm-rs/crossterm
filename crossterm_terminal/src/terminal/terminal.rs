@@ -123,11 +123,10 @@ impl Terminal {
     ///
     /// let size = term.write("Some text \n Some text on new line");
     /// ```
+    ///
+    /// This will also flush the standard output.
     pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
-        use std::fmt::Write;
-        let mut string = String::new();
-        write!(string, "{}", value)?;
-        write_cout!(string)?;
+        write_cout!(value)?;
         Ok(0)
     }
 }

@@ -12,7 +12,7 @@ use crossterm_utils::supports_ansi;
 
 use crate::sys::{self, IAlternateScreenCommand};
 
-use super::{RawScreen, Screen};
+use super::RawScreen;
 use std::convert::From;
 use std::io;
 
@@ -25,8 +25,7 @@ pub struct AlternateScreen {
     command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
     #[cfg(unix)]
     command: sys::ToAlternateScreenCommand,
-
-    pub screen: Screen,
+    raw_screen: Option<RawScreen>
 }
 
 impl AlternateScreen {
@@ -39,9 +38,9 @@ impl AlternateScreen {
     /// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
-    pub fn to_alternate_screen(raw_mode: bool) -> io::Result<AlternateScreen> {
+    pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
-        let command = if supports_ansi() {
+            let command = if supports_ansi() {
             Box::from(ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         } else {
@@ -50,21 +49,20 @@ impl AlternateScreen {
         };
 
         #[cfg(unix)]
-        let command = sys::ToAlternateScreenCommand::new();
+            let command = sys::ToAlternateScreenCommand::new();
 
         command.enable()?;
 
-        let screen = Screen::new(raw_mode);
-
         if raw_mode {
-            RawScreen::into_raw_mode()?;
+            let raw_screen = RawScreen::into_raw_mode()?;
+            return Ok(AlternateScreen { command, raw_screen: Some(raw_screen) })
         }
 
-        Ok(AlternateScreen { command, screen })
+        Ok(AlternateScreen { command, raw_screen: None })
     }
 
     /// Switch the alternate screen back to main screen.
-    pub fn to_main_screen(&self) -> io::Result<()> {
+    pub fn to_main(&self) -> io::Result<()> {
         self.command.disable()?;
         Ok(())
     }
@@ -73,6 +71,6 @@ impl AlternateScreen {
 impl Drop for AlternateScreen {
     /// This will switch back to main screen on drop.
     fn drop(&mut self) {
-        self.to_main_screen().unwrap();
+        self.to_main().unwrap();
     }
 }
