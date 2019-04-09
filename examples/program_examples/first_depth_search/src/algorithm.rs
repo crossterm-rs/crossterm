@@ -3,36 +3,31 @@
 use super::map::Map;
 use super::variables::{Direction, Position};
 
-use crossterm::{Color, Crossterm, Screen};
+use crossterm::{Color, Crossterm};
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
-
-use std::io::Write;
 use std::{thread, time};
 
-pub struct FirstDepthSearch<'screen> {
+pub struct FirstDepthSearch {
     direction: Direction,
     map: Map,
     stack: Vec<Position>,
     root_pos: Position,
-    is_terminated: bool,
-    screen: &'screen Screen,
+    is_terminated: bool
 }
 
-impl<'screen> FirstDepthSearch<'screen> {
+impl FirstDepthSearch {
     pub fn new(
         map: Map,
         start_pos: Position,
-        crossterm: &'screen Screen,
-    ) -> FirstDepthSearch<'screen> {
+    ) -> FirstDepthSearch {
         FirstDepthSearch {
             direction: Direction::Up,
             map,
             stack: Vec::new(),
             root_pos: start_pos,
-            is_terminated: false,
-            screen: crossterm,
+            is_terminated: false
         }
     }
 
@@ -43,7 +38,7 @@ impl<'screen> FirstDepthSearch<'screen> {
         self.stack.push(self.root_pos);
 
         let crossterm = Crossterm::new();
-        let mut cursor = crossterm.cursor();
+        let cursor = crossterm.cursor();
         cursor.hide();
 
         // loop until there are now items left in the stack.

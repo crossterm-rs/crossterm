@@ -1,9 +1,9 @@
 extern crate crossterm;
 
-use crossterm::{Color, Crossterm, Screen};
+use crossterm::{Color, Crossterm};
 
 /// use the `Crossterm` to get an instance to the cursor module | demonstration.
-pub fn crossterm() {
+pub fn main() {
     // Create the crossterm type to access different modules.
     let crossterm = Crossterm::new();
 
@@ -19,3 +19,4 @@ pub fn crossterm() {
 
     // TODO: perform some actions with the instances above.
 }
+

@@ -1,5 +1,5 @@
 use super::variables::{Cell, Position, Size};
-use crossterm::{cursor, Color, Crossterm, Screen};
+use crossterm::{cursor, Color, Crossterm};
 
 pub struct Map {
     pub map: Vec<Vec<Cell>>,
@@ -42,7 +42,7 @@ impl Map {
     }
 
     // render the map on the screen.
-    pub fn render_map(&mut self, screen: &Screen) {
+    pub fn render_map(&mut self) {
         let crossterm = Crossterm::new();
 
         for row in self.map.iter_mut() {

@@ -6,12 +6,9 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, Screen};
-
-use self::messages::WELCOME_MESSAGE;
+use self::crossterm::{ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, AlternateScreen};
 use self::variables::{Position, Size};
 
-use std::io::Read;
 use std::iter::Iterator;
 use std::{thread, time};
 
@@ -23,32 +20,28 @@ fn main() {
 pub fn run() {
     print_welcome_screen();
 
-    // This is represents the current screen.
-    let mut screen = Screen::new(true);
-    start_algorithm(&screen);
+    start_algorithm();
 }
 
-fn start_algorithm(screen: &Screen) {
+fn start_algorithm() {
     // we first want to switch to alternate screen. On the alternate screen we are going to run or firstdepthsearch algorithm
-    if let Ok(ref alternate_screen) = screen.enable_alternate_modes(true) {
+    if let Ok(ref alternate_screen) = AlternateScreen::to_alternate(true) {
         // setup the map size and the position to start searching for a path.
         let map_size = Size::new(50, 40);
         let start_pos = Position::new(10, 10);
 
         // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
         let mut map = map::Map::new(map_size, '█', ' ');
-        map.render_map(&alternate_screen.screen);
+        map.render_map();
 
         // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
         let mut algorithm =
-            algorithm::FirstDepthSearch::new(map, start_pos, &alternate_screen.screen);
+            algorithm::FirstDepthSearch::new(map, start_pos);
         algorithm.start();
     }
 }
 
 fn print_welcome_screen() {
-    let mut screen = Screen::new(true);
-
     let crossterm = Crossterm::new();
 
     // create the handle for the cursor and terminal.
@@ -82,7 +75,6 @@ fn print_welcome_screen() {
     // print some progress example.
     for i in (1..5).rev() {
         if let Some(InputEvent::Keyboard(KeyEvent::Char('q'))) = stdin.next() {
-            drop(screen);
             terminal.exit();
             break;
         } else {

@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::{Color, ObjectStyle, StyledObject};
+use self::crossterm::Color;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Direction {
