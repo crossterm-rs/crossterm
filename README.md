@@ -59,7 +59,7 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.8"
+crossterm = "0.9"
 ```
 
 ### Useful Links
@@ -74,35 +74,33 @@ crossterm = "0.8"
 These are the features from this crate:
 
 - Cross-platform
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item
-- Very few dependenties.
-- Cursor.
-    - Moving _n_ times Up, Down, Left, Right
-    - Goto a certain position
-    - Get cursor position
-    - Storing the current cursor position and resetting to that stored cursor position later
-    - Hiding an showing the cursor
-    - Control over blinking of the terminal cursor (only some terminals are supporting this)
+- Multithreaded (send, sync)
+- Detailed Documentation
+- Few Dependencies
+- Cursor
+    - Moving _n_ times (up, down, left, right)
+    - Position (set/get)
+    - Store cursor position and resetting to that later
+    - Hiding/Showing
+    - Blinking Cursor (only some terminals are supporting this)
 - Styled output
-    - Foreground color (16 base colors)
-    - Background color (16 base colors)
-    - 256 color support (Windows 10 and UNIX only)
-    - RGB support (Windows 10 and UNIX only)
-    - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
+    - Foreground Color (16 base colors)
+    - Background Color (16 base colors)
+    - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
+    - RGB Color Support (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](http://atcentra.com/crossterm/styling.html#attributes) (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
-    - Scrolling (Up, down)
-    - Get the size of the terminal
-    - Set the size of the terminal
-    - Alternate screen
-    - Raw screen   
-    - Exit the current process
+    - Scrolling (up, down)
+    - Terminal Size (get/set)
+    - Alternate Screen
+    - Raw Screen   
+    - Exit Current Process
 - Input
     - Read character
     - Read line
-    - Read key input events async / sync (ALT + Key, CTRL + Key, FN, Arrows, ESC, BackSpace, HOME, DELETE. INSERT, PAGEUP/DOWN, and more)
-    - Read mouse input events (Press, Release, Position, Button)
+    - Read key input events (async / sync)
+    - Read mouse input events (press, release, position, button)
 
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.

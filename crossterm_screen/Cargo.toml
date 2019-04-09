@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_screen"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["T. Post"]
 description = "A cross-platform library for raw and alternate screen."
 repository = "https://github.com/TimonPost/crossterm"

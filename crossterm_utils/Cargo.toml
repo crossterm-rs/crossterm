@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_utils"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Timon Post <timonpost@hotmail.nl>"]
 edition = "2018"
 
