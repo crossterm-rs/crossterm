@@ -30,7 +30,7 @@ members = [
     "crossterm_input",
     "crossterm_screen",
     "examples/program_examples/snake",
-        "examples/program_examples/first_depth_search"
+    "examples/program_examples/first_depth_search"
 ]
 
 [dependencies]

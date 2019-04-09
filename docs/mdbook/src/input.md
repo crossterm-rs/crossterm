@@ -39,15 +39,13 @@ Next, we need to put the terminal into raw mode. We do this because we don't wan
 
 ```rust
 // enable raw modes by passing in 'true'
-let screen = Screen::new(true);
+let screen = RawScreen::into_raw_mode();
 
 // create a input from our screen.
-let input = TerminalInput::from_output(&screen.stdout);
+let input = TerminalInput::new();
 
 /* next code here */
 ```
-
-Take note that we need to use our `Screen` to create a `TerminalInput` instance, check [this](screen.md#important-notice) out for more information about why that is.
 
 Now that we have constructed a `TerminalInput` instance we can go ahead an start the reading. 
 Do this by calling `input.read_async()`, which returns an [AsyncReader](https://docs.rs/crossterm/0.7.0/crossterm/struct.AsyncReader.html).

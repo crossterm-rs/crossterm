@@ -12,6 +12,7 @@ This release is all about moving to a stabilized API for 1.0.
 - Upgraded deps.
 - Removed about 1000 lines of code
     - `TerminalOutput` 
+    - `Screen`
     - unsafe code
     - Some duplicated code introduced by a previous refactor.
 - Raw modes UNIX systems improved     
