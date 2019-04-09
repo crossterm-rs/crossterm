@@ -87,6 +87,5 @@ pub fn blink_cursor() {
 }
 
 fn main() {
-    goto();
-    pos();
+    save_and_reset_position();
 }

@@ -31,7 +31,7 @@ impl RawScreen {
         #[cfg(windows)]
         let mut command = sys::winapi::RawModeCommand::new();
 
-        let _result = command.enable();
+        command.enable()?;
 
         Ok(RawScreen)
     }

@@ -6,7 +6,7 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, AlternateScreen};
+use self::crossterm::{color, cursor, terminal, input, ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, AlternateScreen, RawScreen};
 use self::variables::{Position, Size};
 
 use std::iter::Iterator;
@@ -18,9 +18,10 @@ fn main() {
 
 /// run the program
 pub fn run() {
+//    let screen = RawScreen::into_raw_mode().expect("failed to enable raw modes");
     print_welcome_screen();
-
     start_algorithm();
+    exit();
 }
 
 fn start_algorithm() {
@@ -45,9 +46,9 @@ fn print_welcome_screen() {
     let crossterm = Crossterm::new();
 
     // create the handle for the cursor and terminal.
-    let terminal = crossterm.terminal();
-    let cursor = crossterm.cursor();
-    let input = crossterm.input();
+    let terminal = terminal();
+    let cursor = cursor();
+    let input = input();
 
     // set size of terminal so the map we are going to draw is fitting the screen.
     terminal.set_size(110, 60);
@@ -75,6 +76,7 @@ fn print_welcome_screen() {
     // print some progress example.
     for i in (1..5).rev() {
         if let Some(InputEvent::Keyboard(KeyEvent::Char('q'))) = stdin.next() {
+            exit();
             terminal.exit();
             break;
         } else {
@@ -88,7 +90,15 @@ fn print_welcome_screen() {
             );
         }
 
+        color().reset();
+
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
     }
+}
+
+fn exit() {
+    RawScreen::disable_raw_mode().expect("failed to disable raw modes.");
+    cursor().show();
+    color().reset();
 }

@@ -17,8 +17,8 @@ pub struct ObjectStyle {
 impl Default for ObjectStyle {
     fn default() -> ObjectStyle {
         ObjectStyle {
-            fg_color: Some(Color::White),
-            bg_color: Some(Color::Black),
+            fg_color: None,
+            bg_color: None,
             attrs: Vec::new(),
         }
     }

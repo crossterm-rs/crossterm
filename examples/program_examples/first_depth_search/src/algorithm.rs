@@ -2,8 +2,8 @@
 
 use super::map::Map;
 use super::variables::{Direction, Position};
-
-use crossterm::{Color, Crossterm};
+use std::io::{Write, stdout};
+use crossterm::{Color, Crossterm, Colorize, Colored};
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
@@ -41,6 +41,9 @@ impl FirstDepthSearch {
         let cursor = crossterm.cursor();
         cursor.hide();
 
+        write!(::std::io::stdout(), "{}{}", Colored::Fg(Color::Green), Colored::Bg(Color::Black));
+        ::std::io::stdout().flush();
+
         // loop until there are now items left in the stack.
         loop {
             if self.stack.len() == 0 {
@@ -61,7 +64,9 @@ impl FirstDepthSearch {
             let y = pos.y as u16;
 
             cursor.goto(x, y);
-            print!("{}", crossterm.style(" ").on(Color::Blue));
+            write!(stdout(),"{}", " ".on_yellow());
+            stdout().flush();
+
             thread::sleep(time::Duration::from_millis(1));
         }
     }

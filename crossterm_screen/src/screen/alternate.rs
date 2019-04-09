@@ -49,7 +49,7 @@ impl AlternateScreen {
         };
 
         #[cfg(unix)]
-            let command = sys::ToAlternateScreenCommand::new();
+        let command = sys::ToAlternateScreenCommand::new();
 
         command.enable()?;
 

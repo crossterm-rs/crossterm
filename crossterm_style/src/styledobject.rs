@@ -53,7 +53,7 @@ impl<'a, D: Display + 'a> StyledObject<D> {
 impl<D: Display> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
         let colored_terminal = color();
-        let mut reset = true;
+        let mut reset = false;
 
         if let Some(bg) = self.object_style.bg_color {
             colored_terminal.set_bg(bg).unwrap();

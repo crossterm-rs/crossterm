@@ -1,5 +1,6 @@
 use super::variables::{Cell, Position, Size};
 use crossterm::{cursor, Color, Crossterm};
+use std::io::{Write, stdout};
 
 pub struct Map {
     pub map: Vec<Vec<Cell>>,
@@ -52,7 +53,8 @@ impl Map {
                     || (column.position.x == 0 || column.position.x == self.size.width - 1)
                 {
                     cursor().goto(column.position.x as u16, column.position.y as u16);
-                    print!("{}", crossterm.style(column.look).on(column.color));
+                    write!(stdout(), "{}", crossterm.style(column.look).on(column.color));
+                    stdout().flush();
                 }
             }
         }
