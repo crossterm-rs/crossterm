@@ -1,6 +1,6 @@
 use super::variables::{Position, Size};
 
-use crossterm::{style, Color, Colorize, Crossterm, Screen, TerminalCursor};
+use crossterm::{Colorize, cursor, TerminalCursor};
 
 use rand::distributions::{IndependentSample, Range};
 
@@ -22,15 +22,11 @@ impl Map {
     }
 
     // render the map on the screen.
-    pub fn render_map(&mut self, screen: &Screen, free_positions: &mut HashMap<String, Position>) {
-        let crossterm = Crossterm::new();
-        let cursor = crossterm.cursor();
-        let terminal = crossterm.terminal();
-
+    pub fn render_map(&mut self, free_positions: &mut HashMap<String, Position>) {
         for y in 0..self.size.height {
             for x in 0..self.size.height {
                 if (y == 0 || y == self.size.height - 1) || (x == 0 || x == self.size.width - 1) {
-                    cursor.goto(x as u16, y as u16);
+                    cursor().goto(x as u16, y as u16);
                     print!("{}", "█".magenta());
                 } else {
                     free_positions.insert(format!("{},{}", x, y), Position::new(x, y));
@@ -53,13 +49,13 @@ impl Map {
         snake_head.x == self.foot_pos.x && snake_head.y == self.foot_pos.y
     }
 
-    pub fn spawn_food(&mut self, free_positions: &HashMap<String, Position>, screen: &Screen) {
+    pub fn spawn_food(&mut self, free_positions: &HashMap<String, Position>) {
         let index = Range::new(0, free_positions.len()).ind_sample(&mut rand::thread_rng());
         self.foot_pos = free_positions.values().skip(index).next().unwrap().clone();
-        self.draw_food(screen);
+        self.draw_food();
     }
 
-    fn draw_food(&self, screen: &Screen) {
+    fn draw_food(&self) {
         let cursor = TerminalCursor::new();
         cursor.goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
         print!("{}", "$".green());

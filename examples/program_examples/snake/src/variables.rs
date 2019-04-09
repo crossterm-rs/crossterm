@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use self::crossterm::{style, Color, Crossterm, Screen, TerminalCursor};
+use self::crossterm::{style, Color, Crossterm, TerminalCursor};
 use std::io::stdout;
 use std::io::Write;
 
@@ -23,7 +23,7 @@ impl Position {
         Position { x, y }
     }
 
-    pub fn draw(&self, val: &str, screen: &Screen) {
+    pub fn draw(&self, val: &str) {
         let cursor = TerminalCursor::new();
         cursor.goto(self.x as u16, self.y as u16);
 
@@ -31,7 +31,7 @@ impl Position {
         stdout().flush();
     }
 
-    pub fn remove(&self, screen: &Screen) {
+    pub fn remove(&self) {
         let crossterm = Crossterm::new();
 
         crossterm.cursor().goto(self.x as u16, self.y as u16);

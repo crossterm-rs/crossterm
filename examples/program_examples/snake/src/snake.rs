@@ -1,5 +1,5 @@
-use super::variables::{Direction, Position, Size};
-use crossterm::{Crossterm, Screen};
+use super::variables::{Direction, Position};
+use crossterm::Crossterm;
 
 use std::collections::HashMap;
 
@@ -31,18 +31,13 @@ impl Snake {
     pub fn move_snake(
         &mut self,
         direction: &Direction,
-        screen: &Screen,
         free_positions: &mut HashMap<String, Position>,
     ) {
-        let crossterm = Crossterm::new();
-        let cursor = crossterm.cursor();
-        let terminal = crossterm.terminal();
-
         let count = self.snake_parts.len();
 
         for (index, ref mut snake_part) in self.snake_parts.iter_mut().enumerate() {
             if index == count - 1 {
-                snake_part.position.remove(screen);
+                snake_part.position.remove();
                 free_positions.insert(
                     format!("{},{}", snake_part.position.x, snake_part.position.y),
                     snake_part.position,
@@ -70,9 +65,9 @@ impl Snake {
         }
     }
 
-    pub fn draw_snake(&mut self, screen: &Screen) {
+    pub fn draw_snake(&mut self) {
         for snake_part in self.snake_parts.iter_mut() {
-            snake_part.position.draw("■", screen);
+            snake_part.position.draw("■");
         }
     }
 

@@ -7,7 +7,7 @@ mod snake;
 mod variables;
 
 use self::crossterm::{
-    AsyncReader, ClearType, Color, Colorize, Crossterm, InputEvent, KeyEvent, Screen,
+    AsyncReader, ClearType, Color, Colorize, Crossterm, InputEvent, KeyEvent, RawScreen,
 };
 
 use map::Map;
@@ -15,7 +15,6 @@ use snake::Snake;
 use variables::{Direction, Position, Size};
 
 use std::collections::HashMap;
-use std::io::Write;
 use std::iter::Iterator;
 use std::{thread, time};
 
@@ -23,7 +22,7 @@ fn main() {
     let map_size = ask_size();
 
     // screen has to be in raw mode in order for the key presses not to be printed to the screen.
-    let screen = Screen::new(true);
+    let raw = RawScreen::into_raw_mode();
     let crossterm = Crossterm::new();
 
     crossterm.cursor().hide();
@@ -34,7 +33,7 @@ fn main() {
 
     // render the map
     let mut map = Map::new(map_size);
-    map.render_map(&screen, &mut free_positions);
+    map.render_map(&mut free_positions);
 
     let mut snake = Snake::new();
 
@@ -43,7 +42,7 @@ fn main() {
         free_positions.remove_entry(format!("{},{}", part.position.x, part.position.y).as_str());
     }
 
-    map.spawn_food(&free_positions, &screen);
+    map.spawn_food(&free_positions);
 
     let mut stdin = crossterm.input().read_async();
     let mut snake_direction = Direction::Right;
@@ -54,16 +53,16 @@ fn main() {
             snake_direction = new_direction;
         }
 
-        snake.move_snake(&snake_direction, &screen, &mut free_positions);
+        snake.move_snake(&snake_direction, &mut free_positions);
 
         if map.is_out_of_bounds(snake.snake_parts[0].position) {
             break;
         }
 
-        snake.draw_snake(&screen);
+        snake.draw_snake();
 
         if snake.has_eaten_food(map.foot_pos) {
-            map.spawn_food(&free_positions, &screen);
+            map.spawn_food(&free_positions);
         }
 
         thread::sleep(time::Duration::from_millis(400));
