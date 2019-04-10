@@ -2,26 +2,26 @@
 
 use super::*;
 
-use crossterm_utils::TerminalOutput;
 use crossterm_winapi::{
     ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
     MouseEvent,
 };
-use winapi::um::wincon::{
-    LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
-};
-use winapi::um::winnt::INT;
-use winapi::um::winuser::{
-    VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
-    VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT, VK_MENU,
-    VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
-};
 
-use std::thread;
-use std::{char, io};
+use winapi::um::{
+    wincon::{
+        LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
+    },
+    winnt::INT,
+    winuser::{
+        VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
+        VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT,
+        VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
+    },
+};
 
 use std::sync::atomic::Ordering;
 use std::time::Duration;
+use std::{char, io, thread};
 
 pub struct WindowsInput;
 
@@ -37,20 +37,9 @@ const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 static mut ORIG_MODE: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
-    fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char> {
-        let is_raw_screen = match stdout {
-            Some(output) => output.is_in_raw_mode,
-            None => false,
-        };
-
+    fn read_char(&self) -> io::Result<char> {
         // _getwch is without echo and _getwche is with echo
-        let pressed_char = unsafe {
-            if is_raw_screen {
-                _getwch()
-            } else {
-                _getwche()
-            }
-        };
+        let pressed_char = unsafe { _getwche() };
 
         // we could return error but maybe option to keep listening until valid character is inputted.
         if pressed_char == 0 || pressed_char == 0xe0 {
@@ -87,10 +76,6 @@ impl ITerminalInput for WindowsInput {
         }))
     }
 
-    fn read_sync(&self) -> SyncReader {
-        SyncReader {}
-    }
-
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
         AsyncReader::new(Box::new(move |event_tx, cancellation_token| loop {
             for i in into_virtual_terminal_sequence().unwrap().1 {
@@ -107,7 +92,11 @@ impl ITerminalInput for WindowsInput {
         }))
     }
 
-    fn enable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn read_sync(&self) -> SyncReader {
+        SyncReader
+    }
+
+    fn enable_mouse_mode(&self) -> Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
 
         unsafe {
@@ -117,9 +106,10 @@ impl ITerminalInput for WindowsInput {
         Ok(())
     }
 
-    fn disable_mouse_mode(&self, __stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()> {
+    fn disable_mouse_mode(&self) -> Result<()> {
         let mode = ConsoleMode::from(Handle::current_in_handle()?);
-        mode.set_mode(unsafe { ORIG_MODE })
+        mode.set_mode(unsafe { ORIG_MODE })?;
+        Ok(())
     }
 }
 

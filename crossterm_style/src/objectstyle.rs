@@ -11,15 +11,14 @@ use super::Attribute;
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,
-
     pub attrs: Vec<Attribute>,
 }
 
 impl Default for ObjectStyle {
     fn default() -> ObjectStyle {
         ObjectStyle {
-            fg_color: Some(Color::White),
-            bg_color: Some(Color::Black),
+            fg_color: None,
+            bg_color: None,
             attrs: Vec::new(),
         }
     }

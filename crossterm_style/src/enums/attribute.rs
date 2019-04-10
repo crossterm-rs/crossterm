@@ -84,6 +84,12 @@ pub enum Attribute {
     /// - Opposite of `Bold`(1)
     /// [Supportability]: not widely supported
     NoBold = 21,
+    /// This will turn off the italic attribute.
+    /// [info]:
+    /// - Not italic, not Fraktur
+    /// - Opposite of `Italic`(3)
+    /// [Supportability]: Windows, UNIX
+    NoItalic = 23,
     /// This will turn off the underline attribute.
     /// [info]:
     /// - Not singly or doubly underlined will be turned off.
@@ -137,7 +143,7 @@ pub enum Attribute {
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", format!(csi!("{}m"), *self as i16))?;
-        stdout().flush();
+        stdout().flush().unwrap();
         Ok(())
     }
 }

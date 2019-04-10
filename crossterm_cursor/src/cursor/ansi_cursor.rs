@@ -4,22 +4,22 @@
 
 use super::ITerminalCursor;
 use crate::sys::get_cursor_position;
+use std::io::Write;
 
-use crossterm_utils::{write, write_str, Result, TerminalOutput};
-use std::sync::Arc;
+use crossterm_utils::Result;
 
 /// This struct is an ANSI implementation for cursor related actions.
-pub struct AnsiCursor {}
+pub struct AnsiCursor;
 
 impl AnsiCursor {
-    pub fn new() -> Box<AnsiCursor> {
-        Box::from(AnsiCursor {})
+    pub fn new() -> AnsiCursor {
+        AnsiCursor
     }
 }
 
 impl ITerminalCursor for AnsiCursor {
-    fn goto(&self, x: u16, y: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(stdout, format!(csi!("{};{}H"), y + 1, x + 1))?;
+    fn goto(&self, x: u16, y: u16) -> Result<()> {
+        write_cout!(format!(csi!("{};{}H"), y + 1, x + 1))?;
         Ok(())
     }
 
@@ -27,51 +27,51 @@ impl ITerminalCursor for AnsiCursor {
         get_cursor_position()
     }
 
-    fn move_up(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(stdout, format!(csi!("{}A"), count))?;
+    fn move_up(&self, count: u16) -> Result<()> {
+        write_cout!(&format!(csi!("{}A"), count))?;
         Ok(())
     }
 
-    fn move_right(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(stdout, format!(csi!("{}C"), count))?;
+    fn move_right(&self, count: u16) -> Result<()> {
+        write_cout!(&format!(csi!("{}C"), count))?;
         Ok(())
     }
 
-    fn move_down(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(stdout, format!(csi!("{}B"), count))?;
+    fn move_down(&self, count: u16) -> Result<()> {
+        write_cout!(&format!(csi!("{}B"), count))?;
         Ok(())
     }
 
-    fn move_left(&self, count: u16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(stdout, format!(csi!("{}D"), count))?;
+    fn move_left(&self, count: u16) -> Result<()> {
+        write_cout!(&format!(csi!("{}D"), count))?;
         Ok(())
     }
 
-    fn save_position(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_str(stdout, csi!("s"))?;
+    fn save_position(&self) -> Result<()> {
+        write_cout!(csi!("s"))?;
         Ok(())
     }
 
-    fn reset_position(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_str(stdout, csi!("u"))?;
+    fn reset_position(&self) -> Result<()> {
+        write_cout!(csi!("u"))?;
         Ok(())
     }
 
-    fn hide(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_str(stdout, csi!("?25l"))?;
+    fn hide(&self) -> Result<()> {
+        write_cout!(csi!("?25l"))?;
         Ok(())
     }
 
-    fn show(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write_str(stdout, csi!("?25h"))?;
+    fn show(&self) -> Result<()> {
+        write_cout!(csi!("?25h"))?;
         Ok(())
     }
 
-    fn blink(&self, blink: bool, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn blink(&self, blink: bool) -> Result<()> {
         if blink {
-            write_str(stdout, csi!("?12h"))?;
+            write_cout!(csi!("?12h"))?;
         } else {
-            write_str(stdout, csi!("?12l"))?;
+            write_cout!(csi!("?12l"))?;
         }
         Ok(())
     }

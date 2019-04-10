@@ -1,5 +1,5 @@
 # Crossterm Cursor | cross-platform cursor movement.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm_cursor.svg
 [l1]: https://crates.io/crates/crossterm_cursor
@@ -10,8 +10,8 @@
 [s3]: https://docs.rs/crossterm_cursor/badge.svg
 [l3]: https://docs.rs/crossterm_cursor/
 
-[s3]: https://docs.rs/crossterm_cursor/badge.svg
-[l3]: https://docs.rs/crossterm_cursor/
+[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
+[l5]: https://discord.gg/K4nyTDB.
 
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
@@ -34,23 +34,20 @@ When you want to use other modules as well you might want to use crossterm with 
 - [Features](#features)
 - [Examples](#examples)
 - [Tested Terminals](#tested-terminals)
-- [Notice](#notice)
-- [Contributing](#contributing)
 - [Authors](#authors)
 - [License](#license)
 
 ## Getting Started
 
-This documentation is only for `crossterm_cursor` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_cursor` version `0.2`. Also, check out the [examples](examples/cursor.rs) folders with detailed examples for all functionality of this crate.
 
 Add the `crossterm_cursor` package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-`crossterm_cursor` = "0.1"
-
+crossterm_cursor = "0.2"
 ```
-And import the crossterm_input modules you want to use.
+Import the `crossterm_cursor` modules you want to use.
 
 ```rust  
 extern crate crossterm_cursor;
@@ -68,19 +65,18 @@ pub use crossterm_cursor::{cursor, TerminalCursor};
 These are the features of this crate:
 
 - Cross-platform
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item
-- Very few dependenties.
-- Cursor.
-    - Moving _n_ times Up, Down, Left, Right
-    - Goto a certain position
-    - Get cursor position
-    - Storing the current cursor position and resetting to that stored cursor position later
-    - Hiding an showing the cursor
-    - Control over blinking of the terminal cursor (only some terminals are supporting this)
+- Multithreaded (send, sync)
+- Detailed Documentation
+- Few Dependencies
+- Cursor
+    - Moving _n_ times (up, down, left, right)
+    - Position (set/get)
+    - Store cursor position and resetting to that later
+    - Hiding/Showing
+    - Blinking Cursor (only some terminals are supporting this)
 
 ## Examples 
-Check out the [examples](/examples/) for more information about how to use this crate.
+The [examples](./examples) folder has more complete and verbose examples.
 
 ```rust 
 use crossterm_cursor::cursor;
@@ -134,21 +130,9 @@ cursor.blink(true)
 This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
-## Notice 
-
-This library is average stable now, I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
-
-## Contributing
-
-I highly appreciate it when you are contributing to this crate. 
-Also Since my native language is not English my grammar and sentence order will not be perfect. 
-So improving this by correcting these mistakes will help both me and the reader of the docs.
-
 ## Authors
 
 * **Timon Post** - *Project Owner & creator*
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details

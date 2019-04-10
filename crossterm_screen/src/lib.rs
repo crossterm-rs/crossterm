@@ -12,4 +12,4 @@ extern crate crossterm_winapi;
 mod screen;
 mod sys;
 
-pub use self::screen::{AlternateScreen, RawScreen, Screen};
+pub use self::screen::{AlternateScreen, IntoRawMode, RawScreen};

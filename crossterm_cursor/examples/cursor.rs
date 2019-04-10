@@ -4,7 +4,7 @@
 
 extern crate crossterm_cursor;
 
-use crossterm_cursor::{cursor, TerminalCursor};
+use crossterm_cursor::cursor;
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() {
@@ -48,7 +48,7 @@ pub fn move_down() {
 }
 
 /// Save and reset cursor position | demonstration..
-pub fn safe_and_reset_position() {
+pub fn save_and_reset_position() {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5

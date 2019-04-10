@@ -1,3 +1,86 @@
+## Upgrade crossterm to 0.9.0
+This release is all about moving to a stabilized API for 1.0. It has a lot of changes to the API however it has become much better. 
+
+### Removed functions
+First you don't have to pass any screens or output's to the crossterm API. This makes the API much more easier to use.
+
+_**old**_
+
+_"Use this function when you want your terminal to operate with a specific output. 
+This could be useful when you have a screen which is in 'alternate mode', and you want your actions from the TerminalCursor, created by this function, to operate on the 'alternate screen'."_
+
+ Because crosstrem does not have to keep track of the output and you don't have to pass an `TerminalOutput` anymore those functions are removed.
+```rust
+use crossterm::{Screen, Terminal, TerminalCursor, TerminalColor, TerminalInput, Crossterm};
+let screen = Screen::new(false);
+Terminal::from_output(&screen.stdout);
+TerminalCursor::from_output(&screen.stdout);
+TerminalColor::from_output(&screen.stdout);
+TerminalInput::from_output(&screen.stdout);
+Crossterm::from_screen(&screen.stdout);
+```
+
+_**new**_
+```rust
+Terminal::new();
+TerminalCursor::new();
+TerminalColor::new();
+TerminalInput::new();
+Crossterm::new();
+```
+
+_"This could be used to paint the styled object onto the given screen. You have to pass a reference to the screen whereon you want to perform the painting"_
+ Because crosstrem does not have to keep track of the output anymore those functions are removed.
+ 
+_**old**_
+```rust
+use crossterm::{Crossterm, Screen, style};
+let screen = Screen::new(false);
+
+style("Some colored text")
+    .with(Color::Blue)
+    .on(Color::Black)
+    .paint(&screen);
+    
+let crossterm = Crossterm::new();
+crossterm.style("Some colored text")
+    .with(Color::Blue)
+    .on(Color::Black)
+    .paint(&screen);
+```
+
+_**new**_
+```rust
+print!("{}", "Some colored text".blue().on_black());
+```
+
+### Removed Types
+`Screen` was removed because it hadn't any purpose anymore.
+
+_**old**_
+use crossterm::Screen;
+```rust
+// create raw screen
+let screen = Screen::new(true);
+// create alternate raw screen
+let screen = Screen::new(true);
+let alternate = screen.enable_raw_modes(true);
+```
+_**new**_
+```rust
+use crossterm::{AlternateScreen, RawScreen, IntoRawModes};
+let raw_screen = RawScreen::into_raw_mode();
+let raw_screen = stdout().into_raw_mode();
+let alternate = AlternateScreen::to_alternate(true);
+```
+
+### Renamed Functions
+```rust 
+RawScreen::disable_raw_modes => RawScreen::disable_raw_mode
+AlternateScreen::to_alternate_screen => Alternate::to_alternate
+AlternateScreen::to_main_screen => Alternate::to_main
+```
+
 ## Upgrade crossterm to 0.8.0
 This update will cause problems with `read_async`. `read_async` first returned a type implementing `Read` it returns an `Iterator` of input events now. 
 See the examples for details on how this works. 

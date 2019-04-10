@@ -2,15 +2,15 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::{write, Result, TerminalOutput};
+use crossterm_utils::Result;
 
 #[cfg(windows)]
 use super::WinApiTerminal;
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 use std::fmt;
-use std::sync::Arc;
+use std::io::Write;
 
 /// Allows you to preform actions on the terminal.
 ///
@@ -25,67 +25,27 @@ use std::sync::Arc;
 /// - Exit the current process
 ///
 /// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to perform terminal actions on 'alternate screen' use the 'crossterm_screen' crate.
-pub struct Terminal<'stdout> {
-    terminal: Box<ITerminal + Sync + Send>,
-    stdout: Option<&'stdout Arc<TerminalOutput>>,
+pub struct Terminal {
+    #[cfg(windows)]
+    terminal: Box<(dyn ITerminal + Sync + Send)>,
+    #[cfg(unix)]
+    terminal: AnsiTerminal,
 }
 
-impl<'stdout> Terminal<'stdout> {
+impl Terminal {
     /// Create new terminal instance whereon terminal related actions can be performed.
-    pub fn new() -> Terminal<'stdout> {
-        #[cfg(target_os = "windows")]
-        let terminal = get_module::<Box<ITerminal + Sync + Send>>(
-            Box::new(WinApiTerminal::new()),
-            Box::new(AnsiTerminal::new()),
-        )
-        .unwrap();
+    pub fn new() -> Terminal {
+        #[cfg(windows)]
+        let terminal = if supports_ansi() {
+            Box::from(AnsiTerminal::new()) as Box<(dyn ITerminal + Sync + Send)>
+        } else {
+            WinApiTerminal::new() as Box<(dyn ITerminal + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
+        #[cfg(unix)]
+        let terminal = AnsiTerminal::new();
 
-        Terminal {
-            terminal,
-            stdout: None,
-        }
-    }
-
-    /// Create a new instance of `Terminal` whereon terminal related actions could be preformed on the given output.
-    ///
-    /// # Remarks
-    ///
-    /// Use this function when you want your terminal to operate with a specific output.
-    /// This could be useful when you have a screen which is in 'alternate mode',
-    /// and you want your actions from the `Terminal`, created by this function, to operate on the 'alternate screen'.
-    ///
-    /// You should checkout the 'crossterm_screen' crate for more information about this.
-    ///
-    /// # Example
-    /// ```
-    /// let screen = Screen::default();
-    //
-    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
-    ///    let terminal = Terminal::from_output(&alternate.screen.stdout);
-    /// }
-    /// ```
-    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> Terminal<'stdout> {
-        #[cfg(target_os = "windows")]
-        let terminal = get_module::<Box<ITerminal + Sync + Send>>(
-            Box::new(WinApiTerminal::new()),
-            Box::new(AnsiTerminal::new()),
-        )
-        .unwrap();
-
-        #[cfg(not(target_os = "windows"))]
-        let terminal = Box::from(AnsiTerminal::new()) as Box<ITerminal + Sync + Send>;
-
-        Terminal {
-            terminal,
-            stdout: Some(stdout),
-        }
+        Terminal { terminal }
     }
 
     /// Clear the current cursor by specifying the `ClearType`.
@@ -106,7 +66,7 @@ impl<'stdout> Terminal<'stdout> {
     /// term.clear(terminal::ClearType::UntilNewLine);
     /// ```
     pub fn clear(&self, clear_type: ClearType) -> Result<()> {
-        self.terminal.clear(clear_type, &self.stdout)
+        self.terminal.clear(clear_type)
     }
 
     /// Get the terminal size (x,y).
@@ -114,7 +74,7 @@ impl<'stdout> Terminal<'stdout> {
     /// # Remark
     /// This will return a tuple of (x: u16, y: u16)
     pub fn terminal_size(&self) -> (u16, u16) {
-        self.terminal.terminal_size(&self.stdout)
+        self.terminal.terminal_size()
     }
 
     /// Scroll `n` lines up in the current terminal.
@@ -122,7 +82,7 @@ impl<'stdout> Terminal<'stdout> {
     /// # Parameter
     /// - `count`: the number of rows should be shifted up.
     pub fn scroll_up(&self, count: i16) -> Result<()> {
-        self.terminal.scroll_up(count, &self.stdout)
+        self.terminal.scroll_up(count)
     }
 
     /// Scroll `n` lines down in the current terminal.
@@ -130,7 +90,7 @@ impl<'stdout> Terminal<'stdout> {
     /// # Parameter
     /// - `count`: the number of rows should be shifted down.
     pub fn scroll_down(&self, count: i16) -> Result<()> {
-        self.terminal.scroll_down(count, &self.stdout)
+        self.terminal.scroll_down(count)
     }
 
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
@@ -142,7 +102,7 @@ impl<'stdout> Terminal<'stdout> {
     /// let size = term.set_size(10,10);
     /// ```
     pub fn set_size(&self, width: i16, height: i16) -> Result<()> {
-        self.terminal.set_size(width, height, &self.stdout)
+        self.terminal.set_size(width, height)
     }
 
     /// Exit the current process.
@@ -163,16 +123,15 @@ impl<'stdout> Terminal<'stdout> {
     ///
     /// let size = term.write("Some text \n Some text on new line");
     /// ```
+    ///
+    /// This will also flush the standard output.
     pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
-        use std::fmt::Write;
-        let mut string = String::new();
-        write!(string, "{}", value)?;
-        let size = write(&self.stdout, string)?;
-        Ok(size)
+        write_cout!(value)?;
+        Ok(0)
     }
 }
 
 /// Get a `Terminal` instance whereon terminal related actions could performed.
-pub fn terminal<'stdout>() -> Terminal<'stdout> {
+pub fn terminal() -> Terminal {
     Terminal::new()
 }

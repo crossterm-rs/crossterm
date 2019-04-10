@@ -11,7 +11,7 @@ mod winapi_tests {
     fn goto_winapi() {
         let cursor = WinApiCursor::new();
 
-        cursor.goto(5, 5, &None);
+        cursor.goto(5, 5);
         let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
@@ -23,9 +23,9 @@ mod winapi_tests {
         let cursor = WinApiCursor::new();
         let (x, y) = cursor.pos();
 
-        cursor.save_position(&None);
-        cursor.goto(5, 5, &None);
-        cursor.reset_position(&None);
+        cursor.save_position();
+        cursor.goto(5, 5);
+        cursor.reset_position();
 
         let (x_saved, y_saved) = cursor.pos();
 
@@ -41,9 +41,9 @@ fn reset_safe_ansi() {
         let cursor = AnsiCursor::new();
         let (x, y) = cursor.pos();
 
-        cursor.save_position(&None);
-        cursor.goto(5, 5, &None);
-        cursor.reset_position(&None);
+        cursor.save_position();
+        cursor.goto(5, 5);
+        cursor.reset_position();
 
         let (x_saved, y_saved) = cursor.pos();
 
@@ -56,7 +56,7 @@ fn reset_safe_ansi() {
 fn goto_ansi() {
     if try_enable_ansi() {
         let cursor = AnsiCursor::new();
-        cursor.goto(5, 5, &None);
+        cursor.goto(5, 5);
         let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);

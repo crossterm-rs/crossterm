@@ -11,4 +11,4 @@ exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 
 [dependencies]
-winapi = { version =  "0.3.5", features = ["winbase","consoleapi","processenv", "handleapi"] }
+winapi = { version =  "0.3.7", features = ["winbase","consoleapi","processenv", "handleapi"] }

@@ -1,5 +1,5 @@
 # Crossterm | cross-platform terminal manipulating library.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
@@ -12,6 +12,9 @@
 
 [s3]: https://docs.rs/crossterm/badge.svg
 [l3]: https://docs.rs/crossterm/
+
+[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
+[l5]: https://discord.gg/K4nyTDB.
 
 [s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
@@ -50,13 +53,13 @@ This crate is exists out of five modules who are behind [feature flags](http://a
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.8` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.9` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.8"
+crossterm = "0.9"
 ```
 
 ### Useful Links
@@ -71,35 +74,33 @@ crossterm = "0.8"
 These are the features from this crate:
 
 - Cross-platform
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item
-- Very few dependenties.
-- Cursor.
-    - Moving _n_ times Up, Down, Left, Right
-    - Goto a certain position
-    - Get cursor position
-    - Storing the current cursor position and resetting to that stored cursor position later
-    - Hiding an showing the cursor
-    - Control over blinking of the terminal cursor (only some terminals are supporting this)
+- Multithreaded (send, sync)
+- Detailed Documentation
+- Few Dependencies
+- Cursor
+    - Moving _n_ times (up, down, left, right)
+    - Position (set/get)
+    - Store cursor position and resetting to that later
+    - Hiding/Showing
+    - Blinking Cursor (only some terminals are supporting this)
 - Styled output
-    - Foreground color (16 base colors)
-    - Background color (16 base colors)
-    - 256 color support (Windows 10 and UNIX only)
-    - RGB support (Windows 10 and UNIX only)
-    - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
+    - Foreground Color (16 base colors)
+    - Background Color (16 base colors)
+    - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
+    - RGB Color Support (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](http://atcentra.com/crossterm/styling.html#attributes) (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
-    - Scrolling (Up, down)
-    - Get the size of the terminal
-    - Set the size of the terminal
-    - Alternate screen
-    - Raw screen   
-    - Exit the current process
+    - Scrolling (up, down)
+    - Terminal Size (get/set)
+    - Alternate Screen
+    - Raw Screen   
+    - Exit Current Process
 - Input
     - Read character
     - Read line
-    - Read key input events async / sync (ALT + Key, CTRL + Key, FN, Arrows, ESC, BackSpace, HOME, DELETE. INSERT, PAGEUP/DOWN, and more)
-    - Read mouse input events (Press, Release, Position, Button)
+    - Read key input events (async / sync)
+    - Read mouse input events (press, release, position, button)
 
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
@@ -280,7 +281,7 @@ let mut input = input();
 _Read input events synchronously or asynchronously._
 ```rust
 // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-let screen = Screen::new(true);
+let screen = RawScreen::into_raw_mode();
     
 let mut input = input();
 

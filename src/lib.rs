@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate crossterm_utils;
 
 #[cfg(feature = "cursor")]
@@ -21,14 +20,13 @@ pub use self::crossterm_input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
-pub use self::crossterm_screen::{AlternateScreen, Screen};
+pub use self::crossterm_screen::{AlternateScreen, IntoRawMode, RawScreen};
 #[cfg(feature = "style")]
 pub use self::crossterm_style::{
     color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler,
     TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use self::crossterm_terminal::*;
+pub use self::crossterm_terminal::{terminal, ClearType, Terminal};
 
 pub use self::crossterm::Crossterm;
-pub use self::crossterm_utils::{error, TerminalOutput};

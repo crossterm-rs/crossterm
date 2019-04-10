@@ -1,3 +1,29 @@
+## Changes crossterm 0.9.0
+This release is all about moving to a stabilized API for 1.0.
+
+- Major refactor and cleanup.
+- Improved performance; 
+    - No locking when writing to stdout. 
+    - UNIX doesn't have any dynamic dispatch anymore. 
+    - Windows has improved the way to check if ANSI modes are enabled.
+    - Removed lot's of complex API calls: `from_screen`, `from_output`
+    - Removed `Arc<TerminalOutput>` from all internal Api's. 
+- Removed termios dependency for UNIX systems.
+- Upgraded deps.
+- Removed about 1000 lines of code
+    - `TerminalOutput` 
+    - `Screen`
+    - unsafe code
+    - Some duplicated code introduced by a previous refactor.
+- Raw modes UNIX systems improved     
+- Added `NoItalic` attribute
+
+## Changes crossterm to 0.8.2
+- Bug fix for sync reader UNIX.
+
+## Changes crossterm to 0.8.1
+- Added public re-exports for input.
+
 # Changes crossterm 0.8.0
 - Upgraded to `crossterm_input 0.2.0`; Input key, mouse events support.
 - Upgraded crossterm_winapi 0.2

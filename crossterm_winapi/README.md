@@ -13,8 +13,8 @@
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
 This crate provides some wrappers aground common used WinApi functions. 
-The purpose of this library is originally meant for [crossterm](https://github.com/TimonPost/crossterm), 
-and it is very unstable right because of that some changes could be expected.
+The purpose of this library is originally meant for [crossterm](https://github.com/TimonPost/crossterm), but could be used apart from it.
+Although, notice that it unstable right because some changes to the API could be expected.
 
 # Features
 This crate provides some abstractions over reading input, console screen buffer, and handle.
@@ -31,8 +31,7 @@ _The following WinApi calls_
 - ReadConsoleW
 
 # Example 
-Here are some examples do demonstrate how to work whit this crate. 
-Please see [examples](https://github.com/TimonPost/crossterm_winapi) for more
+The [examples](./examples) folder has more complete and verbose examples.
 
 ## Screenbuffer information
 ```rust 
@@ -61,9 +60,3 @@ fn get_different_handle_types() {
     let curr_out_put_handle = Handle::new(HandleType::CurrentInputHandle).unwrap();
 }
 ```
-
-
-### Inspiration
-I wanted to expose some of the api crossterm uses for WinApi. 
-1. I thought it would be helpful for other people to, to have a small rust seemable abstraction over the WinApi bindings.
-2. I have some future plans for crossterm wherefore I needed to seperate the WinAPi logic out of the currenbt librarie.

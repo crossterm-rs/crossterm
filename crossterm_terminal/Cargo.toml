@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_terminal"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["T. Post"]
 description = "A cross-platform library for doing terminal related actions."
 repository = "https://github.com/TimonPost/crossterm"
@@ -12,15 +12,11 @@ readme = "README.md"
 edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.1.1"
+crossterm_winapi = "0.1.2"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.43"
+libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = "0.1.0"
-crossterm_cursor = "0.1.0"
-
-[[example]]
-name = "terminal"
-path = "examples/terminal.rs"
+crossterm_utils = { path = "../crossterm_utils" }
+crossterm_cursor = { path = "../crossterm_cursor" }

@@ -1,117 +1,72 @@
 extern crate crossterm;
 
-use crossterm::{
-    InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput, Screen
-};
-
+use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen};
 use std::{thread, time::Duration};
 
-fn process_input_event(key_event: InputEvent, screen: &Screen) -> bool {
+fn process_input_event(key_event: InputEvent) -> bool {
     match key_event {
-        InputEvent::Keyboard(k) => match k {
-            KeyEvent::Char(c) => match c {
-                'q' => {
-                    screen.stdout.write_str("The 'q' key is hit and the program is not listening to input anymore.\n\n").unwrap();
-                    return true;
+        InputEvent::Keyboard(k) => {
+            match k {
+                KeyEvent::Char(c) => match c {
+                    'q' => {
+                        println!("The 'q' key is hit and the program is not listening to input anymore.\n\n");
+                        return true;
+                    }
+                    _ => {
+                        println!("{}", format!("'{}' pressed\n\n", c));
+                    }
+                },
+                KeyEvent::Alt(c) => {
+                    println!("{}", format!("ALT +'{}' pressed\n\n", c));
+                }
+                KeyEvent::Ctrl(c) => {
+                    println!("{}", format!("CTRL +'{}' Pressed\n\n", c));
+                }
+                KeyEvent::Esc => {
+                    println!("{}", format!("ESC pressed\n\n"));
+                }
+                KeyEvent::F(number) => {
+                    println!("{}", format!("F{} key pressed\n\n", number));
+                }
+                KeyEvent::PageUp => {
+                    println!("{}", format!("Page Up\n\n"));
+                }
+                KeyEvent::PageDown => {
+                    println!("{}", format!("Page Down\n\n"));
+                }
+                KeyEvent::Delete => {
+                    println!("{}", format!("Delete\n\n"));
                 }
                 _ => {
-                    screen
-                        .stdout
-                        .write_string(format!("'{}' pressed\n\n", c))
-                        .unwrap();
+                    println!("{}", format!("OTHER: {:?}\n\n", k));
+                    ()
                 }
-            },
-            KeyEvent::Alt(c) => {
-                screen
-                    .stdout
-                    .write_string(format!("ALT +'{}' pressed\n\n", c))
-                    .unwrap();
             }
-            KeyEvent::Ctrl(c) => {
-                screen
-                    .stdout
-                    .write_string(format!("CTRL +'{}' Pressed\n\n", c))
-                    .unwrap();
-            }
-            KeyEvent::Esc => {
-                screen
-                    .stdout
-                    .write_string(format!("ESC pressed\n\n"))
-                    .unwrap();
-            }
-            KeyEvent::F(number) => {
-                screen
-                    .stdout
-                    .write_string(format!("F{} key pressed\n\n", number))
-                    .unwrap();
-            }
-            KeyEvent::PageUp => {
-                screen.stdout.write_string(format!("Page Up\n\n")).unwrap();
-            }
-            KeyEvent::PageDown => {
-                screen
-                    .stdout
-                    .write_string(format!("Page Down\n\n"))
-                    .unwrap();
-            }
-            KeyEvent::Delete => {
-                screen.stdout.write_string(format!("Delete\n\n")).unwrap();
-            }
-            _ => {
-                screen
-                    .stdout
-                    .write_string(format!("OTHER: {:?}\n\n", k))
-                    .unwrap();
-                ()
-            }
-        },
+        }
         InputEvent::Mouse(m) => match m {
             MouseEvent::Press(b, x, y) => match b {
                 MouseButton::Left => {
-                    screen
-                        .stdout
-                        .write_string(format!("left mouse press @ {}, {}\n\n", x, y))
-                        .unwrap();
+                    println!("{}", format!("left mouse press @ {}, {}\n\n", x, y));
                 }
                 MouseButton::Right => {
-                    screen
-                        .stdout
-                        .write_string(format!("right mouse press @ {}, {}\n\n", x, y))
-                        .unwrap();
+                    println!("{}", format!("right mouse press @ {}, {}\n\n", x, y));
                 }
                 MouseButton::Middle => {
-                    screen
-                        .stdout
-                        .write_string(format!("mid mouse press @ {}, {}\n\n", x, y))
-                        .unwrap();
+                    println!("{}", format!("mid mouse press @ {}, {}\n\n", x, y));
                 }
-                MouseButton::WheelUp => {
-                    screen
-                        .stdout
-                        .write_string(format!("wheel up @ {}, {}\n\n", x, y))
-                        .unwrap();
-                }
+                MouseButton::WheelUp => println!("{}", format!("wheel up @ {}, {}\n\n", x, y)),
                 MouseButton::WheelDown => {
-                    screen
-                        .stdout
-                        .write_string(format!("wheel down @ {}, {}\n\n", x, y))
-                        .unwrap();
+                    println!("{}", format!("wheel down @ {}, {}\n\n", x, y));
                 }
             },
             MouseEvent::Release(x, y) => {
-                screen
-                    .stdout
-                    .write_string(format!("mouse released @ {}, {}\n\n", x, y))
-                    .unwrap();
+                println!("{}", format!("mouse released @ {}, {}\n\n", x, y));
             }
             MouseEvent::Hold(x, y) => {
-                screen
-                    .stdout
-                    .write_string(format!("dragging @ {}, {}\n\n", x, y))
-                    .unwrap();
+                println!("{}", format!("dragging @ {}, {}\n\n", x, y));
             }
             _ => {
-                screen.stdout.write_str("Unknown mouse event").unwrap();
+                println!("{}", "Unknown mouse event");
             }
         },
         _ => println!("Unknown!"),
@@ -122,56 +77,56 @@ fn process_input_event(key_event: InputEvent, screen: &Screen) -> bool {
 
 pub fn read_asynchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    let screen = Screen::new(true);
+    if let Ok(_raw) = RawScreen::into_raw_mode() {
+        let input = input();
 
-    let input = TerminalInput::from_output(&screen.stdout);
+        // enable mouse events to be captured.
+        input.enable_mouse_mode().unwrap();
 
-    // enable mouse events to be captured.
-    input.enable_mouse_mode().unwrap();
+        let mut stdin = input.read_async();
 
-    let stdin = input.read_async();
-
-    loop {
-        if let Some(key_event) = stdin.next() {
-            if process_input_event(key_event, &screen) {
-                break;
+        loop {
+            if let Some(key_event) = stdin.next() {
+                if process_input_event(key_event) {
+                    break;
+                }
             }
+            thread::sleep(Duration::from_millis(50));
         }
-        thread::sleep(Duration::from_millis(50));
-    }
 
-    // disable mouse events to be captured.
-    input.disable_mouse_mode().unwrap();
+        // disable mouse events to be captured.
+        input.disable_mouse_mode().unwrap();
+    } // <=== raw modes will be disabled here
 } // <=== background reader will be disposed when dropped.
 
 pub fn read_synchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    let screen = Screen::new(true);
+    if let Ok(_raw) = RawScreen::into_raw_mode() {
+        let input = input();
 
-    let input = TerminalInput::from_output(&screen.stdout);
+        // enable mouse events to be captured.
+        input.enable_mouse_mode().unwrap();
 
-    // enable mouse events to be captured.
-    input.enable_mouse_mode().unwrap();
+        let mut sync_stdin = input.read_sync();
 
-    let mut sync_stdin = input.read_sync();
+        loop {
+            let event = sync_stdin.next();
 
-    loop {
-        let event = sync_stdin.next();
-
-        if let Some(key_event) = event {
-            if process_input_event(key_event, &screen) {
-                break;
+            if let Some(key_event) = event {
+                if process_input_event(key_event) {
+                    break;
+                }
             }
         }
-    }
 
-    // disable mouse events to be captured.
-    input.disable_mouse_mode().unwrap();
+        // disable mouse events to be captured.
+        input.disable_mouse_mode().unwrap();
+    } // <=== raw modes will be disabled here
 }
 
 fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
-    // read_synchronously();
-    read_asynchronously();
+    read_synchronously();
+    //     read_asynchronously();
 }

@@ -3,28 +3,27 @@
 
 mod input;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 mod unix_input;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod windows_input;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 pub use self::unix_input::SyncReader;
-#[cfg(not(target_os = "windows"))]
+#[cfg(unix)]
 use self::unix_input::UnixInput;
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 pub use self::windows_input::SyncReader;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::windows_input::WindowsInput;
 
 use self::input::parse_event;
 pub use self::input::{input, TerminalInput};
-
-use std::io::{self, Result};
+use crossterm_utils::{ErrorKind, Result};
+use std::io;
 use std::sync::{mpsc, Arc};
 
-use crossterm_utils::TerminalOutput;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
@@ -39,15 +38,15 @@ use std::thread;
 /// Unix is using the 'TTY' and windows is using 'libc' C functions to read the input.
 trait ITerminalInput {
     /// Read one character from the user input
-    fn read_char(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<char>;
+    fn read_char(&self) -> io::Result<char>;
     /// Read the input asynchronously from the user.
     fn read_async(&self) -> AsyncReader;
     ///  Read the input asynchronously until a certain character is hit.
     fn read_until_async(&self, delimiter: u8) -> AsyncReader;
     /// Read the input synchronously from the user.
     fn read_sync(&self) -> SyncReader;
-    fn enable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
-    fn disable_mouse_mode(&self, stdout: &Option<&Arc<TerminalOutput>>) -> io::Result<()>;
+    fn enable_mouse_mode(&self) -> Result<()>;
+    fn disable_mouse_mode(&self) -> Result<()>;
 }
 
 /// Enum to specify which input event has occurred.

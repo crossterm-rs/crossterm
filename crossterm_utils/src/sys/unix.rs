@@ -1,65 +1,67 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use libc::{self, TCSADRAIN};
+pub use libc::{self, c_int, termios as Termios};
 
-use crate::termios::{tcsetattr, Termios};
-use std::fs;
-use std::io;
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::{io, mem};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
 pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
 
+fn unwrap(t: i32) -> io::Result<()> {
+    if t == -1 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
 /// Transform the given mode into an raw mode (non-canonical) mode.
-pub fn make_raw(termios: &mut Termios) {
+pub fn raw_terminal_attr(termios: &mut Termios) {
     extern "C" {
         pub fn cfmakeraw(termptr: *mut Termios);
     }
     unsafe { cfmakeraw(termios) }
 }
 
-pub fn into_raw_mode() -> io::Result<RawFd> {
-    let tty_f;
+pub fn get_terminal_attr() -> io::Result<Termios> {
+    extern "C" {
+        pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
+    }
+    unsafe {
+        let mut termios = mem::zeroed();
+        unwrap(tcgetattr(0, &mut termios))?;
+        Ok(termios)
+    }
+}
 
-    let fd = unsafe {
-        if libc::isatty(libc::STDIN_FILENO) == 1 {
-            libc::STDIN_FILENO
-        } else {
-            tty_f = fs::File::open("/dev/tty")?;
-            tty_f.as_raw_fd()
-        }
-    };
+pub fn set_terminal_attr(termios: &Termios) -> io::Result<()> {
+    extern "C" {
+        pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
+    }
+    unwrap(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
+}
 
-    let mut termios = Termios::from_fd(fd)?;
-    let original = termios.clone();
+pub fn into_raw_mode() -> io::Result<()> {
+    let mut ios = get_terminal_attr()?;
+    let prev_ios = ios;
 
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_none() {
-            ORIGINAL_TERMINAL_MODE = Some(original.clone())
+            ORIGINAL_TERMINAL_MODE = Some(prev_ios.clone())
         }
     }
 
-    make_raw(&mut termios);
-    tcsetattr(fd, TCSADRAIN, &termios)?;
-
-    Ok(fd)
+    raw_terminal_attr(&mut ios);
+    set_terminal_attr(&ios)?;
+    Ok(())
 }
 
 pub fn disable_raw_mode() -> io::Result<()> {
-    let tty_f;
-
-    let fd = unsafe {
-        if libc::isatty(libc::STDIN_FILENO) == 1 {
-            libc::STDIN_FILENO
-        } else {
-            tty_f = fs::File::open("/dev/tty")?;
-            tty_f.as_raw_fd()
+    unsafe {
+        if ORIGINAL_TERMINAL_MODE.is_some() {
+            set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;
         }
-    };
-
-    if let Some(original) = unsafe { ORIGINAL_TERMINAL_MODE } {
-        tcsetattr(fd, TCSADRAIN, &original)?;
     }
     Ok(())
 }

@@ -2,23 +2,7 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use super::*;
-use std::io::{Error, ErrorKind};
-use std::iter::Iterator;
-use std::str;
-
-use crossterm_utils::TerminalOutput;
-
-/// Allows you to preform actions with the < option >.
-///
-/// # Features:
-///
-/// - features
-///
-/// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to use '< name >' on 'alternate screen' use the 'crossterm_screen' crate.
+use std::{io, str};
 
 /// Allows you to read user input.
 ///
@@ -28,68 +12,34 @@ use crossterm_utils::TerminalOutput;
 /// - Read line
 /// - Read async
 /// - Read async until
+/// - Read sync
 /// - Wait for key event (terminal pause)
 ///
 /// Check `/examples/` in the library for more specific examples.
-///
-/// # Remarks
-///
-/// When you want to use 'input' on 'alternate screen' use the 'crossterm_screen' crate.
-pub struct TerminalInput<'stdout> {
-    terminal_input: Box<ITerminalInput + Sync + Send>,
-    stdout: Option<&'stdout Arc<TerminalOutput>>,
+pub struct TerminalInput {
+    #[cfg(windows)]
+    input: WindowsInput,
+    #[cfg(unix)]
+    input: UnixInput,
 }
 
-impl<'stdout> TerminalInput<'stdout> {
+impl TerminalInput {
     /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
-    pub fn new() -> TerminalInput<'stdout> {
-        #[cfg(target_os = "windows")]
-        let input = Box::from(WindowsInput::new());
+    pub fn new() -> TerminalInput {
+        #[cfg(windows)]
+        let input = WindowsInput::new();
 
-        #[cfg(not(target_os = "windows"))]
-        let input = Box::from(UnixInput::new());
+        #[cfg(unix)]
+        let input = UnixInput::new();
 
-        TerminalInput {
-            terminal_input: input,
-            stdout: None,
-        }
-    }
-
-    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
-    ///
-    /// # Remarks
-    ///
-    /// Use this function when you want your terminal to operate with a specific output.
-    /// This could be useful when you have a screen which is in 'alternate mode',
-    /// and you want your actions from the `TerminalInput`, created by this function, to operate on the 'alternate screen'.
-    ///
-    /// You should checkout the 'crossterm_screen' crate for more information about this.
-    /// # Example
-    /// ```rust
-    /// let screen = Screen::default();
-    //
-    /// if let Ok(alternate) = screen.enable_alternate_modes(false) {
-    ///    let terminal = TerminalInput::from_output(&alternate.screen.stdout);
-    /// }
-    /// ```
-    pub fn from_output(stdout: &'stdout Arc<TerminalOutput>) -> TerminalInput<'stdout> {
-        #[cfg(target_os = "windows")]
-        let input = Box::from(WindowsInput::new());
-
-        #[cfg(not(target_os = "windows"))]
-        let input = Box::from(UnixInput::new());
-
-        TerminalInput {
-            terminal_input: input,
-            stdout: Some(stdout),
-        }
+        TerminalInput { input }
     }
 
     /// Read one line from the user input.
     ///
     /// # Remark
     /// This function is not work when raw screen is turned on.
-    /// When you do want to read a line in raw mode please, checkout `read_async` or `read_async_until`.
+    /// When you do want to read a line in raw mode please, checkout `read_async`, `read_async_until` or `read_sync`.
     /// Not sure what 'raw mode' is, checkout the 'crossterm_screen' crate.
     ///
     /// # Example
@@ -101,12 +51,6 @@ impl<'stdout> TerminalInput<'stdout> {
     ///  }
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
-        if let Some(stdout) = self.stdout {
-            if stdout.is_in_raw_mode {
-                return Err(Error::new(ErrorKind::Other, "Crossterm does not support readline in raw mode this should be done instead whit `read_async` or `read_async_until`"));
-            }
-        }
-
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
         let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
@@ -125,7 +69,7 @@ impl<'stdout> TerminalInput<'stdout> {
     ///   }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
-        self.terminal_input.read_char(&self.stdout)
+        self.input.read_char()
     }
 
     /// Read the input asynchronously, which means that input events are gathered on the background and will be queued for you to read.
@@ -146,7 +90,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_async(&self) -> AsyncReader {
-        self.terminal_input.read_async()
+        self.input.read_async()
     }
 
     /// Read the input asynchronously until a certain character is hit, which means that input events are gathered on the background and will be queued for you to read.
@@ -167,7 +111,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_until_async(&self, delimiter: u8) -> AsyncReader {
-        self.terminal_input.read_until_async(delimiter)
+        self.input.read_until_async(delimiter)
     }
 
     /// Read the input synchronously from the user, which means that reading call wil be blocking ones.
@@ -181,7 +125,7 @@ impl<'stdout> TerminalInput<'stdout> {
     /// # Examples
     /// Please checkout the example folder in the repository.
     pub fn read_sync(&self) -> SyncReader {
-        self.terminal_input.read_sync()
+        self.input.read_sync()
     }
 
     /// Enable mouse events to be captured.
@@ -190,20 +134,20 @@ impl<'stdout> TerminalInput<'stdout> {
     ///
     /// # Remark
     /// - Mouse events will be send over the reader created with `read_async`, `read_async_until`, `read_sync`.
-    pub fn enable_mouse_mode(&self) -> io::Result<()> {
-        self.terminal_input.enable_mouse_mode(&self.stdout)
+    pub fn enable_mouse_mode(&self) -> Result<()> {
+        self.input.enable_mouse_mode()
     }
 
     /// Disable mouse events to be captured.
     ///
     /// When disabling mouse input you won't be able to capture, mouse movements, pressed buttons and locations anymore.
-    pub fn disable_mouse_mode(&self) -> io::Result<()> {
-        self.terminal_input.disable_mouse_mode(&self.stdout)
+    pub fn disable_mouse_mode(&self) -> Result<()> {
+        self.input.disable_mouse_mode()
     }
 }
 
 /// Get a `TerminalInput` instance whereon input related actions can be performed.
-pub fn input<'stdout>() -> TerminalInput<'stdout> {
+pub fn input() -> TerminalInput {
     TerminalInput::new()
 }
 
@@ -212,7 +156,10 @@ pub(crate) fn parse_event<I>(item: u8, iter: &mut I) -> Result<InputEvent>
 where
     I: Iterator<Item = u8>,
 {
-    let error = Error::new(ErrorKind::Other, "Could not parse an event");
+    let error = ErrorKind::IoError(io::Error::new(
+        io::ErrorKind::Other,
+        "Could not parse an event",
+    ));
     let input_event = match item {
         b'\x1B' => {
             let a = iter.next();
@@ -426,10 +373,10 @@ fn parse_utf8_char<I>(c: u8, iter: &mut I) -> Result<char>
 where
     I: Iterator<Item = u8>,
 {
-    let error = Err(Error::new(
-        ErrorKind::Other,
+    let error = Err(ErrorKind::IoError(io::Error::new(
+        io::ErrorKind::Other,
         "Input character is not valid UTF-8",
-    ));
+    )));
 
     if c.is_ascii() {
         Ok(c as char)

@@ -1,4 +1,4 @@
-use crate::{ObjectStyle, StyledObject};
+use crate::StyledObject;
 use std::fmt::Display;
 
 /// Provides a set of methods to color any type implementing `Display` with attributes.

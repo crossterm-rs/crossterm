@@ -3,7 +3,7 @@
 
 #[macro_use]
 extern crate crossterm_utils;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 extern crate crossterm_winapi;
 
 #[macro_use]
@@ -15,27 +15,21 @@ pub mod styledobject;
 mod traits;
 
 mod ansi_color;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod winapi_color;
 
 use self::ansi_color::AnsiColor;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use self::winapi_color::WinApiColor;
 
-use std::convert::From;
 use std::fmt::Display;
-use std::str::FromStr;
-use std::sync::Arc;
 
 pub use self::color::{color, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
-pub use self::styledobject::DisplayableObject;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
-use crossterm_utils::{Result, TerminalOutput};
-use std::io::stdout;
-use std::io::Write;
+use crossterm_utils::Result;
 
 /// This trait defines the actions that can be preformed with terminal color.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
@@ -47,11 +41,11 @@ use std::io::Write;
 /// so that color-related actions can be performed on both UNIX and Windows systems.
 trait ITerminalColor {
     /// Set the foreground color to the given color.
-    fn set_fg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
+    fn set_fg(&self, fg_color: Color) -> Result<()>;
     /// Set the background color to the given color.
-    fn set_bg(&self, fg_color: Color, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
+    fn set_bg(&self, fg_color: Color) -> Result<()>;
     /// Reset the terminal color to default.
-    fn reset(&self, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()>;
+    fn reset(&self) -> Result<()>;
     /// Gets an value that represents an color from the given `Color` and `ColorType`.
     fn color_value(&self, cored: Colored) -> String;
 }

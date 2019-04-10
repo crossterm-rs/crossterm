@@ -8,12 +8,11 @@
 #[cfg(windows)]
 use crate::sys::winapi::ToAlternateScreenCommand;
 #[cfg(windows)]
-use crossterm_utils::get_module;
+use crossterm_utils::supports_ansi;
 
 use crate::sys::{self, IAlternateScreenCommand};
 
-use super::{RawScreen, Screen, TerminalOutput};
-use std::convert::From;
+use super::RawScreen;
 use std::io;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
@@ -21,16 +20,14 @@ use std::io;
 ///
 /// Although this type is available for you to use I would recommend using `Screen` instead.
 pub struct AlternateScreen {
-    command: Box<IAlternateScreenCommand + Sync + Send>,
-    pub screen: Screen,
+    #[cfg(windows)]
+    command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
+    #[cfg(unix)]
+    command: sys::ToAlternateScreenCommand,
+    raw_screen: Option<RawScreen>,
 }
 
 impl AlternateScreen {
-    /// Create new instance of alternate screen.
-    pub fn new(command: Box<IAlternateScreenCommand + Sync + Send>, screen: Screen) -> Self {
-        AlternateScreen { command, screen }
-    }
-
     /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
     ///
     /// The bool specifies whether the screen should be in raw mode or not.
@@ -40,35 +37,38 @@ impl AlternateScreen {
     /// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
-    pub fn to_alternate_screen(
-        stdout: TerminalOutput,
-        raw_mode: bool,
-    ) -> io::Result<AlternateScreen> {
-        #[cfg(target_os = "windows")]
-        let command = get_module::<Box<IAlternateScreenCommand + Sync + Send>>(
-            Box::from(ToAlternateScreenCommand::new()),
-            Box::from(sys::ToAlternateScreenCommand::new()),
-        )
-        .unwrap();
+    pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
+        #[cfg(windows)]
+        let command = if supports_ansi() {
+            Box::from(ToAlternateScreenCommand::new())
+                as Box<(dyn IAlternateScreenCommand + Sync + Send)>
+        } else {
+            Box::from(sys::ToAlternateScreenCommand::new())
+                as Box<(dyn IAlternateScreenCommand + Sync + Send)>
+        };
 
-        #[cfg(not(target_os = "windows"))]
-        let command = Box::from(sys::ToAlternateScreenCommand::new());
+        #[cfg(unix)]
+        let command = sys::ToAlternateScreenCommand::new();
 
-        let mut stdout = stdout;
-        command.enable(&mut stdout)?;
-
-        let screen = Screen::from(stdout);
+        command.enable()?;
 
         if raw_mode {
-            RawScreen::into_raw_mode()?;
+            let raw_screen = RawScreen::into_raw_mode()?;
+            return Ok(AlternateScreen {
+                command,
+                raw_screen: Some(raw_screen),
+            });
         }
 
-        Ok(AlternateScreen::new(command, screen))
+        Ok(AlternateScreen {
+            command,
+            raw_screen: None,
+        })
     }
 
     /// Switch the alternate screen back to main screen.
-    pub fn to_main_screen(&self) -> io::Result<()> {
-        self.command.disable(&self.screen.stdout)?;
+    pub fn to_main(&self) -> io::Result<()> {
+        self.command.disable()?;
         Ok(())
     }
 }
@@ -76,6 +76,6 @@ impl AlternateScreen {
 impl Drop for AlternateScreen {
     /// This will switch back to main screen on drop.
     fn drop(&mut self) {
-        self.to_main_screen().unwrap();
+        self.to_main().unwrap();
     }
 }

@@ -2,37 +2,29 @@
 
 use super::map::Map;
 use super::variables::{Direction, Position};
-
-use crossterm::{Color, Crossterm, Screen};
+use crossterm::{Color, Colored, Colorize, Crossterm};
+use std::io::{stdout, Write};
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
-
-use std::io::Write;
 use std::{thread, time};
 
-pub struct FirstDepthSearch<'screen> {
+pub struct FirstDepthSearch {
     direction: Direction,
     map: Map,
     stack: Vec<Position>,
     root_pos: Position,
     is_terminated: bool,
-    screen: &'screen Screen,
 }
 
-impl<'screen> FirstDepthSearch<'screen> {
-    pub fn new(
-        map: Map,
-        start_pos: Position,
-        crossterm: &'screen Screen,
-    ) -> FirstDepthSearch<'screen> {
+impl FirstDepthSearch {
+    pub fn new(map: Map, start_pos: Position) -> FirstDepthSearch {
         FirstDepthSearch {
             direction: Direction::Up,
             map,
             stack: Vec::new(),
             root_pos: start_pos,
             is_terminated: false,
-            screen: crossterm,
         }
     }
 
@@ -42,9 +34,17 @@ impl<'screen> FirstDepthSearch<'screen> {
         // push first position on the stack
         self.stack.push(self.root_pos);
 
-        let crossterm = Crossterm::from_screen(&self.screen);
-        let mut cursor = crossterm.cursor();
+        let crossterm = Crossterm::new();
+        let cursor = crossterm.cursor();
         cursor.hide();
+
+        write!(
+            ::std::io::stdout(),
+            "{}{}",
+            Colored::Fg(Color::Green),
+            Colored::Bg(Color::Black)
+        );
+        ::std::io::stdout().flush();
 
         // loop until there are now items left in the stack.
         loop {
@@ -60,16 +60,14 @@ impl<'screen> FirstDepthSearch<'screen> {
 
             self.update_position();
 
-            let cell = crossterm.style(" ").on(Color::Blue);
-
             let pos = self.root_pos.clone();
 
             let x = pos.x as u16;
             let y = pos.y as u16;
 
             cursor.goto(x, y);
-            cell.paint(&self.screen.stdout);
-            self.screen.stdout.flush();
+            write!(stdout(), "{}", " ".on_yellow());
+            stdout().flush();
 
             thread::sleep(time::Duration::from_millis(1));
         }

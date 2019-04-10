@@ -1,5 +1,6 @@
 use super::variables::{Cell, Position, Size};
-use crossterm::{cursor, Color, Crossterm, Screen};
+use crossterm::{cursor, Color, Crossterm};
+use std::io::{stdout, Write};
 
 pub struct Map {
     pub map: Vec<Vec<Cell>>,
@@ -42,8 +43,8 @@ impl Map {
     }
 
     // render the map on the screen.
-    pub fn render_map(&mut self, screen: &Screen) {
-        let crossterm = Crossterm::from_screen(screen);
+    pub fn render_map(&mut self) {
+        let crossterm = Crossterm::new();
 
         for row in self.map.iter_mut() {
             for column in row.iter_mut() {
@@ -51,9 +52,13 @@ impl Map {
                 if (column.position.y == 0 || column.position.y == self.size.height - 1)
                     || (column.position.x == 0 || column.position.x == self.size.width - 1)
                 {
-                    let cell_style = crossterm.style(column.look).on(column.color);
                     cursor().goto(column.position.x as u16, column.position.y as u16);
-                    cell_style.paint(&screen.stdout);
+                    write!(
+                        stdout(),
+                        "{}",
+                        crossterm.style(column.look).on(column.color)
+                    );
+                    stdout().flush();
                 }
             }
         }

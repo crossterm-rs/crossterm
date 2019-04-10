@@ -8,13 +8,3 @@ pub const WELCOME_MESSAGE: [&str; 6] = [
     "  \\__/\\  /  \\___  >____/__|_ \\____/|__|_|  /\\___ >  ",
     "     \\/       \\/          \\/           \\/     \\/  ",
 ];
-
-pub const END_MESSAGE: [&str; 5] = [
-    "-----------------------",
-    "                       ",
-    "   No routes (DONE)    ",
-    "                       ",
-    "-----------------------",
-];
-
-pub fn print_stack_count(position: Position) {}

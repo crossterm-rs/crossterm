@@ -4,62 +4,57 @@
 use super::ITerminal;
 use crate::{sys::get_terminal_size, ClearType};
 use crossterm_cursor::TerminalCursor;
-use crossterm_utils::{write, write_str, Result, TerminalOutput};
-use std::sync::Arc;
+use crossterm_utils::Result;
+use std::io::Write;
 
 /// This struct is an ansi escape code implementation for terminal related actions.
 pub struct AnsiTerminal;
 
 impl AnsiTerminal {
     pub fn new() -> AnsiTerminal {
-        AnsiTerminal {}
+        AnsiTerminal
     }
 }
 
 impl ITerminal for AnsiTerminal {
-    fn clear(&self, clear_type: ClearType, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
+    fn clear(&self, clear_type: ClearType) -> Result<()> {
         match clear_type {
             ClearType::All => {
-                write_str(&stdout, csi!("2J"))?;
+                write_cout!(csi!("2J"))?;
                 TerminalCursor::new().goto(0, 0)?;
             }
             ClearType::FromCursorDown => {
-                write_str(&stdout, csi!("J"))?;
+                write_cout!(csi!("J"))?;
             }
             ClearType::FromCursorUp => {
-                write_str(&stdout, csi!("1J"))?;
+                write_cout!(csi!("1J"))?;
             }
             ClearType::CurrentLine => {
-                write_str(&stdout, csi!("2K"))?;
+                write_cout!(csi!("2K"))?;
             }
             ClearType::UntilNewLine => {
-                write_str(&stdout, csi!("K"))?;
+                write_cout!(csi!("K"))?;
             }
         };
         Ok(())
     }
 
-    fn terminal_size(&self, _stdout: &Option<&Arc<TerminalOutput>>) -> (u16, u16) {
+    fn terminal_size(&self) -> (u16, u16) {
         get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(&stdout, format!(csi!("{}S"), count))?;
+    fn scroll_up(&self, count: i16) -> Result<()> {
+        write_cout!(&format!(csi!("{}S"), count))?;
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16, stdout: &Option<&Arc<TerminalOutput>>) -> Result<()> {
-        write(&stdout, format!(csi!("{}T"), count))?;
+    fn scroll_down(&self, count: i16) -> Result<()> {
+        write_cout!(&format!(csi!("{}T"), count))?;
         Ok(())
     }
 
-    fn set_size(
-        &self,
-        width: i16,
-        height: i16,
-        stdout: &Option<&Arc<TerminalOutput>>,
-    ) -> Result<()> {
-        write(&stdout, format!(csi!("8;{};{}t"), height, width))?;
+    fn set_size(&self, width: i16, height: i16) -> Result<()> {
+        write_cout!(&format!(csi!("8;{};{}t"), height, width))?;
         Ok(())
     }
 }

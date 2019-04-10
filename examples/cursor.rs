@@ -4,7 +4,7 @@
 
 extern crate crossterm_cursor;
 
-use crossterm_cursor::{cursor, TerminalCursor};
+use crossterm_cursor::cursor;
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() {
@@ -87,6 +87,5 @@ pub fn blink_cursor() {
 }
 
 fn main() {
-    goto();
-    pos();
+    save_and_reset_position();
 }
