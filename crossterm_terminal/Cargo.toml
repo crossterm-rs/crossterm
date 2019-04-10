@@ -6,7 +6,7 @@ description = "A cross-platform library for doing terminal related actions."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://docs.rs/crossterm_terminal/"
 license = "MIT"
-keywords = ["terminal", "clear", "crossplatform", "crossterm", "terminal size"]
+keywords = ["terminal", "clear", "console", "crossterm", "size"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
@@ -18,5 +18,5 @@ crossterm_winapi = "0.1.2"
 libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = { path = "../crossterm_utils" }
-crossterm_cursor = { path = "../crossterm_cursor" }
+crossterm_utils = "0.2.0"
+crossterm_cursor = "0.2.0"

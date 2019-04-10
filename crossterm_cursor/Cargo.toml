@@ -16,8 +16,4 @@ winapi = { version =  "0.3.7", features = ["wincon","winnt","minwindef"] }
 crossterm_winapi = "0.1.2"
 
 [dependencies]
-crossterm_utils = { path = "../crossterm_utils" }
-
-[[example]]
-name = "cursor"
-path = "examples/cursor.rs"
+crossterm_utils = "0.2.0"
