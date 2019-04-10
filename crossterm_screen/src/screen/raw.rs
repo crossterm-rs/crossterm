@@ -80,7 +80,7 @@ impl IntoRawMode for Stdout {
 impl Drop for RawScreen {
     fn drop(&mut self) {
         if self.drop == true {
-            self.disable_raw_mode().unwrap();
+            RawScreen::disable_raw_mode().unwrap();
         }
     }
 }
