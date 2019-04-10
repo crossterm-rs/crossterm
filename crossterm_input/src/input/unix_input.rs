@@ -96,7 +96,7 @@ impl Iterator for SyncReader {
     /// This will return `None` in case of a failure and `Some(InputEvent) in case of an occurred input event.`
     fn next(&mut self) -> Option<Self::Item> {
         // TODO: Currently errors are consumed and converted to a `NONE` maybe we should'nt be doing this?
-        let mut source = &mut self.source;
+        let source = &mut self.source;
 
         if let Some(c) = self.leftover {
             // we have a leftover byte, use it
@@ -126,20 +126,19 @@ impl Iterator for SyncReader {
                 }
             },
             Ok(2) => {
-                let mut option_iter = &mut Some(buf[1]).into_iter();
-                let result = {
-                    let mut iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
-                    if let Ok(e) = parse_event(buf[0], &mut source.bytes().flatten()) {
-                        return Some(e);
-                    } else {
-                        return None;
-                    }
-                };
-                self.leftover = option_iter.next();
-                result
+                let option_iter = &mut Some(buf[1]).into_iter();
+                let iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
+                if let Ok(e) = parse_event(buf[0], &mut source.bytes().flatten()) {
+                    self.leftover = option_iter.next();
+                    Some(e)
+                } else {
+                    None
+                }
             }
             Ok(_) => unreachable!(),
-            Err(e) => return None, /* maybe we should not throw away the error?*/
+            Err(_) => return None, /* maybe we should not throw away the error?*/
         };
+
+        res
     }
 }

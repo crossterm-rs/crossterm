@@ -27,6 +27,7 @@ pub fn supports_ansi() -> bool {
 
 // checks if the 'TERM' environment variable is set to check if the terminal supports ANSI-codes.
 // I got the list of terminals from here: https://github.com/keqingrong/supports-ansi/blob/master/index.js
+#[cfg(windows)]
 fn is_specific_term() -> bool {
     const TERMS: [&'static str; 15] = [
         "xterm",  // xterm, PuTTY, Mintty

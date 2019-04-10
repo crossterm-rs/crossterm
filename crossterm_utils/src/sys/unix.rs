@@ -1,9 +1,8 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use libc::{self, TCSADRAIN};
-pub use libc::{c_int, termios as Termios};
+pub use libc::{self, c_int, termios as Termios};
 
-use std::{fs, io, mem};
+use std::{io, mem};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
@@ -61,7 +60,7 @@ pub fn into_raw_mode() -> io::Result<()> {
 pub fn disable_raw_mode() -> io::Result<()> {
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_some() {
-            set_terminal_attr(unsafe { &ORIGINAL_TERMINAL_MODE.unwrap() })?;
+            set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;
         }
     }
     Ok(())

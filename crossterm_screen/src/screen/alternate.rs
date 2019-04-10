@@ -13,7 +13,6 @@ use crossterm_utils::supports_ansi;
 use crate::sys::{self, IAlternateScreenCommand};
 
 use super::RawScreen;
-use std::convert::From;
 use std::io;
 
 /// With this type you will be able to switch to alternate screen and back to main screen.
