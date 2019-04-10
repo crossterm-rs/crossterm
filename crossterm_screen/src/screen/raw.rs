@@ -20,7 +20,9 @@ use std::io::{self, Stdout, Write};
 /// A wrapper for the raw terminal state. Which can be used to write to.
 ///
 /// Please take in mind that if this type drops the raw screen will be undone, to prevent this behaviour call `disable_drop`.
-pub struct RawScreen { drop: bool }
+pub struct RawScreen {
+    drop: bool,
+}
 
 impl RawScreen {
     /// Put terminal in raw mode.
