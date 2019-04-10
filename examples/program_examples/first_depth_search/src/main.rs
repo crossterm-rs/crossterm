@@ -45,6 +45,8 @@ fn start_algorithm() {
 }
 
 fn print_welcome_screen() {
+    // we have to keep this screen arround to prevent te
+    let _screen = RawScreen::into_raw_mode();
     let crossterm = Crossterm::new();
 
     // create the handle for the cursor and terminal.

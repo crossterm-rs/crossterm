@@ -44,8 +44,3 @@ crossterm_utils =    { optional = false, path = "./crossterm_utils" }
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
-
-
-#[[example]]
-#name="command"
-#path="examples/program_examples/command_bar.rs"

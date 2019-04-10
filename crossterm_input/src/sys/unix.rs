@@ -7,18 +7,7 @@ use std::os::unix::io::AsRawFd;
 ///
 /// This allows for getting stdio representing _only_ the TTY, and not other streams.
 pub fn get_tty() -> io::Result<fs::File> {
-    let mut tty_f: fs::File = unsafe { ::std::mem::zeroed() };
-
-    let _fd = unsafe {
-        if libc::isatty(libc::STDIN_FILENO) == 1 {
-            libc::STDIN_FILENO
-        } else {
-            tty_f = fs::File::open("/dev/tty")?;
-            tty_f.as_raw_fd()
-        }
-    };
-
-    Ok(tty_f)
+    fs::OpenOptions::new().read(true).write(true).open("/dev/tty")
 }
 
 fn get_tty_fd() -> io::Result<i32> {

@@ -1,14 +1,14 @@
 extern crate crossterm;
 
 use crossterm::{
-    input, cursor, terminal, ClearType, Crossterm, InputEvent, KeyEvent, AlternateScreen, RawScreen, Terminal, TerminalCursor,
+    input, cursor, terminal, ClearType, Crossterm, InputEvent, KeyEvent, AlternateScreen, RawScreen, Terminal, TerminalCursor
 };
 
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
 
 fn main() {
-    let screen = RawScreen::into_raw_modes();
+    let screen = RawScreen::into_raw_mode();
     cursor().hide();
 
     let input_buf = Arc::new(Mutex::new(String::new()));

@@ -19,9 +19,8 @@ use std::io::{self, Stdout, Write};
 
 /// A wrapper for the raw terminal state. Which can be used to write to.
 ///
-/// Although this type is available for you to use I would recommend using `Screen` instead.
-/// Note that when you want to use input and raw mode you should use `Screen`.
-pub struct RawScreen;
+/// Please take in mind that if this type drops the raw screen will be undone, to prevent this behaviour call `disable_drop`.
+pub struct RawScreen { drop: bool }
 
 impl RawScreen {
     /// Put terminal in raw mode.
@@ -33,7 +32,7 @@ impl RawScreen {
 
         command.enable()?;
 
-        Ok(RawScreen)
+        Ok(RawScreen { drop: true })
     }
 
     /// Put terminal back in original modes.
@@ -45,6 +44,11 @@ impl RawScreen {
 
         command.disable()?;
         Ok(())
+    }
+
+    /// This will disable the drop logic of this type, which means that the rawscreen will not be disabled when this instance goes out of scope.
+    pub fn disable_drop(&mut self) {
+        self.drop = false;
     }
 }
 
@@ -67,12 +71,14 @@ impl IntoRawMode for Stdout {
     fn into_raw_mode(self) -> io::Result<RawScreen> {
         RawScreen::into_raw_mode()?;
         // this make's sure that raw screen will be disabled when it goes out of scope.
-        Ok(RawScreen {})
+        Ok(RawScreen { drop: true })
     }
 }
 
 impl Drop for RawScreen {
     fn drop(&mut self) {
-        RawScreen::disable_raw_mode().unwrap();
+        if self.drop == true {
+            self.disable_raw_mode().unwrap();
+        }
     }
 }
