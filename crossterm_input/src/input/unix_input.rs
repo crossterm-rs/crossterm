@@ -50,7 +50,8 @@ impl ITerminalInput for UnixInput {
 
     fn read_sync(&self) -> SyncReader {
         SyncReader {
-            bytes: Box::new(get_tty().unwrap().bytes().flatten()),
+            source: Box::from(get_tty().unwrap()),
+            leftover: None,
         }
     }
 
@@ -83,7 +84,8 @@ impl ITerminalInput for UnixInput {
 ///
 /// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
 pub struct SyncReader {
-    bytes: Box<Iterator<Item = u8>>,
+    source: Box<std::fs::File>,
+    leftover: Option<u8>,
 }
 
 impl Iterator for SyncReader {
@@ -93,16 +95,51 @@ impl Iterator for SyncReader {
     /// If there are no keys pressed this will be a blocking call until there are.
     /// This will return `None` in case of a failure and `Some(InputEvent) in case of an occurred input event.`
     fn next(&mut self) -> Option<Self::Item> {
-        let mut iterator = self.bytes.as_mut();
-        match iterator.next() {
-            Some(byte) => {
-                if let Ok(event) = parse_event(byte, &mut iterator) {
-                    Some(event)
-                } else {
-                    None
-                }
+        // TODO: Currently errors are consumed and converted to a `NONE` maybe we should'nt be doing this?
+        let mut source = &mut self.source;
+
+        if let Some(c) = self.leftover {
+            // we have a leftover byte, use it
+            self.leftover = None;
+            if let Ok(e) = parse_event(c, &mut source.bytes().flatten()) {
+                return Some(e);
+            } else {
+                return None;
             }
-            None => None,
         }
+
+        // Here we read two bytes at a time. We need to distinguish between single ESC key presses,
+        // and escape sequences (which start with ESC or a x1B byte). The idea is that if this is
+        // an escape sequence, we will read multiple bytes (the first byte being ESC) but if this
+        // is a single ESC keypress, we will only read a single byte.
+        let mut buf = [0u8; 2];
+        let res = match source.read(&mut buf) {
+            Ok(0) => return None,
+            Ok(1) => match buf[0] {
+                b'\x1B' => return Some(InputEvent::Keyboard(KeyEvent::Esc)),
+                c => {
+                    if let Ok(e) = parse_event(c, &mut source.bytes().flatten()) {
+                        return Some(e);
+                    } else {
+                        return None;
+                    }
+                }
+            },
+            Ok(2) => {
+                let mut option_iter = &mut Some(buf[1]).into_iter();
+                let result = {
+                    let mut iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
+                    if let Ok(e) = parse_event(buf[0], &mut source.bytes().flatten()) {
+                        return Some(e);
+                    } else {
+                        return None;
+                    }
+                };
+                self.leftover = option_iter.next();
+                result
+            }
+            Ok(_) => unreachable!(),
+            Err(e) => return None, /* maybe we should not throw away the error?*/
+        };
     }
 }

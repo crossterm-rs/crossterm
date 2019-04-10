@@ -19,4 +19,3 @@ pub fn main() {
 
     // TODO: perform some actions with the instances above.
 }
-

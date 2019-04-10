@@ -25,7 +25,7 @@ pub struct AlternateScreen {
     command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
     #[cfg(unix)]
     command: sys::ToAlternateScreenCommand,
-    raw_screen: Option<RawScreen>
+    raw_screen: Option<RawScreen>,
 }
 
 impl AlternateScreen {
@@ -40,7 +40,7 @@ impl AlternateScreen {
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
-            let command = if supports_ansi() {
+        let command = if supports_ansi() {
             Box::from(ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         } else {
@@ -55,10 +55,16 @@ impl AlternateScreen {
 
         if raw_mode {
             let raw_screen = RawScreen::into_raw_mode()?;
-            return Ok(AlternateScreen { command, raw_screen: Some(raw_screen) })
+            return Ok(AlternateScreen {
+                command,
+                raw_screen: Some(raw_screen),
+            });
         }
 
-        Ok(AlternateScreen { command, raw_screen: None })
+        Ok(AlternateScreen {
+            command,
+            raw_screen: None,
+        })
     }
 
     /// Switch the alternate screen back to main screen.

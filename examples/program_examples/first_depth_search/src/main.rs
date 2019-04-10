@@ -6,7 +6,10 @@ mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{color, cursor, terminal, input, ClearType, Color, Colored, Crossterm, InputEvent, KeyEvent, AlternateScreen, RawScreen};
+use self::crossterm::{
+    color, cursor, input, terminal, AlternateScreen, ClearType, Color, Colored, Crossterm,
+    InputEvent, KeyEvent, RawScreen,
+};
 use self::variables::{Position, Size};
 
 use std::iter::Iterator;
@@ -18,7 +21,7 @@ fn main() {
 
 /// run the program
 pub fn run() {
-//    let screen = RawScreen::into_raw_mode().expect("failed to enable raw modes");
+    //    let screen = RawScreen::into_raw_mode().expect("failed to enable raw modes");
     print_welcome_screen();
     start_algorithm();
     exit();
@@ -36,8 +39,7 @@ fn start_algorithm() {
         map.render_map();
 
         // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
-        let mut algorithm =
-            algorithm::FirstDepthSearch::new(map, start_pos);
+        let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos);
         algorithm.start();
     }
 }

@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{style, terminal, ClearType, Color, Crossterm, AlternateScreen, RawScreen};
+use crossterm::{style, terminal, AlternateScreen, ClearType, Color, Crossterm, RawScreen};
 
 use std::io::{stdout, Write};
 use std::{thread, time};
@@ -41,7 +41,7 @@ fn print_wait_screen() {
 
 pub fn print_wait_screen_on_alternate_window() {
     // by passing in 'true' the alternate screen will be in raw modes.
-    if let Ok(alternate) =  AlternateScreen::to_alternate(true) {
+    if let Ok(alternate) = AlternateScreen::to_alternate(true) {
         print_wait_screen();
     } // <- drop alternate screen; this will cause the alternate screen to drop.
 }

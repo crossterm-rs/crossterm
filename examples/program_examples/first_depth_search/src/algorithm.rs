@@ -2,8 +2,8 @@
 
 use super::map::Map;
 use super::variables::{Direction, Position};
-use std::io::{Write, stdout};
-use crossterm::{Color, Crossterm, Colorize, Colored};
+use crossterm::{Color, Colored, Colorize, Crossterm};
+use std::io::{stdout, Write};
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
@@ -14,20 +14,17 @@ pub struct FirstDepthSearch {
     map: Map,
     stack: Vec<Position>,
     root_pos: Position,
-    is_terminated: bool
+    is_terminated: bool,
 }
 
 impl FirstDepthSearch {
-    pub fn new(
-        map: Map,
-        start_pos: Position,
-    ) -> FirstDepthSearch {
+    pub fn new(map: Map, start_pos: Position) -> FirstDepthSearch {
         FirstDepthSearch {
             direction: Direction::Up,
             map,
             stack: Vec::new(),
             root_pos: start_pos,
-            is_terminated: false
+            is_terminated: false,
         }
     }
 
@@ -41,7 +38,12 @@ impl FirstDepthSearch {
         let cursor = crossterm.cursor();
         cursor.hide();
 
-        write!(::std::io::stdout(), "{}{}", Colored::Fg(Color::Green), Colored::Bg(Color::Black));
+        write!(
+            ::std::io::stdout(),
+            "{}{}",
+            Colored::Fg(Color::Green),
+            Colored::Bg(Color::Black)
+        );
         ::std::io::stdout().flush();
 
         // loop until there are now items left in the stack.
@@ -64,7 +66,7 @@ impl FirstDepthSearch {
             let y = pos.y as u16;
 
             cursor.goto(x, y);
-            write!(stdout(),"{}", " ".on_yellow());
+            write!(stdout(), "{}", " ".on_yellow());
             stdout().flush();
 
             thread::sleep(time::Duration::from_millis(1));

@@ -102,7 +102,6 @@ pub fn read_asynchronously() {
 pub fn read_synchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
     if let Ok(_raw) = RawScreen::into_raw_mode() {
-
         let input = input();
 
         // enable mouse events to be captured.
@@ -128,6 +127,6 @@ pub fn read_synchronously() {
 fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
-    // read_synchronously();
-    //     read_asynchronously();
+    //     read_synchronously();
+    //         read_asynchronously();
 }

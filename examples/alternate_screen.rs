@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{style, ClearType, Color, Crossterm, AlternateScreen};
+use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm};
 use std::{thread, time};
 
 fn print_wait_screen() {
@@ -34,7 +34,7 @@ fn print_wait_screen() {
 
 /// print wait screen on alternate screen, then switch back.
 pub fn print_wait_screen_on_alternate_window() {
-    if let Ok(alternate) =  AlternateScreen::to_alternate(false) {
+    if let Ok(alternate) = AlternateScreen::to_alternate(false) {
         print_wait_screen();
     }
 }

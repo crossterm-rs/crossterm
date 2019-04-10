@@ -1,6 +1,6 @@
 use super::variables::{Position, Size};
 
-use crossterm::{Colorize, cursor, TerminalCursor};
+use crossterm::{cursor, Colorize, TerminalCursor};
 
 use rand::distributions::{IndependentSample, Range};
 
