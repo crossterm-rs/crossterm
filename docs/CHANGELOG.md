@@ -16,6 +16,7 @@ This release is all about moving to a stabilized API for 1.0.
     - unsafe code
     - Some duplicated code introduced by a previous refactor.
 - Raw modes UNIX systems improved     
+- Added `NoItalic` attribute
 
 ## Changes crossterm to 0.8.2
 - Bug fix for sync reader UNIX.

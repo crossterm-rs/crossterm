@@ -6,8 +6,7 @@ use std::io::Write;
 use std::result;
 
 use super::Attribute;
-use crate::Colorize;
-use crate::Styler;
+use crate::{Colorize, Styler};
 
 /// Contains both the style and the content wits can be styled.
 pub struct StyledObject<D: Display> {

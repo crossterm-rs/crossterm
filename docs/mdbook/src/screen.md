@@ -1,12 +1,9 @@
-# Basic Usage of Screen
-As you may have seen crossterm has a type called `Screen`. This type should be used when working with the alternate or raw screen.
-
-Before we continue, I'll explain what those concepts are.
-
 ## Screen Buffer
-A screen buffer is a two-dimensional array of characters and color data to be output in a console window. An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.
+A screen buffer is a two-dimensional array of characters and color data to be output in a console window. 
+An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.
 
-Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'.
+Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'. 
+One note to take is that crossterm does not support the creation and switching between several buffers.
 
 ### Alternate Screen
 Normally you are working on the main screen but an alternate screen is somewhat different from a normal screen.
@@ -14,7 +11,8 @@ For example, it has the exact dimensions of the terminal window, without any scr
 
 Vim uses the entirety of the screen to edit the file, then exits to bash leaving the original buffer unchanged.
 
-Crossterm provides the ability to switch to the alternate screen, make some changes, and then go back to the main screen. The main screen will still have its original data since we made all the edits on the alternate screen.
+Crossterm provides the ability to switch to the alternate screen, make some changes, and then go back to the main screen. 
+The main screen will still have its original data since we made all the edits on the alternate screen.
 
 ## Raw screen
 To understand the concept of a 'raw screen' let's look at the following points:

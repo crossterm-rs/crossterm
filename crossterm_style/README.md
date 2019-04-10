@@ -1,5 +1,5 @@
 # Crossterm Style | cross-platform styling.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm_style.svg
 [l1]: https://crates.io/crates/crossterm_style
@@ -10,8 +10,8 @@
 [s3]: https://docs.rs/crossterm_style/badge.svg
 [l3]: https://docs.rs/crossterm_style/
 
-[s3]: https://docs.rs/crossterm_style/badge.svg
-[l3]: https://docs.rs/crossterm_style/
+[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
+[l5]: https://discord.gg/K4nyTDB.
 
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
@@ -41,21 +41,21 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_style` version `0.2` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_style/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_style` version `0.3` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_style/examples) folders with detailed examples for all functionality of this crate.
 
 Add the `crossterm_style` package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-`crossterm_style` = "0.2"
-
+crossterm_style = "0.3"
 ```
+
 And import the `crossterm_style` modules you want to use.
 
 ```rust  
 extern crate crossterm_style;
 
-pub use crossterm_style::{color, style, Attribute, Color, ColorType, ObjectStyle, StyledObject, TerminalColor};
+pub use crossterm_style::{color, style, Attribute, Color, ColorType, ObjectStyle, StyledObject, TerminalColor, Colorize, Styler};
 ```
 
 ### Useful Links
@@ -63,24 +63,24 @@ pub use crossterm_style::{color, style, Attribute, Color, ColorType, ObjectStyle
 - [Documentation](https://docs.rs/crossterm_input/)
 - [Crates.io](https://crates.io/crates/crossterm_input)
 - [Book](http://atcentra.com/crossterm/styling.html)
-- [Examples](/examples)
+- [Examples](./examples)
 
 ## Features
 These are the features of this crate:
 
 - Cross-platform
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item
-- Very few dependenties.
+- Multithreaded (send, sync)
+- Detailed Documentation
+- Few Dependencies
 - Styled output
-    - Foreground color (16 base colors)
-    - Background color (16 base colors)
-    - 256 color support (Windows 10 and UNIX only)
-    - RGB support (Windows 10 and UNIX only)
-    - Text Attributes like: bold, italic, underscore and crossed word ect (Windows 10 and UNIX only)
+    - Foreground Color (16 base colors)
+    - Background Color (16 base colors)
+    - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
+    - RGB Color Support (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](http://atcentra.com/crossterm/styling.html#attributes) (Windows 10 and UNIX only)
     
 ## Examples
-Check out the [examples](/examples/) for more information about how to use this crate.
+The [examples](./examples) folder has more complete and verbose examples.
 
 _style font with attributes_
 ```rust
@@ -100,7 +100,6 @@ let styled_text = style("Bold Underlined").bold().underlined();
 _style font with colors_
 ```rust
 use crossterm_style::{Colored, Color, Colorize};
-
 
 println!("{} Red foreground color", Colored::Fg(Color::Red));
 println!("{} Blue background color", Colored::Bg(Color::Blue));
@@ -123,8 +122,8 @@ println!("{} some colored text", Colored::Fg(Color::Rgb {
 
 // custom ansi color value (Windows 10 and UNIX systems)
 println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
-
 ```
+
 ## Tested terminals
 
 - Windows Powershell
@@ -140,21 +139,8 @@ println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
-## Notice 
-
-This library is average stable now, I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
-
-## Contributing
-
-I highly appreciate it when you are contributing to this crate. 
-Also Since my native language is not English my grammar and sentence order will not be perfect. 
-So improving this by correcting these mistakes will help both me and the reader of the docs.
-
 ## Authors
-
 * **Timon Post** - *Project Owner & creator*
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details

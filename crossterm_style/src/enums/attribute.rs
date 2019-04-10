@@ -84,6 +84,12 @@ pub enum Attribute {
     /// - Opposite of `Bold`(1)
     /// [Supportability]: not widely supported
     NoBold = 21,
+    /// This will turn off the italic attribute.
+    /// [info]:
+    /// - Not italic, not Fraktur
+    /// - Opposite of `Italic`(3)
+    /// [Supportability]: Windows, UNIX
+    NoItalic = 23,
     /// This will turn off the underline attribute.
     /// [info]:
     /// - Not singly or doubly underlined will be turned off.

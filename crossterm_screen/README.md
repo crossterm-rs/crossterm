@@ -1,5 +1,5 @@
 # Crossterm Screen | cross-platform alternate, raw screen.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3]
+ ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm_screen.svg
 [l1]: https://crates.io/crates/crossterm_screen
@@ -10,8 +10,8 @@
 [s3]: https://docs.rs/crossterm_screen/badge.svg
 [l3]: https://docs.rs/crossterm_screen/
 
-[s3]: https://docs.rs/crossterm_screen/badge.svg
-[l3]: https://docs.rs/crossterm_screen/
+[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
+[l5]: https://discord.gg/K4nyTDB.
 
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
@@ -43,23 +43,23 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 
 ## Getting Started
 
-This documentation is only for `crossterm_screen` version `0.1` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md).
-Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_screen/examples) folders with detailed examples for all functionality of this crate
+This documentation is only for `crossterm_screen` version `0.2`.
+Also, check out the [examples](./examples) folders with detailed examples for all functionality of this crate
 and the [book](http://atcentra.com/crossterm/screen.html) for more information about how to use the alternate or raw screen options.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-`crossterm_screen` = "0.1"
-
+crossterm_screen = "0.2"
 ```
+
 And import the `crossterm_screen` modules you want to use.
 
 ```rust  
 extern crate crossterm_screen;
 
-pub use crossterm_screen::{AlternateScreen, RawScreen, Screen};
+pub use crossterm_screen::{AlternateScreen, RawScreen};
 ```
 
 ### Useful Links
@@ -67,15 +67,15 @@ pub use crossterm_screen::{AlternateScreen, RawScreen, Screen};
 - [Documentation](https://docs.rs/crossterm_screen/)
 - [Crates.io](https://crates.io/crates/crossterm_screen)
 - [Book](http://atcentra.com/crossterm/screen.html)
-- [Examples](/examples)
+- [Examples](./examples)
 
 ## Features
 These are the features of this crate:
 
 - Cross-platform
-- Everything is multithreaded (Send, Sync)
-- Detailed documentation on every item
-- Very few dependenties.
+- Multithreaded (send, sync)
+- Detailed Documentation
+- Few Dependencies
 - Alternate screen
 - Raw screen   
     
@@ -83,10 +83,9 @@ Planned features:
 - make is possible to switch between multiple buffers.
 
 ## Examples
-Check out the [examples](/examples/) for more information about how to use this crate.
+The [examples](./examples) folder has more complete and verbose examples.
 
 ## Tested terminals
-
 - Windows Powershell
     - Windows 10 (pro)
 - Windows CMD
@@ -100,21 +99,8 @@ Check out the [examples](/examples/) for more information about how to use this 
 This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
 If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
 
-## Notice 
-
-This library is average stable now, I don't expect it to not to change that much. 
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
-
-## Contributing
-
-I highly appreciate it when you are contributing to this crate. 
-Also Since my native language is not English my grammar and sentence order will not be perfect. 
-So improving this by correcting these mistakes will help both me and the reader of the docs.
-
 ## Authors
-
 * **Timon Post** - *Project Owner & creator*
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details

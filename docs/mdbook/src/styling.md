@@ -21,6 +21,7 @@ There are 16 base colors which available for almost all terminals even windows 7
 
 In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
 Those colors could be: [True color (24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme, which allows you to use [RGB](https://nl.wikipedia.org/wiki/RGB-kleursysteem), and [256 (Xterm, 8-bit)](https://jonasjacek.github.io/colors/) colors.
+Checkout the examples on how to use this feature.
 
 ## Attributes
 Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.
@@ -46,7 +47,7 @@ Crossterm implements almost all attributes shown in this [Wikipedia-list](https:
 |       Encircled                |  Unknown                                                 |  This will turn on the encircled attribute. | 
 |       OverLined                |  Unknown                                                 |  This will draw a line at the top of the font. | 
 
-(There are a few attributes who disable one of the above, I did not write those down in the above scheme).
+(There are a few attributes who disable one of the above attributes, I did not write those down to keep the list short).
 
 Now we have covered the basics of styling lets go some [examples](styling_example.md).
  

@@ -27,6 +27,6 @@ pub use self::crossterm_style::{
     TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use self::crossterm_terminal::*;
+pub use self::crossterm_terminal::{terminal, ClearType, Terminal};
 
 pub use self::crossterm::Crossterm;

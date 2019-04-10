@@ -1,5 +1,6 @@
 # Changes crossterm_style 0.3
 - Removed `TerminalColor::from_output()` 
+- Added `NoItalic` attribute
 
 # Changes crossterm_style 0.2
 - Introduced more `Attributes`
