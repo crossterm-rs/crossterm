@@ -19,15 +19,15 @@
 [s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
-Ever got disappointed when a terminal library for rust was only written for UNIX systems? 
-Crossterm provides, clearing, input handling, styling, cursor movement, terminal actions for both Windows and UNIX systems.
+Have you ever been disappointed when a terminal library for rust was only written for UNIX systems? 
+Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both Windows and UNIX systems.
 
 Crossterm aims to be simple and easy to call in code. 
 Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
 
-This crate supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
+This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info).
 
-This crate is exists out of five modules who are behind [feature flags](http://atcentra.com/crossterm/feature_flags.html) so that you can define which features you'd like to have, by default all features are enabled.
+This crate consists of five modules that are provided behind [feature flags](http://atcentra.com/crossterm/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
@@ -53,7 +53,7 @@ This crate is exists out of five modules who are behind [feature flags](http://a
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.9` if you have an older version of Crossterm I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.9`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
@@ -82,7 +82,7 @@ These are the features from this crate:
     - Position (set/get)
     - Store cursor position and resetting to that later
     - Hiding/Showing
-    - Blinking Cursor (only some terminals are supporting this)
+    - Blinking Cursor (supported by only some terminals)
 - Styled output
     - Foreground Color (16 base colors)
     - Background Color (16 base colors)
@@ -108,7 +108,7 @@ These are some basic examples demonstrating how to use this crate. See [examples
 ### Crossterm Type
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
+Good documentation can be found at the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
 
 ```rust
 // screen whereon the `Crossterm` methods will be executed.
@@ -122,9 +122,9 @@ let input = crossterm.input();
 ```
 
 ### Styled Font
-This module provides the functionalities to style the terminal.
+This module enables you to style the terminal font.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_style/), [book](http://atcentra.com/crossterm/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](http://atcentra.com/crossterm/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
 _imports_
 ```rust 
@@ -170,7 +170,7 @@ println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 
 
 ### Cursor
-This module provides the functionalities to work with the terminal cursor.
+This module enables you to work with the terminal cursor.
 
 Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_cursor/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/cursor.rs)
 
@@ -213,7 +213,7 @@ cursor.blink(true)
 ```
 
 ### Terminal
-This module provides the functionalities to work with the terminal in general.
+This module enables you to work with the terminal in general.
 
 Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_terminal/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/terminal.rs).
 
@@ -252,7 +252,7 @@ terminal.write("Some text\n Some text on new line");
 ```
 
 ### Input Reading
-This module provides the functionalities to read user input events.
+This module enables you to read user input events.
 
 Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](http://atcentra.com/crossterm/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
@@ -325,11 +325,11 @@ These concepts are a little more complex and would take over the README, please 
 - (Arch, Manjaro) KDE Konsole
 - Linux Mint
 
-This crate supports all Unix terminals and windows terminals down to Windows 7 but not all of them have been tested.
-If you have used this library for a terminal other than the above list without issues feel free to add it to the above list, I really would appreciate it.
+This crate supports all Unix terminals and Windows terminals down to Windows 7; however, not all of the terminals have been tested.
+If you have used this library for a terminal other than the above list without issues, then feel free to add it to the above list - I really would appreciate it!
 
 ## Notice 
-This library is average stable now but I don't expect it to not to change that much. 
+This library is mostly stable now, and I don't expect it to change much.
 If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
 
 ## Todo
@@ -338,8 +338,8 @@ If there are any changes that will affect previous versions I will [describe](ht
 
 ## Contributing
   
-I highly appreciate it when you are contributing to this crate. 
-Also Since my native language is not English my grammar and sentence order will not be perfect. 
+I highly appreciate it when you contribute to this crate. 
+Also, since my native language is not English my grammar and sentence order will not be perfect. 
 So improving this by correcting these mistakes will help both me and the reader of the docs.
 
 Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Contributing.md) for more info about branches and code architecture.
