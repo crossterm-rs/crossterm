@@ -1,6 +1,6 @@
 //! This module contains all `unix` specific terminal related logic.
 
-pub use libc::{self, c_int, termios as Termios};
+pub use libc::{c_int, termios as Termios};
 
 use std::{io, mem};
 

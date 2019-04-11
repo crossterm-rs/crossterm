@@ -1,3 +1,5 @@
+#[cfg(unix)]
+extern crate libc;
 #[cfg(windows)]
 extern crate crossterm_winapi;
 #[cfg(windows)]

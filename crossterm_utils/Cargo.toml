@@ -1,12 +1,12 @@
 [package]
 name = "crossterm_utils"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["T. Post"]
 description = "Common logic used by the crossterm crates."
 repository = "https://github.com/TimonPost/crossterm"
 documentation = "https://docs.rs/crossterm_utils/"
 license = "MIT"
-keywords = ["winapi", "abstractions", "crossterm", "windows", "screen_buffer"]
+keywords = ["terminal", "abstractions", "crossterm", "windows", "screen_buffer"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 
