@@ -291,16 +291,16 @@ fn handle_mouse_event(event: &MouseEvent, seq: &mut Vec<u8>) {
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
     // mouse button is held down (ie. mouse drag)
 
-    let cxbs: Vec<u8> = event
+    let cxbs: Vec<u8> = (event
         .mouse_position
-        .x
+        .x + 1) /* windows positions are 0 based and ansi codes 1. */
         .to_string()
         .chars()
         .map(|d| d as u8)
         .collect();
-    let cybs: Vec<u8> = event
+    let cybs: Vec<u8> = (event
         .mouse_position
-        .y
+        .y + 1) /* windows positions are 0 based and ansi codes 1. */
         .to_string()
         .chars()
         .map(|d| d as u8)

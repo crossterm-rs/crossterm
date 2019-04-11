@@ -33,10 +33,10 @@ members = [
 
 [dependencies]
 crossterm_screen =   { optional = true, version = "0.2.1" }
-crossterm_cursor =   { optional = true, version = "0.2.1" }
-crossterm_terminal = { optional = true, version = "0.2.1" }
+crossterm_cursor =   { optional = true, path = "./crossterm_cursor" }
+crossterm_terminal = { optional = true, path = "./crossterm_terminal" }
 crossterm_style =    { optional = true, version = "0.3.1" }
-crossterm_input =    { optional = true, version = "0.3.1" }
+crossterm_input =    { optional = true, path = "./crossterm_input" }
 crossterm_utils =    { optional = false, version = "0.2.1" }
 
 [lib]
