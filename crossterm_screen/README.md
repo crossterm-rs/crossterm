@@ -11,7 +11,7 @@
 [l3]: https://docs.rs/crossterm_screen/
 
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
-[l5]: https://discord.gg/K4nyTDB.
+[l5]: https://discord.gg/K4nyTDB
 
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 

@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_input"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["T. Post"]
 description = "A cross-platform library for reading userinput."
 repository = "https://github.com/TimonPost/crossterm"
@@ -19,5 +19,5 @@ crossterm_winapi = "0.1.2"
 libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = "0.2.0"
-crossterm_screen =  "0.2.0"
+crossterm_utils = "0.2.1"
+crossterm_screen =  "0.2.1"
