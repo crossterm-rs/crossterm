@@ -29,5 +29,5 @@ pub use self::crossterm_style::{
 #[cfg(feature = "terminal")]
 pub use self::crossterm_terminal::{terminal, ClearType, Terminal};
 
-pub use self::crossterm_utils::{Result, ErrorKind};
 pub use self::crossterm::Crossterm;
+pub use self::crossterm_utils::{ErrorKind, Result};

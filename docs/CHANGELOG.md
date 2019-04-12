@@ -1,3 +1,11 @@
+## Changes crossterm 0.9.1
+- Terminal size linux was not 0-based.
+- Windows mouse input event position was 0-based ans should be 1-based
+- Result, ErrorKind are made re-exported
+
+## Changes crossterm 0.9.1
+- Fixed libc compile error
+
 ## Changes crossterm 0.9.0
 This release is all about moving to a stabilized API for 1.0.
 
