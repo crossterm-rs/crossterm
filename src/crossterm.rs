@@ -21,7 +21,7 @@ use std::fmt::Display;
 /// - checkout the crossterm book for more information about feature flags or alternate screen.
 pub struct Crossterm;
 
-impl<'crossterm> Crossterm {
+impl Crossterm {
     /// Create a new instance of `Crossterm`
     pub fn new() -> Crossterm {
         Crossterm
