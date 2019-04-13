@@ -5,13 +5,16 @@
 extern crate crossterm_cursor;
 
 use crossterm_cursor::cursor;
+use std::io;
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
-pub fn goto() {
+pub fn goto() -> io::Result<()> {
     // Get the cursor
     let cursor = cursor();
     // Set the cursor to position X: 10, Y: 5 in the terminal
-    cursor.goto(10, 5);
+    cursor.goto(10, 5)?;
+
+    Ok(())
 }
 
 /// get the cursor position
@@ -48,44 +51,46 @@ pub fn move_down() {
 }
 
 /// Save and reset cursor position | demonstration..
-pub fn save_and_reset_position() {
+pub fn save_and_reset_position() -> io::Result<()> {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5
-    cursor.goto(5, 5);
+    cursor.goto(5, 5)?;
     // Safe cursor position: X: 5 Y: 5
-    cursor.save_position();
+    cursor.save_position()?;
     // Goto X: 5 Y: 20
-    cursor.goto(5, 20);
+    cursor.goto(5, 20)?;
     // Print at X: 5 Y: 20.
     println!("Yea!");
     // Reset back to X: 5 Y: 5.
-    cursor.reset_position();
+    cursor.reset_position()?;
     // Print Back at X: 5 Y: 5.
     println!("Back");
 
-    println!()
+    println!();
+
+    Ok(())
 }
 
 /// Hide cursor display | demonstration.
 pub fn hide_cursor() {
     let cursor = cursor();
-    cursor.hide();
+    cursor.hide().unwrap();
 }
 
 /// Show cursor display | demonstration.
 pub fn show_cursor() {
     let cursor = cursor();
-    cursor.show();
+    cursor.show().unwrap();
 }
 
 /// Show cursor display, only works on certain terminals.| demonstration
 pub fn blink_cursor() {
     let cursor = cursor();
-    cursor.blink(false);
-    cursor.blink(false);
+    cursor.blink(false).unwrap();
+    cursor.blink(false).unwrap();
 }
 
 fn main() {
-    save_and_reset_position();
+    save_and_reset_position().unwrap();
 }

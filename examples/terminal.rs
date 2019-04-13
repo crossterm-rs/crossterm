@@ -5,6 +5,7 @@
 extern crate crossterm;
 
 use crossterm::{cursor, terminal, ClearType};
+use std::io;
 
 fn print_test_data() {
     for i in 0..100 {
@@ -13,65 +14,75 @@ fn print_test_data() {
 }
 
 /// Clear all lines in terminal | demonstration
-pub fn clear_all_lines() {
+pub fn clear_all_lines() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Clear all lines in terminal;
-    terminal.clear(ClearType::All);
+    terminal.clear(ClearType::All)?;
+
+    Ok(())
 }
 
 /// Clear all lines from cursor position X:4, Y:4 down | demonstration
-pub fn clear_from_cursor_down() {
+pub fn clear_from_cursor_down() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor().goto(4, 8);
+    cursor().goto(4, 8)?;
 
     // Clear all cells from current cursor position down.
-    terminal.clear(ClearType::FromCursorDown);
+    terminal.clear(ClearType::FromCursorDown)?;
+
+    Ok(())
 }
 
 /// Clear all lines from cursor position X:4, Y:4 up | demonstration
-pub fn clear_from_cursor_up() {
+pub fn clear_from_cursor_up() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor().goto(4, 4);
+    cursor().goto(4, 4)?;
 
     // Clear all cells from current cursor position down.
-    terminal.clear(ClearType::FromCursorUp);
+    terminal.clear(ClearType::FromCursorUp)?;
+
+    Ok(())
 }
 
 /// Clear all lines from cursor position X:4, Y:4 up | demonstration
-pub fn clear_current_line() {
+pub fn clear_current_line() -> io::Result<()>{
     let terminal = terminal();
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor().goto(4, 3);
+    cursor().goto(4, 3)?;
 
     // Clear current line cells.
-    terminal.clear(ClearType::CurrentLine);
+    terminal.clear(ClearType::CurrentLine)?;
+
+    Ok(())
 }
 
 /// Clear all lines from cursor position X:4, Y:7 up | demonstration
-pub fn clear_until_new_line() {
+pub fn clear_until_new_line() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Set terminal cursor position (see example for more info).
-    cursor().goto(4, 20);
+    cursor().goto(4, 20)?;
 
     // Clear all the cells until next line.
-    terminal.clear(ClearType::UntilNewLine);
+    terminal.clear(ClearType::UntilNewLine)?;
+
+    Ok(())
 }
 
 /// Print the the current terminal size | demonstration.
@@ -86,38 +97,46 @@ pub fn print_terminal_size() {
 }
 
 /// Set the terminal size to width 10, height: 10 | demonstration.
-pub fn set_terminal_size() {
+pub fn set_terminal_size() -> io::Result<()> {
     let terminal = terminal();
 
-    terminal.set_size(10, 10);
+    terminal.set_size(10, 10)?;
+
+    Ok(())
 }
 
 /// Scroll down 10 lines | demonstration.
-pub fn scroll_down() {
+pub fn scroll_down() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Scroll down 10 lines.
-    terminal.scroll_down(10);
+    terminal.scroll_down(10)?;
+
+    Ok(())
 }
 
 /// Scroll down 10 lines | demonstration.
-pub fn scroll_up() {
+pub fn scroll_up() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
 
     // Scroll up 10 lines.
-    terminal.scroll_up(5);
+    terminal.scroll_up(5)?;
+
+    Ok(())
 }
 
 /// Resize the terminal to X: 10, Y: 10 | demonstration.
-pub fn resize_terminal() {
+pub fn resize_terminal() -> io::Result<()> {
     let terminal = terminal();
 
     // Get terminal size
-    terminal.set_size(10, 10);
+    terminal.set_size(10, 10)?;
+
+    Ok(())
 }
 
 /// exit the current proccess.
