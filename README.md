@@ -53,13 +53,13 @@ This crate consists of five modules that are provided behind [feature flags](htt
 
 ## Getting Started
 
-This documentation is only for Crossterm version `0.9`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `0.9.^`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.9"
+crossterm = "0.9.2"
 ```
 
 ### Useful Links
