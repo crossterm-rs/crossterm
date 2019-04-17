@@ -1,3 +1,7 @@
+# Changes crossterm_style 0.2.2
+- Terminal size Linux was not 0-based.
+- Made FreeBSD compile
+
 # Changes crossterm_style 0.2
 - Removed `Terminal:from_output()` 
 
