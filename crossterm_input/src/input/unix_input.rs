@@ -113,11 +113,13 @@ impl Iterator for SyncReader {
         // an escape sequence, we will read multiple bytes (the first byte being ESC) but if this
         // is a single ESC keypress, we will only read a single byte.
         let mut buf = [0u8; 2];
+
         let res = match source.read(&mut buf) {
             Ok(0) => return None,
             Ok(1) => match buf[0] {
                 b'\x1B' => return Some(InputEvent::Keyboard(KeyEvent::Esc)),
                 c => {
+                    println!("size 1: {:?}", buf);
                     if let Ok(e) = parse_event(c, &mut source.bytes().flatten()) {
                         return Some(e);
                     } else {
@@ -126,9 +128,10 @@ impl Iterator for SyncReader {
                 }
             },
             Ok(2) => {
+                println!("size 2: {:?}", buf);
                 let option_iter = &mut Some(buf[1]).into_iter();
-                let iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
-                if let Ok(e) = parse_event(buf[0], &mut source.bytes().flatten()) {
+                let mut iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
+                if let Ok(e) = parse_event(buf[0], &mut iter.flatten()) {
                     self.leftover = option_iter.next();
                     Some(e)
                 } else {

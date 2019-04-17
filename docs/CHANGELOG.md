@@ -1,4 +1,14 @@
-## Changes crossterm 0.9.0
+## Changes crossterm 0.9.2
+- Terminal size linux was not 0-based
+- Windows mouse input event position was 0-based ans should be 1-based
+- Result, ErrorKind are made re-exported
+- Fixed some special key combination detections for UNIX systems
+- Made FreeBSD compile
+
+## Changes crossterm 0.9.1
+- Fixed libc compile error
+
+## Changes crossterm 0.9.0 (yanked)
 This release is all about moving to a stabilized API for 1.0.
 
 - Major refactor and cleanup.

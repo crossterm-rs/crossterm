@@ -70,6 +70,7 @@ pub fn pos() -> io::Result<(u16, u16)> {
 
     // Expect `R`
     let res = if c == 'R' {
+        // subtract one to get 0-based coords
         Ok(((cols - 1) as u16, (rows - 1) as u16))
     } else {
         return Err(Error::new(ErrorKind::Other, "test"));

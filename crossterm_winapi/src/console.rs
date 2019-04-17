@@ -165,7 +165,10 @@ impl Console {
     }
 
     pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
-        let mut buf: [INPUT_RECORD; 0x1000] = unsafe { zeroed() };
+        // Large buffers can overflow max heap size (?) and lead to errno 8
+        // "Not enough storage is available to process this command."
+        // It can be reproduced at Windows 7 i686 with `0x1000` buffer size.
+        let mut buf: [INPUT_RECORD; 0x800] = unsafe { zeroed() };
         let mut size = 0;
 
         if !is_true(unsafe {

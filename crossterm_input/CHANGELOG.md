@@ -1,3 +1,10 @@
+# Changes crossterm_input 0.3.2
+- Fixed some special key combination detections for UNIX systems
+- Windows mouse input event position was 0-based and should be 1-based
+
+# Changes crossterm_input 0.3.1
+- Updated crossterm_utils 
+
 # Changes crossterm_input 0.3
 - Removed `TerminalInput::from_output()` 
 

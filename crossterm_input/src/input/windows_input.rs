@@ -291,20 +291,18 @@ fn handle_mouse_event(event: &MouseEvent, seq: &mut Vec<u8>) {
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
     // mouse button is held down (ie. mouse drag)
 
-    let cxbs: Vec<u8> = event
-        .mouse_position
-        .x
-        .to_string()
-        .chars()
-        .map(|d| d as u8)
-        .collect();
-    let cybs: Vec<u8> = event
-        .mouse_position
-        .y
-        .to_string()
-        .chars()
-        .map(|d| d as u8)
-        .collect();
+    let cxbs: Vec<u8> =
+        (event.mouse_position.x + 1) /* windows positions are 0 based and ansi codes 1. */
+            .to_string()
+            .chars()
+            .map(|d| d as u8)
+            .collect();
+    let cybs: Vec<u8> =
+        (event.mouse_position.y + 1) /* windows positions are 0 based and ansi codes 1. */
+            .to_string()
+            .chars()
+            .map(|d| d as u8)
+            .collect();
 
     // TODO (@imdaveho): check if linux only provides coords for visible terminal window vs the total buffer
 
