@@ -119,7 +119,6 @@ impl Iterator for SyncReader {
             Ok(1) => match buf[0] {
                 b'\x1B' => return Some(InputEvent::Keyboard(KeyEvent::Esc)),
                 c => {
-                    println!("size 1: {:?}", buf);
                     if let Ok(e) = parse_event(c, &mut source.bytes().flatten()) {
                         return Some(e);
                     } else {
@@ -128,7 +127,6 @@ impl Iterator for SyncReader {
                 }
             },
             Ok(2) => {
-                println!("size 2: {:?}", buf);
                 let option_iter = &mut Some(buf[1]).into_iter();
                 let mut iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
                 if let Ok(e) = parse_event(buf[0], &mut iter.flatten()) {
