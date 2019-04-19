@@ -184,8 +184,6 @@ fn into_virtual_terminal_sequence() -> Result<(u32, Vec<u8>)> {
 }
 
 fn handle_key_event(key_event: &KeyEventRecord, seq: &mut Vec<u8>) {
-    //    println!("key code: {:?}, state: {:?}", key_event.virtual_key_code, key_event.control_key_state);
-
     match key_event.virtual_key_code as i32 {
         VK_SHIFT | VK_CONTROL | VK_MENU => {
             // ignore SHIFT, CTRL, ALT standalone presses

@@ -1,3 +1,6 @@
+# Changes crossterm_input 0.9.3
+- Removed println from `SyncReader`
+
 ## Changes crossterm 0.9.2
 - Terminal size linux was not 0-based
 - Windows mouse input event position was 0-based ans should be 1-based

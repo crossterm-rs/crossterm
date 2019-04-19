@@ -1,3 +1,6 @@
+# Changes crossterm_input 0.3.3
+- Removed println from `SyncReader`
+
 # Changes crossterm_input 0.3.2
 - Fixed some special key combination detections for UNIX systems
 - Windows mouse input event position was 0-based and should be 1-based
