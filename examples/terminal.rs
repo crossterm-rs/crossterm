@@ -56,7 +56,7 @@ pub fn clear_from_cursor_up() -> io::Result<()> {
 }
 
 /// Clear all lines from cursor position X:4, Y:4 up | demonstration
-pub fn clear_current_line() -> io::Result<()>{
+pub fn clear_current_line() -> io::Result<()> {
     let terminal = terminal();
 
     print_test_data();
