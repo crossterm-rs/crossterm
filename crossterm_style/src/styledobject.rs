@@ -83,6 +83,7 @@ impl<D: Display> Display for StyledObject<D> {
 impl<D: Display> Colorize<D> for StyledObject<D> {
     // foreground colors
     def_color!(fg_color: black => Color::Black);
+    def_color!(fg_color: dark_grey => Color::DarkGrey);
     def_color!(fg_color: red => Color::Red);
     def_color!(fg_color: dark_red => Color::DarkRed);
     def_color!(fg_color: green => Color::Green);
@@ -100,6 +101,7 @@ impl<D: Display> Colorize<D> for StyledObject<D> {
 
     // background colors
     def_color!(bg_color: on_black => Color::Black);
+    def_color!(bg_color: on_dark_grey => Color::DarkGrey);
     def_color!(bg_color: on_red => Color::Red);
     def_color!(bg_color: on_dark_red => Color::DarkRed);
     def_color!(bg_color: on_green => Color::Green);

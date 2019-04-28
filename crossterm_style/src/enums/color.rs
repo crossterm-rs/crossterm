@@ -5,6 +5,7 @@ use std::str::FromStr;
 #[derive(Debug, Copy, Clone)]
 pub enum Color {
     Black,
+    DarkGrey,
 
     Red,
     DarkRed,
@@ -24,8 +25,8 @@ pub enum Color {
     Cyan,
     DarkCyan,
 
-    Grey,
     White,
+    Grey,
     /// Color representing RGB-colors;
     /// r = red
     /// g = green
@@ -61,6 +62,7 @@ impl FromStr for Color {
 
         match src.as_ref() {
             "black" => Ok(Color::Black),
+            "dark_grey" => Ok(Color::DarkGrey),
             "red" => Ok(Color::Red),
             "dark_red" => Ok(Color::DarkRed),
             "green" => Ok(Color::Green),
@@ -73,8 +75,8 @@ impl FromStr for Color {
             "dark_magenta" => Ok(Color::DarkMagenta),
             "cyan" => Ok(Color::Cyan),
             "dark_cyan" => Ok(Color::DarkCyan),
-            "grey" => Ok(Color::Grey),
             "white" => Ok(Color::White),
+            "grey" => Ok(Color::Grey),
             _ => Ok(Color::White),
         }
     }

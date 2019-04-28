@@ -41,7 +41,7 @@ impl ITerminalColor for AnsiColor {
     fn color_value(&self, colored: Colored) -> String {
         let mut ansi_value = String::new();
 
-        let mut color = Color::White;
+        let color;
 
         match colored {
             Colored::Fg(new_color) => {
@@ -58,6 +58,7 @@ impl ITerminalColor for AnsiColor {
 
         let color_val = match color {
             Color::Black => "5;0",
+            Color::DarkGrey => "5;8",
             Color::Red => "5;9",
             Color::DarkRed => "5;1",
             Color::Green => "5;10",
@@ -70,8 +71,8 @@ impl ITerminalColor for AnsiColor {
             Color::DarkMagenta => "5;5",
             Color::Cyan => "5;14",
             Color::DarkCyan => "5;6",
-            Color::Grey => "5;15",
-            Color::White => "5;7",
+            Color::White => "5;15",
+            Color::Grey => "5;7",
 
             Color::Rgb { r, g, b } => {
                 rgb_val = format!("2;{};{};{}", r, g, b);

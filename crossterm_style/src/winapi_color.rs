@@ -99,6 +99,7 @@ impl ITerminalColor for WinApiColor {
             Colored::Fg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
+                    Color::DarkGrey => fg_intensity,
                     Color::Red => fg_intensity | fg_red,
                     Color::DarkRed => fg_red,
                     Color::Green => fg_intensity | fg_green,
@@ -111,8 +112,8 @@ impl ITerminalColor for WinApiColor {
                     Color::DarkMagenta => fg_red | fg_blue,
                     Color::Cyan => fg_intensity | fg_green | fg_blue,
                     Color::DarkCyan => fg_green | fg_blue,
-                    Color::Grey => fg_intensity,
-                    Color::White => fg_intensity | fg_red | fg_green | fg_blue,
+                    Color::White => fg_red | fg_green | fg_blue,
+                    Color::Grey => fg_intensity | fg_red | fg_green | fg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { r: _, g: _, b: _ } => 0,
@@ -122,6 +123,7 @@ impl ITerminalColor for WinApiColor {
             Colored::Bg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
+                    Color::DarkGrey => bg_intensity,
                     Color::Red => bg_intensity | bg_red,
                     Color::DarkRed => bg_red,
                     Color::Green => bg_intensity | bg_green,
@@ -134,8 +136,8 @@ impl ITerminalColor for WinApiColor {
                     Color::DarkMagenta => bg_red | bg_blue,
                     Color::Cyan => bg_intensity | bg_green | bg_blue,
                     Color::DarkCyan => bg_green | bg_blue,
-                    Color::Grey => bg_intensity,
                     Color::White => bg_intensity | bg_red | bg_green | bg_blue,
+                    Color::Grey => bg_red | bg_green | bg_blue,
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { r: _, g: _, b: _ } => 0,
