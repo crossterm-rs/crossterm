@@ -225,6 +225,7 @@ where
         Some(b'B') => InputEvent::Keyboard(KeyEvent::Down),
         Some(b'H') => InputEvent::Keyboard(KeyEvent::Home),
         Some(b'F') => InputEvent::Keyboard(KeyEvent::End),
+        Some(b'Z') => InputEvent::Keyboard(KeyEvent::BackTab),
         Some(b'M') => {
             // X10 emulation mouse encoding: ESC [ CB Cx Cy (6 characters only).
             // NOTE (@imdaveho): cannot find documentation on this
