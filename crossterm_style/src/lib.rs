@@ -80,6 +80,7 @@ where
 impl Colorize<&'static str> for &'static str {
     // foreground colors
     def_str_color!(fg_color: black => Color::Black);
+    def_str_color!(fg_color: dark_grey => Color::DarkGrey);
     def_str_color!(fg_color: red => Color::Red);
     def_str_color!(fg_color: dark_red => Color::DarkRed);
     def_str_color!(fg_color: green => Color::Green);
@@ -97,6 +98,7 @@ impl Colorize<&'static str> for &'static str {
 
     // background colors
     def_str_color!(bg_color: on_black => Color::Black);
+    def_str_color!(bg_color: on_dark_grey => Color::DarkGrey);
     def_str_color!(bg_color: on_red => Color::Red);
     def_str_color!(bg_color: on_dark_red => Color::DarkRed);
     def_str_color!(bg_color: on_green => Color::Green);

@@ -13,6 +13,7 @@ use std::fmt::Display;
 /// ```
 pub trait Colorize<D: Display> {
     fn black(self) -> StyledObject<D>;
+    fn dark_grey(self) -> StyledObject<D>;
     fn red(self) -> StyledObject<D>;
     fn dark_red(self) -> StyledObject<D>;
     fn green(self) -> StyledObject<D>;
@@ -29,6 +30,7 @@ pub trait Colorize<D: Display> {
     fn grey(self) -> StyledObject<D>;
 
     fn on_black(self) -> StyledObject<D>;
+    fn on_dark_grey(self) -> StyledObject<D>;
     fn on_red(self) -> StyledObject<D>;
     fn on_dark_red(self) -> StyledObject<D>;
     fn on_green(self) -> StyledObject<D>;

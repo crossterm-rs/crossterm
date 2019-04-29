@@ -26,6 +26,11 @@ pub fn print_all_foreground_colors_with_enum() {
         Attribute::Reset
     );
     println!(
+        "DarkGrey : \t\t      {} ■ {}\n",
+        Colored::Fg(Color::DarkGrey),
+        Attribute::Reset
+    );
+    println!(
         "Red : \t\t        {} ■ {}\n",
         Colored::Fg(Color::Red),
         Attribute::Reset
@@ -117,6 +122,11 @@ pub fn print_all_foreground_colors_with_method() {
         "■".black(),
         Attribute::Reset
     );
+    println!(
+        "DarkGrey : \t\t     {} {}\n",
+        "■".dark_grey(),
+        Attribute::Reset
+    );
     println!("Red : \t\t         {} {}\n", "■".red(), Attribute::Reset);
     println!(
         "DarkRed : \t\t     {} {}\n",
@@ -178,6 +188,11 @@ pub fn print_all_background_colors_with_enum() {
     println!(
         "Black : \t\t      {} ■ {}\n",
         Colored::Bg(Color::Black),
+        Attribute::Reset
+    );
+    println!(
+        "DarkGrey : \t\t      {} ■ {}\n",
+        Colored::Bg(Color::DarkGrey),
         Attribute::Reset
     );
     println!(
@@ -270,6 +285,11 @@ pub fn print_all_background_colors_with_method() {
     println!(
         "Black : \t\t       {} {}\n",
         "■".on_black(),
+        Attribute::Reset
+    );
+    println!(
+        "DarkGrey : \t\t       {} {}\n",
+        "■".on_dark_grey(),
         Attribute::Reset
     );
     println!(
