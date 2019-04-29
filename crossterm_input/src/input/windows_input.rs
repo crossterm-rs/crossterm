@@ -250,12 +250,13 @@ fn handle_key_event(key_event: &KeyEventRecord, seq: &mut Vec<u8>) {
             seq.push(b'~');
         }
         VK_TAB => {
+            let key_state = &key_event.control_key_state;
             if key_state.has_state(SHIFT_PRESSED) {
                 seq.push(b'\x1B');
                 seq.push(b'[');
                 seq.push(b'Z');
             } else {
-                seq.push('\t');
+                seq.push(b'\t');
             }
         }
         _ => {
