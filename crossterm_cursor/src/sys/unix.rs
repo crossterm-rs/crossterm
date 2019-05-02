@@ -1,28 +1,33 @@
-use crossterm_utils::sys::unix;
+use crossterm_utils::sys::unix::{self, RAW_MODE_ENABLED};
 use std::io::{self, Error, ErrorKind, Read, Write};
 
 /// Get the cursor position based on the current platform.
 #[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {
-    if let Ok(pos) = pos() {
-        pos
-    } else {
-        (0, 0)
+    if unsafe { RAW_MODE_ENABLED } {
+        if let Ok(pos) = pos_raw() {
+            pos
+        } else {
+            (0, 0)
+        }
+    }
+    else {
+        if let Ok(pos) = pos() {
+            pos
+        } else {
+            (0, 0)
+        }
     }
 }
 
 pub fn pos() -> io::Result<(u16, u16)> {
-    // if we enable raw modes with screen, this could cause problems if raw mode is already enabled in application.
-    // I am not completely happy with this approach so feel free to find an other way.
+    unix::into_raw_mode()?;
+    let pos = pos_raw();
+    unix::disable_raw_mode()?;
+    pos
+}
 
-    unsafe {
-        if !unix::RAW_MODE_ENABLED_BY_USER || !unix::RAW_MODE_ENABLED_BY_SYSTEM {
-            // set this boolean so that we know that the systems has enabled raw mode.
-            unix::RAW_MODE_ENABLED_BY_SYSTEM = true;
-            unix::into_raw_mode()?;
-        }
-    }
-
+pub fn pos_raw() -> io::Result<(u16, u16)>  {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();
@@ -69,21 +74,10 @@ pub fn pos() -> io::Result<(u16, u16)> {
     let (cols, c) = read_num()?;
 
     // Expect `R`
-    let res = if c == 'R' {
+    if c == 'R' {
         // subtract one to get 0-based coords
-        Ok(((cols - 1) as u16, (rows - 1) as u16))
+       Ok(((cols - 1) as u16, (rows - 1) as u16))
     } else {
-        return Err(Error::new(ErrorKind::Other, "test"));
-    };
-
-    // If raw mode is enabled from else where in the application (by the user) we do not want to disable raw modes.
-    // I am not completely happy with this approach so feel free to find an other way.
-    unsafe {
-        if unix::RAW_MODE_ENABLED_BY_SYSTEM && !unix::RAW_MODE_ENABLED_BY_USER {
-            unix::RAW_MODE_ENABLED_BY_SYSTEM = false;
-            unix::disable_raw_mode()?;
-        }
+        Err(Error::new(ErrorKind::Other, "test"))
     }
-
-    res
 }

@@ -32,12 +32,12 @@ members = [
 ]
 
 [dependencies]
-crossterm_screen =   { optional = true, version = "0.2.1" }
-crossterm_cursor =   { optional = true, version = "0.2.1" }
+crossterm_screen =   { optional = true, path = "./crossterm_screen" }
+crossterm_cursor =   { optional = true, path = "./crossterm_cursor" }
 crossterm_terminal = { optional = true, version = "0.2.2" }
-crossterm_style =    { optional = true, version = "0.3.1" }
-crossterm_input =    { optional = true, version = "0.3.3" }
-crossterm_utils =    { optional = false, version = "0.2.1" }
+crossterm_style =    { optional = true, path = "./crossterm_style" }
+crossterm_input =    { optional = true, path = "./crossterm_input" }
+crossterm_utils =    { optional = false, path = "./crossterm_utils" }
 
 [lib]
 name = "crossterm"

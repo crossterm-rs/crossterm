@@ -24,7 +24,7 @@ pub struct AlternateScreen {
     command: Box<(dyn IAlternateScreenCommand + Sync + Send)>,
     #[cfg(unix)]
     command: sys::ToAlternateScreenCommand,
-    raw_screen: Option<RawScreen>,
+    _raw_screen: Option<RawScreen>,
 }
 
 impl AlternateScreen {
@@ -56,13 +56,13 @@ impl AlternateScreen {
             let raw_screen = RawScreen::into_raw_mode()?;
             return Ok(AlternateScreen {
                 command,
-                raw_screen: Some(raw_screen),
+                _raw_screen: Some(raw_screen),
             });
         }
 
         Ok(AlternateScreen {
             command,
-            raw_screen: None,
+            _raw_screen: None,
         })
     }
 

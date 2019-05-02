@@ -5,8 +5,7 @@ pub use libc::{c_int, termios as Termios};
 use std::{io, mem};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
-pub static mut RAW_MODE_ENABLED_BY_SYSTEM: bool = false;
-pub static mut RAW_MODE_ENABLED_BY_USER: bool = false;
+pub static mut RAW_MODE_ENABLED: bool = false;
 
 fn unwrap(t: i32) -> io::Result<()> {
     if t == -1 {
@@ -48,10 +47,11 @@ pub fn into_raw_mode() -> io::Result<()> {
 
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_none() {
-            ORIGINAL_TERMINAL_MODE = Some(prev_ios.clone())
+            ORIGINAL_TERMINAL_MODE = Some(prev_ios.clone());
         }
-    }
 
+        RAW_MODE_ENABLED = true;
+    }
     raw_terminal_attr(&mut ios);
     set_terminal_attr(&ios)?;
     Ok(())
@@ -61,6 +61,8 @@ pub fn disable_raw_mode() -> io::Result<()> {
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_some() {
             set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;
+
+            RAW_MODE_ENABLED = false;
         }
     }
     Ok(())
