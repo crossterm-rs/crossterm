@@ -10,8 +10,7 @@ pub fn get_cursor_position() -> (u16, u16) {
         } else {
             (0, 0)
         }
-    }
-    else {
+    } else {
         if let Ok(pos) = pos() {
             pos
         } else {
@@ -27,7 +26,7 @@ pub fn pos() -> io::Result<(u16, u16)> {
     pos
 }
 
-pub fn pos_raw() -> io::Result<(u16, u16)>  {
+pub fn pos_raw() -> io::Result<(u16, u16)> {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();
@@ -76,7 +75,7 @@ pub fn pos_raw() -> io::Result<(u16, u16)>  {
     // Expect `R`
     if c == 'R' {
         // subtract one to get 0-based coords
-       Ok(((cols - 1) as u16, (rows - 1) as u16))
+        Ok(((cols - 1) as u16, (rows - 1) as u16))
     } else {
         Err(Error::new(ErrorKind::Other, "test"))
     }
