@@ -128,7 +128,7 @@ impl Iterator for SyncReader {
             },
             Ok(2) => {
                 let option_iter = &mut Some(buf[1]).into_iter();
-                let mut iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
+                let iter = option_iter.map(|c| Ok(c)).chain(source.bytes());
                 if let Ok(e) = parse_event(buf[0], &mut iter.flatten()) {
                     self.leftover = option_iter.next();
                     Some(e)

@@ -92,5 +92,5 @@ pub fn blink_cursor() {
 }
 
 fn main() {
-    save_and_reset_position().unwrap();
+    pos()
 }
