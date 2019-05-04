@@ -387,3 +387,12 @@ pub fn print_supported_colors() {
         println!("Test {}", Colored::Bg(Color::AnsiValue(i as u8)));
     }
 }
+
+pub fn reset_fg_and_bg() {
+    println!("{}", Colored::Fg(Color::Reset));
+    println!("{}", Colored::Bg(Color::Reset));
+}
+
+fn main() {
+    print_all_background_colors_with_method()
+}

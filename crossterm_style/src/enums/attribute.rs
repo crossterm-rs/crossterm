@@ -112,14 +112,6 @@ pub enum Attribute {
     /// [info]: Opposite of `CrossedOut`(9)
     /// [Supportability]: Not widely supported
     NotCrossedOut = 29,
-    /// This will reset the foreground color to default.
-    /// [info]: Implementation defined (according to standard)
-    /// [Supportability]: Unknown
-    DefaultForegroundColor = 48,
-    /// This will reset the background color to default.
-    /// [info]: Implementation defined (according to standard)
-    /// [Supportability]: Unknown
-    DefaultBackgroundColor = 49,
     /// Framed font.
     /// [Supportability]: Not widely supported
     Framed = 51,

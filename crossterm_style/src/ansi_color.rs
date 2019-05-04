@@ -45,12 +45,22 @@ impl ITerminalColor for AnsiColor {
 
         match colored {
             Colored::Fg(new_color) => {
-                ansi_value.push_str("38;");
-                color = new_color;
+                if new_color == Color::Reset {
+                    ansi_value.push_str("39");
+                    return ansi_value;
+                } else {
+                    ansi_value.push_str("38;");
+                    color = new_color;
+                }
             }
             Colored::Bg(new_color) => {
-                ansi_value.push_str("48;");
-                color = new_color;
+                if new_color == Color::Reset {
+                    ansi_value.push_str("49");
+                    return ansi_value;
+                } else {
+                    ansi_value.push_str("48;");
+                    color = new_color;
+                }
             }
         }
 
@@ -73,7 +83,6 @@ impl ITerminalColor for AnsiColor {
             Color::DarkCyan => "5;6",
             Color::White => "5;15",
             Color::Grey => "5;7",
-
             Color::Rgb { r, g, b } => {
                 rgb_val = format!("2;{};{};{}", r, g, b);
                 rgb_val.as_str()
@@ -82,6 +91,7 @@ impl ITerminalColor for AnsiColor {
                 rgb_val = format!("5;{}", val);
                 rgb_val.as_str()
             }
+            _ => "",
         };
 
         ansi_value.push_str(color_val);

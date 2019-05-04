@@ -405,7 +405,9 @@ pub fn print_supported_colors() {
     }
 }
 
-fn main() {
-    print_all_background_colors_with_method();
-    print_all_foreground_colors_with_method();
+pub fn reset_fg_and_bg() {
+    println!("{}", Colored::Fg(Color::Reset));
+    println!("{}", Colored::Bg(Color::Reset));
 }
+
+fn main() {}
