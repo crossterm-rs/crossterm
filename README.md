@@ -1,5 +1,5 @@
 # Crossterm | cross-platform terminal manipulating library.
- ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
+ [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Lines of Code][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
@@ -347,6 +347,12 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 ## Authors
 
 * **Timon Post** - *Project Owner & creator*
+
+## Support
+
+Crossterm took a lot of time to develop, I realy appriciate any donation given to support the development of crossterm.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 
 ## License
 
