@@ -84,6 +84,9 @@ pub enum Attribute {
     /// - Opposite of `Bold`(1)
     /// [Supportability]: not widely supported
     NoBold = 21,
+    /// Normal color or intensity
+    /// Neither bold nor faint
+    NormalIntensity = 22,
     /// This will turn off the italic attribute.
     /// [info]:
     /// - Not italic, not Fraktur
