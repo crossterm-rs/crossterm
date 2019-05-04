@@ -146,5 +146,5 @@ pub fn exit() {
 }
 
 fn main() {
-    print_terminal_size();
+    clear_until_new_line();
 }

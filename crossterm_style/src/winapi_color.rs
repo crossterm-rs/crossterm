@@ -8,6 +8,16 @@ use std::io;
 use std::sync::{Once, ONCE_INIT};
 use winapi::um::wincon;
 
+const FG_GREEN: u16 = wincon::FOREGROUND_GREEN;
+const FG_RED: u16 = wincon::FOREGROUND_RED;
+const FG_BLUE: u16 = wincon::FOREGROUND_BLUE;
+const FG_INTENSITY: u16 = wincon::FOREGROUND_INTENSITY;
+
+const BG_GREEN: u16 = wincon::BACKGROUND_GREEN;
+const BG_RED: u16 = wincon::BACKGROUND_RED;
+const BG_BLUE: u16 = wincon::BACKGROUND_BLUE;
+const BG_INTENSITY: u16 = wincon::BACKGROUND_INTENSITY;
+
 /// This struct is a WinApi implementation for color related actions.
 pub struct WinApiColor;
 
@@ -85,35 +95,35 @@ impl ITerminalColor for WinApiColor {
     fn color_value(&self, color: Colored) -> String {
         let winapi_color: u16;
 
-        let fg_green = wincon::FOREGROUND_GREEN;
-        let fg_red = wincon::FOREGROUND_RED;
-        let fg_blue = wincon::FOREGROUND_BLUE;
-        let fg_intensity = wincon::FOREGROUND_INTENSITY;
-
-        let bg_green = wincon::BACKGROUND_GREEN;
-        let bg_red = wincon::BACKGROUND_RED;
-        let bg_blue = wincon::BACKGROUND_BLUE;
-        let bg_intensity = wincon::BACKGROUND_INTENSITY;
-
         match color {
             Colored::Fg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
-                    Color::DarkGrey => fg_intensity,
-                    Color::Red => fg_intensity | fg_red,
-                    Color::DarkRed => fg_red,
-                    Color::Green => fg_intensity | fg_green,
-                    Color::DarkGreen => fg_green,
-                    Color::Yellow => fg_intensity | fg_green | fg_red,
-                    Color::DarkYellow => fg_green | fg_red,
-                    Color::Blue => fg_intensity | fg_blue,
-                    Color::DarkBlue => fg_blue,
-                    Color::Magenta => fg_intensity | fg_red | fg_blue,
-                    Color::DarkMagenta => fg_red | fg_blue,
-                    Color::Cyan => fg_intensity | fg_green | fg_blue,
-                    Color::DarkCyan => fg_green | fg_blue,
-                    Color::White => fg_red | fg_green | fg_blue,
-                    Color::Grey => fg_intensity | fg_red | fg_green | fg_blue,
+                    Color::DarkGrey => FG_INTENSITY,
+                    Color::Red => FG_INTENSITY | FG_RED,
+                    Color::DarkRed => FG_RED,
+                    Color::Green => FG_INTENSITY | FG_GREEN,
+                    Color::DarkGreen => FG_GREEN,
+                    Color::Yellow => FG_INTENSITY | FG_GREEN | FG_RED,
+                    Color::DarkYellow => FG_GREEN | FG_RED,
+                    Color::Blue => FG_INTENSITY | FG_BLUE,
+                    Color::DarkBlue => FG_BLUE,
+                    Color::Magenta => FG_INTENSITY | FG_RED | FG_BLUE,
+                    Color::DarkMagenta => FG_RED | FG_BLUE,
+                    Color::Cyan => FG_INTENSITY | FG_GREEN | FG_BLUE,
+                    Color::DarkCyan => FG_GREEN | FG_BLUE,
+                    Color::White => FG_RED | FG_GREEN | FG_BLUE,
+                    Color::Grey => FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE,
+
+                    Color::Reset => {
+                        // init the original color in case it is not set.
+                        let mut original_color = original_console_color();
+
+                        const mask: u16 = BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE;
+                        original_color &= !(mask);
+
+                        original_color
+                    }
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { r: _, g: _, b: _ } => 0,
@@ -123,22 +133,30 @@ impl ITerminalColor for WinApiColor {
             Colored::Bg(color) => {
                 winapi_color = match color {
                     Color::Black => 0,
-                    Color::DarkGrey => bg_intensity,
-                    Color::Red => bg_intensity | bg_red,
-                    Color::DarkRed => bg_red,
-                    Color::Green => bg_intensity | bg_green,
-                    Color::DarkGreen => bg_green,
-                    Color::Yellow => bg_intensity | bg_green | bg_red,
-                    Color::DarkYellow => bg_green | bg_red,
-                    Color::Blue => bg_intensity | bg_blue,
-                    Color::DarkBlue => bg_blue,
-                    Color::Magenta => bg_intensity | bg_red | bg_blue,
-                    Color::DarkMagenta => bg_red | bg_blue,
-                    Color::Cyan => bg_intensity | bg_green | bg_blue,
-                    Color::DarkCyan => bg_green | bg_blue,
-                    Color::White => bg_intensity | bg_red | bg_green | bg_blue,
-                    Color::Grey => bg_red | bg_green | bg_blue,
+                    Color::DarkGrey => BG_INTENSITY,
+                    Color::Red => BG_INTENSITY | BG_RED,
+                    Color::DarkRed => BG_RED,
+                    Color::Green => BG_INTENSITY | BG_GREEN,
+                    Color::DarkGreen => BG_GREEN,
+                    Color::Yellow => BG_INTENSITY | BG_GREEN | BG_RED,
+                    Color::DarkYellow => BG_GREEN | BG_RED,
+                    Color::Blue => BG_INTENSITY | BG_BLUE,
+                    Color::DarkBlue => BG_BLUE,
+                    Color::Magenta => BG_INTENSITY | BG_RED | BG_BLUE,
+                    Color::DarkMagenta => BG_RED | BG_BLUE,
+                    Color::Cyan => BG_INTENSITY | BG_GREEN | BG_BLUE,
+                    Color::DarkCyan => BG_GREEN | BG_BLUE,
+                    Color::White => BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE,
+                    Color::Grey => BG_RED | BG_GREEN | BG_BLUE,
 
+                    Color::Reset => {
+                        // init the original color in case it is not set.
+                        let mut original_color = original_console_color();
+
+                        const mask: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
+                        original_color &= !(mask);
+                        original_color
+                    },
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { r: _, g: _, b: _ } => 0,
                     Color::AnsiValue(_val) => 0,

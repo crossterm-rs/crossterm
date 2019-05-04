@@ -387,3 +387,11 @@ pub fn print_supported_colors() {
         println!("Test {}", Colored::Bg(Color::AnsiValue(i as u8)));
     }
 }
+
+fn main() {
+    println!("{}", Colored::Bg(Color::Red));
+    println!("{}", Colored::Fg(Color::Blue));
+
+    println!("{}", Colored::Fg(Color::Reset));
+    println!("{}", Colored::Bg(Color::Reset));
+}
