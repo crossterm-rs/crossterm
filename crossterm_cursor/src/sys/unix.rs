@@ -44,24 +44,25 @@ pub fn pos_raw() -> io::Result<(u16, u16)> {
     }
 
     // Read rows and cols through a ad-hoc integer parsing function
-    let read_num: fn() -> Result<(i32, char), Error> = || -> Result<(i32, char), Error> {
-        let mut num = 0;
-        let mut c: char;
+    let read_num: fn() -> Result<(i32, char) -> Result<(i32, char), Error> =
+        || -> Result<(i32, char), Error> {
+            let mut num = 0;
+            let mut c: char;
 
-        loop {
-            let mut buf = [0u8; 1];
-            io::stdin().read_exact(&mut buf)?;
-            c = buf[0] as char;
-            if let Some(d) = c.to_digit(10) {
-                num = if num == 0 { 0 } else { num * 10 };
-                num += d as i32;
-            } else {
-                break;
+            loop {
+                let mut buf = [0u8; 1];
+                io::stdin().read_exact(&mut buf)?;
+                c = buf[0] as char;
+                if let Some(d) = c.to_digit(10) {
+                    num = if num == 0 { 0 } else { num * 10 };
+                    num += d as i32;
+                } else {
+                    break;
+                }
             }
-        }
 
-        Ok((num, c))
-    };
+            Ok((num, c))
+        };
 
     // Read rows and expect `;`
     let (rows, c) = read_num()?;

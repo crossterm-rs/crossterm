@@ -156,7 +156,7 @@ impl ITerminalColor for WinApiColor {
                         const mask: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
                         original_color &= !(mask);
                         original_color
-                    },
+                    }
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { r: _, g: _, b: _ } => 0,
                     Color::AnsiValue(_val) => 0,

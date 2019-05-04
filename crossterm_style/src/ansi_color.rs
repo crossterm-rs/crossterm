@@ -48,7 +48,7 @@ impl ITerminalColor for AnsiColor {
                 if new_color == Color::Reset {
                     ansi_value.push_str("39");
                     return ansi_value;
-                }else {
+                } else {
                     ansi_value.push_str("38;");
                     color = new_color;
                 }
@@ -57,7 +57,7 @@ impl ITerminalColor for AnsiColor {
                 if new_color == Color::Reset {
                     ansi_value.push_str("49");
                     return ansi_value;
-                }else {
+                } else {
                     ansi_value.push_str("48;");
                     color = new_color;
                 }
@@ -91,7 +91,7 @@ impl ITerminalColor for AnsiColor {
                 rgb_val = format!("5;{}", val);
                 rgb_val.as_str()
             }
-            _ => ""
+            _ => "",
         };
 
         ansi_value.push_str(color_val);

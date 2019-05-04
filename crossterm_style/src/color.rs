@@ -31,17 +31,16 @@ pub struct TerminalColor {
 impl TerminalColor {
     /// Create new instance whereon color related actions can be performed.
     pub fn new() -> TerminalColor {
-//        #[cfg(windows)]
-//        let color = if supports_ansi() {
-//            Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
-//        } else {
-//            WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
-//        };
-//
-//        #[cfg(unix)]
-//        let color = AnsiColor::new();
+        #[cfg(windows)]
+        let color = if supports_ansi() {
+            Box::from(AnsiColor::new()) as Box<(dyn ITerminalColor + Sync + Send)>
+        } else {
+            WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>
+        };
 
-        let color = WinApiColor::new() as Box<(dyn ITerminalColor + Sync + Send)>;
+        #[cfg(unix)]
+        let color = AnsiColor::new();
+
         TerminalColor { color }
     }
 
