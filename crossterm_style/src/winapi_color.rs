@@ -119,8 +119,9 @@ impl ITerminalColor for WinApiColor {
                         // init the original color in case it is not set.
                         let mut original_color = original_console_color();
 
-                        const mask: u16 = BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE;
-                        original_color &= !(mask);
+                        const REMOVE_BG_MASK: u16 = BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE;
+                        // remove all background values from the original color, we don't want to reset those.
+                        original_color &= !(REMOVE_BG_MASK);
 
                         original_color
                     }
@@ -153,8 +154,9 @@ impl ITerminalColor for WinApiColor {
                         // init the original color in case it is not set.
                         let mut original_color = original_console_color();
 
-                        const mask: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
-                        original_color &= !(mask);
+                        const REMOVE_FG_MASK: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
+                        // remove all foreground values from the original color, we don't want to reset those.
+                        original_color &= !(REMOVE_FG_MASK);
                         original_color
                     }
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/

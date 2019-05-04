@@ -388,10 +388,11 @@ pub fn print_supported_colors() {
     }
 }
 
-fn main() {
-    println!("{}", Colored::Bg(Color::Red));
-    println!("{}", Colored::Fg(Color::Blue));
-
+pub fn reset_fg_and_bg() {
     println!("{}", Colored::Fg(Color::Reset));
     println!("{}", Colored::Bg(Color::Reset));
+}
+
+fn main() {
+    print_all_background_colors_with_method()
 }
