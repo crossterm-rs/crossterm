@@ -5,31 +5,37 @@ use crate::{Color, ITerminalColor};
 use crossterm_utils::Result;
 
 use crate::Colored;
+use std::io;
 use std::io::Write;
+use std::io::Stdout;
+use std::io::BufWriter;
+use std::sync::RwLock;
 
 /// This struct is an ANSI escape code implementation for color related actions.
-pub struct AnsiColor;
+pub struct AnsiColor {
+    stdout: RwLock<BufWriter<Stdout>>
+}
 
 impl AnsiColor {
     pub fn new() -> AnsiColor {
-        AnsiColor {}
+        AnsiColor { stdout: RwLock::new(BufWriter::new(io::stdout())) }
     }
 }
 
 impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color) -> Result<()> {
-        write_cout!(&format!(
+        write_cout1!(&format!(
             csi!("{}m"),
-            self.color_value(Colored::Fg(fg_color))
-        ))?;
+            self.color_value(Colored::Fg(fg_color)),
+        ), &mut self.stdout.write().unwrap())?;
         Ok(())
     }
 
     fn set_bg(&self, bg_color: Color) -> Result<()> {
-        write_cout!(&format!(
+        write_cout1!(&format!(
             csi!("{}m"),
             self.color_value(Colored::Bg(bg_color))
-        ))?;
+        ), &mut self.stdout.write().unwrap())?;
         Ok(())
     }
 

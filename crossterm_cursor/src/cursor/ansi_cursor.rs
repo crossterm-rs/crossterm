@@ -7,19 +7,29 @@ use crate::sys::get_cursor_position;
 use std::io::Write;
 
 use crossterm_utils::Result;
+use std::io::Stdout;
+use std::io::stdout;
+use std::io::StdoutLock;
+use std::io::BufWriter;
+use std::sync::RwLock;
 
 /// This struct is an ANSI implementation for cursor related actions.
-pub struct AnsiCursor;
+pub struct AnsiCursor {
+    stdout: RwLock<BufWriter<Stdout>>
+}
 
 impl AnsiCursor {
     pub fn new() -> AnsiCursor {
-        AnsiCursor
+        AnsiCursor {
+            stdout: RwLock::new(BufWriter::new(stdout()))
+        }
     }
 }
 
 impl ITerminalCursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16) -> Result<()> {
-        write_cout!(format!(csi!("{};{}H"), y + 1, x + 1))?;
+        write_cout1!(format!(csi!("{};{}H"), y + 1, x + 1), &mut self.stdout.write().unwrap())?;
+//                write_cout!(format!(csi!("{};{}H"), y + 1, x + 1))?;
         Ok(())
     }
 
