@@ -27,7 +27,7 @@ Through the simplicity of Crossterm, you do not have to worry about the platform
 
 This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info).
 
-This crate consists of five modules that are provided behind [feature flags](http://atcentra.com/crossterm/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
+This crate consists of five modules that are provided behind [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
@@ -64,7 +64,7 @@ crossterm = "0.9.2"
 
 ### Useful Links
 
-- [Book](http://atcentra.com/crossterm/)
+- [Book](https://timonpost.github.io/crossterm/docs//)
 - [Documentation](https://docs.rs/crossterm/)
 - [Crates.io](https://crates.io/crates/crossterm)
 - [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
@@ -88,7 +88,7 @@ These are the features from this crate:
     - Background Color (16 base colors)
     - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
     - RGB Color Support (Windows 10 and UNIX only)
-    - Text Attributes: bold, italic, underscore and crossed word and [more](http://atcentra.com/crossterm/styling.html#attributes) (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](https://timonpost.github.io/crossterm/docs//styling.html#attributes) (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (up, down)
@@ -124,7 +124,7 @@ let input = crossterm.input();
 ### Styled Font
 This module enables you to style the terminal font.
 
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](http://atcentra.com/crossterm/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](https://timonpost.github.io/crossterm/docs/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
 _imports_
 ```rust 
@@ -254,7 +254,7 @@ terminal.write("Some text\n Some text on new line");
 ### Input Reading
 This module enables you to read user input events.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](http://atcentra.com/crossterm/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](https://timonpost.github.io/crossterm/docs/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
 _available imports_
 ```rust
@@ -311,7 +311,7 @@ input.disable_mouse_mode().unwrap();
 ```
 
 ### Alternate and Raw Screen
-These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](http://atcentra.com/crossterm/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
+These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
 
 ## Tested terminals
 

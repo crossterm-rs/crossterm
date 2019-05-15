@@ -26,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](http://atcentra.com/crossterm/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -61,7 +61,7 @@ pub use crossterm_input::{input, AsyncReader, InputEvent, KeyEvent, MouseButton,
 
 - [Documentation](https://docs.rs/crossterm_input/)
 - [Crates.io](https://crates.io/crates/crossterm_input)
-- [Book](http://atcentra.com/crossterm/input.html)
+- [Book](https://timonpost.github.io/crossterm/docs/input.html)
 - [Examples](./examples)
 
 ## Features
