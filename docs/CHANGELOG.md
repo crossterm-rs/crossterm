@@ -1,10 +1,11 @@
-# Changes crossterm_input 0.9.4
+# Changes crossterm 0.9.4
 - Reset foreground and background color individually. [PR](https://github.com/TimonPost/crossterm/pull/138)
 - Backtap input support. [PR](https://github.com/TimonPost/crossterm/pull/129)
 - Corrected white/grey and added dark grey.
 - Fixed getting cursor position with raw screen enabled. [PR](https://github.com/TimonPost/crossterm/pull/134)
+- Removed one redundant stdout lock
 
-# Changes crossterm_input 0.9.3
+# Changes crossterm 0.9.3
 - Removed println from `SyncReader`
 
 ## Changes crossterm 0.9.2

@@ -16,7 +16,7 @@ macro_rules! write_cout {
 
         let result = stdout.write($string.as_bytes());
 
-        match result {
+        size += match result {
             Ok(size) => size,
             Err(e) => return Err(crossterm_utils::ErrorKind::IoError(e)),
         };
@@ -24,25 +24,6 @@ macro_rules! write_cout {
         match stdout.flush() {
             Ok(_) => Ok(size),
             Err(e) => Err(crossterm_utils::ErrorKind::IoError(e)),
-        };
-
-        result
-    }};
-}
-
-/// Write a string to standard output whereafter the screen will be flushed.
-#[macro_export]
-macro_rules! write_cout1 {
-    ($string:expr, $stdout:expr) => {{
-        let mut size = 0;
-
-        let result = write!($stdout, "{}", $string);
-
-        match result {
-            Ok(size) => size,
-            Err(e) => return Err(crossterm_utils::ErrorKind::IoError(e)),
-        };
-
-        result
+        }
     }};
 }
