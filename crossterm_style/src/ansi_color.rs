@@ -5,11 +5,7 @@ use crate::{Color, ITerminalColor};
 use crossterm_utils::Result;
 
 use crate::Colored;
-use std::io;
-use std::io::BufWriter;
-use std::io::Stdout;
 use std::io::Write;
-use std::sync::RwLock;
 
 /// This struct is an ANSI escape code implementation for color related actions.
 pub struct AnsiColor;

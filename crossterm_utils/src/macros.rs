@@ -4,8 +4,6 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-pub static mut flush_count: u32 = 0;
-
 /// Write a string to standard output whereafter the screen will be flushed.
 #[macro_export]
 macro_rules! write_cout {
