@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Styling Output - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html" class="active"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title"></h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#styling-module" id="styling-module"><h1>Styling Module</h1></a>
+<p>Crossterm provides options for you to style your font and terminal. Take for example coloring output and applying attributes.</p>
+<p><strong>Color support</strong>
+Windows systems with versions less than 10 will only have support for 16 colors and don't have any support for attributes. Most UNIX-terminal is supporting lots of colors and attributes.</p>
+<a class="header" href="#colors" id="colors"><h2>Colors</h2></a>
+<p>There are 16 base colors which available for almost all terminals even windows 7 and 8.</p>
+<table><thead><tr><th align="left"> Light Variant  </th><th align="left"> Dark Variant    </th></tr></thead><tbody>
+<tr><td align="left">       Grey     </td><td align="left">      Black      </td></tr>
+<tr><td align="left">       Red      </td><td align="left">      DarkRed    </td></tr>
+<tr><td align="left">       Green    </td><td align="left">      DarkGreen  </td></tr>
+<tr><td align="left">       Yellow   </td><td align="left">      DarkYellow </td></tr>
+<tr><td align="left">       Blue     </td><td align="left">      DarkBlue   </td></tr>
+<tr><td align="left">       Magenta  </td><td align="left">      DarkMagenta</td></tr>
+<tr><td align="left">       Cyan     </td><td align="left">      DarkCyan   </td></tr>
+<tr><td align="left">       White    </td><td align="left">      DarkWhite  </td></tr>
+</tbody></table>
+<p>In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
+Those colors could be: <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color (24-bit)</a> coloring scheme, which allows you to use <a href="https://nl.wikipedia.org/wiki/RGB-kleursysteem">RGB</a>, and <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit)</a> colors.
+Checkout the examples on how to use this feature.</p>
+<a class="header" href="#attributes" id="attributes"><h2>Attributes</h2></a>
+<p>Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.
+Not all attributes are widely supported for all terminals, keep that in mind when working with this.</p>
+<p>Crossterm implements almost all attributes shown in this <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters">Wikipedia-list</a>.</p>
+<table><thead><tr><th align="center"> Attribute                      </th><th>     Support                                             </th><th>  Note         </th></tr></thead><tbody>
+<tr><td align="center">       Reset                    </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will reset all current set attributes.     </td></tr>
+<tr><td align="center">       Bold                     </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will increase the font sensitivity also known as bold.     </td></tr>
+<tr><td align="center">       Dim                      </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will decrease the font sensitivity also known as bold.   </td></tr>
+<tr><td align="center">       Italic                   </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  This will make the font italic.   </td></tr>
+<tr><td align="center">       Underlined               </td><td align="center">  Windows, UNIX                                           </td><td align="center">  An line under a word, especially in order to show its importance.   </td></tr>
+<tr><td align="center">       SlowBlink                </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  less than 150 per minute  </td></tr>
+<tr><td align="center">       RapidBlink               </td><td align="center">  Not widely supported                                    </td><td align="center">  MS-DOS ANSI.SYS; 150+ per minute;  </td></tr>
+<tr><td align="center">       Reverse                  </td><td align="center">  Windows, UNIX                                           </td><td align="center">   foreground and background colors </td></tr>
+<tr><td align="center">       Hidden                   </td><td align="center">  Windows, UNIX </td><td align="center">                                         </td><td>  Also known as 'Conceal'</td></tr>
+<tr><td align="center">       Fraktur                  </td><td align="center">  UNIX                                                    </td><td align="center">  characters legible, but marked for deletion. </td></tr>
+<tr><td align="center">       DefaultForegroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
+<tr><td align="center">       DefaultBackgroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
+<tr><td align="center">       Framed                   </td><td align="center">  Not widely supported                                    </td><td align="center">  Framed font.</td></tr>
+<tr><td align="center">       Encircled                </td><td align="center">  Unknown                                                 </td><td align="center">  This will turn on the encircled attribute. </td></tr>
+<tr><td align="center">       OverLined                </td><td align="center">  Unknown                                                 </td><td align="center">  This will draw a line at the top of the font. </td></tr>
+</tbody></table>
+<p>(There are a few attributes who disable one of the above attributes, I did not write those down to keep the list short).</p>
+<p>Now we have covered the basics of styling lets go some <a href="styling_example.html">examples</a>.</p>
+<hr />
+<p>Next up: <a href="styling_example.html">Examples</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="feature_flags.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="styling_example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="feature_flags.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="styling_example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

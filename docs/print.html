@@ -1,0 +1,489 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title></title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title"></h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>From <code>crossterm 0.6</code> you are able to use feature flags.</p>
+<p>With feature flags you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.</p>
+<p>Crossterm provides the following feature flags:</p>
+<ul>
+<li>input     ; reading input events</li>
+<li>terminal  ; terminal actions like resizing</li>
+<li>style     ; styling of the terminal</li>
+<li>cursor    ; moving the terminal cursor</li>
+<li>screen    ; alternate and raw screen</li>
+</ul>
+<p>By default all of those will be enabled.</p>
+<p><em>Cargo.toml</em></p>
+<pre><code>[dependencies]
+crossterm = { version=&quot;0.9&quot;, default-features = false, features = [&quot;screen&quot;, &quot;terminal&quot;, &quot;cursor&quot;, &quot;style&quot;, &quot;input&quot;] }
+</code></pre>
+<p>By default all flags are enabled, the types and functions available to use depend on the specified flags.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+&quot;cursor&quot; =&gt; cursor, TerminalCursor
+&quot;input&quot; =&gt; input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput
+&quot;screen&quot; =&gt; AlternateScreen, IntoRawMode, RawScreen
+&quot;style&quot; =&gt; color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler, TerminalColor,
+&quot;terminal&quot; =&gt; terminal, ClearType, Terminal
+#}</code></pre></pre>
+<p>You can also use all the crossterm modules individually by directly referencing the crate.</p>
+<ul>
+<li><a href="https://crates.io/crates/crossterm_style">Crossterm Style</a></li>
+<li><a href="https://crates.io/crates/crossterm_input">Crossterm Input</a></li>
+<li><a href="https://crates.io/crates/crossterm_screen">Crossterm Screen</a></li>
+<li><a href="https://crates.io/crates/crossterm_cursor">Crossterm Cursor</a></li>
+<li><a href="https://crates.io/crates/crossterm_terminal">Crossterm Terminal</a></li>
+</ul>
+<a class="header" href="#styling-module" id="styling-module"><h1>Styling Module</h1></a>
+<p>Crossterm provides options for you to style your font and terminal. Take for example coloring output and applying attributes.</p>
+<p><strong>Color support</strong>
+Windows systems with versions less than 10 will only have support for 16 colors and don't have any support for attributes. Most UNIX-terminal is supporting lots of colors and attributes.</p>
+<a class="header" href="#colors" id="colors"><h2>Colors</h2></a>
+<p>There are 16 base colors which available for almost all terminals even windows 7 and 8.</p>
+<table><thead><tr><th align="left"> Light Variant  </th><th align="left"> Dark Variant    </th></tr></thead><tbody>
+<tr><td align="left">       Grey     </td><td align="left">      Black      </td></tr>
+<tr><td align="left">       Red      </td><td align="left">      DarkRed    </td></tr>
+<tr><td align="left">       Green    </td><td align="left">      DarkGreen  </td></tr>
+<tr><td align="left">       Yellow   </td><td align="left">      DarkYellow </td></tr>
+<tr><td align="left">       Blue     </td><td align="left">      DarkBlue   </td></tr>
+<tr><td align="left">       Magenta  </td><td align="left">      DarkMagenta</td></tr>
+<tr><td align="left">       Cyan     </td><td align="left">      DarkCyan   </td></tr>
+<tr><td align="left">       White    </td><td align="left">      DarkWhite  </td></tr>
+</tbody></table>
+<p>In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
+Those colors could be: <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color (24-bit)</a> coloring scheme, which allows you to use <a href="https://nl.wikipedia.org/wiki/RGB-kleursysteem">RGB</a>, and <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit)</a> colors.
+Checkout the examples on how to use this feature.</p>
+<a class="header" href="#attributes" id="attributes"><h2>Attributes</h2></a>
+<p>Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.
+Not all attributes are widely supported for all terminals, keep that in mind when working with this.</p>
+<p>Crossterm implements almost all attributes shown in this <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters">Wikipedia-list</a>.</p>
+<table><thead><tr><th align="center"> Attribute                      </th><th>     Support                                             </th><th>  Note         </th></tr></thead><tbody>
+<tr><td align="center">       Reset                    </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will reset all current set attributes.     </td></tr>
+<tr><td align="center">       Bold                     </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will increase the font sensitivity also known as bold.     </td></tr>
+<tr><td align="center">       Dim                      </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will decrease the font sensitivity also known as bold.   </td></tr>
+<tr><td align="center">       Italic                   </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  This will make the font italic.   </td></tr>
+<tr><td align="center">       Underlined               </td><td align="center">  Windows, UNIX                                           </td><td align="center">  An line under a word, especially in order to show its importance.   </td></tr>
+<tr><td align="center">       SlowBlink                </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  less than 150 per minute  </td></tr>
+<tr><td align="center">       RapidBlink               </td><td align="center">  Not widely supported                                    </td><td align="center">  MS-DOS ANSI.SYS; 150+ per minute;  </td></tr>
+<tr><td align="center">       Reverse                  </td><td align="center">  Windows, UNIX                                           </td><td align="center">   foreground and background colors </td></tr>
+<tr><td align="center">       Hidden                   </td><td align="center">  Windows, UNIX </td><td align="center">                                         </td><td>  Also known as 'Conceal'</td></tr>
+<tr><td align="center">       Fraktur                  </td><td align="center">  UNIX                                                    </td><td align="center">  characters legible, but marked for deletion. </td></tr>
+<tr><td align="center">       DefaultForegroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
+<tr><td align="center">       DefaultBackgroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
+<tr><td align="center">       Framed                   </td><td align="center">  Not widely supported                                    </td><td align="center">  Framed font.</td></tr>
+<tr><td align="center">       Encircled                </td><td align="center">  Unknown                                                 </td><td align="center">  This will turn on the encircled attribute. </td></tr>
+<tr><td align="center">       OverLined                </td><td align="center">  Unknown                                                 </td><td align="center">  This will draw a line at the top of the font. </td></tr>
+</tbody></table>
+<p>(There are a few attributes who disable one of the above attributes, I did not write those down to keep the list short).</p>
+<p>Now we have covered the basics of styling lets go some <a href="styling_example.html">examples</a>.</p>
+<hr />
+<p>Next up: <a href="styling_example.html">Examples</a></p>
+<a class="header" href="#example" id="example"><h1>Example</h1></a>
+<p><em>setup the basics</em></p>
+<pre><pre class="playpen"><code class="language-rust">extern crate crossterm;
+
+use crossterm::{Colored, Color, Attribute, Styler, Colorize};
+
+fn main() {
+    /* your code here */
+}
+</code></pre></pre>
+<p>There are a couple of ways to style the terminal output with crossterm. The most important part of the styling module is <code>StyledObject</code>.</p>
+<p>A <code>StyledObject</code> is just a wrapper crossterm uses to store the text and style together.
+A <code>StyledObject</code> implements <code>Display</code> and thus you could use it inside <code>print!</code>, <code>println!</code> etc.</p>
+<p>Without further ado let's get straight into it.</p>
+<a class="header" href="#coloring" id="coloring"><h2>Coloring</h2></a>
+<p>There are a few ways to do the coloring, the first one is by using the <code>Colored</code> enum.</p>
+<a class="header" href="#using-enum" id="using-enum"><h3>Using Enum</h3></a>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+println!(&quot;{} Red foreground color&quot;, Colored::Fg(Color::Red));
+println!(&quot;{} Blue background color&quot;, Colored::Bg(Color::Blue));
+#}</code></pre></pre>
+<p><code>Colored::Bg</code> will set the background color, and <code>Colored::Fg</code> will set the foreground color to the provided color.
+The provided color is of type <code>Color</code> and has a bunch of enum values you could choose out.</p>
+<p>Because <code>Colored</code> implements <code>Display</code> you are able to use it inside any write statement.</p>
+<a class="header" href="#using-methods" id="using-methods"><h3>Using Methods</h3></a>
+<p>You can do the same as the above in a slightly different way. Instead of enabling it for all text you could also color the only piece of text.
+(Make sure to include the <code>crossterm::Coloring</code> trait).</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let styled_text = &quot;Red forground color on blue background.&quot;.red().on_blue();
+println!(&quot;{}&quot;, styled_text);
+#}</code></pre></pre>
+<p>As you see in the above example you could call coloring methods on a string. How is this possible you might ask..?
+Well, the trait <code>Coloring</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
+When calling a method on this string crossterm transforms it into a <code>StyledObject</code> who you could use in your write statements.</p>
+<a class="header" href="#rgb" id="rgb"><h3>RGB</h3></a>
+<p>Most UNIX terminals and all Windows 10 consoles are supporting <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color(24-bit)</a> coloring scheme.
+You can set the color of the terminal by using <code>Color::RGB(r,g,b)</code>.</p>
+<pre><code>// custom rgb value (Windows 10 and UNIX systems)
+println!(&quot;{}{} 'Light green' text on 'Black' background&quot;, Colored::Fg(Color::Rgb { r: 0, g: 255, b: 128 }), Colored::Bg(Color::Rgb {r: 0, g: 0, b: 0}));
+</code></pre>
+<p>This will print some light green text on black background.</p>
+<a class="header" href="#custom-ansi-color-value" id="custom-ansi-color-value"><h3>Custom ANSI color value</h3></a>
+<p>When working on UNIX or Windows 10 you could also specify a custom ANSI value ranging up from 0 to 256.
+See <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit) colors</a> for more information.</p>
+<pre><code>// custom ansi color value (Windows 10 and UNIX systems)
+println!(&quot;{} some colored text&quot;, Colored::Fg(Color::AnsiValue(10)));
+</code></pre>
+<a class="header" href="#attributes-1" id="attributes-1"><h2>Attributes</h2></a>
+<p>When working with UNIX or Windows 10 terminals you could also use attributes to style your font. For example, you could cross your text with a line and make it bold.
+See <a href="styling.html#Attributes">this</a> for more information.</p>
+<a class="header" href="#using-enum-1" id="using-enum-1"><h3>Using Enum</h3></a>
+<p>You could use the <code>Attribute</code> enum for styling text with attributes.
+<code>Attribute</code> implements <code>Display</code>, thus crossterm will enable the attribute style when using it in any writing operation.</p>
+<pre><code>println!(
+    &quot;{} Underlined {} No Underline&quot;,
+    Attribute::Underlined,
+    Attribute::NoUnderline
+);
+</code></pre>
+<a class="header" href="#using-method" id="using-method"><h3>Using Method</h3></a>
+<p>You can do the same as the above in a slightly different way. Instead of enabling it for all text you could also style only one piece of text.
+(Make sure to include the <code>crossterm::Styler</code> trait).</p>
+<pre><code>println!(&quot;{}&quot;, &quot;Bold text&quot;.bold();
+println!(&quot;{}&quot;, &quot;Underlined text&quot;.underlined();
+println!(&quot;{}&quot;, &quot;Negative text&quot;.negative();
+</code></pre>
+<p>As you see in the above example you could call attributes methods on a string. How is this possible you might ask..?
+Well, the trait <code>Styling</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
+When calling a method on any string crossterm transforms will transform it into a <code>StyledObject</code> who you could use in your write statements.</p>
+<hr />
+<p>More examples could be found at this <a href="https://github.com/TimonPost/crossterm/blob/master/examples/style.rs">link</a>.</p>
+<p>Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
+Please check out these <a href="https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs">examples</a> for reading a line or a character from the user.</p>
+<a class="header" href="#differences-synchronous-and-asynchronous" id="differences-synchronous-and-asynchronous"><h2>Differences Synchronous and Asynchronous</h2></a>
+<p>Crossterm provides two ways to read user input, synchronous and asynchronous.</p>
+<a class="header" href="#synchronous-reading" id="synchronous-reading"><h3>Synchronous reading</h3></a>
+<p>Read the input synchronously from the user, the reads performed will be blocking calls.
+Using synchronous over asynchronous reading has the benefit that it is using fewer resources than the asynchronous because background thread and queues are left away.</p>
+<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_sync</code>.</p>
+<a class="header" href="#asynchronous-reading" id="asynchronous-reading"><h3>Asynchronous reading</h3></a>
+<p>Read the input asynchronously, input events are gathered on the background and will be queued for you to read.
+Using asynchronous reading has the benefit that input events are queued until you read them. You can poll for occurred events, and the reads won't block your program.</p>
+<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_async</code>, <code>TerminalInput::read_async_until</code>.</p>
+<a class="header" href="#technical-details" id="technical-details"><h3>Technical details</h3></a>
+<p>On UNIX systems crossterm reads from the TTY, on Windows, it uses <code>ReadConsoleInputW</code>.
+For asynchronous reading, a background thread will be fired up to read input events,
+occurred events will be queued on an MPSC-channel, and the user can iterate over those events.</p>
+<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="./screen.html">screen</a> for more info.</p>
+<a class="header" href="#example-1" id="example-1"><h1>Example</h1></a>
+<p>In the following example, we will create a small program that will listen for mouse and keyboard input.
+On the press of the 'escape' key, the program will be stopped.</p>
+<p>So let's start by setting up the basics.</p>
+<pre><code>use std::{thread, time::Duration};
+use crossterm::{input, InputEvent, KeyEvent};
+
+fn main() {
+    println!(&quot;Press 'ESC' to quit.&quot;);
+
+    /* next code here */
+}
+</code></pre>
+<p>Next, we need to put the terminal into raw mode. We do this because we don't want the user input to be printed to the terminal screen.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+// enable raw mode
+let screen = RawScreen::into_raw_mode();
+
+// create a input from our screen
+let input = input();
+
+/* next code here */
+#}</code></pre></pre>
+<p>Now that we constructed a <code>TerminalInput</code> instance we can go ahead an start the reading.
+Do this by calling <code>input.read_async()</code>, which returns an <a href="https://docs.rs/crossterm/0.8.0/crossterm/struct.AsyncReader.html">AsyncReader</a>.
+This is an iterator over the input events that you could as any other iterator.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let mut async_stdin = input.read_async();
+
+loop {
+    if let Some(key_event) = async_stdin.next() {
+        /* next code here */
+    }
+    thread::sleep(Duration::from_millis(50));
+}
+#}</code></pre></pre>
+<p>The <a href="https://docs.rs/crossterm/0.8.0/crossterm/struct.AsyncReader.html">AsyncReader</a> iterator will return <code>None</code> when nothing is there to read, <code>Some(InputEvent)</code> if there are events to read.
+I use a thread delay to prevent spamming the iterator.</p>
+<p>Next up we can start pattern matching to see if there are input events we'd like to catch.
+In our case, we want to catch the <code>Escape Key</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+ match key_event {
+    InputEvent::Keyboard(event) =&gt; match event {
+        KeyEvent::Esc =&gt; {
+            println!(&quot;Program closing ...&quot;);
+            break
+        }
+        _ =&gt; println!(&quot;Key {:?} was pressed!&quot;, event)
+    }
+    InputEvent::Mouse(event) =&gt; { /* Mouse Event */ }
+    _ =&gt; { }
+}
+#}</code></pre></pre>
+<p>As you see, we check if the <code>KeyEvent::Esc</code> was pressed, if that's true we stop the program by breaking out of the loop.</p>
+<p><em>final code</em></p>
+<pre><pre class="playpen"><code class="language-rust">use std::{thread, time::Duration};
+use crossterm::{input, InputEvent, KeyEvent};
+
+fn main() {
+    println!(&quot;Press 'ESC' to quit.&quot;);
+
+    // enable raw mode
+    let screen = RawScreen::into_raw_mode();
+
+    // create a input from our screen.
+    let input = input();
+
+    // create async reader
+    let mut async_stdin = input.read_async();
+
+    loop {
+        // try to get the next input event.
+        if let Some(key_event) = async_stdin.next() {
+            match key_event {
+                InputEvent::Keyboard(event) =&gt; match event {
+                    KeyEvent::Esc =&gt; {
+                        println!(&quot;Program closing ...&quot;);
+                        break
+                    }
+                    _ =&gt; println!(&quot;Key {:?} was pressed!&quot;, event)
+                }
+                InputEvent::Mouse(event) =&gt; { /* Mouse Event */ }
+                _ =&gt; { }
+            }
+        }
+        thread::sleep(Duration::from_millis(50));
+    }
+} // &lt;=== background reader will be disposed when dropped.s
+</code></pre></pre>
+<hr />
+<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/TimonPost/crossterm/tree/master/examples/">here</a>.</p>
+<a class="header" href="#screen-buffer" id="screen-buffer"><h2>Screen Buffer</h2></a>
+<p>A screen buffer is a two-dimensional array of characters and color data to be output in a console window.
+An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.</p>
+<p>Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'.
+One note to take is that crossterm does not support the creation and switching between several buffers.</p>
+<a class="header" href="#alternate-screen" id="alternate-screen"><h3>Alternate Screen</h3></a>
+<p>Normally you are working on the main screen but an alternate screen is somewhat different from a normal screen.
+For example, it has the exact dimensions of the terminal window, without any scrollback region. An example of this is vim when it is launched from bash.</p>
+<p>Vim uses the entirety of the screen to edit the file, then exits to bash leaving the original buffer unchanged.</p>
+<p>Crossterm provides the ability to switch to the alternate screen, make some changes, and then go back to the main screen.
+The main screen will still have its original data since we made all the edits on the alternate screen.</p>
+<a class="header" href="#raw-screen" id="raw-screen"><h2>Raw screen</h2></a>
+<p>To understand the concept of a 'raw screen' let's look at the following points:</p>
+<p><strong>No line buffering.</strong>
+Normally the terminals use line buffering. This means that the input will be sent to the terminal line by line. With raw mode, the input will send one byte at a time.</p>
+<p><strong>Input</strong></p>
+<p>All input has to be written to the screen buffer manually by the programmer.</p>
+<p><strong>Characters</strong></p>
+<p>The characters are not processed by the terminal driver. Also, special character have no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.</p>
+<p><strong>Escape Characters</strong>
+Note that in raw mode <code>\n</code> <code>\r</code> will move the cursor to a new line but it will be at the same position as it was on the previous line.</p>
+<p><em>example of what I mean</em></p>
+<pre><code>some text
+         some text
+</code></pre>
+<p>To start at the beginning of the next line, use <code>\n\r</code>.</p>
+<hr />
+<p>More examples could be found <a href="https://github.com/TimonPost/crossterm/blob/master/examples/">over here</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

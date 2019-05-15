@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Reading Input Events - </title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html" class="active"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title"></h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
+Please check out these <a href="https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs">examples</a> for reading a line or a character from the user.</p>
+<a class="header" href="#differences-synchronous-and-asynchronous" id="differences-synchronous-and-asynchronous"><h2>Differences Synchronous and Asynchronous</h2></a>
+<p>Crossterm provides two ways to read user input, synchronous and asynchronous.</p>
+<a class="header" href="#synchronous-reading" id="synchronous-reading"><h3>Synchronous reading</h3></a>
+<p>Read the input synchronously from the user, the reads performed will be blocking calls.
+Using synchronous over asynchronous reading has the benefit that it is using fewer resources than the asynchronous because background thread and queues are left away.</p>
+<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_sync</code>.</p>
+<a class="header" href="#asynchronous-reading" id="asynchronous-reading"><h3>Asynchronous reading</h3></a>
+<p>Read the input asynchronously, input events are gathered on the background and will be queued for you to read.
+Using asynchronous reading has the benefit that input events are queued until you read them. You can poll for occurred events, and the reads won't block your program.</p>
+<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_async</code>, <code>TerminalInput::read_async_until</code>.</p>
+<a class="header" href="#technical-details" id="technical-details"><h3>Technical details</h3></a>
+<p>On UNIX systems crossterm reads from the TTY, on Windows, it uses <code>ReadConsoleInputW</code>.
+For asynchronous reading, a background thread will be fired up to read input events,
+occurred events will be queued on an MPSC-channel, and the user can iterate over those events.</p>
+<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="./screen.html">screen</a> for more info.</p>
+<a class="header" href="#example" id="example"><h1>Example</h1></a>
+<p>In the following example, we will create a small program that will listen for mouse and keyboard input.
+On the press of the 'escape' key, the program will be stopped.</p>
+<p>So let's start by setting up the basics.</p>
+<pre><code>use std::{thread, time::Duration};
+use crossterm::{input, InputEvent, KeyEvent};
+
+fn main() {
+    println!(&quot;Press 'ESC' to quit.&quot;);
+
+    /* next code here */
+}
+</code></pre>
+<p>Next, we need to put the terminal into raw mode. We do this because we don't want the user input to be printed to the terminal screen.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+// enable raw mode
+let screen = RawScreen::into_raw_mode();
+
+// create a input from our screen
+let input = input();
+
+/* next code here */
+#}</code></pre></pre>
+<p>Now that we constructed a <code>TerminalInput</code> instance we can go ahead an start the reading.
+Do this by calling <code>input.read_async()</code>, which returns an <a href="https://docs.rs/crossterm/0.8.0/crossterm/struct.AsyncReader.html">AsyncReader</a>.
+This is an iterator over the input events that you could as any other iterator.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let mut async_stdin = input.read_async();
+
+loop {
+    if let Some(key_event) = async_stdin.next() {
+        /* next code here */
+    }
+    thread::sleep(Duration::from_millis(50));
+}
+#}</code></pre></pre>
+<p>The <a href="https://docs.rs/crossterm/0.8.0/crossterm/struct.AsyncReader.html">AsyncReader</a> iterator will return <code>None</code> when nothing is there to read, <code>Some(InputEvent)</code> if there are events to read.
+I use a thread delay to prevent spamming the iterator.</p>
+<p>Next up we can start pattern matching to see if there are input events we'd like to catch.
+In our case, we want to catch the <code>Escape Key</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+ match key_event {
+    InputEvent::Keyboard(event) =&gt; match event {
+        KeyEvent::Esc =&gt; {
+            println!(&quot;Program closing ...&quot;);
+            break
+        }
+        _ =&gt; println!(&quot;Key {:?} was pressed!&quot;, event)
+    }
+    InputEvent::Mouse(event) =&gt; { /* Mouse Event */ }
+    _ =&gt; { }
+}
+#}</code></pre></pre>
+<p>As you see, we check if the <code>KeyEvent::Esc</code> was pressed, if that's true we stop the program by breaking out of the loop.</p>
+<p><em>final code</em></p>
+<pre><pre class="playpen"><code class="language-rust">use std::{thread, time::Duration};
+use crossterm::{input, InputEvent, KeyEvent};
+
+fn main() {
+    println!(&quot;Press 'ESC' to quit.&quot;);
+
+    // enable raw mode
+    let screen = RawScreen::into_raw_mode();
+
+    // create a input from our screen.
+    let input = input();
+
+    // create async reader
+    let mut async_stdin = input.read_async();
+
+    loop {
+        // try to get the next input event.
+        if let Some(key_event) = async_stdin.next() {
+            match key_event {
+                InputEvent::Keyboard(event) =&gt; match event {
+                    KeyEvent::Esc =&gt; {
+                        println!(&quot;Program closing ...&quot;);
+                        break
+                    }
+                    _ =&gt; println!(&quot;Key {:?} was pressed!&quot;, event)
+                }
+                InputEvent::Mouse(event) =&gt; { /* Mouse Event */ }
+                _ =&gt; { }
+            }
+        }
+        thread::sleep(Duration::from_millis(50));
+    }
+} // &lt;=== background reader will be disposed when dropped.s
+</code></pre></pre>
+<hr />
+<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/TimonPost/crossterm/tree/master/examples/">here</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="styling_example.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="screen.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="styling_example.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="screen.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
