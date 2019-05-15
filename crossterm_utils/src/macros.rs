@@ -8,16 +8,18 @@ macro_rules! csi {
 #[macro_export]
 macro_rules! write_cout {
     ($string:expr) => {{
+        let stdout = ::std::io::stdout();
+        let mut stdout = stdout.lock();
         let mut size = 0;
 
-        let result = write!(::std::io::stdout(), "{}", $string);
+        let result = stdout.write($string.as_bytes());
 
-        match result {
+        size += match result {
             Ok(size) => size,
             Err(e) => return Err(crossterm_utils::ErrorKind::IoError(e)),
         };
 
-        match ::std::io::stdout().flush() {
+        match stdout.flush() {
             Ok(_) => Ok(size),
             Err(e) => Err(crossterm_utils::ErrorKind::IoError(e)),
         }

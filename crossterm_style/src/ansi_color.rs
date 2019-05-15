@@ -12,7 +12,7 @@ pub struct AnsiColor;
 
 impl AnsiColor {
     pub fn new() -> AnsiColor {
-        AnsiColor {}
+        AnsiColor
     }
 }
 
@@ -20,7 +20,7 @@ impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color) -> Result<()> {
         write_cout!(&format!(
             csi!("{}m"),
-            self.color_value(Colored::Fg(fg_color))
+            self.color_value(Colored::Fg(fg_color)),
         ))?;
         Ok(())
     }
