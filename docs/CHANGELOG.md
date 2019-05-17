@@ -45,11 +45,14 @@ This release is all about moving to a stabilized API for 1.0.
 - Added public re-exports for input.
 
 # Changes crossterm 0.8.0
-- Upgraded to `crossterm_input 0.2.0`; Input key, mouse events support.
+- Introduced KeyEvents
+- Introduced MouseEvents
 - Upgraded crossterm_winapi 0.2
 
 # Changes crossterm 0.7.0
-- Upgraded to `crossterm_style 0.2`; easier styling.
+- Introduced more `Attributes`
+- Introduced easier ways to style text [issue 87](https://github.com/TimonPost/crossterm/issues/87).
+- Removed `ColorType` since it was unnecessary.
 
 # Changes crossterm 0.6.0
 - Introduced feature flags; input, cursor, style, terminal, screen.
