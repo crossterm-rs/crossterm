@@ -2,13 +2,11 @@ use super::{is_true, Coord, Handle, HandleType, WindowPositions};
 use std::io::{self, Error, Result};
 use std::str;
 
-use std::mem::zeroed;
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
-use winapi::um::consoleapi::ReadConsoleInputW;
+use winapi::um::consoleapi::{ReadConsoleInputW, WriteConsoleW, GetNumberOfConsoleInputEvents};
 use winapi::um::{
-    consoleapi::WriteConsoleW,
     wincon::{
         FillConsoleOutputAttribute, FillConsoleOutputCharacterA, GetLargestConsoleWindowSize,
         SetConsoleTextAttribute, SetConsoleWindowInfo, COORD, INPUT_RECORD, SMALL_RECT,
@@ -165,21 +163,34 @@ impl Console {
     }
 
     pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
-        // Large buffers can overflow max heap size (?) and lead to errno 8
-        // "Not enough storage is available to process this command."
-        // It can be reproduced at Windows 7 i686 with `0x1000` buffer size.
-        let mut buf: [INPUT_RECORD; 0x800] = unsafe { zeroed() };
+        let mut buf_len: DWORD = 0;
+        if !is_true(unsafe {
+            GetNumberOfConsoleInputEvents(*self.handle, &mut buf_len)
+        }) {
+            return Err(Error::last_os_error());
+        }
+
+        // Fast-skipping all the code below if there is nothing to read at all
+        if buf_len == 0 {
+            return Ok((0, vec![]));
+        }
+
+        let mut buf: Vec<INPUT_RECORD> = Vec::with_capacity(buf_len as usize);
         let mut size = 0;
 
         if !is_true(unsafe {
             ReadConsoleInputW(
                 *self.handle,
                 buf.as_mut_ptr(),
-                buf.len() as DWORD,
+                buf_len,
                 &mut size,
             )
         }) {
             return Err(Error::last_os_error());
+        } else {
+            unsafe {
+                buf.set_len(size as usize);
+            }
         }
 
         Ok((
