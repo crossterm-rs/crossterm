@@ -5,7 +5,7 @@ use std::str;
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
-use winapi::um::consoleapi::{ReadConsoleInputW, WriteConsoleW, GetNumberOfConsoleInputEvents};
+use winapi::um::consoleapi::{GetNumberOfConsoleInputEvents, ReadConsoleInputW, WriteConsoleW};
 use winapi::um::{
     wincon::{
         FillConsoleOutputAttribute, FillConsoleOutputCharacterA, GetLargestConsoleWindowSize,
@@ -164,9 +164,7 @@ impl Console {
 
     pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
         let mut buf_len: DWORD = 0;
-        if !is_true(unsafe {
-            GetNumberOfConsoleInputEvents(*self.handle, &mut buf_len)
-        }) {
+        if !is_true(unsafe { GetNumberOfConsoleInputEvents(*self.handle, &mut buf_len) }) {
             return Err(Error::last_os_error());
         }
 
@@ -179,12 +177,7 @@ impl Console {
         let mut size = 0;
 
         if !is_true(unsafe {
-            ReadConsoleInputW(
-                *self.handle,
-                buf.as_mut_ptr(),
-                buf_len,
-                &mut size,
-            )
+            ReadConsoleInputW(*self.handle, buf.as_mut_ptr(), buf_len, &mut size)
         }) {
             return Err(Error::last_os_error());
         } else {
