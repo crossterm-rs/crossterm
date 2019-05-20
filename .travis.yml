@@ -2,7 +2,6 @@
 language: rust
 rust:
   - stable
-  - nightly
 
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin

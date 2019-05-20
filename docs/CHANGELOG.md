@@ -1,3 +1,6 @@
+# Changes crossterm 0.9.5
+- Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/TimonPost/crossterm/pull/144)
+
 # Changes crossterm 0.9.4
 - Reset foreground and background color individually. [PR](https://github.com/TimonPost/crossterm/pull/138)
 - Backtap input support. [PR](https://github.com/TimonPost/crossterm/pull/129)
