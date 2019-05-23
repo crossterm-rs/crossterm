@@ -362,7 +362,23 @@ where
                         _ => InputEvent::Unknown,
                     }
                 }
-                _ => InputEvent::Unknown,
+                e => match (buf.last().unwrap(), e) {
+                    (53, 65) => InputEvent::Keyboard(KeyEvent::CtrlUp),
+                    (53, 66) => InputEvent::Keyboard(KeyEvent::CtrlDown),
+                    (53, 67) => InputEvent::Keyboard(KeyEvent::CtrlRight),
+                    (53, 68) => InputEvent::Keyboard(KeyEvent::CtrlLeft),
+                    (52, 65) => InputEvent::Keyboard(KeyEvent::AltShiftUp),
+                    (52, 66) => InputEvent::Keyboard(KeyEvent::AltShiftDown),
+                    (52, 67) => InputEvent::Keyboard(KeyEvent::AltShiftRight),
+                    (52, 68) => InputEvent::Keyboard(KeyEvent::AltShiftLeft),
+                    (51, 72) => InputEvent::Keyboard(KeyEvent::AltHome),
+                    (51, 70) => InputEvent::Keyboard(KeyEvent::AltEnd),
+                    (50, 65) => InputEvent::Keyboard(KeyEvent::ShiftUp),
+                    (50, 66) => InputEvent::Keyboard(KeyEvent::ShiftDown),
+                    (50, 67) => InputEvent::Keyboard(KeyEvent::ShiftRight),
+                    (50, 68) => InputEvent::Keyboard(KeyEvent::ShiftLeft),
+                    _ => InputEvent::Unknown,
+                },
             }
         }
         _ => InputEvent::Unknown,

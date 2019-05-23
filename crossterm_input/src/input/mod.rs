@@ -111,6 +111,20 @@ pub enum KeyEvent {
     Ctrl(char),
     Null,
     Esc,
+    CtrlUp,
+    CtrlDown,
+    CtrlRight,
+    CtrlLeft,
+    AltShiftUp,
+    AltShiftDown,
+    AltShiftRight,
+    AltShiftLeft,
+    AltHome,
+    AltEnd,
+    ShiftUp,
+    ShiftDown,
+    ShiftRight,
+    ShiftLeft,
 }
 
 /// This type allows you to read the input asynchronously which means that input events are gathered on the background and will be queued for you to read.
