@@ -224,6 +224,15 @@ fn handle_key_event(key_event: &KeyEventRecord, seq: &mut Vec<u8>) {
         VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => {
             seq.push(b'\x1B');
             seq.push(b'[');
+
+            // Modifier Keys (Ctrl, Shift) Support
+            let key_state = &key_event.control_key_state;
+            if key_state.has_state(RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED) {
+                seq.push(53);
+            } else if key_state.has_state(SHIFT_PRESSED) {
+                seq.push(50);
+            }
+
             seq.push([b'D', b'A', b'C', b'B'][(key_event.virtual_key_code - 0x25) as usize]);
         }
         VK_PRIOR | VK_NEXT => {
