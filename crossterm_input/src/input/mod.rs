@@ -91,7 +91,7 @@ pub enum MouseButton {
 }
 
 /// Enum with different key or key combinations.
-#[derive(Debug, PartialOrd, PartialEq, Eq)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy)]
 pub enum KeyEvent {
     Backspace,
     Left,
