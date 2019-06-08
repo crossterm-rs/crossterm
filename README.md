@@ -313,6 +313,12 @@ input.disable_mouse_mode().unwrap();
 ### Alternate and Raw Screen
 These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
 
+## Used By
+- [Broot](https://dystroy.org/broot/)
+- [Cursive](https://github.com/gyscos/Cursive)
+- [TUI](https://github.com/fdehau/tui-rs)
+- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
+
 ## Tested terminals
 
 - Windows Powershell
