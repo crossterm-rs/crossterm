@@ -30,7 +30,7 @@ Crossterm::new();
 ```
 
 _"This could be used to paint the styled object onto the given screen. You have to pass a reference to the screen whereon you want to perform the painting"_
- Because crosstrem does not have to keep track of the output anymore those functions are removed.
+ Because crossterm does not have to keep track of the output anymore those functions are removed.
  
 _**old**_
 ```rust
