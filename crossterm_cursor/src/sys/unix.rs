@@ -1,5 +1,5 @@
 use crossterm_utils::sys::unix::{self, RAW_MODE_ENABLED};
-use std::io::{self, Error, ErrorKind, Read, Write};
+use std::io::{self, BufRead, Write};
 
 /// Get the cursor position based on the current platform.
 #[cfg(unix)]
@@ -30,53 +30,42 @@ pub fn pos_raw() -> io::Result<(u16, u16)> {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();
+    let stdin = io::stdin();
 
     // Write command
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
-    let mut buf = [0u8; 2];
+    stdin.lock().read_until(b'[', &mut vec![])?;
 
-    // Expect `ESC[`
-    io::stdin().read_exact(&mut buf)?;
-    if buf[0] != 0x1B || buf[1] as char != '[' {
-        return Err(Error::new(ErrorKind::Other, "test"));
-    }
+    let mut rows = vec![];
+    stdin.lock().read_until(b';', &mut rows).unwrap();
 
-    // Read rows and cols through a ad-hoc integer parsing function
-    let read_num: fn() -> Result<(i32, char), Error> = || -> Result<(i32, char), Error> {
-        let mut num = 0;
-        let mut c: char;
+    let mut cols = vec![];
+    stdin.lock().read_until(b'R', &mut cols).unwrap();
 
-        loop {
-            let mut buf = [0u8; 1];
-            io::stdin().read_exact(&mut buf)?;
-            c = buf[0] as char;
-            if let Some(d) = c.to_digit(10) {
-                num = if num == 0 { 0 } else { num * 10 };
-                num += d as i32;
-            } else {
-                break;
-            }
-        }
+    // remove delimiter
+    rows.pop();
+    cols.pop();
 
-        Ok((num, c))
-    };
+    let rows = rows
+        .into_iter()
+        .map(|b| (b as char))
+        .fold(String::new(), |mut acc, n| {
+            acc.push(n);
+            acc
+        })
+        .parse::<usize>()
+        .unwrap();
+    let cols = cols
+        .into_iter()
+        .map(|b| (b as char))
+        .fold(String::new(), |mut acc, n| {
+            acc.push(n);
+            acc
+        })
+        .parse::<usize>()
+        .unwrap();
 
-    // Read rows and expect `;`
-    let (rows, c) = read_num()?;
-    if c != ';' {
-        return Err(Error::new(ErrorKind::Other, "test"));
-    }
-
-    // Read cols
-    let (cols, c) = read_num()?;
-
-    // Expect `R`
-    if c == 'R' {
-        // subtract one to get 0-based coords
-        Ok(((cols - 1) as u16, (rows - 1) as u16))
-    } else {
-        Err(Error::new(ErrorKind::Other, "test"))
-    }
+    Ok(((cols - 1) as u16, (rows - 1) as u16))
 }
