@@ -40,10 +40,10 @@ impl AlternateScreen {
     pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
         let command = if supports_ansi() {
-            Box::from(ToAlternateScreenCommand::new())
+            Box::from(sys::ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         } else {
-            Box::from(sys::ToAlternateScreenCommand::new())
+            Box::from(ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         };
 
