@@ -1,4 +1,4 @@
-use libc::{winsize, ioctl, STDOUT_FILENO, TIOCGWINSZ};
+use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
 pub fn exit() {
     ::std::process::exit(0);
