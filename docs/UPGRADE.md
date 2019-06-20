@@ -215,10 +215,10 @@ if let Ok(alternate) = screen.enable_alternate_modes(false) {
 
 ***WARNING*** 
 
-This new version contains some cool features but to get those features working I needed to add some user API braking changes. 
+This new version contains some cool features but to get those features working I needed to add some user API breaking changes. 
 I really did not want to do this but it had to be done for some reasons.
 
-#### 1. You need to pass a reference to an `Screen` to the modules: `cursor(), color(), terminal()`
+#### 1. You need to pass a reference to a `Screen` to the modules: `cursor()`, `color()`, `terminal()`
 
 _**old**_
 ```

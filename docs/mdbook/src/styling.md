@@ -35,7 +35,7 @@ Crossterm implements almost all attributes shown in this [Wikipedia-list](https:
 |       Bold                     |  Windows, UNIX                                           |  This will increase the text sensitivity also known as bold.     | 
 |       Dim                      |  Windows, UNIX                                           |  This will decrease the text sensitivity also known as bold.   |
 |       Italic                   |  Not widely supported, sometimes treated as inverse.     |  This will make the text italic.   |
-|       Underlined               |  Windows, UNIX                                           |  An line under a word, especially in order to show its importance.   |                                        
+|       Underlined               |  Windows, UNIX                                           |  A line under a word, especially in order to show its importance.   |                                        
 |       SlowBlink                |  Not widely supported, sometimes treated as inverse.     |  less than 150 per minute  | 
 |       RapidBlink               |  Not widely supported                                    |  MS-DOS ANSI.SYS; 150+ per minute;  | 
 |       Reverse                  |  Windows, UNIX                                           |   foreground and background colors |                                       

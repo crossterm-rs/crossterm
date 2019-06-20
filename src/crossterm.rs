@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-/// This type offers a easy way to use functionalities like `cursor, terminal, color, input, styling`.
+/// This type offers an easy way to use functionalities like `cursor`, `terminal`, `color`, `input`, and `styling`.
 ///
 /// To get a cursor instance to perform cursor related actions, you can do the following:
 ///

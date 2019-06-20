@@ -2,8 +2,9 @@ use std::fmt::Display;
 use std::io::stdout;
 use std::io::Write;
 
-/// These are all the attributes which **could** be apply to text.
-/// There are few things to note
+/// These are all the attributes which can be applied to text.
+///
+/// There are few things to note:
 /// - Not all attributes are supported, some of them are only supported on Windows some only on Unix,
 /// and some are only very rarely supported.
 /// - I got those attributes, descriptions, supportability from here: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters

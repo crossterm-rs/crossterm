@@ -8,7 +8,7 @@ use std::{
 /// The `crossterm` result type.
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 
-/// Wrapper for all errors who could occur in `crossterm`.
+/// Wrapper for all errors that can occur in `crossterm`.
 #[derive(Debug)]
 pub enum ErrorKind {
     IoError(io::Error),

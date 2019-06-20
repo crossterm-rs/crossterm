@@ -16,7 +16,7 @@ pub use self::terminal::{terminal, Terminal};
 
 use crossterm_utils::Result;
 
-/// Enum that specifies a way of clearing.
+/// Enum that specifies ways of clearing the terminal.
 pub enum ClearType {
     /// clear all cells in terminal.
     All,

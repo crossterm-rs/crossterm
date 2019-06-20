@@ -31,9 +31,9 @@ pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
 use crossterm_utils::Result;
 
-/// This trait defines the actions that can be performed with terminal color.
+/// This trait defines the actions that can be performed with terminal colors.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
-/// the wishes to work on an specific platform.
+/// the wishes to work on a specific platform.
 ///
 /// ## For example:
 ///
@@ -46,15 +46,15 @@ trait ITerminalColor {
     fn set_bg(&self, fg_color: Color) -> Result<()>;
     /// Reset the terminal color to default.
     fn reset(&self) -> Result<()>;
-    /// Gets an value that represents an color from the given `Color` and `ColorType`.
+    /// Gets an value that represents a color from the given `Color` and `ColorType`.
     fn color_value(&self, cored: Colored) -> String;
 }
 
-/// This could be used to style a type who is implementing `Display` with colors and attributes.
+/// This could be used to style a type that implements `Display` with colors and attributes.
 ///
 /// # Example
 /// ```rust
-/// // get an styled object which could be painted to the terminal.
+/// // get a styled object which could be painted to the terminal.
 /// let styled_object = style("Some Blue colored text on black background")
 ///     .with(Color::Blue)
 ///     .on(Color::Black);
