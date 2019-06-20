@@ -24,7 +24,7 @@ pub struct TerminalInput {
 }
 
 impl TerminalInput {
-    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
+    /// Create a new instance of `TerminalInput` whereon input related actions could be performed.
     pub fn new() -> TerminalInput {
         #[cfg(windows)]
         let input = WindowsInput::new();

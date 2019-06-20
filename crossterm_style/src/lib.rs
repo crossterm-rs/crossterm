@@ -31,7 +31,7 @@ pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
 use crossterm_utils::Result;
 
-/// This trait defines the actions that can be preformed with terminal color.
+/// This trait defines the actions that can be performed with terminal color.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
 /// the wishes to work on an specific platform.
 ///

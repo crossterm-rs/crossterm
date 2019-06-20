@@ -28,7 +28,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
-/// This trait defines the actions that can be preformed with the terminal input.
+/// This trait defines the actions that can be performed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill
 /// the wishes to work on a specific platform.
 ///

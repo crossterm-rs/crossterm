@@ -30,14 +30,14 @@ pub enum ClearType {
     UntilNewLine,
 }
 
-/// This trait defines the actions that can be preformed with the terminal color.
+/// This trait defines the actions that can be performed with the terminal color.
 /// This trait can be implemented so that an concrete implementation of the ITerminalColor can fulfill.
 /// the wishes to work on an specific platform.
 ///
 /// ## For example:
 ///
 /// This trait is implemented for `WinApi` (Windows specific) and `ANSI` (Unix specific),
-/// so that terminal related actions can be preformed on both Unix and Windows systems.
+/// so that terminal related actions can be performed on both Unix and Windows systems.
 trait ITerminal {
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType) -> Result<()>;
