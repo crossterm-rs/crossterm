@@ -82,7 +82,7 @@ These are the features of this crate:
 ## Examples
 The [examples](./examples) folder has more complete and verbose examples.
 
-_style font with attributes_
+_style text with attributes_
 ```rust
 use crossterm_style::{Colored, Color, Colorize, Styler, Attribute};
 
@@ -97,7 +97,7 @@ println!("{}", styled_text);
 let styled_text = style("Bold Underlined").bold().underlined();
 ```
 
-_style font with colors_
+_style text with colors_
 ```rust
 use crossterm_style::{Colored, Color, Colorize};
 
@@ -111,7 +111,7 @@ println!("{}", styled_text);
 // old-way but still usable
 let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
 ```
-_style font with RGB and ANSI Value_
+_style text with RGB and ANSI Value_
 ```rust
 // custom rgb value (Windows 10 and UNIX systems)
 println!("{} some colored text", Colored::Fg(Color::Rgb {

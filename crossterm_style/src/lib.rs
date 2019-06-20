@@ -1,5 +1,5 @@
 //! A module that contains all the actions related to the styling of the terminal.
-//! Like applying attributes to font and changing the foreground and background.
+//! Like applying attributes to text and changing the foreground and background.
 
 #[macro_use]
 extern crate crossterm_utils;
@@ -59,7 +59,7 @@ trait ITerminalColor {
 ///     .with(Color::Blue)
 ///     .on(Color::Black);
 ///
-/// // print the styled font * times to the current screen.
+/// // print the styled text * times to the current screen.
 /// for i in 1..10
 /// {
 ///     println!("{}", styled_object);

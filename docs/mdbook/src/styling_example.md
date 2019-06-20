@@ -66,7 +66,7 @@ println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 ```
 
 ## Attributes
-When working with UNIX or Windows 10 terminals you could also use attributes to style your font. For example, you could cross your text with a line and make it bold.
+When working with UNIX or Windows 10 terminals you could also use attributes to style your text. For example, you could cross your text with a line and make it bold.
 See [this](styling.md#Attributes) for more information.
 
 ### Using Enum

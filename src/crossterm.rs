@@ -11,7 +11,7 @@ use std::fmt::Display;
 //  let terminal = crossterm.terminal();
 //  let terminal = crossterm.input();
 //  let style = crossterm
-//        .style(format!("{} {}", 0, "Black font on green background"))
+//        .style(format!("{} {}", 0, "Black text on green background"))
 //        .with(Color::Black)
 //        .on(Color::Green);
 /// ```
@@ -82,7 +82,7 @@ impl Crossterm {
     ///     .with(Color::Blue)
     ///     .on(Color::Black);
     ///
-    /// // print the styled font * times to the current screen.
+    /// // print the styled text * times to the current screen.
     /// for i in 1..10
     /// {
     ///     println!("{}", styled_object);

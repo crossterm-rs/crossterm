@@ -255,11 +255,11 @@ use crossterm::style::{Color, input, style};
 
 // 1: use the `Crossterm` type
 let crossterm = Crossterm::new();
-let styled_object = crossterm.style("Red font on Black background").with(Color::Red).on(Color::Black);
+let styled_object = crossterm.style("Red text on Black background").with(Color::Red).on(Color::Black);
 styled_object.paint(&screen);
 
 // 2: use the `Terminal` type
-let styled_object = style("Red font on Black background").with(Color::Red).on(Color::Black);
+let styled_object = style("Red text on Black background").with(Color::Red).on(Color::Black);
 styled_object.paint(&screen);
 
 ```

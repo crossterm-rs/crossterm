@@ -1,7 +1,7 @@
 use std::convert::AsRef;
 use std::str::FromStr;
 
-/// Colors that are available for coloring the terminal font.
+/// Colors that are available for coloring the terminal text.
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub enum Color {
     // This resets the color.
