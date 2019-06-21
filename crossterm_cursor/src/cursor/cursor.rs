@@ -16,7 +16,7 @@ use crossterm_utils::supports_ansi;
 /// - Goto a certain position
 /// - Get cursor position
 /// - Storing the current cursor position and resetting to that stored cursor position later
-/// - Hiding an showing the cursor
+/// - Hiding and showing the cursor
 /// - Control over blinking of the terminal cursor (only some terminals are supporting this)
 ///
 /// Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0

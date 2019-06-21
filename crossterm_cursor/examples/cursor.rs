@@ -1,5 +1,5 @@
 //!
-//! Examples of actions that could be performed with te cursor.
+//! Examples of actions that could be performed with the cursor.
 //!
 
 extern crate crossterm_cursor;

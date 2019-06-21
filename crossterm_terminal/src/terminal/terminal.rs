@@ -131,7 +131,7 @@ impl Terminal {
     }
 }
 
-/// Get a `Terminal` instance whereon terminal related actions could performed.
+/// Get a `Terminal` instance whereon terminal related actions can be performed.
 pub fn terminal() -> Terminal {
     Terminal::new()
 }

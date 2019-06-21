@@ -1,5 +1,5 @@
 //! A module which provides some functionalities to work with the terminal screen.
-//! Like allowing you to switch between main and alternate screen or putting the terminal into raw mode.
+//! Like allowing you to switch between the main and alternate screen or putting the terminal into raw mode.
 #[macro_use]
 extern crate crossterm_utils;
 

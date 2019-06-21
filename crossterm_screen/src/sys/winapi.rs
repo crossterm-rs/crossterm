@@ -5,7 +5,7 @@ use std::io;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 
-/// This command is used for enabling and disabling raw mode for windows systems.
+/// This command is used for enabling and disabling raw mode for Windows systems.
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/high-level-console-modes.
 #[derive(Clone, Copy)]
 pub struct RawModeCommand {
@@ -48,7 +48,7 @@ impl RawModeCommand {
     }
 }
 
-/// This command is used for switching to alternate screen and back to main screen.
+/// This command is used for switching to the alternate screen and back to the main screen.
 /// check https://docs.microsoft.com/en-us/windows/console/reading-and-writing-blocks-of-characters-and-attributes for more info
 pub struct ToAlternateScreenCommand;
 

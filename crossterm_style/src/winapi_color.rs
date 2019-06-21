@@ -1,4 +1,4 @@
-//! This is an `WinApi` specific implementation for styling related action.
+//! This is a `WinApi` specific implementation for styling related action.
 //! This module is used for non supporting `ANSI` Windows terminals.
 
 use crate::{Color, Colored, ITerminalColor};
