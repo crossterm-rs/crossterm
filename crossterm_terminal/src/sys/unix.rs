@@ -16,10 +16,7 @@ pub fn get_terminal_size() -> (u16, u16) {
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) };
 
     if r == 0 {
-        // because crossterm works starts counting at 0
-        // and unix terminal starts at cell 1
-        // you have subtract one to get 0-based results.
-        (size.ws_col - 1, size.ws_row - 1)
+        (size.ws_co, size.ws_row)
     } else {
         (0, 0)
     }
