@@ -59,7 +59,7 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.9.4"
+crossterm = "0.9.6"
 ```
 
 ### Useful Links
