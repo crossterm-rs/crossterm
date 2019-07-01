@@ -119,7 +119,7 @@ impl Console {
         Ok(cells_written)
     }
 
-    /// Retrieves the size of the largest possible console window, based on the current font and the size of the display.
+    /// Retrieves the size of the largest possible console window, based on the current text and the size of the display.
     ///
     /// Wraps the underlying function call: [GetLargestConsoleWindowSize]
     /// link: [https://docs.microsoft.com/en-us/windows/console/getlargestconsolewindowsize]

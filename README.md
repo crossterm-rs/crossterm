@@ -40,7 +40,7 @@ This crate consists of five modules that are provided behind [feature flags](htt
 - [Features](#features)
 - [Examples](#examples)
     - [Crossterm Type](#crossterm-type)
-    - [Styled Font](#styled-font)
+    - [Styled Text](#styled-text)
     - [Cursor](#cursor)
     - [Terminal](#terminal)
     - [Input Reading](#input-reading)
@@ -59,7 +59,7 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.9.4"
+crossterm = "0.9.6"
 ```
 
 ### Useful Links
@@ -121,8 +121,8 @@ let terminal = crossterm.terminal();
 let input = crossterm.input();
 ```
 
-### Styled Font
-This module enables you to style the terminal font.
+### Styled Text
+This module enables you to style the terminal text.
 
 Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](https://timonpost.github.io/crossterm/docs/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
@@ -130,7 +130,7 @@ _imports_
 ```rust 
 use crossterm::{Colored, Color, Colorize, Styler, Attribute};
 ```
-_style font with attributes_
+_style text with attributes_
 ```rust
 // pass any `Attribute` value to the formatting braces.
 println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUnderline);
@@ -143,7 +143,7 @@ println!("{}", styled_text);
 let styled_text = style("Bold Underlined").bold().underlined();
 ```
 
-_style font with colors_
+_style text with colors_
 ```rust
 println!("{} Red foreground color", Colored::Fg(Color::Red));
 println!("{} Blue background color", Colored::Bg(Color::Blue));
@@ -155,7 +155,7 @@ println!("{}", styled_text);
 // old-way but still usable
 let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
 ```
-_style font with RGB and ANSI Value_
+_style text with RGB and ANSI Value_
 ```rust
 // custom rgb value (Windows 10 and UNIX systems)
 println!("{} some colored text", Colored::Fg(Color::Rgb {

@@ -1,3 +1,9 @@
+# Changes crossterm 0.9.6
+- Copy for KeyEvent
+- CTRL + Left, Down, Up, Right key support
+- SHIFT + Left, Down, Up, Right key support
+- Fixed UNIX cursor position bug [issue](https://github.com/TimonPost/crossterm/issues/140), [PR](https://github.com/TimonPost/crossterm/pull/152)
+
 # Changes crossterm 0.9.5
 - Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/TimonPost/crossterm/pull/144)
 

@@ -24,7 +24,7 @@ pub struct TerminalInput {
 }
 
 impl TerminalInput {
-    /// Create a new instance of `TerminalInput` whereon input related actions could be preformed.
+    /// Create a new instance of `TerminalInput` whereon input related actions could be performed.
     pub fn new() -> TerminalInput {
         #[cfg(windows)]
         let input = WindowsInput::new();
@@ -95,7 +95,7 @@ impl TerminalInput {
 
     /// Read the input asynchronously until a certain character is hit, which means that input events are gathered on the background and will be queued for you to read.
     ///
-    /// If you want a blocking, or less resource consuming read to happen use `read_sync()`, this will leave a way all the thread and queueing and will be a blocking read.
+    /// If you want a blocking or less resource consuming read to happen, use `read_sync()`. This will leave alone the background thread and queues and will be a blocking read.
     ///
     /// This is the same as `read_async()` but stops reading when a certain character is hit.
     ///
@@ -114,10 +114,10 @@ impl TerminalInput {
         self.input.read_until_async(delimiter)
     }
 
-    /// Read the input synchronously from the user, which means that reading call wil be blocking ones.
-    /// It also uses less resources than the `AsyncReader` because background thread and queues are left away.
+    /// Read the input synchronously from the user, which means that reading calls will block.
+    /// It also uses less resources than the `AsyncReader` because the background thread and queues are left alone.
     ///
-    /// In case you don't want the reading to block your program you could consider `read_async`.
+    /// Consider using `read_async` if you don't want the reading call to block your program.
     ///
     /// # Remark
     /// - Readings will be blocking calls.
@@ -130,7 +130,7 @@ impl TerminalInput {
 
     /// Enable mouse events to be captured.
     ///
-    /// When enabling mouse input you will be able to capture, mouse movements, pressed buttons and locations.
+    /// When enabling mouse input, you will be able to capture mouse movements, pressed buttons, and locations.
     ///
     /// # Remark
     /// - Mouse events will be send over the reader created with `read_async`, `read_async_until`, `read_sync`.
@@ -140,7 +140,7 @@ impl TerminalInput {
 
     /// Disable mouse events to be captured.
     ///
-    /// When disabling mouse input you won't be able to capture, mouse movements, pressed buttons and locations anymore.
+    /// When disabling mouse input, you won't be able to capture mouse movements, pressed buttons, and locations anymore.
     pub fn disable_mouse_mode(&self) -> Result<()> {
         self.input.disable_mouse_mode()
     }

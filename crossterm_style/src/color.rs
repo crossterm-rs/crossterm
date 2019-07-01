@@ -1,5 +1,5 @@
 //! A module that contains all the actions related to the styling of the terminal.
-//! Like applying attributes to font and changing the foreground and background.
+//! Like applying attributes to text and changing the foreground and background.
 
 use std::io;
 

@@ -69,7 +69,7 @@ impl Map {
         self.map[y][x].visited
     }
 
-    // change an position in the map to visited.
+    // change a position in the map to visited.
     pub fn set_visited(&mut self, x: usize, y: usize) {
         self.map[y][x].visited = true;
     }

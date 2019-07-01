@@ -15,10 +15,10 @@
 
 [s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
 
-This crate allows you to style te terminal cross-platform. 
+This crate allows you to style the terminal cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
 
-This crate is a sub-crate of [crossterm](https://crates.io/crates/crossterm) to style te terminal, and can be use individually.
+This crate is a sub-crate of [crossterm](https://crates.io/crates/crossterm) to style the terminal, and can be use individually.
 
 Other sub-crates are:
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
@@ -82,7 +82,7 @@ These are the features of this crate:
 ## Examples
 The [examples](./examples) folder has more complete and verbose examples.
 
-_style font with attributes_
+_style text with attributes_
 ```rust
 use crossterm_style::{Colored, Color, Colorize, Styler, Attribute};
 
@@ -97,7 +97,7 @@ println!("{}", styled_text);
 let styled_text = style("Bold Underlined").bold().underlined();
 ```
 
-_style font with colors_
+_style text with colors_
 ```rust
 use crossterm_style::{Colored, Color, Colorize};
 
@@ -111,7 +111,7 @@ println!("{}", styled_text);
 // old-way but still usable
 let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
 ```
-_style font with RGB and ANSI Value_
+_style text with RGB and ANSI Value_
 ```rust
 // custom rgb value (Windows 10 and UNIX systems)
 println!("{} some colored text", Colored::Fg(Color::Rgb {

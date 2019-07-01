@@ -78,9 +78,9 @@ impl ITerminalInput for UnixInput {
     }
 }
 
-/// This type allows you to read input synchronously, which means that reading call will be blocking ones.
+/// This type allows you to read input synchronously, which means that reading calls will block.
 ///
-/// This type is an iterator, and could be used to iterate over input events.
+/// This type is an iterator, and can be used to iterate over input events.
 ///
 /// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
 pub struct SyncReader {
@@ -92,10 +92,10 @@ impl Iterator for SyncReader {
     type Item = InputEvent;
     /// Read input from the user.
     ///
-    /// If there are no keys pressed this will be a blocking call until there are.
-    /// This will return `None` in case of a failure and `Some(InputEvent) in case of an occurred input event.`
+    /// If there are no keys pressed, this will be a blocking call until there is one.
+    /// This will return `None` in case of a failure and `Some(InputEvent)` in case of an occurred input event.
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: Currently errors are consumed and converted to a `NONE` maybe we should'nt be doing this?
+        // TODO: Currently errors are consumed and converted to a `None`. Maybe we shouldn't be doing this?
         let source = &mut self.source;
 
         if let Some(c) = self.leftover {

@@ -113,9 +113,9 @@ impl ITerminalInput for WindowsInput {
     }
 }
 
-/// This type allows you to read input synchronously, which means that reading call will be blocking ones.
+/// This type allows you to read input synchronously, which means that reading calls will block.
 ///
-/// This type is an iterator, and could be used to iterate over input events.
+/// This type is an iterator, and can be used to iterate over input events.
 ///
 /// If you don't want to block your calls use [AsyncReader](./LINK), which will read input on the background and queue it for you to read.
 pub struct SyncReader;
@@ -125,8 +125,8 @@ impl Iterator for SyncReader {
 
     /// Read input from the user.
     ///
-    /// If there are no keys pressed this will be a blocking call until there are.
-    /// This will return `None` in case of a failure and `Some(InputEvent) in case of an occurred input event.`
+    /// If there are no keys pressed, this will be a blocking call until there is one.
+    /// This will return `None` in case of a failure and `Some(InputEvent)` in case of an occurred input event.
     fn next(&mut self) -> Option<Self::Item> {
         let mut iterator = into_virtual_terminal_sequence().unwrap().1.into_iter();
 

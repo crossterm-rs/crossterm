@@ -1,4 +1,4 @@
-This folder will contain some examples of how to use this crate in an real live environment. 
+This folder will contain some examples of how to use this crate in a real live environment. 
 
 If you have created a game or something feel free to upload it, would be a great help for other people and me to make this crate better!
 
@@ -6,7 +6,7 @@ The programs are:
 
 - First depth search: 
 
-  This is an search algorithm implemented visually. This program uses the following functionalities: cursor movement, coloring, alternate screen and terminal clearing.
+  This is a search algorithm implemented visually. This program uses the following functionalities: cursor movement, coloring, alternate screen and terminal clearing.
   To run this use `cargo run` in the directory of first depth search.
   
 - Snake
@@ -20,5 +20,5 @@ The programs are:
    
 -  Logging:
 
-   This is an async logging program to demonstrate asynchronous logging with an queue. 
+   This is an async logging program to demonstrate asynchronous logging with a queue. 
    To run this use `cargo run --example logging`

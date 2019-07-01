@@ -1,4 +1,4 @@
-//! This is an `WINAPI` specific implementation for terminal related action.
+//! This is a `WINAPI` specific implementation for terminal related action.
 //! This module is used for non supporting `ANSI` windows terminals.
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
@@ -8,7 +8,7 @@ use crossterm_cursor::sys::winapi::Cursor;
 use crossterm_utils::{ErrorKind, Result};
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
-/// This struct is an winapi implementation for terminal related actions.
+/// This struct is a winapi implementation for terminal related actions.
 pub struct WinApiTerminal;
 
 impl WinApiTerminal {

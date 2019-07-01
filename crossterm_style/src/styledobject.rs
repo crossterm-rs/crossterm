@@ -8,7 +8,7 @@ use std::result;
 use super::Attribute;
 use crate::{Colorize, Styler};
 
-/// Contains both the style and the content wits can be styled.
+/// Contains both the style and the content which can be styled.
 pub struct StyledObject<D: Display> {
     pub object_style: ObjectStyle,
     pub content: D,
