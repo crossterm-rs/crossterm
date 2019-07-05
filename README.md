@@ -356,7 +356,7 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## Support
 
-Crossterm took a lot of time to develop, I realy appriciate any donation given to support the development of crossterm.
+Crossterm took a lot of time to develop, I really appreciate any donation given to support the development of crossterm.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 
