@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crossterm_utils::{Result, Command};
+use crossterm_utils::{Command, Result};
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;

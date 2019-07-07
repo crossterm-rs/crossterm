@@ -8,6 +8,34 @@ use std::io::Write;
 
 use crossterm_utils::Result;
 
+#[inline]
+pub fn get_goto_ansi(x: u16, y: u16) -> String {
+    format!(csi!("{};{}H"), y + 1, x + 1)
+}
+#[inline]
+pub fn get_move_up_ansi(count: u16) -> String {
+    format!(csi!("{}A"), count)
+}
+#[inline]
+pub fn get_move_right_ansi(count: u16) -> String {
+    format!(csi!("{}C"), count)
+}
+#[inline]
+pub fn get_move_down_ansi(count: u16) -> String {
+    format!(csi!("{}B"), count)
+}
+#[inline]
+pub fn get_move_left_ansi(count: u16) -> String {
+    format!(csi!("{}D"), count)
+}
+
+pub static SAFE_POS_ANSI: &'static str = csi!("s");
+pub static RESET_POS_ANSI: &'static str = csi!("u");
+pub static HIDE_ANSI: &'static str = csi!("?25l");
+pub static SHOW_ANSI: &'static str = csi!("?25h");
+pub static BLINK_ON_ANSI: &'static str = csi!("?12h");
+pub static BLINK_OFF_ANSI: &'static str = csi!("?12l");
+
 /// This struct is an ANSI implementation for cursor related actions.
 pub struct AnsiCursor;
 
@@ -19,7 +47,7 @@ impl AnsiCursor {
 
 impl ITerminalCursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16) -> Result<()> {
-        write_cout!(format!(csi!("{};{}H"), y + 1, x + 1))?;
+        write_cout!(get_goto_ansi(x, y))?;
         Ok(())
     }
 
@@ -28,50 +56,50 @@ impl ITerminalCursor for AnsiCursor {
     }
 
     fn move_up(&self, count: u16) -> Result<()> {
-        write_cout!(&format!(csi!("{}A"), count))?;
+        write_cout!(get_move_up_ansi(count))?;
         Ok(())
     }
 
     fn move_right(&self, count: u16) -> Result<()> {
-        write_cout!(&format!(csi!("{}C"), count))?;
+        write_cout!(get_move_right_ansi(count))?;
         Ok(())
     }
 
     fn move_down(&self, count: u16) -> Result<()> {
-        write_cout!(&format!(csi!("{}B"), count))?;
+        write_cout!(get_move_down_ansi(count))?;
         Ok(())
     }
 
     fn move_left(&self, count: u16) -> Result<()> {
-        write_cout!(&format!(csi!("{}D"), count))?;
+        write_cout!(get_move_left_ansi(count))?;
         Ok(())
     }
 
     fn save_position(&self) -> Result<()> {
-        write_cout!(csi!("s"))?;
+        write_cout!(SAFE_POS_ANSI)?;
         Ok(())
     }
 
     fn reset_position(&self) -> Result<()> {
-        write_cout!(csi!("u"))?;
+        write_cout!(RESET_POS_ANSI)?;
         Ok(())
     }
 
     fn hide(&self) -> Result<()> {
-        write_cout!(csi!("?25l"))?;
+        write_cout!(HIDE_ANSI)?;
         Ok(())
     }
 
     fn show(&self) -> Result<()> {
-        write_cout!(csi!("?25h"))?;
+        write_cout!(SHOW_ANSI)?;
         Ok(())
     }
 
     fn blink(&self, blink: bool) -> Result<()> {
         if blink {
-            write_cout!(csi!("?12h"))?;
+            write_cout!(BLINK_ON_ANSI)?;
         } else {
-            write_cout!(csi!("?12l"))?;
+            write_cout!(BLINK_OFF_ANSI)?;
         }
         Ok(())
     }

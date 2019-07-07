@@ -18,7 +18,7 @@ use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{cursor, TerminalCursor};
 
-use crossterm_utils::Result;
+use crossterm_utils::{Command, Result};
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
 ///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill
@@ -54,25 +54,172 @@ trait ITerminalCursor: Sync + Send {
 }
 
 pub struct Goto(pub u16, pub u16);
-pub struct UP;
-pub struct Down;
-pub struct Left;
-pub struct Right;
-pub struct SavePos;
-pub struct ResetPos;
-pub struct Hide;
-pub struct Show;
-pub struct Blink;
-
-use crossterm_utils::Command;
 
 impl Command for Goto {
-    fn ansi_code(&self) -> String {
-        format!(csi!("{};{}H"), self.1 + 1, self.0 + 1)
+    type AnsiType = String;
+
+    fn get_ansi_code(&self)  -> Self::AnsiType {
+        ansi_cursor::get_goto_ansi(self.0, self.1)
     }
 
     #[cfg(windows)]
-    fn winapi_call(&self) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         WinApiCursor::new().goto(self.0, self.1)
     }
 }
+
+pub struct UP(pub u16);
+
+impl Command for UP {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::get_move_up_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().move_up(self.0)
+    }
+}
+
+pub struct Down(pub u16);
+
+impl Command for Down {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::get_move_down_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().move_down(self.0)
+    }
+}
+
+pub struct Left(pub u16);
+
+impl Command for Left {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::get_move_left_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().move_left(self.0)
+    }
+}
+
+pub struct Right(pub u16);
+
+impl Command for Right {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::get_move_right_ansi(self.0)
+    }
+
+    fn execute_ansi(&self) -> Result<()> {
+        write_cout!(self.get_ansi_code())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().move_right(self.0)
+    }
+}
+
+pub struct SavePos;
+
+impl Command for SavePos {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+       ansi_cursor::SAFE_POS_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().save_position()
+    }
+}
+
+pub struct ResetPos;
+
+impl Command for ResetPos {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::RESET_POS_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().reset_position()
+    }
+}
+
+pub struct Hide;
+
+impl Command for Hide {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::HIDE_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().hide()
+    }
+}
+
+pub struct Show;
+
+impl Command for Show {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::SHOW_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiCursor::new().show()
+    }
+}
+
+pub struct BlinkOn;
+
+impl Command for BlinkOn {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::BLINK_ON_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Ok(())
+    }
+}
+
+pub struct BlinkOf;
+
+impl Command for BlinkOf {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_cursor::BLINK_OFF_ANSI
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Ok(())
+    }
+}
+
+

@@ -86,7 +86,7 @@ pub fn blink_cursor() {
     cursor.blink(false);
 }
 
-use self::crossterm_cursor::{Goto, Output, Command, schedule};
+use self::crossterm_cursor::{schedule, Command, Goto, Output};
 use std::io::{stdout, Write};
 use std::thread;
 use std::time::Duration;
@@ -96,7 +96,7 @@ fn main() {
 
     for x in 0..30 {
         for y in 0..30 {
-            schedule!(stdout,Goto(x, y), Output(String::from("#")));
+            schedule!(stdout, Goto(x, y), Output(String::from("#")));
         }
     }
 
