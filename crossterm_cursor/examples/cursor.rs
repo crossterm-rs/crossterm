@@ -86,7 +86,20 @@ pub fn blink_cursor() {
     cursor.blink(false);
 }
 
+use self::crossterm_cursor::{Goto, Output, Command, schedule};
+use std::io::{stdout, Write};
+use std::thread;
+use std::time::Duration;
+
 fn main() {
-    goto();
-    pos();
+    let mut stdout = ::std::io::stdout();
+
+    for x in 0..30 {
+        for y in 0..30 {
+            schedule!(stdout,Goto(x, y), Output(String::from("#")));
+        }
+    }
+
+    thread::sleep(Duration::from_millis(3000));
+    stdout.flush();
 }

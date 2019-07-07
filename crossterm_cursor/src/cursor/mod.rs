@@ -17,6 +17,7 @@ use self::ansi_cursor::AnsiCursor;
 use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{cursor, TerminalCursor};
+
 use crossterm_utils::Result;
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
@@ -50,4 +51,28 @@ trait ITerminalCursor: Sync + Send {
     fn show(&self) -> Result<()>;
     /// Enable or disable the blinking of the cursor.
     fn blink(&self, blink: bool) -> Result<()>;
+}
+
+pub struct Goto(pub u16, pub u16);
+pub struct UP;
+pub struct Down;
+pub struct Left;
+pub struct Right;
+pub struct SavePos;
+pub struct ResetPos;
+pub struct Hide;
+pub struct Show;
+pub struct Blink;
+
+use crossterm_utils::Command;
+
+impl Command for Goto {
+    fn ansi_code(&self) -> String {
+        format!(csi!("{};{}H"), self.1 + 1, self.0 + 1)
+    }
+
+    #[cfg(windows)]
+    fn winapi_call(&self) -> Result<()> {
+        WinApiCursor::new().goto(self.0, self.1)
+    }
 }
