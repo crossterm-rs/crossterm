@@ -7,5 +7,5 @@ extern crate winapi;
 mod cursor;
 pub mod sys;
 
-pub use self::crossterm_utils::{schedule, Command, Output};
+pub use self::crossterm_utils::{schedule, Command, ErrorKind, Output, Result};
 pub use self::cursor::{cursor, Goto, TerminalCursor};

@@ -91,6 +91,8 @@ use std::io::{stdout, Write};
 use std::thread;
 use std::time::Duration;
 
+//use crossterm_cursor::{Result, ErrorKind};
+
 fn main() {
     let mut stdout = ::std::io::stdout();
 
@@ -99,6 +101,8 @@ fn main() {
             schedule!(stdout, Goto(x, y), Output(String::from("#")));
         }
     }
+
+    //    act!(Goto(x, y), Output(String::from("#"));
 
     thread::sleep(Duration::from_millis(3000));
     stdout.flush();

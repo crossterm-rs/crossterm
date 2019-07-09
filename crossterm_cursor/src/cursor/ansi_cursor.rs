@@ -6,7 +6,7 @@ use super::ITerminalCursor;
 use crate::sys::get_cursor_position;
 use std::io::Write;
 
-use crossterm_utils::Result;
+use crossterm_utils::{write_cout, ErrorKind, Result};
 
 #[inline]
 pub fn get_goto_ansi(x: u16, y: u16) -> String {

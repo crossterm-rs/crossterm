@@ -1,5 +1,6 @@
 //! Module containing error handling logic.
 
+use command::Command;
 use std::{
     fmt::{self, Display, Formatter},
     io,
@@ -49,6 +50,12 @@ impl From<fmt::Error> for ErrorKind {
         ErrorKind::FmtError(e)
     }
 }
+
+//impl From<std::result::::Error> for ErrorKind {
+//    fn from(e: fmt::Error) -> ErrorKind {
+//        ErrorKind::FmtError(e)
+//    }
+//}
 
 impl From<ErrorKind> for io::Error {
     fn from(e: ErrorKind) -> io::Error {

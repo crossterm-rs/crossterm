@@ -28,7 +28,7 @@ members = [
     "crossterm_style",
     "crossterm_terminal",
     "crossterm_input",
-    "crossterm_screen",
+    "crossterm_screen"
 ]
 
 [dependencies]
