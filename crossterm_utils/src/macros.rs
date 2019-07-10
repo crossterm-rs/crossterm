@@ -5,55 +5,66 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-/// Write a string to standard output whereafter the screen will be flushed.
+/// Write a string to standard output whereafter the stdout will be flushed.
 #[macro_export]
 macro_rules! write_cout {
-    ($string:expr) => {{
+    ($write:expr, $string:expr) => {{
         use $crate::ErrorKind;
 
-        let stdout = ::std::io::stdout();
-        let mut stdout = stdout.lock();
         let mut total_size = 0;
 
-        //        let result = stdout.write($string.as_bytes());
-
-        if let Err(e) = write!(stdout, "{}", $string) {
-            return Err(ErrorKind::IoError(e));
+        if let Err(e) = write!($write, "{}", $string) {
+            Err(ErrorKind::IoError(e))
+        } else {
+            match $write.flush() {
+                Ok(size) => Ok(size),
+                Err(e) => Err(ErrorKind::IoError(e)),
+            }
         }
-
-        match stdout.flush() {
-            Ok(size) => Ok(size),
-            Err(e) => Err(ErrorKind::IoError(e)),
-        }
+    }};
+    ($string:expr) => {{
+        write_cout!(::std::io::stdout(), $string)
     }};
 }
 
-//fn a () {vec![]}
-
-/// Write a string to standard output whereafter the screen will be flushed.
+/// Schedule one or more commands to be executed in the near future.
+/// You are able to pass in a custom writer that implements `std::io::Write`.
+/// This writer will be used to write the ANSI commands to so that you are in controll on when to execute the ANSI commands.
+/// If no writer is passed the default stdout will be used.
+///
+/// The executing can happen in two cases:
+/// - When you manually flush the writer
+/// - When the buffer is to full, and the terminal will flush for you
+///
+/// # Example
+/// ```rust
+/// // to be done
+/// ```
+///
+/// # How it works
+/// In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+/// In case of Windows versions lower than 10, a direct WinApi call will be made if you use this macro.
 #[macro_export]
 macro_rules! schedule {
     ($write:expr, $($command:expr), *) =>
     {{
-
-            let mut write_ansi =  |mut ansi_code| -> $crate::Result<()> {
-
-            };
+        use $crate::write_cout;
+        let mut error = None;
 
         $(
+            #[cfg(windows)]
              {
-                 #[cfg(windows)]
                 if $crate::supports_ansi() {
-                     match write!($write, "{}",$command.get_ansi_code()) {
+                    match write!($write, "{}",$command.get_ansi_code()) {
                         Err(e) => {
-                           return Err($crate::ErrorKind::from(e))
+                           error = Some(Err($crate::ErrorKind::from(e)));
                         }
                         _ => {}
                      };
                 } else {
                   match $command.execute_winapi() {
                     Err(e) => {
-                        return Err($crate::ErrorKind::from(e))
+                        error = Some(Err($crate::ErrorKind::from(e)));
                     }
                     _ => {}
                    };
@@ -64,6 +75,74 @@ macro_rules! schedule {
             }
         )*
 
-        Ok(())
+        if let Some(error) = error {
+            error
+        }else {
+            Ok(())
+        }
+    }};
+    ($($command:expr), *) =>
+    {{
+       schedule!(::std::io::stdout(), $($command)*)
+    }};
+}
+
+/// Schedule one or more commands to be executed directly.
+/// You are able to pass in a custom writer that implements `std::io::Write`.
+/// This writer will be used to write the ANSI commands to so that you are in controll on when to execute the ANSI commands.
+/// If no writer is passed the default stdout will be used.
+///
+/// The executing can happen in two cases:
+/// - When you manually flush the writer
+/// - When the buffer is to full, and the terminal will flush for you
+///
+/// # Example
+/// ```rust
+/// // to be done
+/// ```
+///
+/// # How it works
+/// In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+/// In case of Windows versions lower than 10, a direct WinApi call will be made if you use this macro.
+#[macro_export]
+macro_rules! execute {
+    ($write:expr, $($command:expr), *) =>
+    {{
+        use $crate::write_cout;
+        let mut error = None;
+
+        $(
+            #[cfg(windows)]
+             {
+                if $crate::supports_ansi() {
+                     match  write_cout!($write, $command.get_ansi_code()) {
+                        Err(e) => {
+                           error = Some(Err($crate::ErrorKind::from(e)));
+                        }
+                        _ => {}
+                     };
+                } else {
+                  match $command.execute_winapi() {
+                    Err(e) => {
+                        error = Some(Err($crate::ErrorKind::from(e)));
+                    }
+                    _ => {}
+                   };
+                };
+
+                 #[cfg(unix)]
+                 write_ansi($command.get_ansi_code())?;
+            }
+        )*
+
+        if let Some(error) = error {
+            error
+        }else {
+            Ok(())
+        }
+    }};
+    ($($command:expr), *) =>
+    {{
+       schedule!(::std::io::stdout(), $($command)*)
     }};
 }

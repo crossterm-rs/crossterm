@@ -86,24 +86,40 @@ pub fn blink_cursor() {
     cursor.blink(false);
 }
 
-use self::crossterm_cursor::{schedule, Command, Goto, Output};
+use self::crossterm_cursor::{execute, schedule, Command, Goto, Hide, Output};
 use std::io::{stdout, Write};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 //use crossterm_cursor::{Result, ErrorKind};
 
 fn main() {
     let mut stdout = ::std::io::stdout();
 
-    for x in 0..30 {
-        for y in 0..30 {
-            schedule!(stdout, Goto(x, y), Output(String::from("#")));
+    let instant1 = Instant::now();
+    for i in 0..10 {
+        for x in 0..200 {
+            for y in 0..50 {
+                schedule!(stdout, Goto(x, y), Hide, Output(String::from("#")));
+            }
         }
     }
 
-    //    act!(Goto(x, y), Output(String::from("#"));
+    let instant2 = Instant::now();
+    for i in 0..10 {
+        for x in 0..200 {
+            for y in 0..50 {
+                execute!(stdout, Goto(x, y), Hide, Output(String::from("#")));
+            }
+        }
+    }
+
+    execute!(Goto(0, 52));
+    println!(
+        "lazy flush 1: {:?}, direct flush: {:?} ",
+        instant1.elapsed(),
+        instant2.elapsed()
+    );
 
     thread::sleep(Duration::from_millis(3000));
-    stdout.flush();
 }

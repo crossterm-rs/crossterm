@@ -1,6 +1,7 @@
 use crate::{schedule, supports_ansi, write_cout, ErrorKind, Result};
 use std::fmt::Display;
 use std::fmt::{self, Error, Formatter};
+use std::intrinsics::write_bytes;
 use std::io::Write;
 
 pub trait Command {
@@ -9,6 +10,7 @@ pub trait Command {
     fn get_ansi_code(&self) -> Self::AnsiType;
 
     fn execute(&self) -> Result<()> {
+        //        format!()!()()
         write_cout!(self.get_ansi_code());
         Ok(())
     }
