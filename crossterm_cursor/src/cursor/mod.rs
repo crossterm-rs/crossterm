@@ -17,8 +17,8 @@ use self::ansi_cursor::AnsiCursor;
 use self::winapi_cursor::WinApiCursor;
 
 pub use self::cursor::{
-    cursor, BlinkOf, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, UP,
+    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
+    TerminalCursor, Up,
 };
 
 use crossterm_utils::{Command, Result};

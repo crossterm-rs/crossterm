@@ -136,9 +136,9 @@ impl Command for Goto {
     }
 }
 
-pub struct UP(pub u16);
+pub struct Up(pub u16);
 
-impl Command for UP {
+impl Command for Up {
     type AnsiType = String;
 
     fn get_ansi_code(&self) -> Self::AnsiType {
@@ -271,9 +271,9 @@ impl Command for BlinkOn {
     }
 }
 
-pub struct BlinkOf;
+pub struct BlinkOff;
 
-impl Command for BlinkOf {
+impl Command for BlinkOff {
     type AnsiType = &'static str;
 
     fn get_ansi_code(&self) -> Self::AnsiType {
