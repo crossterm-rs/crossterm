@@ -1,4 +1,7 @@
-use crate::{schedule, supports_ansi, write_cout, ErrorKind, Result};
+use crate::{schedule, write_cout, ErrorKind, Result};
+#[cfg(windows)]
+use crate::supports_ansi;
+
 use std::fmt::Display;
 use std::fmt::{self, Error, Formatter};
 use std::intrinsics::write_bytes;
@@ -15,7 +18,7 @@ pub trait Command {
         Ok(())
     }
 
-    #[cfg(windows)] // Not sure if these are possible in traits.
+    #[cfg(windows)] // Not sure if these are possible in traits.s
     fn execute_winapi(&self) -> Result<()>;
 }
 

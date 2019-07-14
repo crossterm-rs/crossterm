@@ -94,9 +94,7 @@ use std::io::{stdout, Write};
 use std::thread;
 use std::time::{Duration, Instant};
 
-//use crossterm_cursor::{Result, ErrorKind};
-
-fn goto_pos_speed_test() {
+fn benchmark_cursor_goto() -> f32 {
     let mut stdout = ::std::io::stdout();
 
     let instant1 = Instant::now();
@@ -107,33 +105,36 @@ fn goto_pos_speed_test() {
             }
         }
     }
-    execute!(Goto(0, 52));
-    println!("Lazy flush: {:?}", instant1.elapsed());
 
+    let new_api = instant1.elapsed();
+    let cursor = cursor();
     let instant2 = Instant::now();
     for i in 0..10 {
         for x in 0..200 {
             for y in 0..50 {
-                execute!(stdout, Goto(x, y), Hide, Output(y.to_string()));
+                cursor.goto(x, y);
+                print!("{}",y.to_string());
             }
         }
     }
+    let old_api = instant2.elapsed();
 
-    execute!(Goto(0, 53));
-    println!("Hard flush: {:?}", instant2.elapsed());
+    let speed_improvement = ((old_api.as_millis() as f32 - new_api.as_millis() as f32) / old_api.as_millis() as f32) * 100.;
+
+    speed_improvement
+}
+
+fn start_goto_benchmark() {
+    let mut stdout = ::std::io::stdout();
+
+    let mut performance_metrics = Vec::new();
+    for i in 1..=20 {
+        performance_metrics.push(benchmark_cursor_goto());
+    }
+
+    println!("Average Performance Improvement mesearued 10 times {:.2} %", performance_metrics.iter().sum::<f32>() / 20.);
 }
 
 fn main() {
-    let mut stdout = ::std::io::stdout();
 
-    execute!(Goto(5, 5));
-    print!("1");
-    execute!(Right(1));
-    print!("2");
-    execute!(Down(2));
-    print!("3");
-    execute!(Left(2));
-    print!("4");
-    execute!(Up(2));
-    print!("5");
 }

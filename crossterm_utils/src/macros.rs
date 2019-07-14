@@ -69,10 +69,14 @@ macro_rules! schedule {
                     _ => {}
                    };
                 };
-
-                 #[cfg(unix)]
-                 write_ansi($command.get_ansi_code())?;
             }
+             #[cfg(unix)]
+                match write!($write, "{}",$command.get_ansi_code()) {
+                    Err(e) => {
+                       error = Some(Err($crate::ErrorKind::from(e)));
+                    }
+                    _ => {}
+                 };
         )*
 
         if let Some(error) = error {
@@ -129,10 +133,14 @@ macro_rules! execute {
                     _ => {}
                    };
                 };
-
-                 #[cfg(unix)]
-                 write_ansi($command.get_ansi_code())?;
             }
+              #[cfg(unix)]
+                 match  write_cout!($write, $command.get_ansi_code()) {
+                    Err(e) => {
+                       error = Some(Err($crate::ErrorKind::from(e)));
+                    }
+                    _ => {}
+                 };
         )*
 
         if let Some(error) = error {
