@@ -87,12 +87,14 @@ pub fn blink_cursor() {
 }
 
 use self::crossterm_cursor::{
+    QueueableCommand, ExecutableCommand,
     execute, schedule, BlinkOff, BlinkOn, Command, Down, Goto, Hide, Left, Output, ResetPos, Right,
     SavePos, Show, Up,
 };
 use std::io::{stdout, Write};
 use std::thread;
 use std::time::{Duration, Instant};
+use std::fmt::Display;
 
 //use crossterm_cursor::{Result, ErrorKind};
 
@@ -126,14 +128,11 @@ fn goto_pos_speed_test() {
 fn main() {
     let mut stdout = ::std::io::stdout();
 
-    execute!(Goto(5, 5));
-    print!("1");
-    execute!(Right(1));
-    print!("2");
-    execute!(Down(2));
-    print!("3");
-    execute!(Left(2));
-    print!("4");
-    execute!(Up(2));
-    print!("5");
+    stdout
+        .queue(Goto(5, 5))
+        .queue(Output("#".to_string()))
+        .flush();
+
+    println!("out: {}", Output("1".to_string()));
 }
+

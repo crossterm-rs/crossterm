@@ -285,3 +285,15 @@ impl Command for BlinkOff {
         Ok(())
     }
 }
+
+impl_display!(for Goto);
+impl_display!(for Up);
+impl_display!(for Down);
+impl_display!(for Left);
+impl_display!(for Right);
+impl_display!(for SavePos);
+impl_display!(for ResetPos);
+impl_display!(for Hide);
+impl_display!(for Show);
+impl_display!(for BlinkOn);
+impl_display!(for BlinkOff);
