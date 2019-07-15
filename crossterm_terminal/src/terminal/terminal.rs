@@ -52,18 +52,20 @@ impl Terminal {
     ///
     /// # Example
     /// ```rust
+    /// # use crossterm_terminal as crossterm;
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// // clear all cells in terminal.
-    /// term.clear(terminal::ClearType::All);
+    /// term.clear(crossterm::ClearType::All);
     /// // clear all cells from the cursor position downwards in terminal.
-    /// term.clear(terminal::ClearType::FromCursorDown);
+    /// term.clear(crossterm::ClearType::FromCursorDown);
     /// // clear all cells from the cursor position upwards in terminal.
-    /// term.clear(terminal::ClearType::FromCursorUp);
+    /// term.clear(crossterm::ClearType::FromCursorUp);
     /// // clear current line cells in terminal.
-    /// term.clear(terminal::ClearType::CurrentLine);
+    /// term.clear(crossterm::ClearType::CurrentLine);
     /// // clear all cells from cursor position until new line in terminal.
-    /// term.clear(terminal::ClearType::UntilNewLine);
+    /// term.clear(crossterm::ClearType::UntilNewLine);
     /// ```
     pub fn clear(&self, clear_type: ClearType) -> Result<()> {
         self.terminal.clear(clear_type)
@@ -96,6 +98,7 @@ impl Terminal {
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// // Set of the size to X: 10 and Y: 10
@@ -108,6 +111,7 @@ impl Terminal {
     /// Exit the current process.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// let size = term.exit();
@@ -119,6 +123,7 @@ impl Terminal {
     /// Write any displayable content to the current terminal screen.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// let size = term.write("Some text \n Some text on new line");

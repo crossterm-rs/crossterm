@@ -16,7 +16,7 @@ pub fn get_terminal_size() -> (u16, u16) {
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) };
 
     if r == 0 {
-        (size.ws_co, size.ws_row)
+        (size.ws_col, size.ws_row)
     } else {
         (0, 0)
     }
