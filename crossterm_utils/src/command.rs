@@ -1,4 +1,8 @@
-use crate::{schedule, execute, impl_display, supports_ansi, write_cout, ErrorKind, Result};
+use crate::{execute, impl_display, schedule, write_cout, ErrorKind, Result};
+
+#[cfg(windows)]
+use crate::supports_ansi;
+
 use std::fmt::Display;
 use std::fmt::{self, Error, Formatter};
 use std::intrinsics::write_bytes;
@@ -14,7 +18,7 @@ pub trait Command {
         Ok(())
     }
 
-    #[cfg(windows)] // Not sure if these are possible in traits.
+    #[cfg(windows)] // Not sure if these are possible in traits.s
     fn execute_winapi(&self) -> Result<()>;
 }
 
@@ -26,17 +30,10 @@ pub trait ExecutableCommand<T: Display> {
     fn execute(mut self, command: impl Command<AnsiType = T>) -> Self;
 }
 
-impl<T> Display for Command<AnsiType = T> where T: Display
-{
-    fn fmt(&self, f: &mut Formatter) -> ::std::result::Result<(), Error> {
-        match schedule!(f, self) {
-            Err(ErrorKind::FmtError(e)) => Err(e),
-            _ => Ok(()),
-        }
-    }
-}
-
-impl<T, A> QueueableCommand<A> for T where A: Display, T: Write
+impl<T, A> QueueableCommand<A> for T
+where
+    A: Display,
+    T: Write,
 {
     fn queue(mut self, command: impl Command<AnsiType = A>) -> Self {
         schedule!(self, command);
@@ -44,7 +41,10 @@ impl<T, A> QueueableCommand<A> for T where A: Display, T: Write
     }
 }
 
-impl<T, A> ExecutableCommand<A> for T where A: Display, T: Write
+impl<T, A> ExecutableCommand<A> for T
+where
+    A: Display,
+    T: Write,
 {
     fn execute(mut self, command: impl Command<AnsiType = A>) -> Self {
         execute!(self, command);
