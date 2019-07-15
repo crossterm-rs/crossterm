@@ -11,7 +11,7 @@ mod functions;
 pub mod macros;
 pub mod sys;
 
-pub use self::command::{Command, Output};
+pub use self::command::{Command, Output, QueueableCommand, ExecutableCommand};
 
 pub use self::error::{ErrorKind, Result};
 #[cfg(windows)]

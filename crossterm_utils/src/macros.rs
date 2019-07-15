@@ -146,3 +146,15 @@ macro_rules! execute {
        schedule!(::std::io::stdout(), $($command)*)
     }};
 }
+
+#[macro_export]
+macro_rules! impl_display {
+    (for $($t:ty),+) => {
+        $(impl ::std::fmt::Display for $t {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::result::Result<(), ::std::fmt::Error> {
+                use $crate::Command;
+                write!(f, "{}", self.get_ansi_code())
+            }
+        })*
+    }
+}
