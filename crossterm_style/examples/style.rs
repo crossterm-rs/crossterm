@@ -393,6 +393,13 @@ pub fn reset_fg_and_bg() {
     println!("{}", Colored::Bg(Color::Reset));
 }
 
+use crossterm_style::{Command, PrintStyledFont, SetAttr, SetBg, SetFg};
+use std::io::Write;
+
+pub fn command() {
+    execute!(PrintStyledFont("Test".red().on_green()));
+}
+
 fn main() {
-    print_all_background_colors_with_method()
+    command()
 }

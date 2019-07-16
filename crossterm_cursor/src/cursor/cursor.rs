@@ -121,6 +121,9 @@ pub fn cursor() -> TerminalCursor {
     TerminalCursor::new()
 }
 
+/// When executed, this command will move the cursor position to the given `x` and `y` in the terminal window.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Goto(pub u16, pub u16);
 
 impl Command for Goto {
@@ -136,6 +139,9 @@ impl Command for Goto {
     }
 }
 
+/// When executed, this command will move the current cursor position `n` times up.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Up(pub u16);
 
 impl Command for Up {
@@ -151,6 +157,9 @@ impl Command for Up {
     }
 }
 
+/// When executed, this command will move the current cursor position `n` times down.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Down(pub u16);
 
 impl Command for Down {
@@ -166,6 +175,9 @@ impl Command for Down {
     }
 }
 
+/// When executed, this command will move the current cursor position `n` times left.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Left(pub u16);
 
 impl Command for Left {
@@ -181,6 +193,9 @@ impl Command for Left {
     }
 }
 
+/// When executed, this command will move the current cursor position `n` times right.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Right(pub u16);
 
 impl Command for Right {
@@ -196,6 +211,11 @@ impl Command for Right {
     }
 }
 
+/// When executed, this command will save the cursor position for recall later.
+///
+/// Note that this position is stored program based not per instance of the `Cursor` struct.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct SavePos;
 
 impl Command for SavePos {
@@ -211,6 +231,9 @@ impl Command for SavePos {
     }
 }
 
+/// When executed, this command will return the cursor position to the saved cursor position
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct ResetPos;
 
 impl Command for ResetPos {
@@ -226,6 +249,9 @@ impl Command for ResetPos {
     }
 }
 
+/// When executed, this command will hide de cursor in the console.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Hide;
 
 impl Command for Hide {
@@ -241,6 +267,9 @@ impl Command for Hide {
     }
 }
 
+/// When executed, this command will show de cursor in the console.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Show;
 
 impl Command for Show {
@@ -256,6 +285,12 @@ impl Command for Show {
     }
 }
 
+/// When executed, this command will enable cursor blinking.
+///
+/// # Remarks
+/// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct BlinkOn;
 
 impl Command for BlinkOn {
@@ -271,6 +306,12 @@ impl Command for BlinkOn {
     }
 }
 
+/// When executed, this command will disable cursor blinking.
+///
+/// # Remarks
+/// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct BlinkOff;
 
 impl Command for BlinkOff {
