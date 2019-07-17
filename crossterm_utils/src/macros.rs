@@ -85,10 +85,6 @@ macro_rules! schedule {
             Ok(())
         }
     }};
-    ($($command:expr), *) =>
-    {{
-       schedule!(::std::io::stdout(), $($command)*)
-    }};
 }
 
 /// Schedule one or more commands to be executed directly.
@@ -148,11 +144,7 @@ macro_rules! execute {
         }else {
             Ok(())
         }
-    }};
-    ($($command:expr), *) =>
-    {{
-       schedule!(::std::io::stdout(), $($command)*)
-    }};
+    }}
 }
 
 #[macro_export]

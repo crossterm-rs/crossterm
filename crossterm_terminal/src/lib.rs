@@ -11,4 +11,8 @@ extern crate libc;
 mod sys;
 mod terminal;
 
-pub use self::terminal::{terminal, ClearType, Terminal};
+pub use self::terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
+
+pub use crossterm_utils::{
+    execute, schedule, Command, ExecutableCommand, QueueableCommand, Result,
+};

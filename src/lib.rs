@@ -14,7 +14,10 @@ extern crate crossterm_terminal;
 mod crossterm;
 
 #[cfg(feature = "cursor")]
-pub use self::crossterm_cursor::{cursor, TerminalCursor};
+pub use self::crossterm_cursor::{
+    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
+    TerminalCursor, Up,
+};
 #[cfg(feature = "input")]
 pub use self::crossterm_input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
@@ -23,11 +26,15 @@ pub use self::crossterm_input::{
 pub use self::crossterm_screen::{AlternateScreen, IntoRawMode, RawScreen};
 #[cfg(feature = "style")]
 pub use self::crossterm_style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler,
-    TerminalColor,
+    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, SetAttr,
+    SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use self::crossterm_terminal::{terminal, ClearType, Terminal};
+pub use self::crossterm_terminal::{
+    terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal,
+};
 
 pub use self::crossterm::Crossterm;
-pub use self::crossterm_utils::{ErrorKind, Result};
+pub use self::crossterm_utils::{
+    execute, schedule, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
+};

@@ -94,7 +94,7 @@ impl Crossterm {
     #[cfg(feature = "style")]
     pub fn style<D>(&self, val: D) -> crossterm_style::StyledObject<D>
     where
-        D: Display,
+        D: Display + Clone,
     {
         crossterm_style::ObjectStyle::new().apply_to(val)
     }

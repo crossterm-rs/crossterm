@@ -9,4 +9,5 @@ It has 4 modules:
 - crossterm (this is about the struct `Crossterm`)
 - alternate_screen (this is about switching to an alternate screen buffer)
 - raw_screen (this is about enabling raw screen)
+- command (this is about how to use the command system that crossterm provides)
 - program examples (this folder will contain some real life examples)
