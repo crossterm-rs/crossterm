@@ -19,3 +19,4 @@ branches:
 script:
   - cargo build
   - cargo fmt -- --check
+  - cargo test -- --nocapture --test-threads 1
