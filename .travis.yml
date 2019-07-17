@@ -12,10 +12,6 @@ os:
   - osx
   - windows
 
-branches:
-  only:
-    - master
-
 script:
   - cargo build
   - cargo fmt -- --check
