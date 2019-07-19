@@ -105,6 +105,11 @@ These are the features from this crate:
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
 
+### Command API
+
+My first recommendation I want to make is that you take a look at the [command API](https://timonpost.github.io/crossterm/docs/command.html), because this might replace some of the existing API in the future. 
+Because it is more convenient, faster, and easier to use.
+
 ### Crossterm Type
 This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
 

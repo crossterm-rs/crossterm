@@ -1,4 +1,4 @@
-use crate::{execute, impl_display, schedule, write_cout, ErrorKind, Result};
+use crate::{execute, impl_display, queue, write_cout, ErrorKind, Result};
 
 #[cfg(windows)]
 use crate::supports_ansi;
@@ -63,7 +63,7 @@ where
     /// The reason for this is that those are using WinAPI to perform the command action.
     /// Contrary to ANSI escape codes we cannot write them to the terminal buffer but must execute them immediately.
     fn queue(mut self, command: impl Command<AnsiType = A>) -> Self {
-        schedule!(self, command);
+        queue!(self, command);
         self
     }
 }

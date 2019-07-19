@@ -87,8 +87,8 @@ pub fn blink_cursor() {
 }
 
 use self::crossterm_cursor::{
-    execute, schedule, BlinkOff, BlinkOn, Command, Down, ExecutableCommand, Goto, Hide, Left,
-    Output, QueueableCommand, ResetPos, Right, SavePos, Show, Up,
+    execute, queue, BlinkOff, BlinkOn, Command, Down, ExecutableCommand, Goto, Hide, Left, Output,
+    QueueableCommand, ResetPos, Right, SavePos, Show, Up,
 };
 use std::fmt::Display;
 use std::io::{stdout, Write};
@@ -102,7 +102,7 @@ fn benchmark_cursor_goto() -> f32 {
     for i in 0..10 {
         for x in 0..200 {
             for y in 0..50 {
-                schedule!(stdout, Goto(x, y), Hide, Output(y.to_string()));
+                queue!(stdout, Goto(x, y), Hide, Output(y.to_string()));
             }
         }
     }

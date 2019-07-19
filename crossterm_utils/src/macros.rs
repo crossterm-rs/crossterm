@@ -45,7 +45,7 @@ macro_rules! write_cout {
 /// In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
 /// In case of Windows versions lower than 10, a direct WinApi call will be made if you use this macro.
 #[macro_export]
-macro_rules! schedule {
+macro_rules! queue {
     ($write:expr, $($command:expr), *) =>
     {{
         use $crate::write_cout;

@@ -36,5 +36,5 @@ pub use self::crossterm_terminal::{
 
 pub use self::crossterm::Crossterm;
 pub use self::crossterm_utils::{
-    execute, schedule, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
+    execute, queue, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
 };

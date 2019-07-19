@@ -1,6 +1,6 @@
 extern crate crossterm;
 
-use crossterm::{execute, schedule, Command, ExecutableCommand, QueueableCommand};
+use crossterm::{execute, queue, Command, ExecutableCommand, QueueableCommand};
 use std::fmt::Display;
 use std::io::{stdout, Stdout, Write};
 
@@ -52,10 +52,10 @@ fn later_execution_command_directly_using_macros() {
     let mut stdout = stdout();
 
     // single command
-    schedule!(stdout, Output("Text1 ".to_string()));
+    queue!(stdout, Output("Text1 ".to_string()));
 
     // multiple commands
-    schedule!(
+    queue!(
         stdout,
         Clear(ClearType::All),
         Goto(5, 5),
@@ -69,5 +69,39 @@ fn later_execution_command_directly_using_macros() {
 }
 
 fn main() {
-    later_execution_command_directly_using_macros();
+    //    later_execution_command_directly_using_macros();
+
+    use crossterm::Colorize;
+    //
+    let mut stdout = stdout();
+
+    execute!(stdout, Clear(ClearType::All));
+
+    for y in 0..40 {
+        for x in 0..150 {
+            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+                queue!(stdout, Goto(x, y), PrintStyledFont("█".magenta()));
+            }
+        }
+        stdout.flush();
+    }
+
+    //
+
+    use crossterm::{Color, Colorize, PrintStyledFont};
+
+    let mut stdout = stdout();
+
+    stdout = stdout.execute(Clear(ClearType::All));
+
+    for y in 0..40 {
+        for x in 0..150 {
+            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+                stdout = stdout
+                    .queue(Goto(x, y))
+                    .queue(PrintStyledFont("█".magenta()));
+            }
+            stdout.flush();
+        }
+    }
 }
