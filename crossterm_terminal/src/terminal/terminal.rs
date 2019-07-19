@@ -2,14 +2,12 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::Result;
+use crossterm_utils::{Result, Command};
 
 #[cfg(windows)]
 use super::WinApiTerminal;
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
-
-use crossterm_utils::Command;
 
 use std::fmt;
 use std::io::Write;
