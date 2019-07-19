@@ -7,7 +7,9 @@ use crossterm_utils::Result;
 #[cfg(windows)]
 use super::WinApiTerminal;
 #[cfg(windows)]
-use crossterm_utils::{supports_ansi, Command};
+use crossterm_utils::supports_ansi;
+
+use crossterm_utils::Command;
 
 use std::fmt;
 use std::io::Write;
