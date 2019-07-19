@@ -19,5 +19,5 @@ crossterm_winapi = "0.1.4"
 libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = "0.2.3"
-crossterm_screen = "0.2.3"
+crossterm_utils = {path="../crossterm_utils"}
+crossterm_screen = {path="../crossterm_screen"}
