@@ -161,5 +161,6 @@ where
 
 impl_display!(for SetFg);
 impl_display!(for SetBg);
+impl_display!(for SetAttr);
 impl_display!(for PrintStyledFont<String>);
 impl_display!(for PrintStyledFont<&'static str>);
