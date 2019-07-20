@@ -35,17 +35,17 @@ impl AnsiColor {
 
 impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color) -> Result<()> {
-        write_cout!(get_set_fg_ansi(fg_color))?;
+        write!(std::io::stdout(), "{}", get_set_fg_ansi(fg_color))?;
         Ok(())
     }
 
     fn set_bg(&self, bg_color: Color) -> Result<()> {
-        write_cout!(get_set_bg_ansi(bg_color))?;
+        write!(std::io::stdout(), "{}", get_set_bg_ansi(bg_color))?;
         Ok(())
     }
 
     fn reset(&self) -> Result<()> {
-        write_cout!(RESET_ANSI)?;
+        write!(std::io::stdout(), "{}", RESET_ANSI)?;
         Ok(())
     }
 }
