@@ -1,11 +1,13 @@
 extern crate crossterm;
 
-use crossterm::{execute, queue, Command, ExecutableCommand, QueueableCommand};
+use crossterm::{
+    execute, queue, Clear, ClearType, Color, Colorize, ExecutableCommand, Goto, Output,
+    PrintStyledFont, QueueableCommand,
+};
 use std::fmt::Display;
 use std::io::{stdout, Stdout, Write};
 
-use crossterm::{Clear, ClearType, Goto, Output, PrintStyledFont};
-
+/// execute commands by using normal functions
 fn execute_command_directly_using_functions() {
     // single command
     stdout().execute(Output("Text1 ".to_string()));
@@ -16,6 +18,7 @@ fn execute_command_directly_using_functions() {
         .execute(Output("Text3 ".to_string()));
 }
 
+/// execute commands by using macro's
 fn execute_command_directly_using_macros() {
     // single command
     execute!(stdout(), Output("Text1 ".to_string()));
@@ -28,6 +31,7 @@ fn execute_command_directly_using_macros() {
     );
 }
 
+/// queue commands without executing them directly by using normal functions
 fn later_execution_command_using_functions() {
     let mut sdout = stdout();
 
@@ -48,6 +52,7 @@ fn later_execution_command_using_functions() {
     sdout.flush();
 }
 
+/// queue commands without executing them directly by using macro's
 fn later_execution_command_directly_using_macros() {
     let mut stdout = stdout();
 
@@ -68,40 +73,4 @@ fn later_execution_command_directly_using_macros() {
     stdout.flush();
 }
 
-fn main() {
-    //    later_execution_command_directly_using_macros();
-
-    use crossterm::Colorize;
-    //
-    let mut stdout = stdout();
-
-    execute!(stdout, Clear(ClearType::All));
-
-    for y in 0..40 {
-        for x in 0..150 {
-            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-                queue!(stdout, Goto(x, y), PrintStyledFont("█".magenta()));
-            }
-        }
-        stdout.flush();
-    }
-
-    //
-
-    use crossterm::{Color, Colorize, PrintStyledFont};
-
-    let mut stdout = stdout();
-
-    stdout = stdout.execute(Clear(ClearType::All));
-
-    for y in 0..40 {
-        for x in 0..150 {
-            if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-                stdout = stdout
-                    .queue(Goto(x, y))
-                    .queue(PrintStyledFont("█".magenta()));
-            }
-            stdout.flush();
-        }
-    }
-}
+fn main() {}

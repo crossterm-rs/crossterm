@@ -2,7 +2,7 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::{Result, Command};
+use crossterm_utils::{Command, Result};
 
 #[cfg(windows)]
 use super::WinApiTerminal;

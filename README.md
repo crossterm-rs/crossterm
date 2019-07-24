@@ -71,7 +71,6 @@ crossterm = "0.9.6"
 - [Examples](https://github.com/TimonPost/crossterm/tree/master/examples)
 
 ## Features
-These are the features from this crate:
 
 - Cross-platform
 - Multithreaded (send, sync)
@@ -107,19 +106,17 @@ These are some basic examples demonstrating how to use this crate. See [examples
 
 ### Command API
 
-My first recommendation I want to make is that you take a look at the [command API](https://timonpost.github.io/crossterm/docs/command.html), because this might replace some of the existing API in the future. 
+My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
 Because it is more convenient, faster, and easier to use.
 
 ### Crossterm Type
-This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
+This is a wrapper for all the modules crossterm provides like terminal, cursor, styling, and input.
 
 Good documentation can be found at the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
 
 ```rust
-// screen whereon the `Crossterm` methods will be executed.
 let crossterm = Crossterm::new();
 
-// get instance of the modules, whereafter you can use the methods the particularly module provides. 
 let color = crossterm.color();
 let cursor = crossterm.cursor();
 let terminal = crossterm.terminal();
@@ -143,9 +140,6 @@ println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUn
 // you could also call different attribute methods on a `&str` and keep on chaining if needed.
 let styled_text = "Bold Underlined".bold().underlined();
 println!("{}", styled_text);
-
-// old-way but still usable
-let styled_text = style("Bold Underlined").bold().underlined();
 ```
 
 _style text with colors_
@@ -156,9 +150,6 @@ println!("{} Blue background color", Colored::Bg(Color::Blue));
 // you can also call different coloring methods on a `&str`.
 let styled_text = "Bold Underlined".red().on_blue();
 println!("{}", styled_text);
-
-// old-way but still usable
-let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
 ```
 _style text with RGB and ANSI Value_
 ```rust
@@ -214,7 +205,6 @@ cursor.hide();
 cursor.show();
 // blink or not blinking of the cursor (not widely supported)
 cursor.blink(true)
-
 ```
 
 ### Terminal
@@ -316,7 +306,7 @@ input.disable_mouse_mode().unwrap();
 ```
 
 ### Alternate and Raw Screen
-These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
+These concepts are a little more complex and would take over the README, please check out the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
 
 ## Used By
 - [Broot](https://dystroy.org/broot/)
@@ -339,21 +329,10 @@ These concepts are a little more complex and would take over the README, please 
 This crate supports all Unix terminals and Windows terminals down to Windows 7; however, not all of the terminals have been tested.
 If you have used this library for a terminal other than the above list without issues, then feel free to add it to the above list - I really would appreciate it!
 
-## Notice 
-This library is mostly stable now, and I don't expect it to change much.
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
-
-## Todo
-- Tests
-   Find a way to test: color, alternate screen, rawscreen
-
 ## Contributing
   
 I highly appreciate it when you contribute to this crate. 
-Also, since my native language is not English my grammar and sentence order will not be perfect. 
-So improving this by correcting these mistakes will help both me and the reader of the docs.
-
-Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Contributing.md) for more info about branches and code architecture.
+Please visit the discord or issue list for more information
 
 ## Authors
 
@@ -361,7 +340,7 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## Support
 
-Crossterm took a lot of time to develop, I realy appriciate any donation given to support the development of crossterm.
+Crossterm took a lot of time to develop, I appreciate any donation given to support the development of crossterm.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 

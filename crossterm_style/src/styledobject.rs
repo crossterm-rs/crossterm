@@ -1,8 +1,7 @@
 //! This module contains the logic to style an object that contains some 'content' which can be styled.
 
-use super::{color, Color, ObjectStyle, SetFg, SetBg, Command};
+use super::{color, Color, ObjectStyle, SetBg, SetFg};
 use std::fmt::{self, Display, Formatter};
-use std::io::Write;
 use std::result;
 
 use super::Attribute;
@@ -56,16 +55,16 @@ impl<D: Display + Clone> Display for StyledObject<D> {
         let mut reset = false;
 
         if let Some(bg) = self.object_style.bg_color {
-            queue!(f, SetBg(bg));
+            queue!(f, SetBg(bg)).unwrap();
             reset = true;
         }
         if let Some(fg) = self.object_style.fg_color {
-            queue!(f, SetFg(fg));
+            queue!(f, SetFg(fg)).unwrap();
             reset = true;
         }
 
         for attr in self.object_style.attrs.iter() {
-            fmt::Display::fmt( &format!(csi!("{}m"), *attr as i16), f)?;
+            fmt::Display::fmt(&format!(csi!("{}m"), *attr as i16), f)?;
             reset = true;
         }
 

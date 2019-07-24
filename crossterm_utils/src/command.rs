@@ -8,26 +8,27 @@ use std::fmt::{self, Error, Formatter};
 use std::intrinsics::write_bytes;
 use std::io::Write;
 
-/// A command is something
+/// A command is an action that can be performed on the terminal.
+///
+/// crossterm already delivers a number of commands.
+/// There is no need to implement them yourself.
+/// Also, you don't have to execute the commands yourself by calling a function.
+/// For more information see the [command API](https://timonpost.github.io/crossterm/docs/command.html)
 pub trait Command {
     type AnsiType: Display;
 
     /// Returns the ANSI code representation of this command.
     /// You can manipulate the terminal behaviour by writing an ANSI escape code to the terminal.
     /// You are able to use ANSI escape codes only for windows 10 and UNIX systems.
+    ///
+    /// **This method is mainly used internally by crossterm!**
     fn get_ansi_code(&self) -> Self::AnsiType;
 
     /// Execute this command.
     ///
-    /// ANSI escape code is used for systems that support ANSI escape codes ( Windows 10 & UNIX), otherwise WinApi ( < Windows 10) will be used.
-    fn execute(&self) -> Result<()> {
-        write_cout!(self.get_ansi_code());
-        Ok(())
-    }
-
-    /// Execute this command.
-    ///
     /// On operating systems that do not support ANSI escape codes ( < Windows 10) we need to call WinApi to execute this command.
+    ///
+    /// **This method is mainly used internally by crossterm!**
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()>;
 }
@@ -51,17 +52,25 @@ where
     T: Write,
 {
     /// Queue the given command for later execution.
-    /// This function will `write` the ANSI escape code to this type without calling `flush`.
-    /// This can be very useful when executing a lot of commands because flushing costs a lot of performance.
     ///
-    /// If you want to execute a command directly, use: `execute(command)`.
+    /// Queued commands will be executed in the following cases:
+    /// - When you manually call `flush` on the given writer.
+    /// - When the buffer is to full, then the terminal will flush for you.
+    /// - Incase of `stdout` each line, because `stdout` is line buffered.
+    ///
+    /// Check the [command API](https://timonpost.github.io/crossterm/docs/command.html) for more information and all available commands.
+    ///
+    /// # Parameters
+    /// - [Command](./trait.Command.html)
+    ///
+    ///     The command that you want to queue for later execution.
     ///
     /// # Remarks
-    /// - WinApi is used for Windowws versions lower then 10
-    /// - ANSI escape codes are written to the terminal buffer of Windows 10 and UNIX systems.
-    /// - On windows systems lower than 10, commands can't be queued but are executed immediately.
-    /// The reason for this is that those are using WinAPI to perform the command action.
-    /// Contrary to ANSI escape codes we cannot write them to the terminal buffer but must execute them immediately.
+    /// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+    /// - In case of Windows versions lower than 10, a direct WinApi call will be made.
+    /// This is happening because windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
+    /// Because of that there is no difference between `execute` and `queue` for those windows versions.
+    /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
     fn queue(mut self, command: impl Command<AnsiType = A>) -> Self {
         queue!(self, command);
         self
@@ -79,9 +88,13 @@ where
     /// In case you have many executions after on and another you can use `queue(command)` to get some better performance.
     /// The `queue` function will not call `flush`.
     ///
+    /// Check the [command API](https://timonpost.github.io/crossterm/docs/command.html) for more information and all available commands.
+    ///
     /// # Remarks
-    /// - WinApi is used for Windowws versions lower then 10
-    /// - ANSI escape codes are written to the terminal buffer of Windows 10 and UNIX systems.
+    /// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+    /// - In case of Windows versions lower than 10, a direct WinApi call will be made.
+    /// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
+    /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     fn execute(mut self, command: impl Command<AnsiType = A>) -> Self {
         execute!(self, command);
         self

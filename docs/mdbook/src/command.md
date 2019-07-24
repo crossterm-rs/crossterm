@@ -1,5 +1,5 @@
 # Command API
-The command api makes the use of crossterm much easier and offers more control over when and how a command such as moving the cursor is executed.
+The command API makes the use of crossterm much easier and offers more control over when and how a command such as moving the cursor is executed.
 
 The command API offers:
 - Better Performance
@@ -9,17 +9,17 @@ The command API offers:
 
 There are two ways to use the API command:
 
-- [By using functions]()
+- By using functions
 
-    The functions are able to execute commands on types that implement `Write`. 
-    Functions are easier to use and debug. There is a disadvantage, and that is that there is a lot of boilerplate code involved. 
-- [By using macros]()
+    The functions can execute commands on types that implement `Write`. 
+    Functions are easier to use and debug. There is a disadvantage, and that is that there is a boilerplate code involved. 
+- By using macros
 
-    Macros are generally seen as more difficult, but offer an API with less boiler plate code. 
-    If you are not afraid of macros, this is definitely a recommendation.
+    Macros are generally seen as more difficult but offer an API with less boilerplate code. 
+    If you are not afraid of macros, this is a recommendation.
     
 ## Commands
-Crossterm provides the folowing commands that can be used to perfom actions with:
+Crossterm provides the following commands that can be used to perform actions with:
 
 _cursor commands_
 - Goto (x, y)
@@ -49,24 +49,27 @@ _terminal command_
 _other_
 - Output (text)
 
-Each crossterm crate provides its own command when using crossterm you are able to use them all at once. 
-When using a single crate or a feature flag, you are able to only use certain command.
+Each crossterm crate provides its command when using crossterm you can use them all at once. 
+When using a single crate or a feature flag, you can only use certain commands.
  
-## Performance
 Before crossterm 10.0 was released, crossterm had some performance issues. It did a `flush` after each command (cursor movement). 
-A `flush` is a heavy action on the terminal, and if it is done more often the performance will go down quickly.
+A `flush` is heavy action on the terminal, and if it is done more often the performance will go down quickly.
 
 Linux and Windows 10 systems support ANSI escape codes. 
 Those ANSI escape codes are strings or rather a byte sequence.
 When we `write` and `flush` those to the terminal we can perform some action. 
 
+### Imports
+```rust
+use crossterm::{execute, queue, ExecutableCommand, QueueableCommand};
+```
 ### Lazy Execution
 Because `flush` is a heavy system call we can instead `write` the commands to the `stdout` without flushing. 
 When can do a `flush` we do want to execute the commands.
 
 If you create a terminal editor or TUI, it is wise to use this option. 
 For example, you can write commands to the terminal `stdout` and flush the `stdout` at every frame. 
-By doing this you can make efficient use of the terrminal buffer and get better performance because you are not calling `flush` after every command. 
+By doing this you can make efficient use of the terminal buffer and get better performance because you are not calling `flush` after every command. 
 
  #### Examples
  _functions_
@@ -80,7 +83,7 @@ stdout = stdout.queue(Goto(5,5));
 stdout.flush();
  ```
  
- The `queue` function returns it self, therefore you are able to use this to queue another command. 
+ The `queue` function returns itself, therefore you can use this to queue another command. 
  Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`
  
  _macro's_
@@ -95,12 +98,12 @@ queue!(stdout,  Goto(5, 5));
 stdout.flush();
  ```
  
-You can pass more than one command into the macro like: `queue!(stdout,  Goto(5, 5), Clear(ClearType::All));`
+You can pass more than one command into the macro like: `queue!(stdout,  Goto(5, 5), Clear(ClearType::All));`; they will be executed in the given order from left to right.
  
 ### Direct Execution
 
 If you want to execute commands directly, this is also possible. You don't have to flush the 'stdout', as described above. 
-This is fine if you are not executing lot's of commands. 
+This is fine if you are not executing lots of commands. 
 
 _functions_
  ```rust 
@@ -114,7 +117,7 @@ _macro's_
 execute!(stdout,  Goto(5, 5));
 ```
 
- You can pass more than one command into the macro like: `queue!(stdout,  Goto(5, 5), Clear(ClearType::All));`
+ You can pass more than one command into the macro like: `queue!(stdout,  Goto(5, 5), Clear(ClearType::All));`; they will be executed in the given order from left to right.
  
  ## Short Examples
  
@@ -122,7 +125,7 @@ execute!(stdout,  Goto(5, 5));
  
  _rectangle with command functions_
  ```rust 
-use crossterm::{Color, PrintStyledFont, Colorize};
+use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize};
 use std::io::stdout();
 
 let mut stdout = stdout();
@@ -141,9 +144,9 @@ for y in 0..40 {
 }
  ```
  
- _rectangle with macro functions_
+ _rectangle with the macros_
  ```rust
-use crossterm::{Color, PrintStyledFont, Colorize};
+use crossterm::{execute, queue, Color, PrintStyledFont, Colorize};
 use std::io::stdout();
 
 let mut stdout = stdout();
