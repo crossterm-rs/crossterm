@@ -1,10 +1,11 @@
 use super::variables::{Position, Size};
 
-use crossterm::{cursor, Colorize, TerminalCursor};
+use crossterm::{cursor, queue, Colorize, Command, Goto, PrintStyledFont, TerminalCursor};
 
 use rand::distributions::{IndependentSample, Range};
 
 use std::collections::HashMap;
+use std::io::{stdout, Write};
 
 use rand;
 
@@ -26,8 +27,11 @@ impl Map {
         for y in 0..self.size.height {
             for x in 0..self.size.height {
                 if (y == 0 || y == self.size.height - 1) || (x == 0 || x == self.size.width - 1) {
-                    cursor().goto(x as u16, y as u16);
-                    print!("{}", "█".magenta());
+                    queue!(
+                        stdout(),
+                        Goto(x as u16, y as u16),
+                        PrintStyledFont("█".magenta())
+                    );
                 } else {
                     free_positions.insert(format!("{},{}", x, y), Position::new(x, y));
                 }
@@ -56,8 +60,10 @@ impl Map {
     }
 
     fn draw_food(&self) {
-        let cursor = TerminalCursor::new();
-        cursor.goto(self.foot_pos.x as u16, self.foot_pos.y as u16);
-        print!("{}", "$".green());
+        queue!(
+            stdout(),
+            Goto(self.foot_pos.x as u16, self.foot_pos.y as u16),
+            PrintStyledFont("$".green())
+        );
     }
 }

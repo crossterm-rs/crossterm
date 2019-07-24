@@ -11,7 +11,7 @@ use std::fmt::Display;
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
-pub trait Colorize<D: Display> {
+pub trait Colorize<D: Display + Clone> {
     fn black(self) -> StyledObject<D>;
     fn dark_grey(self) -> StyledObject<D>;
     fn red(self) -> StyledObject<D>;
@@ -59,7 +59,7 @@ pub trait Colorize<D: Display> {
 /// println!("{}", "Underlined text".underlined();
 /// println!("{}", "Negative text".negative();
 /// ```
-pub trait Styler<D: Display> {
+pub trait Styler<D: Display + Clone> {
     fn reset(self) -> StyledObject<D>;
     fn bold(self) -> StyledObject<D>;
     fn underlined(self) -> StyledObject<D>;

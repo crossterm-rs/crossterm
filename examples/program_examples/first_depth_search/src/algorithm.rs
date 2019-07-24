@@ -2,12 +2,13 @@
 
 use super::map::Map;
 use super::variables::{Direction, Position};
-use crossterm::{Color, Colored, Colorize, Crossterm};
-use std::io::{stdout, Write};
+use std::io::Write;
 
 use super::rand;
 use super::rand::distributions::{IndependentSample, Range};
 use std::{thread, time};
+
+use crossterm::{execute, Color, Colorize, Command, Goto, Hide, PrintStyledFont, SetBg, SetFg};
 
 pub struct FirstDepthSearch {
     direction: Direction,
@@ -34,17 +35,12 @@ impl FirstDepthSearch {
         // push first position on the stack
         self.stack.push(self.root_pos);
 
-        let crossterm = Crossterm::new();
-        let cursor = crossterm.cursor();
-        cursor.hide();
-
-        write!(
+        execute!(
             ::std::io::stdout(),
-            "{}{}",
-            Colored::Fg(Color::Green),
-            Colored::Bg(Color::Black)
+            Hide,
+            SetFg(Color::Green),
+            SetBg(Color::Black)
         );
-        ::std::io::stdout().flush();
 
         // loop until there are now items left in the stack.
         loop {
@@ -65,9 +61,11 @@ impl FirstDepthSearch {
             let x = pos.x as u16;
             let y = pos.y as u16;
 
-            cursor.goto(x, y);
-            write!(stdout(), "{}", " ".on_yellow());
-            stdout().flush();
+            execute!(
+                ::std::io::stdout(),
+                Goto(x, y),
+                PrintStyledFont(" ".on_yellow())
+            );
 
             thread::sleep(time::Duration::from_millis(1));
         }
@@ -143,7 +141,6 @@ impl FirstDepthSearch {
             Direction::Down => self.root_pos.y += 1,
             Direction::Left => self.root_pos.x -= 1,
             Direction::Right => self.root_pos.x += 1,
-            _ => panic!(),
         };
 
         self.map.set_visited(self.root_pos.x, self.root_pos.y);

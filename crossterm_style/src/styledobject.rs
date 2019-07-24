@@ -1,20 +1,20 @@
 //! This module contains the logic to style an object that contains some 'content' which can be styled.
 
-use super::{color, Color, ObjectStyle};
+use super::{color, Color, ObjectStyle, SetBg, SetFg};
 use std::fmt::{self, Display, Formatter};
-use std::io::Write;
 use std::result;
 
 use super::Attribute;
 use crate::{Colorize, Styler};
 
 /// Contains both the style and the content which can be styled.
-pub struct StyledObject<D: Display> {
+#[derive(Clone)]
+pub struct StyledObject<D: Display + Clone> {
     pub object_style: ObjectStyle,
     pub content: D,
 }
 
-impl<'a, D: Display + 'a> StyledObject<D> {
+impl<'a, D: Display + 'a + Clone> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`.
     ///
     /// # Remarks
@@ -49,38 +49,36 @@ impl<'a, D: Display + 'a> StyledObject<D> {
     }
 }
 
-impl<D: Display> Display for StyledObject<D> {
+impl<D: Display + Clone> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
         let colored_terminal = color();
         let mut reset = false;
 
         if let Some(bg) = self.object_style.bg_color {
-            colored_terminal.set_bg(bg).unwrap();
+            queue!(f, SetBg(bg)).unwrap();
             reset = true;
         }
         if let Some(fg) = self.object_style.fg_color {
-            colored_terminal.set_fg(fg).unwrap();
+            queue!(f, SetFg(fg)).unwrap();
             reset = true;
         }
 
         for attr in self.object_style.attrs.iter() {
-            write!(f, "{}", format!(csi!("{}m"), *attr as i16))?;
+            fmt::Display::fmt(&format!(csi!("{}m"), *attr as i16), f)?;
             reset = true;
         }
 
         fmt::Display::fmt(&self.content, f)?;
-        std::io::stdout().flush().unwrap();
 
         if reset {
             colored_terminal.reset().unwrap();
-            std::io::stdout().flush().unwrap();
         }
 
         Ok(())
     }
 }
 
-impl<D: Display> Colorize<D> for StyledObject<D> {
+impl<D: Display + Clone> Colorize<D> for StyledObject<D> {
     // foreground colors
     def_color!(fg_color: black => Color::Black);
     def_color!(fg_color: dark_grey => Color::DarkGrey);
@@ -118,7 +116,7 @@ impl<D: Display> Colorize<D> for StyledObject<D> {
     def_color!(bg_color: on_grey => Color::Grey);
 }
 
-impl<D: Display> Styler<D> for StyledObject<D> {
+impl<D: Display + Clone> Styler<D> for StyledObject<D> {
     def_attr!(reset => Attribute::Reset);
     def_attr!(bold => Attribute::Bold);
     def_attr!(underlined => Attribute::Underlined);

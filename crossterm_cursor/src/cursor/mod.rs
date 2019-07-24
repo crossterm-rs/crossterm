@@ -16,8 +16,12 @@ use self::ansi_cursor::AnsiCursor;
 #[cfg(windows)]
 use self::winapi_cursor::WinApiCursor;
 
-pub use self::cursor::{cursor, TerminalCursor};
-use crossterm_utils::Result;
+pub use self::cursor::{
+    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
+    TerminalCursor, Up,
+};
+
+use crossterm_utils::{Command, Result};
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
 ///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill

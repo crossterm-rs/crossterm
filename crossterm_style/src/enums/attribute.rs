@@ -1,8 +1,6 @@
 use std::fmt::Display;
-use std::io::stdout;
-use std::io::Write;
 
-/// These are all the attributes which can be applied to text.
+/// Enum with the different attributes to style your test.
 ///
 /// There are few things to note:
 /// - Not all attributes are supported, some of them are only supported on Windows some only on Unix,
@@ -139,7 +137,6 @@ pub enum Attribute {
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", format!(csi!("{}m"), *self as i16))?;
-        stdout().flush().unwrap();
         Ok(())
     }
 }

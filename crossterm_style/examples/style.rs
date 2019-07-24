@@ -394,5 +394,5 @@ pub fn reset_fg_and_bg() {
 }
 
 fn main() {
-    print_all_background_colors_with_method()
+    command()
 }

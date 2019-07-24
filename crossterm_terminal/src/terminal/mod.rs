@@ -12,11 +12,12 @@ use self::ansi_terminal::AnsiTerminal;
 #[cfg(windows)]
 use self::winapi_terminal::WinApiTerminal;
 
-pub use self::terminal::{terminal, Terminal};
+pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Terminal};
 
 use crossterm_utils::Result;
 
-/// Enum that specifies ways of clearing the terminal.
+/// Enum with the different values to clear the terminal.
+#[derive(Clone)]
 pub enum ClearType {
     /// clear all cells in terminal.
     All,

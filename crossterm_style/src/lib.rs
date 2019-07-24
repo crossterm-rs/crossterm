@@ -24,12 +24,12 @@ use self::winapi_color::WinApiColor;
 
 use std::fmt::Display;
 
-pub use self::color::{color, TerminalColor};
+pub use self::color::{color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
-use crossterm_utils::Result;
+pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
 /// This trait defines the actions that can be performed with terminal colors.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
@@ -46,8 +46,6 @@ trait ITerminalColor {
     fn set_bg(&self, fg_color: Color) -> Result<()>;
     /// Reset the terminal color to default.
     fn reset(&self) -> Result<()>;
-    /// Gets an value that represents a color from the given `Color` and `ColorType`.
-    fn color_value(&self, cored: Colored) -> String;
 }
 
 /// This could be used to style a type that implements `Display` with colors and attributes.
@@ -72,7 +70,7 @@ trait ITerminalColor {
 /// Those types will make it a bit easier to style a string.
 pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
 where
-    D: Display,
+    D: Display + Clone,
 {
     ObjectStyle::new().apply_to(val)
 }
