@@ -39,8 +39,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     fn terminal_size(&self) -> (u16, u16) {
-        let csbi = ScreenBuffer::current().unwrap();
-        csbi.info().unwrap().terminal_size().into()
+        get_terminal_size()
     }
 
     fn scroll_up(&self, count: i16) -> Result<()> {
