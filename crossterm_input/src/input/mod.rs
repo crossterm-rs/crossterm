@@ -52,7 +52,7 @@ trait ITerminalInput {
 }
 
 /// Enum to specify which input event has occurred.
-#[derive(Debug, PartialOrd, PartialEq, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
 pub enum InputEvent {
     /// A single key or a combination is pressed.
     Keyboard(KeyEvent),
@@ -65,7 +65,7 @@ pub enum InputEvent {
 }
 
 /// Enum to specify which mouse event has occurred.
-#[derive(Debug, PartialOrd, PartialEq, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseEvent {
     /// A mouse press has occurred, this contains the pressed button and the position of the press.
     Press(MouseButton, u16, u16),
@@ -78,7 +78,7 @@ pub enum MouseEvent {
 }
 
 /// Enum to define mouse buttons.
-#[derive(Debug, PartialOrd, PartialEq, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseButton {
     /// Left mouse button
     Left,
@@ -93,7 +93,7 @@ pub enum MouseButton {
 }
 
 /// Enum with different key or key combinations.
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
 pub enum KeyEvent {
     Backspace,
     Left,

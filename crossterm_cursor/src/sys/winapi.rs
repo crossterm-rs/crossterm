@@ -9,6 +9,11 @@ pub fn get_cursor_position() -> (u16, u16) {
     }
 }
 
+#[cfg(windows)]
+pub fn show_cursor(show_cursor: bool) -> Result<()>  {
+    Cursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
+}
+
 pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 
 use winapi::{

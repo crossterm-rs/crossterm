@@ -92,5 +92,5 @@ pub fn blink_cursor() {
 }
 
 fn main() {
-    pos()
+    hide_cursor()
 }

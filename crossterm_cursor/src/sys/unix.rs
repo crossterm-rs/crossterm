@@ -1,7 +1,6 @@
-use crossterm_utils::sys::unix::{self, RAW_MODE_ENABLED};
+use crossterm_utils::{Result, sys::unix::{self, RAW_MODE_ENABLED}};
 use std::io::{self, BufRead, Write};
 
-/// Get the cursor position based on the current platform.
 #[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {
     if unsafe { RAW_MODE_ENABLED } {
@@ -17,6 +16,17 @@ pub fn get_cursor_position() -> (u16, u16) {
             (0, 0)
         }
     }
+}
+
+#[cfg(unix)]
+pub fn show_cursor(show_cursor: bool) -> Result<()> {
+    if show_cursor {
+        write_cout!(csi!("?25h"))?;
+    }
+    else {
+        write_cout!(csi!("?25l"))?;
+    }
+    Ok(())
 }
 
 pub fn pos() -> io::Result<(u16, u16)> {

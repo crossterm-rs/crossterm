@@ -17,7 +17,7 @@ pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Termina
 use crossterm_utils::Result;
 
 /// Enum with the different values to clear the terminal.
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum ClearType {
     /// clear all cells in terminal.
     All,

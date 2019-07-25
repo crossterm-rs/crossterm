@@ -2,7 +2,7 @@ use std::convert::AsRef;
 use std::str::FromStr;
 
 /// Enum with the different colors to color your test and terminal.
-#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     // This resets the color.
     Reset,

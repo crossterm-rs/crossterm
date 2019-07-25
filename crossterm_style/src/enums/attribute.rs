@@ -28,7 +28,7 @@ use std::fmt::Display;
 /// println!("{}", style("Underlined text").underlined());
 /// println!("{}", style("Negative text").negative());
 /// ```
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Attribute {
     /// All attributes off
     /// [info]: This will reset all current set attributes.
