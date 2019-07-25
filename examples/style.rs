@@ -4,6 +4,7 @@
 extern crate crossterm;
 
 use self::crossterm::{color, Attribute, Color, Colored, Colorize, Styler};
+use std::io::stdout;
 
 /// print some red text | demonstration.
 pub fn paint_foreground() {
@@ -411,5 +412,6 @@ pub fn reset_fg_and_bg() {
 }
 
 fn main() {
-    print_all_foreground_colors_with_method()
+    use std::io::Write;
+    print_all_background_colors_with_method()
 }

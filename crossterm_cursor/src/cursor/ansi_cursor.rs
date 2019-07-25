@@ -3,10 +3,10 @@
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position etc.
 
 use super::ITerminalCursor;
-use crate::sys::get_cursor_position;
+use crate::sys::{get_cursor_position, show_cursor};
 use std::io::Write;
 
-use crossterm_utils::{write_cout, ErrorKind, Result};
+use crossterm_utils::{write_cout, Result};
 
 #[inline]
 pub fn get_goto_ansi(x: u16, y: u16) -> String {
@@ -86,12 +86,12 @@ impl ITerminalCursor for AnsiCursor {
     }
 
     fn hide(&self) -> Result<()> {
-        write_cout!(HIDE_ANSI)?;
+        show_cursor(false)?;
         Ok(())
     }
 
     fn show(&self) -> Result<()> {
-        write_cout!(SHOW_ANSI)?;
+        show_cursor(true)?;
         Ok(())
     }
 

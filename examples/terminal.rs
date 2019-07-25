@@ -129,16 +129,6 @@ pub fn scroll_up() -> io::Result<()> {
     Ok(())
 }
 
-/// Resize the terminal to X: 10, Y: 10 | demonstration.
-pub fn resize_terminal() -> io::Result<()> {
-    let terminal = terminal();
-
-    // Get terminal size
-    terminal.set_size(10, 10)?;
-
-    Ok(())
-}
-
 /// exit the current proccess.
 pub fn exit() {
     let terminal = terminal();
@@ -146,5 +136,5 @@ pub fn exit() {
 }
 
 fn main() {
-    clear_until_new_line();
+    scroll_down();
 }

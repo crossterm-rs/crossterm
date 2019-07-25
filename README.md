@@ -109,20 +109,6 @@ These are some basic examples demonstrating how to use this crate. See [examples
 My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
 Because it is more convenient, faster, and easier to use.
 
-### Crossterm Type
-This is a wrapper for all the modules crossterm provides like terminal, cursor, styling, and input.
-
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
-
-```rust
-let crossterm = Crossterm::new();
-
-let color = crossterm.color();
-let cursor = crossterm.cursor();
-let terminal = crossterm.terminal();
-let input = crossterm.input();
-```
-
 ### Styled Text
 This module enables you to style the terminal text.
 

@@ -2,7 +2,7 @@
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
 use crate::{Attribute, Color, ITerminalColor};
-use crossterm_utils::Result;
+use crossterm_utils::{Result, write_cout};
 
 use crate::Colored;
 use std::io::Write;
@@ -35,17 +35,17 @@ impl AnsiColor {
 
 impl ITerminalColor for AnsiColor {
     fn set_fg(&self, fg_color: Color) -> Result<()> {
-        write!(std::io::stdout(), "{}", get_set_fg_ansi(fg_color))?;
+        write_cout!(get_set_fg_ansi(fg_color))?;
         Ok(())
     }
 
     fn set_bg(&self, bg_color: Color) -> Result<()> {
-        write!(std::io::stdout(), "{}", get_set_bg_ansi(bg_color))?;
+        write_cout!(get_set_bg_ansi(bg_color))?;
         Ok(())
     }
 
     fn reset(&self) -> Result<()> {
-        write!(std::io::stdout(), "{}", RESET_ANSI)?;
+        write_cout!(RESET_ANSI)?;
         Ok(())
     }
 }

@@ -22,6 +22,7 @@ use std::fmt::Display;
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Colored {
     Fg(Color),
     Bg(Color),
