@@ -245,12 +245,16 @@ fn read_input_events() -> Result<(u32, Vec<InputEvent>)> {
         unsafe {
             match input.event_type {
                 InputEventType::KeyEvent => {
-                    if let Ok(Some(event)) =  handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) }) {
+                    if let Ok(Some(event)) =
+                        handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })
+                    {
                         input_events.push(event)
                     }
                 }
                 InputEventType::MouseEvent => {
-                    if let Ok(Some(event)) =   handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) }) {
+                    if let Ok(Some(event)) =
+                        handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })
+                    {
                         input_events.push(event)
                     }
                 }
@@ -283,7 +287,6 @@ fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<InputEvent>> {
         return Ok(None);
     }
 }
-
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     let key_code = key_event.virtual_key_code as i32;

@@ -9,16 +9,16 @@ mod unix_input;
 mod windows_input;
 
 #[cfg(unix)]
-pub use self::unix_input::SyncReader;
-#[cfg(unix)]
 pub use self::unix_input::AsyncReader;
+#[cfg(unix)]
+pub use self::unix_input::SyncReader;
 #[cfg(unix)]
 use self::unix_input::UnixInput;
 
 #[cfg(windows)]
-pub use self::windows_input::SyncReader;
-#[cfg(windows)]
 pub use self::windows_input::AsyncReader;
+#[cfg(windows)]
+pub use self::windows_input::SyncReader;
 #[cfg(windows)]
 use self::windows_input::WindowsInput;
 

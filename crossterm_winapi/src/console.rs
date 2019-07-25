@@ -2,6 +2,7 @@ use super::{is_true, Coord, Handle, HandleType, WindowPositions};
 use std::io::{self, Error, Result};
 use std::str;
 
+use std::borrow::ToOwned;
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
@@ -13,7 +14,6 @@ use winapi::um::{
     },
     winnt::HANDLE,
 };
-use std::borrow::ToOwned;
 
 use InputRecord;
 

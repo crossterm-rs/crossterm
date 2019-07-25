@@ -78,7 +78,6 @@ impl ITerminalInput for UnixInput {
     }
 }
 
-
 /// This type allows you to read the input asynchronously which means that input events are gathered on the background and will be queued for you to read.
 ///
 /// **[SyncReader](./LINK)**
