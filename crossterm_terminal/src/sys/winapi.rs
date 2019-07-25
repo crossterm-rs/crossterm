@@ -9,7 +9,7 @@ pub fn exit() {
 pub fn get_terminal_size() -> (u16, u16) {
     if let Ok(buffer) = ScreenBuffer::current() {
         let size = buffer.info().unwrap().terminal_size();
-        (size.width + 1, size.height + 1).into()
+        ((size.width + 1) as u16, (size.height + 1) as u16)
     } else {
         (0, 0)
     }

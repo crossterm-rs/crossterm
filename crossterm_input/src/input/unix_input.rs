@@ -78,6 +78,84 @@ impl ITerminalInput for UnixInput {
     }
 }
 
+
+/// This type allows you to read the input asynchronously which means that input events are gathered on the background and will be queued for you to read.
+///
+/// **[SyncReader](./LINK)**
+/// If you want a blocking, or less resource consuming read to happen use `SyncReader`, this will leave a way all the thread and queueing and will be a blocking read.
+///
+/// This type is an iterator, and could be used to iterate over input events.
+///
+/// # Remarks
+/// - Threads spawned will be disposed of as soon the `AsyncReader` goes out of scope.
+/// - MPSC-channels are used to queue input events, this type implements an iterator of the rx side of the queue.
+pub struct AsyncReader {
+    event_rx: Receiver<u8>,
+    shutdown: Arc<AtomicBool>,
+}
+
+impl AsyncReader {
+    /// Construct a new instance of the `AsyncReader`.
+    /// The reading will immediately start when calling this function.
+    pub fn new(function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
+        let shutdown_handle = Arc::new(AtomicBool::new(false));
+
+        let (event_tx, event_rx) = mpsc::channel();
+        let thread_shutdown = shutdown_handle.clone();
+
+        thread::spawn(move || loop {
+            function(&event_tx, &thread_shutdown);
+        });
+
+        AsyncReader {
+            event_rx,
+            shutdown: shutdown_handle,
+        }
+    }
+
+    /// Stop the input event reading.
+    ///
+    /// You don't necessarily have to call this function because it will automatically be called when this reader goes out of scope.
+    ///
+    /// # Remarks
+    /// - Background thread will be closed.
+    /// - This will consume the handle you won't be able to restart the reading with this handle, create a new `AsyncReader` instead.
+    pub fn stop_reading(&mut self) {
+        self.shutdown.store(true, Ordering::SeqCst);
+    }
+}
+
+impl Iterator for AsyncReader {
+    type Item = InputEvent;
+
+    /// Check if there are input events to read.
+    ///
+    /// It will return `None` when nothing is there to read, `Some(InputEvent)` if there are events to read.
+    ///
+    /// # Remark
+    /// - This is **not** a blocking call.
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut iterator = self.event_rx.try_iter();
+
+        match iterator.next() {
+            Some(char_value) => {
+                if let Ok(char_value) = parse_event(char_value, &mut iterator) {
+                    Some(char_value)
+                } else {
+                    None
+                }
+            }
+            None => None,
+        }
+    }
+}
+
+impl Drop for AsyncReader {
+    fn drop(&mut self) {
+        self.stop_reading();
+    }
+}
+
 /// This type allows you to read input synchronously, which means that reading calls will block.
 ///
 /// This type is an iterator, and can be used to iterate over input events.
