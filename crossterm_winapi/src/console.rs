@@ -2,6 +2,7 @@ use super::{is_true, Coord, Handle, HandleType, WindowPositions};
 use std::io::{self, Error, Result};
 use std::str;
 
+use std::borrow::ToOwned;
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
@@ -13,6 +14,7 @@ use winapi::um::{
     },
     winnt::HANDLE,
 };
+
 use InputRecord;
 
 /// Could be used to do some basic things with the console.
@@ -162,11 +164,25 @@ impl Console {
         Ok(utf8.as_bytes().len())
     }
 
-    pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
-        let mut buf_len: DWORD = 0;
-        if !is_true(unsafe { GetNumberOfConsoleInputEvents(*self.handle, &mut buf_len) }) {
-            return Err(Error::last_os_error());
+    pub fn read_single_input_event(&self) -> Result<Option<InputRecord>> {
+        let mut buf_len = self.number_of_console_input_events()?;
+
+        // Fast-skipping all the code below if there is nothing to read at all
+        if buf_len == 0 {
+            return Ok(None);
         }
+
+        let mut buf: Vec<INPUT_RECORD> = Vec::with_capacity(1);
+        let mut size = 0;
+
+        let a = self.read_input(&mut buf, 1, &mut size)?.1[0].to_owned();
+
+        // read single input event
+        Ok(Some(a))
+    }
+
+    pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
+        let mut buf_len = self.number_of_console_input_events()?;
 
         // Fast-skipping all the code below if there is nothing to read at all
         if buf_len == 0 {
@@ -176,19 +192,37 @@ impl Console {
         let mut buf: Vec<INPUT_RECORD> = Vec::with_capacity(buf_len as usize);
         let mut size = 0;
 
+        self.read_input(&mut buf, buf_len, &mut size)
+    }
+
+    pub fn number_of_console_input_events(&self) -> Result<u32> {
+        let mut buf_len: DWORD = 0;
+        if !is_true(unsafe { GetNumberOfConsoleInputEvents(*self.handle, &mut buf_len) }) {
+            return Err(Error::last_os_error());
+        }
+
+        Ok(buf_len)
+    }
+
+    fn read_input(
+        &self,
+        buf: &mut Vec<INPUT_RECORD>,
+        buf_len: u32,
+        bytes_written: &mut u32,
+    ) -> Result<(u32, Vec<InputRecord>)> {
         if !is_true(unsafe {
-            ReadConsoleInputW(*self.handle, buf.as_mut_ptr(), buf_len, &mut size)
+            ReadConsoleInputW(*self.handle, buf.as_mut_ptr(), buf_len, bytes_written)
         }) {
             return Err(Error::last_os_error());
         } else {
             unsafe {
-                buf.set_len(size as usize);
+                buf.set_len(buf_len as usize);
             }
         }
 
         Ok((
-            size,
-            buf[..(size as usize)]
+            buf_len,
+            buf[..(buf_len as usize)]
                 .iter()
                 .map(|x| InputRecord::from(*x))
                 .collect::<Vec<InputRecord>>(),

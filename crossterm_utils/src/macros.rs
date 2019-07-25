@@ -68,7 +68,7 @@ macro_rules! write_cout {
 macro_rules! queue {
     ($write:expr, $($command:expr), *) =>
     {{
-        use $crate::{Command, write_cout};
+        use $crate::Command;
         let mut error = None;
 
         $(
@@ -104,7 +104,7 @@ macro_rules! queue {
         }else {
             Ok(())
         }
-    }};
+    }}
 }
 
 /// Execute one or more command(s)

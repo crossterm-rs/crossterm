@@ -1,11 +1,5 @@
-use crate::{execute, impl_display, queue, write_cout, ErrorKind, Result};
-
-#[cfg(windows)]
-use crate::supports_ansi;
-
+use crate::{execute, impl_display, queue, write_cout, Result};
 use std::fmt::Display;
-use std::fmt::{self, Error, Formatter};
-use std::intrinsics::write_bytes;
 use std::io::Write;
 
 /// A command is an action that can be performed on the terminal.

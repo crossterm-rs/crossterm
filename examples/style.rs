@@ -410,4 +410,6 @@ pub fn reset_fg_and_bg() {
     println!("{}", Colored::Bg(Color::Reset));
 }
 
-fn main() {print_all_foreground_colors_with_method()}
+fn main() {
+    print_all_foreground_colors_with_method()
+}

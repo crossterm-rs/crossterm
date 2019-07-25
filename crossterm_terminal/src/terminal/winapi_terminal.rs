@@ -4,6 +4,7 @@
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
 use super::*;
+use crate::sys::winapi::get_terminal_size;
 use crossterm_cursor::sys::winapi::Cursor;
 use crossterm_utils::{ErrorKind, Result};
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};

@@ -1,6 +1,5 @@
 //! Module containing error handling logic.
 
-use command::Command;
 use std::{
     fmt::{self, Display, Formatter},
     io,
