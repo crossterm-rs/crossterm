@@ -21,7 +21,7 @@ pub use self::cursor::{
     TerminalCursor, Up,
 };
 
-use crossterm_utils::{Command, Result};
+use crossterm_utils::Result;
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
 ///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill

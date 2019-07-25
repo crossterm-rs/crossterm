@@ -1,6 +1,6 @@
 ## Screen Buffer
 A screen buffer is a two-dimensional array of characters and color data to be output in a console window. 
-An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.
+A terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.
 
 Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'. 
 One note to take is that crossterm does not support the creation and switching between several buffers.
@@ -26,7 +26,7 @@ Normally the terminals use line buffering. This means that the input will be sen
 
 **Characters**
 
-The characters are not processed by the terminal driver. Also, special character have no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.
+The characters are not processed by the terminal driver. Also, special character has no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.
 
 **Escape Characters**
 Note that in raw mode `\n` `\r` will move the cursor to a new line but it will be at the same position as it was on the previous line.

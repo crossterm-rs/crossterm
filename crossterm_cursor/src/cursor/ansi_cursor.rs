@@ -6,8 +6,7 @@ use super::ITerminalCursor;
 use crate::sys::{get_cursor_position, show_cursor};
 use std::io::Write;
 
-use crossterm_utils::{write_cout, ErrorKind, Result};
-use std::intrinsics::transmute;
+use crossterm_utils::{write_cout, Result};
 
 #[inline]
 pub fn get_goto_ansi(x: u16, y: u16) -> String {
@@ -87,12 +86,12 @@ impl ITerminalCursor for AnsiCursor {
     }
 
     fn hide(&self) -> Result<()> {
-        show_cursor(false);
+        show_cursor(false)?;
         Ok(())
     }
 
     fn show(&self) -> Result<()> {
-        show_cursor(true);
+        show_cursor(true)?;
         Ok(())
     }
 

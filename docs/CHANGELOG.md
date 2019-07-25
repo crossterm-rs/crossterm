@@ -1,3 +1,10 @@
+# Changes crossterm 0.10.0
+- Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/TimonPost/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/TimonPost/crossterm/issues/171)
+- Fixed showing, hiding cursor windows implementation
+- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/TimonPost/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 
+- Made terminal size 1-based [PR](https://github.com/TimonPost/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
+- Added some derive implementation
+
 # Changes crossterm 0.9.6
 - Copy for KeyEvent
 - CTRL + Left, Down, Up, Right key support

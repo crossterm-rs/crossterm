@@ -77,7 +77,13 @@ These are the features of this crate:
     - Terminal Size (get/set)
     - Exit Current Process
 
+## Command API
+
+My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
+Because it is more convenient, faster, and easier to use.
+
 ## Examples
+
 The [examples](./examples) folder has more complete and verbose examples.
 
 ```rust 
