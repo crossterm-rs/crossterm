@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_style"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["T. Post"]
 description = "A cross-platform library styling the terminal output."
 repository = "https://github.com/TimonPost/crossterm"
@@ -13,7 +13,7 @@ edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.7", features = ["wincon"] }
-crossterm_winapi = { path="../crossterm_winapi", version = "0.1.4"}
+crossterm_winapi = { path="../crossterm_winapi", version = "^0.1"}
 
 [dependencies]
-crossterm_utils = {path="../crossterm_utils"}
+crossterm_utils = {path="../crossterm_utils", version = "^0.2"}
