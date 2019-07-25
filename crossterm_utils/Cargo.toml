@@ -12,7 +12,7 @@ readme = "README.md"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.7", features = ["wincon"] }
-crossterm_winapi = "0.1.4"
+crossterm_winapi = { path="../crossterm_winapi", version = "0.1.4"}
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"

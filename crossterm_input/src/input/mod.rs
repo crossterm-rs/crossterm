@@ -22,15 +22,13 @@ pub use self::windows_input::SyncReader;
 #[cfg(windows)]
 use self::windows_input::WindowsInput;
 
-use self::input::parse_event;
 pub use self::input::{input, TerminalInput};
-use crossterm_utils::{ErrorKind, Result};
+use crossterm_utils::Result;
 use std::io;
-use std::sync::{mpsc, Arc};
-
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
+use std::sync::{
+    mpsc::{Receiver, Sender},
+    Arc,
+};
 
 /// This trait defines the actions that can be performed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill

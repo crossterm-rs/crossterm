@@ -127,6 +127,6 @@ pub fn read_synchronously() {
 fn main() {
     // un-comment below and run with
     // `cargo run --example key_events`:
-    read_synchronously();
-    //     read_asynchronously();
+    //    read_synchronously();
+    read_asynchronously();
 }

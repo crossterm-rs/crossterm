@@ -15,11 +15,12 @@ use winapi::um::{
     winuser::{
         VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
         VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT,
-        VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_TAB, VK_UP,
+        VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
     },
 };
 
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc;
 use std::time::Duration;
 use std::{char, io, thread};
 
@@ -242,27 +243,25 @@ fn read_input_events() -> Result<(u32, Vec<InputEvent>)> {
     let mut input_events = Vec::with_capacity(result.0 as usize);
 
     for input in result.1 {
-        unsafe {
-            match input.event_type {
-                InputEventType::KeyEvent => {
-                    if let Ok(Some(event)) =
-                        handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })
-                    {
-                        input_events.push(event)
-                    }
+        match input.event_type {
+            InputEventType::KeyEvent => {
+                if let Ok(Some(event)) =
+                    handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })
+                {
+                    input_events.push(event)
                 }
-                InputEventType::MouseEvent => {
-                    if let Ok(Some(event)) =
-                        handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })
-                    {
-                        input_events.push(event)
-                    }
-                }
-                // NOTE (@imdaveho): ignore below
-                InputEventType::WindowBufferSizeEvent => (), // TODO implement terminal resize event
-                InputEventType::FocusEvent => (),
-                InputEventType::MenuEvent => (),
             }
+            InputEventType::MouseEvent => {
+                if let Ok(Some(event)) =
+                    handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })
+                {
+                    input_events.push(event)
+                }
+            }
+            // NOTE (@imdaveho): ignore below
+            InputEventType::WindowBufferSizeEvent => (), // TODO implement terminal resize event
+            InputEventType::FocusEvent => (),
+            InputEventType::MenuEvent => (),
         }
     }
 
