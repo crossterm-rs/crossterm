@@ -12,10 +12,7 @@ os:
   - osx
   - windows
 
-branches:
-  only:
-    - master
-
 script:
   - cargo build
   - cargo fmt -- --check
+  - cargo test -- --nocapture --test-threads 1
