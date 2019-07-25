@@ -259,7 +259,7 @@ fn read_input_events() -> Result<(u32, Vec<InputEvent>)> {
                     }
                 }
                 // NOTE (@imdaveho): ignore below
-                InputEventType::WindowBufferSizeEvent => (),
+                InputEventType::WindowBufferSizeEvent => (), // TODO implement terminal resize event
                 InputEventType::FocusEvent => (),
                 InputEventType::MenuEvent => (),
             }
@@ -278,14 +278,12 @@ fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<InputEvent>> {
 
 fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<InputEvent>> {
     if key_event.key_down {
-        // NOTE (@imdaveho): only handle key down, this is because unix limits key events to key press
-        return Ok(None);
+        if let Some(event) = parse_key_event_record(&key_event) {
+            return Ok(Some(InputEvent::Keyboard(event)));
+        }
     }
-    if let Some(event) = parse_key_event_record(&key_event) {
-        return Ok(Some(InputEvent::Keyboard(event)));
-    } else {
-        return Ok(None);
-    }
+
+    return Ok(None);
 }
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
