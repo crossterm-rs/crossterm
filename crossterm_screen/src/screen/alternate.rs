@@ -15,8 +15,8 @@ use crate::sys::{self, IAlternateScreenCommand};
 use super::RawScreen;
 use std::io;
 
-/// With this type you will be able to switch to alternate screen and back to main screen.
-/// Check also the Screen type for swishing to alternate mode.
+/// With this type you will be able to switch to the alternate screen and then back to the main screen.
+/// Check also the Screen type for switching to alternate mode.
 ///
 /// Although this type is available for you to use I would recommend using `Screen` instead.
 pub struct AlternateScreen {
@@ -28,22 +28,22 @@ pub struct AlternateScreen {
 }
 
 impl AlternateScreen {
-    /// Switch to alternate screen. This function will return an `AlternateScreen` instance if everything went well this type will give you control over the `AlternateScreen`.
+    /// Switch to the alternate screen. This function will return an `AlternateScreen` instance if everything went well. This type will give you control over the `AlternateScreen`.
     ///
     /// The bool specifies whether the screen should be in raw mode or not.
     ///
     /// # What is Alternate screen?
-    /// *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
-    /// The alternate buffer is exactly the dimensions of the window, without any scrollback region.
+    /// *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer without affecting the application that started them.
+    /// The alternate buffer dimensions are exactly the same as the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
     pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
         #[cfg(windows)]
         let command = if supports_ansi() {
-            Box::from(ToAlternateScreenCommand::new())
+            Box::from(sys::ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         } else {
-            Box::from(sys::ToAlternateScreenCommand::new())
+            Box::from(ToAlternateScreenCommand::new())
                 as Box<(dyn IAlternateScreenCommand + Sync + Send)>
         };
 
@@ -66,7 +66,7 @@ impl AlternateScreen {
         })
     }
 
-    /// Switch the alternate screen back to main screen.
+    /// Switch the alternate screen back to the main screen.
     pub fn to_main(&self) -> io::Result<()> {
         self.command.disable()?;
         Ok(())
@@ -74,7 +74,7 @@ impl AlternateScreen {
 }
 
 impl Drop for AlternateScreen {
-    /// This will switch back to main screen on drop.
+    /// This will switch back to the main screen on drop.
     fn drop(&mut self) {
         self.to_main().unwrap();
     }

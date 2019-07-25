@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_utils"
-version = "0.2.1"
+version = "0.2.4"
 authors = ["T. Post"]
 description = "Common logic used by the crossterm crates."
 repository = "https://github.com/TimonPost/crossterm"
@@ -11,8 +11,8 @@ exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.1.2"
 winapi = { version =  "0.3.7", features = ["wincon"] }
+crossterm_winapi = { path="../crossterm_winapi", version = "0.1.5"}
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"

@@ -8,13 +8,13 @@ use self::crossterm_style::{
     color, style, Attribute, Color, Colored, Colorize, Styler, TerminalColor,
 };
 
-/// print some red font | demonstration.
+/// print some red text | demonstration.
 pub fn paint_foreground() {
     println!("{}", "Red foreground text: {}".red());
     println!("{} Red foreground text", Colored::Fg(Color::Red));
 }
 
-/// print some font on red background | demonstration.
+/// print some text on red background | demonstration.
 pub fn paint_background() {
     println!("{}", "Red background text: {}".on_red());
     println!("{} Red background text", Colored::Bg(Color::Red));
@@ -347,9 +347,9 @@ pub fn print_all_background_colors_with_method() {
     );
 }
 
-/// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
+/// Print text with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(unix)]
-pub fn print_font_with_attributes() {
+pub fn print_text_with_attributes() {
     println!("{}", "Normal text");
     println!("{}", "Bold text".bold());
     println!("{}", "Italic text".italic());
@@ -359,7 +359,7 @@ pub fn print_font_with_attributes() {
     println!("{}", "Underlined text".underlined());
     println!("{}", "Reversed text".reverse());
     println!("{}", "Dim text".dim());
-    println!("{}", "Crossed out font".crossed_out());
+    println!("{}", "Crossed out text".crossed_out());
     // ...
 
     println!(
@@ -370,9 +370,9 @@ pub fn print_font_with_attributes() {
     // ...
 }
 
-// Print font with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
+// Print text with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(windows)]
-pub fn print_font_with_attributes() {
+pub fn print_text_with_attributes() {
     println!("{}", "Normal text");
     println!("{}", "Bold text".bold());
     println!("{}", "Underlined text".underlined());
@@ -394,5 +394,5 @@ pub fn reset_fg_and_bg() {
 }
 
 fn main() {
-    print_all_background_colors_with_method()
+    command()
 }

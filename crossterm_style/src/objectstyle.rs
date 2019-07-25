@@ -6,7 +6,7 @@ use std::fmt::Display;
 
 use super::Attribute;
 
-/// Struct that contains the style properties that can be applied to an displayable object.
+/// Struct that contains the style properties that can be applied to a displayable object.
 #[derive(Clone)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
@@ -25,15 +25,15 @@ impl Default for ObjectStyle {
 }
 
 impl ObjectStyle {
-    /// Apply an `StyledObject` to the passed displayable object.
-    pub fn apply_to<D: Display>(&self, val: D) -> StyledObject<D> {
+    /// Apply a `StyledObject` to the passed displayable object.
+    pub fn apply_to<D: Display + Clone>(&self, val: D) -> StyledObject<D> {
         StyledObject {
             object_style: self.clone(),
             content: val,
         }
     }
 
-    /// Get an new instance of `ObjectStyle`
+    /// Get a new instance of `ObjectStyle`
     pub fn new() -> ObjectStyle {
         ObjectStyle {
             fg_color: None,

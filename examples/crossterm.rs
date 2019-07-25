@@ -12,7 +12,7 @@ pub fn main() {
     let terminal = crossterm.terminal();
     let terminal = crossterm.input();
     let style = crossterm
-        .style("Black font on green background")
+        .style("Black text on green background")
         .with(Color::Black)
         .on(Color::Green);
 

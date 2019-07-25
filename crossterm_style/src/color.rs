@@ -1,11 +1,12 @@
 //! A module that contains all the actions related to the styling of the terminal.
-//! Like applying attributes to font and changing the foreground and background.
+//! Like applying attributes to text and changing the foreground and background.
 
 use std::io;
 
 use super::*;
 use crate::{Color, ITerminalColor};
-use crossterm_utils::Result;
+use crossterm_utils::{impl_display, Command, Result};
+use std::clone::Clone;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
@@ -80,3 +81,86 @@ impl TerminalColor {
 pub fn color() -> TerminalColor {
     TerminalColor::new()
 }
+
+/// When executed, this command will set the foreground color of the terminal to the given color.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct SetFg(pub Color);
+
+impl Command for SetFg {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_color::get_set_fg_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiColor::new().set_fg(self.0)
+    }
+}
+
+/// When executed, this command will set the background color of the terminal to the given color.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct SetBg(pub Color);
+
+impl Command for SetBg {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_color::get_set_bg_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiColor::new().set_fg(self.0)
+    }
+}
+
+/// When executed, this command will set the given attribute to the terminal.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct SetAttr(pub Attribute);
+
+impl Command for SetAttr {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        ansi_color::get_set_attr_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        // attributes are not supported by WinAPI.
+        Ok(())
+    }
+}
+
+/// When executed, this command will print the styled font to the terminal.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct PrintStyledFont<D: Display + Clone>(pub StyledObject<D>);
+
+impl<D> Command for PrintStyledFont<D>
+where
+    D: Display + Clone,
+{
+    type AnsiType = StyledObject<D>;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        self.0.clone()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        // attributes are not supported by WinAPI.
+        Ok(())
+    }
+}
+
+impl_display!(for SetFg);
+impl_display!(for SetBg);
+impl_display!(for SetAttr);
+impl_display!(for PrintStyledFont<String>);
+impl_display!(for PrintStyledFont<&'static str>);

@@ -1,8 +1,8 @@
 use std::convert::AsRef;
 use std::str::FromStr;
 
-/// Colors that are available for coloring the terminal font.
-#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
+/// Enum with the different colors to color your test and terminal.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     // This resets the color.
     Reset,
@@ -43,14 +43,14 @@ pub enum Color {
 }
 
 impl<'a> From<&'a str> for Color {
-    /// Get an color from an &str like `Color::from("blue")`.
+    /// Get a `Color` from a `&str` like `Color::from("blue")`.
     fn from(src: &str) -> Self {
         src.parse().unwrap_or(Color::White)
     }
 }
 
 impl From<String> for Color {
-    /// Get an color from an &str like `Color::from(String::from(blue))`.
+    /// Get a `Color` from a `&str` like `Color::from(String::from(blue))`.
     fn from(src: String) -> Self {
         src.parse().unwrap_or(Color::White)
     }
@@ -59,7 +59,7 @@ impl From<String> for Color {
 impl FromStr for Color {
     type Err = ();
 
-    /// Convert a string to an Color value
+    /// Convert a `&str` to a `Color` value
     fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
         let src = src.to_lowercase();
 

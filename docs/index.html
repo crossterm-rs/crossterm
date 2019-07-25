@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="command.html"><strong aria-hidden="true">2.</strong> Command API</a></li><li><a href="styling.html"><strong aria-hidden="true">3.</strong> Styling Output</a></li><li><a href="input.html"><strong aria-hidden="true">4.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">5.</strong> Alternate, Raw Screen</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -141,7 +141,7 @@
                 <div id="content" class="content">
                     <main>
                         <p>From <code>crossterm 0.6</code> you are able to use feature flags.</p>
-<p>With feature flags you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.</p>
+<p>With feature flags, you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.</p>
 <p>Crossterm provides the following feature flags:</p>
 <ul>
 <li>input     ; reading input events</li>
@@ -150,7 +150,7 @@
 <li>cursor    ; moving the terminal cursor</li>
 <li>screen    ; alternate and raw screen</li>
 </ul>
-<p>By default all of those will be enabled.</p>
+<p>By default, all of those will be enabled.</p>
 <p><em>Cargo.toml</em></p>
 <pre><code>[dependencies]
 crossterm = { version=&quot;0.9&quot;, default-features = false, features = [&quot;screen&quot;, &quot;terminal&quot;, &quot;cursor&quot;, &quot;style&quot;, &quot;input&quot;] }
@@ -159,12 +159,13 @@ crossterm = { version=&quot;0.9&quot;, default-features = false, features = [&qu
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-&quot;cursor&quot; =&gt; cursor, TerminalCursor
+&quot;cursor&quot; =&gt; cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show, TerminalCursor, Up,
 &quot;input&quot; =&gt; input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput
 &quot;screen&quot; =&gt; AlternateScreen, IntoRawMode, RawScreen
-&quot;style&quot; =&gt; color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler, TerminalColor,
-&quot;terminal&quot; =&gt; terminal, ClearType, Terminal
+&quot;style&quot; =&gt; style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler, color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor
+&quot;terminal&quot; =&gt; terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal
 #}</code></pre></pre>
+<p>All modules export types for the ability to use the command api, those are: <code>execute, queue, Command, ExecutableCommand, QueueableCommand</code></p>
 <p>You can also use all the crossterm modules individually by directly referencing the crate.</p>
 <ul>
 <li><a href="https://crates.io/crates/crossterm_style">Crossterm Style</a></li>

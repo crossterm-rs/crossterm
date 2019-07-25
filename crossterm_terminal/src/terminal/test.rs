@@ -1,5 +1,3 @@
-use super::{AnsiTerminal, ITerminal, WinApiTerminal};
-
 /* ======================== WinApi =========================== */
 #[cfg(windows)]
 mod winapi_tests {
@@ -21,6 +19,7 @@ mod winapi_tests {
 /* ======================== ANSI =========================== */
 #[test]
 fn resize_ansi() {
+    use super::*;
     use std::{thread, time};
     if try_enable_ansi() {
         let terminal = AnsiTerminal::new();

@@ -27,7 +27,7 @@ Through the simplicity of Crossterm, you do not have to worry about the platform
 
 This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info).
 
-This crate consists of five modules that are provided behind [feature flags](http://atcentra.com/crossterm/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
+This crate consists of five modules that are provided behind [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 
 - [Crossterm Input](https://crates.io/crates/crossterm_input) 
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
@@ -40,7 +40,7 @@ This crate consists of five modules that are provided behind [feature flags](htt
 - [Features](#features)
 - [Examples](#examples)
     - [Crossterm Type](#crossterm-type)
-    - [Styled Font](#styled-font)
+    - [Styled Text](#styled-text)
     - [Cursor](#cursor)
     - [Terminal](#terminal)
     - [Input Reading](#input-reading)
@@ -59,19 +59,18 @@ Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "0.9.2"
+crossterm = "0.9.6"
 ```
 
 ### Useful Links
 
-- [Book](http://atcentra.com/crossterm/)
+- [Book](https://timonpost.github.io/crossterm/docs//)
 - [Documentation](https://docs.rs/crossterm/)
 - [Crates.io](https://crates.io/crates/crossterm)
 - [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
 - [Examples](https://github.com/TimonPost/crossterm/tree/master/examples)
 
 ## Features
-These are the features from this crate:
 
 - Cross-platform
 - Multithreaded (send, sync)
@@ -88,7 +87,7 @@ These are the features from this crate:
     - Background Color (16 base colors)
     - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
     - RGB Color Support (Windows 10 and UNIX only)
-    - Text Attributes: bold, italic, underscore and crossed word and [more](http://atcentra.com/crossterm/styling.html#attributes) (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](https://timonpost.github.io/crossterm/docs//styling.html#attributes) (Windows 10 and UNIX only)
 - Terminal
     - Clearing (all lines, current line, from cursor down and up, until new line)
     - Scrolling (up, down)
@@ -105,32 +104,21 @@ These are the features from this crate:
 ## Examples
 These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
 
-### Crossterm Type
-This is a wrapper for all the modules crossterm provides like terminal, cursor, styling and input.
+### Command API
 
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm/), [examples](https://github.com/TimonPost/crossterm/blob/master/examples/crossterm.rs).
+My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
+Because it is more convenient, faster, and easier to use.
 
-```rust
-// screen whereon the `Crossterm` methods will be executed.
-let crossterm = Crossterm::new();
+### Styled Text
+This module enables you to style the terminal text.
 
-// get instance of the modules, whereafter you can use the methods the particularly module provides. 
-let color = crossterm.color();
-let cursor = crossterm.cursor();
-let terminal = crossterm.terminal();
-let input = crossterm.input();
-```
-
-### Styled Font
-This module enables you to style the terminal font.
-
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](http://atcentra.com/crossterm/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](https://timonpost.github.io/crossterm/docs/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
 _imports_
 ```rust 
 use crossterm::{Colored, Color, Colorize, Styler, Attribute};
 ```
-_style font with attributes_
+_style text with attributes_
 ```rust
 // pass any `Attribute` value to the formatting braces.
 println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUnderline);
@@ -138,12 +126,9 @@ println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUn
 // you could also call different attribute methods on a `&str` and keep on chaining if needed.
 let styled_text = "Bold Underlined".bold().underlined();
 println!("{}", styled_text);
-
-// old-way but still usable
-let styled_text = style("Bold Underlined").bold().underlined();
 ```
 
-_style font with colors_
+_style text with colors_
 ```rust
 println!("{} Red foreground color", Colored::Fg(Color::Red));
 println!("{} Blue background color", Colored::Bg(Color::Blue));
@@ -151,11 +136,8 @@ println!("{} Blue background color", Colored::Bg(Color::Blue));
 // you can also call different coloring methods on a `&str`.
 let styled_text = "Bold Underlined".red().on_blue();
 println!("{}", styled_text);
-
-// old-way but still usable
-let styled_text = style("Bold Underlined").with(Color::Red).on(Color::Blue);
 ```
-_style font with RGB and ANSI Value_
+_style text with RGB and ANSI Value_
 ```rust
 // custom rgb value (Windows 10 and UNIX systems)
 println!("{} some colored text", Colored::Fg(Color::Rgb {
@@ -209,7 +191,6 @@ cursor.hide();
 cursor.show();
 // blink or not blinking of the cursor (not widely supported)
 cursor.blink(true)
-
 ```
 
 ### Terminal
@@ -254,7 +235,7 @@ terminal.write("Some text\n Some text on new line");
 ### Input Reading
 This module enables you to read user input events.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](http://atcentra.com/crossterm/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](https://timonpost.github.io/crossterm/docs/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
 
 _available imports_
 ```rust
@@ -311,7 +292,13 @@ input.disable_mouse_mode().unwrap();
 ```
 
 ### Alternate and Raw Screen
-These concepts are a little more complex and would take over the README, please checkout the [docs](https://docs.rs/crossterm_screen/), [book](http://atcentra.com/crossterm/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
+These concepts are a little more complex and would take over the README, please check out the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
+
+## Used By
+- [Broot](https://dystroy.org/broot/)
+- [Cursive](https://github.com/gyscos/Cursive)
+- [TUI](https://github.com/fdehau/tui-rs)
+- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
 
 ## Tested terminals
 
@@ -328,21 +315,10 @@ These concepts are a little more complex and would take over the README, please 
 This crate supports all Unix terminals and Windows terminals down to Windows 7; however, not all of the terminals have been tested.
 If you have used this library for a terminal other than the above list without issues, then feel free to add it to the above list - I really would appreciate it!
 
-## Notice 
-This library is mostly stable now, and I don't expect it to change much.
-If there are any changes that will affect previous versions I will [describe](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md) what to change to upgrade.
-
-## Todo
-- Tests
-   Find a way to test: color, alternate screen, rawscreen
-
 ## Contributing
   
 I highly appreciate it when you contribute to this crate. 
-Also, since my native language is not English my grammar and sentence order will not be perfect. 
-So improving this by correcting these mistakes will help both me and the reader of the docs.
-
-Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Contributing.md) for more info about branches and code architecture.
+Please visit the discord or issue list for more information
 
 ## Authors
 
@@ -350,7 +326,7 @@ Check [Contributing](https://github.com/TimonPost/crossterm/blob/master/docs/Con
 
 ## Support
 
-Crossterm took a lot of time to develop, I realy appriciate any donation given to support the development of crossterm.
+Crossterm took a lot of time to develop, I appreciate any donation given to support the development of crossterm.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 

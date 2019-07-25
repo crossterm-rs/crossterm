@@ -1,9 +1,8 @@
 use std::fmt::Display;
-use std::io::stdout;
-use std::io::Write;
 
-/// These are all the attributes which **could** be apply to font.
-/// There are few things to note
+/// Enum with the different attributes to style your test.
+///
+/// There are few things to note:
 /// - Not all attributes are supported, some of them are only supported on Windows some only on Unix,
 /// and some are only very rarely supported.
 /// - I got those attributes, descriptions, supportability from here: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
@@ -29,25 +28,25 @@ use std::io::Write;
 /// println!("{}", style("Underlined text").underlined());
 /// println!("{}", style("Negative text").negative());
 /// ```
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Attribute {
     /// All attributes off
     /// [info]: This will reset all current set attributes.
     /// [Supportability]: Windows, UNIX.
     Reset = 0,
     /// Increased Intensity
-    /// [info]: This will increase the font sensitivity also known as bold.
+    /// [info]: This will increase the text sensitivity also known as bold.
     /// [Supportability]: Windows, UNIX.
     Bold = 1,
     /// Decreased Intensity
-    /// [info]: This will decrease the font sensitivity also known as bold.
+    /// [info]: This will decrease the text sensitivity also known as bold.
     /// [Supportability]: Windows, UNIX.
     Dim = 2,
     /// Italic Text
-    /// [info]: This will make the font italic.
+    /// [info]: This will make the text italic.
     /// [Supportability]: Not widely supported, sometimes treated as inverse.
     Italic = 3,
-    /// This will draw a line under the font.
+    /// This will draw a line under the text.
     /// [info]: An line under a word, especially in order to show its importance.
     /// [Supportability]: Windows, UNIX
     Underlined = 4,
@@ -63,13 +62,13 @@ pub enum Attribute {
     /// [info]: swap foreground and background colors
     /// [Supportability]: Windows, UNIX
     Reverse = 7,
-    /// Hide font
+    /// Hide text
     /// [info]:
-    /// - This will make the font hidden.
+    /// - This will make the text hidden.
     /// - Also known as 'Conceal'
     /// [Supportability]: Windows, UNIX
     Hidden = 8,
-    /// Cross-out font
+    /// Cross-out text
     /// [info]: Characters legible, but marked for deletion.
     /// [Supportability]: UNIX
     CrossedOut = 9,
@@ -107,7 +106,7 @@ pub enum Attribute {
     /// [info]: Opposite of `Reverse`(7)
     /// [Supportability]: Windows, unknown
     NoInverse = 27,
-    /// This will make the font visible.
+    /// This will make the text visible.
     /// [info]: Opposite of `Hidden`(8)
     /// [Supportability]: Unknown
     NoHidden = 28,
@@ -115,12 +114,12 @@ pub enum Attribute {
     /// [info]: Opposite of `CrossedOut`(9)
     /// [Supportability]: Not widely supported
     NotCrossedOut = 29,
-    /// Framed font.
+    /// Framed text.
     /// [Supportability]: Not widely supported
     Framed = 51,
     /// This will turn on the encircled attribute.
     Encircled = 52,
-    /// This will draw a line at the top of the font.
+    /// This will draw a line at the top of the text.
     /// [info]: Implementation defined (according to standard)
     /// [Supportability]: Unknown
     OverLined = 53,
@@ -138,7 +137,6 @@ pub enum Attribute {
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", format!(csi!("{}m"), *self as i16))?;
-        stdout().flush().unwrap();
         Ok(())
     }
 }

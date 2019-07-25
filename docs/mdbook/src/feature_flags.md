@@ -1,6 +1,6 @@
 From `crossterm 0.6` you are able to use feature flags. 
 
-With feature flags you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.
+With feature flags, you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.
 
 Crossterm provides the following feature flags:
 - input     ; reading input events
@@ -9,7 +9,7 @@ Crossterm provides the following feature flags:
 - cursor    ; moving the terminal cursor
 - screen    ; alternate and raw screen
 
-By default all of those will be enabled. 
+By default, all of those will be enabled. 
 
 _Cargo.toml_ 
 
@@ -21,12 +21,14 @@ crossterm = { version="0.9", default-features = false, features = ["screen", "te
 By default all flags are enabled, the types and functions available to use depend on the specified flags.
 
 ```rust
-"cursor" => cursor, TerminalCursor
+"cursor" => cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show, TerminalCursor, Up,
 "input" => input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput
 "screen" => AlternateScreen, IntoRawMode, RawScreen
-"style" => color, style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler, TerminalColor,
-"terminal" => terminal, ClearType, Terminal
+"style" => style, Attribute, Color, Colored, Colorize, ObjectStyle, StyledObject, Styler, color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor
+"terminal" => terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal
 ```
+
+All modules export types for the ability to use the command api, those are: `execute, queue, Command, ExecutableCommand, QueueableCommand`
 
 You can also use all the crossterm modules individually by directly referencing the crate.
 

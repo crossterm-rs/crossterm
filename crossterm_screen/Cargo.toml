@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_screen"
-version = "0.2.1"
+version = "0.2.4"
 authors = ["T. Post"]
 description = "A cross-platform library for raw and alternate screen."
 repository = "https://github.com/TimonPost/crossterm"
@@ -12,8 +12,8 @@ readme = "README.md"
 edition = "2018"
 
 [dependencies]
-crossterm_utils = {path = "../crossterm_utils"}
+crossterm_utils = {path="../crossterm_utils", version = "^0.2"}
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.7", features = ["minwindef", "wincon"] }
-crossterm_winapi = "0.1.2"
+crossterm_winapi = { path="../crossterm_winapi", version = "^0.1"}

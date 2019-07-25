@@ -1,19 +1,20 @@
 use std::fmt::Display;
 
-/// This type offers a easy way to use functionalities like `cursor, terminal, color, input, styling`.
+/// This type offers an easy way to use functionalities like `cursor`, `terminal`, `color`, `input`, and `styling`.
 ///
 /// To get a cursor instance to perform cursor related actions, you can do the following:
 ///
 /// ```rust
+/// # use crossterm::*;
 /// let crossterm = Crossterm::new();
 /// let cursor = crossterm.cursor();
-//  let color = crossterm.color();
-//  let terminal = crossterm.terminal();
-//  let terminal = crossterm.input();
-//  let style = crossterm
-//        .style(format!("{} {}", 0, "Black font on green background"))
-//        .with(Color::Black)
-//        .on(Color::Green);
+/// let color = crossterm.color();
+/// let terminal = crossterm.terminal();
+/// let terminal = crossterm.input();
+/// let style = crossterm
+///       .style(format!("{} {}", 0, "Black text on green background"))
+///       .with(Color::Black)
+///       .on(Color::Green);
 /// ```
 ///
 /// # Remark
@@ -30,6 +31,7 @@ impl Crossterm {
     /// Get a `TerminalCursor` implementation whereon cursor related actions can be performed.
     ///
     /// ```rust
+    /// # use crossterm::*;
     /// let crossterm = Crossterm::new();
     /// let cursor = crossterm.cursor();
     /// ```
@@ -41,6 +43,7 @@ impl Crossterm {
     /// Get a `TerminalInput` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
+    /// # use crossterm::*;
     /// let crossterm = Crossterm::new();
     /// let input = crossterm.input();
     /// ```
@@ -52,6 +55,7 @@ impl Crossterm {
     /// Get a `Terminal` implementation whereon terminal related actions can be performed.
     ///
     /// ```rust
+    /// # use crossterm::*;
     /// let crossterm = Crossterm::new();
     /// let mut terminal = crossterm.terminal();
     /// ```
@@ -63,6 +67,7 @@ impl Crossterm {
     /// Get a `TerminalColor` implementation whereon color related actions can be performed.
     ///
     /// ```rust
+    /// # use crossterm::*;
     /// let crossterm = Crossterm::new();
     /// let mut terminal = crossterm.color();
     /// ```
@@ -75,6 +80,7 @@ impl Crossterm {
     ///
     /// # Example
     /// ```rust
+    /// # use crossterm::*;
     /// let crossterm = Crossterm::new();
     ///
     /// // get an styled object which could be painted to the terminal.
@@ -82,7 +88,7 @@ impl Crossterm {
     ///     .with(Color::Blue)
     ///     .on(Color::Black);
     ///
-    /// // print the styled font * times to the current screen.
+    /// // print the styled text * times to the current screen.
     /// for i in 1..10
     /// {
     ///     println!("{}", styled_object);
@@ -94,7 +100,7 @@ impl Crossterm {
     #[cfg(feature = "style")]
     pub fn style<D>(&self, val: D) -> crossterm_style::StyledObject<D>
     where
-        D: Display,
+        D: Display + Clone,
     {
         crossterm_style::ObjectStyle::new().apply_to(val)
     }

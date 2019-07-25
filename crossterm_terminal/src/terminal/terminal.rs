@@ -2,7 +2,7 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::Result;
+use crossterm_utils::{Command, Result};
 
 #[cfg(windows)]
 use super::WinApiTerminal;
@@ -52,18 +52,20 @@ impl Terminal {
     ///
     /// # Example
     /// ```rust
+    /// # use crossterm_terminal as crossterm;
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// // clear all cells in terminal.
-    /// term.clear(terminal::ClearType::All);
+    /// term.clear(crossterm::ClearType::All);
     /// // clear all cells from the cursor position downwards in terminal.
-    /// term.clear(terminal::ClearType::FromCursorDown);
+    /// term.clear(crossterm::ClearType::FromCursorDown);
     /// // clear all cells from the cursor position upwards in terminal.
-    /// term.clear(terminal::ClearType::FromCursorUp);
+    /// term.clear(crossterm::ClearType::FromCursorUp);
     /// // clear current line cells in terminal.
-    /// term.clear(terminal::ClearType::CurrentLine);
+    /// term.clear(crossterm::ClearType::CurrentLine);
     /// // clear all cells from cursor position until new line in terminal.
-    /// term.clear(terminal::ClearType::UntilNewLine);
+    /// term.clear(crossterm::ClearType::UntilNewLine);
     /// ```
     pub fn clear(&self, clear_type: ClearType) -> Result<()> {
         self.terminal.clear(clear_type)
@@ -96,6 +98,7 @@ impl Terminal {
     /// Set the terminal size. Note that not all terminals can be set to a very small scale.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// // Set of the size to X: 10 and Y: 10
@@ -108,6 +111,7 @@ impl Terminal {
     /// Exit the current process.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// let size = term.exit();
@@ -119,6 +123,7 @@ impl Terminal {
     /// Write any displayable content to the current terminal screen.
     ///
     /// ```rust
+    /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
     /// let size = term.write("Some text \n Some text on new line");
@@ -131,7 +136,96 @@ impl Terminal {
     }
 }
 
-/// Get a `Terminal` instance whereon terminal related actions could performed.
+/// Get a `Terminal` instance whereon terminal related actions can be performed.
 pub fn terminal() -> Terminal {
     Terminal::new()
 }
+
+/// When executed, this command will scroll up the terminal buffer by the given number of times.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct ScrollUp(pub i16);
+
+impl Command for ScrollUp {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        super::ansi_terminal::get_scroll_up_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiTerminal::new().scroll_up(self.0)
+    }
+}
+
+/// When executed, this command will scroll down the terminal buffer by the given number of times.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct ScrollDown(pub i16);
+
+impl Command for ScrollDown {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        super::ansi_terminal::get_scroll_down_ansi(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiTerminal::new().scroll_down(self.0)
+    }
+}
+
+/// When executed, this command will clear the terminal buffer based on the type provided.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct Clear(pub ClearType);
+
+impl Command for Clear {
+    type AnsiType = &'static str;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        match self.0 {
+            ClearType::All => {
+                return super::ansi_terminal::CLEAR_ALL;
+            }
+            ClearType::FromCursorDown => {
+                return super::ansi_terminal::CLEAR_FROM_CURSOR_DOWN;
+            }
+            ClearType::FromCursorUp => {
+                return super::ansi_terminal::CLEAR_FROM_CURSOR_UP;
+            }
+            ClearType::CurrentLine => return super::ansi_terminal::CLEAR_FROM_CURRENT_LINE,
+            ClearType::UntilNewLine => return super::ansi_terminal::CLEAR_UNTIL_NEW_LINE,
+        }
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiTerminal::new().clear(self.0.clone())
+    }
+}
+
+/// When executed, this command will set the terminal sie to the given (`width` and `height`)
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct SetSize(pub i16, pub i16);
+
+impl Command for SetSize {
+    type AnsiType = String;
+
+    fn get_ansi_code(&self) -> Self::AnsiType {
+        super::ansi_terminal::get_set_size_ansi(self.0, self.1)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        WinApiTerminal::new().set_size(self.0, self.1)
+    }
+}
+
+impl_display!(for ScrollUp);
+impl_display!(for ScrollDown);
+impl_display!(for SetSize);
+impl_display!(for Clear);

@@ -1,5 +1,3 @@
-use super::variables::Position;
-
 pub const WELCOME_MESSAGE: [&str; 6] = [
     "__      __       .__   __                           ",
     "/  \\    /  \\ ____ |  | |  | ______   _____   ____   ",

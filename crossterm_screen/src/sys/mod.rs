@@ -7,7 +7,7 @@ pub mod winapi;
 use crossterm_utils::Result;
 use std::io::Write;
 
-/// This command is used for switching to alternate screen and back to main screen.
+/// This command is used for switching to the alternate screen and back to the main screen.
 pub struct ToAlternateScreenCommand;
 
 impl ToAlternateScreenCommand {
@@ -30,7 +30,7 @@ impl IAlternateScreenCommand for ToAlternateScreenCommand {
     }
 }
 
-// This trait provides an interface for switching to alternate screen and back.
+// This trait provides an interface for switching to the alternate screen and back.
 pub trait IAlternateScreenCommand: Sync + Send {
     fn enable(&self) -> Result<()>;
     fn disable(&self) -> Result<()>;

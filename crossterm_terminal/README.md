@@ -26,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](http://atcentra.com/crossterm/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -77,7 +77,13 @@ These are the features of this crate:
     - Terminal Size (get/set)
     - Exit Current Process
 
+## Command API
+
+My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
+Because it is more convenient, faster, and easier to use.
+
 ## Examples
+
 The [examples](./examples) folder has more complete and verbose examples.
 
 ```rust 

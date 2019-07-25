@@ -2,7 +2,6 @@
 language: rust
 rust:
   - stable
-  - nightly
 
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin
@@ -13,10 +12,7 @@ os:
   - osx
   - windows
 
-branches:
-  only:
-    - master
-
 script:
   - cargo build
   - cargo fmt -- --check
+  - cargo test -- --nocapture --test-threads 1

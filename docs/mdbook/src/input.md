@@ -9,14 +9,14 @@ Crossterm provides two ways to read user input, synchronous and asynchronous.
 Read the input synchronously from the user, the reads performed will be blocking calls.
 Using synchronous over asynchronous reading has the benefit that it is using fewer resources than the asynchronous because background thread and queues are left away.
 
-You can get an synchronous event reader by calling: `TerminalInput::read_sync`.
+You can get asynchronous event reader by calling: `TerminalInput::read_sync`.
 
 ### Asynchronous reading
 
-Read the input asynchronously, input events are gathered on the background and will be queued for you to read.
+Read the input asynchronously, input events are gathered in the background and will be queued for you to read.
 Using asynchronous reading has the benefit that input events are queued until you read them. You can poll for occurred events, and the reads won't block your program.
 
-You can get an synchronous event reader by calling: `TerminalInput::read_async`, `TerminalInput::read_async_until`. 
+You can get a synchronous event reader by calling: `TerminalInput::read_async`, `TerminalInput::read_async_until`. 
 
 ### Technical details
 On UNIX systems crossterm reads from the TTY, on Windows, it uses `ReadConsoleInputW`. 

@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html" class="active"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="command.html"><strong aria-hidden="true">2.</strong> Command API</a></li><li><a href="styling.html"><strong aria-hidden="true">3.</strong> Styling Output</a></li><li><a href="input.html"><strong aria-hidden="true">4.</strong> Reading Input Events</a></li><li><a href="screen.html" class="active"><strong aria-hidden="true">5.</strong> Alternate, Raw Screen</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -142,7 +142,7 @@
                     <main>
                         <a class="header" href="#screen-buffer" id="screen-buffer"><h2>Screen Buffer</h2></a>
 <p>A screen buffer is a two-dimensional array of characters and color data to be output in a console window.
-An terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.</p>
+A terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.</p>
 <p>Crossterm allows you to switch between those buffers; the screen you are working in is called the 'main screen'.  We call the other screen the 'alternate screen'.
 One note to take is that crossterm does not support the creation and switching between several buffers.</p>
 <a class="header" href="#alternate-screen" id="alternate-screen"><h3>Alternate Screen</h3></a>
@@ -158,7 +158,7 @@ Normally the terminals use line buffering. This means that the input will be sen
 <p><strong>Input</strong></p>
 <p>All input has to be written to the screen buffer manually by the programmer.</p>
 <p><strong>Characters</strong></p>
-<p>The characters are not processed by the terminal driver. Also, special character have no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.</p>
+<p>The characters are not processed by the terminal driver. Also, special character has no meaning. For example, backspace will not be interpreted as backspace but instead will be sent directly to the terminal.</p>
 <p><strong>Escape Characters</strong>
 Note that in raw mode <code>\n</code> <code>\r</code> will move the cursor to a new line but it will be at the same position as it was on the previous line.</p>
 <p><em>example of what I mean</em></p>

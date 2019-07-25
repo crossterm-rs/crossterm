@@ -1,5 +1,5 @@
 //! A module that contains all the actions related to the styling of the terminal.
-//! Like applying attributes to font and changing the foreground and background.
+//! Like applying attributes to text and changing the foreground and background.
 
 #[macro_use]
 extern crate crossterm_utils;
@@ -24,16 +24,16 @@ use self::winapi_color::WinApiColor;
 
 use std::fmt::Display;
 
-pub use self::color::{color, TerminalColor};
+pub use self::color::{color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
-use crossterm_utils::Result;
+pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
-/// This trait defines the actions that can be preformed with terminal color.
+/// This trait defines the actions that can be performed with terminal colors.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill
-/// the wishes to work on an specific platform.
+/// the wishes to work on a specific platform.
 ///
 /// ## For example:
 ///
@@ -46,20 +46,18 @@ trait ITerminalColor {
     fn set_bg(&self, fg_color: Color) -> Result<()>;
     /// Reset the terminal color to default.
     fn reset(&self) -> Result<()>;
-    /// Gets an value that represents an color from the given `Color` and `ColorType`.
-    fn color_value(&self, cored: Colored) -> String;
 }
 
-/// This could be used to style a type who is implementing `Display` with colors and attributes.
+/// This could be used to style a type that implements `Display` with colors and attributes.
 ///
 /// # Example
 /// ```rust
-/// // get an styled object which could be painted to the terminal.
+/// // get a styled object which could be painted to the terminal.
 /// let styled_object = style("Some Blue colored text on black background")
 ///     .with(Color::Blue)
 ///     .on(Color::Black);
 ///
-/// // print the styled font * times to the current screen.
+/// // print the styled text * times to the current screen.
 /// for i in 1..10
 /// {
 ///     println!("{}", styled_object);
@@ -72,7 +70,7 @@ trait ITerminalColor {
 /// Those types will make it a bit easier to style a string.
 pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
 where
-    D: Display,
+    D: Display + Clone,
 {
     ObjectStyle::new().apply_to(val)
 }

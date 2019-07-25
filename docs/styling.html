@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html" class="active"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="command.html"><strong aria-hidden="true">2.</strong> Command API</a></li><li><a href="styling.html" class="active"><strong aria-hidden="true">3.</strong> Styling Output</a></li><li><a href="input.html"><strong aria-hidden="true">4.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">5.</strong> Alternate, Raw Screen</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -141,7 +141,7 @@
                 <div id="content" class="content">
                     <main>
                         <a class="header" href="#styling-module" id="styling-module"><h1>Styling Module</h1></a>
-<p>Crossterm provides options for you to style your font and terminal. Take for example coloring output and applying attributes.</p>
+<p>Crossterm provides options for you to style your text and terminal. Take for example coloring output and applying attributes.</p>
 <p><strong>Color support</strong>
 Windows systems with versions less than 10 will only have support for 16 colors and don't have any support for attributes. Most UNIX-terminal is supporting lots of colors and attributes.</p>
 <a class="header" href="#colors" id="colors"><h2>Colors</h2></a>
@@ -165,10 +165,10 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 <p>Crossterm implements almost all attributes shown in this <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters">Wikipedia-list</a>.</p>
 <table><thead><tr><th align="center"> Attribute                      </th><th>     Support                                             </th><th>  Note         </th></tr></thead><tbody>
 <tr><td align="center">       Reset                    </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will reset all current set attributes.     </td></tr>
-<tr><td align="center">       Bold                     </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will increase the font sensitivity also known as bold.     </td></tr>
-<tr><td align="center">       Dim                      </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will decrease the font sensitivity also known as bold.   </td></tr>
-<tr><td align="center">       Italic                   </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  This will make the font italic.   </td></tr>
-<tr><td align="center">       Underlined               </td><td align="center">  Windows, UNIX                                           </td><td align="center">  An line under a word, especially in order to show its importance.   </td></tr>
+<tr><td align="center">       Bold                     </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will increase the text sensitivity also known as bold.     </td></tr>
+<tr><td align="center">       Dim                      </td><td align="center">  Windows, UNIX                                           </td><td align="center">  This will decrease the text sensitivity also known as bold.   </td></tr>
+<tr><td align="center">       Italic                   </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  This will make the text italic.   </td></tr>
+<tr><td align="center">       Underlined               </td><td align="center">  Windows, UNIX                                           </td><td align="center">  A line under a word, especially in order to show its importance.   </td></tr>
 <tr><td align="center">       SlowBlink                </td><td align="center">  Not widely supported, sometimes treated as inverse.     </td><td align="center">  less than 150 per minute  </td></tr>
 <tr><td align="center">       RapidBlink               </td><td align="center">  Not widely supported                                    </td><td align="center">  MS-DOS ANSI.SYS; 150+ per minute;  </td></tr>
 <tr><td align="center">       Reverse                  </td><td align="center">  Windows, UNIX                                           </td><td align="center">   foreground and background colors </td></tr>
@@ -176,27 +176,100 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 <tr><td align="center">       Fraktur                  </td><td align="center">  UNIX                                                    </td><td align="center">  characters legible, but marked for deletion. </td></tr>
 <tr><td align="center">       DefaultForegroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
 <tr><td align="center">       DefaultBackgroundColor   </td><td align="center">  Unknown                                                 </td><td align="center">  Implementation defined (according to standard) </td></tr>
-<tr><td align="center">       Framed                   </td><td align="center">  Not widely supported                                    </td><td align="center">  Framed font.</td></tr>
+<tr><td align="center">       Framed                   </td><td align="center">  Not widely supported                                    </td><td align="center">  Framed text.</td></tr>
 <tr><td align="center">       Encircled                </td><td align="center">  Unknown                                                 </td><td align="center">  This will turn on the encircled attribute. </td></tr>
-<tr><td align="center">       OverLined                </td><td align="center">  Unknown                                                 </td><td align="center">  This will draw a line at the top of the font. </td></tr>
+<tr><td align="center">       OverLined                </td><td align="center">  Unknown                                                 </td><td align="center">  This will draw a line at the top of the text. </td></tr>
 </tbody></table>
 <p>(There are a few attributes who disable one of the above attributes, I did not write those down to keep the list short).</p>
-<p>Now we have covered the basics of styling lets go some <a href="styling_example.html">examples</a>.</p>
+<p>Now we have covered the basics of styling lets go over to some examples.</p>
+<a class="header" href="#example" id="example"><h1>Example</h1></a>
+<p><em>setup the basics</em></p>
+<pre><pre class="playpen"><code class="language-rust">extern crate crossterm;
+
+use crossterm::{Colored, Color, Attribute, Styler, Colorize};
+
+fn main() {
+    /* your code here */
+}
+</code></pre></pre>
+<p>There are a couple of ways to style the terminal output with crossterm. The most important part of the styling module is <code>StyledObject</code>.</p>
+<p>A <code>StyledObject</code> is just a wrapper crossterm uses to store the text and style together.
+A <code>StyledObject</code> implements <code>Display</code> and thus you could use it inside <code>print!</code>, <code>println!</code> etc.</p>
+<p>Without further ado let's get straight into it.</p>
+<a class="header" href="#coloring" id="coloring"><h2>Coloring</h2></a>
+<p>There are a few ways to do the coloring, the first one is by using the <code>Colored</code> enum.</p>
+<a class="header" href="#using-enum" id="using-enum"><h3>Using Enum</h3></a>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+println!(&quot;{} Red foreground color&quot;, Colored::Fg(Color::Red));
+println!(&quot;{} Blue background color&quot;, Colored::Bg(Color::Blue));
+#}</code></pre></pre>
+<p><code>Colored::Bg</code> will set the background color, and <code>Colored::Fg</code> will set the foreground color to the provided color.
+The provided color is of type <code>Color</code> and has a bunch of enum values you could choose out.</p>
+<p>Because <code>Colored</code> implements <code>Display</code> you are able to use it inside any write statement.</p>
+<a class="header" href="#using-methods" id="using-methods"><h3>Using Methods</h3></a>
+<p>You can do the same as the above in a slightly different way. Instead of enabling it for all text you could also color the only piece of text.
+(Make sure to include the <code>crossterm::Coloring</code> trait).</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let styled_text = &quot;Red forground color on blue background.&quot;.red().on_blue();
+println!(&quot;{}&quot;, styled_text);
+#}</code></pre></pre>
+<p>As you see in the above example you could call coloring methods on a string. How is this possible you might ask..?
+Well, the trait <code>Coloring</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
+When calling a method on this string crossterm transforms it into a <code>StyledObject</code> who you could use in your write statements.</p>
+<a class="header" href="#rgb" id="rgb"><h3>RGB</h3></a>
+<p>Most UNIX terminals and all Windows 10 consoles are supporting <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color(24-bit)</a> coloring scheme.
+You can set the color of the terminal by using <code>Color::RGB(r,g,b)</code>.</p>
+<pre><code>// custom rgb value (Windows 10 and UNIX systems)
+println!(&quot;{}{} 'Light green' text on 'Black' background&quot;, Colored::Fg(Color::Rgb { r: 0, g: 255, b: 128 }), Colored::Bg(Color::Rgb {r: 0, g: 0, b: 0}));
+</code></pre>
+<p>This will print some light green text on black background.</p>
+<a class="header" href="#custom-ansi-color-value" id="custom-ansi-color-value"><h3>Custom ANSI color value</h3></a>
+<p>When working on UNIX or Windows 10 you could also specify a custom ANSI value ranging up from 0 to 256.
+See <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit) colors</a> for more information.</p>
+<pre><code>// custom ansi color value (Windows 10 and UNIX systems)
+println!(&quot;{} some colored text&quot;, Colored::Fg(Color::AnsiValue(10)));
+</code></pre>
+<a class="header" href="#attributes-1" id="attributes-1"><h2>Attributes</h2></a>
+<p>When working with UNIX or Windows 10 terminals you could also use attributes to style your text. For example, you could cross your text with a line and make it bold.
+See <a href="styling.html#Attributes">this</a> for more information.</p>
+<a class="header" href="#using-enum-1" id="using-enum-1"><h3>Using Enum</h3></a>
+<p>You could use the <code>Attribute</code> enum for styling text with attributes.
+<code>Attribute</code> implements <code>Display</code>, thus crossterm will enable the attribute style when using it in any writing operation.</p>
+<pre><code>println!(
+    &quot;{} Underlined {} No Underline&quot;,
+    Attribute::Underlined,
+    Attribute::NoUnderline
+);
+</code></pre>
+<a class="header" href="#using-method" id="using-method"><h3>Using Method</h3></a>
+<p>You can do the same as the above in a slightly different way. Instead of enabling it for all text you could also style only one piece of text.
+(Make sure to include the <code>crossterm::Styler</code> trait).</p>
+<pre><code>println!(&quot;{}&quot;, &quot;Bold text&quot;.bold();
+println!(&quot;{}&quot;, &quot;Underlined text&quot;.underlined();
+println!(&quot;{}&quot;, &quot;Negative text&quot;.negative();
+</code></pre>
+<p>As you see in the above example you could call attributes methods on a string. How is this possible you might ask..?
+Well, the trait <code>Styling</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
+When calling a method on any string crossterm transforms will transform it into a <code>StyledObject</code> who you could use in your write statements.</p>
 <hr />
-<p>Next up: <a href="styling_example.html">Examples</a></p>
+<p>More examples could be found at this <a href="https://github.com/TimonPost/crossterm/blob/master/examples/style.rs">link</a>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="feature_flags.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="command.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="styling_example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="input.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -208,13 +281,13 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="feature_flags.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="command.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="styling_example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="input.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

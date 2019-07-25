@@ -1,5 +1,5 @@
 use super::variables::{Cell, Position, Size};
-use crossterm::{cursor, Color, Crossterm};
+use crossterm::{queue, Color, Command, Crossterm, Goto, PrintStyledFont};
 use std::io::{stdout, Write};
 
 pub struct Map {
@@ -52,13 +52,11 @@ impl Map {
                 if (column.position.y == 0 || column.position.y == self.size.height - 1)
                     || (column.position.x == 0 || column.position.x == self.size.width - 1)
                 {
-                    cursor().goto(column.position.x as u16, column.position.y as u16);
-                    write!(
+                    queue!(
                         stdout(),
-                        "{}",
-                        crossterm.style(column.look).on(column.color)
+                        Goto(column.position.x as u16, column.position.y as u16),
+                        PrintStyledFont(crossterm.style(column.look).on(column.color))
                     );
-                    stdout().flush();
                 }
             }
         }
@@ -69,7 +67,7 @@ impl Map {
         self.map[y][x].visited
     }
 
-    // change an position in the map to visited.
+    // change a position in the map to visited.
     pub fn set_visited(&mut self, x: usize, y: usize) {
         self.map[y][x].visited = true;
     }

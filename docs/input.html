@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="styling.html"><strong aria-hidden="true">2.</strong> Styling Output</a></li><li><ol class="section"><li><a href="styling_example.html"><strong aria-hidden="true">2.1.</strong> example</a></li></ol></li><li><a href="input.html" class="active"><strong aria-hidden="true">3.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">4.</strong> Alternate, Raw Screen</a></li></ol>
+            <ol class="chapter"><li><a href="feature_flags.html"><strong aria-hidden="true">1.</strong> Feature Flags</a></li><li><a href="command.html"><strong aria-hidden="true">2.</strong> Command API</a></li><li><a href="styling.html"><strong aria-hidden="true">3.</strong> Styling Output</a></li><li><a href="input.html" class="active"><strong aria-hidden="true">4.</strong> Reading Input Events</a></li><li><a href="screen.html"><strong aria-hidden="true">5.</strong> Alternate, Raw Screen</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -147,11 +147,11 @@ Please check out these <a href="https://github.com/TimonPost/crossterm/blob/mast
 <a class="header" href="#synchronous-reading" id="synchronous-reading"><h3>Synchronous reading</h3></a>
 <p>Read the input synchronously from the user, the reads performed will be blocking calls.
 Using synchronous over asynchronous reading has the benefit that it is using fewer resources than the asynchronous because background thread and queues are left away.</p>
-<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_sync</code>.</p>
+<p>You can get asynchronous event reader by calling: <code>TerminalInput::read_sync</code>.</p>
 <a class="header" href="#asynchronous-reading" id="asynchronous-reading"><h3>Asynchronous reading</h3></a>
-<p>Read the input asynchronously, input events are gathered on the background and will be queued for you to read.
+<p>Read the input asynchronously, input events are gathered in the background and will be queued for you to read.
 Using asynchronous reading has the benefit that input events are queued until you read them. You can poll for occurred events, and the reads won't block your program.</p>
-<p>You can get an synchronous event reader by calling: <code>TerminalInput::read_async</code>, <code>TerminalInput::read_async_until</code>.</p>
+<p>You can get a synchronous event reader by calling: <code>TerminalInput::read_async</code>, <code>TerminalInput::read_async_until</code>.</p>
 <a class="header" href="#technical-details" id="technical-details"><h3>Technical details</h3></a>
 <p>On UNIX systems crossterm reads from the TTY, on Windows, it uses <code>ReadConsoleInputW</code>.
 For asynchronous reading, a background thread will be fired up to read input events,
@@ -260,7 +260,7 @@ fn main() {
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="styling_example.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="styling.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
@@ -278,7 +278,7 @@ fn main() {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="styling_example.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="styling.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 

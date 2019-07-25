@@ -7,7 +7,8 @@ mod snake;
 mod variables;
 
 use self::crossterm::{
-    AsyncReader, ClearType, Color, Colorize, Crossterm, InputEvent, KeyEvent, RawScreen,
+    execute, input, style, AsyncReader, Clear, ClearType, Color, Colorize, Command, Crossterm,
+    Goto, InputEvent, KeyEvent, Output, PrintStyledFont, RawScreen, Show,
 };
 
 use map::Map;
@@ -15,6 +16,7 @@ use snake::Snake;
 use variables::{Direction, Position, Size};
 
 use std::collections::HashMap;
+use std::io::{stdout, Write};
 use std::iter::Iterator;
 use std::{thread, time};
 
@@ -95,50 +97,41 @@ fn update_direction(reader: &mut AsyncReader) -> Option<Direction> {
 }
 
 fn ask_size() -> Size {
-    let crossterm = Crossterm::new();
-    crossterm.terminal().clear(ClearType::All);
-
-    let cursor = crossterm.cursor();
-
-    println!(
-        "{}",
-        crossterm
-            .style(format!("{}", messages::END_MESSAGE.join("\n\r")))
-            .with(Color::Cyan)
+    execute!(
+        stdout(),
+        Clear(ClearType::All),
+        Goto(0, 0),
+        PrintStyledFont(style(format!("{}", messages::SNAKERS.join("\n\r"))).with(Color::Cyan)),
+        Goto(0, 15),
+        PrintStyledFont("Enter map width:".green().on_yellow()),
+        Goto(17, 15)
     );
 
-    // read width
-    cursor.goto(0, 15);
-    println!("{}", "Enter map width:".green().on_yellow());
-    cursor.goto(17, 15);
+    let width = input().read_line().unwrap();
 
-    // read height
-    let width = crossterm.input().read_line().unwrap();
-    println!("{}", "\r\nEnter map height:".green().on_yellow());
-    cursor.goto(17, 17);
+    execute!(
+        stdout(),
+        PrintStyledFont("\r\nEnter map height:".green().on_yellow()),
+        Goto(17, 17)
+    );
 
-    let height = crossterm.input().read_line().unwrap();
+    let height = input().read_line().unwrap();
 
     // parse input
     let parsed_width = width.parse::<usize>().unwrap();
     let parsed_height = height.parse::<usize>().unwrap();
 
-    crossterm.terminal().clear(ClearType::All);
+    execute!(stdout(), Clear(ClearType::All));
 
     return Size::new(parsed_width, parsed_height);
 }
 
 fn game_over_screen() {
-    let crossterm = Crossterm::new();
-
-    crossterm.terminal().clear(ClearType::All);
-
-    println!(
-        "{}",
-        crossterm
-            .style(format!("{}", messages::END_MESSAGE.join("\n\r")))
-            .with(Color::Red)
+    execute!(
+        stdout(),
+        Clear(ClearType::All),
+        Goto(0, 0),
+        PrintStyledFont(style(format!("{}", messages::END_MESSAGE.join("\n\r"))).with(Color::Red)),
+        Show
     );
-
-    crossterm.cursor().show();
 }

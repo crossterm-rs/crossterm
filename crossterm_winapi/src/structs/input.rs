@@ -165,6 +165,7 @@ impl From<DWORD> for EventFlags {
 /// These records can be read from the input buffer by using the `ReadConsoleInput` or `PeekConsoleInput` function, or written to the input buffer by using the `WriteConsoleInput` function.
 ///
 /// [Ms Docs](https://docs.microsoft.com/en-us/windows/console/input-record-str)
+#[derive(Clone)]
 pub struct InputRecord {
     /// A handle to the type of input event and the event record stored in the Event member.
     pub event_type: InputEventType,
