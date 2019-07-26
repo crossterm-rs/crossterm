@@ -1,4 +1,7 @@
-use crossterm_utils::{Result, sys::unix::{self, RAW_MODE_ENABLED}};
+use crossterm_utils::{
+    sys::unix::{self, RAW_MODE_ENABLED},
+    Result,
+};
 use std::io::{self, BufRead, Write};
 
 #[cfg(unix)]
@@ -22,8 +25,7 @@ pub fn get_cursor_position() -> (u16, u16) {
 pub fn show_cursor(show_cursor: bool) -> Result<()> {
     if show_cursor {
         write_cout!(csi!("?25h"))?;
-    }
-    else {
+    } else {
         write_cout!(csi!("?25l"))?;
     }
     Ok(())

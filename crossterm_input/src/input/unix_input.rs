@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::sys::unix::{get_tty, read_char_raw};
-use crossterm_utils::{csi, write_cout, Result, ErrorKind};
+use crossterm_utils::{csi, write_cout, ErrorKind, Result};
 use std::char;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::{

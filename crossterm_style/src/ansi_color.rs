@@ -2,7 +2,7 @@
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
 use crate::{Attribute, Color, ITerminalColor};
-use crossterm_utils::{Result, write_cout};
+use crossterm_utils::{write_cout, Result};
 
 use crate::Colored;
 use std::io::Write;
