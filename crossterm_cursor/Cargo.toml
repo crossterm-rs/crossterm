@@ -16,4 +16,4 @@ winapi = { version =  "0.3.7", features = ["wincon","winnt","minwindef"] }
 crossterm_winapi = { path="../crossterm_winapi", version = "^0.1"}
 
 [dependencies]
-crossterm_utils = { path="../crossterm_utils", version = "^0.2"}
+crossterm_utils = { path="../crossterm_utils", version = "^0.2.4"}

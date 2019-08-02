@@ -18,5 +18,5 @@ crossterm_winapi = { path="../crossterm_winapi", version = "^0.1"}
 libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = {path="../crossterm_utils", version = "^0.2"}
+crossterm_utils = {path="../crossterm_utils", version = "^0.2.4"}
 crossterm_cursor = {path="../crossterm_cursor", version = "^0.2"}
