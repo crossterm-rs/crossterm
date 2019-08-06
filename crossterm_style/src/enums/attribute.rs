@@ -1,5 +1,8 @@
 use std::fmt::Display;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Enum with the different attributes to style your test.
 ///
 /// There are few things to note:
@@ -28,6 +31,7 @@ use std::fmt::Display;
 /// println!("{}", style("Underlined text").underlined());
 /// println!("{}", style("Negative text").negative());
 /// ```
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Attribute {
     /// All attributes off

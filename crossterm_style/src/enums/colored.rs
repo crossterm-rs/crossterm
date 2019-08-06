@@ -2,6 +2,9 @@ use crate::color::color;
 use crate::enums::Color;
 use std::fmt::Display;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Could be used to color the foreground or background color.
 ///
 /// `Colored::Fg` represents the foreground color.
@@ -22,6 +25,7 @@ use std::fmt::Display;
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Colored {
     Fg(Color),

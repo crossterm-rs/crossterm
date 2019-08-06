@@ -16,7 +16,11 @@ pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Termina
 
 use crossterm_utils::Result;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Enum with the different values to clear the terminal.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum ClearType {
     /// clear all cells in terminal.
