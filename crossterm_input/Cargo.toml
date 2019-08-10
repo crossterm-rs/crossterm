@@ -21,3 +21,4 @@ libc = "0.2.51"
 [dependencies]
 crossterm_utils = { path="../crossterm_utils", version = "0.2.4"}
 crossterm_screen = {path="../crossterm_screen", version = "0.2.4"}
+serde = { version = "1.0", features = ["derive"], optional = true }

@@ -22,6 +22,9 @@ pub use self::windows_input::SyncReader;
 #[cfg(windows)]
 use self::windows_input::WindowsInput;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 pub use self::input::{input, TerminalInput};
 use crossterm_utils::Result;
 use std::io;
@@ -52,6 +55,7 @@ trait ITerminalInput {
 }
 
 /// Enum to specify which input event has occurred.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
 pub enum InputEvent {
     /// A single key or a combination is pressed.
@@ -65,6 +69,7 @@ pub enum InputEvent {
 }
 
 /// Enum to specify which mouse event has occurred.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseEvent {
     /// A mouse press has occurred, this contains the pressed button and the position of the press.
@@ -78,6 +83,7 @@ pub enum MouseEvent {
 }
 
 /// Enum to define mouse buttons.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseButton {
     /// Left mouse button
@@ -94,6 +100,7 @@ pub enum MouseButton {
 
 /// Enum with different key or key combinations.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum KeyEvent {
     Backspace,
     Left,
