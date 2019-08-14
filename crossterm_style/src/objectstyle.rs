@@ -7,7 +7,7 @@ use std::fmt::Display;
 use super::Attribute;
 
 /// Struct that contains the style properties that can be applied to a displayable object.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,
