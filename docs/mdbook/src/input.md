@@ -94,7 +94,7 @@ As you see, we check if the `KeyEvent::Esc` was pressed, if that's true we stop 
 _final code_
 ```rust
 use std::{thread, time::Duration};
-use crossterm::{input, InputEvent, KeyEvent};
+use crossterm::{input, InputEvent, KeyEvent, RawScreen};
 
 fn main() {
     println!("Press 'ESC' to quit.");
