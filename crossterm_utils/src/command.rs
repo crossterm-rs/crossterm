@@ -66,7 +66,7 @@ where
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
     fn queue(mut self, command: impl Command<AnsiType = A>) -> Self {
-        queue!(self, command);
+        let _ = queue!(self, command);
         self
     }
 }
@@ -90,7 +90,7 @@ where
     /// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     fn execute(mut self, command: impl Command<AnsiType = A>) -> Self {
-        execute!(self, command);
+        let _ = execute!(self, command);
         self
     }
 }
