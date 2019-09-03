@@ -17,8 +17,3 @@ The programs are:
 
   This is a terminal application where multiple threads write to the output while you can enter commands asynchronously. 
   To run this use `cargo run --example command_bar`
-   
--  Logging:
-
-   This is an async logging program to demonstrate asynchronous logging with a queue. 
-   To run this use `cargo run --example logging`
