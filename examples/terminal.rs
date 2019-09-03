@@ -136,5 +136,5 @@ pub fn exit() {
 }
 
 fn main() {
-    scroll_down();
+    let _ = scroll_down();
 }

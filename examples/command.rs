@@ -1,19 +1,19 @@
+#![allow(dead_code)]
+
 extern crate crossterm;
 
 use crossterm::{
-    execute, queue, Clear, ClearType, Color, Colorize, ExecutableCommand, Goto, Output,
-    PrintStyledFont, QueueableCommand,
+    execute, queue, Clear, ClearType, ExecutableCommand, Goto, Output, QueueableCommand,
 };
-use std::fmt::Display;
-use std::io::{stdout, Stdout, Write};
+use std::io::{stdout, Write};
 
 /// execute commands by using normal functions
 fn execute_command_directly_using_functions() {
     // single command
-    stdout().execute(Output("Text1 ".to_string()));
+    let _ = stdout().execute(Output("Text1 ".to_string()));
 
     // multiple commands
-    stdout()
+    let _ = stdout()
         .execute(Output("Text2 ".to_string()))
         .execute(Output("Text3 ".to_string()));
 }
@@ -21,10 +21,10 @@ fn execute_command_directly_using_functions() {
 /// execute commands by using macro's
 fn execute_command_directly_using_macros() {
     // single command
-    execute!(stdout(), Output("Text1 ".to_string()));
+    let _ = execute!(stdout(), Output("Text1 ".to_string()));
 
     // multiple commands
-    execute!(
+    let _ = execute!(
         stdout(),
         Output("Text2 ".to_string()),
         Output("Text 3".to_string())
@@ -49,7 +49,7 @@ fn later_execution_command_using_functions() {
     ::std::thread::sleep(std::time::Duration::from_millis(2000));
 
     // when you call this all commands will be executed
-    sdout.flush();
+    let _ = sdout.flush();
 }
 
 /// queue commands without executing them directly by using macro's
@@ -57,10 +57,10 @@ fn later_execution_command_directly_using_macros() {
     let mut stdout = stdout();
 
     // single command
-    queue!(stdout, Output("Text1 ".to_string()));
+    let _ = queue!(stdout, Output("Text1 ".to_string()));
 
     // multiple commands
-    queue!(
+    let _ = queue!(
         stdout,
         Clear(ClearType::All),
         Goto(5, 5),
@@ -70,7 +70,7 @@ fn later_execution_command_directly_using_macros() {
     ::std::thread::sleep(std::time::Duration::from_millis(2000));
 
     // when you call this all commands will be executed
-    stdout.flush();
+    let _ = stdout.flush();
 }
 
 fn main() {}
