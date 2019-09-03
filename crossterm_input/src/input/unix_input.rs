@@ -100,7 +100,7 @@ pub struct AsyncReader {
 impl AsyncReader {
     /// Construct a new instance of the `AsyncReader`.
     /// The reading will immediately start when calling this function.
-    pub fn new(function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
+    pub fn new(function: Box<dyn Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
         let shutdown_handle = Arc::new(AtomicBool::new(false));
 
         let (event_tx, event_rx) = mpsc::channel();
