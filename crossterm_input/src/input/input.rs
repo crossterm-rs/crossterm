@@ -53,7 +53,7 @@ impl TerminalInput {
     pub fn read_line(&self) -> io::Result<String> {
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
-        let len = rv.trim_right_matches(&['\r', '\n'][..]).len();
+        let len = rv.trim_end_matches(&['\r', '\n'][..]).len();
         rv.truncate(len);
         Ok(rv)
     }
