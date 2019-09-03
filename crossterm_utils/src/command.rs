@@ -33,13 +33,13 @@ pub trait Command {
 /// This can be used in order to get more performance.
 pub trait QueueableCommand<T: Display> {
     /// Queues the given command for later execution.
-    fn queue(mut self, command: impl Command<AnsiType = T>) -> Self;
+    fn queue(self, command: impl Command<AnsiType = T>) -> Self;
 }
 
 /// A trait that defines behaviour for a command that will be executed immediately.
 pub trait ExecutableCommand<T: Display> {
     /// Execute the given command directly.
-    fn execute(mut self, command: impl Command<AnsiType = T>) -> Self;
+    fn execute(self, command: impl Command<AnsiType = T>) -> Self;
 }
 
 impl<T, A> QueueableCommand<A> for T
