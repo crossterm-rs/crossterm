@@ -1,4 +1,6 @@
-use crate::{execute, impl_display, queue, write_cout, Result};
+#[cfg(windows)]
+use crate::Result;
+use crate::{execute, impl_display, queue, write_cout};
 use std::fmt::Display;
 use std::io::Write;
 
