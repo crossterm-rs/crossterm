@@ -7,6 +7,6 @@ This folder contains examples for version 0.3.0 Here you will find examples of a
 - `key_events`: this is about reading key events
 - `crossterm`: this is about the struct `Crossterm`
 - `alternate_screen`: this is about switching to an alternate screen buffer
-- `raw_screen`; this is about enabling raw screen
+- `raw_screen`: this is about enabling raw screen
 - `command`: this is about to the command api.
-- `program examples`:this folder will contain some real life examples
+- `program examples`: this folder will contain some real life examples
