@@ -1,7 +1,8 @@
 extern crate crossterm;
 
 use crossterm::{
-    input, cursor, terminal, ClearType, Crossterm, InputEvent, KeyEvent, AlternateScreen, RawScreen, Terminal, TerminalCursor
+    cursor, input, terminal, AlternateScreen, ClearType, Crossterm, InputEvent, KeyEvent,
+    RawScreen, Terminal, TerminalCursor,
 };
 
 use std::sync::{Arc, Mutex};
