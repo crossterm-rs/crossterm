@@ -1,3 +1,6 @@
+// Remove once the TODO below is fixed
+#![allow(unused_variables)]
+
 extern crate crossterm;
 
 use crossterm::{Color, Crossterm};

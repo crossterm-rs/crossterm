@@ -1,4 +1,6 @@
-use crate::{execute, impl_display, queue, write_cout, Result};
+#[cfg(windows)]
+use crate::Result;
+use crate::{execute, impl_display, queue, write_cout};
 use std::fmt::Display;
 use std::io::Write;
 
@@ -31,13 +33,13 @@ pub trait Command {
 /// This can be used in order to get more performance.
 pub trait QueueableCommand<T: Display> {
     /// Queues the given command for later execution.
-    fn queue(mut self, command: impl Command<AnsiType = T>) -> Self;
+    fn queue(self, command: impl Command<AnsiType = T>) -> Self;
 }
 
 /// A trait that defines behaviour for a command that will be executed immediately.
 pub trait ExecutableCommand<T: Display> {
     /// Execute the given command directly.
-    fn execute(mut self, command: impl Command<AnsiType = T>) -> Self;
+    fn execute(self, command: impl Command<AnsiType = T>) -> Self;
 }
 
 impl<T, A> QueueableCommand<A> for T
@@ -66,7 +68,7 @@ where
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
     fn queue(mut self, command: impl Command<AnsiType = A>) -> Self {
-        queue!(self, command);
+        let _ = queue!(self, command);
         self
     }
 }
@@ -90,7 +92,7 @@ where
     /// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     fn execute(mut self, command: impl Command<AnsiType = A>) -> Self {
-        execute!(self, command);
+        let _ = execute!(self, command);
         self
     }
 }

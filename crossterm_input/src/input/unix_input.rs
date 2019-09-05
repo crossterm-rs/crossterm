@@ -100,7 +100,7 @@ pub struct AsyncReader {
 impl AsyncReader {
     /// Construct a new instance of the `AsyncReader`.
     /// The reading will immediately start when calling this function.
-    pub fn new(function: Box<Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
+    pub fn new(function: Box<dyn Fn(&Sender<u8>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
         let shutdown_handle = Arc::new(AtomicBool::new(false));
 
         let (event_tx, event_rx) = mpsc::channel();
@@ -242,7 +242,7 @@ where
                 Some(b'O') => {
                     match iter.next() {
                         // F1-F4
-                        Some(val @ b'P'...b'S') => {
+                        Some(val @ b'P'..=b'S') => {
                             InputEvent::Keyboard(KeyEvent::F(1 + val - b'P'))
                         }
                         _ => return Err(error),
@@ -263,10 +263,10 @@ where
         b'\n' | b'\r' => InputEvent::Keyboard(KeyEvent::Char('\n')),
         b'\t' => InputEvent::Keyboard(KeyEvent::Char('\t')),
         b'\x7F' => InputEvent::Keyboard(KeyEvent::Backspace),
-        c @ b'\x01'...b'\x1A' => {
+        c @ b'\x01'..=b'\x1A' => {
             InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))
         }
-        c @ b'\x1C'...b'\x1F' => {
+        c @ b'\x1C'..=b'\x1F' => {
             InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char))
         }
         b'\0' => InputEvent::Keyboard(KeyEvent::Null),
@@ -290,7 +290,7 @@ where
         Some(b'[') => match iter.next() {
             // NOTE (@imdaveho): cannot find when this occurs;
             // having another '[' after ESC[ not a likely scenario
-            Some(val @ b'A'...b'E') => InputEvent::Keyboard(KeyEvent::F(1 + val - b'A')),
+            Some(val @ b'A'..=b'E') => InputEvent::Keyboard(KeyEvent::F(1 + val - b'A')),
             _ => InputEvent::Unknown,
         },
         Some(b'D') => InputEvent::Keyboard(KeyEvent::Left),
@@ -350,7 +350,7 @@ where
             let cy = nums.next().unwrap().parse::<u16>().unwrap();
 
             match cb {
-                0...2 | 64...65 => {
+                0..=2 | 64..=65 => {
                     let button = match cb {
                         0 => MouseButton::Left,
                         1 => MouseButton::Middle,
@@ -370,7 +370,7 @@ where
                 _ => InputEvent::Unknown,
             }
         }
-        Some(c @ b'0'...b'9') => {
+        Some(c @ b'0'..=b'9') => {
             // Numbered escape code.
             let mut buf = Vec::new();
             buf.push(c);
@@ -430,9 +430,9 @@ where
                         4 | 8 => InputEvent::Keyboard(KeyEvent::End),
                         5 => InputEvent::Keyboard(KeyEvent::PageUp),
                         6 => InputEvent::Keyboard(KeyEvent::PageDown),
-                        v @ 11...15 => InputEvent::Keyboard(KeyEvent::F(v - 10)),
-                        v @ 17...21 => InputEvent::Keyboard(KeyEvent::F(v - 11)),
-                        v @ 23...24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
+                        v @ 11..=15 => InputEvent::Keyboard(KeyEvent::F(v - 10)),
+                        v @ 17..=21 => InputEvent::Keyboard(KeyEvent::F(v - 11)),
+                        v @ 23..=24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
                         _ => InputEvent::Unknown,
                     }
                 }

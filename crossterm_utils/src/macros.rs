@@ -1,5 +1,4 @@
 /// Append a the first few characters of an ANSI escape code to the given string.
-
 #[macro_export]
 macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
@@ -66,42 +65,43 @@ macro_rules! write_cout {
 /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
 #[macro_export]
 macro_rules! queue {
-    ($write:expr, $($command:expr), *) =>
-    {{
+    ($write:expr, $($command:expr), *) => {{
+        // Silent warning when the macro is used inside the `command` module
+        #[allow(unused_imports)]
         use $crate::Command;
         let mut error = None;
 
         $(
             #[cfg(windows)]
-             {
+            {
                 if $crate::supports_ansi() {
-                    match write!($write, "{}",$command.get_ansi_code()) {
+                    match write!($write, "{}", $command.get_ansi_code()) {
                         Err(e) => {
-                           error = Some(Err($crate::ErrorKind::from(e)));
+                            error = Some(Err($crate::ErrorKind::from(e)));
                         }
                         _ => {}
-                     };
+                    };
                 } else {
-                  match $command.execute_winapi() {
-                    Err(e) => {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                    _ => {}
-                   };
+                    match $command.execute_winapi() {
+                        Err(e) => {
+                            error = Some(Err($crate::ErrorKind::from(e)));
+                        }
+                        _ => {}
+                    };
                 };
             }
-             #[cfg(unix)]
-                match write!($write, "{}",$command.get_ansi_code()) {
-                    Err(e) => {
-                       error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                    _ => {}
-                 };
+            #[cfg(unix)]
+            match write!($write, "{}", $command.get_ansi_code()) {
+                Err(e) => {
+                    error = Some(Err($crate::ErrorKind::from(e)));
+                }
+                _ => {}
+             };
         )*
 
         if let Some(error) = error {
             error
-        }else {
+        } else {
             Ok(())
         }
     }}
@@ -137,42 +137,43 @@ macro_rules! queue {
 /// Because of that there is no difference between `execute` and `queue` for those windows versions.
 #[macro_export]
 macro_rules! execute {
-    ($write:expr, $($command:expr), *) =>
-    {{
-     use $crate::{Command, write_cout};
+    ($write:expr, $($command:expr), *) => {{
+        // Silent warning when the macro is used inside the `command` module
+        #[allow(unused_imports)]
+        use $crate::{Command, write_cout};
         let mut error = None;
 
         $(
             #[cfg(windows)]
-             {
+            {
                 if $crate::supports_ansi() {
-                     match  write_cout!($write, $command.get_ansi_code()) {
+                    match write_cout!($write, $command.get_ansi_code()) {
                         Err(e) => {
                            error = Some(Err($crate::ErrorKind::from(e)));
                         }
                         _ => {}
-                     };
+                    };
                 } else {
-                  match $command.execute_winapi() {
-                    Err(e) => {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                    _ => {}
-                   };
+                    match $command.execute_winapi() {
+                        Err(e) => {
+                            error = Some(Err($crate::ErrorKind::from(e)));
+                        }
+                        _ => {}
+                    };
                 };
             }
-              #[cfg(unix)]
-                 match  write_cout!($write, $command.get_ansi_code()) {
-                    Err(e) => {
-                       error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                    _ => {}
-                 };
+            #[cfg(unix)]
+            match write_cout!($write, $command.get_ansi_code()) {
+                Err(e) => {
+                    error = Some(Err($crate::ErrorKind::from(e)));
+                }
+                _ => {}
+            };
         )*
 
         if let Some(error) = error {
             error
-        }else {
+        } else {
             Ok(())
         }
     }}
