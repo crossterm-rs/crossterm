@@ -1,16 +1,16 @@
 extern crate crossterm;
 
 use crossterm::{
-    cursor, input, terminal, AlternateScreen, ClearType, Crossterm, InputEvent, KeyEvent,
-    RawScreen, Terminal, TerminalCursor,
+    cursor, input, terminal, ClearType, Crossterm, InputEvent, KeyEvent, RawScreen, Terminal,
+    TerminalCursor,
 };
 
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
 
 fn main() {
-    let screen = RawScreen::into_raw_mode();
-    cursor().hide();
+    let _screen = RawScreen::into_raw_mode();
+    cursor().hide().expect("Couldn't hide cursor");
 
     let input_buf = Arc::new(Mutex::new(String::new()));
 
@@ -37,13 +37,14 @@ fn main() {
             count += 1;
         }
     })
-    .join();
+    .join()
+    .expect("Couldn't join");
 
     for thread in threads {
-        thread.join();
+        thread.join().expect("Couldn't join");
     }
 
-    cursor().show();
+    cursor().show().expect("Couldn't show cursor");
 }
 
 fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>> {
@@ -85,8 +86,14 @@ pub fn swap_write(
     cursor: &TerminalCursor,
     term_height: u16,
 ) {
-    cursor.goto(0, term_height);
-    terminal.clear(ClearType::CurrentLine);
-    terminal.write(format!("{}\r\n", msg));
-    terminal.write(format!("> {}", input_buf));
+    cursor.goto(0, term_height).expect("Couldn't goto");
+    terminal
+        .clear(ClearType::CurrentLine)
+        .expect("Couldn't clear current line");
+    terminal
+        .write(format!("{}\r\n", msg))
+        .expect("Couldn't write message");
+    terminal
+        .write(format!("> {}", input_buf))
+        .expect("Couldn't write prompt");
 }
