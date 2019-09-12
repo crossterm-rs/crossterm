@@ -1,4 +1,4 @@
-name: Crossterm
+name: Crossterm Test
 
 on:
   push:
