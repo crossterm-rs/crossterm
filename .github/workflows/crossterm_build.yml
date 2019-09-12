@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - TimonPost-patch-1
-    
 jobs:
   linux_mac:
     name: Running on ${{ matrix.os }}
@@ -19,6 +18,6 @@ jobs:
         rust-version: ${{ matrix.rust }}
     - uses: actions/checkout@master
     - name: Run fmt check
-      run: cargo fmt -- --check
+      run: cargo check --all
     - name: Run tests
       run: cargo test -- --nocapture --test-threads 1
