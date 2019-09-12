@@ -1,0 +1,25 @@
+name: Crossterm Test
+
+on:
+  push:
+    branches:
+    - master
+jobs:
+  linux_mac:
+    name: Running on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2019, macOS-10.14]
+        rust: [stable, nightly]
+    steps:
+    - uses: hecrj/setup-rust-action@master
+      with:
+        rust-version: ${{ matrix.rust }}
+    - uses: actions/checkout@master
+    - name: Run Build
+      run: cargo build
+    - name: Check Examples
+      run: cargo check --examples 
+    - name: Run Tests
+      run: cargo test -v
