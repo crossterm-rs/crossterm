@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-2019]
+        os: [ubuntu-latest, windows-2019]
         rust: [stable, nightly]
     steps:
     - uses: hecrj/setup-rust-action@master
