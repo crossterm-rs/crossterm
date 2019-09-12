@@ -3,7 +3,7 @@ name: Crossterm
 on:
   push:
     branches:
-    - TimonPost-patch-1
+    - master
 jobs:
   linux_mac:
     name: Running on ${{ matrix.os }}
