@@ -1,0 +1,24 @@
+name: Crossterm
+
+on:
+  push:
+    branches:
+    - TimonPost-patch-1
+    
+jobs:
+  linux_mac:
+    name: Running on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-2019]
+        rust: [stable, nightly]
+    steps:
+    - uses: hecrj/setup-rust-action@master
+      with:
+        rust-version: ${{ matrix.rust }}
+    - uses: actions/checkout@master
+    - name: Run fmt check
+      run: cargo fmt -- --check
+    - name: Run tests
+      run: cargo test -- --nocapture --test-threads 1
