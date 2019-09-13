@@ -1,12 +1,7 @@
 //!
 //! Examples of coloring the terminal.
 //!
-#[macro_use]
-extern crate crossterm_style;
-
-use self::crossterm_style::{
-    color, style, Attribute, Color, Colored, Colorize, Styler, TerminalColor,
-};
+use crossterm_style::{color, Attribute, Color, Colored, Colorize, Styler};
 
 /// print some red text | demonstration.
 pub fn paint_foreground() {
@@ -393,6 +388,4 @@ pub fn reset_fg_and_bg() {
     println!("{}", Colored::Bg(Color::Reset));
 }
 
-fn main() {
-    command()
-}
+fn main() {}

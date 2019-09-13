@@ -1,12 +1,14 @@
 //! This is a `WinApi` specific implementation for styling related action.
 //! This module is used for non supporting `ANSI` Windows terminals.
 
-use crate::{Color, Colored, ITerminalColor};
-use crossterm_utils::Result;
-use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
 use std::io;
 use std::sync::{Once, ONCE_INIT};
+
+use crossterm_utils::Result;
+use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
 use winapi::um::wincon;
+
+use crate::{Color, Colored, ITerminalColor};
 
 const FG_GREEN: u16 = wincon::FOREGROUND_GREEN;
 const FG_RED: u16 = wincon::FOREGROUND_RED;

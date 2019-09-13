@@ -1,9 +1,10 @@
-use crate::color::color;
-use crate::enums::Color;
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use crate::color::color;
+use crate::enums::Color;
 
 /// Could be used to color the foreground or background color.
 ///

@@ -1,10 +1,8 @@
 //! This module contains the `object style` that can be applied to an `styled object`.
 
-use super::{Color, StyledObject};
-
 use std::fmt::Display;
 
-use super::Attribute;
+use super::{Attribute, Color, StyledObject};
 
 /// Struct that contains the style properties that can be applied to a displayable object.
 #[derive(Debug, Clone)]
