@@ -1,5 +1,4 @@
 name: Crossterm Test
-
 on:
   push:
     branches:
@@ -15,27 +14,36 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-2019, macOS-10.14]
         rust: [stable, nightly]
+        include:
+          - os: ubuntu-latest, windows-2019, macOS-10.14
+            rust: 'stable'
+            components: 'rustfmt'
     steps:
     - uses: hecrj/setup-rust-action@master
       with:
         rust-version: ${{ matrix.rust }}
+        components: ${{ matrix.components || '' }}
     - uses: actions/checkout@master
-    - name: Add Component
-      run: rustup component add rustfmt
+    
+    - name: Debug Information
+      run:  cargo fmt --version
+      run:  rustup --version
+      run:  rustc --version
+      
     - name: Run Build
       run: cargo build
+      
     - name: Check Examples
       run: cargo check --examples 
-    - name: Run Tests
+      
+    - name: Run fmt, tests windows
       if: matrix.os == 'windows-2019'
       run: cargo test --all -- --nocapture --test-threads 1
-    - name: Run Tests if not Windows
+      run: cargo fmt --all -- --check
+      
+    - name: Run fmt, tests if not Windows
       if: matrix.os != 'windows-2019'
       run: cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
-    - name: Run FMT
-      if: matrix.os == 'windows-2019'
-      run: cargo fmt --all -- --check
-    - name: Run FMT if not Windows
-      if: matrix.os != 'windows-2019'
       run: cargo fmt --all --exclude crossterm_winapi -- --check
+    
       
