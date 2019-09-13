@@ -5,15 +5,16 @@
 //! For an example of this behavior, consider when vim is launched from bash.
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
-#[cfg(windows)]
-use crate::sys::winapi::ToAlternateScreenCommand;
+use std::io;
+
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
 
+#[cfg(windows)]
+use crate::sys::winapi::ToAlternateScreenCommand;
 use crate::sys::{self, IAlternateScreenCommand};
 
 use super::RawScreen;
-use std::io;
 
 /// With this type you will be able to switch to the alternate screen and then back to the main screen.
 /// Check also the Screen type for switching to alternate mode.

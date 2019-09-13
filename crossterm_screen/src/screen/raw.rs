@@ -14,8 +14,9 @@
 //!
 //! With these modes you can easier design the terminal screen.
 
-use crate::sys;
 use std::io::{self, Stdout, Write};
+
+use crate::sys;
 
 /// A wrapper for the raw terminal state, which can be used to write to.
 ///
