@@ -2,7 +2,6 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use std::fmt;
-use std::io::Write;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;

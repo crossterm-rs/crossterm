@@ -4,7 +4,6 @@
 
 use super::ITerminalCursor;
 use crate::sys::{get_cursor_position, show_cursor};
-use std::io::Write;
 
 use crossterm_utils::{write_cout, Result};
 
