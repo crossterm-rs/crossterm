@@ -43,19 +43,15 @@ macro_rules! write_cout {
 ///
 /// # Example
 /// ```rust
-/// extern crate crossterm_cursor;
-/// extern crate crossterm_terminal;
 ///
 /// use std::io::{Write, stdout};
 ///
-/// use crossterm_cursor::Goto;
-/// use crossterm_terminal::{Clear, ClearType};
 /// use crossterm_utils::{queue, Output};
 ///
 /// let mut stdout = stdout();
 ///
 /// // will be executed when flush is called
-/// queue!(stdout,  Goto(5, 5), Output("5,5".to_string()));
+/// queue!(stdout, Output("foo".to_string()));
 ///
 /// // some other code (no execution happening here) ...
 ///
@@ -127,21 +123,15 @@ macro_rules! queue {
 ///
 /// # Example
 /// ```rust
-/// extern crate crossterm_cursor;
-/// extern crate crossterm_utils;
-/// extern crate crossterm_terminal;
-///
 /// use std::io::Write;
 ///
-/// use crossterm_terminal::{Clear, ClearType};
-/// use crossterm_cursor::Goto;
-/// use crossterm_utils::execute;
+/// use crossterm_utils::{execute, Output};
 ///
 /// // will be executed directly
-/// execute!(std::io::stdout(),  Goto(5, 5));
+/// execute!(std::io::stdout(), Output("foo".to_string()));
 ///
 /// // will be executed directly
-/// execute!(std::io::stdout(),  Goto(10, 10), Clear(ClearType::CurrentLine));
+/// execute!(std::io::stdout(), Output("foo".to_string()), Output("bar".to_string()));
 /// ```
 ///
 /// # Remarks
