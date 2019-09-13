@@ -151,32 +151,25 @@ macro_rules! execute {
             #[cfg(windows)]
             {
                 if $crate::supports_ansi() {
-                    match write_cout!($write, $command.get_ansi_code()) {
-                        Err(e) => {
-                           error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
+                    if let Err(e) = write_cout!($write, $command.get_ansi_code()) {
+                        error = Some($crate::ErrorKind::from(e));
                     };
                 } else {
-                    match $command.execute_winapi() {
-                        Err(e) => {
-                            error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
+                    if let Err(e) = $command.execute_winapi() {
+                        error = Some($crate::ErrorKind::from(e));
                     };
                 };
             }
             #[cfg(unix)]
-            match write_cout!($write, $command.get_ansi_code()) {
-                Err(e) => {
-                    error = Some(Err($crate::ErrorKind::from(e)));
+            {
+                if let Err(e) = write_cout!($write, $command.get_ansi_code()) {
+                    error = Some($crate::ErrorKind::from(e));
                 }
-                _ => {}
-            };
+            }
         )*
 
         if let Some(error) = error {
-            error
+            Err(error)
         } else {
             Ok(())
         }
