@@ -26,9 +26,10 @@ jobs:
     - uses: actions/checkout@master
     
     - name: Debug Information
-      run:  cargo fmt --version
-      run:  rustup --version
-      run:  rustc --version
+      run: | 
+        cargo fmt --version
+        rustup --version
+        rustc --version
       
     - name: Run Build
       run: cargo build
@@ -38,12 +39,14 @@ jobs:
       
     - name: Run fmt, tests windows
       if: matrix.os == 'windows-2019'
-      run: cargo test --all -- --nocapture --test-threads 1
-      run: cargo fmt --all -- --check
+      run: | 
+        cargo test --all -- --nocapture --test-threads 1
+        cargo fmt --all -- --check
       
     - name: Run fmt, tests if not Windows
       if: matrix.os != 'windows-2019'
-      run: cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
-      run: cargo fmt --all --exclude crossterm_winapi -- --check
+      run: | 
+        cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
+        cargo fmt --all --exclude crossterm_winapi -- --check
     
       
