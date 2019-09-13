@@ -43,8 +43,14 @@ macro_rules! write_cout {
 ///
 /// # Example
 /// ```rust
-/// use crossterm::{queue, Clear, Goto, ClearType};
+/// extern crate crossterm_cursor;
+/// extern crate crossterm_terminal;
+///
 /// use std::io::{Write, stdout};
+///
+/// use crossterm_cursor::Goto;
+/// use crossterm_terminal::{Clear, ClearType};
+/// use crossterm_utils::{queue, Output};
 ///
 /// let mut stdout = stdout();
 ///
@@ -121,7 +127,15 @@ macro_rules! queue {
 ///
 /// # Example
 /// ```rust
-/// use crossterm::{Clear, Goto, ClearType};
+/// extern crate crossterm_cursor;
+/// extern crate crossterm_utils;
+/// extern crate crossterm_terminal;
+///
+/// use std::io::Write;
+///
+/// use crossterm_terminal::{Clear, ClearType};
+/// use crossterm_cursor::Goto;
+/// use crossterm_utils::execute;
 ///
 /// // will be executed directly
 /// execute!(std::io::stdout(),  Goto(5, 5));

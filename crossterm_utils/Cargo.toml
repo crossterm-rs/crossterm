@@ -16,3 +16,8 @@ crossterm_winapi = { path="../crossterm_winapi", version = "0.1.5"}
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
+
+[dev-dependencies]
+crossterm_utils = { path = "../crossterm_utils" }
+crossterm_cursor = { path = "../crossterm_cursor" }
+crossterm_terminal = { path = "../crossterm_terminal" }
