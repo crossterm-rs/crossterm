@@ -2,11 +2,6 @@
 //! Like applying attributes to text and changing the foreground and background.
 
 #[macro_use]
-extern crate crossterm_utils;
-#[cfg(windows)]
-extern crate crossterm_winapi;
-
-#[macro_use]
 mod macros;
 mod color;
 mod enums;
@@ -18,18 +13,18 @@ mod ansi_color;
 #[cfg(windows)]
 mod winapi_color;
 
+use std::fmt::Display;
+
 use self::ansi_color::AnsiColor;
 #[cfg(windows)]
 use self::winapi_color::WinApiColor;
-
-use std::fmt::Display;
+pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
 pub use self::color::{color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
-pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
 /// This trait defines the actions that can be performed with terminal colors.
 /// This trait can be implemented so that a concrete implementation of the ITerminalColor can fulfill

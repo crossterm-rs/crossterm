@@ -1,15 +1,15 @@
 //! A module that contains all the actions related to the styling of the terminal.
 //! Like applying attributes to text and changing the foreground and background.
 
+use std::clone::Clone;
 use std::io;
 
 use super::*;
 use crate::{Color, ITerminalColor};
-use crossterm_utils::{impl_display, Command, Result};
-use std::clone::Clone;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
+use crossterm_utils::{impl_display, Command, Result};
 
 /// Allows you to style the terminal.
 ///

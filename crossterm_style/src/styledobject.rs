@@ -1,11 +1,14 @@
 //! This module contains the logic to style an object that contains some 'content' which can be styled.
 
-use super::{color, Color, ObjectStyle, SetBg, SetFg};
 use std::fmt::{self, Display, Formatter};
 use std::result;
 
-use super::Attribute;
+use crossterm_utils::{csi, queue};
+
 use crate::{Colorize, Styler};
+
+use super::Attribute;
+use super::{color, Color, ObjectStyle, SetBg, SetFg};
 
 /// Contains both the style and the content which can be styled.
 #[derive(Clone)]

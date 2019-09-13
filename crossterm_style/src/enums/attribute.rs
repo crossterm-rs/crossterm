@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use crossterm_utils::csi;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
