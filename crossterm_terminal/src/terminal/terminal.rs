@@ -1,16 +1,16 @@
 //! A module that contains all the actions related to the terminal.
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
-use super::{AnsiTerminal, ClearType, ITerminal};
-use crossterm_utils::{Command, Result};
+use std::fmt;
+use std::io::Write;
+
+#[cfg(windows)]
+use crossterm_utils::supports_ansi;
+use crossterm_utils::{impl_display, write_cout, Command, Result};
 
 #[cfg(windows)]
 use super::WinApiTerminal;
-#[cfg(windows)]
-use crossterm_utils::supports_ansi;
-
-use std::fmt;
-use std::io::Write;
+use super::{AnsiTerminal, ClearType, ITerminal};
 
 /// Allows you to preform actions on the terminal.
 ///

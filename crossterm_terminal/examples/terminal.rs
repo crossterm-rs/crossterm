@@ -1,8 +1,7 @@
 //!
 //! Terminal Examples
 //!
-extern crate crossterm_cursor;
-extern crate crossterm_terminal;
+#![allow(unused_must_use)]
 
 use crossterm_cursor::cursor;
 use crossterm_terminal::{terminal, ClearType};

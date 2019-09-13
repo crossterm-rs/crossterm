@@ -1,11 +1,14 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use super::ITerminal;
-use crate::{sys::get_terminal_size, ClearType};
-use crossterm_cursor::TerminalCursor;
-use crossterm_utils::Result;
 use std::io::Write;
+
+use crossterm_cursor::TerminalCursor;
+use crossterm_utils::{csi, write_cout, Result};
+
+use crate::{sys::get_terminal_size, ClearType};
+
+use super::ITerminal;
 
 pub static CLEAR_ALL: &'static str = csi!("2J");
 pub static CLEAR_FROM_CURSOR_DOWN: &'static str = csi!("J");
