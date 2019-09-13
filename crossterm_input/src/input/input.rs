@@ -44,7 +44,8 @@ impl TerminalInput {
     ///
     /// # Example
     /// ```ignore
-    /// match input().read_line() {
+    /// let in = input();
+    /// match in.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
     /// }
@@ -60,7 +61,8 @@ impl TerminalInput {
     /// Read one character from the user input
     ///
     /// ```ignore
-    /// match input().read_char() {
+    /// let in = input();
+    /// match in.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
     /// }
