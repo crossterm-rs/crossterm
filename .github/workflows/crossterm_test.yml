@@ -4,8 +4,11 @@ on:
   push:
     branches:
     - master
+  pull_request:
+    branches:
+    - master
 jobs:
-  linux_mac:
+  crossterm_rust:
     name: Running on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -17,9 +20,20 @@ jobs:
       with:
         rust-version: ${{ matrix.rust }}
     - uses: actions/checkout@master
+    - name: Add Component
+      run: rustup component add rustfmt
     - name: Run Build
       run: cargo build
     - name: Check Examples
       run: cargo check --examples 
     - name: Run Tests
-      run: cargo test -v
+      if: matrix.os == 'windows-2019'
+      run: cargo test --all -- --nocapture --test-threads 1
+      if: matrix.os != 'windows-2019'
+      run: cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
+    - name: Run FMT
+      if: matrix.os == 'windows-2019'
+      run: cargo fmt --all -- --check
+      if: matrix.os != 'windows-2019'
+      run: cargo fmt --all --exclude crossterm_winapi -- --check
+      
