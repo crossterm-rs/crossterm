@@ -44,11 +44,11 @@ impl TerminalInput {
     ///
     /// # Example
     /// ```rust
-    /// let input = input();
-    ///  match input.read_line() {
+    /// let input = crossterm_input::input();
+    /// match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
-    ///  }
+    /// }
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
         let mut rv = String::new();
@@ -61,12 +61,12 @@ impl TerminalInput {
     /// Read one character from the user input
     ///
     /// ```rust
-    /// let input = input();
+    /// let input = crossterm_input::input();
     ///
-    ///  match input.read_char() {
+    /// match input.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
-    ///   }
+    /// }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
         self.input.read_char()
