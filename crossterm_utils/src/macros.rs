@@ -10,16 +10,16 @@ macro_rules! write_cout {
     ($write:expr, $string:expr) => {{
         use $crate::ErrorKind;
 
-        if let Err(e) = write!($write, "{}", $string) {
-            Err(ErrorKind::IoError(e))
-        } else {
-            match $write.flush() {
-                Ok(size) => Ok(size),
-                Err(e) => Err(ErrorKind::IoError(e)),
-            }
-        }
+        $write
+            .write(format!("{}", $string).as_bytes())
+            .and_then(|size| $write.flush().map(|_| size))
+            .map_err(ErrorKind::IoError)
     }};
     ($string:expr) => {{
+        // Bring Write into the scope and ignore unused imports if it's
+        // already imported by the user
+        #[allow(unused_imports)]
+        use std::io::Write;
         write_cout!(::std::io::stdout(), $string)
     }};
 }
