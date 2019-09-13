@@ -10,9 +10,12 @@ macro_rules! write_cout {
     ($write:expr, $string:expr) => {{
         use $crate::ErrorKind;
 
+        let fmt = format!("{}", $string);
+        let bytes = fmt.as_bytes();
+
         $write
-            .write(format!("{}", $string).as_bytes())
-            .and_then(|size| $write.flush().map(|_| size))
+            .write_all(bytes)
+            .and_then(|_| $write.flush().map(|_| bytes.len()))
             .map_err(ErrorKind::IoError)
     }};
     ($string:expr) => {{
