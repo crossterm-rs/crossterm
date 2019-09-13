@@ -1,11 +1,12 @@
+use std::io::Write;
+
+use crossterm_utils::{csi, write_cout, Result};
+
 #[cfg(unix)]
 pub mod unix;
 
 #[cfg(windows)]
 pub mod winapi;
-
-use crossterm_utils::Result;
-use std::io::Write;
 
 /// This command is used for switching to the alternate screen and back to the main screen.
 pub struct ToAlternateScreenCommand;

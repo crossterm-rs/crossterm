@@ -1,9 +1,14 @@
-use super::IAlternateScreenCommand;
-use crossterm_utils::Result;
-use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 use std::io;
+
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
+
+use crossterm_utils::Result;
+use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
+
+use super::IAlternateScreenCommand;
+
+use self::wincon::{ENABLE_LINE_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT};
 
 /// This command is used for enabling and disabling raw mode for Windows systems.
 /// For more info check: https://docs.microsoft.com/en-us/windows/console/high-level-console-modes.
@@ -11,7 +16,7 @@ use winapi::um::wincon;
 pub struct RawModeCommand {
     mask: DWORD,
 }
-use self::wincon::{ENABLE_LINE_INPUT, ENABLE_WRAP_AT_EOL_OUTPUT};
+
 impl RawModeCommand {
     pub fn new() -> Self {
         RawModeCommand {
