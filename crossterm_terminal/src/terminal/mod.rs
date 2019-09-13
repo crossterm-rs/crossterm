@@ -1,4 +1,14 @@
 //! A module that contains all the actions related to the terminal. like clearing, resizing, pausing and scrolling the terminal.
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+use crossterm_utils::Result;
+
+use self::ansi_terminal::AnsiTerminal;
+pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Terminal};
+#[cfg(windows)]
+use self::winapi_terminal::WinApiTerminal;
+
 #[cfg(test)]
 mod test;
 
@@ -7,17 +17,6 @@ mod terminal;
 mod ansi_terminal;
 #[cfg(windows)]
 mod winapi_terminal;
-
-use self::ansi_terminal::AnsiTerminal;
-#[cfg(windows)]
-use self::winapi_terminal::WinApiTerminal;
-
-pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Terminal};
-
-use crossterm_utils::Result;
-
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 
 /// Enum with the different values to clear the terminal.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
