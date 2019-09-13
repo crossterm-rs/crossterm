@@ -43,9 +43,8 @@ impl TerminalInput {
     /// Not sure what 'raw mode' is, checkout the 'crossterm_screen' crate.
     ///
     /// # Example
-    /// ```rust
-    /// let input = crossterm_input::input();
-    /// match input.read_line() {
+    /// ```ignore
+    /// match input().read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
     /// }
@@ -60,10 +59,8 @@ impl TerminalInput {
 
     /// Read one character from the user input
     ///
-    /// ```rust
-    /// let input = crossterm_input::input();
-    ///
-    /// match input.read_char() {
+    /// ```ignore
+    /// match input().read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
     /// }
