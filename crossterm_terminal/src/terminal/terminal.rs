@@ -131,8 +131,7 @@ impl Terminal {
     ///
     /// This will also flush the standard output.
     pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
-        write_cout!(format!("{}", value))?;
-        Ok(0)
+        write_cout!(format!("{}", value))
     }
 }
 
