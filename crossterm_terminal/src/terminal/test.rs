@@ -1,7 +1,7 @@
 /* ======================== WinApi =========================== */
 #[cfg(windows)]
 mod winapi_tests {
-    use super::*;
+    use super::super::*;
 
     #[test]
     fn resize_winapi() {
