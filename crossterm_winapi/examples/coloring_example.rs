@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 extern crate crossterm_winapi;
 
 use crossterm_winapi::{Console, ScreenBuffer};
@@ -49,4 +48,7 @@ fn set_foreground_color() -> std::io::Result<()> {
     Ok(())
 }
 
-fn main() {}
+fn main() {
+    set_background_color();
+    set_foreground_color();
+}

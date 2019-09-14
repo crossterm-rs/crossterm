@@ -14,4 +14,6 @@ fn change_console_mode() {
         .expect("Unable to set console mode");
 }
 
-fn main() {}
+fn main() {
+    change_console_mode();
+}
