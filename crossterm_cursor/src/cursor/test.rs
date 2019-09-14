@@ -57,8 +57,12 @@ fn reset_safe_ansi() {
 fn goto_ansi() {
     if try_enable_ansi() {
         let cursor = AnsiCursor::new();
+        let (x_saved, y_saved) = cursor.pos();
+
         cursor.goto(5, 5);
         let (x, y) = cursor.pos();
+
+        cursor.goto(x_saved, y_saved);
 
         assert_eq!(x, 5);
         assert_eq!(y, 5);
