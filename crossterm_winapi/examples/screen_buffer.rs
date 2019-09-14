@@ -1,6 +1,7 @@
+#![allow(dead_code)]
 extern crate crossterm_winapi;
 
-use crossterm_winapi::{Handle, ScreenBuffer};
+use crossterm_winapi::ScreenBuffer;
 
 fn main() {}
 
@@ -21,5 +22,5 @@ fn multiple_screen_buffers() {
     let screen_buffer = ScreenBuffer::create();
 
     // which to this screen buffer
-    screen_buffer.show();
+    screen_buffer.show().expect("Unable to show screen buffer");
 }

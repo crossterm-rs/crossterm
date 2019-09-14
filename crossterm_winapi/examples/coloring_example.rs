@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 extern crate crossterm_winapi;
 
 use crossterm_winapi::{Console, ScreenBuffer};
@@ -15,7 +16,7 @@ fn set_background_color() -> std::io::Result<()> {
     let fg_color = attrs & 0x0007;
 
     // apply the blue background flag to the current attributes
-    let mut new_color = fg_color | BLUE_BACKGROUND;
+    let new_color = fg_color | BLUE_BACKGROUND;
 
     // set the console text attribute to the new color value.
     Console::from(**screen_buffer.get_handle()).set_text_attribute(new_color)?;

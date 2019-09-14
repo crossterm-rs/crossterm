@@ -83,11 +83,11 @@ mod test {
 
         let original_mode = mode.mode().unwrap();
 
-        mode.set_mode(0x0004);
+        assert!(mode.set_mode(0x0004).is_ok());
         let console_mode = mode.mode().unwrap();
 
-        assert!((console_mode & 0x0004) != 0);
+        assert_ne!(console_mode & 0x0004, 0);
 
-        mode.set_mode(original_mode);
+        assert!(mode.set_mode(original_mode).is_ok());
     }
 }

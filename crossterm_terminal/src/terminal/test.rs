@@ -7,7 +7,7 @@ mod winapi_tests {
     fn resize_winapi() {
         let terminal = WinApiTerminal::new();
 
-        terminal.set_size(30, 30);
+        terminal.set_size(30, 30).unwrap();
 
         let (x, y) = terminal.terminal_size();
 
@@ -45,10 +45,10 @@ fn try_enable_ansi() -> bool {
             // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
             match set_virtual_terminal_processing(true) {
                 Ok(_) => return true,
-                Err(e) => return false,
+                Err(_) => return false,
             }
         }
     }
 
-    return true;
+    true
 }

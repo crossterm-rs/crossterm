@@ -1,5 +1,15 @@
 //! This module handles some logic for cursor interaction in the windows console.
 
+use std::io::{self, Result};
+
+use winapi::{
+    shared::minwindef::{FALSE, TRUE},
+    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+    um::winnt::HANDLE,
+};
+
+pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
+
 #[cfg(windows)]
 pub fn get_cursor_position() -> (u16, u16) {
     if let Ok(cursor) = Cursor::new() {
@@ -13,16 +23,6 @@ pub fn get_cursor_position() -> (u16, u16) {
 pub fn show_cursor(show_cursor: bool) -> Result<()> {
     Cursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
 }
-
-pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
-
-use winapi::{
-    shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
-    um::winnt::HANDLE,
-};
-
-use std::io::{self, Result};
 
 /// This stores the cursor pos, at program level. So it can be recalled later.
 static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
