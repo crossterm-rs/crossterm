@@ -38,12 +38,12 @@ jobs:
       if: matrix.os == 'windows-2019'
       run: | 
         cargo test --all -- --nocapture --test-threads 1
-        cargo fmt --all -- --check
+        cargo +stable fmt --all -- --check
       
     - name: Run fmt, tests if not Windows
       if: matrix.os != 'windows-2019'
       run: | 
         cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
-        cargo fmt --all --exclude crossterm_winapi -- --check
+        cargo +stable --all --exclude crossterm_winapi -- --check
     
       
