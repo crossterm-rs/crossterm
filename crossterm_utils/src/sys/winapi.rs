@@ -1,7 +1,9 @@
 pub mod ansi {
-    use crossterm_winapi::ConsoleMode;
     use std::io;
+
     use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+    use crossterm_winapi::ConsoleMode;
 
     /// Toggle virtual terminal processing.
     ///

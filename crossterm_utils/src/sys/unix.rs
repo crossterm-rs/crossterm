@@ -1,8 +1,8 @@
 //! This module contains all `unix` specific terminal related logic.
 
-pub use libc::{c_int, termios as Termios};
-
 use std::{io, mem};
+
+pub use libc::{c_int, termios as Termios};
 
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED: bool = false;

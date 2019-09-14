@@ -1,8 +1,9 @@
+use std::fmt::Display;
+use std::io::Write;
+
 #[cfg(windows)]
 use crate::Result;
 use crate::{execute, impl_display, queue, write_cout};
-use std::fmt::Display;
-use std::io::Write;
 
 /// A command is an action that can be performed on the terminal.
 ///
