@@ -15,14 +15,13 @@ use crate::enums::Color;
 ///
 /// You can use `Colored` in a write statement to apply the attribute to the terminal output.
 ///
-/// ```rust
+/// ```ignore
 /// println!("{} Red foreground color", Colored::Fg(Color::Red));
 /// println!("{} Blue background color", Colored::Bg(Color::Blue));
 /// ```
 ///
 /// You can also call coloring functions on a `&'static str`:
-/// ```rust
-/// use crossterm(_style)::Colorizer;
+/// ```ignore
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
