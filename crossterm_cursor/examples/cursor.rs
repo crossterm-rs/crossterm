@@ -1,10 +1,16 @@
 //!
 //! Examples of actions that could be performed with the cursor.
 //!
+#![allow(unused_must_use, dead_code)]
 
 extern crate crossterm_cursor;
 
+use std::io::Write;
+use std::time::Instant;
+
 use crossterm_cursor::cursor;
+
+use self::crossterm_cursor::{queue, Goto, Hide, Output, QueueableCommand};
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() {
@@ -86,20 +92,11 @@ pub fn blink_cursor() {
     cursor.blink(false);
 }
 
-use self::crossterm_cursor::{
-    execute, queue, BlinkOff, BlinkOn, Command, Down, ExecutableCommand, Goto, Hide, Left, Output,
-    QueueableCommand, ResetPos, Right, SavePos, Show, Up,
-};
-use std::fmt::Display;
-use std::io::{stdout, Write};
-use std::thread;
-use std::time::{Duration, Instant};
-
 fn benchmark_cursor_goto() -> f32 {
     let mut stdout = ::std::io::stdout();
 
     let instant1 = Instant::now();
-    for i in 0..10 {
+    for _ in 0..10 {
         for x in 0..200 {
             for y in 0..50 {
                 queue!(stdout, Goto(x, y), Hide, Output(y.to_string()));
@@ -110,7 +107,7 @@ fn benchmark_cursor_goto() -> f32 {
     let new_api = instant1.elapsed();
     let cursor = cursor();
     let instant2 = Instant::now();
-    for i in 0..10 {
+    for _ in 0..10 {
         for x in 0..200 {
             for y in 0..50 {
                 cursor.goto(x, y);
@@ -128,10 +125,8 @@ fn benchmark_cursor_goto() -> f32 {
 }
 
 fn start_goto_benchmark() {
-    let mut stdout = ::std::io::stdout();
-
     let mut performance_metrics = Vec::new();
-    for i in 1..=20 {
+    for _ in 1..=20 {
         performance_metrics.push(benchmark_cursor_goto());
     }
 
@@ -142,7 +137,7 @@ fn start_goto_benchmark() {
 }
 
 fn main() {
-    let mut stdout = ::std::io::stdout();
+    let stdout = ::std::io::stdout();
 
     stdout
         .queue(Goto(5, 5))

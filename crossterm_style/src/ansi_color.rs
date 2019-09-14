@@ -1,11 +1,10 @@
 //! This is a ANSI specific implementation for styling related action.
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
-use std::io::Write;
-
 use crossterm_utils::{csi, write_cout, Result};
 
-use crate::{Attribute, Color, Colored, ITerminalColor};
+use crate::Colored;
+use crate::{Attribute, Color, ITerminalColor};
 
 #[inline]
 pub fn get_set_fg_ansi(fg_color: Color) -> String {

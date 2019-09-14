@@ -6,7 +6,7 @@ use crate::StyledObject;
 ///
 /// This trait is implemented for `&static str` and `StyledObject` and thus the methods of this trait could be called on them.
 ///
-/// ``` rust
+/// ```ignore
 /// use Colorizer;
 ///
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
@@ -53,7 +53,7 @@ pub trait Colorize<D: Display + Clone> {
 /// This trait is implemented for `&static str` and `StyledObject` and thus the methods of this trait could be called on them.
 ///
 /// # Example
-/// ``` rust
+/// ```ignore
 /// use Colorizer;
 ///
 /// println!("{}", "Bold text".bold();

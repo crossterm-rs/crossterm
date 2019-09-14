@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use crossterm_utils::{csi, write_cout, Result};
 
 #[cfg(unix)]

@@ -2,7 +2,6 @@
 //! Like clearing and scrolling in the terminal or getting the window size from the terminal.
 
 use std::fmt;
-use std::io::Write;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
@@ -131,8 +130,7 @@ impl Terminal {
     ///
     /// This will also flush the standard output.
     pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
-        write_cout!(format!("{}", value))?;
-        Ok(0)
+        write_cout!(format!("{}", value))
     }
 }
 

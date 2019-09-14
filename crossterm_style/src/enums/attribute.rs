@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 /// # Example
 /// You can use an attribute in a write statement to apply the attribute to the terminal output.
 ///
-/// ```rust
+/// ```ignore
 /// println!(
 ///     "{} Underlined {} No Underline",
 ///     Attribute::Underlined,
@@ -25,8 +25,8 @@ use serde::{Deserialize, Serialize};
 /// ```
 ///
 /// You can also call attribute functions on a `&'static str`:
-/// ```rust
-/// use crossterm(_style)::Colorizer;
+/// ```ignore
+/// use Colorizer;
 ///
 /// println!("{}", style("Bold text").bold());
 /// println!("{}", style("Underlined text").underlined());

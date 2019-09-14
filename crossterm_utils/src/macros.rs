@@ -10,16 +10,19 @@ macro_rules! write_cout {
     ($write:expr, $string:expr) => {{
         use $crate::ErrorKind;
 
-        if let Err(e) = write!($write, "{}", $string) {
-            Err(ErrorKind::IoError(e))
-        } else {
-            match $write.flush() {
-                Ok(size) => Ok(size),
-                Err(e) => Err(ErrorKind::IoError(e)),
-            }
-        }
+        let fmt = format!("{}", $string);
+        let bytes = fmt.as_bytes();
+
+        $write
+            .write_all(bytes)
+            .and_then(|_| $write.flush().map(|_| bytes.len()))
+            .map_err(ErrorKind::IoError)
     }};
     ($string:expr) => {{
+        // Bring Write into the scope and ignore unused imports if it's
+        // already imported by the user
+        #[allow(unused_imports)]
+        use std::io::Write;
         write_cout!(::std::io::stdout(), $string)
     }};
 }
@@ -151,32 +154,25 @@ macro_rules! execute {
             #[cfg(windows)]
             {
                 if $crate::supports_ansi() {
-                    match write_cout!($write, $command.get_ansi_code()) {
-                        Err(e) => {
-                           error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
+                    if let Err(e) = write_cout!($write, $command.get_ansi_code()) {
+                        error = Some($crate::ErrorKind::from(e));
                     };
                 } else {
-                    match $command.execute_winapi() {
-                        Err(e) => {
-                            error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
+                    if let Err(e) = $command.execute_winapi() {
+                        error = Some($crate::ErrorKind::from(e));
                     };
                 };
             }
             #[cfg(unix)]
-            match write_cout!($write, $command.get_ansi_code()) {
-                Err(e) => {
-                    error = Some(Err($crate::ErrorKind::from(e)));
+            {
+                if let Err(e) = write_cout!($write, $command.get_ansi_code()) {
+                    error = Some($crate::ErrorKind::from(e));
                 }
-                _ => {}
-            };
+            }
         )*
 
         if let Some(error) = error {
-            error
+            Err(error)
         } else {
             Ok(())
         }

@@ -46,7 +46,7 @@ trait ITerminalColor {
 /// This could be used to style a type that implements `Display` with colors and attributes.
 ///
 /// # Example
-/// ```rust
+/// ```ignore
 /// // get a styled object which could be painted to the terminal.
 /// let styled_object = style("Some Blue colored text on black background")
 ///     .with(Color::Blue)
