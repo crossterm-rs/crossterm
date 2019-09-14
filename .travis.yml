@@ -22,7 +22,7 @@ matrix:
       env: TEST_EXCLUDE=""
 
 env:
-  matrix:
+  global:
     - TEST_EXCLUDE="--exclude crossterm_winapi"
 
 before_script:
