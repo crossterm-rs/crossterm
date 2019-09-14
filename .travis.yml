@@ -1,18 +1,38 @@
 # Set up the Rust toolchain.
 language: rust
+
 rust:
   - stable
-
-before_script:
-  - export PATH=$PATH:/home/travis/.cargo/bin
-  - rustup component add rustfmt-preview
+  - nightly
 
 os:
   - linux
   - osx
   - windows
 
+git:
+  depth: 1
+  quiet: true
+
+matrix:
+  allow_failures:
+    - rust: nightly
+  include:
+    - os: windows
+      env: TEST_EXCLUDE=""
+
+env:
+  matrix:
+    - TEST_EXCLUDE="--exclude crossterm_winapi"
+
+before_script:
+  - export PATH=$PATH:/home/travis/.cargo/bin
+  - rustup component add rustfmt
+
 script:
+  - cargo fmt --version
+  - rustup --version
+  - rustc --version
+  - cargo fmt --all -- --check
   - cargo build
-  - cargo fmt -- --check
-  - cargo test -- --nocapture --test-threads 1
+  - cargo test --all ${TEST_EXCLUDE} -- --nocapture --test-threads 1
