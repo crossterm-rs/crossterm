@@ -5,6 +5,11 @@ rust:
   - stable
   - nightly
 
+os:
+  - linux
+  - windows
+  - osx
+
 git:
   depth: 1
   quiet: true
@@ -12,13 +17,6 @@ git:
 matrix:
   allow_failures:
     - rust: nightly
-  include:
-    - os: windows
-      env: TEST_EXCLUDE=""
-    - os: linux
-      env: TEST_EXCLUDE="--exclude crossterm_winapi"
-    - os: osx
-      env: TEST_EXCLUDE="--exclude crossterm_winapi"
 
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin
@@ -30,4 +28,4 @@ script:
   - rustc --version
   - cargo fmt --all -- --check
   - cargo build
-  - cargo test --all ${TEST_EXCLUDE} -- --nocapture --test-threads 1
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cargo test --all -- --nocapture --test-threads 1; else cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1; fi
