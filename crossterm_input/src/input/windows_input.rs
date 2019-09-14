@@ -1,11 +1,9 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use super::*;
-
-use crossterm_winapi::{
-    ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
-    MouseEvent,
-};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc;
+use std::time::Duration;
+use std::{char, io, thread};
 
 use winapi::um::{
     wincon::{
@@ -19,10 +17,12 @@ use winapi::um::{
     },
 };
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc;
-use std::time::Duration;
-use std::{char, io, thread};
+use crossterm_winapi::{
+    ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
+    MouseEvent,
+};
+
+use super::*;
 
 pub struct WindowsInput;
 
@@ -157,7 +157,7 @@ pub struct AsyncReader {
 impl AsyncReader {
     /// Construct a new instance of the `AsyncReader`.
     /// The reading will immediately start when calling this function.
-    pub fn new(function: Box<Fn(&Sender<InputEvent>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
+    pub fn new(function: Box<dyn Fn(&Sender<InputEvent>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
         let shutdown_handle = Arc::new(AtomicBool::new(false));
 
         let (event_tx, event_rx) = mpsc::channel();
@@ -383,10 +383,10 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     }
                 } else if key_state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) {
                     match character_raw as u8 {
-                        c @ b'\x01'...b'\x1A' => {
+                        c @ b'\x01'..=b'\x1A' => {
                             Some(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))
                         }
-                        c @ b'\x1C'...b'\x1F' => {
+                        c @ b'\x1C'..=b'\x1F' => {
                             Some(KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char))
                         }
                         _ => None,
