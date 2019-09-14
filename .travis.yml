@@ -5,11 +5,6 @@ rust:
   - stable
   - nightly
 
-os:
-  - linux
-  - osx
-  - windows
-
 git:
   depth: 1
   quiet: true
@@ -20,10 +15,10 @@ matrix:
   include:
     - os: windows
       env: TEST_EXCLUDE=""
-
-env:
-  global:
-    - TEST_EXCLUDE="--exclude crossterm_winapi"
+    - os: linux
+      env: TEST_EXCLUDE="--exclude crossterm_winapi"
+    - os: osx
+      env: TEST_EXCLUDE="--exclude crossterm_winapi"
 
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin
