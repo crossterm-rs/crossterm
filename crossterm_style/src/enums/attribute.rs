@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// You can also call attribute functions on a `&'static str`:
 /// ```ignore
-/// use crossterm_style::Colorizer;
+/// use Colorizer;
 ///
 /// println!("{}", style("Bold text").bold());
 /// println!("{}", style("Underlined text").underlined());
