@@ -1,49 +1,47 @@
 name: Crossterm Test
-on:
-  push:
-    branches:
-    - master
-  pull_request:
-    branches:
-    - master
+on: [push, pull_request]
 jobs:
   crossterm_rust:
     name: Running on ${{ matrix.os }}
+
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-2019, macOS-10.14]
         rust: [stable, nightly]
         include:
-          - os: ubuntu-latest, windows-2019, macOS-10.14
-            rust: 'stable'
-            components: 'rustfmt'
+          - rust: stable
+            can-fail: false
+          - rust: nightly
+            can-fail: true
     steps:
-    - uses: hecrj/setup-rust-action@master
-      with:
-        rust-version: ${{ matrix.rust }}
-        components: ${{ matrix.components || '' }}
-    - uses: actions/checkout@master
-    
-    - name: Debug Information
-      run: | 
-        cargo +stable fmt --version
-        rustup --version
-        rustc --version
-      
-    - name: Run Build
-      run: cargo build
-      
-    - name: Run fmt, tests windows
-      if: matrix.os == 'windows-2019'
-      run: | 
-        cargo test --all -- --nocapture --test-threads 1
-        cargo +stable fmt --all -- --check
-      
-    - name: Run fmt, tests if not Windows
-      if: matrix.os != 'windows-2019'
-      run: | 
-        cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
-        cargo +stable --all --exclude crossterm_winapi -- --check
-    
-      
+      - uses: hecrj/setup-rust-action@master
+        with:
+          rust-version: ${{ matrix.rust }}
+          components: rustfmt
+
+      - uses: actions/checkout@master
+
+      - name: Debug information
+        run: |
+          cargo fmt --version
+          rustup --version
+          rustc --version
+      - name: Check code formatting
+        run: cargo fmt --all -- --check
+        continue-on-error: ${{ matrix.can-fail }}
+
+      - name: Build
+        run: cargo build
+        continue-on-error: ${{ matrix.can-fail }}
+
+      - name: Test (Windows only)
+        if: matrix.os == 'windows-2019'
+        run: cargo test --all -- --nocapture --test-threads 1
+        continue-on-error: ${{ matrix.can-fail }}
+
+      - name: Test (all except Windows)
+        if: matrix.os != 'windows-2019'
+        run: cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1
+        continue-on-error: ${{ matrix.can-fail }}
