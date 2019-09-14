@@ -43,12 +43,12 @@ impl TerminalInput {
     /// Not sure what 'raw mode' is, checkout the 'crossterm_screen' crate.
     ///
     /// # Example
-    /// ```rust
-    /// let input = input();
-    ///  match input.read_line() {
+    /// ```ignore
+    /// let in = input();
+    /// match in.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
-    ///  }
+    /// }
     /// ```
     pub fn read_line(&self) -> io::Result<String> {
         let mut rv = String::new();
@@ -60,13 +60,12 @@ impl TerminalInput {
 
     /// Read one character from the user input
     ///
-    /// ```rust
-    /// let input = input();
-    ///
-    ///  match input.read_char() {
+    /// ```ignore
+    /// let in = input();
+    /// match in.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
-    ///   }
+    /// }
     /// ```
     pub fn read_char(&self) -> io::Result<char> {
         self.input.read_char()
