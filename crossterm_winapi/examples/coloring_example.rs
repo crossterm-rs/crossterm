@@ -49,6 +49,6 @@ fn set_foreground_color() -> std::io::Result<()> {
 }
 
 fn main() {
-    set_background_color();
-    set_foreground_color();
+    set_background_color().unwrap();
+    set_foreground_color().unwrap();
 }
