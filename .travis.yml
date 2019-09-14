@@ -28,4 +28,4 @@ script:
   - rustc --version
   - cargo fmt --all -- --check
   - cargo build
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cargo test --all -- --nocapture --test-threads 1; else cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cargo test --all -- --nocapture --test-threads 1; else cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1; fi
