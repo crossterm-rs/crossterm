@@ -1,8 +1,7 @@
-use super::{is_true, Coord, Handle, HandleType, WindowPositions};
+use std::borrow::ToOwned;
 use std::io::{self, Error, Result};
 use std::str;
 
-use std::borrow::ToOwned;
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NULL;
@@ -16,6 +15,8 @@ use winapi::um::{
 };
 
 use InputRecord;
+
+use super::{is_true, Coord, Handle, HandleType, WindowPositions};
 
 /// Could be used to do some basic things with the console.
 pub struct Console {
@@ -165,7 +166,7 @@ impl Console {
     }
 
     pub fn read_single_input_event(&self) -> Result<Option<InputRecord>> {
-        let mut buf_len = self.number_of_console_input_events()?;
+        let buf_len = self.number_of_console_input_events()?;
 
         // Fast-skipping all the code below if there is nothing to read at all
         if buf_len == 0 {
@@ -182,7 +183,7 @@ impl Console {
     }
 
     pub fn read_console_input(&self) -> Result<(u32, Vec<InputRecord>)> {
-        let mut buf_len = self.number_of_console_input_events()?;
+        let buf_len = self.number_of_console_input_events()?;
 
         // Fast-skipping all the code below if there is nothing to read at all
         if buf_len == 0 {

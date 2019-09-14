@@ -3,7 +3,7 @@ extern crate crossterm_winapi;
 use crossterm_winapi::{Handle, HandleType};
 
 fn main() {
-    /// see the description of the types to see what they do.
+    // see the description of the types to see what they do.
     let out_put_handle = Handle::new(HandleType::OutputHandle).unwrap();
     let out_put_handle = Handle::new(HandleType::InputHandle).unwrap();
     let curr_out_put_handle = Handle::new(HandleType::CurrentOutputHandle).unwrap();
