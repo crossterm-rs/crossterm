@@ -27,7 +27,7 @@ jobs:
     
     - name: Debug Information
       run: | 
-        cargo fmt --version
+        cargo +stable fmt --version
         rustup --version
         rustc --version
       
