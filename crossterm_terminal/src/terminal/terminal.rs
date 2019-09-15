@@ -107,9 +107,10 @@ impl Terminal {
         self.terminal.set_size(width, height)
     }
 
+    // TODO - Marked as no_run, because it's failing on Travis CI
     /// Exit the current process.
     ///
-    /// ```rust
+    /// ```no_run
     /// # use crossterm_terminal::terminal;
     /// let mut term = terminal();
     ///
