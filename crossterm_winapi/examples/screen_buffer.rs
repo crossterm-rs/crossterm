@@ -1,8 +1,6 @@
 extern crate crossterm_winapi;
 
-use crossterm_winapi::{Handle, ScreenBuffer};
-
-fn main() {}
+use crossterm_winapi::ScreenBuffer;
 
 fn print_screen_buffer_information() {
     let screen_buffer = ScreenBuffer::current().unwrap();
@@ -16,10 +14,15 @@ fn print_screen_buffer_information() {
     println!("terminal size {:?}", csbi.terminal_size());
 }
 
+#[allow(dead_code)]
 fn multiple_screen_buffers() {
     // create new screen buffer
     let screen_buffer = ScreenBuffer::create();
 
     // which to this screen buffer
-    screen_buffer.show();
+    screen_buffer.show().expect("Unable to show screen buffer");
+}
+
+fn main() {
+    print_screen_buffer_information();
 }

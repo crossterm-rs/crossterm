@@ -1,5 +1,9 @@
 //! This module contains some logic for working with the console handle.
 
+use std::io::{self, Result};
+use std::ops::Deref;
+use std::ptr::null_mut;
+
 use winapi::um::{
     fileapi::{CreateFileW, OPEN_EXISTING},
     handleapi::INVALID_HANDLE_VALUE,
@@ -7,10 +11,6 @@ use winapi::um::{
     winbase::{STD_INPUT_HANDLE, STD_OUTPUT_HANDLE},
     winnt::{FILE_SHARE_READ, FILE_SHARE_WRITE, GENERIC_READ, GENERIC_WRITE, HANDLE},
 };
-
-use std::io::{self, Result};
-use std::ops::Deref;
-use std::ptr::null_mut;
 
 /// This enum represents the different handles that could be requested.
 ///
@@ -180,9 +180,9 @@ mod test {
 
     #[test]
     fn get_handle() {
-        let out_put_handle = Handle::new(HandleType::OutputHandle).unwrap();
-        let out_put_handle = Handle::new(HandleType::InputHandle).unwrap();
-        let curr_out_put_handle = Handle::new(HandleType::CurrentOutputHandle).unwrap();
-        let curr_out_put_handle = Handle::new(HandleType::CurrentInputHandle).unwrap();
+        assert!(Handle::new(HandleType::OutputHandle).is_ok());
+        assert!(Handle::new(HandleType::InputHandle).is_ok());
+        assert!(Handle::new(HandleType::CurrentOutputHandle).is_ok());
+        assert!(Handle::new(HandleType::CurrentInputHandle).is_ok());
     }
 }

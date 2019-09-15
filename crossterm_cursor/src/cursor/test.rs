@@ -36,7 +36,9 @@ mod winapi_tests {
 }
 
 /* ======================== ANSI =========================== */
+// TODO - Test is ingored, because it's stalled on Travis CI
 #[test]
+#[ignore]
 fn reset_safe_ansi() {
     if try_enable_ansi() {
         let cursor = AnsiCursor::new();
@@ -53,12 +55,18 @@ fn reset_safe_ansi() {
     }
 }
 
+// TODO - Test is ingored, because it's stalled on Travis CI
 #[test]
+#[ignore]
 fn goto_ansi() {
     if try_enable_ansi() {
         let cursor = AnsiCursor::new();
+        let (x_saved, y_saved) = cursor.pos();
+
         cursor.goto(5, 5);
         let (x, y) = cursor.pos();
+
+        cursor.goto(x_saved, y_saved);
 
         assert_eq!(x, 5);
         assert_eq!(y, 5);
@@ -74,10 +82,10 @@ fn try_enable_ansi() -> bool {
             // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
             match set_virtual_terminal_processing(true) {
                 Ok(_) => return true,
-                Err(e) => return false,
+                Err(_) => return false,
             }
         }
     }
 
-    return true;
+    true
 }
