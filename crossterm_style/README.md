@@ -53,8 +53,6 @@ crossterm_style = "0.3"
 And import the `crossterm_style` modules you want to use.
 
 ```rust  
-extern crate crossterm_style;
-
 pub use crossterm_style::{color, style, Attribute, Color, ColorType, ObjectStyle, StyledObject, TerminalColor, Colorize, Styler};
 ```
 

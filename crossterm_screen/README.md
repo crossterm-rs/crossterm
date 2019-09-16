@@ -57,8 +57,6 @@ crossterm_screen = "0.2"
 And import the `crossterm_screen` modules you want to use.
 
 ```rust  
-extern crate crossterm_screen;
-
 pub use crossterm_screen::{AlternateScreen, RawScreen};
 ```
 

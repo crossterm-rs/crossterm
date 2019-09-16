@@ -55,8 +55,6 @@ Now we have covered the basics of styling lets go over to some examples.
 
 _setup the basics_
 ```rust
-extern crate crossterm;
-
 use crossterm::{Colored, Color, Attribute, Styler, Colorize};
 
 fn main() {
