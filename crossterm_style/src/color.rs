@@ -2,17 +2,19 @@
 //! Like applying attributes to text and changing the foreground and background.
 
 use std::clone::Clone;
+use std::fmt::Display;
 use std::io;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
 use crossterm_utils::{impl_display, Command, Result};
 
+use super::ansi_color::{self, AnsiColor};
+use super::enums::{Attribute, Color};
+use super::styledobject::StyledObject;
 #[cfg(windows)]
-use crate::winapi_color::WinApiColor;
-use crate::{Color, ITerminalColor};
-
-use super::*;
+use super::winapi_color::WinApiColor;
+use super::ITerminalColor;
 
 /// Allows you to style the terminal.
 ///

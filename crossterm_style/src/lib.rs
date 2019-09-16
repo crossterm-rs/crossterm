@@ -5,7 +5,6 @@ use std::fmt::Display;
 
 pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
-use self::ansi_color::AnsiColor;
 pub use self::color::{color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
