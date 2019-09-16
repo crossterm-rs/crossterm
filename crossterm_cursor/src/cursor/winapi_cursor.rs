@@ -86,7 +86,7 @@ mod tests {
     fn goto_winapi() {
         let cursor = WinApiCursor::new();
 
-        cursor.goto(5, 5);
+        assert!(cursor.goto(5, 5).is_ok());
         let (x, y) = cursor.pos();
 
         assert_eq!(x, 5);
@@ -98,9 +98,9 @@ mod tests {
         let cursor = WinApiCursor::new();
         let (x, y) = cursor.pos();
 
-        cursor.save_position();
-        cursor.goto(5, 5);
-        cursor.reset_position();
+        assert!(cursor.save_position().is_ok());
+        assert!(cursor.goto(5, 5).is_ok());
+        assert!(cursor.reset_position().is_ok());
 
         let (x_saved, y_saved) = cursor.pos();
 
