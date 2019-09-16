@@ -1,7 +1,9 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    mpsc,
+};
 use std::time::Duration;
 use std::{char, io, thread};
 
@@ -17,12 +19,13 @@ use winapi::um::{
     },
 };
 
+use crossterm_utils::Result;
 use crossterm_winapi::{
     ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
     MouseEvent,
 };
 
-use super::*;
+use super::ITerminalInput;
 
 pub struct WindowsInput;
 

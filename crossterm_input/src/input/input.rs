@@ -3,7 +3,13 @@
 
 use std::io;
 
-use super::*;
+use crossterm_utils::Result;
+
+#[cfg(unix)]
+use super::unix_input::{AsyncReader, SyncReader, UnixInput};
+#[cfg(windows)]
+use super::windows_input::{AsyncReader, SyncReader, WindowsInput};
+use super::ITerminalInput;
 
 /// Allows you to read user input.
 ///
