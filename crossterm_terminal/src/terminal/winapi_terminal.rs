@@ -9,7 +9,7 @@ use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
 use crate::sys::winapi::get_terminal_size;
 
-use super::*;
+use super::ITerminal;
 
 /// This struct is a winapi implementation for terminal related actions.
 pub struct WinApiTerminal;
@@ -270,4 +270,23 @@ fn clear(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> 
     console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ITerminal, WinApiTerminal};
+
+    // TODO - Test is ignored, because it returns wrong result (31 != 30)
+    #[test]
+    #[ignore]
+    fn resize_winapi() {
+        let terminal = WinApiTerminal::new();
+
+        assert!(terminal.set_size(30, 30).is_ok());
+
+        let (x, y) = terminal.terminal_size();
+
+        assert_eq!(x, 30);
+        assert_eq!(y, 30);
+    }
 }
