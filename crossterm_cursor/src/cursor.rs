@@ -5,7 +5,6 @@
 
 use crossterm_utils::Result;
 
-use self::ansi_cursor::AnsiCursor;
 pub use self::cursor::{
     cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
     TerminalCursor, Up,
@@ -14,9 +13,6 @@ pub use self::cursor::{
 use self::winapi_cursor::WinApiCursor;
 
 mod cursor;
-
-#[cfg(test)]
-mod test;
 
 mod ansi_cursor;
 #[cfg(windows)]

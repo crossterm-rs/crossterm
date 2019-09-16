@@ -104,3 +104,62 @@ impl ITerminalCursor for AnsiCursor {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{AnsiCursor, ITerminalCursor};
+
+    // TODO - Test is ingored, because it's stalled on Travis CI
+    #[test]
+    #[ignore]
+    fn reset_safe_ansi() {
+        if try_enable_ansi() {
+            let cursor = AnsiCursor::new();
+            let (x, y) = cursor.pos();
+
+            assert!(cursor.save_position().is_ok());
+            assert!(cursor.goto(5, 5).is_ok());
+            assert!(cursor.reset_position().is_ok());
+
+            let (x_saved, y_saved) = cursor.pos();
+
+            assert_eq!(x, x_saved);
+            assert_eq!(y, y_saved);
+        }
+    }
+
+    // TODO - Test is ingored, because it's stalled on Travis CI
+    #[test]
+    #[ignore]
+    fn goto_ansi() {
+        if try_enable_ansi() {
+            let cursor = AnsiCursor::new();
+            let (x_saved, y_saved) = cursor.pos();
+
+            assert!(cursor.goto(5, 5).is_ok());
+            let (x, y) = cursor.pos();
+
+            assert!(cursor.goto(x_saved, y_saved).is_ok());
+
+            assert_eq!(x, 5);
+            assert_eq!(y, 5);
+        }
+    }
+
+    fn try_enable_ansi() -> bool {
+        #[cfg(windows)]
+        {
+            if cfg!(target_os = "windows") {
+                use crossterm_utils::sys::winapi::ansi::set_virtual_terminal_processing;
+
+                // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
+                match set_virtual_terminal_processing(true) {
+                    Ok(_) => return true,
+                    Err(_) => return false,
+                }
+            }
+        }
+
+        true
+    }
+}
