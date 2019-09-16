@@ -1,12 +1,3 @@
-extern crate winapi;
-
-mod console;
-mod console_mode;
-mod csbi;
-mod handle;
-mod screen_buffer;
-mod structs;
-
 pub use self::{
     console::Console,
     console_mode::ConsoleMode,
@@ -18,6 +9,13 @@ pub use self::{
         KeyEventRecord, MouseEvent, Size, WindowPositions,
     },
 };
+
+mod console;
+mod console_mode;
+mod csbi;
+mod handle;
+mod screen_buffer;
+mod structs;
 
 /// Parses the given integer to an bool by checking if the value is 0 or 1.
 /// This is currently used for checking if a WinApi called succeeded, this might be moved into a macro at some time.

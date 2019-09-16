@@ -14,9 +14,7 @@ use winapi::um::{
     winnt::HANDLE,
 };
 
-use InputRecord;
-
-use super::{is_true, Coord, Handle, HandleType, WindowPositions};
+use super::{is_true, Coord, Handle, HandleType, InputRecord, WindowPositions};
 
 /// Could be used to do some basic things with the console.
 pub struct Console {

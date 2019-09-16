@@ -9,6 +9,7 @@ license = "MIT"
 keywords = ["winapi", "abstractions", "crossterm", "windows", "screen_buffer"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 winapi = { version =  "0.3.7", features = ["winbase","consoleapi","processenv", "handleapi"] }

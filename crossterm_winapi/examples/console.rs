@@ -1,5 +1,3 @@
-extern crate crossterm_winapi;
-
 use crossterm_winapi::ConsoleMode;
 
 fn change_console_mode() {

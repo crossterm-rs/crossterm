@@ -1,6 +1,7 @@
 //! This contains the logic for working with the console buffer.
 
-use super::{is_true, Handle, HandleType, ScreenBufferInfo};
+use std::io::{Error, Result};
+use std::mem::size_of;
 
 use winapi::{
     shared::minwindef::TRUE,
@@ -15,8 +16,7 @@ use winapi::{
     },
 };
 
-use std::io::{Error, Result};
-use std::mem::size_of;
+use super::{is_true, Handle, HandleType, ScreenBufferInfo};
 
 pub struct ScreenBuffer {
     handle: Handle,

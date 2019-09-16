@@ -14,7 +14,8 @@ use winapi::um::wincon::{
     INPUT_RECORD_Event, KEY_EVENT_RECORD_uChar, FOCUS_EVENT, INPUT_RECORD, KEY_EVENT,
     KEY_EVENT_RECORD, MENU_EVENT, MOUSE_EVENT, MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_EVENT,
 };
-use Coord;
+
+use super::coord::Coord;
 
 /// Describes a keyboard input event in a console INPUT_RECORD structure.
 /// link: [https://docs.microsoft.com/en-us/windows/console/key-event-record-str]
