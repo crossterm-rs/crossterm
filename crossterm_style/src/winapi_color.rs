@@ -2,7 +2,7 @@
 //! This module is used for non supporting `ANSI` Windows terminals.
 
 use std::io;
-use std::sync::{Once, ONCE_INIT};
+use std::sync::Once;
 
 use winapi::um::wincon;
 
@@ -188,5 +188,5 @@ fn original_console_color() -> u16 {
     return unsafe { ORIGINAL_CONSOLE_COLOR };
 }
 
-static GET_ORIGINAL_CONSOLE_COLOR: Once = ONCE_INIT;
+static GET_ORIGINAL_CONSOLE_COLOR: Once = Once::new();
 static mut ORIGINAL_CONSOLE_COLOR: u16 = 0;
