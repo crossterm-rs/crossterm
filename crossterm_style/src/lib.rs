@@ -11,8 +11,6 @@ pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
-#[cfg(windows)]
-use self::winapi_color::WinApiColor;
 
 #[macro_use]
 mod macros;
