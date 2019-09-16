@@ -9,6 +9,7 @@ license = "MIT"
 keywords = ["console", "color", "cursor", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
+edition = "2018"
 
 [features]
 default = ["cursor", "style","terminal","screen","input"]
