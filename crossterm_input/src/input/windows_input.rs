@@ -26,7 +26,7 @@ use crossterm_winapi::{
     MouseEvent,
 };
 
-use super::{ITerminalInput, InputEvent, KeyEvent, MouseButton, MouseEvent};
+use super::{ITerminalInput, InputEvent, KeyEvent, MouseButton};
 
 pub struct WindowsInput;
 
