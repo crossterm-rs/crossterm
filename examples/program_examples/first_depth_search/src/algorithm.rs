@@ -1,14 +1,14 @@
 //! Implementation of the first depth search algorithm
 
-use super::map::Map;
-use super::variables::{Direction, Position};
 use std::io::Write;
-
-use super::rand;
-use super::rand::distributions::{IndependentSample, Range};
 use std::{thread, time};
 
-use crossterm::{execute, Color, Colorize, Command, Goto, Hide, PrintStyledFont, SetBg, SetFg};
+use crossterm::{execute, Color, Colorize, Goto, Hide, PrintStyledFont, Result, SetBg, SetFg};
+use rand;
+use rand::distributions::{IndependentSample, Range};
+
+use super::map::Map;
+use super::variables::{Direction, Position};
 
 pub struct FirstDepthSearch {
     direction: Direction,
@@ -29,7 +29,7 @@ impl FirstDepthSearch {
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self) -> Result<()> {
         self.is_terminated = false;
 
         // push first position on the stack
@@ -40,7 +40,7 @@ impl FirstDepthSearch {
             Hide,
             SetFg(Color::Green),
             SetBg(Color::Black)
-        );
+        )?;
 
         // loop until there are now items left in the stack.
         loop {
@@ -65,10 +65,12 @@ impl FirstDepthSearch {
                 ::std::io::stdout(),
                 Goto(x, y),
                 PrintStyledFont(" ".on_yellow())
-            );
+            )?;
 
             thread::sleep(time::Duration::from_millis(1));
         }
+
+        Ok(())
     }
 
     /// With this function we are choosing an random neighbor that we havent visited yet.

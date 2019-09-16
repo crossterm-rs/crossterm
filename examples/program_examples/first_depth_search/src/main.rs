@@ -1,54 +1,50 @@
-extern crate crossterm;
-extern crate rand;
+use std::io::{stdout, Write};
+use std::iter::Iterator;
+use std::{thread, time};
+
+use crossterm::{
+    color, cursor, execute, input, style, terminal, AlternateScreen, Clear, ClearType, Color, Goto,
+    Hide, InputEvent, KeyEvent, Output, PrintStyledFont, RawScreen, Result, SetBg, SetFg, SetSize,
+};
+
+use self::variables::{Position, Size};
 
 mod algorithm;
 mod map;
 mod messages;
 mod variables;
 
-use self::crossterm::{
-    color, cursor, execute, input, style, terminal, AlternateScreen, Clear, ClearType, Color,
-    Colored, Command, Crossterm, Goto, Hide, InputEvent, KeyEvent, Output, PrintStyledFont,
-    RawScreen, SetBg, SetFg, SetSize,
-};
-use self::variables::{Position, Size};
-
-use std::io::{stdout, Write};
-use std::iter::Iterator;
-use std::{thread, time};
-
-fn main() {
-    run();
+fn main() -> Result<()> {
+    run()
 }
 
 /// run the program
-pub fn run() {
+fn run() -> Result<()> {
     //    let screen = RawScreen::into_raw_mode().expect("failed to enable raw modes");
-    print_welcome_screen();
-    start_algorithm();
-    exit();
+    print_welcome_screen()?;
+    start_algorithm()?;
+    exit()
 }
 
-fn start_algorithm() {
+fn start_algorithm() -> Result<()> {
     // we first want to switch to alternate screen. On the alternate screen we are going to run or firstdepthsearch algorithm
-    if let Ok(ref _alternate_screen) = AlternateScreen::to_alternate(true) {
-        // setup the map size and the position to start searching for a path.
-        let map_size = Size::new(50, 40);
-        let start_pos = Position::new(10, 10);
+    let ref _alternate_screen = AlternateScreen::to_alternate(true)?;
+    // setup the map size and the position to start searching for a path.
+    let map_size = Size::new(50, 40);
+    let start_pos = Position::new(10, 10);
 
-        // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
-        let mut map = map::Map::new(map_size, '█', ' ');
-        map.render_map();
+    // create and render the map. Or map border is going to have an █ look and inside the map is just a space.
+    let mut map = map::Map::new(map_size, '█', ' ');
+    map.render_map()?;
 
-        // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
-        let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos);
-        algorithm.start();
-    }
+    // create the algorithm and start it on the alternate screen. Make sure to pass the refrence to the AlternateScreen screen.
+    let mut algorithm = algorithm::FirstDepthSearch::new(map, start_pos);
+    algorithm.start()
 }
 
-fn print_welcome_screen() {
+fn print_welcome_screen() -> Result<()> {
     // we have to keep this screen arround to prevent te
-    let _screen = RawScreen::into_raw_mode();
+    let _screen = RawScreen::into_raw_mode()?;
 
     execute!(
         stdout(),
@@ -63,14 +59,14 @@ fn print_welcome_screen() {
         Output("The first depth search algorithm will start in:   Seconds".to_string()),
         Goto(0, 11),
         Output("Press `q` to abort the program".to_string())
-    );
+    )?;
 
     let mut stdin = input().read_async();
 
     // print some progress example.
     for i in (1..5).rev() {
         if let Some(InputEvent::Keyboard(KeyEvent::Char('q'))) = stdin.next() {
-            exit();
+            exit()?;
             terminal().exit();
             break;
         } else {
@@ -81,18 +77,20 @@ fn print_welcome_screen() {
                 SetFg(Color::Red),
                 SetBg(Color::Blue),
                 Output(i.to_string())
-            );
+            )?;
         }
 
-        color().reset();
+        color().reset()?;
 
         // 1 second delay
         thread::sleep(time::Duration::from_secs(1));
     }
+
+    Ok(())
 }
 
-fn exit() {
-    RawScreen::disable_raw_mode().expect("failed to disable raw modes.");
-    cursor().show();
-    color().reset();
+fn exit() -> Result<()> {
+    RawScreen::disable_raw_mode().expect("Failed to disable raw modes.");
+    cursor().show()?;
+    color().reset()
 }
