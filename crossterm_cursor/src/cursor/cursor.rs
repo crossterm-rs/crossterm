@@ -1,12 +1,11 @@
 //! A module that contains all the actions related to cursor movement in the terminal.
 //! Like: moving the cursor position; saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
 
-use super::*;
-
-use crossterm_utils::{Command, Result};
-
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
+use crossterm_utils::{Command, Result};
+
+use super::*;
 
 /// Allows you to preform actions with the terminal cursor.
 ///

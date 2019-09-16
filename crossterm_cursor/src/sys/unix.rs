@@ -1,8 +1,9 @@
+use std::io::{self, BufRead, Write};
+
 use crossterm_utils::{
     sys::unix::{self, RAW_MODE_ENABLED},
     Result,
 };
-use std::io::{self, BufRead, Write};
 
 #[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {
