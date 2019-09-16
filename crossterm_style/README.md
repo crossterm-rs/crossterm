@@ -78,7 +78,7 @@ These are the features of this crate:
     - Text Attributes: bold, italic, underscore and crossed word and [more](https://timonpost.github.io/crossterm/docs/styling.html#attributes) (Windows 10 and UNIX only)
 
 ## Examples
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 _style text with attributes_
 ```rust

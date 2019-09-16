@@ -147,7 +147,7 @@ The alternate buffer is exactly the dimensions of the window, without any scroll
 For an example of this behavior, consider when vim is launched from bash.
 Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
-I Highly recommend you to check the `examples/Crossterm 0.3.0/program_examples/first_depth_search` for seeing this in action. 
+I Highly recommend you to check the `examples/program_examples/first_depth_search` for seeing this in action. 
 
 ## Raw screen
 This crate now supports raw screen for both windows and unix systems. 

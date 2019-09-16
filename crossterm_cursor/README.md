@@ -79,7 +79,7 @@ My first recommendation is to use the [command API](https://timonpost.github.io/
 Because it is more convenient, faster, and easier to use.
 
 ## Examples 
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ```rust 
 use crossterm_cursor::cursor;

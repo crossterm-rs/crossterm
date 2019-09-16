@@ -41,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_terminal` version `0.2` check the [examples](./examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for `crossterm_terminal` version `0.2` check the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the `crossterm_terminal` package to your `Cargo.toml` file.
 
@@ -82,7 +82,7 @@ Because it is more convenient, faster, and easier to use.
 
 ## Examples
 
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ```rust 
 use crossterm::terminal::{terminal,ClearType};
