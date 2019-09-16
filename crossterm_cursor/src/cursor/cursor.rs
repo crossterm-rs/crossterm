@@ -5,7 +5,8 @@
 use crossterm_utils::supports_ansi;
 use crossterm_utils::{impl_display, Command, Result};
 
-use super::*;
+use super::ansi_cursor::{self, AnsiCursor};
+use super::ITerminalCursor;
 
 /// Allows you to preform actions with the terminal cursor.
 ///
