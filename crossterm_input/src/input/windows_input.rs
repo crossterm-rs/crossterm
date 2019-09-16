@@ -2,7 +2,8 @@
 
 use std::sync::{
     atomic::{AtomicBool, Ordering},
-    mpsc,
+    mpsc::{self, Receiver, Sender},
+    Arc,
 };
 use std::time::Duration;
 use std::{char, io, thread};
@@ -25,7 +26,7 @@ use crossterm_winapi::{
     MouseEvent,
 };
 
-use super::ITerminalInput;
+use super::{ITerminalInput, InputEvent, KeyEvent, MouseButton, MouseEvent};
 
 pub struct WindowsInput;
 
