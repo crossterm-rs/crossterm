@@ -8,6 +8,8 @@ use std::io;
 use crossterm_utils::supports_ansi;
 use crossterm_utils::{impl_display, Command, Result};
 
+#[cfg(windows)]
+use crate::winapi_color::WinApiColor;
 use crate::{Color, ITerminalColor};
 
 use super::*;
