@@ -1,7 +1,8 @@
-use super::variables::{Direction, Position};
-use crossterm::Crossterm;
-
 use std::collections::HashMap;
+
+use crossterm::Result;
+
+use super::variables::{Direction, Position};
 
 pub struct Part {
     pub position: Position,
@@ -32,12 +33,12 @@ impl Snake {
         &mut self,
         direction: &Direction,
         free_positions: &mut HashMap<String, Position>,
-    ) {
+    ) -> Result<()> {
         let count = self.snake_parts.len();
 
         for (index, ref mut snake_part) in self.snake_parts.iter_mut().enumerate() {
             if index == count - 1 {
-                snake_part.position.remove();
+                snake_part.position.remove()?;
                 free_positions.insert(
                     format!("{},{}", snake_part.position.x, snake_part.position.y),
                     snake_part.position,
@@ -63,12 +64,14 @@ impl Snake {
                 snake_part.position = new_pos;
             }
         }
+        Ok(())
     }
 
-    pub fn draw_snake(&mut self) {
+    pub fn draw_snake(&mut self) -> Result<()> {
         for snake_part in self.snake_parts.iter_mut() {
-            snake_part.position.draw("■");
+            snake_part.position.draw("■")?;
         }
+        Ok(())
     }
 
     pub fn has_eaten_food(&mut self, food_pos: Position) -> bool {
