@@ -1,8 +1,9 @@
 use std::io::{self, BufRead, Write};
 
 use crossterm_utils::{
+    csi,
     sys::unix::{self, RAW_MODE_ENABLED},
-    Result,
+    write_cout, Result,
 };
 
 #[cfg(unix)]
