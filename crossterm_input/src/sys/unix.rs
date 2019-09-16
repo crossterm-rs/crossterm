@@ -1,6 +1,5 @@
-use std::fs;
-use std::io;
 use std::os::unix::io::AsRawFd;
+use std::{fs, io};
 
 /// Get the TTY device.
 ///

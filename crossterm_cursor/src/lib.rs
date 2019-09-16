@@ -1,3 +1,5 @@
+#![deny(unused_imports)]
+
 pub use crossterm_utils::{
     execute, queue, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
 };

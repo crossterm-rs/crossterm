@@ -2,10 +2,6 @@
 //! Like reading a line, reading a character and reading asynchronously.
 
 use std::io;
-use std::sync::{
-    mpsc::{Receiver, Sender},
-    Arc,
-};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -14,17 +10,9 @@ use crossterm_utils::Result;
 
 pub use self::input::{input, TerminalInput};
 #[cfg(unix)]
-pub use self::unix_input::AsyncReader;
-#[cfg(unix)]
-pub use self::unix_input::SyncReader;
-#[cfg(unix)]
-use self::unix_input::UnixInput;
+pub use self::unix_input::{AsyncReader, SyncReader};
 #[cfg(windows)]
-pub use self::windows_input::AsyncReader;
-#[cfg(windows)]
-pub use self::windows_input::SyncReader;
-#[cfg(windows)]
-use self::windows_input::WindowsInput;
+pub use self::windows_input::{AsyncReader, SyncReader};
 
 mod input;
 

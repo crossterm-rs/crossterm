@@ -1,15 +1,21 @@
 //! This is a UNIX specific implementation for input related action.
 
 use std::char;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::{io::Read, str};
-use std::{sync::mpsc, thread};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    mpsc::{self, Receiver, Sender},
+    Arc,
+};
+use std::{
+    io::{self, Read},
+    str, thread,
+};
 
 use crossterm_utils::{csi, write_cout, ErrorKind, Result};
 
 use crate::sys::unix::{get_tty, read_char_raw};
 
-use super::*;
+use super::{ITerminalInput, InputEvent, KeyEvent, MouseButton, MouseEvent};
 
 pub struct UnixInput;
 

@@ -9,9 +9,6 @@ pub use self::terminal::{terminal, Clear, ScrollDown, ScrollUp, SetSize, Termina
 #[cfg(windows)]
 use self::winapi_terminal::WinApiTerminal;
 
-#[cfg(test)]
-mod test;
-
 mod terminal;
 
 mod ansi_terminal;

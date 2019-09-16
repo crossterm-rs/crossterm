@@ -4,9 +4,9 @@
 use crossterm_cursor::TerminalCursor;
 use crossterm_utils::{csi, write_cout, Result};
 
-use crate::{sys::get_terminal_size, ClearType};
+use crate::sys::get_terminal_size;
 
-use super::ITerminal;
+use super::{ClearType, ITerminal};
 
 pub static CLEAR_ALL: &'static str = csi!("2J");
 pub static CLEAR_FROM_CURSOR_DOWN: &'static str = csi!("J");
@@ -79,4 +79,49 @@ impl ITerminal for AnsiTerminal {
         write_cout!(get_set_size_ansi(width, height))?;
         Ok(())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{thread, time};
+
+    use super::{AnsiTerminal, ITerminal};
+
+    /* ======================== ANSI =========================== */
+    // TODO - Test is disabled, because it's failing on Travis CI
+    #[test]
+    #[ignore]
+    fn resize_ansi() {
+        if try_enable_ansi() {
+            let terminal = AnsiTerminal::new();
+
+            assert!(terminal.set_size(50, 50).is_ok());
+
+            // see issue: https://github.com/eminence/terminal-size/issues/11
+            thread::sleep(time::Duration::from_millis(30));
+
+            let (x, y) = terminal.terminal_size();
+
+            assert_eq!(x, 50);
+            assert_eq!(y, 50);
+        }
+    }
+
+    fn try_enable_ansi() -> bool {
+        #[cfg(windows)]
+        {
+            if cfg!(target_os = "windows") {
+                use crossterm_utils::sys::winapi::ansi::set_virtual_terminal_processing;
+
+                // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
+                match set_virtual_terminal_processing(true) {
+                    Ok(_) => return true,
+                    Err(_) => return false,
+                }
+            }
+        }
+
+        true
+    }
+
 }

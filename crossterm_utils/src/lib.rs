@@ -1,3 +1,5 @@
+#![deny(unused_imports)]
+
 pub use self::command::{Command, ExecutableCommand, Output, QueueableCommand};
 pub use self::error::{ErrorKind, Result};
 #[cfg(windows)]

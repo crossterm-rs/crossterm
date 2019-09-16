@@ -5,7 +5,10 @@
 use crossterm_utils::supports_ansi;
 use crossterm_utils::{impl_display, Command, Result};
 
-use super::*;
+use super::ansi_cursor::{self, AnsiCursor};
+#[cfg(windows)]
+use super::winapi_cursor::WinApiCursor;
+use super::ITerminalCursor;
 
 /// Allows you to preform actions with the terminal cursor.
 ///

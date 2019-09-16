@@ -1,3 +1,5 @@
+#![deny(unused_imports)]
+
 pub use crossterm_screen::{IntoRawMode, RawScreen};
 
 pub use self::input::{

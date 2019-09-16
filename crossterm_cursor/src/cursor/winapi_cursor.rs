@@ -77,3 +77,34 @@ impl ITerminalCursor for WinApiCursor {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{ITerminalCursor, WinApiCursor};
+
+    #[test]
+    fn goto_winapi() {
+        let cursor = WinApiCursor::new();
+
+        assert!(cursor.goto(5, 5).is_ok());
+        let (x, y) = cursor.pos();
+
+        assert_eq!(x, 5);
+        assert_eq!(y, 5);
+    }
+
+    #[test]
+    fn reset_safe_winapi() {
+        let cursor = WinApiCursor::new();
+        let (x, y) = cursor.pos();
+
+        assert!(cursor.save_position().is_ok());
+        assert!(cursor.goto(5, 5).is_ok());
+        assert!(cursor.reset_position().is_ok());
+
+        let (x_saved, y_saved) = cursor.pos();
+
+        assert_eq!(x, x_saved);
+        assert_eq!(y, y_saved);
+    }
+}

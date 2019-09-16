@@ -1,11 +1,11 @@
 //! A module that contains all the actions related to the styling of the terminal.
 //! Like applying attributes to text and changing the foreground and background.
+#![deny(unused_imports)]
 
 use std::fmt::Display;
 
 pub use crossterm_utils::{execute, queue, Command, ExecutableCommand, QueueableCommand, Result};
 
-use self::ansi_color::AnsiColor;
 pub use self::color::{color, PrintStyledFont, SetAttr, SetBg, SetFg, TerminalColor};
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;
