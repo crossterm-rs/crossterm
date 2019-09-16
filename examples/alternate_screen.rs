@@ -42,6 +42,7 @@ pub fn print_wait_screen_on_alternate_window() -> io::Result<()> {
     Ok(())
 }
 
+// cargo run --example alternate_screen
 fn main() {
     print_wait_screen_on_alternate_window().unwrap();
 }

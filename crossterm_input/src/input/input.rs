@@ -99,7 +99,7 @@ impl TerminalInput {
         self.input.read_async()
     }
 
-    /// Read the input asynchronously until a certain character is hit, which means that input events are gathered on the background and will be queued for you to read.
+    /// Read the input asynchronously until a certain delimiter (character as byte) is hit, which means that input events are gathered on the background and will be queued for you to read.
     ///
     /// If you want a blocking or less resource consuming read to happen, use `read_sync()`. This will leave alone the background thread and queues and will be a blocking read.
     ///

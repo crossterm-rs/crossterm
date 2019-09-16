@@ -134,6 +134,7 @@ pub fn exit() {
     terminal.exit();
 }
 
+// cargo run --example terminal
 fn main() {
     let _ = scroll_down();
 }

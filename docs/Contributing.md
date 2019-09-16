@@ -38,3 +38,13 @@ Why I have chosen for this design:
 - Because you can easily extend to multiple platforms by implementing the trait int the mod.rs.
 - You keep the functionalities for different platforms separated in different files. 
 - Also, you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that much. All the other code could change a lot because it has no impact on the user side.
+
+# Import Order
+All imports are semantically ordered. The order is:
+
+- standard library
+- external crates
+- crate
+- super
+- self
+- mod

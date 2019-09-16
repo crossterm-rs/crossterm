@@ -408,6 +408,7 @@ pub fn reset_fg_and_bg() {
     println!("{}", Colored::Bg(Color::Reset));
 }
 
+// cargo run --example style
 fn main() {
     print_all_background_colors_with_method()
 }

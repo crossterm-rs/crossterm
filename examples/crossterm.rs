@@ -4,6 +4,7 @@
 use crossterm::{Color, Crossterm};
 
 // use the `Crossterm` to get an instance to the cursor module | demonstration.
+// cargo run --example crossterm
 fn main() {
     // Create the crossterm type to access different modules.
     let crossterm = Crossterm::new();
