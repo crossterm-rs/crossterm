@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
-extern crate crossterm;
+use std::io::{stdout, Write};
 
 use crossterm::{
     execute, queue, Clear, ClearType, ExecutableCommand, Goto, Output, QueueableCommand,
 };
-use std::io::{stdout, Write};
 
 /// execute commands by using normal functions
 fn execute_command_directly_using_functions() {

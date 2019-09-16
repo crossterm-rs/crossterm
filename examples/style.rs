@@ -1,9 +1,7 @@
 //!
 //! Examples of coloring the terminal.
 //!
-extern crate crossterm;
-
-use self::crossterm::{color, Attribute, Color, Colored, Colorize, Styler};
+use crossterm::{color, Attribute, Color, Colored, Colorize, Styler};
 
 /// print some red text | demonstration.
 pub fn paint_foreground() {

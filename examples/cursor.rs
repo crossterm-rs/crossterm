@@ -2,10 +2,9 @@
 //! Examples of actions that could be performed with the cursor.
 //!
 
-extern crate crossterm_cursor;
+use std::io;
 
 use crossterm_cursor::cursor;
-use std::io;
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
 pub fn goto() -> io::Result<()> {
