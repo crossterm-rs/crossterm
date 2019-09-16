@@ -2,9 +2,11 @@
 //! This module is used for Windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
-use super::ITerminalCursor;
-use crate::sys::winapi::{Cursor, Handle};
 use crossterm_utils::Result;
+
+use crate::sys::winapi::{Cursor, Handle};
+
+use super::ITerminalCursor;
 
 /// This struct is a windows implementation for cursor related actions.
 pub struct WinApiCursor;

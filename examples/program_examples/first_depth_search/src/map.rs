@@ -1,6 +1,8 @@
-use super::variables::{Cell, Position, Size};
-use crossterm::{queue, Color, Command, Crossterm, Goto, PrintStyledFont};
 use std::io::{stdout, Write};
+
+use crossterm::{queue, Color, Crossterm, Goto, PrintStyledFont, Result};
+
+use super::variables::{Cell, Position, Size};
 
 pub struct Map {
     pub map: Vec<Vec<Cell>>,
@@ -43,7 +45,7 @@ impl Map {
     }
 
     // render the map on the screen.
-    pub fn render_map(&mut self) {
+    pub fn render_map(&mut self) -> Result<()> {
         let crossterm = Crossterm::new();
 
         for row in self.map.iter_mut() {
@@ -56,10 +58,12 @@ impl Map {
                         stdout(),
                         Goto(column.position.x as u16, column.position.y as u16),
                         PrintStyledFont(crossterm.style(column.look).on(column.color))
-                    );
+                    )?;
                 }
             }
         }
+
+        Ok(())
     }
 
     // check if position in the map at the given coords is visted.

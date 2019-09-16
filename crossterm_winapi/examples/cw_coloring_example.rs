@@ -1,5 +1,3 @@
-extern crate crossterm_winapi;
-
 use crossterm_winapi::{Console, ScreenBuffer};
 
 fn set_background_color() -> std::io::Result<()> {

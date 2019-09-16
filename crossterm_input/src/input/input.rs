@@ -1,8 +1,9 @@
 //! A module that contains all the actions related to reading input from the terminal.
 //! Like reading a line, reading a character and reading asynchronously.
 
-use super::*;
 use std::io;
+
+use super::*;
 
 /// Allows you to read user input.
 ///

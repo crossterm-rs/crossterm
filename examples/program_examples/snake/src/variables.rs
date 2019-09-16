@@ -1,8 +1,7 @@
-extern crate crossterm;
-
-use self::crossterm::{style, Color, Crossterm, TerminalCursor};
 use std::io::stdout;
 use std::io::Write;
+
+use crossterm::{style, Color, Crossterm, Result, TerminalCursor};
 
 #[derive(Copy, Clone, Debug)]
 pub enum Direction {
@@ -23,19 +22,21 @@ impl Position {
         Position { x, y }
     }
 
-    pub fn draw(&self, val: &str) {
+    pub fn draw(&self, val: &str) -> Result<()> {
         let cursor = TerminalCursor::new();
-        cursor.goto(self.x as u16, self.y as u16);
+        cursor.goto(self.x as u16, self.y as u16)?;
 
         print!("{}", style(val).with(Color::Red));
-        stdout().flush();
+        stdout().flush()?;
+        Ok(())
     }
 
-    pub fn remove(&self) {
+    pub fn remove(&self) -> Result<()> {
         let crossterm = Crossterm::new();
 
-        crossterm.cursor().goto(self.x as u16, self.y as u16);
-        crossterm.terminal().write("  ");
+        crossterm.cursor().goto(self.x as u16, self.y as u16)?;
+        crossterm.terminal().write("  ")?;
+        Ok(())
     }
 }
 

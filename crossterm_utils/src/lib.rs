@@ -1,10 +1,3 @@
-#[cfg(windows)]
-extern crate crossterm_winapi;
-#[cfg(unix)]
-extern crate libc;
-#[cfg(windows)]
-extern crate winapi;
-
 pub use self::command::{Command, ExecutableCommand, Output, QueueableCommand};
 pub use self::error::{ErrorKind, Result};
 #[cfg(windows)]

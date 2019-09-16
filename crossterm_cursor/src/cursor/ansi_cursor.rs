@@ -2,10 +2,11 @@
 //! This module is used for windows 10 terminals and UNIX terminals by default.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position etc.
 
-use super::ITerminalCursor;
+use crossterm_utils::{csi, write_cout, Result};
+
 use crate::sys::{get_cursor_position, show_cursor};
 
-use crossterm_utils::{write_cout, Result};
+use super::ITerminalCursor;
 
 #[inline]
 pub fn get_goto_ansi(x: u16, y: u16) -> String {

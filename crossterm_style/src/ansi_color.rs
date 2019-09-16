@@ -3,8 +3,7 @@
 
 use crossterm_utils::{csi, write_cout, Result};
 
-use crate::Colored;
-use crate::{Attribute, Color, ITerminalColor};
+use crate::{Attribute, Color, Colored, ITerminalColor};
 
 #[inline]
 pub fn get_set_fg_ansi(fg_color: Color) -> String {

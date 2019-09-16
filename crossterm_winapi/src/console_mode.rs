@@ -1,7 +1,9 @@
-use super::{is_true, Handle, HandleType};
 use std::io::{Error, Result};
+
 use winapi::um::consoleapi::{GetConsoleMode, SetConsoleMode};
 use winapi::um::winnt::HANDLE;
+
+use super::{is_true, Handle, HandleType};
 
 /// This abstracts away some WinaApi calls to set and get the console mode.
 ///

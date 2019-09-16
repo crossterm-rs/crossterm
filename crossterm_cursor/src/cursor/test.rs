@@ -1,13 +1,14 @@
 #![allow(unused_must_use)]
+
 use super::AnsiCursor;
 use super::ITerminalCursor;
 
 /* ======================== WinApi =========================== */
 #[cfg(windows)]
 mod winapi_tests {
-
     use super::super::WinApiCursor;
     use super::*;
+
     #[test]
     fn goto_winapi() {
         let cursor = WinApiCursor::new();

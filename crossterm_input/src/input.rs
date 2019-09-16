@@ -1,20 +1,24 @@
 //! A module that contains all the actions related to reading input from the terminal.
 //! Like reading a line, reading a character and reading asynchronously.
 
-mod input;
+use std::io;
+use std::sync::{
+    mpsc::{Receiver, Sender},
+    Arc,
+};
 
-#[cfg(unix)]
-mod unix_input;
-#[cfg(windows)]
-mod windows_input;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
+use crossterm_utils::Result;
+
+pub use self::input::{input, TerminalInput};
 #[cfg(unix)]
 pub use self::unix_input::AsyncReader;
 #[cfg(unix)]
 pub use self::unix_input::SyncReader;
 #[cfg(unix)]
 use self::unix_input::UnixInput;
-
 #[cfg(windows)]
 pub use self::windows_input::AsyncReader;
 #[cfg(windows)]
@@ -22,16 +26,12 @@ pub use self::windows_input::SyncReader;
 #[cfg(windows)]
 use self::windows_input::WindowsInput;
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+mod input;
 
-pub use self::input::{input, TerminalInput};
-use crossterm_utils::Result;
-use std::io;
-use std::sync::{
-    mpsc::{Receiver, Sender},
-    Arc,
-};
+#[cfg(unix)]
+mod unix_input;
+#[cfg(windows)]
+mod windows_input;
 
 /// This trait defines the actions that can be performed with the terminal input.
 /// This trait can be implemented so that a concrete implementation of the ITerminalInput can fulfill

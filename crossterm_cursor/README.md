@@ -50,8 +50,6 @@ crossterm_cursor = "0.2"
 Import the `crossterm_cursor` modules you want to use.
 
 ```rust  
-extern crate crossterm_cursor;
-
 pub use crossterm_cursor::{cursor, TerminalCursor};
 ```
 

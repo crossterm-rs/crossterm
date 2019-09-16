@@ -1,7 +1,6 @@
-extern crate crossterm;
+use std::{thread, time::Duration};
 
 use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen};
-use std::{thread, time::Duration};
 
 fn process_input_event(key_event: InputEvent) -> bool {
     match key_event {

@@ -53,8 +53,6 @@ crossterm_terminal = "0.2"
 And import the `crossterm_terminal` modules you want to use.
 
 ```rust  
-extern crate crossterm_terminal;
-
 pub use crossterm_terminal::{terminal, Terminal, ClearType};
 ```
 

@@ -1,8 +1,6 @@
-extern crate crossterm_input;
+use crossterm_input::input;
 
-use self::crossterm_input::input;
-
-pub fn read_char() {
+fn read_char() {
     let input = input();
 
     match input.read_char() {
@@ -11,7 +9,7 @@ pub fn read_char() {
     }
 }
 
-pub fn read_line() {
+fn read_line() {
     let input = input();
 
     match input.read_line() {

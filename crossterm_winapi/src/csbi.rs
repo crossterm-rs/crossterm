@@ -1,8 +1,8 @@
-use super::{Coord, Size, WindowPositions};
+use std::mem::zeroed;
 
 use winapi::um::wincon::CONSOLE_SCREEN_BUFFER_INFO;
 
-use std::mem::zeroed;
+use super::{Coord, Size, WindowPositions};
 
 /// This type is a wrapper for `CONSOLE_SCREEN_BUFFER_INFO` and has some methods to extract information from it.
 ///

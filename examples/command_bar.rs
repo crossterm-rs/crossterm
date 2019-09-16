@@ -1,12 +1,10 @@
-extern crate crossterm;
+use std::sync::{Arc, Mutex};
+use std::{thread, time};
 
 use crossterm::{
     cursor, input, terminal, ClearType, Crossterm, InputEvent, KeyEvent, RawScreen, Terminal,
     TerminalCursor,
 };
-
-use std::sync::{Arc, Mutex};
-use std::{thread, time};
 
 fn main() {
     let _screen = RawScreen::into_raw_mode();

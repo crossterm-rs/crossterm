@@ -5,10 +5,7 @@ use std::result;
 
 use crossterm_utils::{csi, queue};
 
-use crate::{Colorize, Styler};
-
-use super::Attribute;
-use super::{color, Color, ObjectStyle, SetBg, SetFg};
+use super::{color, Attribute, Color, Colorize, ObjectStyle, SetBg, SetFg, Styler};
 
 /// Contains both the style and the content which can be styled.
 #[derive(Clone)]

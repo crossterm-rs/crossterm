@@ -3,6 +3,16 @@
 //!
 //! Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
 
+use crossterm_utils::Result;
+
+use self::ansi_cursor::AnsiCursor;
+pub use self::cursor::{
+    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
+    TerminalCursor, Up,
+};
+#[cfg(windows)]
+use self::winapi_cursor::WinApiCursor;
+
 mod cursor;
 
 #[cfg(test)]
@@ -11,17 +21,6 @@ mod test;
 mod ansi_cursor;
 #[cfg(windows)]
 mod winapi_cursor;
-
-use self::ansi_cursor::AnsiCursor;
-#[cfg(windows)]
-use self::winapi_cursor::WinApiCursor;
-
-pub use self::cursor::{
-    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, Up,
-};
-
-use crossterm_utils::Result;
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
 ///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill

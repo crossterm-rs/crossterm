@@ -1,7 +1,6 @@
-extern crate crossterm;
+use std::{io, thread, time};
 
 use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm};
-use std::{io, thread, time};
 
 fn print_wait_screen() -> io::Result<()> {
     let crossterm = Crossterm::new();

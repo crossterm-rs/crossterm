@@ -1,5 +1,3 @@
-extern crate crossterm_winapi;
-
 use crossterm_winapi::{Handle, HandleType};
 
 #[allow(unused_variables)]

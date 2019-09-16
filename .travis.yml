@@ -29,3 +29,12 @@ script:
   - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cargo test --all -- --nocapture --test-threads 1; else cargo test --all --exclude crossterm_winapi -- --nocapture --test-threads 1; fi
+  - |
+    pushd examples/program_examples
+    for d in */ ; do
+      pushd "$d"
+      cargo build
+      if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
+      popd
+    done
+    popd

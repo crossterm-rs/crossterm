@@ -1,8 +1,10 @@
-use crossterm_utils::{
-    sys::unix::{self, RAW_MODE_ENABLED},
-    Result,
-};
 use std::io::{self, BufRead, Write};
+
+use crossterm_utils::{
+    csi,
+    sys::unix::{self, RAW_MODE_ENABLED},
+    write_cout, Result,
+};
 
 #[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {

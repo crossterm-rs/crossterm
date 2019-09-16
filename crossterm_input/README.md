@@ -52,8 +52,6 @@ crossterm_input = "0.3"
 Import the `crossterm_input` modules you want to use.
 
 ```rust  
-extern crate crossterm_input;
-
 pub use crossterm_input::{input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput};
 ```
 

@@ -1,8 +1,9 @@
 use std::fmt::Display;
 
-use crossterm_utils::csi;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use crossterm_utils::csi;
 
 /// Enum with the different attributes to style your test.
 ///

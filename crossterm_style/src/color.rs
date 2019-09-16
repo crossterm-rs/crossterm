@@ -4,12 +4,15 @@
 use std::clone::Clone;
 use std::io;
 
-use super::*;
-use crate::{Color, ITerminalColor};
-
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
 use crossterm_utils::{impl_display, Command, Result};
+
+#[cfg(windows)]
+use crate::winapi_color::WinApiColor;
+use crate::{Color, ITerminalColor};
+
+use super::*;
 
 /// Allows you to style the terminal.
 ///

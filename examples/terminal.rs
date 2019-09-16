@@ -2,10 +2,9 @@
 //! Terminal Examples
 //!
 
-extern crate crossterm;
+use std::io;
 
 use crossterm::{cursor, terminal, ClearType};
-use std::io;
 
 fn print_test_data() {
     for i in 0..100 {

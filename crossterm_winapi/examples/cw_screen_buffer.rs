@@ -1,5 +1,3 @@
-extern crate crossterm_winapi;
-
 use crossterm_winapi::ScreenBuffer;
 
 fn print_screen_buffer_information() {
