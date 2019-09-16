@@ -1,5 +1,6 @@
 //! A module that contains all the actions related to the styling of the terminal.
 //! Like applying attributes to text and changing the foreground and background.
+#![deny(unused_imports)]
 
 use std::fmt::Display;
 

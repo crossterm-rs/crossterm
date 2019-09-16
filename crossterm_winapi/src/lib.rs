@@ -1,3 +1,5 @@
+#![deny(unused_imports)]
+
 pub use self::{
     console::Console,
     console_mode::ConsoleMode,
