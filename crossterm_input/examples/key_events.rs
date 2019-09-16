@@ -1,8 +1,8 @@
-extern crate crossterm_input;
-extern crate crossterm_screen;
+#![allow(dead_code)]
+
+use std::{thread, time::Duration};
 
 use crossterm_input::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen};
-use std::{thread, time::Duration};
 
 fn process_input_event(key_event: InputEvent) -> bool {
     match key_event {
@@ -76,7 +76,7 @@ fn process_input_event(key_event: InputEvent) -> bool {
     return false;
 }
 
-pub fn read_asynchronously() {
+fn read_asynchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
     if let Ok(_raw) = RawScreen::into_raw_mode() {
         let input = input();
@@ -100,7 +100,7 @@ pub fn read_asynchronously() {
     } // <=== raw modes will be disabled here
 } // <=== background reader will be disposed when dropped.
 
-pub fn read_synchronously() {
+fn read_synchronously() {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
     if let Ok(_raw) = RawScreen::into_raw_mode() {
         let input = input();
