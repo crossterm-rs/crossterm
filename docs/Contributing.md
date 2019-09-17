@@ -6,7 +6,7 @@ I would appreciate any contributions to this crate. However, some things are han
 
 Crossterm is using ANSI escape codes by default for both Unix and Windows systems. It is a bit more
 complicated since Windows version 8 or lower isn't supporting ANSI escape codes. Crossterm uses
-WinApi in this case.
+WinAPI in this case.
 
 ### Crates
 
