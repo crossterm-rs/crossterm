@@ -33,13 +33,13 @@ pub trait Command {
 /// This can be used in order to get more performance.
 pub trait QueueableCommand<T: Display>: Sized {
     /// Queues the given command for later execution.
-    fn queue(self, command: impl Command<AnsiType = T>) -> Result<Self>;
+    fn queue(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
 }
 
 /// A trait that defines behaviour for a command that will be executed immediately.
 pub trait ExecutableCommand<T: Display>: Sized {
     /// Execute the given command directly.
-    fn execute(self, command: impl Command<AnsiType = T>) -> Result<Self>;
+    fn execute(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
 }
 
 impl<T, A> QueueableCommand<A> for T
@@ -67,7 +67,7 @@ where
     /// This is happening because windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
     /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
-    fn queue(mut self, command: impl Command<AnsiType = A>) -> Result<Self> {
+    fn queue(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
         queue!(self, command)?;
         Ok(self)
     }
@@ -91,7 +91,7 @@ where
     /// - In case of Windows versions lower than 10, a direct WinApi call will be made.
     /// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
     /// Because of that there is no difference between `execute` and `queue` for those windows versions.
-    fn execute(mut self, command: impl Command<AnsiType = A>) -> Result<Self> {
+    fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
         execute!(self, command)?;
         Ok(self)
     }

@@ -76,7 +76,7 @@ By doing this you can make efficient use of the terminal buffer and get better p
  ```rust
 let mut stdout = stdout();
 
-stdout = stdout.queue(Goto(5,5))?;
+stdout.queue(Goto(5,5))?;
 
 // some other code ...
 
@@ -130,12 +130,12 @@ use std::io::stdout();
 
 let mut stdout = stdout();
 
-stdout = stdout.execute(Clear(ClearType::All))?;
+stdout.execute(Clear(ClearType::All))?;
 
 for y in 0..40 {
     for x in 0..150 {
          if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-             stdout = stdout
+             stdout
                  .queue(Goto(x,y))?
                  .queue(PrintStyledFont( "█".magenta()))?;
          }

@@ -39,10 +39,10 @@ fn later_execution_command_using_functions() -> Result<()> {
     let mut sdout = stdout();
 
     // single command
-    sdout = sdout.queue(Output("Text1 ".to_string()))?;
+    sdout.queue(Output("Text1 ".to_string()))?;
 
     // multiple commands
-    sdout = sdout
+    sdout
         .queue(Clear(ClearType::All))?
         .queue(Goto(5, 5))?
         .queue(Output(
