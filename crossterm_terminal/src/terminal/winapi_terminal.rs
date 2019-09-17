@@ -266,7 +266,7 @@ pub fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u
 
 fn clear(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> Result<()> {
     let console = Console::from(Handle::current_out_handle()?);
-    let _ = console.fill_whit_character(start_location, cells_to_write, ' ')?;
+    console.fill_whit_character(start_location, cells_to_write, ' ')?;
     console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
 
     Ok(())

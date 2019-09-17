@@ -33,7 +33,7 @@ impl WinApiColor {
 impl ITerminalColor for WinApiColor {
     fn set_fg(&self, fg_color: Color) -> Result<()> {
         // init the original color in case it is not set.
-        let _ = init_console_color()?;
+        init_console_color()?;
 
         let color_value = color_value(Colored::Fg(fg_color));
 
@@ -60,7 +60,7 @@ impl ITerminalColor for WinApiColor {
 
     fn set_bg(&self, bg_color: Color) -> Result<()> {
         // init the original color in case it is not set.
-        let _ = init_console_color()?;
+        init_console_color()?;
 
         let color_value = color_value(Colored::Bg(bg_color));
 

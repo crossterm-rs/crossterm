@@ -135,6 +135,8 @@ pub fn exit() {
 }
 
 // cargo run --example terminal
-fn main() {
-    let _ = scroll_down();
+fn main() -> io::Result<()> {
+    scroll_down()?;
+
+    Ok(())
 }

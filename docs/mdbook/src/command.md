@@ -76,7 +76,7 @@ By doing this you can make efficient use of the terminal buffer and get better p
  ```rust
 let mut stdout = stdout();
 
-stdout = stdout.queue(Goto(5,5));
+stdout = stdout.queue(Goto(5,5))?;
 
 // some other code ...
 
@@ -107,10 +107,10 @@ This is fine if you are not executing lots of commands.
 
 _functions_
  ```rust 
-stdout().execute(Goto(5,5));
+stdout().execute(Goto(5,5))?;
  ```
  The `execute` function returns it self, therefore you are able to use this to execute another command 
- like `stdout.execute(Goto(5,5)).execute(Clear(ClearType::All))`
+ like `stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))?`
  
 _macro's_
 ```rust
@@ -130,14 +130,14 @@ use std::io::stdout();
 
 let mut stdout = stdout();
 
-stdout = stdout.execute(Clear(ClearType::All));
+stdout = stdout.execute(Clear(ClearType::All))?;
 
 for y in 0..40 {
     for x in 0..150 {
          if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
              stdout = stdout
-                 .queue(Goto(x,y))
-                 .queue(PrintStyledFont( "█".magenta()));
+                 .queue(Goto(x,y))?
+                 .queue(PrintStyledFont( "█".magenta()))?;
          }
     }
     stdout.flush();
