@@ -4,9 +4,8 @@ I would appreciate any contributions to this crate. However, some things are han
 
 ## Architecture
 
-Crossterm is using ANSI escape codes by default for both Unix and Windows systems. It is a bit more
-complicated since Windows version 8 or lower isn't supporting ANSI escape codes. Crossterm uses
-WinAPI in this case.
+Crossterm is using ANSI escape codes by default for both Unix and for Windows systems except
+for Windows versions lower than 10. Crossterm uses WinAPI in this case.
 
 ### Crates
 
@@ -23,7 +22,7 @@ The `crossterm` crate consists of 7 crates:
 ### Module structure
 
 If you would like to contribute, then please follow the existing structure. For
-example, a module like cursor has the following file structure:
+example, the cursor crate has the following file structure:
 
 ```text
 └── src
