@@ -147,7 +147,7 @@ The alternate buffer is exactly the dimensions of the window, without any scroll
 For an example of this behavior, consider when vim is launched from bash.
 Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
-I Highly recommend you to check the `examples/Crossterm 0.3.0/program_examples/first_depth_search` for seeing this in action. 
+I Highly recommend you to check the `examples/program_examples/first_depth_search` for seeing this in action. 
 
 ## Raw screen
 This crate now supports raw screen for both windows and unix systems. 
@@ -171,7 +171,7 @@ With these modes you can easier design the terminal screen.
 
 ## Examples
 Added [examples](https://github.com/TimonPost/crossterm/tree/master/examples) for each version of the crossterm version. 
-Also added a folder with some [real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/Crossterm%200.3.0/program_examples).
+Also added a folder with some [real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples).
 
 ## Context
 
@@ -226,7 +226,7 @@ Because this looks a little odd I will provide a type withs will manage the `Con
       
 ### Alternate screen
 When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly. 
-First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](https://github.com/TimonPost/crossterm/blob/master/examples/Crossterm%200.3.0/terminal/alternate_screen.rs).
+First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](https://github.com/TimonPost/crossterm/blob/master/examples/alternate_screen.rs).
 
 _Create alternate screen from `Context`_
 

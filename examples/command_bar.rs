@@ -6,6 +6,7 @@ use crossterm::{
     TerminalCursor,
 };
 
+// cargo run --example command_bar
 fn main() {
     let _screen = RawScreen::into_raw_mode();
     cursor().hide().expect("Couldn't hide cursor");

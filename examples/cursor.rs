@@ -90,6 +90,7 @@ pub fn blink_cursor() {
     cursor.blink(false).unwrap();
 }
 
+// cargo run --example cursor
 fn main() {
     hide_cursor()
 }

@@ -21,7 +21,7 @@ There are 16 base colors which available for almost all terminals even windows 7
 
 In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
 Those colors could be: [True color (24-bit)](https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)) coloring scheme, which allows you to use [RGB](https://nl.wikipedia.org/wiki/RGB-kleursysteem), and [256 (Xterm, 8-bit)](https://jonasjacek.github.io/colors/) colors.
-Checkout the examples on how to use this feature.
+Checkout the [examples](https://github.com/TimonPost/crossterm/blob/master/examples/style.rs) on how to use this feature.
 
 ## Attributes
 Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.

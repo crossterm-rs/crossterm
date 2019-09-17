@@ -1,5 +1,5 @@
 Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
-Please check out these [examples](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs) for reading a line or a character from the user.
+Please check out these [examples](https://github.com/TimonPost/crossterm/blob/master/examples/input.rs) for reading a line or a character from the user.
 
 ## Differences Synchronous and Asynchronous
 Crossterm provides two ways to read user input, synchronous and asynchronous.

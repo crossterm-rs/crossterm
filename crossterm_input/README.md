@@ -77,7 +77,7 @@ These are the features of this crate:
     - RawScreen (from `crossterm_screen`)
     
 ## Examples
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 _Simple Readings_
 ```rust 

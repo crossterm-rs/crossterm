@@ -123,9 +123,8 @@ pub fn read_synchronously() {
     } // <=== raw modes will be disabled here
 }
 
+// cargo run --example key_events
 fn main() {
-    // un-comment below and run with
-    // `cargo run --example key_events`:
     //    read_synchronously();
-    read_asynchronously();
+    //    read_asynchronously();
 }

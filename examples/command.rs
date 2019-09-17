@@ -72,4 +72,5 @@ fn later_execution_command_directly_using_macros() {
     let _ = stdout.flush();
 }
 
+// cargo run --example command
 fn main() {}

@@ -31,7 +31,7 @@ _The following WinApi calls_
 - ReadConsoleW
 
 # Example 
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ## Screenbuffer information
 ```rust 

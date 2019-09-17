@@ -44,7 +44,7 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 ## Getting Started
 
 This documentation is only for `crossterm_screen` version `0.2`.
-Also, check out the [examples](./examples) folders with detailed examples for all functionality of this crate
+Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate
 and the [book](https://timonpost.github.io/crossterm/docs/screen.html) for more information about how to use the alternate or raw screen options.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.
@@ -81,7 +81,7 @@ Planned features:
 - make is possible to switch between multiple buffers.
 
 ## Examples
-The [examples](./examples) folder has more complete and verbose examples.
+The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ## Tested terminals
 - Windows Powershell
