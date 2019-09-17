@@ -26,7 +26,7 @@ impl ITerminalCursor for WinApiCursor {
 
     fn pos(&self) -> (u16, u16) {
         let cursor = Cursor::new().unwrap();
-        cursor.position().unwrap().into()
+        cursor.position().map(Into::into).unwrap_or((0, 0))
     }
 
     fn move_up(&self, count: u16) -> Result<()> {
