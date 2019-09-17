@@ -27,7 +27,9 @@ mod winapi_cursor;
 trait ITerminalCursor: Sync + Send {
     /// Goto some location (x,y) in the context.
     fn goto(&self, x: u16, y: u16) -> Result<()>;
-    /// Get the location (x,y) of the current cursor in the context
+    /// Get the location (x,y) of the current cursor in the context.
+    ///
+    /// `(0, 0)` is returned in case of an error.
     fn pos(&self) -> (u16, u16);
     /// Move cursor n times up
     fn move_up(&self, count: u16) -> Result<()>;
