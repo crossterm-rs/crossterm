@@ -1,50 +1,88 @@
-I would really appreciate any contributing to this crate. However there are some things that are handy to know.
+# Contributing
 
-## How it works
-Crossterm is using ANSI escape codes by default for both Unix and Windows systems. 
-But for Windows, it is a bit more complicated since Windows versions 8 or lower are not supporting ANSI escape codes. 
-This is why we use WinApi for those machines. 
+I would appreciate any contributions to this crate. However, some things are handy to know.
 
 ## Architecture
-Here I will discuss the architecture of crossterm. 
-Crossterm wraps 5 crates: cursor, input, style, terminal, screen. 
 
-### The different crates
+Crossterm is using ANSI escape codes by default for both Unix and for Windows systems except
+for Windows versions lower than 10. Crossterm uses WinAPI in this case.
 
-If you would like to contribute to Crossterm, than please design the code as it is now. 
-For example, a module like cursor has the following file structure:
+### Crates
 
-- module name
-    - mod.rs
-    
-      This file contains some trait, in this case, `ITerminalCursor`, for other modules to implement. So that it can work at a specific platform.
-      
-    - cursor.rs
-    
-      The end user will call this module to access the cursor functionalities. This module will decide which implementation to use based on the current platform.
-    - winapi_cursor
-    
-      This is the cursor trait (located in mod.rs) implementation with WinApi.
-    - ansi_cursor
-    
-      This is the cursor trait (located in mod.rs) implementation with ANSI escape codes.
- - sys
- 
-    contains platform specific logic.
-  
-The above structure is the same for the other modules. 
+The `crossterm` crate consists of 7 crates:
 
-Why I have chosen for this design:
-- Because you can easily extend to multiple platforms by implementing the trait int the mod.rs.
-- You keep the functionalities for different platforms separated in different files. 
-- Also, you have one API the user can call like in the `cursor.rs` above. This file should be avoided to change that much. All the other code could change a lot because it has no impact on the user side.
+* [cursor](https://github.com/TimonPost/crossterm/tree/master/crossterm_cursor)
+* [input](https://github.com/TimonPost/crossterm/tree/master/crossterm_input)
+* [style](https://github.com/TimonPost/crossterm/tree/master/crossterm_style)
+* [terminal](https://github.com/TimonPost/crossterm/tree/master/crossterm_terminal)
+* [screen](https://github.com/TimonPost/crossterm/tree/master/crossterm_screen)
+* [utils](https://github.com/TimonPost/crossterm/tree/master/crossterm_utils)
+* [winapi](https://github.com/TimonPost/crossterm/tree/master/crossterm_winapi)
 
-# Import Order
-All imports are semantically ordered. The order is:
+### Module structure
 
-- standard library
-- external crates
-- crate
-- super
-- self
-- mod
+If you would like to contribute, then please follow the existing structure. For
+example, the cursor crate has the following file structure:
+
+```text
+└── src
+    ├── cursor
+    │   ├── ansi_cursor.rs
+    │   ├── cursor.rs
+    │   └── winapi_cursor.rs
+    ├── cursor.rs
+    ├── lib.rs
+    ├── sys
+    │   ├── unix.rs
+    │   └── winapi.rs
+    └── sys.rs
+```
+
+* `src/cursor.rs` - `ITerminalCursor` trait for other modules to implement
+* `src/cursor/cursor.rs` - cursor functionality for the end user
+* `src/cursor/winapi_cursor.rs` - WinAPI based implementation
+* `src/cursor/ansi_cursor.rs` - ANSI escape codes based implementation
+* `src/sys` - platform specific logic
+
+The above structure is the same for other modules. 
+
+Why I have chosen this design:
+
+* You can easily add new platform by implementing the trait
+* You can keep the functionality for different platforms separated
+* You have one API the user can call like in the `src/cursor/cursor.rs`
+
+Try to avoid changing `src/cursor/cursor.rs` a lot, because it contains API for
+the end-user.
+
+## Code style
+
+### Import Order
+
+All imports are semantically grouped and ordered. The order is:
+
+- standard library (`use std::...`)
+- external crates (`use rand::...`)
+- current crate (`use crate::...`)
+- parent module (`use super::..`)
+- current module (`use self::...`)
+- module declaration (`mod ...`)
+
+There must be an empty line between groups.
+
+An example:
+
+```rust
+use crossterm_utils::{csi, write_cout, Result};
+
+use crate::sys::{get_cursor_position, show_cursor};
+
+use super::ITerminalCursor;
+```
+
+### Warnings
+
+The code must be warning free. It's quite hard to find an error if the build logs are polluted with warnings.
+If you decide to silent a warning with (`#[allow(...)]`), please add a comment why it's required.
+
+Always consult the [Travis CI](https://travis-ci.org/TimonPost/crossterm/pull_requests) build logs.
