@@ -9,17 +9,9 @@ use crossterm_utils::{
 #[cfg(unix)]
 pub fn get_cursor_position() -> (u16, u16) {
     if unsafe { RAW_MODE_ENABLED } {
-        if let Ok(pos) = pos_raw() {
-            pos
-        } else {
-            (0, 0)
-        }
+        pos_raw().unwrap_or((0, 0))
     } else {
-        if let Ok(pos) = pos() {
-            pos
-        } else {
-            (0, 0)
-        }
+        pos().unwrap_or((0, 0))
     }
 }
 
