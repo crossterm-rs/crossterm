@@ -1,4 +1,4 @@
-use std::io::Result;
+use crossterm_utils::Result;
 
 /// This command is used for enabling and disabling raw mode for the terminal.
 pub struct RawModeCommand;

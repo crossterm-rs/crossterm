@@ -3,7 +3,6 @@
 
 use std::clone::Clone;
 use std::fmt::Display;
-use std::io;
 
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
@@ -67,7 +66,7 @@ impl TerminalColor {
 
     /// Get available color count.
     /// (This does not always provide a good result.)
-    pub fn get_available_color_count(&self) -> io::Result<u16> {
+    pub fn get_available_color_count(&self) -> Result<u16> {
         use std::env;
         Ok(match env::var_os("TERM") {
             Some(val) => {

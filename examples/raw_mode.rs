@@ -1,9 +1,9 @@
-use std::io::{self, stdout, Write};
+use std::io::{stdout, Write};
 use std::{thread, time};
 
-use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm};
+use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm, Result};
 
-fn print_wait_screen() -> io::Result<()> {
+fn print_wait_screen() -> Result<()> {
     let crossterm = Crossterm::new();
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
@@ -39,16 +39,12 @@ fn print_wait_screen() -> io::Result<()> {
     Ok(())
 }
 
-pub fn print_wait_screen_on_alternate_window() -> io::Result<()> {
+pub fn print_wait_screen_on_alternate_window() -> Result<()> {
     // by passing in 'true' the alternate screen will be in raw modes.
-    if let Ok(_alternate) = AlternateScreen::to_alternate(true) {
-        print_wait_screen()?;
-    } // <- drop alternate screen; this will cause the alternate screen to drop.
-
-    Ok(())
+    AlternateScreen::to_alternate(true).and_then(|_| print_wait_screen())
 }
 
 // cargo run --example raw_mode
-fn main() {
-    print_wait_screen_on_alternate_window().unwrap();
+fn main() -> Result<()> {
+    print_wait_screen_on_alternate_window()
 }

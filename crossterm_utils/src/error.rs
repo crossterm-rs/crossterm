@@ -49,18 +49,3 @@ impl From<fmt::Error> for ErrorKind {
         ErrorKind::FmtError(e)
     }
 }
-
-//impl From<std::result::::Error> for ErrorKind {
-//    fn from(e: fmt::Error) -> ErrorKind {
-//        ErrorKind::FmtError(e)
-//    }
-//}
-
-impl From<ErrorKind> for io::Error {
-    fn from(e: ErrorKind) -> io::Error {
-        match e {
-            ErrorKind::IoError(io) => return io,
-            _ => io::Error::new(io::ErrorKind::Other, "can not convert error to IO error"),
-        }
-    }
-}

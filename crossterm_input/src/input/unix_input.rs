@@ -26,7 +26,7 @@ impl UnixInput {
 }
 
 impl ITerminalInput for UnixInput {
-    fn read_char(&self) -> io::Result<char> {
+    fn read_char(&self) -> Result<char> {
         read_char_raw()
     }
 

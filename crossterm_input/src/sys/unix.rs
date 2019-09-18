@@ -1,17 +1,21 @@
 use std::os::unix::io::AsRawFd;
 use std::{fs, io};
 
+use crossterm_utils::Result;
+
 /// Get the TTY device.
 ///
 /// This allows for getting stdio representing _only_ the TTY, and not other streams.
-pub fn get_tty() -> io::Result<fs::File> {
-    fs::OpenOptions::new()
+pub fn get_tty() -> Result<fs::File> {
+    let file = fs::OpenOptions::new()
         .read(true)
         .write(true)
-        .open("/dev/tty")
+        .open("/dev/tty")?;
+
+    Ok(file)
 }
 
-fn get_tty_fd() -> io::Result<i32> {
+fn get_tty_fd() -> Result<i32> {
     let fd = unsafe {
         if libc::isatty(libc::STDIN_FILENO) == 1 {
             libc::STDIN_FILENO
@@ -23,7 +27,7 @@ fn get_tty_fd() -> io::Result<i32> {
     Ok(fd)
 }
 
-pub fn read_char_raw() -> io::Result<char> {
+pub fn read_char_raw() -> Result<char> {
     let mut buf = [0u8; 20];
 
     let fd = get_tty_fd()?;
@@ -50,7 +54,7 @@ pub fn read_char_raw() -> io::Result<char> {
 
             pressed_char
         }
-    };
+    }?;
 
-    rv
+    Ok(rv)
 }

@@ -4,12 +4,14 @@ use std::{io, mem};
 
 pub use libc::{c_int, termios as Termios};
 
+use crate::{ErrorKind, Result};
+
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED: bool = false;
 
-fn unwrap(t: i32) -> io::Result<()> {
+fn unwrap(t: i32) -> Result<()> {
     if t == -1 {
-        Err(io::Error::last_os_error())
+        Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
         Ok(())
     }
@@ -23,7 +25,7 @@ pub fn raw_terminal_attr(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
-pub fn get_terminal_attr() -> io::Result<Termios> {
+pub fn get_terminal_attr() -> Result<Termios> {
     extern "C" {
         pub fn tcgetattr(fd: c_int, termptr: *mut Termios) -> c_int;
     }
@@ -34,14 +36,14 @@ pub fn get_terminal_attr() -> io::Result<Termios> {
     }
 }
 
-pub fn set_terminal_attr(termios: &Termios) -> io::Result<()> {
+pub fn set_terminal_attr(termios: &Termios) -> Result<()> {
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
     unwrap(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
 }
 
-pub fn into_raw_mode() -> io::Result<()> {
+pub fn into_raw_mode() -> Result<()> {
     let mut ios = get_terminal_attr()?;
     let prev_ios = ios;
 
@@ -57,7 +59,7 @@ pub fn into_raw_mode() -> io::Result<()> {
     Ok(())
 }
 
-pub fn disable_raw_mode() -> io::Result<()> {
+pub fn disable_raw_mode() -> Result<()> {
     unsafe {
         if ORIGINAL_TERMINAL_MODE.is_some() {
             set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;

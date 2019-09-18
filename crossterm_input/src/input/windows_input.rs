@@ -42,7 +42,7 @@ const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 static mut ORIG_MODE: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
-    fn read_char(&self) -> io::Result<char> {
+    fn read_char(&self) -> Result<char> {
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe { _getwche() };
 

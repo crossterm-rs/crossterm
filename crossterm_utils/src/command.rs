@@ -1,8 +1,7 @@
 use std::fmt::Display;
 use std::io::Write;
 
-use crate::Result;
-use crate::{execute, impl_display, queue, write_cout};
+use crate::{execute, impl_display, queue, write_cout, Result};
 
 /// A command is an action that can be performed on the terminal.
 ///

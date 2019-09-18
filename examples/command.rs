@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::io::{stdout, Write};
 
 use crossterm::{
@@ -7,7 +5,7 @@ use crossterm::{
 };
 
 /// execute commands by using normal functions
-fn execute_command_directly_using_functions() -> Result<()> {
+pub fn execute_command_directly_using_functions() -> Result<()> {
     // single command
     stdout().execute(Output("Text1 ".to_string()))?;
 
@@ -20,7 +18,7 @@ fn execute_command_directly_using_functions() -> Result<()> {
 }
 
 /// execute commands by using macro's
-fn execute_command_directly_using_macros() -> Result<()> {
+pub fn execute_command_directly_using_macros() -> Result<()> {
     // single command
     execute!(stdout(), Output("Text1 ".to_string()))?;
 
@@ -29,13 +27,11 @@ fn execute_command_directly_using_macros() -> Result<()> {
         stdout(),
         Output("Text2 ".to_string()),
         Output("Text 3".to_string())
-    )?;
-
-    Ok(())
+    )
 }
 
 /// queue commands without executing them directly by using normal functions
-fn later_execution_command_using_functions() -> Result<()> {
+pub fn later_execution_command_using_functions() -> Result<()> {
     let mut sdout = stdout();
 
     // single command
@@ -58,7 +54,7 @@ fn later_execution_command_using_functions() -> Result<()> {
 }
 
 /// queue commands without executing them directly by using macro's
-fn later_execution_command_directly_using_macros() -> Result<()> {
+pub fn later_execution_command_directly_using_macros() -> Result<()> {
     let mut stdout = stdout();
 
     // single command
@@ -81,4 +77,9 @@ fn later_execution_command_directly_using_macros() -> Result<()> {
 }
 
 // cargo run --example command
-fn main() {}
+fn main() -> Result<()> {
+    later_execution_command_directly_using_macros()
+    //    later_execution_command_using_functions()
+    //    execute_command_directly_using_macros()
+    //    execute_command_directly_using_functions()
+}

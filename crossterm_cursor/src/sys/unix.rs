@@ -25,14 +25,14 @@ pub fn show_cursor(show_cursor: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn pos() -> io::Result<(u16, u16)> {
+pub fn pos() -> Result<(u16, u16)> {
     unix::into_raw_mode()?;
     let pos = pos_raw();
     unix::disable_raw_mode()?;
     pos
 }
 
-pub fn pos_raw() -> io::Result<(u16, u16)> {
+pub fn pos_raw() -> Result<(u16, u16)> {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();

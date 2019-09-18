@@ -2,12 +2,10 @@
 //! Examples of actions that could be performed with the cursor.
 //!
 
-use std::io;
-
-use crossterm_cursor::cursor;
+use crossterm::{cursor, Result};
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
-pub fn goto() -> io::Result<()> {
+pub fn goto() -> Result<()> {
     // Get the cursor
     let cursor = cursor();
     // Set the cursor to position X: 10, Y: 5 in the terminal
@@ -50,7 +48,7 @@ pub fn move_down() {
 }
 
 /// Save and reset cursor position | demonstration..
-pub fn save_and_reset_position() -> io::Result<()> {
+pub fn save_and_reset_position() -> Result<()> {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5
@@ -72,25 +70,30 @@ pub fn save_and_reset_position() -> io::Result<()> {
 }
 
 /// Hide cursor display | demonstration.
-pub fn hide_cursor() {
+pub fn hide_cursor() -> Result<()> {
     let cursor = cursor();
-    cursor.hide().unwrap();
+    cursor.hide()
 }
 
 /// Show cursor display | demonstration.
-pub fn show_cursor() {
+pub fn show_cursor() -> Result<()> {
     let cursor = cursor();
-    cursor.show().unwrap();
+    cursor.show()
 }
 
 /// Show cursor display, only works on certain terminals.| demonstration
-pub fn blink_cursor() {
+pub fn blink_cursor(enable: bool) -> Result<()> {
     let cursor = cursor();
-    cursor.blink(false).unwrap();
-    cursor.blink(false).unwrap();
+    cursor.blink(enable)
 }
 
 // cargo run --example cursor
-fn main() {
-    hide_cursor()
+fn main() -> Result<()> {
+    println!("Going to show cursor...");
+    show_cursor()?;
+    println!("Going to enable blinking cursor & sleep for 5s...");
+    blink_cursor(true)?;
+    std::thread::sleep(std::time::Duration::from_secs(5));
+    println!("Going to disable blinking cursor...");
+    blink_cursor(false)
 }

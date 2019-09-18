@@ -1,6 +1,6 @@
 use std::{thread, time::Duration};
 
-use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen};
+use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen, Result};
 
 fn process_input_event(key_event: InputEvent) -> bool {
     match key_event {
@@ -71,16 +71,16 @@ fn process_input_event(key_event: InputEvent) -> bool {
         _ => println!("Unknown!"),
     }
 
-    return false;
+    false
 }
 
-pub fn read_asynchronously() {
+pub fn read_asynchronously() -> Result<()> {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    if let Ok(_raw) = RawScreen::into_raw_mode() {
+    if let Ok(_) = RawScreen::into_raw_mode() {
         let input = input();
 
         // enable mouse events to be captured.
-        input.enable_mouse_mode().unwrap();
+        input.enable_mouse_mode()?;
 
         let mut stdin = input.read_async();
 
@@ -94,17 +94,18 @@ pub fn read_asynchronously() {
         }
 
         // disable mouse events to be captured.
-        input.disable_mouse_mode().unwrap();
+        input.disable_mouse_mode()?;
     } // <=== raw modes will be disabled here
+    Ok(())
 } // <=== background reader will be disposed when dropped.
 
-pub fn read_synchronously() {
+pub fn read_synchronously() -> Result<()> {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    if let Ok(_raw) = RawScreen::into_raw_mode() {
+    if let Ok(_) = RawScreen::into_raw_mode() {
         let input = input();
 
         // enable mouse events to be captured.
-        input.enable_mouse_mode().unwrap();
+        input.enable_mouse_mode()?;
 
         let mut sync_stdin = input.read_sync();
 
@@ -119,12 +120,13 @@ pub fn read_synchronously() {
         }
 
         // disable mouse events to be captured.
-        input.disable_mouse_mode().unwrap();
+        input.disable_mouse_mode()?;
     } // <=== raw modes will be disabled here
+    Ok(())
 }
 
 // cargo run --example key_events
-fn main() {
-    //    read_synchronously();
+fn main() -> Result<()> {
+    read_synchronously()
     //    read_asynchronously();
 }
