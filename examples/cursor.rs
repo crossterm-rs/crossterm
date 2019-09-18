@@ -2,10 +2,12 @@
 //! Examples of actions that could be performed with the cursor.
 //!
 
+#![allow(dead_code)]
+
 use crossterm::{cursor, Result};
 
 /// Set the cursor to position X: 10, Y: 5 in the terminal.
-pub fn goto() -> Result<()> {
+fn goto() -> Result<()> {
     // Get the cursor
     let cursor = cursor();
     // Set the cursor to position X: 10, Y: 5 in the terminal
@@ -15,7 +17,7 @@ pub fn goto() -> Result<()> {
 }
 
 /// get the cursor position
-pub fn pos() {
+fn pos() {
     // Get the cursor
     let cursor = cursor();
     // get the cursor position.
@@ -25,7 +27,7 @@ pub fn pos() {
 }
 
 /// Move the cursor 3 up | demonstration.
-pub fn move_up() {
+fn move_up() {
     // Get the cursor
     let mut cursor = cursor();
 
@@ -34,21 +36,21 @@ pub fn move_up() {
 }
 
 /// Move the cursor 3 to the right | demonstration.
-pub fn move_right() {
+fn move_right() {
     let mut cursor = cursor();
     // Move the cursor to position 3 times to the right in the terminal
     cursor.move_right(3);
 }
 
 /// Move the cursor 3 down | demonstration.
-pub fn move_down() {
+fn move_down() {
     let mut cursor = cursor();
     // Move the cursor to position 3 times to the down in the terminal
     cursor.move_down(3);
 }
 
 /// Save and reset cursor position | demonstration..
-pub fn save_and_reset_position() -> Result<()> {
+fn save_and_reset_position() -> Result<()> {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5
@@ -70,19 +72,19 @@ pub fn save_and_reset_position() -> Result<()> {
 }
 
 /// Hide cursor display | demonstration.
-pub fn hide_cursor() -> Result<()> {
+fn hide_cursor() -> Result<()> {
     let cursor = cursor();
     cursor.hide()
 }
 
 /// Show cursor display | demonstration.
-pub fn show_cursor() -> Result<()> {
+fn show_cursor() -> Result<()> {
     let cursor = cursor();
     cursor.show()
 }
 
 /// Show cursor display, only works on certain terminals.| demonstration
-pub fn blink_cursor(enable: bool) -> Result<()> {
+fn blink_cursor(enable: bool) -> Result<()> {
     let cursor = cursor();
     cursor.blink(enable)
 }

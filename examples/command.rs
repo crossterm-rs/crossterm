@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::io::{stdout, Write};
 
 use crossterm::{
@@ -5,7 +7,7 @@ use crossterm::{
 };
 
 /// execute commands by using normal functions
-pub fn execute_command_directly_using_functions() -> Result<()> {
+fn execute_command_directly_using_functions() -> Result<()> {
     // single command
     stdout().execute(Output("Text1 ".to_string()))?;
 
@@ -18,7 +20,7 @@ pub fn execute_command_directly_using_functions() -> Result<()> {
 }
 
 /// execute commands by using macro's
-pub fn execute_command_directly_using_macros() -> Result<()> {
+fn execute_command_directly_using_macros() -> Result<()> {
     // single command
     execute!(stdout(), Output("Text1 ".to_string()))?;
 
@@ -31,7 +33,7 @@ pub fn execute_command_directly_using_macros() -> Result<()> {
 }
 
 /// queue commands without executing them directly by using normal functions
-pub fn later_execution_command_using_functions() -> Result<()> {
+fn later_execution_command_using_functions() -> Result<()> {
     let mut sdout = stdout();
 
     // single command
@@ -54,7 +56,7 @@ pub fn later_execution_command_using_functions() -> Result<()> {
 }
 
 /// queue commands without executing them directly by using macro's
-pub fn later_execution_command_directly_using_macros() -> Result<()> {
+fn later_execution_command_directly_using_macros() -> Result<()> {
     let mut stdout = stdout();
 
     // single command

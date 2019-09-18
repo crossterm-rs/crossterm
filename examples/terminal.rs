@@ -2,6 +2,8 @@
 //! Terminal Examples
 //!
 
+#![allow(dead_code)]
+
 use crossterm::{cursor, terminal, ClearType, Result};
 
 fn print_test_data() {
@@ -11,7 +13,7 @@ fn print_test_data() {
 }
 
 /// Clear all lines in terminal | demonstration
-pub fn clear_all_lines() -> Result<()> {
+fn clear_all_lines() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -21,7 +23,7 @@ pub fn clear_all_lines() -> Result<()> {
 }
 
 /// Clear all lines from cursor position X:4, Y:4 down | demonstration
-pub fn clear_from_cursor_down() -> Result<()> {
+fn clear_from_cursor_down() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -34,7 +36,7 @@ pub fn clear_from_cursor_down() -> Result<()> {
 }
 
 /// Clear all lines from cursor position X:4, Y:4 up | demonstration
-pub fn clear_from_cursor_up() -> Result<()> {
+fn clear_from_cursor_up() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -47,7 +49,7 @@ pub fn clear_from_cursor_up() -> Result<()> {
 }
 
 /// Clear all lines from cursor position X:4, Y:4 up | demonstration
-pub fn clear_current_line() -> Result<()> {
+fn clear_current_line() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -60,7 +62,7 @@ pub fn clear_current_line() -> Result<()> {
 }
 
 /// Clear all lines from cursor position X:4, Y:7 up | demonstration
-pub fn clear_until_new_line() -> Result<()> {
+fn clear_until_new_line() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -73,7 +75,7 @@ pub fn clear_until_new_line() -> Result<()> {
 }
 
 /// Print the the current terminal size | demonstration.
-pub fn print_terminal_size() {
+fn print_terminal_size() {
     let terminal = terminal();
 
     // Get terminal size
@@ -84,14 +86,14 @@ pub fn print_terminal_size() {
 }
 
 /// Set the terminal size to width 10, height: 10 | demonstration.
-pub fn set_terminal_size() -> Result<()> {
+fn set_terminal_size() -> Result<()> {
     let terminal = terminal();
 
     terminal.set_size(10, 10)
 }
 
 /// Scroll down 10 lines | demonstration.
-pub fn scroll_down() -> Result<()> {
+fn scroll_down() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -101,7 +103,7 @@ pub fn scroll_down() -> Result<()> {
 }
 
 /// Scroll down 10 lines | demonstration.
-pub fn scroll_up() -> Result<()> {
+fn scroll_up() -> Result<()> {
     let terminal = terminal();
 
     print_test_data();
@@ -111,7 +113,7 @@ pub fn scroll_up() -> Result<()> {
 }
 
 /// exit the current proccess.
-pub fn exit() {
+fn exit() {
     let terminal = terminal();
     terminal.exit();
 }

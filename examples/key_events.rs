@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{thread, time::Duration};
 
 use crossterm::{input, InputEvent, KeyEvent, MouseButton, MouseEvent, RawScreen, Result};
