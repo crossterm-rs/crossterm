@@ -45,11 +45,12 @@ impl ITerminal for WinApiTerminal {
         get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16) -> Result<()> {
+    fn scroll_up(&self, count: u16) -> Result<()> {
         let csbi = ScreenBuffer::current()?;
         let mut window = csbi.info()?.terminal_window();
 
         // Check whether the window is too close to the screen buffer top
+        let count = count as i16;
         if window.top >= count {
             window.top -= count; // move top down
             window.bottom = count; // move bottom down
@@ -59,13 +60,14 @@ impl ITerminal for WinApiTerminal {
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16) -> Result<()> {
+    fn scroll_down(&self, count: u16) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let csbi = screen_buffer.info()?;
         let mut window = csbi.terminal_window();
         let buffer_size = csbi.buffer_size();
 
         // Check whether the window is too close to the screen buffer top
+        let count = count as i16;
         if window.bottom < buffer_size.height - count {
             window.top += count; // move top down
             window.bottom += count; // move bottom down
@@ -76,7 +78,7 @@ impl ITerminal for WinApiTerminal {
     }
 
     /// Set the current terminal size
-    fn set_size(&self, width: i16, height: i16) -> Result<()> {
+    fn set_size(&self, width: u16, height: u16) -> Result<()> {
         if width <= 0 {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(
                 "Cannot set the terminal width lower than 1",
@@ -103,6 +105,7 @@ impl ITerminal for WinApiTerminal {
         // buffer to be large enough.  Include window position.
         let mut resize_buffer = false;
 
+        let width = width as i16;
         if current_size.width < window.left + width {
             if window.left >= i16::max_value() - width {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
@@ -113,6 +116,7 @@ impl ITerminal for WinApiTerminal {
             new_size.width = window.left + width;
             resize_buffer = true;
         }
+        let height = height as i16;
         if current_size.height < window.top + height {
             if window.top >= i16::max_value() - height {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
