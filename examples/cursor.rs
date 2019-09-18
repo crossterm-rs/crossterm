@@ -28,26 +28,37 @@ fn pos() -> Result<()> {
 }
 
 /// Move the cursor 3 up | demonstration.
-fn move_up() {
+fn move_up() -> Result<()> {
     // Get the cursor
     let mut cursor = cursor();
 
     // Move the cursor to position 3 times to the up in the terminal
-    cursor.move_up(10);
-}
-
-/// Move the cursor 3 to the right | demonstration.
-fn move_right() {
-    let mut cursor = cursor();
-    // Move the cursor to position 3 times to the right in the terminal
-    cursor.move_right(3);
+    cursor.move_up(3)?;
+    Ok(())
 }
 
 /// Move the cursor 3 down | demonstration.
-fn move_down() {
+fn move_down() -> Result<()> {
     let mut cursor = cursor();
     // Move the cursor to position 3 times to the down in the terminal
-    cursor.move_down(3);
+    cursor.move_down(3)?;
+    Ok(())
+}
+
+/// Move the cursor 3 to the right | demonstration.
+fn move_right() -> Result<()> {
+    let mut cursor = cursor();
+    // Move the cursor to position 3 times to the right in the terminal
+    cursor.move_right(3)?;
+    Ok(())
+}
+
+/// Move the cursor 3 left | demonstration.
+fn move_left() -> Result<()> {
+    let mut cursor = cursor();
+    // Move the cursor to position 3 times to the left in the terminal
+    cursor.move_left(3)?;
+    Ok(())
 }
 
 /// Save and reset cursor position | demonstration..

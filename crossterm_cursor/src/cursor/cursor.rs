@@ -64,27 +64,27 @@ impl TerminalCursor {
     }
 
     /// Move the current cursor position `n` times up.
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_up(count).unwrap();
-        self
+    pub fn move_up(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_up(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times right.
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_right(count).unwrap();
-        self
+    pub fn move_right(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_right(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times down.
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_down(count).unwrap();
-        self
+    pub fn move_down(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_down(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times left.
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_left(&mut self, count: u16) -> Result<&mut TerminalCursor> {
         self.cursor.move_left(count).unwrap();
-        self
+        Ok(self)
     }
 
     /// Save cursor position for recall later.
