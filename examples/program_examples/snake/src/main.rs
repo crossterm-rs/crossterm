@@ -1,134 +1,187 @@
-use std::collections::HashMap;
+//! The snake game.
+//!
+//! This is not a properly designed game! Mainly game loop, input events
+//! handling, UI separation, ... The main purpose of this example is to
+//! test the `crossterm` crate and demonstrate some of the capabilities.
+use std::convert::TryFrom;
 use std::io::{stdout, Write};
 use std::iter::Iterator;
 use std::{thread, time};
 
+use crossterm::{
+    execute, input, style, AsyncReader, Clear, ClearType, Color, Crossterm, Goto, InputEvent,
+    KeyEvent, PrintStyledFont, RawScreen, Result, Show,
+};
+
 use map::Map;
 use snake::Snake;
-use variables::{Direction, Position, Size};
-
-use crossterm::{
-    execute, input, style, AsyncReader, Clear, ClearType, Color, Colorize, Crossterm, Goto,
-    InputEvent, KeyEvent, PrintStyledFont, RawScreen, Result, Show,
-};
+use types::Direction;
 
 mod map;
 mod messages;
 mod snake;
-mod variables;
+mod types;
+
+/// An input (user) event.
+#[derive(Debug)]
+pub enum Event {
+    /// User wants to change the snake direction.
+    UpdateSnakeDirection(Direction),
+    /// User wants to quite the game.
+    QuitGame,
+}
 
 fn main() -> Result<()> {
-    let map_size = ask_size()?;
-
-    // screen has to be in raw mode in order for the key presses not to be printed to the screen.
-    let _raw = RawScreen::into_raw_mode();
+    // Print the welcome screen and ask for the map size.
     let crossterm = Crossterm::new();
+    let (map_width, map_height) = ask_for_map_size(crossterm.terminal().terminal_size())?;
 
+    // Switch screen to the raw mode to avoid printing key presses on the screen
+    // and hide the cursor.
+    let _raw = RawScreen::into_raw_mode();
     crossterm.cursor().hide()?;
 
-    // initialize free positions for the game map.
-    let mut free_positions: HashMap<String, Position> =
-        HashMap::with_capacity((map_size.width * map_size.height) as usize);
+    // Draw the map border.
+    let mut map = Map::new(map_width, map_height);
+    map.draw_border()?;
 
-    // render the map
-    let mut map = Map::new(map_size);
-    map.render_map(&mut free_positions)?;
+    // Create a new snake, draw it and spawn some food.
+    let mut snake = Snake::new(map_width, map_height);
+    snake.draw()?;
+    map.spawn_food(&snake)?;
 
-    let mut snake = Snake::new();
-
-    // remove snake coords from free positions.
-    for part in snake.get_parts().iter() {
-        free_positions.remove_entry(format!("{},{}", part.position.x, part.position.y).as_str());
-    }
-
-    map.spawn_food(&free_positions)?;
-
+    // Game loop
     let mut stdin = crossterm.input().read_async();
-    let mut snake_direction = Direction::Right;
-
-    // start the game loop; draw, move snake and spawn food.
     loop {
-        if let Some(new_direction) = update_direction(&mut stdin) {
-            snake_direction = new_direction;
-        }
+        // Handle the next user input event (if there's any).
+        match next_event(&mut stdin, snake.direction()) {
+            Some(Event::UpdateSnakeDirection(direction)) => snake.set_direction(direction),
+            Some(Event::QuitGame) => break,
+            _ => {}
+        };
 
-        snake.move_snake(&snake_direction, &mut free_positions)?;
-
-        if map.is_out_of_bounds(snake.snake_parts[0].position) {
+        // Update the snake (move & redraw). If it return `false` -> new head
+        // collides with the snake body -> can't eat self -> quit the game loop.
+        if !snake.update()? {
             break;
         }
 
-        snake.draw_snake()?;
-
-        if snake.has_eaten_food(map.foot_pos) {
-            map.spawn_food(&free_positions)?;
+        // Check if the snake ate some food.
+        if snake.head_position() == map.food_position() {
+            // Tell the snake to grow ...
+            snake.set_ate_food(true);
+            // ... and spawn new food.
+            map.spawn_food(&snake)?;
         }
 
-        thread::sleep(time::Duration::from_millis(400));
+        // Check if the snake head position is out of bounds.
+        if map.is_position_out_of_bounds(snake.head_position()) {
+            break;
+        }
+
+        // Wait for some time.
+        thread::sleep(time::Duration::from_millis(200));
     }
-    game_over_screen()
+
+    show_game_over_screen(snake.len())
 }
 
-fn update_direction(reader: &mut AsyncReader) -> Option<Direction> {
-    let pressed_key = reader.next();
-
-    if let Some(InputEvent::Keyboard(KeyEvent::Char(character))) = pressed_key {
-        return Some(match character {
-            'w' => Direction::Up,
-            'a' => Direction::Left,
-            's' => Direction::Down,
-            'd' => Direction::Right,
-            _ => return None,
-        });
-    } else if let Some(InputEvent::Keyboard(key)) = pressed_key {
-        return Some(match key {
-            KeyEvent::Up => Direction::Up,
-            KeyEvent::Left => Direction::Left,
-            KeyEvent::Down => Direction::Down,
-            KeyEvent::Right => Direction::Right,
-            _ => return None,
-        });
+/// Returns a next user event (if there's any).
+fn next_event(reader: &mut AsyncReader, snake_direction: Direction) -> Option<Event> {
+    // The purpose of this loop is to consume events that are not actionable. Let's
+    // say that the snake is moving to the right and the user hits the right arrow
+    // key three times and then the up arrow key. The up arrow key would be handled
+    // in the 4th iteration of the game loop. That's not what we really want and thus
+    // we are consuming all events here till we find an actionable one or none.
+    while let Some(event) = reader.next() {
+        match event {
+            InputEvent::Keyboard(KeyEvent::Char(character)) => {
+                if let Ok(new_direction) = Direction::try_from(character) {
+                    if snake_direction.can_change_to(new_direction) {
+                        return Some(Event::UpdateSnakeDirection(new_direction));
+                    }
+                }
+            }
+            InputEvent::Keyboard(KeyEvent::Esc) => return Some(Event::QuitGame),
+            InputEvent::Keyboard(key) => {
+                if let Ok(new_direction) = Direction::try_from(key) {
+                    if snake_direction.can_change_to(new_direction) {
+                        return Some(Event::UpdateSnakeDirection(new_direction));
+                    }
+                }
+            }
+            _ => {}
+        };
     }
-
     None
 }
 
-fn ask_size() -> Result<Size> {
+/// Asks the user for a single map dimension. If the input can't be parsed or is outside
+/// of the `min..=default_max` range, `min` or `default_max` is returned.
+fn ask_for_map_dimension(name: &str, min: u16, default_max: u16, pos: (u16, u16)) -> Result<u16> {
+    let message = format!(
+        "Enter map {} (min: {}, default/max: {}):",
+        name, min, default_max
+    );
+    let message_len = message.chars().count() as u16;
+
+    execute!(
+        stdout(),
+        Goto(pos.0, pos.1),
+        PrintStyledFont(style(message).with(Color::Green)),
+        Goto(pos.0 + message_len + 1, pos.1)
+    )?;
+
+    let dimension = input()
+        .read_line()?
+        .parse::<u16>()
+        .map(|x| {
+            if x > default_max {
+                default_max
+            } else if x < min {
+                min
+            } else {
+                x
+            }
+        })
+        .unwrap_or(default_max);
+
+    Ok(dimension)
+}
+
+/// Prints the welcome screen and asks the user for the map size.
+fn ask_for_map_size(terminal_size: (u16, u16)) -> Result<(u16, u16)> {
+    let mut row = 0u16;
+
     execute!(
         stdout(),
         Clear(ClearType::All),
-        Goto(0, 0),
-        PrintStyledFont(style(format!("{}", messages::SNAKERS.join("\n\r"))).with(Color::Cyan)),
-        Goto(0, 15),
-        PrintStyledFont("Enter map width:".green().on_yellow()),
-        Goto(17, 15)
+        Goto(0, row),
+        PrintStyledFont(style(format!("{}", messages::SNAKE.join("\n\r"))).with(Color::Cyan))
     )?;
 
-    let width = input().read_line().unwrap();
-
-    execute!(
-        stdout(),
-        PrintStyledFont("\r\nEnter map height:".green().on_yellow()),
-        Goto(17, 17)
-    )?;
-
-    let height = input().read_line().unwrap();
-
-    // parse input
-    let parsed_width = width.parse::<usize>().unwrap();
-    let parsed_height = height.parse::<usize>().unwrap();
+    row += messages::SNAKE.len() as u16 + 2;
+    let width = ask_for_map_dimension("width", 10, terminal_size.0, (0, row))?;
+    row += 2;
+    let height = ask_for_map_dimension("height", 10, terminal_size.1, (0, row))?;
 
     execute!(stdout(), Clear(ClearType::All))?;
 
-    Ok(Size::new(parsed_width, parsed_height))
+    Ok((width, height))
 }
 
-fn game_over_screen() -> Result<()> {
+/// Prints the game over screen.
+fn show_game_over_screen(score: usize) -> Result<()> {
     execute!(
         stdout(),
         Clear(ClearType::All),
         Goto(0, 0),
-        PrintStyledFont(style(format!("{}", messages::END_MESSAGE.join("\n\r"))).with(Color::Red)),
-        Show
+        PrintStyledFont(style(format!("{}", messages::GAME_OVER.join("\n\r"))).with(Color::Red)),
+        Goto(0, messages::GAME_OVER.len() as u16 + 2),
+        PrintStyledFont(
+            style(format!("Your score is {}. You can do better!", score)).with(Color::Red)
+        ),
+        Show,
+        Goto(0, messages::GAME_OVER.len() as u16 + 4)
     )
 }
