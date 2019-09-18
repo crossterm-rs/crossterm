@@ -1,6 +1,6 @@
 use crossterm::input;
 
-pub fn read_char() {
+fn read_char() {
     let input = input();
 
     match input.read_char() {
@@ -9,7 +9,7 @@ pub fn read_char() {
     }
 }
 
-pub fn read_line() {
+fn read_line() {
     let input = input();
 
     match input.read_line() {

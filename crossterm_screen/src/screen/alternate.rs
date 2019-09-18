@@ -5,10 +5,9 @@
 //! For an example of this behavior, consider when vim is launched from bash.
 //! Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
-use std::io;
-
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
+use crossterm_utils::Result;
 
 #[cfg(windows)]
 use crate::sys::winapi::ToAlternateScreenCommand;
@@ -38,7 +37,7 @@ impl AlternateScreen {
     /// The alternate buffer dimensions are exactly the same as the window, without any scrollback region.
     /// For an example of this behavior, consider when vim is launched from bash.
     /// Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
-    pub fn to_alternate(raw_mode: bool) -> io::Result<AlternateScreen> {
+    pub fn to_alternate(raw_mode: bool) -> Result<AlternateScreen> {
         #[cfg(windows)]
         let command = if supports_ansi() {
             Box::from(sys::ToAlternateScreenCommand::new())
@@ -68,9 +67,8 @@ impl AlternateScreen {
     }
 
     /// Switch the alternate screen back to the main screen.
-    pub fn to_main(&self) -> io::Result<()> {
-        self.command.disable()?;
-        Ok(())
+    pub fn to_main(&self) -> Result<()> {
+        self.command.disable()
     }
 }
 

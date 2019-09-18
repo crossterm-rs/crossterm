@@ -57,7 +57,7 @@ impl TerminalInput {
     ///     Err(e) => println!("error: {}", e),
     /// }
     /// ```
-    pub fn read_line(&self) -> io::Result<String> {
+    pub fn read_line(&self) -> Result<String> {
         let mut rv = String::new();
         io::stdin().read_line(&mut rv)?;
         let len = rv.trim_end_matches(&['\r', '\n'][..]).len();
@@ -74,7 +74,7 @@ impl TerminalInput {
     ///     Err(e) => println!("error: {}", e),
     /// }
     /// ```
-    pub fn read_char(&self) -> io::Result<char> {
+    pub fn read_char(&self) -> Result<char> {
         self.input.read_char()
     }
 

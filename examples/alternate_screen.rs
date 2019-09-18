@@ -1,8 +1,8 @@
-use std::{io, thread, time};
+use std::{thread, time};
 
-use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm};
+use crossterm::{style, AlternateScreen, ClearType, Color, Crossterm, Result};
 
-fn print_wait_screen() -> io::Result<()> {
+fn print_wait_screen() -> Result<()> {
     let crossterm = Crossterm::new();
     let terminal = crossterm.terminal();
     let cursor = crossterm.cursor();
@@ -34,15 +34,12 @@ fn print_wait_screen() -> io::Result<()> {
 }
 
 /// print wait screen on alternate screen, then switch back.
-pub fn print_wait_screen_on_alternate_window() -> io::Result<()> {
-    if let Ok(_alternate) = AlternateScreen::to_alternate(false) {
-        print_wait_screen()?;
-    }
-
-    Ok(())
+fn print_wait_screen_on_alternate_window() -> Result<()> {
+    let _alt = AlternateScreen::to_alternate(false)?;
+    print_wait_screen()
 }
 
 // cargo run --example alternate_screen
-fn main() {
-    print_wait_screen_on_alternate_window().unwrap();
+fn main() -> Result<()> {
+    print_wait_screen_on_alternate_window()
 }

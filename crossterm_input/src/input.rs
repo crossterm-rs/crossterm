@@ -1,8 +1,6 @@
 //! A module that contains all the actions related to reading input from the terminal.
 //! Like reading a line, reading a character and reading asynchronously.
 
-use std::io;
-
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -31,7 +29,7 @@ mod windows_input;
 /// Unix is using the 'TTY' and windows is using 'libc' C functions to read the input.
 trait ITerminalInput {
     /// Read one character from the user input
-    fn read_char(&self) -> io::Result<char>;
+    fn read_char(&self) -> Result<char>;
     /// Read the input asynchronously from the user.
     fn read_async(&self) -> AsyncReader;
     ///  Read the input asynchronously until a certain character is hit.

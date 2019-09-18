@@ -1,22 +1,25 @@
 //!
 //! Examples of coloring the terminal.
 //!
+
+#![allow(dead_code)]
+
 use crossterm::{color, Attribute, Color, Colored, Colorize, Styler};
 
 /// print some red text | demonstration.
-pub fn paint_foreground() {
+fn paint_foreground() {
     println!("{}", "Red foreground text: {}".red());
     println!("{} Red foreground text", Colored::Fg(Color::Red));
 }
 
 /// print some text on red background | demonstration.
-pub fn paint_background() {
+fn paint_background() {
     println!("{}", "Red background text: {}".on_red());
     println!("{} Red background text", Colored::Bg(Color::Red));
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_foreground_colors_with_enum() {
+fn print_all_foreground_colors_with_enum() {
     // we use `Reset` to restore the foreground back to normal at the end of the line.
     println!(
         "Black : \t\t      {} ■ {}\n",
@@ -114,7 +117,7 @@ pub fn print_all_foreground_colors_with_enum() {
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_foreground_colors_with_method() {
+fn print_all_foreground_colors_with_method() {
     println!(
         "Black : \t\t       {} {}\n",
         "■".black(),
@@ -182,7 +185,7 @@ pub fn print_all_foreground_colors_with_method() {
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_background_colors_with_enum() {
+fn print_all_background_colors_with_enum() {
     println!(
         "Black : \t\t      {} ■ {}\n",
         Colored::Bg(Color::Black),
@@ -279,7 +282,7 @@ pub fn print_all_background_colors_with_enum() {
 }
 
 /// Print all available foreground colors | demonstration.
-pub fn print_all_background_colors_with_method() {
+fn print_all_background_colors_with_method() {
     println!(
         "Black : \t\t       {} {}\n",
         "■".on_black(),
@@ -364,7 +367,7 @@ pub fn print_all_background_colors_with_method() {
 
 /// Print text with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(unix)]
-pub fn print_text_with_attributes() {
+fn print_text_with_attributes() {
     println!("{}", "Normal text");
     println!("{}", "Bold text".bold());
     println!("{}", "Italic text".italic());
@@ -387,7 +390,7 @@ pub fn print_text_with_attributes() {
 
 // Print text with all available attributes. Note that this can only be used at unix systems and that some are not supported widely | demonstration..
 #[cfg(windows)]
-pub fn print_text_with_attributes() {
+fn print_text_with_attributes() {
     println!("{}", "Normal text");
     println!("{}", "Bold text".bold());
     println!("{}", "Underlined text".underlined());
@@ -395,7 +398,7 @@ pub fn print_text_with_attributes() {
 }
 
 /// Print all supported RGB colors, not supported for Windows systems < 10  | demonstration.
-pub fn print_supported_colors() {
+fn print_supported_colors() {
     let count = color().get_available_color_count().unwrap();
 
     for i in 0..count {
@@ -403,7 +406,7 @@ pub fn print_supported_colors() {
     }
 }
 
-pub fn reset_fg_and_bg() {
+fn reset_fg_and_bg() {
     println!("{}", Colored::Fg(Color::Reset));
     println!("{}", Colored::Bg(Color::Reset));
 }

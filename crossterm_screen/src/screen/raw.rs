@@ -14,7 +14,9 @@
 //!
 //! With these modes you can easier design the terminal screen.
 
-use std::io::{self, Stdout, Write};
+use std::io::{Stdout, Write};
+
+use crossterm_utils::Result;
 
 use crate::sys;
 
@@ -27,7 +29,7 @@ pub struct RawScreen {
 
 impl RawScreen {
     /// Put terminal in raw mode.
-    pub fn into_raw_mode() -> io::Result<RawScreen> {
+    pub fn into_raw_mode() -> Result<RawScreen> {
         #[cfg(unix)]
         let mut command = sys::unix::RawModeCommand::new();
         #[cfg(windows)]
@@ -39,7 +41,7 @@ impl RawScreen {
     }
 
     /// Put terminal back in original modes.
-    pub fn disable_raw_mode() -> io::Result<()> {
+    pub fn disable_raw_mode() -> Result<()> {
         #[cfg(unix)]
         let mut command = sys::unix::RawModeCommand::new();
         #[cfg(windows)]
@@ -67,11 +69,11 @@ pub trait IntoRawMode: Write + Sized {
     /// Raw mode means that stdin won't be printed (it will instead have to be written manually by
     /// the program). Furthermore, the input isn't canonicalised or buffered (that is, you can
     /// read from stdin one byte of a time). The output is neither modified in any way.
-    fn into_raw_mode(self) -> io::Result<RawScreen>;
+    fn into_raw_mode(self) -> Result<RawScreen>;
 }
 
 impl IntoRawMode for Stdout {
-    fn into_raw_mode(self) -> io::Result<RawScreen> {
+    fn into_raw_mode(self) -> Result<RawScreen> {
         RawScreen::into_raw_mode()?;
         // this make's sure that raw screen will be disabled when it goes out of scope.
         Ok(RawScreen { drop: true })

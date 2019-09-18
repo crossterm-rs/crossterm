@@ -1,5 +1,3 @@
-use std::io;
-
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 
@@ -27,7 +25,7 @@ impl RawModeCommand {
 
 impl RawModeCommand {
     /// Enables raw mode.
-    pub fn enable(&mut self) -> io::Result<()> {
+    pub fn enable(&mut self) -> Result<()> {
         let console_mode = ConsoleMode::new()?;
 
         let dw_mode = console_mode.mode()?;
@@ -40,7 +38,7 @@ impl RawModeCommand {
     }
 
     /// Disables raw mode.
-    pub fn disable(&self) -> io::Result<()> {
+    pub fn disable(&self) -> Result<()> {
         let console_mode = ConsoleMode::new()?;
 
         let dw_mode = console_mode.mode()?;

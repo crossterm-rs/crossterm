@@ -42,27 +42,23 @@ const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 static mut ORIG_MODE: u32 = 0;
 
 impl ITerminalInput for WindowsInput {
-    fn read_char(&self) -> io::Result<char> {
+    fn read_char(&self) -> Result<char> {
         // _getwch is without echo and _getwche is with echo
         let pressed_char = unsafe { _getwche() };
 
         // we could return error but maybe option to keep listening until valid character is inputted.
         if pressed_char == 0 || pressed_char == 0xe0 {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::Other,
                 "Given input char is not a valid char, mostly occurs when pressing special keys",
-            ));
+            ))?;
         }
 
-        match char::from_u32(pressed_char as u32) {
-            Some(c) => {
-                return Ok(c);
-            }
-            None => Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Could not parse given input to char",
-            )),
-        }
+        let ch = char::from_u32(pressed_char as u32).ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "Could not parse given input to char")
+        })?;
+
+        Ok(ch)
     }
 
     fn read_async(&self) -> AsyncReader {

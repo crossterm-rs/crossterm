@@ -1,6 +1,6 @@
 //! This module handles some logic for cursor interaction in the windows console.
 
-use std::io::{self, Result};
+use std::io;
 
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
@@ -8,6 +8,7 @@ use winapi::{
     um::winnt::HANDLE,
 };
 
+use crossterm_utils::Result;
 pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 
 #[cfg(windows)]
@@ -32,7 +33,7 @@ pub struct Cursor {
 }
 
 impl Cursor {
-    pub fn new() -> io::Result<Cursor> {
+    pub fn new() -> Result<Cursor> {
         Ok(Cursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
@@ -44,25 +45,25 @@ impl Cursor {
     }
 
     /// Set the cursor position to the given x and y. Note that this is 0 based.
-    pub fn goto(&self, x: i16, y: i16) -> io::Result<()> {
+    pub fn goto(&self, x: i16, y: i16) -> Result<()> {
         if x < 0 || x >= <i16>::max_value() {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
                     "Argument Out of Range Exception when setting cursor position to X: {}",
                     x
                 ),
-            ));
+            ))?;
         }
 
         if y < 0 || y >= <i16>::max_value() {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
                     "Argument Out of Range Exception when setting cursor position to Y: {}",
                     y
                 ),
-            ));
+            ))?;
         }
 
         let position = COORD { X: x, Y: y };
@@ -72,14 +73,14 @@ impl Cursor {
                 **self.screen_buffer.get_handle(),
                 position,
             )) {
-                return Err(io::Error::last_os_error());
+                Err(io::Error::last_os_error())?;
             }
         }
         Ok(())
     }
 
     /// change the cursor visibility.
-    pub fn set_visibility(&self, visable: bool) -> io::Result<()> {
+    pub fn set_visibility(&self, visable: bool) -> Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
             bVisible: if visable { TRUE } else { FALSE },
@@ -90,14 +91,14 @@ impl Cursor {
                 **self.screen_buffer.get_handle(),
                 &cursor_info,
             )) {
-                return Err(io::Error::last_os_error());
+                Err(io::Error::last_os_error())?;
             }
         }
         Ok(())
     }
 
     /// Reset to saved cursor position
-    pub fn reset_to_saved_position() -> io::Result<()> {
+    pub fn reset_to_saved_position() -> Result<()> {
         let cursor = Cursor::new()?;
 
         unsafe {
@@ -108,7 +109,7 @@ impl Cursor {
     }
 
     /// Save current cursor position to recall later.
-    pub fn save_cursor_pos() -> io::Result<()> {
+    pub fn save_cursor_pos() -> Result<()> {
         let cursor = Cursor::new()?;
         let position = cursor.position()?;
 

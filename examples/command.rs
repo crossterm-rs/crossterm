@@ -29,9 +29,7 @@ fn execute_command_directly_using_macros() -> Result<()> {
         stdout(),
         Output("Text2 ".to_string()),
         Output("Text 3".to_string())
-    )?;
-
-    Ok(())
+    )
 }
 
 /// queue commands without executing them directly by using normal functions
@@ -81,4 +79,9 @@ fn later_execution_command_directly_using_macros() -> Result<()> {
 }
 
 // cargo run --example command
-fn main() {}
+fn main() -> Result<()> {
+    later_execution_command_directly_using_macros()
+    //    later_execution_command_using_functions()
+    //    execute_command_directly_using_macros()
+    //    execute_command_directly_using_functions()
+}

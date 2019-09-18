@@ -1,7 +1,6 @@
 //! This is a `WinApi` specific implementation for styling related action.
 //! This module is used for non supporting `ANSI` Windows terminals.
 
-use std::io;
 use std::sync::Once;
 
 use winapi::um::wincon;
@@ -173,7 +172,7 @@ fn color_value(color: Colored) -> String {
     winapi_color.to_string()
 }
 
-fn init_console_color() -> io::Result<()> {
+fn init_console_color() -> Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
 
     let attr = screen_buffer.info()?.attributes();
