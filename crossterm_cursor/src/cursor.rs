@@ -29,9 +29,7 @@ trait ITerminalCursor: Sync + Send {
     /// Goto location (`x`, `y`) in the current terminal window.
     fn goto(&self, x: u16, y: u16) -> Result<()>;
     /// Get the cursor location `(x, y)` in the current terminal window.
-    ///
-    /// `(0, 0)` is returned in case of an error.
-    fn pos(&self) -> (u16, u16);
+    fn pos(&self) -> Result<(u16, u16)>;
     /// Move cursor `n` times up
     fn move_up(&self, count: u16) -> Result<()>;
     /// Move the cursor `n` times to the right.

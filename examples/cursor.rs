@@ -17,13 +17,14 @@ fn goto() -> Result<()> {
 }
 
 /// get the cursor position
-fn pos() {
+fn pos() -> Result<()> {
     // Get the cursor
     let cursor = cursor();
     // get the cursor position.
-    let (x, y) = cursor.pos();
+    let (x, y) = cursor.pos()?;
 
     println!("{} {}", x, y);
+    Ok(())
 }
 
 /// Move the cursor 3 up | demonstration.

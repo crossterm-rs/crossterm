@@ -7,11 +7,11 @@ use crossterm_utils::{
 };
 
 #[cfg(unix)]
-pub fn get_cursor_position() -> (u16, u16) {
+pub fn get_cursor_position() -> Result<(u16, u16)> {
     if unsafe { RAW_MODE_ENABLED } {
-        pos_raw().unwrap_or((0, 0))
+        pos_raw()
     } else {
-        pos().unwrap_or((0, 0))
+        pos()
     }
 }
 
@@ -45,33 +45,17 @@ pub fn pos_raw() -> Result<(u16, u16)> {
     stdin.lock().read_until(b'[', &mut vec![])?;
 
     let mut rows = vec![];
-    stdin.lock().read_until(b';', &mut rows).unwrap();
+    stdin.lock().read_until(b';', &mut rows)?;
 
     let mut cols = vec![];
-    stdin.lock().read_until(b'R', &mut cols).unwrap();
+    stdin.lock().read_until(b'R', &mut cols)?;
 
     // remove delimiter
     rows.pop();
     cols.pop();
 
-    let rows = rows
-        .into_iter()
-        .map(|b| (b as char))
-        .fold(String::new(), |mut acc, n| {
-            acc.push(n);
-            acc
-        })
-        .parse::<usize>()
-        .unwrap();
-    let cols = cols
-        .into_iter()
-        .map(|b| (b as char))
-        .fold(String::new(), |mut acc, n| {
-            acc.push(n);
-            acc
-        })
-        .parse::<usize>()
-        .unwrap();
+    let rows = String::from_utf8(rows)?.parse::<u16>()?;
+    let cols = String::from_utf8(cols)?.parse::<u16>()?;
 
-    Ok(((cols - 1) as u16, (rows - 1) as u16))
+    Ok((cols - 1, rows - 1))
 }

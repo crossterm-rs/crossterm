@@ -13,6 +13,8 @@ pub type Result<T> = std::result::Result<T, ErrorKind>;
 pub enum ErrorKind {
     IoError(io::Error),
     FmtError(fmt::Error),
+    Utf8Error(std::string::FromUtf8Error),
+    ParseIntError(std::num::ParseIntError),
     ResizingTerminalFailure(String),
 
     #[doc(hidden)]
@@ -47,5 +49,17 @@ impl From<io::Error> for ErrorKind {
 impl From<fmt::Error> for ErrorKind {
     fn from(e: fmt::Error) -> ErrorKind {
         ErrorKind::FmtError(e)
+    }
+}
+
+impl From<std::string::FromUtf8Error> for ErrorKind {
+    fn from(e: std::string::FromUtf8Error) -> Self {
+        ErrorKind::Utf8Error(e)
+    }
+}
+
+impl From<std::num::ParseIntError> for ErrorKind {
+    fn from(e: std::num::ParseIntError) -> Self {
+        ErrorKind::ParseIntError(e)
     }
 }

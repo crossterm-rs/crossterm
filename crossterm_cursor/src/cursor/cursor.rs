@@ -59,7 +59,7 @@ impl TerminalCursor {
     ///
     /// # Remarks
     /// position is 0-based, which means we start counting at 0.
-    pub fn pos(&self) -> (u16, u16) {
+    pub fn pos(&self) -> Result<(u16, u16)> {
         self.cursor.pos()
     }
 
