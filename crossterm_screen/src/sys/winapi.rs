@@ -1,5 +1,3 @@
-use std::io;
-
 use winapi::shared::minwindef::DWORD;
 use winapi::um::wincon;
 
