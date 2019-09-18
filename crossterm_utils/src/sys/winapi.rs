@@ -1,8 +1,7 @@
 pub mod ansi {
-    use std::io;
-
     use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
+    use crossterm_utils::Result;
     use crossterm_winapi::ConsoleMode;
 
     /// Toggle virtual terminal processing.
@@ -14,7 +13,7 @@ pub mod ansi {
     /// When virtual terminal processing is enabled, characters emitted to the
     /// console are parsed for VT100 and similar control character sequences
     /// that control color and other similar operations.
-    pub fn set_virtual_terminal_processing(yes: bool) -> io::Result<()> {
+    pub fn set_virtual_terminal_processing(yes: bool) -> Result<()> {
         let mask = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
         let console_mode = ConsoleMode::new()?;

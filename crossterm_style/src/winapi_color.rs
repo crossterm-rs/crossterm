@@ -173,7 +173,7 @@ fn color_value(color: Colored) -> String {
     winapi_color.to_string()
 }
 
-fn init_console_color() -> io::Result<()> {
+fn init_console_color() -> Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
 
     let attr = screen_buffer.info()?.attributes();

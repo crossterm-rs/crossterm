@@ -48,21 +48,16 @@ impl ITerminalInput for WindowsInput {
 
         // we could return error but maybe option to keep listening until valid character is inputted.
         if pressed_char == 0 || pressed_char == 0xe0 {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::Other,
                 "Given input char is not a valid char, mostly occurs when pressing special keys",
-            ));
+            ))?;
         }
 
-        match char::from_u32(pressed_char as u32) {
-            Some(c) => {
-                return Ok(c);
-            }
-            None => Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Could not parse given input to char",
-            )),
-        }
+        char::from_u32(pressed_char as u32).ok_or_else(io::Error::new(
+            io::ErrorKind::Other,
+            "Could not parse given input to char",
+        ))
     }
 
     fn read_async(&self) -> AsyncReader {
