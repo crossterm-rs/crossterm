@@ -74,59 +74,57 @@ fn process_input_event(key_event: InputEvent) -> bool {
     false
 }
 
-pub fn read_asynchronously() -> Result<()> {
+fn read_asynchronously() -> Result<()> {
     // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    if let Ok(_) = RawScreen::into_raw_mode() {
-        let input = input();
+    let _raw = RawScreen::into_raw_mode()?;
 
-        // enable mouse events to be captured.
-        input.enable_mouse_mode()?;
+    let input = input();
 
-        let mut stdin = input.read_async();
+    // enable mouse events to be captured.
+    input.enable_mouse_mode()?;
 
-        loop {
-            if let Some(key_event) = stdin.next() {
-                if process_input_event(key_event) {
-                    break;
-                }
-            }
-            thread::sleep(Duration::from_millis(50));
-        }
+    let mut stdin = input.read_async();
 
-        // disable mouse events to be captured.
-        input.disable_mouse_mode()?;
-    } // <=== raw modes will be disabled here
-    Ok(())
-} // <=== background reader will be disposed when dropped.
-
-pub fn read_synchronously() -> Result<()> {
-    // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
-    if let Ok(_) = RawScreen::into_raw_mode() {
-        let input = input();
-
-        // enable mouse events to be captured.
-        input.enable_mouse_mode()?;
-
-        let mut sync_stdin = input.read_sync();
-
-        loop {
-            let event = sync_stdin.next();
-
-            if let Some(key_event) = event {
-                if process_input_event(key_event) {
-                    break;
-                }
+    loop {
+        if let Some(key_event) = stdin.next() {
+            if process_input_event(key_event) {
+                break;
             }
         }
+        thread::sleep(Duration::from_millis(50));
+    }
 
-        // disable mouse events to be captured.
-        input.disable_mouse_mode()?;
-    } // <=== raw modes will be disabled here
-    Ok(())
-}
+    // disable mouse events to be captured.
+    input.disable_mouse_mode()
+} // <=== raw modes will be disabled here
+
+fn read_synchronously() -> Result<()> {
+    // make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's self and allows crossterm to read the input and pass it back to you.
+    let _raw = RawScreen::into_raw_mode()?;
+
+    let input = input();
+
+    // enable mouse events to be captured.
+    input.enable_mouse_mode()?;
+
+    let mut sync_stdin = input.read_sync();
+
+    loop {
+        let event = sync_stdin.next();
+
+        if let Some(key_event) = event {
+            if process_input_event(key_event) {
+                break;
+            }
+        }
+    }
+
+    // disable mouse events to be captured.
+    input.disable_mouse_mode()
+} // <=== raw modes will be disabled here
 
 // cargo run --example key_events
 fn main() -> Result<()> {
     read_synchronously()
-    //    read_asynchronously();
+    // read_asynchronously()
 }

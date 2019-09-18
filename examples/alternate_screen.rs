@@ -34,8 +34,9 @@ fn print_wait_screen() -> Result<()> {
 }
 
 /// print wait screen on alternate screen, then switch back.
-pub fn print_wait_screen_on_alternate_window() -> Result<()> {
-    AlternateScreen::to_alternate(false).and_then(|_| print_wait_screen())
+fn print_wait_screen_on_alternate_window() -> Result<()> {
+    let _alt = AlternateScreen::to_alternate(false)?;
+    print_wait_screen()
 }
 
 // cargo run --example alternate_screen

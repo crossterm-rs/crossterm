@@ -39,9 +39,10 @@ fn print_wait_screen() -> Result<()> {
     Ok(())
 }
 
-pub fn print_wait_screen_on_alternate_window() -> Result<()> {
+fn print_wait_screen_on_alternate_window() -> Result<()> {
     // by passing in 'true' the alternate screen will be in raw modes.
-    AlternateScreen::to_alternate(true).and_then(|_| print_wait_screen())
+    let _alt = AlternateScreen::to_alternate(true)?;
+    print_wait_screen()
 }
 
 // cargo run --example raw_mode
