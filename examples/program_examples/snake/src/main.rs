@@ -60,7 +60,7 @@ fn main() -> Result<()> {
             _ => {}
         };
 
-        // Update the snake (move & redraw). If it return `false` -> new head
+        // Update the snake (move & redraw). If it returns `false` -> new head
         // collides with the snake body -> can't eat self -> quit the game loop.
         if !snake.update()? {
             break;
