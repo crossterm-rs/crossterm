@@ -70,12 +70,9 @@ impl Terminal {
         self.terminal.clear(clear_type)
     }
 
-    /// Get the terminal size (x,y).
-    ///
-    /// # Remark
-    /// This will return a tuple of (x: u16, y: u16)
-    pub fn terminal_size(&self) -> (u16, u16) {
-        self.terminal.terminal_size()
+    /// Get the terminal size `(x,y)`.
+    pub fn size(&self) -> Result<(u16, u16)> {
+        self.terminal.size()
     }
 
     /// Scroll `n` lines up in the current terminal.

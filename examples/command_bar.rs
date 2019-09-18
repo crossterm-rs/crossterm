@@ -6,10 +6,10 @@ use crossterm::{
     Terminal, TerminalCursor,
 };
 
-fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>> {
+fn log(input_buf: Arc<Mutex<String>>) -> Result<Vec<thread::JoinHandle<()>>> {
     let mut threads = Vec::with_capacity(10);
 
-    let (_, term_height) = terminal().terminal_size();
+    let (_, term_height) = terminal().size()?;
 
     for i in 0..1 {
         let input_buffer = input_buf.clone();
@@ -37,7 +37,7 @@ fn log(input_buf: Arc<Mutex<String>>) -> Vec<thread::JoinHandle<()>> {
         threads.push(join);
     }
 
-    threads
+    Ok(threads)
 }
 
 fn swap_write(
@@ -60,7 +60,7 @@ fn main() -> Result<()> {
 
     let input_buf = Arc::new(Mutex::new(String::new()));
 
-    let threads = log(input_buf.clone());
+    let threads = log(input_buf.clone())?;
 
     let mut count = 0;
 

@@ -61,7 +61,7 @@ impl ITerminal for AnsiTerminal {
         Ok(())
     }
 
-    fn terminal_size(&self) -> (u16, u16) {
+    fn size(&self) -> Result<(u16, u16)> {
         get_terminal_size()
     }
 
@@ -100,7 +100,9 @@ mod tests {
             // see issue: https://github.com/eminence/terminal-size/issues/11
             thread::sleep(time::Duration::from_millis(30));
 
-            let (x, y) = terminal.terminal_size();
+            let size = terminal.size();
+            assert!(size.is_ok());
+            let (x, y) = size.unwrap();
 
             assert_eq!(x, 50);
             assert_eq!(y, 50);

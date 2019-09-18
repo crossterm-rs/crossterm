@@ -1,11 +1,13 @@
 use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
+use crossterm_utils::Result;
+
 pub fn exit() {
     ::std::process::exit(0);
 }
 
 /// Get the current terminal size.
-pub fn get_terminal_size() -> (u16, u16) {
+pub fn get_terminal_size() -> Result<(u16, u16)> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let mut size = winsize {
         ws_row: 0,
@@ -16,8 +18,8 @@ pub fn get_terminal_size() -> (u16, u16) {
     let r = unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) };
 
     if r == 0 {
-        (size.ws_col, size.ws_row)
+        Ok((size.ws_col, size.ws_row))
     } else {
-        (0, 0)
+        Err(std::io::Error::last_os_error().into())
     }
 }

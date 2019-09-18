@@ -17,14 +17,14 @@ impl ScreenBufferInfo {
 
     /// This will return the buffer size.
     ///
-    /// Will take `dwSize`from the current screen buffer and convert it into the `Size`.
+    /// Will take `dwSize` from the current screen buffer and convert it into the `Size`.
     pub fn buffer_size(&self) -> Size {
         Size::from(self.0.dwSize)
     }
 
     /// This will return the terminal size.
     ///
-    /// Will calculate the whit and height from `srWindow` and convert it into a `Size`.
+    /// Will calculate the width and height from `srWindow` and convert it into a `Size`.
     pub fn terminal_size(&self) -> Size {
         (Size::new(
             self.0.srWindow.Right - self.0.srWindow.Left,

@@ -90,26 +90,26 @@ use crossterm::terminal::{terminal,ClearType};
 let mut terminal = terminal();
 
 // Clear all lines in terminal;
-terminal.clear(ClearType::All);
+terminal.clear(ClearType::All)?;
 // Clear all cells from current cursor position down.
-terminal.clear(ClearType::FromCursorDown);
+terminal.clear(ClearType::FromCursorDown)?;
 // Clear all cells from current cursor position down.
-terminal.clear(ClearType::FromCursorUp);
+terminal.clear(ClearType::FromCursorUp)?;
 // Clear current line cells.
-terminal.clear(ClearType::CurrentLine);
+terminal.clear(ClearType::CurrentLine)?;
 // Clear all the cells until next line.
-terminal.clear(ClearType::UntilNewLine);
+terminal.clear(ClearType::UntilNewLine)?;
 
 // Get terminal size
-let (width, height) = terminal.terminal_size();
+let (width, height) = terminal.size()?;
 print!("X: {}, y: {}", width, height);
 
 // Scroll down, up 10 lines.
-terminal.scroll_down(10);
-terminal.scroll_up(10);
+terminal.scroll_down(10)?;
+terminal.scroll_up(10)?;
 
 // Set terminal size (width, height)
-terminal.set_size(10,10);
+terminal.set_size(10,10)?;
 
 // exit the current process.
 terminal.exit();
