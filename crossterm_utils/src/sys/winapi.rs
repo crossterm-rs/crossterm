@@ -1,7 +1,7 @@
 pub mod ansi {
     use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-    use crossterm_utils::Result;
+    use crate::Result;
     use crossterm_winapi::ConsoleMode;
 
     /// Toggle virtual terminal processing.
