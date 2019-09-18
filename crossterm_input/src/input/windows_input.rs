@@ -54,10 +54,11 @@ impl ITerminalInput for WindowsInput {
             ))?;
         }
 
-        char::from_u32(pressed_char as u32).ok_or_else(io::Error::new(
-            io::ErrorKind::Other,
-            "Could not parse given input to char",
-        ))
+        let ch = char::from_u32(pressed_char as u32).ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "Could not parse given input to char")
+        })?;
+
+        Ok(ch)
     }
 
     fn read_async(&self) -> AsyncReader {
