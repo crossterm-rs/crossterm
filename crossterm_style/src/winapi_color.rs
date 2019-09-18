@@ -1,7 +1,6 @@
 //! This is a `WinApi` specific implementation for styling related action.
 //! This module is used for non supporting `ANSI` Windows terminals.
 
-use std::io;
 use std::sync::Once;
 
 use winapi::um::wincon;
