@@ -291,7 +291,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_SHIFT | VK_CONTROL | VK_MENU => None,
         VK_BACK => Some(KeyEvent::Backspace),
         VK_ESCAPE => Some(KeyEvent::Esc),
-        VK_RETURN => Some(KeyEvent::Char('\n')),
+        VK_RETURN => Some(KeyEvent::Enter),
         VK_F1 | VK_F2 | VK_F3 | VK_F4 | VK_F5 | VK_F6 | VK_F7 | VK_F8 | VK_F9 | VK_F10 | VK_F11
         | VK_F12 => Some(KeyEvent::F((key_event.virtual_key_code - 111) as u8)),
         VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => {

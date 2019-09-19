@@ -89,6 +89,7 @@ pub enum MouseButton {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum KeyEvent {
     Backspace,
+    Enter,
     Left,
     Right,
     Up,
