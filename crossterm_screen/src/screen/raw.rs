@@ -24,7 +24,7 @@ use crate::sys;
 ///
 /// Please note that if this type drops, the raw screen will be undone. To prevent this behaviour call `disable_drop`.
 pub struct RawScreen {
-    drop: bool,
+    disable_raw_mode_on_drop: bool,
 }
 
 impl RawScreen {
@@ -37,7 +37,9 @@ impl RawScreen {
 
         command.enable()?;
 
-        Ok(RawScreen { drop: true })
+        Ok(RawScreen {
+            disable_raw_mode_on_drop: true,
+        })
     }
 
     /// Put terminal back in original modes.
@@ -52,8 +54,8 @@ impl RawScreen {
     }
 
     /// This will disable the drop logic of this type, which means that the rawscreen will not be disabled when this instance goes out of scope.
-    pub fn disable_drop(&mut self) {
-        self.drop = false;
+    pub fn disable_raw_mode_on_drop(&mut self) {
+        self.disable_raw_mode_on_drop = false;
     }
 }
 
@@ -76,14 +78,16 @@ impl IntoRawMode for Stdout {
     fn into_raw_mode(self) -> Result<RawScreen> {
         RawScreen::into_raw_mode()?;
         // this make's sure that raw screen will be disabled when it goes out of scope.
-        Ok(RawScreen { drop: true })
+        Ok(RawScreen {
+            disable_raw_mode_on_drop: true,
+        })
     }
 }
 
 impl Drop for RawScreen {
     fn drop(&mut self) {
-        if self.drop == true {
-            RawScreen::disable_raw_mode().unwrap();
+        if self.disable_raw_mode_on_drop {
+            let _ = RawScreen::disable_raw_mode();
         }
     }
 }
