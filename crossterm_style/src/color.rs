@@ -2,6 +2,7 @@
 //! Like applying attributes to text and changing the foreground and background.
 
 use std::clone::Clone;
+use std::env;
 use std::fmt::Display;
 
 #[cfg(windows)]
@@ -65,19 +66,14 @@ impl TerminalColor {
     }
 
     /// Get available color count.
-    /// (This does not always provide a good result.)
-    pub fn get_available_color_count(&self) -> Result<u16> {
-        use std::env;
-        Ok(match env::var_os("TERM") {
-            Some(val) => {
-                if val.to_str().unwrap_or("").contains("256color") {
-                    256
-                } else {
-                    8
-                }
-            }
-            None => 8,
-        })
+    ///
+    /// # Remarks
+    ///
+    /// This does not always provide a good result.
+    pub fn get_available_color_count(&self) -> u16 {
+        env::var("TERM")
+            .map(|x| if x.contains("256color") { 256 } else { 8 })
+            .unwrap_or(8)
     }
 }
 
