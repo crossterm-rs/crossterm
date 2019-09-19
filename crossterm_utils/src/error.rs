@@ -23,8 +23,11 @@ pub enum ErrorKind {
 
 impl std::error::Error for ErrorKind {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match *self {
-            ErrorKind::IoError(ref e) => Some(e),
+        match self {
+            ErrorKind::IoError(e) => Some(e),
+            ErrorKind::FmtError(e) => Some(e),
+            ErrorKind::Utf8Error(e) => Some(e),
+            ErrorKind::ParseIntError(e) => Some(e),
             _ => None,
         }
     }
