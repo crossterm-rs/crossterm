@@ -12,12 +12,9 @@ use crossterm_utils::Result;
 pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 
 #[cfg(windows)]
-pub fn get_cursor_position() -> (u16, u16) {
-    if let Ok(cursor) = Cursor::new() {
-        cursor.position().unwrap().into()
-    } else {
-        (0, 0)
-    }
+pub fn get_cursor_position() -> Result<(u16, u16)> {
+    let cursor = Cursor::new()?;
+    Ok(cursor.position()?.into())
 }
 
 #[cfg(windows)]

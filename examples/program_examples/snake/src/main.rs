@@ -34,7 +34,7 @@ pub enum Event {
 fn main() -> Result<()> {
     // Print the welcome screen and ask for the map size.
     let crossterm = Crossterm::new();
-    let (map_width, map_height) = ask_for_map_size(crossterm.terminal().terminal_size())?;
+    let (map_width, map_height) = ask_for_map_size(crossterm.terminal().size()?)?;
 
     // Switch screen to the raw mode to avoid printing key presses on the screen
     // and hide the cursor.

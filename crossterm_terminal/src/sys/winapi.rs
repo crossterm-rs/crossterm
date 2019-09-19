@@ -1,3 +1,4 @@
+use crossterm_utils::Result;
 use crossterm_winapi::ScreenBuffer;
 
 /// Exit the current process.
@@ -6,11 +7,7 @@ pub fn exit() {
 }
 
 #[cfg(windows)]
-pub fn get_terminal_size() -> (u16, u16) {
-    if let Ok(buffer) = ScreenBuffer::current() {
-        let size = buffer.info().unwrap().terminal_size();
-        ((size.width + 1) as u16, (size.height + 1) as u16)
-    } else {
-        (0, 0)
-    }
+pub fn get_terminal_size() -> Result<(u16, u16)> {
+    let buffer = ScreenBuffer::current()?;
+    Ok(buffer.info()?.terminal_size().into())
 }

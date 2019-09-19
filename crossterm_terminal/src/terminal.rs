@@ -43,11 +43,11 @@ trait ITerminal {
     /// Clear the current cursor by specifying the clear type
     fn clear(&self, clear_type: ClearType) -> Result<()>;
     /// Get the terminal size (x,y)
-    fn terminal_size(&self) -> (u16, u16);
+    fn size(&self) -> Result<(u16, u16)>;
     /// Scroll `n` lines up in the current terminal.
-    fn scroll_up(&self, count: i16) -> Result<()>;
+    fn scroll_up(&self, count: u16) -> Result<()>;
     /// Scroll `n` lines down in the current terminal.
-    fn scroll_down(&self, count: i16) -> Result<()>;
+    fn scroll_down(&self, count: u16) -> Result<()>;
     /// Resize terminal to the given width and height.
-    fn set_size(&self, width: i16, height: i16) -> Result<()>;
+    fn set_size(&self, width: u16, height: u16) -> Result<()>;
 }

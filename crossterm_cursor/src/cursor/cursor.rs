@@ -59,32 +59,32 @@ impl TerminalCursor {
     ///
     /// # Remarks
     /// position is 0-based, which means we start counting at 0.
-    pub fn pos(&self) -> (u16, u16) {
+    pub fn pos(&self) -> Result<(u16, u16)> {
         self.cursor.pos()
     }
 
     /// Move the current cursor position `n` times up.
-    pub fn move_up(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_up(count).unwrap();
-        self
+    pub fn move_up(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_up(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times right.
-    pub fn move_right(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_right(count).unwrap();
-        self
+    pub fn move_right(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_right(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times down.
-    pub fn move_down(&mut self, count: u16) -> &mut TerminalCursor {
-        self.cursor.move_down(count).unwrap();
-        self
+    pub fn move_down(&mut self, count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_down(count)?;
+        Ok(self)
     }
 
     /// Move the current cursor position `n` times left.
-    pub fn move_left(&mut self, count: u16) -> &mut TerminalCursor {
+    pub fn move_left(&mut self, count: u16) -> Result<&mut TerminalCursor> {
         self.cursor.move_left(count).unwrap();
-        self
+        Ok(self)
     }
 
     /// Save cursor position for recall later.

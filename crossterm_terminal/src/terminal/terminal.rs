@@ -70,19 +70,16 @@ impl Terminal {
         self.terminal.clear(clear_type)
     }
 
-    /// Get the terminal size (x,y).
-    ///
-    /// # Remark
-    /// This will return a tuple of (x: u16, y: u16)
-    pub fn terminal_size(&self) -> (u16, u16) {
-        self.terminal.terminal_size()
+    /// Get the terminal size `(x,y)`.
+    pub fn size(&self) -> Result<(u16, u16)> {
+        self.terminal.size()
     }
 
     /// Scroll `n` lines up in the current terminal.
     ///
     /// # Parameter
     /// - `count`: the number of rows should be shifted up.
-    pub fn scroll_up(&self, count: i16) -> Result<()> {
+    pub fn scroll_up(&self, count: u16) -> Result<()> {
         self.terminal.scroll_up(count)
     }
 
@@ -90,7 +87,7 @@ impl Terminal {
     ///
     /// # Parameter
     /// - `count`: the number of rows should be shifted down.
-    pub fn scroll_down(&self, count: i16) -> Result<()> {
+    pub fn scroll_down(&self, count: u16) -> Result<()> {
         self.terminal.scroll_down(count)
     }
 
@@ -103,7 +100,7 @@ impl Terminal {
     /// // Set of the size to X: 10 and Y: 10
     /// let size = term.set_size(10,10);
     /// ```
-    pub fn set_size(&self, width: i16, height: i16) -> Result<()> {
+    pub fn set_size(&self, width: u16, height: u16) -> Result<()> {
         self.terminal.set_size(width, height)
     }
 
@@ -143,7 +140,7 @@ pub fn terminal() -> Terminal {
 /// When executed, this command will scroll up the terminal buffer by the given number of times.
 ///
 /// See `crossterm/examples/command.rs` for more information on how to execute commands.
-pub struct ScrollUp(pub i16);
+pub struct ScrollUp(pub u16);
 
 impl Command for ScrollUp {
     type AnsiType = String;
@@ -161,7 +158,7 @@ impl Command for ScrollUp {
 /// When executed, this command will scroll down the terminal buffer by the given number of times.
 ///
 /// See `crossterm/examples/command.rs` for more information on how to execute commands.
-pub struct ScrollDown(pub i16);
+pub struct ScrollDown(pub u16);
 
 impl Command for ScrollDown {
     type AnsiType = String;
@@ -209,7 +206,7 @@ impl Command for Clear {
 /// When executed, this command will set the terminal sie to the given (`width` and `height`)
 ///
 /// See `crossterm/examples/command.rs` for more information on how to execute commands.
-pub struct SetSize(pub i16, pub i16);
+pub struct SetSize(pub u16, pub u16);
 
 impl Command for SetSize {
     type AnsiType = String;

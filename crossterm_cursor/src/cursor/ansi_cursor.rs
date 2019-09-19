@@ -51,7 +51,7 @@ impl ITerminalCursor for AnsiCursor {
         Ok(())
     }
 
-    fn pos(&self) -> (u16, u16) {
+    fn pos(&self) -> Result<(u16, u16)> {
         get_cursor_position()
     }
 
@@ -115,13 +115,17 @@ mod tests {
     fn reset_safe_ansi() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
-            let (x, y) = cursor.pos();
+            let pos = cursor.pos();
+            assert!(pos.is_ok());
+            let (x, y) = pos.unwrap();
 
             assert!(cursor.save_position().is_ok());
             assert!(cursor.goto(5, 5).is_ok());
             assert!(cursor.reset_position().is_ok());
 
-            let (x_saved, y_saved) = cursor.pos();
+            let pos = cursor.pos();
+            assert!(pos.is_ok());
+            let (x_saved, y_saved) = pos.unwrap();
 
             assert_eq!(x, x_saved);
             assert_eq!(y, y_saved);
@@ -134,10 +138,14 @@ mod tests {
     fn goto_ansi() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
-            let (x_saved, y_saved) = cursor.pos();
+            let pos = cursor.pos();
+            assert!(pos.is_ok());
+            let (x_saved, y_saved) = pos.unwrap();
 
             assert!(cursor.goto(5, 5).is_ok());
-            let (x, y) = cursor.pos();
+            let pos = cursor.pos();
+            assert!(pos.is_ok());
+            let (x, y) = pos.unwrap();
 
             assert!(cursor.goto(x_saved, y_saved).is_ok());
 

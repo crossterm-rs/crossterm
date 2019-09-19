@@ -15,17 +15,17 @@ pub static CLEAR_FROM_CURRENT_LINE: &'static str = csi!("2K");
 pub static CLEAR_UNTIL_NEW_LINE: &'static str = csi!("K");
 
 #[inline]
-pub fn get_scroll_up_ansi(count: i16) -> String {
+pub fn get_scroll_up_ansi(count: u16) -> String {
     format!(csi!("{}S"), count)
 }
 
 #[inline]
-pub fn get_scroll_down_ansi(count: i16) -> String {
+pub fn get_scroll_down_ansi(count: u16) -> String {
     format!(csi!("{}T"), count)
 }
 
 #[inline]
-pub fn get_set_size_ansi(width: i16, height: i16) -> String {
+pub fn get_set_size_ansi(width: u16, height: u16) -> String {
     format!(csi!("8;{};{}t"), height, width)
 }
 
@@ -61,21 +61,21 @@ impl ITerminal for AnsiTerminal {
         Ok(())
     }
 
-    fn terminal_size(&self) -> (u16, u16) {
+    fn size(&self) -> Result<(u16, u16)> {
         get_terminal_size()
     }
 
-    fn scroll_up(&self, count: i16) -> Result<()> {
+    fn scroll_up(&self, count: u16) -> Result<()> {
         write_cout!(get_scroll_up_ansi(count))?;
         Ok(())
     }
 
-    fn scroll_down(&self, count: i16) -> Result<()> {
+    fn scroll_down(&self, count: u16) -> Result<()> {
         write_cout!(get_scroll_down_ansi(count))?;
         Ok(())
     }
 
-    fn set_size(&self, width: i16, height: i16) -> Result<()> {
+    fn set_size(&self, width: u16, height: u16) -> Result<()> {
         write_cout!(get_set_size_ansi(width, height))?;
         Ok(())
     }
@@ -100,7 +100,9 @@ mod tests {
             // see issue: https://github.com/eminence/terminal-size/issues/11
             thread::sleep(time::Duration::from_millis(30));
 
-            let (x, y) = terminal.terminal_size();
+            let size = terminal.size();
+            assert!(size.is_ok());
+            let (x, y) = size.unwrap();
 
             assert_eq!(x, 50);
             assert_eq!(y, 50);

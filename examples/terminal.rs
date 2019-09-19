@@ -75,14 +75,15 @@ fn clear_until_new_line() -> Result<()> {
 }
 
 /// Print the the current terminal size | demonstration.
-fn print_terminal_size() {
+fn print_terminal_size() -> Result<()> {
     let terminal = terminal();
 
     // Get terminal size
-    let (width, height) = terminal.terminal_size();
+    let (width, height) = terminal.size()?;
 
     // Print results
     print!("X: {}, y: {}", width, height);
+    Ok(())
 }
 
 /// Set the terminal size to width 10, height: 10 | demonstration.
