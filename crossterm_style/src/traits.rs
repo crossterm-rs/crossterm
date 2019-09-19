@@ -12,7 +12,7 @@ use crate::StyledObject;
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
-pub trait Colorize<D: Display + Clone> {
+pub trait Colorize<D: Display> {
     fn black(self) -> StyledObject<D>;
     fn dark_grey(self) -> StyledObject<D>;
     fn red(self) -> StyledObject<D>;
@@ -60,7 +60,7 @@ pub trait Colorize<D: Display + Clone> {
 /// println!("{}", "Underlined text".underlined();
 /// println!("{}", "Negative text".negative();
 /// ```
-pub trait Styler<D: Display + Clone> {
+pub trait Styler<D: Display> {
     fn reset(self) -> StyledObject<D>;
     fn bold(self) -> StyledObject<D>;
     fn underlined(self) -> StyledObject<D>;
