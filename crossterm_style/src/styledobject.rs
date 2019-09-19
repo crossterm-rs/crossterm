@@ -14,7 +14,7 @@ pub struct StyledObject<D: Display> {
     pub content: D,
 }
 
-impl<'a, D: Display + 'a + Clone> StyledObject<D> {
+impl<'a, D: Display> StyledObject<D> {
     /// Set the foreground of the styled object to the passed `Color`.
     ///
     /// # Remarks
@@ -49,7 +49,7 @@ impl<'a, D: Display + 'a + Clone> StyledObject<D> {
     }
 }
 
-impl<D: Display + Clone> Display for StyledObject<D> {
+impl<D: Display> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
         let colored_terminal = color();
         let mut reset = false;
