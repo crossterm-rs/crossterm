@@ -491,6 +491,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::parse_utf8_char;
+
     #[test]
     fn test_parse_utf8() {
         let st = "abcéŷ¤£€ù%323";
