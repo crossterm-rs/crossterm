@@ -61,9 +61,8 @@ pub fn into_raw_mode() -> Result<()> {
 
 pub fn disable_raw_mode() -> Result<()> {
     unsafe {
-        if ORIGINAL_TERMINAL_MODE.is_some() {
-            set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;
-
+        if let Some(original_terminal_mode) = ORIGINAL_TERMINAL_MODE.as_ref() {
+            set_terminal_attr(original_terminal_mode)?;
             RAW_MODE_ENABLED = false;
         }
     }
