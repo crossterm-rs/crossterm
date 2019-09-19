@@ -5,17 +5,14 @@ use crossterm_utils::{csi, write_cout, Result};
 
 use crate::{Attribute, Color, Colored, ITerminalColor};
 
-#[inline(always)]
 pub fn get_set_fg_ansi(fg_color: Color) -> String {
     format!(csi!("{}m"), color_value(Colored::Fg(fg_color)),)
 }
 
-#[inline(always)]
 pub fn get_set_bg_ansi(bg_color: Color) -> String {
     format!(csi!("{}m"), color_value(Colored::Bg(bg_color)),)
 }
 
-#[inline(always)]
 pub fn get_set_attr_ansi(attribute: Attribute) -> String {
     format!(csi!("{}m"), attribute as i16,)
 }
