@@ -122,7 +122,7 @@ impl From<HANDLE> for ScreenBuffer {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::ScreenBuffer;
 
     #[test]
