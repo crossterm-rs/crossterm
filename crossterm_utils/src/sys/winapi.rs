@@ -24,11 +24,11 @@ pub mod ansi {
         } else {
             old_mode & !mask
         };
-        if old_mode == new_mode {
-            return Ok(());
+
+        if old_mode != new_mode {
+            console_mode.set_mode(new_mode)?;
         }
 
-        console_mode.set_mode(new_mode)?;
         Ok(())
     }
 }
