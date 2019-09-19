@@ -14,17 +14,17 @@ pub static CLEAR_FROM_CURSOR_UP: &'static str = csi!("1J");
 pub static CLEAR_FROM_CURRENT_LINE: &'static str = csi!("2K");
 pub static CLEAR_UNTIL_NEW_LINE: &'static str = csi!("K");
 
-#[inline]
+#[inline(always)]
 pub fn get_scroll_up_ansi(count: u16) -> String {
     format!(csi!("{}S"), count)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_scroll_down_ansi(count: u16) -> String {
     format!(csi!("{}T"), count)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_set_size_ansi(width: u16, height: u16) -> String {
     format!(csi!("8;{};{}t"), height, width)
 }

@@ -8,27 +8,27 @@ use crate::sys::{get_cursor_position, show_cursor};
 
 use super::ITerminalCursor;
 
-#[inline]
+#[inline(always)]
 pub fn get_goto_ansi(x: u16, y: u16) -> String {
     format!(csi!("{};{}H"), y + 1, x + 1)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_move_up_ansi(count: u16) -> String {
     format!(csi!("{}A"), count)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_move_right_ansi(count: u16) -> String {
     format!(csi!("{}C"), count)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_move_down_ansi(count: u16) -> String {
     format!(csi!("{}B"), count)
 }
 
-#[inline]
+#[inline(always)]
 pub fn get_move_left_ansi(count: u16) -> String {
     format!(csi!("{}D"), count)
 }
