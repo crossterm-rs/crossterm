@@ -46,24 +46,15 @@ pub enum Color {
     AnsiValue(u8),
 }
 
-impl<'a> From<&'a str> for Color {
-    /// Get a `Color` from a `&str` like `Color::from("blue")`.
-    fn from(src: &str) -> Self {
-        src.parse().unwrap_or(Color::White)
-    }
-}
-
-impl From<String> for Color {
-    /// Get a `Color` from a `&str` like `Color::from(String::from(blue))`.
-    fn from(src: String) -> Self {
-        src.parse().unwrap_or(Color::White)
-    }
-}
-
 impl FromStr for Color {
     type Err = ();
 
-    /// Convert a `&str` to a `Color` value
+    /// Creates a `Color` from the string representation.
+    ///
+    /// # Remarks
+    ///
+    /// * `Color::White` is returned in case of an unknown color.
+    /// * This function does not return `Err` and you can safely unwrap.
     fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
         let src = src.to_lowercase();
 
