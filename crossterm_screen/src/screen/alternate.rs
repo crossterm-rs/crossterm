@@ -75,6 +75,6 @@ impl AlternateScreen {
 impl Drop for AlternateScreen {
     /// This will switch back to the main screen on drop.
     fn drop(&mut self) {
-        self.to_main().unwrap();
+        let _ = self.to_main();
     }
 }
