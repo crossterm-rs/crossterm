@@ -190,3 +190,14 @@ macro_rules! impl_display {
         })*
     }
 }
+
+#[macro_export]
+macro_rules! impl_from {
+    ($from:path, $to:expr) => {
+        impl From<$from> for ErrorKind {
+            fn from(e: $from) -> Self {
+                $to(e)
+            }
+        }
+    };
+}

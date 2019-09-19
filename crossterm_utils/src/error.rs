@@ -5,6 +5,8 @@ use std::{
     io,
 };
 
+use crate::impl_from;
+
 /// The `crossterm` result type.
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 
@@ -41,16 +43,6 @@ impl Display for ErrorKind {
             _ => write!(fmt, "Some error has occurred"),
         }
     }
-}
-
-macro_rules! impl_from {
-    ($from:path, $to:expr) => {
-        impl From<$from> for ErrorKind {
-            fn from(e: $from) -> Self {
-                $to(e)
-            }
-        }
-    };
 }
 
 impl_from!(io::Error, ErrorKind::IoError);
