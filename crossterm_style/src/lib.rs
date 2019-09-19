@@ -63,7 +63,7 @@ trait ITerminalColor {
 /// Those types will make it a bit easier to style a string.
 pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
 where
-    D: Display + Clone,
+    D: Display,
 {
     ObjectStyle::new().apply_to(val)
 }
