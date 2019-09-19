@@ -83,7 +83,7 @@ impl TerminalCursor {
 
     /// Move the current cursor position `n` times left.
     pub fn move_left(&mut self, count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_left(count).unwrap();
+        self.cursor.move_left(count)?;
         Ok(self)
     }
 

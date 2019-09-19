@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
 /// run the program
 fn run() -> Result<()> {
-    //    let screen = RawScreen::into_raw_mode().expect("failed to enable raw modes");
+    //    let screen = RawScreen::into_raw_mode()?;
     print_welcome_screen()?;
     start_algorithm()?;
     exit()
@@ -90,7 +90,7 @@ fn print_welcome_screen() -> Result<()> {
 }
 
 fn exit() -> Result<()> {
-    RawScreen::disable_raw_mode().expect("Failed to disable raw modes.");
+    RawScreen::disable_raw_mode()?;
     cursor().show()?;
     color().reset()
 }

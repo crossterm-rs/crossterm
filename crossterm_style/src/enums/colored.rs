@@ -37,12 +37,12 @@ impl Display for Colored {
         let colored_terminal = color();
 
         match *self {
-            Colored::Fg(color) => {
-                colored_terminal.set_fg(color).unwrap();
-            }
-            Colored::Bg(color) => {
-                colored_terminal.set_bg(color).unwrap();
-            }
+            Colored::Fg(color) => colored_terminal
+                .set_fg(color)
+                .map_err(|_| std::fmt::Error)?,
+            Colored::Bg(color) => colored_terminal
+                .set_bg(color)
+                .map_err(|_| std::fmt::Error)?,
         }
 
         Ok(())

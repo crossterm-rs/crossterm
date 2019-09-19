@@ -9,7 +9,7 @@ use crate::{ErrorKind, Result};
 static mut ORIGINAL_TERMINAL_MODE: Option<Termios> = None;
 pub static mut RAW_MODE_ENABLED: bool = false;
 
-fn unwrap(t: i32) -> Result<()> {
+fn wrap_with_result(t: i32) -> Result<()> {
     if t == -1 {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
@@ -31,7 +31,7 @@ pub fn get_terminal_attr() -> Result<Termios> {
     }
     unsafe {
         let mut termios = mem::zeroed();
-        unwrap(tcgetattr(0, &mut termios))?;
+        wrap_with_result(tcgetattr(0, &mut termios))?;
         Ok(termios)
     }
 }
@@ -40,7 +40,7 @@ pub fn set_terminal_attr(termios: &Termios) -> Result<()> {
     extern "C" {
         pub fn tcsetattr(fd: c_int, opt: c_int, termptr: *const Termios) -> c_int;
     }
-    unwrap(unsafe { tcsetattr(0, 0, termios) }).and(Ok(()))
+    wrap_with_result(unsafe { tcsetattr(0, 0, termios) })
 }
 
 pub fn into_raw_mode() -> Result<()> {
@@ -61,9 +61,8 @@ pub fn into_raw_mode() -> Result<()> {
 
 pub fn disable_raw_mode() -> Result<()> {
     unsafe {
-        if ORIGINAL_TERMINAL_MODE.is_some() {
-            set_terminal_attr(&ORIGINAL_TERMINAL_MODE.unwrap())?;
-
+        if let Some(original_terminal_mode) = ORIGINAL_TERMINAL_MODE.as_ref() {
+            set_terminal_attr(original_terminal_mode)?;
             RAW_MODE_ENABLED = false;
         }
     }

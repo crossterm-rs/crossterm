@@ -6,8 +6,8 @@ use crate::StyledObject;
 ///
 /// This trait is implemented for `&static str` and `StyledObject` and thus the methods of this trait could be called on them.
 ///
-/// ```ignore
-/// use Colorizer;
+/// ```rust
+/// use crossterm_style::Colorize;
 ///
 /// let styled_text = "Red forground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
@@ -53,12 +53,13 @@ pub trait Colorize<D: Display + Clone> {
 /// This trait is implemented for `&static str` and `StyledObject` and thus the methods of this trait could be called on them.
 ///
 /// # Example
-/// ```ignore
-/// use Colorizer;
 ///
-/// println!("{}", "Bold text".bold();
-/// println!("{}", "Underlined text".underlined();
-/// println!("{}", "Negative text".negative();
+/// ```rust
+/// use crossterm_style::Styler;
+///
+/// println!("{}", "Bold text".bold());
+/// println!("{}", "Underlined text".underlined());
+/// println!("{}", "Negative text".negative());
 /// ```
 pub trait Styler<D: Display + Clone> {
     fn reset(self) -> StyledObject<D>;

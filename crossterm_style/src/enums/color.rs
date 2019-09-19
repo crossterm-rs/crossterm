@@ -46,24 +46,15 @@ pub enum Color {
     AnsiValue(u8),
 }
 
-impl<'a> From<&'a str> for Color {
-    /// Get a `Color` from a `&str` like `Color::from("blue")`.
-    fn from(src: &str) -> Self {
-        src.parse().unwrap_or(Color::White)
-    }
-}
-
-impl From<String> for Color {
-    /// Get a `Color` from a `&str` like `Color::from(String::from(blue))`.
-    fn from(src: String) -> Self {
-        src.parse().unwrap_or(Color::White)
-    }
-}
-
 impl FromStr for Color {
     type Err = ();
 
-    /// Convert a `&str` to a `Color` value
+    /// Creates a `Color` from the string representation.
+    ///
+    /// # Remarks
+    ///
+    /// * `Color::White` is returned in case of an unknown color.
+    /// * This function does not return `Err` and you can safely unwrap.
     fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
         let src = src.to_lowercase();
 
@@ -86,5 +77,35 @@ impl FromStr for Color {
             "grey" => Ok(Color::Grey),
             _ => Ok(Color::White),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Color;
+
+    #[test]
+    fn test_known_color_conversion() {
+        assert_eq!("black".parse(), Ok(Color::Black));
+        assert_eq!("dark_grey".parse(), Ok(Color::DarkGrey));
+        assert_eq!("red".parse(), Ok(Color::Red));
+        assert_eq!("dark_red".parse(), Ok(Color::DarkRed));
+        assert_eq!("green".parse(), Ok(Color::Green));
+        assert_eq!("dark_green".parse(), Ok(Color::DarkGreen));
+        assert_eq!("yellow".parse(), Ok(Color::Yellow));
+        assert_eq!("dark_yellow".parse(), Ok(Color::DarkYellow));
+        assert_eq!("blue".parse(), Ok(Color::Blue));
+        assert_eq!("dark_blue".parse(), Ok(Color::DarkBlue));
+        assert_eq!("magenta".parse(), Ok(Color::Magenta));
+        assert_eq!("dark_magenta".parse(), Ok(Color::DarkMagenta));
+        assert_eq!("cyan".parse(), Ok(Color::Cyan));
+        assert_eq!("dark_cyan".parse(), Ok(Color::DarkCyan));
+        assert_eq!("white".parse(), Ok(Color::White));
+        assert_eq!("grey".parse(), Ok(Color::Grey));
+    }
+
+    #[test]
+    fn test_unknown_color_conversion_yields_white() {
+        assert_eq!("foo".parse(), Ok(Color::White));
     }
 }

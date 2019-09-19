@@ -76,7 +76,7 @@ impl From<Handle> for ConsoleMode {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::ConsoleMode;
 
     // TODO - Test is ignored, because it's failing on Travis CI

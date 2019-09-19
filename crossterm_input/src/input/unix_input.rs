@@ -129,7 +129,7 @@ impl AsyncReader {
     /// # Remarks
     /// - Background thread will be closed.
     /// - This will consume the handle you won't be able to restart the reading with this handle, create a new `AsyncReader` instead.
-    pub fn stop_reading(&mut self) {
+    pub fn stop(&mut self) {
         self.shutdown.store(true, Ordering::SeqCst);
     }
 }
@@ -161,7 +161,7 @@ impl Iterator for AsyncReader {
 
 impl Drop for AsyncReader {
     fn drop(&mut self) {
-        self.stop_reading();
+        self.stop();
     }
 }
 
@@ -490,13 +490,17 @@ where
 }
 
 #[cfg(test)]
-#[test]
-fn test_parse_utf8() {
-    let st = "abcéŷ¤£€ù%323";
-    let ref mut bytes = st.bytes();
-    let chars = st.chars();
-    for c in chars {
-        let b = bytes.next().unwrap();
-        assert_eq!(c, parse_utf8_char(b, bytes).unwrap());
+mod tests {
+    use super::parse_utf8_char;
+
+    #[test]
+    fn test_parse_utf8() {
+        let st = "abcéŷ¤£€ù%323";
+        let ref mut bytes = st.bytes();
+        let chars = st.chars();
+        for c in chars {
+            let b = bytes.next().unwrap();
+            assert_eq!(c, parse_utf8_char(b, bytes).unwrap());
+        }
     }
 }

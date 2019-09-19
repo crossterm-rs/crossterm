@@ -175,7 +175,7 @@ impl From<HANDLE> for Handle {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::{Handle, HandleType};
 
     #[test]

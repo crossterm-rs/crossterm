@@ -5,21 +5,11 @@ use std::fmt::Display;
 use super::{Attribute, Color, StyledObject};
 
 /// Struct that contains the style properties that can be applied to a displayable object.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ObjectStyle {
     pub fg_color: Option<Color>,
     pub bg_color: Option<Color>,
     pub attrs: Vec<Attribute>,
-}
-
-impl Default for ObjectStyle {
-    fn default() -> ObjectStyle {
-        ObjectStyle {
-            fg_color: None,
-            bg_color: None,
-            attrs: Vec::new(),
-        }
-    }
 }
 
 impl ObjectStyle {
@@ -33,11 +23,7 @@ impl ObjectStyle {
 
     /// Get a new instance of `ObjectStyle`
     pub fn new() -> ObjectStyle {
-        ObjectStyle {
-            fg_color: None,
-            bg_color: None,
-            attrs: Vec::new(),
-        }
+        ObjectStyle::default()
     }
 
     /// Set the background color of `ObjectStyle` to the passed color.

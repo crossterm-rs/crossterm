@@ -53,8 +53,8 @@ impl RawScreen {
         Ok(())
     }
 
-    /// This will disable the drop logic of this type, which means that the rawscreen will not be disabled when this instance goes out of scope.
-    pub fn disable_raw_mode_on_drop(&mut self) {
+    /// Keeps the raw mode when the `RawMode` value is dropped.
+    pub fn keep_raw_mode_on_drop(&mut self) {
         self.disable_raw_mode_on_drop = false;
     }
 }

@@ -180,14 +180,14 @@ impl AsyncReader {
     /// # Remarks
     /// - Background thread will be closed.
     /// - This will consume the handle you won't be able to restart the reading with this handle, create a new `AsyncReader` instead.
-    pub fn stop_reading(&mut self) {
+    pub fn stop(&mut self) {
         self.shutdown.store(true, Ordering::SeqCst);
     }
 }
 
 impl Drop for AsyncReader {
     fn drop(&mut self) {
-        self.stop_reading();
+        self.stop();
     }
 }
 
