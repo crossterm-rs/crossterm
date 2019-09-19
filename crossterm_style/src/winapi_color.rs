@@ -44,7 +44,7 @@ impl ITerminalColor for WinApiColor {
         let mut color: u16;
         let attrs = csbi.attributes();
         let bg_color = attrs & 0x0070;
-        color = color_value.parse::<u16>().unwrap() | bg_color;
+        color = color_value.parse::<u16>()? | bg_color;
 
         // background intensity is a separate value in attrs,
         // wee need to check if this was applied to the current bg color.
@@ -71,7 +71,7 @@ impl ITerminalColor for WinApiColor {
         let mut color: u16;
         let attrs = csbi.attributes();
         let fg_color = attrs & 0x0007;
-        color = fg_color | color_value.parse::<u16>().unwrap();
+        color = fg_color | color_value.parse::<u16>()?;
 
         // Foreground intensity is a separate value in attrs,
         // So we need to check if this was applied to the current fg color.

@@ -55,11 +55,11 @@ impl<D: Display> Display for StyledObject<D> {
         let mut reset = false;
 
         if let Some(bg) = self.object_style.bg_color {
-            queue!(f, SetBg(bg)).unwrap();
+            queue!(f, SetBg(bg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
         if let Some(fg) = self.object_style.fg_color {
-            queue!(f, SetFg(fg)).unwrap();
+            queue!(f, SetFg(fg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
@@ -71,7 +71,7 @@ impl<D: Display> Display for StyledObject<D> {
         fmt::Display::fmt(&self.content, f)?;
 
         if reset {
-            colored_terminal.reset().unwrap();
+            colored_terminal.reset().map_err(|_| fmt::Error)?;
         }
 
         Ok(())
