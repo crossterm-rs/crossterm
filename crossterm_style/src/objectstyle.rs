@@ -14,7 +14,7 @@ pub struct ObjectStyle {
 
 impl ObjectStyle {
     /// Apply a `StyledObject` to the passed displayable object.
-    pub fn apply_to<D: Display>(&self, val: D) -> StyledObject<D> {
+    pub fn apply_to<D: Display + Clone>(&self, val: D) -> StyledObject<D> {
         StyledObject {
             object_style: self.clone(),
             content: val,

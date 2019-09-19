@@ -9,7 +9,7 @@ use super::{color, Attribute, Color, Colorize, ObjectStyle, SetBg, SetFg, Styler
 
 /// Contains both the style and the content which can be styled.
 #[derive(Clone)]
-pub struct StyledObject<D: Display> {
+pub struct StyledObject<D: Display + Clone> {
     pub object_style: ObjectStyle,
     pub content: D,
 }
