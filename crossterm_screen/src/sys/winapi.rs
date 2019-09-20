@@ -63,7 +63,7 @@ impl ToAlternateScreenCommand {
 
 impl IAlternateScreenCommand for ToAlternateScreenCommand {
     fn enable(&self) -> Result<()> {
-        let alternate_screen = ScreenBuffer::create();
+        let alternate_screen = ScreenBuffer::new();
         alternate_screen.show()?;
         Ok(())
     }

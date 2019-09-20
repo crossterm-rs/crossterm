@@ -15,7 +15,7 @@ fn print_screen_buffer_information() {
 #[allow(dead_code)]
 fn multiple_screen_buffers() {
     // create new screen buffer
-    let screen_buffer = ScreenBuffer::create();
+    let screen_buffer = ScreenBuffer::new();
 
     // which to this screen buffer
     screen_buffer.show().expect("Unable to show screen buffer");
