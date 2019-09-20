@@ -88,21 +88,21 @@ mod tests {
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]
     #[ignore]
-    fn resize_ansi() {
+    fn test_resize_ansi() {
         if try_enable_ansi() {
             let terminal = AnsiTerminal::new();
 
-            assert!(terminal.set_size(50, 50).is_ok());
+            let (width, height) = terminal.size().unwrap();
 
+            terminal.set_size(30, 30).unwrap();
             // see issue: https://github.com/eminence/terminal-size/issues/11
             thread::sleep(time::Duration::from_millis(30));
+            assert_eq!((30, 30), terminal.size().unwrap());
 
-            let size = terminal.size();
-            assert!(size.is_ok());
-            let (x, y) = size.unwrap();
-
-            assert_eq!(x, 50);
-            assert_eq!(y, 50);
+            terminal.set_size(width, height).unwrap();
+            // see issue: https://github.com/eminence/terminal-size/issues/11
+            thread::sleep(time::Duration::from_millis(30));
+            assert_eq!((width, height), terminal.size().unwrap());
         }
     }
 

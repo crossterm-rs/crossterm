@@ -179,7 +179,7 @@ mod tests {
     use super::{Handle, HandleType};
 
     #[test]
-    fn get_handle() {
+    fn test_get_handle() {
         assert!(Handle::new(HandleType::OutputHandle).is_ok());
         assert!(Handle::new(HandleType::InputHandle).is_ok());
         assert!(Handle::new(HandleType::CurrentOutputHandle).is_ok());

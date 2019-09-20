@@ -283,16 +283,15 @@ mod tests {
     // TODO - Test is ignored, because it returns wrong result (31 != 30)
     #[test]
     #[ignore]
-    fn resize_winapi() {
+    fn test_resize_winapi() {
         let terminal = WinApiTerminal::new();
 
-        assert!(terminal.set_size(30, 30).is_ok());
+        let (width, height) = terminal.size().unwrap();
 
-        let size = terminal.size();
-        assert!(size.is_ok());
-        let (x, y) = size.unwrap();
+        terminal.set_size(30, 30).unwrap();
+        assert_eq!((30, 30), terminal.size().unwrap());
 
-        assert_eq!(x, 30);
-        assert_eq!(y, 30);
+        terminal.set_size(width, height).unwrap();
+        assert_eq!((width, height), terminal.size().unwrap());
     }
 }
