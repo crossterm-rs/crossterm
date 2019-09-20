@@ -49,6 +49,6 @@ fn set_foreground_color() -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    set_background_color()?
+    set_background_color()?;
     set_foreground_color()
 }
