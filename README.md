@@ -183,7 +183,7 @@ cursor.goto(5,20);
 // Print at X: 5 Y: 20.
 print!("Yea!");
 // Reset back to X: 5 Y: 5.
-cursor.reset_position();
+cursor.restore_position();
 // Print 'Back' at X: 5 Y: 5.
 print!("Back");
 

@@ -95,8 +95,8 @@ impl TerminalCursor {
     }
 
     /// Return to saved cursor position
-    pub fn reset_position(&self) -> Result<()> {
-        self.cursor.reset_position()
+    pub fn restore_position(&self) -> Result<()> {
+        self.cursor.restore_position()
     }
 
     /// Hide de cursor in the console.
@@ -224,7 +224,7 @@ impl Command for SavePos {
     type AnsiType = &'static str;
 
     fn get_ansi_code(&self) -> Self::AnsiType {
-        ansi_cursor::SAFE_POS_ANSI
+        ansi_cursor::SAVE_POS_ANSI
     }
 
     #[cfg(windows)]
@@ -242,12 +242,12 @@ impl Command for ResetPos {
     type AnsiType = &'static str;
 
     fn get_ansi_code(&self) -> Self::AnsiType {
-        ansi_cursor::RESET_POS_ANSI
+        ansi_cursor::RESTORE_POS_ANSI
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().reset_position()
+        WinApiCursor::new().restore_position()
     }
 }
 

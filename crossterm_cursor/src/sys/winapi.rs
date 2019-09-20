@@ -95,7 +95,7 @@ impl Cursor {
     }
 
     /// Reset to saved cursor position
-    pub fn reset_to_saved_position() -> Result<()> {
+    pub fn restore_cursor_pos() -> Result<()> {
         let cursor = Cursor::new()?;
 
         unsafe {

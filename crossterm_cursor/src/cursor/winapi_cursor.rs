@@ -58,8 +58,8 @@ impl ITerminalCursor for WinApiCursor {
         Ok(())
     }
 
-    fn reset_position(&self) -> Result<()> {
-        Cursor::reset_to_saved_position()?;
+    fn restore_position(&self) -> Result<()> {
+        Cursor::restore_cursor_pos()?;
         Ok(())
     }
 
@@ -83,35 +83,31 @@ mod tests {
     use super::{ITerminalCursor, WinApiCursor};
 
     #[test]
-    fn goto_winapi() {
+    fn test_winapi_goto() {
         let cursor = WinApiCursor::new();
 
-        assert!(cursor.goto(5, 5).is_ok());
-        let pos = cursor.pos();
-        assert!(pos.is_ok());
-        let (x, y) = pos.unwrap();
+        let (saved_x, saved_y) = cursor.pos().unwrap();
 
-        assert_eq!(x, 5);
-        assert_eq!(y, 5);
+        cursor.goto(saved_x + 1, saved_y + 1).unwrap();
+        assert_eq!(cursor.pos().unwrap(), (saved_x + 1, saved_y + 1));
+
+        cursor.goto(saved_x, saved_y).unwrap();
+        assert_eq!(cursor.pos().unwrap(), (saved_x, saved_y));
     }
 
     #[test]
-    fn reset_safe_winapi() {
+    fn test_winapi_save_and_restore() {
         let cursor = WinApiCursor::new();
 
-        let pos = cursor.pos();
-        assert!(pos.is_ok());
-        let (x, y) = pos.unwrap();
+        let (saved_x, saved_y) = cursor.pos().unwrap();
 
-        assert!(cursor.save_position().is_ok());
-        assert!(cursor.goto(5, 5).is_ok());
-        assert!(cursor.reset_position().is_ok());
+        cursor.save_position().unwrap();
+        cursor.goto(saved_x + 1, saved_y + 1).unwrap();
+        cursor.restore_position().unwrap();
 
-        let pos = cursor.pos();
-        assert!(pos.is_ok());
-        let (x_saved, y_saved) = pos.unwrap();
+        let (x, y) = cursor.pos().unwrap();
 
-        assert_eq!(x, x_saved);
-        assert_eq!(y, y_saved);
+        assert_eq!(x, saved_x);
+        assert_eq!(y, saved_y);
     }
 }
