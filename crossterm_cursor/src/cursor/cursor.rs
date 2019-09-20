@@ -131,7 +131,7 @@ pub struct Goto(pub u16, pub u16);
 impl Command for Goto {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::get_goto_ansi(self.0, self.1)
     }
 
@@ -149,7 +149,7 @@ pub struct Up(pub u16);
 impl Command for Up {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::get_move_up_ansi(self.0)
     }
 
@@ -167,7 +167,7 @@ pub struct Down(pub u16);
 impl Command for Down {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::get_move_down_ansi(self.0)
     }
 
@@ -185,7 +185,7 @@ pub struct Left(pub u16);
 impl Command for Left {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::get_move_left_ansi(self.0)
     }
 
@@ -203,7 +203,7 @@ pub struct Right(pub u16);
 impl Command for Right {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::get_move_right_ansi(self.0)
     }
 
@@ -223,7 +223,7 @@ pub struct SavePos;
 impl Command for SavePos {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::SAVE_POS_ANSI
     }
 
@@ -241,7 +241,7 @@ pub struct ResetPos;
 impl Command for ResetPos {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::RESTORE_POS_ANSI
     }
 
@@ -259,7 +259,7 @@ pub struct Hide;
 impl Command for Hide {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::HIDE_ANSI
     }
 
@@ -277,7 +277,7 @@ pub struct Show;
 impl Command for Show {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::SHOW_ANSI
     }
 
@@ -298,7 +298,7 @@ pub struct BlinkOn;
 impl Command for BlinkOn {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::BLINK_ON_ANSI
     }
 
@@ -319,7 +319,7 @@ pub struct BlinkOff;
 impl Command for BlinkOff {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_cursor::BLINK_OFF_ANSI
     }
 

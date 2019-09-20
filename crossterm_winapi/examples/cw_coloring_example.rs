@@ -16,7 +16,7 @@ fn set_background_color() -> std::io::Result<()> {
     let new_color = fg_color | BLUE_BACKGROUND;
 
     // set the console text attribute to the new color value.
-    Console::from(**screen_buffer.get_handle()).set_text_attribute(new_color)?;
+    Console::from(**screen_buffer.handle()).set_text_attribute(new_color)?;
 
     Ok(())
 }
@@ -41,7 +41,7 @@ fn set_foreground_color() -> std::io::Result<()> {
     }
 
     // set the console text attribute to the new color value.
-    Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
+    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
 
     Ok(())
 }

@@ -102,7 +102,7 @@ impl ScreenBuffer {
     }
 
     /// Get the underlining raw `HANDLE` used by this type to execute whit.
-    pub fn get_handle(&self) -> &Handle {
+    pub fn handle(&self) -> &Handle {
         return &self.handle;
     }
 }

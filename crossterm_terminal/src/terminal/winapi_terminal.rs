@@ -93,7 +93,7 @@ impl ITerminal for WinApiTerminal {
 
         // Get the position of the current console window
         let screen_buffer = ScreenBuffer::current()?;
-        let console = Console::from(**screen_buffer.get_handle());
+        let console = Console::from(**screen_buffer.handle());
         let csbi = screen_buffer.info()?;
 
         let current_size = csbi.buffer_size();

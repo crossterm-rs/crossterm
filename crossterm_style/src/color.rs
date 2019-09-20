@@ -70,7 +70,7 @@ impl TerminalColor {
     /// # Remarks
     ///
     /// This does not always provide a good result.
-    pub fn get_available_color_count(&self) -> u16 {
+    pub fn available_color_count(&self) -> u16 {
         env::var("TERM")
             .map(|x| if x.contains("256color") { 256 } else { 8 })
             .unwrap_or(8)
@@ -90,7 +90,7 @@ pub struct SetFg(pub Color);
 impl Command for SetFg {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_color::get_set_fg_ansi(self.0)
     }
 
@@ -108,7 +108,7 @@ pub struct SetBg(pub Color);
 impl Command for SetBg {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_color::get_set_bg_ansi(self.0)
     }
 
@@ -126,7 +126,7 @@ pub struct SetAttr(pub Attribute);
 impl Command for SetAttr {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         ansi_color::get_set_attr_ansi(self.0)
     }
 
@@ -148,7 +148,7 @@ where
 {
     type AnsiType = StyledObject<D>;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         self.0.clone()
     }
 
