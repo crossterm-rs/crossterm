@@ -5,24 +5,15 @@ use crate::sys::winapi::ansi::set_virtual_terminal_processing;
 pub fn supports_ansi() -> bool {
     // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.
     // Because of that we should check first if the TERM-variable is set and see if the current terminal is a terminal who does support ANSI.
-    let supports_ansi = is_specific_term();
 
-    match supports_ansi {
-        true => {
-            return true;
-        }
-        false => {
-            // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
-            match set_virtual_terminal_processing(true) {
-                Ok(_) => {
-                    return true;
-                }
-                Err(_) => {
-                    return false;
-                }
-            }
-        }
+    if is_specific_term() {
+        return true;
     }
+
+    // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
+    set_virtual_terminal_processing(true)
+        .map(|_| true)
+        .unwrap_or(false)
 }
 
 // checks if the 'TERM' environment variable is set to check if the terminal supports ANSI-codes.
