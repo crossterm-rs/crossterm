@@ -34,7 +34,7 @@ impl ScreenBuffer {
     ///
     /// Wraps the underlying function call: [CreateConsoleScreenBuffer]
     /// link: [https://docs.microsoft.com/en-us/windows/console/createconsolescreenbuffer]
-    pub fn new() -> ScreenBuffer {
+    pub fn create() -> ScreenBuffer {
         let mut security_attr: SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES {
             nLength: size_of::<SECURITY_ATTRIBUTES>() as u32,
             lpSecurityDescriptor: NULL,
