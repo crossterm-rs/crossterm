@@ -266,7 +266,7 @@ where
                 None => InputEvent::Keyboard(KeyEvent::Esc),
             }
         }
-        b'\n' => InputEvent::Keyboard(KeyEvent::Enter),
+        b'\r' | b'\n' => InputEvent::Keyboard(KeyEvent::Enter),
         b'\t' => InputEvent::Keyboard(KeyEvent::Char('\t')),
         b'\x7F' => InputEvent::Keyboard(KeyEvent::Backspace),
         c @ b'\x01'..=b'\x1A' => {
