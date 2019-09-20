@@ -43,7 +43,7 @@ pub fn set_terminal_attr(termios: &Termios) -> Result<()> {
     wrap_with_result(unsafe { tcsetattr(0, 0, termios) })
 }
 
-pub fn into_raw_mode() -> Result<()> {
+pub fn enable_raw_mode() -> Result<()> {
     let mut ios = get_terminal_attr()?;
     let prev_ios = ios;
 

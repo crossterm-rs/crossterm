@@ -26,7 +26,7 @@ pub fn show_cursor(show_cursor: bool) -> Result<()> {
 }
 
 pub fn pos() -> Result<(u16, u16)> {
-    unix::into_raw_mode()?;
+    unix::enable_raw_mode()?;
     let pos = pos_raw();
     unix::disable_raw_mode()?;
     pos

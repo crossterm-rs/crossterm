@@ -10,7 +10,7 @@ impl RawModeCommand {
 
     /// Enables raw mode.
     pub fn enable(&mut self) -> Result<()> {
-        crossterm_utils::sys::unix::into_raw_mode()?;
+        crossterm_utils::sys::unix::enable_raw_mode()?;
         Ok(())
     }
 
