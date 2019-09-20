@@ -1,6 +1,8 @@
+use std::io::Result;
+
 use crossterm_winapi::{Console, ScreenBuffer};
 
-fn set_background_color() -> std::io::Result<()> {
+fn set_background_color() -> Result<()> {
     // background value
     const BLUE_BACKGROUND: u16 = 0x0010;
 
@@ -21,7 +23,7 @@ fn set_background_color() -> std::io::Result<()> {
     Ok(())
 }
 
-fn set_foreground_color() -> std::io::Result<()> {
+fn set_foreground_color() -> Result<()> {
     // background value
     const BLUE_FOREGROUND: u16 = 0x0001;
 
@@ -46,7 +48,7 @@ fn set_foreground_color() -> std::io::Result<()> {
     Ok(())
 }
 
-fn main() {
-    set_background_color().unwrap();
-    set_foreground_color().unwrap();
+fn main() -> Result<()> {
+    set_background_color()?
+    set_foreground_color()
 }
