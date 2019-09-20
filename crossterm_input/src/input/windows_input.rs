@@ -397,7 +397,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     if character == '\t' {
                         Some(KeyEvent::BackTab)
                     } else {
-                        Some(KeyEvent::Char(character))
+                        Some(KeyEvent::Tab)
                     }
                 } else {
                     Some(KeyEvent::Char(character))

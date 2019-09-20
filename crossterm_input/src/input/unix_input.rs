@@ -267,7 +267,7 @@ where
             }
         }
         b'\r' | b'\n' => InputEvent::Keyboard(KeyEvent::Enter),
-        b'\t' => InputEvent::Keyboard(KeyEvent::Char('\t')),
+        b'\t' => InputEvent::Keyboard(KeyEvent::Tab),
         b'\x7F' => InputEvent::Keyboard(KeyEvent::Backspace),
         c @ b'\x01'..=b'\x1A' => {
             InputEvent::Keyboard(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))
