@@ -145,7 +145,7 @@ pub struct ScrollUp(pub u16);
 impl Command for ScrollUp {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         super::ansi_terminal::get_scroll_up_ansi(self.0)
     }
 
@@ -163,7 +163,7 @@ pub struct ScrollDown(pub u16);
 impl Command for ScrollDown {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         super::ansi_terminal::get_scroll_down_ansi(self.0)
     }
 
@@ -181,7 +181,7 @@ pub struct Clear(pub ClearType);
 impl Command for Clear {
     type AnsiType = &'static str;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         match self.0 {
             ClearType::All => {
                 return super::ansi_terminal::CLEAR_ALL;
@@ -211,7 +211,7 @@ pub struct SetSize(pub u16, pub u16);
 impl Command for SetSize {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         super::ansi_terminal::get_set_size_ansi(self.0, self.1)
     }
 

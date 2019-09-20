@@ -67,7 +67,7 @@ impl Cursor {
 
         unsafe {
             if !is_true(SetConsoleCursorPosition(
-                **self.screen_buffer.get_handle(),
+                **self.screen_buffer.handle(),
                 position,
             )) {
                 Err(io::Error::last_os_error())?;
@@ -85,7 +85,7 @@ impl Cursor {
 
         unsafe {
             if !is_true(SetConsoleCursorInfo(
-                **self.screen_buffer.get_handle(),
+                **self.screen_buffer.handle(),
                 &cursor_info,
             )) {
                 Err(io::Error::last_os_error())?;
@@ -95,7 +95,7 @@ impl Cursor {
     }
 
     /// Reset to saved cursor position
-    pub fn reset_to_saved_position() -> Result<()> {
+    pub fn restore_cursor_pos() -> Result<()> {
         let cursor = Cursor::new()?;
 
         unsafe {

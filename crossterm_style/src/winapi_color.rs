@@ -52,7 +52,7 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::BACKGROUND_INTENSITY as u16;
         }
 
-        Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
+        Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
 
         Ok(())
     }
@@ -79,7 +79,7 @@ impl ITerminalColor for WinApiColor {
             color = color | wincon::FOREGROUND_INTENSITY as u16;
         }
 
-        Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
+        Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
 
         Ok(())
     }

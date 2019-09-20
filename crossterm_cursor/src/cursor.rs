@@ -42,7 +42,7 @@ trait ITerminalCursor: Sync + Send {
     /// is stored program based not per instance of the cursor struct.
     fn save_position(&self) -> Result<()>;
     /// Return to saved cursor position
-    fn reset_position(&self) -> Result<()>;
+    fn restore_position(&self) -> Result<()>;
     /// Hide the terminal cursor.
     fn hide(&self) -> Result<()>;
     /// Show the terminal cursor

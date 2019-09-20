@@ -399,7 +399,7 @@ fn print_text_with_attributes() {
 
 /// Print all supported RGB colors, not supported for Windows systems < 10  | demonstration.
 fn print_supported_colors() {
-    let count = color().get_available_color_count();
+    let count = color().available_color_count();
 
     for i in 0..count {
         println!("Test {}", Colored::Bg(Color::AnsiValue(i as u8)));

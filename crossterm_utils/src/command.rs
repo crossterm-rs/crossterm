@@ -17,7 +17,7 @@ pub trait Command {
     /// You are able to use ANSI escape codes only for windows 10 and UNIX systems.
     ///
     /// **This method is mainly used internally by crossterm!**
-    fn get_ansi_code(&self) -> Self::AnsiType;
+    fn ansi_code(&self) -> Self::AnsiType;
 
     /// Execute this command.
     ///
@@ -104,7 +104,7 @@ pub struct Output(pub String);
 impl Command for Output {
     type AnsiType = String;
 
-    fn get_ansi_code(&self) -> Self::AnsiType {
+    fn ansi_code(&self) -> Self::AnsiType {
         return self.0.clone();
     }
 

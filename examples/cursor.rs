@@ -62,7 +62,7 @@ fn move_left() -> Result<()> {
 }
 
 /// Save and reset cursor position | demonstration..
-fn save_and_reset_position() -> Result<()> {
+fn save_and_restore_position() -> Result<()> {
     let cursor = cursor();
 
     // Goto X: 5 Y: 5
@@ -74,7 +74,7 @@ fn save_and_reset_position() -> Result<()> {
     // Print at X: 5 Y: 20.
     println!("Yea!");
     // Reset back to X: 5 Y: 5.
-    cursor.reset_position()?;
+    cursor.restore_position()?;
     // Print Back at X: 5 Y: 5.
     println!("Back");
 

@@ -102,7 +102,7 @@ impl ScreenBuffer {
     }
 
     /// Get the underlining raw `HANDLE` used by this type to execute whit.
-    pub fn get_handle(&self) -> &Handle {
+    pub fn handle(&self) -> &Handle {
         return &self.handle;
     }
 }
@@ -126,7 +126,7 @@ mod tests {
     use super::ScreenBuffer;
 
     #[test]
-    fn screen_buffer_info() {
+    fn test_screen_buffer_info() {
         let buffer = ScreenBuffer::current().unwrap();
         let info = buffer.info().unwrap();
         info.terminal_size();

@@ -28,8 +28,8 @@ pub fn get_move_left_ansi(count: u16) -> String {
     format!(csi!("{}D"), count)
 }
 
-pub static SAFE_POS_ANSI: &'static str = csi!("s");
-pub static RESET_POS_ANSI: &'static str = csi!("u");
+pub static SAVE_POS_ANSI: &'static str = csi!("s");
+pub static RESTORE_POS_ANSI: &'static str = csi!("u");
 pub static HIDE_ANSI: &'static str = csi!("?25l");
 pub static SHOW_ANSI: &'static str = csi!("?25h");
 pub static BLINK_ON_ANSI: &'static str = csi!("?12h");
@@ -75,12 +75,12 @@ impl ITerminalCursor for AnsiCursor {
     }
 
     fn save_position(&self) -> Result<()> {
-        write_cout!(SAFE_POS_ANSI)?;
+        write_cout!(SAVE_POS_ANSI)?;
         Ok(())
     }
 
-    fn reset_position(&self) -> Result<()> {
-        write_cout!(RESET_POS_ANSI)?;
+    fn restore_position(&self) -> Result<()> {
+        write_cout!(RESTORE_POS_ANSI)?;
         Ok(())
     }
 
@@ -111,45 +111,37 @@ mod tests {
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
     #[ignore]
-    fn reset_safe_ansi() {
+    fn test_ansi_save_restore_position() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
-            let pos = cursor.pos();
-            assert!(pos.is_ok());
-            let (x, y) = pos.unwrap();
 
-            assert!(cursor.save_position().is_ok());
-            assert!(cursor.goto(5, 5).is_ok());
-            assert!(cursor.reset_position().is_ok());
+            let (saved_x, saved_y) = cursor.pos().unwrap();
 
-            let pos = cursor.pos();
-            assert!(pos.is_ok());
-            let (x_saved, y_saved) = pos.unwrap();
+            cursor.save_position().unwrap();
+            cursor.goto(saved_x + 1, saved_y + 1).unwrap();
+            cursor.restore_position().unwrap();
 
-            assert_eq!(x, x_saved);
-            assert_eq!(y, y_saved);
+            let (x, y) = cursor.pos().unwrap();
+
+            assert_eq!(x, saved_x);
+            assert_eq!(y, saved_y);
         }
     }
 
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
     #[ignore]
-    fn goto_ansi() {
+    fn test_ansi_goto() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
-            let pos = cursor.pos();
-            assert!(pos.is_ok());
-            let (x_saved, y_saved) = pos.unwrap();
 
-            assert!(cursor.goto(5, 5).is_ok());
-            let pos = cursor.pos();
-            assert!(pos.is_ok());
-            let (x, y) = pos.unwrap();
+            let (saved_x, saved_y) = cursor.pos().unwrap();
 
-            assert!(cursor.goto(x_saved, y_saved).is_ok());
+            cursor.goto(saved_x + 1, saved_y + 1).unwrap();
+            assert_eq!(cursor.pos().unwrap(), (saved_x + 1, saved_y + 1));
 
-            assert_eq!(x, 5);
-            assert_eq!(y, 5);
+            cursor.goto(saved_x, saved_y).unwrap();
+            assert_eq!(cursor.pos().unwrap(), (saved_x, saved_y));
         }
     }
 

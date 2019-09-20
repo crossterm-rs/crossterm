@@ -1,6 +1,8 @@
+use std::io::Result;
+
 use crossterm_winapi::{Console, ScreenBuffer};
 
-fn set_background_color() -> std::io::Result<()> {
+fn set_background_color() -> Result<()> {
     // background value
     const BLUE_BACKGROUND: u16 = 0x0010;
 
@@ -16,12 +18,12 @@ fn set_background_color() -> std::io::Result<()> {
     let new_color = fg_color | BLUE_BACKGROUND;
 
     // set the console text attribute to the new color value.
-    Console::from(**screen_buffer.get_handle()).set_text_attribute(new_color)?;
+    Console::from(**screen_buffer.handle()).set_text_attribute(new_color)?;
 
     Ok(())
 }
 
-fn set_foreground_color() -> std::io::Result<()> {
+fn set_foreground_color() -> Result<()> {
     // background value
     const BLUE_FOREGROUND: u16 = 0x0001;
 
@@ -41,12 +43,12 @@ fn set_foreground_color() -> std::io::Result<()> {
     }
 
     // set the console text attribute to the new color value.
-    Console::from(**screen_buffer.get_handle()).set_text_attribute(color)?;
+    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
 
     Ok(())
 }
 
-fn main() {
-    set_background_color().unwrap();
-    set_foreground_color().unwrap();
+fn main() -> Result<()> {
+    set_background_color()?;
+    set_foreground_color()
 }
