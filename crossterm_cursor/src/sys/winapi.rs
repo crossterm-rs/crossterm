@@ -67,7 +67,7 @@ impl Cursor {
 
         unsafe {
             if !is_true(SetConsoleCursorPosition(
-                **self.screen_buffer.get_handle(),
+                **self.screen_buffer.handle(),
                 position,
             )) {
                 Err(io::Error::last_os_error())?;
@@ -85,7 +85,7 @@ impl Cursor {
 
         unsafe {
             if !is_true(SetConsoleCursorInfo(
-                **self.screen_buffer.get_handle(),
+                **self.screen_buffer.handle(),
                 &cursor_info,
             )) {
                 Err(io::Error::last_os_error())?;
