@@ -128,10 +128,6 @@ impl ITerminal for WinApiTerminal {
             resize_buffer = true;
         }
 
-        println!("{:?}", new_size);
-        println!("{:?}", current_size);
-        println!("{:?}", window);
-
         if resize_buffer {
             if let Err(_) = screen_buffer.set_size(new_size.width - 1, new_size.height - 1) {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
