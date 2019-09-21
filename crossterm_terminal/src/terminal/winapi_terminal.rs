@@ -128,8 +128,12 @@ impl ITerminal for WinApiTerminal {
             resize_buffer = true;
         }
 
+        println!("{:?}", new_size);
+        println!("{:?}",current_size);
+        println!("{:?}",window);
+
         if resize_buffer {
-            if let Err(_) = screen_buffer.set_size(new_size.width, new_size.height) {
+            if let Err(_) = screen_buffer.set_size(new_size.width - 1, new_size.height - 1) {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
                     "Something went wrong when setting screen buffer size.",
                 )));
@@ -138,13 +142,13 @@ impl ITerminal for WinApiTerminal {
 
         let mut window = window.clone();
         // Preserve the position, but change the size.
-        window.bottom = window.top + height;
-        window.right = window.left + width;
+        window.bottom = window.top + height - 1;
+        window.right = window.left + width - 1;
         console.set_console_info(true, window)?;
 
         // If we resized the buffer, un-resize it.
         if resize_buffer {
-            if let Err(_) = screen_buffer.set_size(current_size.width, current_size.height) {
+            if let Err(_) = screen_buffer.set_size(current_size.width - 1, current_size.height - 1) {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
                     "Something went wrong when setting screen buffer size.",
                 )));
@@ -280,9 +284,7 @@ fn clear(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> 
 mod tests {
     use super::{ITerminal, WinApiTerminal};
 
-    // TODO - Test is ignored, because it returns wrong result (31 != 30)
     #[test]
-    #[ignore]
     fn test_resize_winapi() {
         let terminal = WinApiTerminal::new();
 
@@ -291,6 +293,7 @@ mod tests {
         terminal.set_size(30, 30).unwrap();
         assert_eq!((30, 30), terminal.size().unwrap());
 
+        // reset to previous size
         terminal.set_size(width, height).unwrap();
         assert_eq!((width, height), terminal.size().unwrap());
     }

@@ -85,20 +85,19 @@ mod tests {
     use super::{AnsiTerminal, ITerminal};
 
     /* ======================== ANSI =========================== */
-    // TODO - Test is disabled, because it's failing on Travis CI
     #[test]
-    #[ignore]
     fn test_resize_ansi() {
         if try_enable_ansi() {
             let terminal = AnsiTerminal::new();
 
             let (width, height) = terminal.size().unwrap();
 
-            terminal.set_size(30, 30).unwrap();
+            terminal.set_size(35, 35).unwrap();
             // see issue: https://github.com/eminence/terminal-size/issues/11
             thread::sleep(time::Duration::from_millis(30));
-            assert_eq!((30, 30), terminal.size().unwrap());
+            assert_eq!((35, 35), terminal.size().unwrap());
 
+            // reset to previous size
             terminal.set_size(width, height).unwrap();
             // see issue: https://github.com/eminence/terminal-size/issues/11
             thread::sleep(time::Duration::from_millis(30));
