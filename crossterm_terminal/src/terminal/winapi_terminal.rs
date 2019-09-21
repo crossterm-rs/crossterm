@@ -129,8 +129,8 @@ impl ITerminal for WinApiTerminal {
         }
 
         println!("{:?}", new_size);
-        println!("{:?}",current_size);
-        println!("{:?}",window);
+        println!("{:?}", current_size);
+        println!("{:?}", window);
 
         if resize_buffer {
             if let Err(_) = screen_buffer.set_size(new_size.width - 1, new_size.height - 1) {
@@ -148,7 +148,8 @@ impl ITerminal for WinApiTerminal {
 
         // If we resized the buffer, un-resize it.
         if resize_buffer {
-            if let Err(_) = screen_buffer.set_size(current_size.width - 1, current_size.height - 1) {
+            if let Err(_) = screen_buffer.set_size(current_size.width - 1, current_size.height - 1)
+            {
                 return Err(ErrorKind::ResizingTerminalFailure(String::from(
                     "Something went wrong when setting screen buffer size.",
                 )));
