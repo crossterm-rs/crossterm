@@ -110,7 +110,6 @@ mod tests {
 
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
-    #[ignore]
     fn test_ansi_save_restore_position() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
@@ -130,7 +129,6 @@ mod tests {
 
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
-    #[ignore]
     fn test_ansi_goto() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
