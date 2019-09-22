@@ -1,3 +1,6 @@
+# Changes crossterm 0.11.0
+- 
+
 # Changes crossterm 0.10.0
 - Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/TimonPost/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/TimonPost/crossterm/issues/171)
 - Fixed showing, hiding cursor windows implementation
