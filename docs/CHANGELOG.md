@@ -1,7 +1,71 @@
 # Changes crossterm 0.11.0
-- 
 
-# Changes crossterm 0.10.0
+### Code Quality
+- Code Cleanup: [warning-cleanup], [crossterm_style-cleanup], [crossterm_screen-cleanup], [crossterm_terminal-cleanup], [crossterm_utils-cleanup], [2018-cleanup], [api-cleanup-1], [api-cleanup-2], [api-cleanup-3]
+- Examples: [example-cleanup_1], [example-cleanup_2], [example-fix], [commandbar-fix], [snake-game-improved]
+- Fixed all broken tests and added tests 
+
+### Important Changes
+- Return written bytes: [return-written-bytes]
+- Added derives: `Debug` for `ObjectStyle`  [debug-derive], Serialize/Deserialize for key events [serde]
+- Improved error handling:
+    - Return `crossterm::Result` from all api's: [return_crossterm_result]
+         * `ITerminalCursor::pos()` returns `Result<(u16, u16)>`
+         * `ITerminal::size()` returns `Result<(u16, u16)>`
+         * `TerminalCursor::move_*` returns `Result`
+         * `ExecutableCommand::queue` returns `Result`
+         * `QueueableCommand::queue` returns `Result`
+         * `get_available_color_count` returns no result
+         * `RawScreen::into_raw_mode` returns `Result` instead of `io::Result`
+         * `RawScreen::disable_raw_mode` returns `Result` instead of `io::Result`
+         * `AlternateScreen::to_alternate` returns `Result` instead of `io::Result`
+         * `TerminalInput::read_line` returns `Result` instead of `io::Result`
+         * `TerminalInput::read_char` returns `Result` instead of `io::Result`     
+         * Maybe I forgot something, a lot of functions have changed    
+     - Removed all unwraps/expects from library
+- Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab] 
+- Synced set/get terminal size behaviour: [fixed-get-set-terminal-size]
+- Method renames:
+    * `AsyncReader::stop_reading()` to `stop()`
+    * `RawScreen::disable_raw_mode_on_drop` to `keep_raw_mode_on_drop`
+    * `TerminalCursor::reset_position()` to `restore_position()`
+    * `Command::get_anis_code()` to `ansi_code()`
+    * `available_color_count` to `available_color_count()`
+    * `Terminal::terminal_size` to `Terminal::size`
+- All `i16` values for indexing: set size, set cursor pos, scrolling synced to `u16` values
+- Command API takes mutable self instead of self
+
+[serde]: https://github.com/TimonPost/crossterm/pull/190
+
+[debug-derive]: https://github.com/TimonPost/crossterm/pull/192
+[example-fix]: https://github.com/TimonPost/crossterm/pull/193
+[commandbar-fix]: https://github.com/TimonPost/crossterm/pull/204
+
+[warning-cleanup]: https://github.com/TimonPost/crossterm/pull/198
+[example-cleanup_1]: https://github.com/TimonPost/crossterm/pull/196
+[example-cleanup_2]: https://github.com/TimonPost/crossterm/pull/225
+[snake-game-improved]: https://github.com/TimonPost/crossterm/pull/231
+[crossterm_style-cleanup]: https://github.com/TimonPost/crossterm/pull/208
+[crossterm_screen-cleanup]: https://github.com/TimonPost/crossterm/pull/209
+[crossterm_terminal-cleanup]: https://github.com/TimonPost/crossterm/pull/210
+[crossterm_utils-cleanup]: https://github.com/TimonPost/crossterm/pull/211
+[2018-cleanup]: https://github.com/TimonPost/crossterm/pull/222
+[wild-card-cleanup]: https://github.com/TimonPost/crossterm/pull/224
+
+[api-cleanup-1]: https://github.com/TimonPost/crossterm/pull/235
+[api-cleanup-2]: https://github.com/TimonPost/crossterm/pull/238
+[api-cleanup-3]: https://github.com/TimonPost/crossterm/pull/240
+
+[return-written-bytes]: https://github.com/TimonPost/crossterm/pull/212
+
+[return_crossterm_result]: https://github.com/TimonPost/crossterm/pull/232
+[added-key-event-tab]: https://github.com/TimonPost/crossterm/pull/239
+[added-key-event-enter]: https://github.com/TimonPost/crossterm/pull/236
+[fixed-get-set-terminal-size]: https://github.com/TimonPost/crossterm/pull/242
+
+# Changes crossterm 0.10.1
+
+# Changes crossterm 0.10.0 ~ yanked
 - Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/TimonPost/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/TimonPost/crossterm/issues/171)
 - Fixed showing, hiding cursor windows implementation
 - Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/TimonPost/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 

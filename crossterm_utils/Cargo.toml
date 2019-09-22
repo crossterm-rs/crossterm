@@ -1,6 +1,6 @@
 [package]
 name = "crossterm_utils"
-version = "0.2.4"
+version = "0.3.0"
 authors = ["T. Post"]
 description = "Common logic used by the crossterm crates."
 repository = "https://github.com/TimonPost/crossterm"
