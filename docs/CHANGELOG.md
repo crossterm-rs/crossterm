@@ -10,17 +10,17 @@
 - Added derives: `Debug` for `ObjectStyle`  [debug-derive], Serialize/Deserialize for key events [serde]
 - Improved error handling:
     - Return `crossterm::Result` from all api's: [return_crossterm_result]
-         * `ITerminalCursor::pos()` returns `Result<(u16, u16)>`
-         * `ITerminal::size()` returns `Result<(u16, u16)>`
-         * `TerminalCursor::move_*` returns `Result`
-         * `ExecutableCommand::queue` returns `Result`
-         * `QueueableCommand::queue` returns `Result`
+         * `TerminalCursor::pos()` returns `Result<(u16, u16)>`
+         * `Terminal::size()` returns `Result<(u16, u16)>`
+         * `TerminalCursor::move_*` returns `crossterm::Result`
+         * `ExecutableCommand::queue` returns `crossterm::Result`
+         * `QueueableCommand::queue` returns `crossterm::Result`
          * `get_available_color_count` returns no result
-         * `RawScreen::into_raw_mode` returns `Result` instead of `io::Result`
-         * `RawScreen::disable_raw_mode` returns `Result` instead of `io::Result`
-         * `AlternateScreen::to_alternate` returns `Result` instead of `io::Result`
-         * `TerminalInput::read_line` returns `Result` instead of `io::Result`
-         * `TerminalInput::read_char` returns `Result` instead of `io::Result`     
+         * `RawScreen::into_raw_mode` returns `crossterm::Result` instead of `io::Result`
+         * `RawScreen::disable_raw_mode` returns `crossterm::Result` instead of `io::Result`
+         * `AlternateScreen::to_alternate` returns `crossterm::Result` instead of `io::Result`
+         * `TerminalInput::read_line` returns `crossterm::Result` instead of `io::Result`
+         * `TerminalInput::read_char` returns `crossterm::Result` instead of `io::Result`     
          * Maybe I forgot something, a lot of functions have changed    
      - Removed all unwraps/expects from library
 - Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab] 
@@ -32,6 +32,7 @@
     * `Command::get_anis_code()` to `ansi_code()`
     * `available_color_count` to `available_color_count()`
     * `Terminal::terminal_size` to `Terminal::size`
+    * `Console::get_handle` to `Console::handle`
 - All `i16` values for indexing: set size, set cursor pos, scrolling synced to `u16` values
 - Command API takes mutable self instead of self
 

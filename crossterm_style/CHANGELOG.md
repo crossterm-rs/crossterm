@@ -1,3 +1,11 @@
+# Changes crossterm_style 0.4
+- `get_available_color_count` returns no result
+- `ExecutableCommand::queue` returns `crossterm::Result`
+- `QueueableCommand::queue` returns `crossterm::Result`
+- `available_color_count` to `available_color_count()`
+- Added derives: `Debug` for `ObjectStyle`  [debug-derive]
+- Command API takes mutable self instead of self
+
 # Changes crossterm_style 0.3
 - Removed `TerminalColor::from_output()` 
 - Added `NoItalic` attribute
