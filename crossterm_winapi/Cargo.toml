@@ -11,5 +11,8 @@ exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
 
-[dependencies]
+[target.'cfg(windows)'.dependencies]
 winapi = { version =  "0.3.7", features = ["winbase","consoleapi","processenv", "handleapi"] }
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"

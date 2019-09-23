@@ -1,7 +1,10 @@
+#[cfg(windows)]
 use std::io::Result;
 
+#[cfg(windows)]
 use crossterm_winapi::{Console, ScreenBuffer};
 
+#[cfg(windows)]
 fn set_background_color() -> Result<()> {
     // background value
     const BLUE_BACKGROUND: u16 = 0x0010;
@@ -23,6 +26,7 @@ fn set_background_color() -> Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
 fn set_foreground_color() -> Result<()> {
     // background value
     const BLUE_FOREGROUND: u16 = 0x0001;
@@ -48,7 +52,13 @@ fn set_foreground_color() -> Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
 fn main() -> Result<()> {
     set_background_color()?;
     set_foreground_color()
+}
+
+#[cfg(not(windows))]
+fn main() {
+    println!("This example is for the Windows platform only.");
 }
