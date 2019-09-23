@@ -6,47 +6,47 @@ use crossterm_utils::{csi, write_cout, Result};
 
 use crate::sys::{get_cursor_position, show_cursor};
 
-use super::ITerminalCursor;
+use super::Cursor;
 
-pub fn get_goto_ansi(x: u16, y: u16) -> String {
+pub(crate) fn get_goto_code(x: u16, y: u16) -> String {
     format!(csi!("{};{}H"), y + 1, x + 1)
 }
 
-pub fn get_move_up_ansi(count: u16) -> String {
+pub(crate) fn get_move_up_code(count: u16) -> String {
     format!(csi!("{}A"), count)
 }
 
-pub fn get_move_right_ansi(count: u16) -> String {
+pub(crate) fn get_move_right_code(count: u16) -> String {
     format!(csi!("{}C"), count)
 }
 
-pub fn get_move_down_ansi(count: u16) -> String {
+pub(crate) fn get_move_down_code(count: u16) -> String {
     format!(csi!("{}B"), count)
 }
 
-pub fn get_move_left_ansi(count: u16) -> String {
+pub(crate) fn get_move_left_code(count: u16) -> String {
     format!(csi!("{}D"), count)
 }
 
-pub static SAVE_POS_ANSI: &'static str = csi!("s");
-pub static RESTORE_POS_ANSI: &'static str = csi!("u");
-pub static HIDE_ANSI: &'static str = csi!("?25l");
-pub static SHOW_ANSI: &'static str = csi!("?25h");
-pub static BLINK_ON_ANSI: &'static str = csi!("?12h");
-pub static BLINK_OFF_ANSI: &'static str = csi!("?12l");
+pub(crate) static SAVE_POS_CODE: &'static str = csi!("s");
+pub(crate) static RESTORE_POS_CODE: &'static str = csi!("u");
+pub(crate) static HIDE_CODE: &'static str = csi!("?25l");
+pub(crate) static SHOW_CODE: &'static str = csi!("?25h");
+pub(crate) static BLINK_ON_CODE: &'static str = csi!("?12h");
+pub(crate) static BLINK_OFF_CODE: &'static str = csi!("?12l");
 
 /// This struct is an ANSI implementation for cursor related actions.
-pub struct AnsiCursor;
+pub(crate) struct AnsiCursor;
 
 impl AnsiCursor {
-    pub fn new() -> AnsiCursor {
+    pub(crate) fn new() -> AnsiCursor {
         AnsiCursor
     }
 }
 
-impl ITerminalCursor for AnsiCursor {
+impl Cursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16) -> Result<()> {
-        write_cout!(get_goto_ansi(x, y))?;
+        write_cout!(get_goto_code(x, y))?;
         Ok(())
     }
 
@@ -55,32 +55,32 @@ impl ITerminalCursor for AnsiCursor {
     }
 
     fn move_up(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_up_ansi(count))?;
+        write_cout!(get_move_up_code(count))?;
         Ok(())
     }
 
     fn move_right(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_right_ansi(count))?;
+        write_cout!(get_move_right_code(count))?;
         Ok(())
     }
 
     fn move_down(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_down_ansi(count))?;
+        write_cout!(get_move_down_code(count))?;
         Ok(())
     }
 
     fn move_left(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_left_ansi(count))?;
+        write_cout!(get_move_left_code(count))?;
         Ok(())
     }
 
     fn save_position(&self) -> Result<()> {
-        write_cout!(SAVE_POS_ANSI)?;
+        write_cout!(SAVE_POS_CODE)?;
         Ok(())
     }
 
     fn restore_position(&self) -> Result<()> {
-        write_cout!(RESTORE_POS_ANSI)?;
+        write_cout!(RESTORE_POS_CODE)?;
         Ok(())
     }
 
@@ -96,9 +96,9 @@ impl ITerminalCursor for AnsiCursor {
 
     fn blink(&self, blink: bool) -> Result<()> {
         if blink {
-            write_cout!(BLINK_ON_ANSI)?;
+            write_cout!(BLINK_ON_CODE)?;
         } else {
-            write_cout!(BLINK_OFF_ANSI)?;
+            write_cout!(BLINK_OFF_CODE)?;
         }
         Ok(())
     }
@@ -106,12 +106,12 @@ impl ITerminalCursor for AnsiCursor {
 
 #[cfg(test)]
 mod tests {
-    use super::{AnsiCursor, ITerminalCursor};
+    use super::{AnsiCursor, Cursor};
 
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
     #[ignore]
-    fn test_ansi_save_restore_position() {
+    fn test_save_restore_position() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
 
@@ -131,7 +131,7 @@ mod tests {
     // TODO - Test is ingored, because it's stalled on Travis CI
     #[test]
     #[ignore]
-    fn test_ansi_goto() {
+    fn test_goto() {
         if try_enable_ansi() {
             let cursor = AnsiCursor::new();
 

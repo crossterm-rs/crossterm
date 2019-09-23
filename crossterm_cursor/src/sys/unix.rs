@@ -6,8 +6,7 @@ use crossterm_utils::{
     write_cout, Result,
 };
 
-#[cfg(unix)]
-pub fn get_cursor_position() -> Result<(u16, u16)> {
+pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
     if unsafe { RAW_MODE_ENABLED } {
         pos_raw()
     } else {
@@ -15,8 +14,7 @@ pub fn get_cursor_position() -> Result<(u16, u16)> {
     }
 }
 
-#[cfg(unix)]
-pub fn show_cursor(show_cursor: bool) -> Result<()> {
+pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     if show_cursor {
         write_cout!(csi!("?25h"))?;
     } else {
@@ -25,14 +23,14 @@ pub fn show_cursor(show_cursor: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn pos() -> Result<(u16, u16)> {
+fn pos() -> Result<(u16, u16)> {
     unix::enable_raw_mode()?;
     let pos = pos_raw();
     unix::disable_raw_mode()?;
     pos
 }
 
-pub fn pos_raw() -> Result<(u16, u16)> {
+fn pos_raw() -> Result<(u16, u16)> {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();

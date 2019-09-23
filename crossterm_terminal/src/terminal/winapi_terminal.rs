@@ -3,7 +3,7 @@
 //!
 //! Windows versions lower then windows 10 are not supporting ANSI codes. Those versions will use this implementation instead.
 
-use crossterm_cursor::sys::winapi::Cursor;
+use crossterm_cursor::TerminalCursor;
 use crossterm_utils::{ErrorKind, Result};
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
@@ -226,7 +226,7 @@ pub fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<
     clear(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at cell 0,0
-    let cursor = Cursor::new()?;
+    let cursor = TerminalCursor::new();
     cursor.goto(0, 0)?;
     Ok(())
 }
@@ -246,8 +246,8 @@ pub fn clear_current_line(
     clear(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at cell 1 on current row
-    let cursor = Cursor::new()?;
-    cursor.goto(0, location.y)?;
+    let cursor = TerminalCursor::new();
+    cursor.goto(0, location.y as u16)?;
     Ok(())
 }
 
@@ -264,8 +264,8 @@ pub fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u
     clear(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at original cursor position before we did the clearing
-    let cursor = Cursor::new()?;
-    cursor.goto(x, y)?;
+    let cursor = TerminalCursor::new();
+    cursor.goto(x as u16, y as u16)?;
     Ok(())
 }
 

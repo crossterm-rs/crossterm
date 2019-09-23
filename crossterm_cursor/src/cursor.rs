@@ -6,16 +6,9 @@
 
 use crossterm_utils::Result;
 
-pub use self::cursor::{
-    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, Up,
-};
-
-mod cursor;
-
-mod ansi_cursor;
+pub(crate) mod ansi;
 #[cfg(windows)]
-mod winapi_cursor;
+pub(crate) mod windows;
 
 ///! This trait defines the actions that can be performed with the terminal cursor.
 ///! This trait can be implemented so that a concrete implementation of the ITerminalCursor can fulfill
@@ -25,7 +18,7 @@ mod winapi_cursor;
 ///!
 ///! This trait is implemented for `WinApi` (Windows specific) and `ANSI` (Unix specific),
 ///! so that cursor related actions can be performed on both UNIX and Windows systems.
-trait ITerminalCursor: Sync + Send {
+pub(crate) trait Cursor: Sync + Send {
     /// Goto location (`x`, `y`) in the current terminal window.
     fn goto(&self, x: u16, y: u16) -> Result<()>;
     /// Get the cursor location `(x, y)` in the current terminal window.

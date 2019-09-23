@@ -1,7 +1,9 @@
 //! This module handles some logic for cursor interaction in the windows console.
 
 use std::io;
+use std::sync::Mutex;
 
+use lazy_static::lazy_static;
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
     um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
@@ -9,40 +11,39 @@ use winapi::{
 };
 
 use crossterm_utils::Result;
-pub use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
+use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 
-#[cfg(windows)]
-pub fn get_cursor_position() -> Result<(u16, u16)> {
-    let cursor = Cursor::new()?;
+pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
+    let cursor = ScreenBufferCursor::new()?;
     Ok(cursor.position()?.into())
 }
 
-#[cfg(windows)]
-pub fn show_cursor(show_cursor: bool) -> Result<()> {
-    Cursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
+pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
+    ScreenBufferCursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
 }
 
-/// This stores the cursor pos, at program level. So it can be recalled later.
-static mut SAVED_CURSOR_POS: (u16, u16) = (0, 0);
+lazy_static! {
+    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
+}
 
-pub struct Cursor {
+pub(crate) struct ScreenBufferCursor {
     screen_buffer: ScreenBuffer,
 }
 
-impl Cursor {
-    pub fn new() -> Result<Cursor> {
-        Ok(Cursor {
+impl ScreenBufferCursor {
+    pub(crate) fn new() -> Result<ScreenBufferCursor> {
+        Ok(ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
     }
 
     /// get the current cursor position.
-    pub fn position(&self) -> Result<Coord> {
+    pub(crate) fn position(&self) -> Result<Coord> {
         Ok(self.screen_buffer.info()?.cursor_pos())
     }
 
     /// Set the cursor position to the given x and y. Note that this is 0 based.
-    pub fn goto(&self, x: i16, y: i16) -> Result<()> {
+    pub(crate) fn goto(&self, x: i16, y: i16) -> Result<()> {
         if x < 0 || x >= <i16>::max_value() {
             Err(io::Error::new(
                 io::ErrorKind::Other,
@@ -77,7 +78,7 @@ impl Cursor {
     }
 
     /// change the cursor visibility.
-    pub fn set_visibility(&self, visable: bool) -> Result<()> {
+    pub(crate) fn set_visibility(&self, visable: bool) -> Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
             bVisible: if visable { TRUE } else { FALSE },
@@ -95,40 +96,39 @@ impl Cursor {
     }
 
     /// Reset to saved cursor position
-    pub fn restore_cursor_pos() -> Result<()> {
-        let cursor = Cursor::new()?;
+    pub(crate) fn restore_cursor_pos() -> Result<()> {
+        let cursor = ScreenBufferCursor::new()?;
 
-        unsafe {
-            cursor.goto(SAVED_CURSOR_POS.0 as i16, SAVED_CURSOR_POS.1 as i16)?;
+        if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
+            cursor.goto(x, y);
         }
 
         Ok(())
     }
 
     /// Save current cursor position to recall later.
-    pub fn save_cursor_pos() -> Result<()> {
-        let cursor = Cursor::new()?;
+    pub(crate) fn save_cursor_pos() -> Result<()> {
+        let cursor = ScreenBufferCursor::new()?;
         let position = cursor.position()?;
 
-        unsafe {
-            SAVED_CURSOR_POS = (position.x as u16, position.y as u16);
-        }
+        let mut locked_pos = SAVED_CURSOR_POS.lock().unwrap();
+        *locked_pos = Some((position.x, position.y));
 
         Ok(())
     }
 }
 
-impl From<Handle> for Cursor {
+impl From<Handle> for ScreenBufferCursor {
     fn from(handle: Handle) -> Self {
-        Cursor {
+        ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(handle),
         }
     }
 }
 
-impl From<HANDLE> for Cursor {
+impl From<HANDLE> for ScreenBufferCursor {
     fn from(handle: HANDLE) -> Self {
-        Cursor {
+        ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(handle),
         }
     }

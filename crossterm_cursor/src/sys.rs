@@ -1,14 +1,14 @@
 #[cfg(unix)]
-pub use self::unix::get_cursor_position;
+pub(crate) use self::unix::get_cursor_position;
 #[cfg(unix)]
-pub use self::unix::show_cursor;
+pub(crate) use self::unix::show_cursor;
 #[cfg(windows)]
-pub use self::winapi::get_cursor_position;
+pub(crate) use self::windows::get_cursor_position;
 #[cfg(windows)]
-pub use self::winapi::show_cursor;
-
-#[cfg(unix)]
-pub mod unix;
+pub(crate) use self::windows::show_cursor;
 
 #[cfg(windows)]
-pub mod winapi;
+pub(crate) mod windows;
+
+#[cfg(unix)]
+pub(crate) mod unix;
