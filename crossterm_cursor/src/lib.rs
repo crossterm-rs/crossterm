@@ -103,7 +103,7 @@ pub struct TerminalCursor {
 }
 
 impl TerminalCursor {
-    /// Creates a new terminal cursor.
+    /// Creates a new `TerminalCursor`.
     pub fn new() -> TerminalCursor {
         #[cfg(windows)]
         let cursor = if supports_ansi() {
