@@ -1,9 +1,12 @@
 #![allow(dead_code)]
 
+#[cfg(windows)]
 use std::io::Result;
 
+#[cfg(windows)]
 use crossterm_winapi::ScreenBuffer;
 
+#[cfg(windows)]
 fn print_screen_buffer_information() -> Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
 
@@ -18,6 +21,7 @@ fn print_screen_buffer_information() -> Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
 fn multiple_screen_buffers() -> Result<()> {
     // create new screen buffer
     let screen_buffer = ScreenBuffer::create();
@@ -26,6 +30,12 @@ fn multiple_screen_buffers() -> Result<()> {
     screen_buffer.show()
 }
 
+#[cfg(windows)]
 fn main() -> Result<()> {
     print_screen_buffer_information()
+}
+
+#[cfg(not(windows))]
+fn main() {
+    println!("This example is for the Windows platform only.");
 }

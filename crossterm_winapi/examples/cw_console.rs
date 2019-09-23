@@ -1,7 +1,10 @@
+#[cfg(windows)]
 use std::io::Result;
 
+#[cfg(windows)]
 use crossterm_winapi::ConsoleMode;
 
+#[cfg(windows)]
 fn change_console_mode() -> Result<()> {
     let console_mode = ConsoleMode::new()?;
 
@@ -12,6 +15,12 @@ fn change_console_mode() -> Result<()> {
     console_mode.set_mode(10)
 }
 
+#[cfg(windows)]
 fn main() -> Result<()> {
     change_console_mode()
+}
+
+#[cfg(not(windows))]
+fn main() {
+    println!("This example is for the Windows platform only.");
 }
