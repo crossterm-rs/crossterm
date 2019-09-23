@@ -8,32 +8,32 @@ use crate::sys::{get_cursor_position, show_cursor};
 
 use super::Cursor;
 
-pub(crate) fn get_goto_code(x: u16, y: u16) -> String {
+pub(crate) fn goto_csi_sequence(x: u16, y: u16) -> String {
     format!(csi!("{};{}H"), y + 1, x + 1)
 }
 
-pub(crate) fn get_move_up_code(count: u16) -> String {
+pub(crate) fn move_up_csi_sequence(count: u16) -> String {
     format!(csi!("{}A"), count)
 }
 
-pub(crate) fn get_move_right_code(count: u16) -> String {
+pub(crate) fn move_right_csi_sequence(count: u16) -> String {
     format!(csi!("{}C"), count)
 }
 
-pub(crate) fn get_move_down_code(count: u16) -> String {
+pub(crate) fn move_down_csi_sequence(count: u16) -> String {
     format!(csi!("{}B"), count)
 }
 
-pub(crate) fn get_move_left_code(count: u16) -> String {
+pub(crate) fn move_left_csi_sequence(count: u16) -> String {
     format!(csi!("{}D"), count)
 }
 
-pub(crate) static SAVE_POS_CODE: &'static str = csi!("s");
-pub(crate) static RESTORE_POS_CODE: &'static str = csi!("u");
-pub(crate) static HIDE_CODE: &'static str = csi!("?25l");
-pub(crate) static SHOW_CODE: &'static str = csi!("?25h");
-pub(crate) static BLINK_ON_CODE: &'static str = csi!("?12h");
-pub(crate) static BLINK_OFF_CODE: &'static str = csi!("?12l");
+pub(crate) static SAVE_POSITION_CSI_SEQUENCE: &'static str = csi!("s");
+pub(crate) static RESTORE_POSITION_CSI_SEQUENCE: &'static str = csi!("u");
+pub(crate) static HIDE_CSI_SEQUENCE: &'static str = csi!("?25l");
+pub(crate) static SHOW_CSI_SEQUENCE: &'static str = csi!("?25h");
+pub(crate) static BLINKING_ON_CSI_SEQUENCE: &'static str = csi!("?12h");
+pub(crate) static BLINKING_OFF_CSI_SEQUENCE: &'static str = csi!("?12l");
 
 /// This struct is an ANSI implementation for cursor related actions.
 pub(crate) struct AnsiCursor;
@@ -46,7 +46,7 @@ impl AnsiCursor {
 
 impl Cursor for AnsiCursor {
     fn goto(&self, x: u16, y: u16) -> Result<()> {
-        write_cout!(get_goto_code(x, y))?;
+        write_cout!(goto_csi_sequence(x, y))?;
         Ok(())
     }
 
@@ -55,32 +55,32 @@ impl Cursor for AnsiCursor {
     }
 
     fn move_up(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_up_code(count))?;
+        write_cout!(move_up_csi_sequence(count))?;
         Ok(())
     }
 
     fn move_right(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_right_code(count))?;
+        write_cout!(move_right_csi_sequence(count))?;
         Ok(())
     }
 
     fn move_down(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_down_code(count))?;
+        write_cout!(move_down_csi_sequence(count))?;
         Ok(())
     }
 
     fn move_left(&self, count: u16) -> Result<()> {
-        write_cout!(get_move_left_code(count))?;
+        write_cout!(move_left_csi_sequence(count))?;
         Ok(())
     }
 
     fn save_position(&self) -> Result<()> {
-        write_cout!(SAVE_POS_CODE)?;
+        write_cout!(SAVE_POSITION_CSI_SEQUENCE)?;
         Ok(())
     }
 
     fn restore_position(&self) -> Result<()> {
-        write_cout!(RESTORE_POS_CODE)?;
+        write_cout!(RESTORE_POSITION_CSI_SEQUENCE)?;
         Ok(())
     }
 
@@ -96,9 +96,9 @@ impl Cursor for AnsiCursor {
 
     fn blink(&self, blink: bool) -> Result<()> {
         if blink {
-            write_cout!(BLINK_ON_CODE)?;
+            write_cout!(BLINKING_ON_CSI_SEQUENCE)?;
         } else {
-            write_cout!(BLINK_OFF_CODE)?;
+            write_cout!(BLINKING_OFF_CSI_SEQUENCE)?;
         }
         Ok(())
     }

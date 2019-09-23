@@ -211,7 +211,7 @@ impl Command for Goto {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::get_goto_code(self.0, self.1)
+        ansi::goto_csi_sequence(self.0, self.1)
     }
 
     #[cfg(windows)]
@@ -231,7 +231,7 @@ impl Command for Up {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::get_move_up_code(self.0)
+        ansi::move_up_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
@@ -251,7 +251,7 @@ impl Command for Down {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::get_move_down_code(self.0)
+        ansi::move_down_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
@@ -271,7 +271,7 @@ impl Command for Left {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::get_move_left_code(self.0)
+        ansi::move_left_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
@@ -291,7 +291,7 @@ impl Command for Right {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::get_move_right_code(self.0)
+        ansi::move_right_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
@@ -314,7 +314,7 @@ impl Command for SavePos {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::SAVE_POS_CODE
+        ansi::SAVE_POSITION_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -334,7 +334,7 @@ impl Command for ResetPos {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::RESTORE_POS_CODE
+        ansi::RESTORE_POSITION_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -357,7 +357,7 @@ impl Command for Hide {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::HIDE_CODE
+        ansi::HIDE_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -380,7 +380,7 @@ impl Command for Show {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::SHOW_CODE
+        ansi::SHOW_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -402,7 +402,7 @@ impl Command for BlinkOn {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINK_ON_CODE
+        ansi::BLINKING_ON_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -424,7 +424,7 @@ impl Command for BlinkOff {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINK_OFF_CODE
+        ansi::BLINKING_OFF_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
