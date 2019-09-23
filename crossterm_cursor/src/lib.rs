@@ -119,8 +119,8 @@ impl TerminalCursor {
     }
 
     /// Moves the cursor to the given position.
-    pub fn goto(&self, x: u16, y: u16) -> Result<()> {
-        self.cursor.goto(x, y)
+    pub fn goto(&self, column: u16, row: u16) -> Result<()> {
+        self.cursor.goto(column, row)
     }
 
     /// Gets the cursor position.
