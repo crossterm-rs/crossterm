@@ -62,7 +62,7 @@ pub use crossterm_utils::{
 };
 use cursor::ansi::{self, AnsiCursor};
 #[cfg(windows)]
-use cursor::windows::WindowsCursor;
+use cursor::windows::WinApiCursor;
 use cursor::Cursor;
 
 mod cursor;
@@ -109,7 +109,7 @@ impl TerminalCursor {
         let cursor = if supports_ansi() {
             Box::new(AnsiCursor::new()) as Box<(dyn Cursor + Sync + Send)>
         } else {
-            Box::new(WindowsCursor::new()) as Box<(dyn Cursor + Sync + Send)>
+            Box::new(WinApiCursor::new()) as Box<(dyn Cursor + Sync + Send)>
         };
 
         #[cfg(unix)]
@@ -217,7 +217,7 @@ impl Command for Goto {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().goto(self.0, self.1)
+        WinApiCursor::new().goto(self.0, self.1)
     }
 }
 
@@ -237,7 +237,7 @@ impl Command for Up {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().move_up(self.0)
+        WinApiCursor::new().move_up(self.0)
     }
 }
 
@@ -257,7 +257,7 @@ impl Command for Down {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().move_down(self.0)
+        WinApiCursor::new().move_down(self.0)
     }
 }
 
@@ -277,7 +277,7 @@ impl Command for Left {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().move_left(self.0)
+        WinApiCursor::new().move_left(self.0)
     }
 }
 
@@ -297,7 +297,7 @@ impl Command for Right {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().move_right(self.0)
+        WinApiCursor::new().move_right(self.0)
     }
 }
 
@@ -320,7 +320,7 @@ impl Command for SavePos {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().save_position()
+        WinApiCursor::new().save_position()
     }
 }
 
@@ -340,7 +340,7 @@ impl Command for ResetPos {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().restore_position()
+        WinApiCursor::new().restore_position()
     }
 }
 
@@ -363,7 +363,7 @@ impl Command for Hide {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().hide()
+        WinApiCursor::new().hide()
     }
 }
 
@@ -386,7 +386,7 @@ impl Command for Show {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WindowsCursor::new().show()
+        WinApiCursor::new().show()
     }
 }
 

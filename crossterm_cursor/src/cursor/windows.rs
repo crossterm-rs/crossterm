@@ -9,15 +9,15 @@ use crate::sys::windows::ScreenBufferCursor;
 use super::Cursor;
 
 /// This struct is a windows implementation for cursor related actions.
-pub(crate) struct WindowsCursor;
+pub(crate) struct WinApiCursor;
 
-impl WindowsCursor {
-    pub(crate) fn new() -> WindowsCursor {
-        WindowsCursor
+impl WinApiCursor {
+    pub(crate) fn new() -> WinApiCursor {
+        WinApiCursor
     }
 }
 
-impl Cursor for WindowsCursor {
+impl Cursor for WinApiCursor {
     fn goto(&self, x: u16, y: u16) -> Result<()> {
         let cursor = ScreenBufferCursor::new()?;
         cursor.goto(x as i16, y as i16)?;
@@ -80,11 +80,11 @@ impl Cursor for WindowsCursor {
 
 #[cfg(test)]
 mod tests {
-    use super::{Cursor, WindowsCursor};
+    use super::{Cursor, WinApiCursor};
 
     #[test]
     fn test_goto() {
-        let cursor = WindowsCursor::new();
+        let cursor = WinApiCursor::new();
 
         let (saved_x, saved_y) = cursor.pos().unwrap();
 
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn test_save_restore_position() {
-        let cursor = WindowsCursor::new();
+        let cursor = WinApiCursor::new();
 
         let (saved_x, saved_y) = cursor.pos().unwrap();
 
