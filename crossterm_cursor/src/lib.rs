@@ -123,7 +123,7 @@ impl TerminalCursor {
         self.cursor.goto(column, row)
     }
 
-    /// Gets the cursor position.
+    /// Gets the cursor position (`(column, row)` tuple).
     pub fn pos(&self) -> Result<(u16, u16)> {
         self.cursor.pos()
     }
@@ -189,8 +189,7 @@ impl TerminalCursor {
     ///
     /// # Notes
     ///
-    /// Not all terminals do support this functionality. Windows versions lower than
-    /// Windows 10 do not support this functionality.
+    /// Windows versions lower than Windows 10 do not support this functionality.
     pub fn blink(&self, blink: bool) -> Result<()> {
         self.cursor.blink(blink)
     }
@@ -394,8 +393,7 @@ impl Command for Show {
 ///
 /// # Notes
 ///
-/// Not all terminals do support this functionality. Windows versions lower than
-/// Windows 10 do not support this functionality.
+/// Windows versions lower than Windows 10 do not support this functionality.
 ///
 /// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct BlinkOn;
@@ -417,8 +415,7 @@ impl Command for BlinkOn {
 ///
 /// # Notes
 ///
-/// Not all terminals do support this functionality. Windows versions lower than
-/// Windows 10 do not support this functionality.
+/// Windows versions lower than Windows 10 do not support this functionality.
 ///
 /// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct BlinkOff;
