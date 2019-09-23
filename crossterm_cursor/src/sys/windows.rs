@@ -100,7 +100,7 @@ impl ScreenBufferCursor {
         let cursor = ScreenBufferCursor::new()?;
 
         if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
-            cursor.goto(x, y);
+            cursor.goto(x, y)?;
         }
 
         Ok(())
