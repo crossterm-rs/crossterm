@@ -12,12 +12,12 @@ readme = "README.md"
 edition = "2018"
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = { path="../crossterm_winapi", version = "0.1.5"}
+crossterm_winapi = { path="../crossterm_winapi", version = "0.2.0"}
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
 
 [dependencies]
-crossterm_utils = { path="../crossterm_utils", version = "0.2.4"}
-crossterm_cursor = {path="../crossterm_cursor", version = "0.2.5"}
+crossterm_utils = { path="../crossterm_utils", version = "0.3.0"}
+crossterm_cursor = { path="../crossterm_cursor", version = "0.3.0"}
 serde = { version = "1.0.0", features = ["derive"], optional = true }

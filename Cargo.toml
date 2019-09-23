@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.10.3"
+version = "0.11.0"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/TimonPost/crossterm"
@@ -37,12 +37,12 @@ exclude = [
 ]
 
 [dependencies]
-crossterm_screen =   { optional = true,  path = "./crossterm_screen", version = "0.2.4" }
-crossterm_cursor =   { optional = true,  path = "./crossterm_cursor", version = "0.2.5" }
-crossterm_terminal = { optional = true,  path = "./crossterm_terminal", version = "0.2.5" }
-crossterm_style =    { optional = true,  path = "./crossterm_style", version = "0.4.0" }
-crossterm_input =    { optional = true,  path = "./crossterm_input", version = "0.3.8" }
-crossterm_utils =    { optional = false, path = "./crossterm_utils", version = "0.2.4"}
+crossterm_screen =   { path = "./crossterm_screen", version = "0.3.0"  , optional = true  }
+crossterm_cursor =   { path = "./crossterm_cursor", version = "0.3.0"  , optional = true  }
+crossterm_terminal = { path = "./crossterm_terminal", version = "0.3.0", optional = true  }
+crossterm_style =    { path = "./crossterm_style", version = "0.5.0"   , optional = true  }
+crossterm_input =    { path = "./crossterm_input", version = "0.4.0"   , optional = true  }
+crossterm_utils =    { path = "./crossterm_utils", version = "0.3.0"   , optional = false }
 
 [lib]
 name = "crossterm"

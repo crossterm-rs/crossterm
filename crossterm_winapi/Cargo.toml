@@ -12,4 +12,4 @@ readme = "README.md"
 edition = "2018"
 
 [dependencies]
-winapi = { version =  "0.3.7", features = ["winbase","consoleapi","processenv", "handleapi"] }
+winapi = { version =  "0.3.8", features = ["winbase","consoleapi","processenv", "handleapi"] }
