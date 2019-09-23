@@ -1,11 +1,62 @@
 #![deny(unused_imports)]
 
-//! A module that contains all the actions related to cursor movement in the terminal.
-//! Like: moving the cursor position; saving and resetting the cursor position; hiding showing and control the blinking of the cursor.
-
+//! # Cursor
+//!
+//! The `crossterm_cursor` crate provides a functionality to work with the terminal cursor.
+//!
+//! This documentation does not contain lot of examples. The reason is that it's fairly
+//! obvious how to use this crate. Although, we do provide
+//! [separate examples](https://github.com/TimonPost/crossterm/tree/master/examples) and
+//! some [complex programs](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
+//! to demonstrate the capabilities.
+//!
+//! ## Examples
+//!
+//! Basic usage:
+//!
+//! ```no_run
+//! // You can replace the following line with `use crossterm::TerminalCursor;`
+//! // if you're using the `crossterm` crate with the `cursor` feature enabled.
+//! use crossterm_cursor::{Result, TerminalCursor};
+//!
+//! fn main() -> Result<()> {
+//!     // Get a cursor, save position
+//!     let cursor = TerminalCursor::new();
+//!     cursor.save_position()?;
+//!
+//!     // Do something with the cursor
+//!     cursor.goto(10, 10)?;
+//!     cursor.blink(true)?;
+//!
+//!     // Be a good citizen, cleanup
+//!     cursor.blink(false)?;
+//!     cursor.restore_position()
+//! }
+//! ```
+//!
+//! Commands:
+//!
+//! ```no_run
+//! use std::io::{stdout, Write};
+//!
+//! use crossterm_cursor::{execute, Result};
+//! use crossterm_cursor::{BlinkOff, BlinkOn, Goto, ResetPos, SavePos};
+//!
+//! fn main() -> Result<()> {
+//!     execute!(
+//!         stdout(),
+//!         SavePos,
+//!         Goto(10, 10),
+//!         BlinkOn,
+//!         BlinkOff,
+//!         ResetPos
+//!     )
+//! }   
+//! ```
 use crossterm_utils::impl_display;
 #[cfg(windows)]
 use crossterm_utils::supports_ansi;
+#[doc(no_inline)]
 pub use crossterm_utils::{
     execute, queue, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
 };
@@ -17,20 +68,33 @@ use cursor::Cursor;
 mod cursor;
 mod sys;
 
-/// Allows you to preform actions with the terminal cursor.
+/// A terminal cursor.
 ///
-/// # Features
+/// The `TerminalCursor` instance is stateless and does not hold any data.
+/// You can create as many instances as you want and they will always refer to the
+/// same terminal cursor.
 ///
-/// - Moving n times Up, Down, Left, Right
-/// - Goto a certain position
-/// - Get cursor position
-/// - Storing the current cursor position and resetting to that stored cursor position later
-/// - Hiding and showing the cursor
-/// - Control over blinking of the terminal cursor (only some terminals are supporting this)
+/// The cursor position is 0 based. For example `0` means first column / row, `1`
+/// second column / row, etc.
 ///
-/// Note that positions of the cursor are 0 -based witch means that the coordinates (cells) starts counting from 0
+/// # Examples
 ///
-/// Check `/examples/cursor` in the library for more specific examples.
+/// Basic usage:
+///
+/// ```no_run
+/// use crossterm_cursor::{Result, TerminalCursor};
+///
+/// fn main() -> Result<()> {
+///     let cursor = TerminalCursor::new();
+///     cursor.save_position()?;
+///
+///     cursor.goto(10, 10)?;
+///     cursor.blink(true)?;
+///
+///     cursor.blink(false)?;
+///     cursor.restore_position()
+/// }
+/// ```
 pub struct TerminalCursor {
     #[cfg(windows)]
     cursor: Box<(dyn Cursor + Sync + Send)>,
@@ -39,7 +103,7 @@ pub struct TerminalCursor {
 }
 
 impl TerminalCursor {
-    /// Create new `TerminalCursor` instance whereon cursor related actions can be performed.
+    /// Creates a new terminal cursor.
     pub fn new() -> TerminalCursor {
         #[cfg(windows)]
         let cursor = if supports_ansi() {
@@ -54,85 +118,94 @@ impl TerminalCursor {
         TerminalCursor { cursor }
     }
 
-    /// Goto some position (x,y) in the terminal.
-    ///
-    /// # Remarks
-    /// position is 0-based, which means we start counting at 0.
+    /// Moves the cursor to the given position.
     pub fn goto(&self, x: u16, y: u16) -> Result<()> {
         self.cursor.goto(x, y)
     }
 
-    /// Get current cursor position (x,y) in the terminal.
-    ///
-    /// # Remarks
-    /// position is 0-based, which means we start counting at 0.
+    /// Gets the cursor position.
     pub fn pos(&self) -> Result<(u16, u16)> {
         self.cursor.pos()
     }
 
-    /// Move the current cursor position `n` times up.
-    pub fn move_up(&mut self, count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_up(count)?;
+    /// Moves the cursor `row_count` times up.
+    pub fn move_up(&mut self, row_count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_up(row_count)?;
         Ok(self)
     }
 
-    /// Move the current cursor position `n` times right.
-    pub fn move_right(&mut self, count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_right(count)?;
+    /// Moves the cursor `col_count` times right.
+    pub fn move_right(&mut self, col_count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_right(col_count)?;
         Ok(self)
     }
 
-    /// Move the current cursor position `n` times down.
-    pub fn move_down(&mut self, count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_down(count)?;
+    /// Moves the cursor `row_count` times down.
+    pub fn move_down(&mut self, row_count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_down(row_count)?;
         Ok(self)
     }
 
-    /// Move the current cursor position `n` times left.
-    pub fn move_left(&mut self, count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_left(count)?;
+    /// Moves the cursor `col_count` times left.
+    pub fn move_left(&mut self, col_count: u16) -> Result<&mut TerminalCursor> {
+        self.cursor.move_left(col_count)?;
         Ok(self)
     }
 
-    /// Save cursor position for recall later.
+    /// Saves the cursor position.
     ///
-    /// Note that this position is stored program based not per instance of the `Cursor` struct.
+    /// See the [restore_position](struct.TerminalCursor.html#method.restore_position) method.
+    ///
+    /// # Notes
+    ///
+    /// The cursor position is stored globally and is not related to the current / any
+    /// `TerminalCursor` instance.
     pub fn save_position(&self) -> Result<()> {
         self.cursor.save_position()
     }
 
-    /// Return to saved cursor position
+    /// Restores the saved cursor position.
+    ///
+    /// See the [save_position](struct.TerminalCursor.html#method.save_position) method.
     pub fn restore_position(&self) -> Result<()> {
         self.cursor.restore_position()
     }
 
-    /// Hide de cursor in the console.
+    /// Hides the cursor.
+    ///
+    /// See the [show](struct.TerminalCursor.html#method.show) method.
     pub fn hide(&self) -> Result<()> {
         self.cursor.hide()
     }
 
-    /// Show the cursor in the console.
+    /// Shows the cursor.
+    ///
+    /// See the [hide](struct.TerminalCursor.html#method.hide) method.
     pub fn show(&self) -> Result<()> {
         self.cursor.show()
     }
 
-    /// Enable or disable blinking of the terminal.
+    /// Enables or disables the cursor blinking.
     ///
-    /// # Remarks
-    /// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
+    /// # Notes
+    ///
+    /// Not all terminals do support this functionality. Windows versions lower than
+    /// Windows 10 do not support this functionality.
     pub fn blink(&self, blink: bool) -> Result<()> {
         self.cursor.blink(blink)
     }
 }
 
-/// Get a `TerminalCursor` instance whereon cursor related actions can be performed.
+/// Creates a new terminal cursor.
 pub fn cursor() -> TerminalCursor {
     TerminalCursor::new()
 }
 
-/// When executed, this command will move the cursor position to the given `x` and `y` in the terminal window.
+/// A command to move the cursor to the given position.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Goto(pub u16, pub u16);
 
 impl Command for Goto {
@@ -148,9 +221,11 @@ impl Command for Goto {
     }
 }
 
-/// When executed, this command will move the current cursor position `n` times up.
+/// A command to move the cursor given rows up.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Up(pub u16);
 
 impl Command for Up {
@@ -166,9 +241,11 @@ impl Command for Up {
     }
 }
 
-/// When executed, this command will move the current cursor position `n` times down.
+/// A command to move the cursor given rows down.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Down(pub u16);
 
 impl Command for Down {
@@ -184,9 +261,11 @@ impl Command for Down {
     }
 }
 
-/// When executed, this command will move the current cursor position `n` times left.
+/// A command to move the cursor given columns left.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Left(pub u16);
 
 impl Command for Left {
@@ -202,9 +281,11 @@ impl Command for Left {
     }
 }
 
-/// When executed, this command will move the current cursor position `n` times right.
+/// A command to move the cursor given columns right.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Right(pub u16);
 
 impl Command for Right {
@@ -220,11 +301,14 @@ impl Command for Right {
     }
 }
 
-/// When executed, this command will save the cursor position for recall later.
+/// A command to save the cursor position.
 ///
-/// Note that this position is stored program based not per instance of the `Cursor` struct.
+/// # Notes
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// The cursor position is stored globally and is not related to the current / any
+/// `TerminalCursor` instance.
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct SavePos;
 
 impl Command for SavePos {
@@ -240,9 +324,11 @@ impl Command for SavePos {
     }
 }
 
-/// When executed, this command will return the cursor position to the saved cursor position
+/// A command to restore the saved cursor position.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct ResetPos;
 
 impl Command for ResetPos {
@@ -258,9 +344,14 @@ impl Command for ResetPos {
     }
 }
 
-/// When executed, this command will hide de cursor in the console.
+/// A command to hide the cursor.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// The cursor position is stored globally and is not related to the current / any
+/// `TerminalCursor` instance.
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Hide;
 
 impl Command for Hide {
@@ -276,9 +367,14 @@ impl Command for Hide {
     }
 }
 
-/// When executed, this command will show de cursor in the console.
+/// A command to show the cursor.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// # Notes
+///
+/// The cursor position is stored globally and is not related to the current / any
+/// `TerminalCursor` instance.
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct Show;
 
 impl Command for Show {
@@ -294,12 +390,14 @@ impl Command for Show {
     }
 }
 
-/// When executed, this command will enable cursor blinking.
+/// A command to enable the cursor blinking.
 ///
-/// # Remarks
-/// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
+/// # Notes
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// Not all terminals do support this functionality. Windows versions lower than
+/// Windows 10 do not support this functionality.
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct BlinkOn;
 
 impl Command for BlinkOn {
@@ -315,12 +413,14 @@ impl Command for BlinkOn {
     }
 }
 
-/// When executed, this command will disable cursor blinking.
+/// A command to disable the cursor blinking.
 ///
-/// # Remarks
-/// Not all terminals are supporting this functionality. Windows versions lower than windows 10 also are not supporting this version.
+/// # Notes
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// Not all terminals do support this functionality. Windows versions lower than
+/// Windows 10 do not support this functionality.
+///
+/// Commands must be executed / queued for execution otherwise they do nothing.
 pub struct BlinkOff;
 
 impl Command for BlinkOff {
