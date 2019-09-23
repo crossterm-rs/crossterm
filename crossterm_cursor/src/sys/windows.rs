@@ -78,10 +78,10 @@ impl ScreenBufferCursor {
     }
 
     /// change the cursor visibility.
-    pub(crate) fn set_visibility(&self, visable: bool) -> Result<()> {
+    pub(crate) fn set_visibility(&self, visible: bool) -> Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
-            bVisible: if visable { TRUE } else { FALSE },
+            bVisible: if visible { TRUE } else { FALSE },
         };
 
         unsafe {
