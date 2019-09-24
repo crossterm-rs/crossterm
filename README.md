@@ -1,5 +1,5 @@
 <p align="center">
-<img alt="Crossterm Logo" src="https://github.com/crossterm-rs/crossterm/tree/master/docs/crossterm_full.png" />
+<img alt="Crossterm Logo" src="https://github.com/crossterm-rs/crossterm/tree/0.11/docs/crossterm_full.png" />
 </p>
 
 # Crossterm | cross-platform terminal manipulating library.
