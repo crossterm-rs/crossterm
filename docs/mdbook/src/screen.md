@@ -40,4 +40,4 @@ _example of what I mean_
 To start at the beginning of the next line, use `\n\r`.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
-More examples could be found [over here](https://github.com/TimonPost/crossterm/blob/master/examples/).
+More examples could be found [over here](https://github.com/crossterm-rs/crossterm/blob/master/examples/).

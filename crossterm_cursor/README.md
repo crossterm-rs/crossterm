@@ -13,7 +13,7 @@
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
 [l5]: https://discord.gg/K4nyTDB
 
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
 This crate allows you to move the terminal cursor cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
@@ -26,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Input](https://crates.io/crates/crossterm_input)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -39,7 +39,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_cursor` version `0.2`. Also, check out the [examples](examples/cursor.rs) folders with detailed examples for all functionality of this crate.
+All examples of how `crossterm_cursor` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
 
 Add the `crossterm_cursor` package to your `Cargo.toml` file.
 
@@ -75,11 +75,11 @@ These are the features of this crate:
    
 ## Command API
 
-My first recommendation is to use the [command API](https://timonpost.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
+My first recommendation is to use the [command API](https://crossterm-rs.github.io/crossterm/docs/command.html) because this might replace some of the existing API in the future. 
 Because it is more convenient, faster, and easier to use.
 
 ## Examples 
-The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
+The [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ```rust 
 use crossterm_cursor::cursor;

@@ -1,24 +1,93 @@
-# Changes crossterm 0.10.0
-- Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/TimonPost/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/TimonPost/crossterm/issues/171)
+# Changes crossterm 0.11.0
+As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation called 'crossterm-rs'.
+
+### Code Quality
+- Code Cleanup: [warning-cleanup], [crossterm_style-cleanup], [crossterm_screen-cleanup], [crossterm_terminal-cleanup], [crossterm_utils-cleanup], [2018-cleanup], [api-cleanup-1], [api-cleanup-2], [api-cleanup-3]
+- Examples: [example-cleanup_1], [example-cleanup_2], [example-fix], [commandbar-fix], [snake-game-improved]
+- Fixed all broken tests and added tests 
+
+### Important Changes
+- Return written bytes: [return-written-bytes]
+- Added derives: `Debug` for `ObjectStyle`  [debug-derive], Serialize/Deserialize for key events [serde]
+- Improved error handling:
+    - Return `crossterm::Result` from all api's: [return_crossterm_result]
+         * `TerminalCursor::pos()` returns `Result<(u16, u16)>`
+         * `Terminal::size()` returns `Result<(u16, u16)>`
+         * `TerminalCursor::move_*` returns `crossterm::Result`
+         * `ExecutableCommand::queue` returns `crossterm::Result`
+         * `QueueableCommand::queue` returns `crossterm::Result`
+         * `get_available_color_count` returns no result
+         * `RawScreen::into_raw_mode` returns `crossterm::Result` instead of `io::Result`
+         * `RawScreen::disable_raw_mode` returns `crossterm::Result` instead of `io::Result`
+         * `AlternateScreen::to_alternate` returns `crossterm::Result` instead of `io::Result`
+         * `TerminalInput::read_line` returns `crossterm::Result` instead of `io::Result`
+         * `TerminalInput::read_char` returns `crossterm::Result` instead of `io::Result`     
+         * Maybe I forgot something, a lot of functions have changed    
+     - Removed all unwraps/expects from library
+- Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab] 
+- Synced set/get terminal size behaviour: [fixed-get-set-terminal-size]
+- Method renames:
+    * `AsyncReader::stop_reading()` to `stop()`
+    * `RawScreen::disable_raw_mode_on_drop` to `keep_raw_mode_on_drop`
+    * `TerminalCursor::reset_position()` to `restore_position()`
+    * `Command::get_anis_code()` to `ansi_code()`
+    * `available_color_count` to `available_color_count()`
+    * `Terminal::terminal_size` to `Terminal::size`
+    * `Console::get_handle` to `Console::handle`
+- All `i16` values for indexing: set size, set cursor pos, scrolling synced to `u16` values
+- Command API takes mutable self instead of self
+
+[serde]: https://github.com/crossterm-rs/crossterm/pull/190
+
+[debug-derive]: https://github.com/crossterm-rs/crossterm/pull/192
+[example-fix]: https://github.com/crossterm-rs/crossterm/pull/193
+[commandbar-fix]: https://github.com/crossterm-rs/crossterm/pull/204
+
+[warning-cleanup]: https://github.com/crossterm-rs/crossterm/pull/198
+[example-cleanup_1]: https://github.com/crossterm-rs/crossterm/pull/196
+[example-cleanup_2]: https://github.com/crossterm-rs/crossterm/pull/225
+[snake-game-improved]: https://github.com/crossterm-rs/crossterm/pull/231
+[crossterm_style-cleanup]: https://github.com/crossterm-rs/crossterm/pull/208
+[crossterm_screen-cleanup]: https://github.com/crossterm-rs/crossterm/pull/209
+[crossterm_terminal-cleanup]: https://github.com/crossterm-rs/crossterm/pull/210
+[crossterm_utils-cleanup]: https://github.com/crossterm-rs/crossterm/pull/211
+[2018-cleanup]: https://github.com/crossterm-rs/crossterm/pull/222
+[wild-card-cleanup]: https://github.com/crossterm-rs/crossterm/pull/224
+
+[api-cleanup-1]: https://github.com/crossterm-rs/crossterm/pull/235
+[api-cleanup-2]: https://github.com/crossterm-rs/crossterm/pull/238
+[api-cleanup-3]: https://github.com/crossterm-rs/crossterm/pull/240
+
+[return-written-bytes]: https://github.com/crossterm-rs/crossterm/pull/212
+
+[return_crossterm_result]: https://github.com/crossterm-rs/crossterm/pull/232
+[added-key-event-tab]: https://github.com/crossterm-rs/crossterm/pull/239
+[added-key-event-enter]: https://github.com/crossterm-rs/crossterm/pull/236
+[fixed-get-set-terminal-size]: https://github.com/crossterm-rs/crossterm/pull/242
+
+# Changes crossterm 0.10.1
+
+# Changes crossterm 0.10.0 ~ yanked
+- Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/crossterm-rs/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/crossterm-rs/crossterm/issues/171)
 - Fixed showing, hiding cursor windows implementation
-- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/TimonPost/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 
-- Made terminal size 1-based [PR](https://github.com/TimonPost/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
+- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 
+- Made terminal size 1-based [PR](https://github.com/crossterm-rs/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
 - Added some derive implementation
 
 # Changes crossterm 0.9.6
 - Copy for KeyEvent
 - CTRL + Left, Down, Up, Right key support
 - SHIFT + Left, Down, Up, Right key support
-- Fixed UNIX cursor position bug [issue](https://github.com/TimonPost/crossterm/issues/140), [PR](https://github.com/TimonPost/crossterm/pull/152)
+- Fixed UNIX cursor position bug [issue](https://github.com/crossterm-rs/crossterm/issues/140), [PR](https://github.com/crossterm-rs/crossterm/pull/152)
 
 # Changes crossterm 0.9.5
-- Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/TimonPost/crossterm/pull/144)
+- Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/crossterm-rs/crossterm/pull/144)
 
 # Changes crossterm 0.9.4
-- Reset foreground and background color individually. [PR](https://github.com/TimonPost/crossterm/pull/138)
-- Backtap input support. [PR](https://github.com/TimonPost/crossterm/pull/129)
+- Reset foreground and background color individually. [PR](https://github.com/crossterm-rs/crossterm/pull/138)
+- Backtap input support. [PR](https://github.com/crossterm-rs/crossterm/pull/129)
 - Corrected white/grey and added dark grey.
-- Fixed getting cursor position with raw screen enabled. [PR](https://github.com/TimonPost/crossterm/pull/134)
+- Fixed getting cursor position with raw screen enabled. [PR](https://github.com/crossterm-rs/crossterm/pull/134)
 - Removed one redundant stdout lock
 
 # Changes crossterm 0.9.3
@@ -67,7 +136,7 @@ This release is all about moving to a stabilized API for 1.0.
 
 # Changes crossterm 0.7.0
 - Introduced more `Attributes`
-- Introduced easier ways to style text [issue 87](https://github.com/TimonPost/crossterm/issues/87).
+- Introduced easier ways to style text [issue 87](https://github.com/crossterm-rs/crossterm/issues/87).
 - Removed `ColorType` since it was unnecessary.
 
 # Changes crossterm 0.6.0
@@ -77,38 +146,38 @@ This release is all about moving to a stabilized API for 1.0.
 - Less dependencies.
 - Improved namespaces.
 
-[PR 84](https://github.com/TimonPost/crossterm/pull/84)
+[PR 84](https://github.com/crossterm-rs/crossterm/pull/84)
 
 # Changes crossterm 0.5.5
-- Error module is made public [PR 78](https://github.com/TimonPost/crossterm/pull/78).
+- Error module is made public [PR 78](https://github.com/crossterm-rs/crossterm/pull/78).
 
 # Changes crossterm 0.5.4
-- WinApi rewrite and correctly error handled [PR 67](https://github.com/TimonPost/crossterm/pull/67)
-- Windows attribute support [PR 62](https://github.com/TimonPost/crossterm/pull/62)
-- Readline bug fix windows systems [PR 62](https://github.com/TimonPost/crossterm/pull/62)
+- WinApi rewrite and correctly error handled [PR 67](https://github.com/crossterm-rs/crossterm/pull/67)
+- Windows attribute support [PR 62](https://github.com/crossterm-rs/crossterm/pull/62)
+- Readline bug fix windows systems [PR 62](https://github.com/crossterm-rs/crossterm/pull/62)
 - Error handling improvement.
 - General refactoring, all warnings removed.
 - Documentation improvement.
 
 # Changes crossterm 0.5.1
 - Documentation refactor.
-- Fixed broken API documentation [PR 53](https://github.com/TimonPost/crossterm/pull/53).
+- Fixed broken API documentation [PR 53](https://github.com/crossterm-rs/crossterm/pull/53).
 
 # Changes crossterm 0.5.0
-- Added ability to pause the terminal [issue](https://github.com/TimonPost/crossterm/issues/39)
+- Added ability to pause the terminal [issue](https://github.com/crossterm-rs/crossterm/issues/39)
 - RGB support for Windows 10 systems
 - ANSI color value (255) color support
-- More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/TimonPost/crossterm/pull/44)
+- More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/crossterm-rs/crossterm/pull/44)
 - Implemented Display for styled object
 
 # Changes crossterm to 0.4.3
-- Fixed bug [issue 41](https://github.com/TimonPost/crossterm/issues/41)
+- Fixed bug [issue 41](https://github.com/crossterm-rs/crossterm/issues/41)
 
 # Changes crossterm to 0.4.2
-- Added functionality to make a styled object writable to screen [issue 33](https://github.com/TimonPost/crossterm/issues/33)
+- Added functionality to make a styled object writable to screen [issue 33](https://github.com/crossterm-rs/crossterm/issues/33)
 - Added unit tests.
 - Bugfix with getting terminal size unix.
-- Bugfix with returning written bytes [pull request 31](https://github.com/TimonPost/crossterm/pull/31)
+- Bugfix with returning written bytes [pull request 31](https://github.com/crossterm-rs/crossterm/pull/31)
 - removed methods calls: `as_any()` and `as_any_mut()` from `TerminalOutput`
 
 # Bug fix crossterm to 0.4.1
@@ -133,10 +202,10 @@ Because you will have some work to get to the new version of crossterm depending
 
 Some Features crossterm 0.3.0
 - Alternate Screen for windows and unix systems.
-- Raw screen for unix and windows systems [Issue 5](https://github.com/TimonPost/crossterm/issues/5)..
+- Raw screen for unix and windows systems [Issue 5](https://github.com/crossterm-rs/crossterm/issues/5)..
 - Hiding an showing the cursor.
 - Control over blinking of the terminal cursor (only some terminals are supporting this).
-- The terminal state will be set to its original state when process ends [issue7](https://github.com/TimonPost/crossterm/issues/7).
+- The terminal state will be set to its original state when process ends [issue7](https://github.com/crossterm-rs/crossterm/issues/7).
 - exit the current process.
 
 ## Alternate screen
@@ -166,12 +235,12 @@ With these modes you can easier design the terminal screen.
 - Hiding and showing terminal cursor
 - Enable or disabling blinking of the cursor for unix systems (this is not widely supported)
 - Restoring the terminal to original modes.
-- Added a [wrapper](https://github.com/TimonPost/crossterm/blob/master/src/shared/crossterm.rs) for managing all the functionalities of crossterm `Crossterm`.
+- Added a [wrapper](https://github.com/crossterm-rs/crossterm/blob/master/src/shared/crossterm.rs) for managing all the functionalities of crossterm `Crossterm`.
 - Exit the current running process
 
 ## Examples
-Added [examples](https://github.com/TimonPost/crossterm/tree/master/examples) for each version of the crossterm version. 
-Also added a folder with some [real life examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples).
+Added [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) for each version of the crossterm version. 
+Also added a folder with some [real life examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/program_examples).
 
 ## Context
 
@@ -206,7 +275,7 @@ Also is this `Context` is a wrapper for access to the current console screen.
 
 Because Crossterm needs access to the above to types quite often I have chosen to add those two in one struct called `Context` so that this type could be shared throughout library. 
 Check this link for more info: [cleanup of rust code](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library). 
-More info over writing to alternate screen buffer on windows and unix see this [link](https://github.com/TimonPost/crossterm/issues/17)
+More info over writing to alternate screen buffer on windows and unix see this [link](https://github.com/crossterm-rs/crossterm/issues/17)
 
 __Now the user has to pass an context type to the modules of Crossterm like this:__
       
@@ -226,7 +295,7 @@ Because this looks a little odd I will provide a type withs will manage the `Con
       
 ### Alternate screen
 When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly. 
-First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](https://github.com/TimonPost/crossterm/blob/master/examples/alternate_screen.rs).
+First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](https://github.com/crossterm-rs/crossterm/blob/master/examples/alternate_screen.rs).
 
 _Create alternate screen from `Context`_
 
@@ -248,18 +317,18 @@ _Create alternate screen from `Crossterm`:_
          
 like demonstrated above, to get the functionalities of `cursor(), color(), terminal()` also working on alternate screen.
 You need to pass it the same `Context` as you have passed to the previous three called functions,
-If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/TimonPost/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
+If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/crossterm-rs/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
 
 # Fixes in crossterm 0.2.2
-- Bug see [issue 15](https://github.com/TimonPost/crossterm/issues/15)
+- Bug see [issue 15](https://github.com/crossterm-rs/crossterm/issues/15)
 
 # Fixes in crossterm 0.2.1
 
 - Default ANSI escape codes for windows machines, if windows does not support ANSI switch back to WinApi.
-- method grammar mistake fixed [Issue 3](https://github.com/TimonPost/crossterm/issues/3)
-- Some Refactorings in method names see [issue 4](https://github.com/TimonPost/crossterm/issues/4)
-- Removed bin reference from crate [Issue 6](https://github.com/TimonPost/crossterm/issues/6)
-- Get position unix fixed [issue 8](https://github.com/TimonPost/crossterm/issues/8)
+- method grammar mistake fixed [Issue 3](https://github.com/crossterm-rs/crossterm/issues/3)
+- Some Refactorings in method names see [issue 4](https://github.com/crossterm-rs/crossterm/issues/4)
+- Removed bin reference from crate [Issue 6](https://github.com/crossterm-rs/crossterm/issues/6)
+- Get position unix fixed [issue 8](https://github.com/crossterm-rs/crossterm/issues/8)
 
 # Features crossterm 0.2
 

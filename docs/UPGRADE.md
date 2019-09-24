@@ -369,7 +369,7 @@ New: crossterm::cursor
 
 ```
 
-Method names that changed [Issue 4](https://github.com/TimonPost/crossterm/issues/4): 
+Method names that changed [Issue 4](https://github.com/crossterm-rs/crossterm/issues/4): 
 
 ```
 Old:  ::crossterm::crossterm_cursor::get();

@@ -34,7 +34,7 @@ macro_rules! write_cout {
 /// - When the buffer is to full, then the terminal will flush for you.
 /// - Incase of `stdout` each line, because `stdout` is line buffered.
 ///
-/// Check [here](https://timonpost.github.io/crossterm/docs/command.html) for more information and all availible commands.
+/// Check [here](https://crossterm-rs.github.io/crossterm/docs/command.html) for more information and all availible commands.
 ///
 /// # Parameters
 /// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
@@ -114,7 +114,7 @@ macro_rules! queue {
 
 /// Execute one or more command(s)
 ///
-/// Check [here](https://timonpost.github.io/crossterm/docs/command.html) for more information and all availible commands.
+/// Check [here](https://crossterm-rs.github.io/crossterm/docs/command.html) for more information and all availible commands.
 ///
 /// # Parameters
 /// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)

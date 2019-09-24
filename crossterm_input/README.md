@@ -13,7 +13,7 @@
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
 [l5]: https://discord.gg/K4nyTDB
 
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
 This crate allows you to read the user input cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
@@ -26,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -41,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_input` version `0.3` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/crossterm_input/examples) folders with detailed examples for all functionalities of this crate.
+All examples of how `crossterm_input` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
 
 Add the `crossterm_input` package to your `Cargo.toml` file.
 
@@ -59,7 +59,7 @@ pub use crossterm_input::{input, AsyncReader, InputEvent, KeyEvent, MouseButton,
 
 - [Documentation](https://docs.rs/crossterm_input/)
 - [Crates.io](https://crates.io/crates/crossterm_input)
-- [Book](https://timonpost.github.io/crossterm/docs/input.html)
+- [Book](https://crossterm-rs.github.io/crossterm/docs/input.html)
 - [Examples](./examples)
 
 ## Features
@@ -77,7 +77,7 @@ These are the features of this crate:
     - RawScreen (from `crossterm_screen`)
     
 ## Examples
-The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
+The [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 _Simple Readings_
 ```rust 

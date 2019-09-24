@@ -11,13 +11,13 @@ for Windows versions lower than 10. Crossterm uses WinAPI in this case.
 
 The `crossterm` crate consists of 7 crates:
 
-* [cursor](https://github.com/TimonPost/crossterm/tree/master/crossterm_cursor)
-* [input](https://github.com/TimonPost/crossterm/tree/master/crossterm_input)
-* [style](https://github.com/TimonPost/crossterm/tree/master/crossterm_style)
-* [terminal](https://github.com/TimonPost/crossterm/tree/master/crossterm_terminal)
-* [screen](https://github.com/TimonPost/crossterm/tree/master/crossterm_screen)
-* [utils](https://github.com/TimonPost/crossterm/tree/master/crossterm_utils)
-* [winapi](https://github.com/TimonPost/crossterm/tree/master/crossterm_winapi)
+* [cursor](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_cursor)
+* [input](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_input)
+* [style](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_style)
+* [terminal](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_terminal)
+* [screen](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_screen)
+* [utils](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_utils)
+* [winapi](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_winapi)
 
 ### Module structure
 
@@ -85,4 +85,4 @@ use super::ITerminalCursor;
 The code must be warning free. It's quite hard to find an error if the build logs are polluted with warnings.
 If you decide to silent a warning with (`#[allow(...)]`), please add a comment why it's required.
 
-Always consult the [Travis CI](https://travis-ci.org/TimonPost/crossterm/pull_requests) build logs.
+Always consult the [Travis CI](https://travis-ci.org/crossterm-rs/crossterm/pull_requests) build logs.

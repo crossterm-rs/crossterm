@@ -13,7 +13,7 @@
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
 [l5]: https://discord.gg/K4nyTDB.
 
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
 This crate is a utilities crate used by the following [crossterm](https://crates.io/crates/crossterm) modules:
 - [Crossterm Style](https://crates.io/crates/crossterm_style) 

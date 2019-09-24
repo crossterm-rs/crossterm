@@ -13,7 +13,7 @@
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
 [l5]: https://discord.gg/K4nyTDB
 
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
 This crate allows you to work with alternate and raw screen cross-platform. 
 It supports all UNIX and windows terminals down to windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info)
@@ -26,9 +26,9 @@ Other sub-crates are:
 - [Crossterm Input](https://crates.io/crates/crossterm_input)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html).
  
-In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](https://timonpost.github.io/crossterm/docs/screen.html) describing this in more detail.
+In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](https://crossterm-rs.github.io/crossterm/docs/screen.html) describing this in more detail.
   
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -43,9 +43,8 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 
 ## Getting Started
 
-This documentation is only for `crossterm_screen` version `0.2`.
-Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate
-and the [book](https://timonpost.github.io/crossterm/docs/screen.html) for more information about how to use the alternate or raw screen options.
+All examples of how `crossterm_input` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
+And you might consider reading the [book](https://crossterm-rs.github.io/crossterm/docs/screen.html) which has a dedicated section on alternate and raw modes.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.
 
@@ -64,7 +63,7 @@ pub use crossterm_screen::{AlternateScreen, RawScreen};
 
 - [Documentation](https://docs.rs/crossterm_screen/)
 - [Crates.io](https://crates.io/crates/crossterm_screen)
-- [Book](https://timonpost.github.io/crossterm/docs/screen.html)
+- [Book](https://crossterm-rs.github.io/crossterm/docs/screen.html)
 - [Examples](./examples)
 
 ## Features
@@ -81,7 +80,7 @@ Planned features:
 - make is possible to switch between multiple buffers.
 
 ## Examples
-The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
+The [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ## Tested terminals
 - Windows Powershell
