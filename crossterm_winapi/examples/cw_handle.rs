@@ -1,7 +1,10 @@
+#[cfg(windows)]
 use std::io::Result;
 
+#[cfg(windows)]
 use crossterm_winapi::{Handle, HandleType};
 
+#[cfg(windows)]
 #[allow(unused_variables)]
 fn main() -> Result<()> {
     // see the description of the types to see what they do.
@@ -19,4 +22,9 @@ fn main() -> Result<()> {
     let handle = Handle::from(handle); /* winapi::um::winnt::HANDLE */
 
     Ok(())
+}
+
+#[cfg(not(windows))]
+fn main() {
+    println!("This example is for the Windows platform only.");
 }

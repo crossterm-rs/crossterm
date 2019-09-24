@@ -1,3 +1,4 @@
+#![cfg(windows)]
 #![deny(unused_imports)]
 
 pub use self::{
