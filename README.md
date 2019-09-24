@@ -1,7 +1,7 @@
 <img align="center" style="margin-bottom=10px; height=255px" src="docs/crossterm_full.png" />
 
 # cross-platform terminal manipulating library.
- [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Travis][s7] ![Workflow][s8] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
+ [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Travis][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
@@ -20,8 +20,6 @@
 
 [s6]: https://tokei.rs/b1/github/crossterm-rs/crossterm?category=code
 [s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
-
-[s8]: https://github.com/crossterm-rs/crossterm/workflows/Crossterm%20Test/badge.svg
 
 Have you ever been disappointed when a terminal library for rust was only written for UNIX systems? 
 Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both Windows and UNIX systems.
