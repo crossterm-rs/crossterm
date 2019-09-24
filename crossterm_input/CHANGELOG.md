@@ -8,9 +8,9 @@
 - Added derives: Serialize/Deserialize for key events [serde]
 - Command API takes mutable self instead of self
 
-[added-key-event-tab]: https://github.com/TimonPost/crossterm/pull/239
-[added-key-event-enter]: https://github.com/TimonPost/crossterm/pull/236
-[serde]: https://github.com/TimonPost/crossterm/pull/190
+[added-key-event-tab]: https://github.com/crossterm-rs/crossterm/pull/239
+[added-key-event-enter]: https://github.com/crossterm-rs/crossterm/pull/236
+[serde]: https://github.com/crossterm-rs/crossterm/pull/190
 
 # Changes crossterm_input 0.3.3
 - Removed println from `SyncReader`

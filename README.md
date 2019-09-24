@@ -16,10 +16,10 @@
 [s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
 [l5]: https://discord.gg/K4nyTDB
 
-[s6]: https://tokei.rs/b1/github/TimonPost/crossterm?category=code
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s6]: https://tokei.rs/b1/github/crossterm-rs/crossterm?category=code
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
-[s8]: https://github.com/TimonPost/crossterm/workflows/Crossterm%20Test/badge.svg
+[s8]: https://github.com/crossterm-rs/crossterm/workflows/Crossterm%20Test/badge.svg
 
 Have you ever been disappointed when a terminal library for rust was only written for UNIX systems? 
 Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both Windows and UNIX systems.
@@ -55,7 +55,7 @@ This crate consists of five modules that are provided behind [feature flags](htt
 
 ## Getting Started
 
-This documentation is only for Crossterm version `^0.10`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/TimonPost/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+This documentation is only for Crossterm version `^0.10`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/crossterm-rs/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
@@ -69,8 +69,8 @@ crossterm = "^0.10"
 - [Book](https://timonpost.github.io/crossterm/docs//)
 - [Documentation](https://docs.rs/crossterm/)
 - [Crates.io](https://crates.io/crates/crossterm)
-- [Program Examples](https://github.com/TimonPost/crossterm/tree/master/examples/program_examples)
-- [Examples](https://github.com/TimonPost/crossterm/tree/master/examples)
+- [Program Examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/program_examples)
+- [Examples](https://github.com/crossterm-rs/crossterm/tree/master/examples)
 
 ## Features
 
@@ -104,7 +104,7 @@ crossterm = "^0.10"
     - Read mouse input events (press, release, position, button)
 
 ## Examples
-These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/TimonPost/crossterm/blob/master/examples/) for more.
+These are some basic examples demonstrating how to use this crate. See [examples](https://github.com/crossterm-rs/crossterm/blob/master/examples/) for more.
 
 ### Command API
 
@@ -114,7 +114,7 @@ Because it is more convenient, faster, and easier to use.
 ### Styled Text
 This module enables you to style the terminal text.
 
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](https://timonpost.github.io/crossterm/docs/styling.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/), [book](https://timonpost.github.io/crossterm/docs/styling.html), [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/key_events.rs)
 
 _imports_
 ```rust 
@@ -156,7 +156,7 @@ println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
 ### Cursor
 This module enables you to work with the terminal cursor.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_cursor/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/cursor.rs)
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_cursor/), [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/cursor.rs)
 
 ```rust 
 use crossterm::cursor;
@@ -198,7 +198,7 @@ cursor.blink(true)
 ### Terminal
 This module enables you to work with the terminal in general.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_terminal/), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/terminal.rs).
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_terminal/), [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/terminal.rs).
 
 ```rust 
 use crossterm::{terminal,ClearType};
@@ -237,7 +237,7 @@ terminal.write("Some text\n Some text on new line");
 ### Input Reading
 This module enables you to read user input events.
 
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](https://timonpost.github.io/crossterm/docs/input.html), [examples](https://github.com/TimonPost/crossterm/tree/master/examples/key_events.rs)
+Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/), [book](https://timonpost.github.io/crossterm/docs/input.html), [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/key_events.rs)
 
 _available imports_
 ```rust
@@ -294,7 +294,7 @@ input.disable_mouse_mode().unwrap();
 ```
 
 ### Alternate and Raw Screen
-These concepts are a little more complex and would take over the README, please check out the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/TimonPost/crossterm/tree/master/examples).
+These concepts are a little more complex and would take over the README, please check out the [docs](https://docs.rs/crossterm_screen/), [book](https://timonpost.github.io/crossterm/docs/screen.html), and [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples).
 
 ## Used By
 - [Broot](https://dystroy.org/broot/)
@@ -334,4 +334,4 @@ Crossterm took a lot of time to develop, I appreciate any donation given to supp
 
 ## License
 
-This project, crossterm and all it's sub-modules: crossterm_screen, crossterm_cursor, crossterm_style, crossterm_input, crossterm_terminal, crossterm_winapi, crossterm_utils are licensed under the MIT License - see the [LICENSE.md](https://github.com/TimonPost/crossterm/blob/master/LICENSE) file for details
+This project, crossterm and all it's sub-modules: crossterm_screen, crossterm_cursor, crossterm_style, crossterm_input, crossterm_terminal, crossterm_winapi, crossterm_utils are licensed under the MIT License - see the [LICENSE.md](https://github.com/crossterm-rs/crossterm/blob/master/LICENSE) file for details

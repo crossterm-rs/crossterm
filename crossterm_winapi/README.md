@@ -10,10 +10,10 @@
 [s3]: https://docs.rs/crossterm_winapi/badge.svg
 [l3]: https://docs.rs/crossterm_winapi/
 
-[s7]: https://travis-ci.org/TimonPost/crossterm.svg?branch=master
+[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
 
 This crate provides some wrappers aground common used WinApi functions. 
-The purpose of this library is originally meant for [crossterm](https://github.com/TimonPost/crossterm), but could be used apart from it.
+The purpose of this library is originally meant for [crossterm](https://github.com/crossterm-rs/crossterm), but could be used apart from it.
 Although, notice that it unstable right because some changes to the API could be expected.
 
 # Features
@@ -31,7 +31,7 @@ _The following WinApi calls_
 - ReadConsoleW
 
 # Example 
-The [examples](https://github.com/TimonPost/crossterm/tree/master/examples) folder has more complete and verbose examples.
+The [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder has more complete and verbose examples.
 
 ## Screenbuffer information
 ```rust 

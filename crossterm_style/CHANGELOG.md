@@ -12,7 +12,7 @@
 
 # Changes crossterm_style 0.2
 - Introduced more `Attributes`
-- Introduced easier ways to style text [issue 87](https://github.com/TimonPost/crossterm/issues/87).
+- Introduced easier ways to style text [issue 87](https://github.com/crossterm-rs/crossterm/issues/87).
 - Removed `ColorType` since it was unnecessary.
 
 # Changes crossterm_style 0.1 

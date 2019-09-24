@@ -8,8 +8,8 @@
 - `QueueableCommand::queue` returns `crossterm::Result`
 - Command API takes mutable self instead of self
 
-[return-written-bytes]: https://github.com/TimonPost/crossterm/pull/212
-[fixed-get-set-terminal-size]: https://github.com/TimonPost/crossterm/pull/242
+[return-written-bytes]: https://github.com/crossterm-rs/crossterm/pull/212
+[fixed-get-set-terminal-size]: https://github.com/crossterm-rs/crossterm/pull/242
 
 # Changes crossterm_terminal 0.2.2
 - Terminal size Linux was not 0-based.
