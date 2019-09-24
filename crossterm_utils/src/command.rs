@@ -8,7 +8,7 @@ use crate::{execute, impl_display, queue, write_cout, Result};
 /// crossterm already delivers a number of commands.
 /// There is no need to implement them yourself.
 /// Also, you don't have to execute the commands yourself by calling a function.
-/// For more information see the [command API](https://timonpost.github.io/crossterm/docs/command.html)
+/// For more information see the [command API](https://crossterm-rs.github.io/crossterm/docs/command.html)
 pub trait Command {
     type AnsiType: Display;
 
@@ -53,7 +53,7 @@ where
     /// - When the buffer is to full, then the terminal will flush for you.
     /// - Incase of `stdout` each line, because `stdout` is line buffered.
     ///
-    /// Check the [command API](https://timonpost.github.io/crossterm/docs/command.html) for more information and all available commands.
+    /// Check the [command API](https://crossterm-rs.github.io/crossterm/docs/command.html) for more information and all available commands.
     ///
     /// # Parameters
     /// - [Command](./trait.Command.html)
@@ -83,7 +83,7 @@ where
     /// In case you have many executions after on and another you can use `queue(command)` to get some better performance.
     /// The `queue` function will not call `flush`.
     ///
-    /// Check the [command API](https://timonpost.github.io/crossterm/docs/command.html) for more information and all available commands.
+    /// Check the [command API](https://crossterm-rs.github.io/crossterm/docs/command.html) for more information and all available commands.
     ///
     /// # Remarks
     /// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.

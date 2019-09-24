@@ -1,6 +1,6 @@
 This folder contains examples for crossterm and it's the sub-crates.
 
-When using a sub-crate instead of the crossterm crate, make sure to change the namespaces in the examples from `crossterm` to `crossterm_{crate_name}`.
+**When using a sub-crate instead of the crossterm crate, make sure to change the namespaces in the examples from `crossterm` to `crossterm_{crate_name}`.**
 
 Examples, on the different functionalities
 - [crossterm style](https://crates.io/crates/crossterm_style) 

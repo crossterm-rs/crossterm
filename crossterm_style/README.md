@@ -26,7 +26,7 @@ Other sub-crates are:
 - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html).
  
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -60,7 +60,7 @@ pub use crossterm_style::{color, style, Attribute, Color, ColorType, ObjectStyle
 
 - [Documentation](https://docs.rs/crossterm_input/)
 - [Crates.io](https://crates.io/crates/crossterm_input)
-- [Book](https://timonpost.github.io/crossterm/docs/styling.html)
+- [Book](https://crossterm-rs.github.io/crossterm/docs/styling.html)
 - [Examples](./examples)
 
 ## Features
@@ -75,7 +75,7 @@ These are the features of this crate:
     - Background Color (16 base colors)
     - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
     - RGB Color Support (Windows 10 and UNIX only)
-    - Text Attributes: bold, italic, underscore and crossed word and [more](https://timonpost.github.io/crossterm/docs/styling.html#attributes) (Windows 10 and UNIX only)
+    - Text Attributes: bold, italic, underscore and crossed word and [more](https://crossterm-rs.github.io/crossterm/docs/styling.html#attributes) (Windows 10 and UNIX only)
 
 ## Examples
 The [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder has more complete and verbose examples.

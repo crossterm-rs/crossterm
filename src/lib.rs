@@ -6,7 +6,7 @@
 //!
 //! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info).
 //!
-//! This crate consists of five modules that are provided behind [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
+//! This crate consists of five modules that are provided behind [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
 //! - [Crossterm Style](https://crates.io/crates/crossterm_style)
 //! - [Crossterm Input](https://crates.io/crates/crossterm_input)
 //! - [Crossterm Screen](https://crates.io/crates/crossterm_screen)

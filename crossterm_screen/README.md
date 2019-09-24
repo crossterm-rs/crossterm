@@ -26,9 +26,9 @@ Other sub-crates are:
 - [Crossterm Input](https://crates.io/crates/crossterm_input)
 - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
  
-When you want to use other modules as well you might want to use crossterm with [feature flags](https://timonpost.github.io/crossterm/docs/feature_flags.html).
+When you want to use other modules as well you might want to use crossterm with [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html).
  
-In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](https://timonpost.github.io/crossterm/docs/screen.html) describing this in more detail.
+In case you are wondering what 'alternate' or 'raw' screen is, you could checkout the [book](https://crossterm-rs.github.io/crossterm/docs/screen.html) describing this in more detail.
   
 ## Table of contents:
 - [Getting started](#getting-started)
@@ -44,7 +44,7 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 ## Getting Started
 
 All examples of how `crossterm_input` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
-And you might consider reading the [book](https://timonpost.github.io/crossterm/docs/screen.html) which has a dedicated section on alternate and raw modes.
+And you might consider reading the [book](https://crossterm-rs.github.io/crossterm/docs/screen.html) which has a dedicated section on alternate and raw modes.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.
 
@@ -63,7 +63,7 @@ pub use crossterm_screen::{AlternateScreen, RawScreen};
 
 - [Documentation](https://docs.rs/crossterm_screen/)
 - [Crates.io](https://crates.io/crates/crossterm_screen)
-- [Book](https://timonpost.github.io/crossterm/docs/screen.html)
+- [Book](https://crossterm-rs.github.io/crossterm/docs/screen.html)
 - [Examples](./examples)
 
 ## Features
