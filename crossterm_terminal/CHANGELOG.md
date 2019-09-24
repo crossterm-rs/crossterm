@@ -1,4 +1,4 @@
-# Changes crossterm_style 0.3.0
+# Changes crossterm_terminal 0.3.0
 - `Terminal::terminal_size` to `Terminal::size`
 - `Terminal::size()` returns `Result<(u16, u16)>`
 - Return written bytes: [return-written-bytes]
