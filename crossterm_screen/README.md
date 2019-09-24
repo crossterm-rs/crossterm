@@ -43,9 +43,8 @@ In case you are wondering what 'alternate' or 'raw' screen is, you could checkou
 
 ## Getting Started
 
-This documentation is only for `crossterm_screen` version `0.2`.
-Also, check out the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate
-and the [book](https://timonpost.github.io/crossterm/docs/screen.html) for more information about how to use the alternate or raw screen options.
+All examples of how `crossterm_input` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
+And you might consider reading the [book](https://timonpost.github.io/crossterm/docs/screen.html) which has a dedicated section on alternate and raw modes.
 
 Add the `crossterm_screen` package to your `Cargo.toml` file.
 

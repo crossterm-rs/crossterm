@@ -1,4 +1,5 @@
 # Changes crossterm 0.11.0
+As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation called 'crossterm-rs'.
 
 ### Code Quality
 - Code Cleanup: [warning-cleanup], [crossterm_style-cleanup], [crossterm_screen-cleanup], [crossterm_terminal-cleanup], [crossterm_utils-cleanup], [2018-cleanup], [api-cleanup-1], [api-cleanup-2], [api-cleanup-3]

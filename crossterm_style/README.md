@@ -41,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_style` version `0.3` if you have an older version I suggest you check the [Upgrade Manual](https://github.com/crossterm-rs/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_style/examples) folders with detailed examples for all functionality of this crate.
+All examples of how `crossterm_style` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
 
 Add the `crossterm_style` package to your `Cargo.toml` file.
 

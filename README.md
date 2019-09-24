@@ -1,4 +1,4 @@
-<img align="center" style="margin-bottom=10px; height=255px" src="docs/crossterm_full.png" />
+<h1 align="center"><img width="460" src="docs/crossterm_full.png"" /></h1>
 
 # cross-platform terminal manipulating library.
  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Travis][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
@@ -55,13 +55,13 @@ This crate consists of five modules that are provided behind [feature flags](htt
 
 ## Getting Started
 
-This documentation is only for Crossterm version `^0.10`. If you have an older version of Crossterm, then I suggest you check the [Upgrade Manual](https://github.com/crossterm-rs/crossterm/blob/master/docs/UPGRADE.md). Also, check out the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+All [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) of how crossterm works can be found in the example directory.
 
 Add the Crossterm package to your `Cargo.toml` file.
 
 ```
 [dependencies]
-crossterm = "^0.10"
+crossterm = "^0.11"
 ```
 
 ### Useful Links

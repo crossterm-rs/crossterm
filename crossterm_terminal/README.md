@@ -41,7 +41,7 @@ When you want to use other modules as well you might want to use crossterm with 
 
 ## Getting Started
 
-This documentation is only for `crossterm_terminal` version `0.2` check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folders with detailed examples for all functionality of this crate.
+All examples of how `crossterm_terminal` works can be found in the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) directory.
 
 Add the `crossterm_terminal` package to your `Cargo.toml` file.
 
