@@ -1,12 +1,20 @@
-# Changes crossterm 0.11.0
+# Version 0.11.1
+
+- Maintenance release
+- All sub-crates were moved to their own repositories in the `crossterm-rs` organization
+
+# Version 0.11.0
+
 As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation called 'crossterm-rs'.
 
 ### Code Quality
+
 - Code Cleanup: [warning-cleanup], [crossterm_style-cleanup], [crossterm_screen-cleanup], [crossterm_terminal-cleanup], [crossterm_utils-cleanup], [2018-cleanup], [api-cleanup-1], [api-cleanup-2], [api-cleanup-3]
 - Examples: [example-cleanup_1], [example-cleanup_2], [example-fix], [commandbar-fix], [snake-game-improved]
 - Fixed all broken tests and added tests 
 
 ### Important Changes
+
 - Return written bytes: [return-written-bytes]
 - Added derives: `Debug` for `ObjectStyle`  [debug-derive], Serialize/Deserialize for key events [serde]
 - Improved error handling:
@@ -65,45 +73,52 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 [added-key-event-enter]: https://github.com/crossterm-rs/crossterm/pull/236
 [fixed-get-set-terminal-size]: https://github.com/crossterm-rs/crossterm/pull/242
 
-# Changes crossterm 0.10.1
+# Version 0.10.1
 
-# Changes crossterm 0.10.0 ~ yanked
+# Version 0.10.0 ~ yanked
 - Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/crossterm-rs/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/crossterm-rs/crossterm/issues/171)
 - Fixed showing, hiding cursor windows implementation
 - Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 
 - Made terminal size 1-based [PR](https://github.com/crossterm-rs/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
 - Added some derive implementation
 
-# Changes crossterm 0.9.6
+# Version 0.9.6
+
 - Copy for KeyEvent
 - CTRL + Left, Down, Up, Right key support
 - SHIFT + Left, Down, Up, Right key support
 - Fixed UNIX cursor position bug [issue](https://github.com/crossterm-rs/crossterm/issues/140), [PR](https://github.com/crossterm-rs/crossterm/pull/152)
 
-# Changes crossterm 0.9.5
+# Version 0.9.5
+
 - Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/crossterm-rs/crossterm/pull/144)
 
-# Changes crossterm 0.9.4
+# Version 0.9.4
+
 - Reset foreground and background color individually. [PR](https://github.com/crossterm-rs/crossterm/pull/138)
 - Backtap input support. [PR](https://github.com/crossterm-rs/crossterm/pull/129)
 - Corrected white/grey and added dark grey.
 - Fixed getting cursor position with raw screen enabled. [PR](https://github.com/crossterm-rs/crossterm/pull/134)
 - Removed one redundant stdout lock
 
-# Changes crossterm 0.9.3
+# Version 0.9.3
+
 - Removed println from `SyncReader`
 
-## Changes crossterm 0.9.2
+## Version 0.9.2
+
 - Terminal size linux was not 0-based
 - Windows mouse input event position was 0-based ans should be 1-based
 - Result, ErrorKind are made re-exported
 - Fixed some special key combination detections for UNIX systems
 - Made FreeBSD compile
 
-## Changes crossterm 0.9.1
+## Version 0.9.1
+
 - Fixed libc compile error
 
-## Changes crossterm 0.9.0 (yanked)
+## Version 0.9.0 (yanked)
+
 This release is all about moving to a stabilized API for 1.0.
 
 - Major refactor and cleanup.
@@ -123,23 +138,28 @@ This release is all about moving to a stabilized API for 1.0.
 - Raw modes UNIX systems improved     
 - Added `NoItalic` attribute
 
-## Changes crossterm to 0.8.2
+## Version 0.8.2
+
 - Bug fix for sync reader UNIX.
 
-## Changes crossterm to 0.8.1
+## Version 0.8.1
+
 - Added public re-exports for input.
 
-# Changes crossterm 0.8.0
+# Version 0.8.0
+
 - Introduced KeyEvents
 - Introduced MouseEvents
 - Upgraded crossterm_winapi 0.2
 
-# Changes crossterm 0.7.0
+# Version 0.7.0
+
 - Introduced more `Attributes`
 - Introduced easier ways to style text [issue 87](https://github.com/crossterm-rs/crossterm/issues/87).
 - Removed `ColorType` since it was unnecessary.
 
-# Changes crossterm 0.6.0
+# Version 0.6.0
+
 - Introduced feature flags; input, cursor, style, terminal, screen.
 - All modules are moved to their own crate.
 - Introduced crossterm workspace
@@ -148,10 +168,12 @@ This release is all about moving to a stabilized API for 1.0.
 
 [PR 84](https://github.com/crossterm-rs/crossterm/pull/84)
 
-# Changes crossterm 0.5.5
+# Version 0.5.5
+
 - Error module is made public [PR 78](https://github.com/crossterm-rs/crossterm/pull/78).
 
-# Changes crossterm 0.5.4
+# Version 0.5.4
+
 - WinApi rewrite and correctly error handled [PR 67](https://github.com/crossterm-rs/crossterm/pull/67)
 - Windows attribute support [PR 62](https://github.com/crossterm-rs/crossterm/pull/62)
 - Readline bug fix windows systems [PR 62](https://github.com/crossterm-rs/crossterm/pull/62)
@@ -159,31 +181,37 @@ This release is all about moving to a stabilized API for 1.0.
 - General refactoring, all warnings removed.
 - Documentation improvement.
 
-# Changes crossterm 0.5.1
+# Version 0.5.1
+
 - Documentation refactor.
 - Fixed broken API documentation [PR 53](https://github.com/crossterm-rs/crossterm/pull/53).
 
-# Changes crossterm 0.5.0
+# Version 0.5.0
+
 - Added ability to pause the terminal [issue](https://github.com/crossterm-rs/crossterm/issues/39)
 - RGB support for Windows 10 systems
 - ANSI color value (255) color support
 - More convenient API, no need to care about `Screen` unless working with when working with alternate or raw screen [PR](https://github.com/crossterm-rs/crossterm/pull/44)
 - Implemented Display for styled object
 
-# Changes crossterm to 0.4.3
+# Version 0.4.3
+
 - Fixed bug [issue 41](https://github.com/crossterm-rs/crossterm/issues/41)
 
-# Changes crossterm to 0.4.2
+# Version 0.4.2
+
 - Added functionality to make a styled object writable to screen [issue 33](https://github.com/crossterm-rs/crossterm/issues/33)
 - Added unit tests.
 - Bugfix with getting terminal size unix.
 - Bugfix with returning written bytes [pull request 31](https://github.com/crossterm-rs/crossterm/pull/31)
 - removed methods calls: `as_any()` and `as_any_mut()` from `TerminalOutput`
 
-# Bug fix crossterm to 0.4.1
+# Version 0.4.1
+
 - Fixed resizing of ansi terminal with and height where in the wrong order.
 
-# Features / Fixes in crossterm 0.4.0
+# Version 0.4.0
+
 - Input support (read_line, read_char, read_async, read_until_async)
 - Styling module improved
 - Everything is multithreaded (`Send`, `Sync`)
@@ -194,7 +222,7 @@ This release is all about moving to a stabilized API for 1.0.
 - Overall commend improvement.
 - Overall refactor of code.
 
-# Features in crossterm 0.3.0
+# Version 0.3.0
 
 This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed. 
 I think you should not switch to version `0.3.0` if you aren't going to use the AlternateScreen feature.
@@ -209,6 +237,7 @@ Some Features crossterm 0.3.0
 - exit the current process.
 
 ## Alternate screen
+
 This create supports alternate screen for both windows and unix systems. You can use 
 
 *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
@@ -219,6 +248,7 @@ Vim uses the entirety of the screen to edit the file, then returning to bash lea
 I Highly recommend you to check the `examples/program_examples/first_depth_search` for seeing this in action. 
 
 ## Raw screen
+
 This crate now supports raw screen for both windows and unix systems. 
 What exactly is raw state:
 - No line buffering.
@@ -232,6 +262,7 @@ What exactly is raw state:
 With these modes you can easier design the terminal screen.
 
 ## Some functionalities added 
+
 - Hiding and showing terminal cursor
 - Enable or disabling blinking of the cursor for unix systems (this is not widely supported)
 - Restoring the terminal to original modes.
@@ -319,10 +350,11 @@ like demonstrated above, to get the functionalities of `cursor(), color(), termi
 You need to pass it the same `Context` as you have passed to the previous three called functions,
 If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/crossterm-rs/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
 
-# Fixes in crossterm 0.2.2
+# Version 0.2.2
+
 - Bug see [issue 15](https://github.com/crossterm-rs/crossterm/issues/15)
 
-# Fixes in crossterm 0.2.1
+# Version 0.2.1
 
 - Default ANSI escape codes for windows machines, if windows does not support ANSI switch back to WinApi.
 - method grammar mistake fixed [Issue 3](https://github.com/crossterm-rs/crossterm/issues/3)
@@ -330,7 +362,7 @@ If you don't use the same `Context` in `cursor(), color(), terminal()` than thes
 - Removed bin reference from crate [Issue 6](https://github.com/crossterm-rs/crossterm/issues/6)
 - Get position unix fixed [issue 8](https://github.com/crossterm-rs/crossterm/issues/8)
 
-# Features crossterm 0.2
+# Version 0.2
 
 - 256 color support. 
 - Text Attributes like: bold, italic, underscore and crossed word ect. 

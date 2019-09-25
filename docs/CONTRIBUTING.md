@@ -11,13 +11,13 @@ for Windows versions lower than 10. Crossterm uses WinAPI in this case.
 
 The `crossterm` crate consists of 7 crates:
 
-* [cursor](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_cursor)
-* [input](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_input)
-* [style](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_style)
-* [terminal](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_terminal)
-* [screen](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_screen)
-* [utils](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_utils)
-* [winapi](https://github.com/crossterm-rs/crossterm/tree/master/crossterm_winapi)
+* [cursor](https://github.com/crossterm-rs/crossterm-cursor)
+* [input](https://github.com/crossterm-rs/crossterm-input)
+* [style](https://github.com/crossterm-rs/crossterm-style)
+* [terminal](https://github.com/crossterm-rs/crossterm-terminal)
+* [screen](https://github.com/crossterm-rs/crossterm-screen)
+* [utils](https://github.com/crossterm-rs/crossterm-utils)
+* [winapi](https://github.com/crossterm-rs/crossterm-winapi)
 
 ### Module structure
 

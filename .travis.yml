@@ -1,4 +1,3 @@
-# Set up the Rust toolchain.
 language: rust
 
 rust:
@@ -28,5 +27,4 @@ script:
   - rustc --version
   - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build
-  - cargo test --all -- --nocapture --test-threads 1
-  - scripts/test-examples.sh
+  - cargo test --all-features -- --nocapture --test-threads 1
