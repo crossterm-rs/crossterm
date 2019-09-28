@@ -27,37 +27,36 @@ example, the cursor crate has the following file structure:
 ```text
 └── src
     ├── cursor
-    │   ├── ansi_cursor.rs
-    │   ├── cursor.rs
-    │   └── winapi_cursor.rs
+    │   ├── ansi.rs
+    │   └── windows.rs
     ├── cursor.rs
     ├── lib.rs
     ├── sys
     │   ├── unix.rs
-    │   └── winapi.rs
+    │   └── windows.rs
     └── sys.rs
 ```
 
-* `src/cursor.rs` - `ITerminalCursor` trait for other modules to implement
-* `src/cursor/cursor.rs` - cursor functionality for the end user
-* `src/cursor/winapi_cursor.rs` - WinAPI based implementation
-* `src/cursor/ansi_cursor.rs` - ANSI escape codes based implementation
+* `src/lib.rs` - public interface of the crate (for example `TerminalCursor` struct)
+* `src/cursor.rs` - `Cursor` trait, which must be implement by all platform specific cursors
+* `src/cursor/ansi.rs` - `AnsiCursor` structure implementing the `Cursor` trait
+* `src/cursor/windows.rs` - `WinApiCursor` structure implementing the `Cursor` trait
 * `src/sys` - platform specific logic
 
-The above structure is the same for other modules. 
+The above structure is followed by other crates. 
 
 Why I have chosen this design:
 
 * You can easily add new platform by implementing the trait
 * You can keep the functionality for different platforms separated
-* You have one API the user can call like in the `src/cursor/cursor.rs`
+* You have one API the user can call like in the `src/lib.rs`
 
-Try to avoid changing `src/cursor/cursor.rs` a lot, because it contains API for
+Try to avoid changing `src/lib.rs` a lot, because it contains API for
 the end-user.
 
 ## Code style
 
-### Import Order
+### Import order
 
 All imports are semantically grouped and ordered. The order is:
 
@@ -77,12 +76,45 @@ use crossterm_utils::{csi, write_cout, Result};
 
 use crate::sys::{get_cursor_position, show_cursor};
 
-use super::ITerminalCursor;
+use super::Cursor;
 ```
 
+#### CLion tips
+
+The CLion IDE does this for you (_Menu_ -> _Code_ -> _Optimize Imports_). Be aware that the CLion sorts
+imports in a group in a different way when compared to the `rustfmt`. It's effectively two steps operation
+to get proper grouping & sorting:
+
+* _Menu_ -> _Code_ -> _Optimize Imports_ - group & semantically order imports
+* `cargo fmt` - fix ordering within the group
+
+Second step can be automated via _CLion_ -> _Preferences_ ->
+_Languages & Frameworks_ -> _Rust_ -> _Rustfmt_ -> _Run rustfmt on save_.  
+
+### Max line length
+
+| Type | Max line length |
+| :--- | ---: |
+| Code | 100 |
+| Comments in the code | 120 |
+| Documentation | 120 |
+
+100 is the [`max_width`](https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#max_width)
+default value.
+
+120 is because of the GitHub. The editor & viewer width there is +- 123 characters. 
+
+### 
 ### Warnings
 
 The code must be warning free. It's quite hard to find an error if the build logs are polluted with warnings.
 If you decide to silent a warning with (`#[allow(...)]`), please add a comment why it's required.
 
 Always consult the [Travis CI](https://travis-ci.org/crossterm-rs/crossterm/pull_requests) build logs.
+
+### Disallowed warnings
+
+Search for `#![deny(...)]` in the code:
+
+* `unused_must_use`
+* `unused_imports`
