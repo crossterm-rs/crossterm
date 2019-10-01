@@ -104,7 +104,7 @@ This module enables you to style the terminal text.
 
 Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/),
 [book](https://crossterm-rs.github.io/crossterm/docs/styling.html)
-and [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/key_events.rs).
+and [examples](https://github.com/crossterm-rs/examples/blob/master/examples/src/bin/key_events.rs).
 
 _style text with attributes_
 
