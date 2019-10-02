@@ -2,9 +2,9 @@
 
 I would appreciate any contributions to this crate. However, some things are handy to know.
 
-## Code style
+## Code Style
 
-### Import order
+### Import Order
 
 All imports are semantically grouped and ordered. The order is:
 
