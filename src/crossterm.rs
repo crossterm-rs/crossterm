@@ -1,102 +1,40 @@
 use std::fmt::Display;
 
-/// This type offers an easy way to use functionalities like `cursor`, `terminal`, `color`, `input`, and `styling`.
-///
-/// To get a cursor instance to perform cursor related actions, you can do the following:
-///
-/// ```rust
-/// # use crossterm::*;
-/// let crossterm = Crossterm::new();
-/// let cursor = crossterm.cursor();
-/// let color = crossterm.color();
-/// let terminal = crossterm.terminal();
-/// let terminal = crossterm.input();
-/// let style = crossterm
-///       .style(format!("{} {}", 0, "Black text on green background"))
-///       .with(Color::Black)
-///       .on(Color::Green);
-/// ```
-///
-/// # Remark
-/// - depending on the feature flags you've enabled you are able to call methods of this type.
-/// - checkout the crossterm book for more information about feature flags or alternate screen.
+// TODO Should be removed? This adds just another way to achieve the same thing.
+/// A crossterm functionality wrapper.
 pub struct Crossterm;
 
 impl Crossterm {
-    /// Create a new instance of `Crossterm`
+    /// Creates a new `Crossterm`.
     pub fn new() -> Crossterm {
         Crossterm
     }
 
-    /// Get a `TerminalCursor` implementation whereon cursor related actions can be performed.
-    ///
-    /// ```rust
-    /// # use crossterm::*;
-    /// let crossterm = Crossterm::new();
-    /// let cursor = crossterm.cursor();
-    /// ```
+    /// Crates a new `TerminalCursor`.
     #[cfg(feature = "cursor")]
     pub fn cursor(&self) -> crossterm_cursor::TerminalCursor {
         crossterm_cursor::TerminalCursor::new()
     }
 
-    /// Get a `TerminalInput` implementation whereon terminal related actions can be performed.
-    ///
-    /// ```rust
-    /// # use crossterm::*;
-    /// let crossterm = Crossterm::new();
-    /// let input = crossterm.input();
-    /// ```
+    /// Creates a new `TerminalInput`.
     #[cfg(feature = "input")]
     pub fn input(&self) -> crossterm_input::TerminalInput {
         crossterm_input::TerminalInput::new()
     }
 
-    /// Get a `Terminal` implementation whereon terminal related actions can be performed.
-    ///
-    /// ```rust
-    /// # use crossterm::*;
-    /// let crossterm = Crossterm::new();
-    /// let mut terminal = crossterm.terminal();
-    /// ```
+    /// Creates a new `Terminal`.
     #[cfg(feature = "terminal")]
     pub fn terminal(&self) -> crossterm_terminal::Terminal {
         crossterm_terminal::Terminal::new()
     }
 
-    /// Get a `TerminalColor` implementation whereon color related actions can be performed.
-    ///
-    /// ```rust
-    /// # use crossterm::*;
-    /// let crossterm = Crossterm::new();
-    /// let mut terminal = crossterm.color();
-    /// ```
+    /// Creates a new `TerminalColor`.
     #[cfg(feature = "style")]
     pub fn color(&self) -> crossterm_style::TerminalColor {
         crossterm_style::TerminalColor::new()
     }
 
-    /// This could be used to style any type implementing `Display` with colors and attributes.
-    ///
-    /// # Example
-    /// ```rust
-    /// # use crossterm::*;
-    /// let crossterm = Crossterm::new();
-    ///
-    /// // get an styled object which could be painted to the terminal.
-    /// let styled_object = crossterm.style("Some Blue colored text on black background")
-    ///     .with(Color::Blue)
-    ///     .on(Color::Black);
-    ///
-    /// // print the styled text * times to the current screen.
-    /// for i in 1..10
-    /// {
-    ///     println!("{}", styled_object);
-    /// }
-    /// ```
-    ///
-    /// # Remark
-    /// `val`:  any type implementing Display e.g. string.
+    /// Creates a new `StyledObject`.
     #[cfg(feature = "style")]
     pub fn style<D>(&self, val: D) -> crossterm_style::StyledObject<D>
     where
