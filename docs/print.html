@@ -140,7 +140,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p>From <code>crossterm 0.6</code> you are able to use feature flags.</p>
+                        <blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
+<p>From <code>crossterm 0.6</code> you are able to use feature flags.</p>
 <p>With feature flags, you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.</p>
 <p>Crossterm provides the following feature flags:</p>
 <ul>
@@ -175,6 +179,10 @@ crossterm = { version=&quot;0.9&quot;, default-features = false, features = [&qu
 <li><a href="https://crates.io/crates/crossterm_terminal">Crossterm Terminal</a></li>
 </ul>
 <a class="header" href="#command-api" id="command-api"><h1>Command API</h1></a>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <p>The command API makes the use of crossterm much easier and offers more control over when and how a command such as moving the cursor is executed.</p>
 <p>The command API offers:</p>
 <ul>
@@ -256,7 +264,7 @@ By doing this you can make efficient use of the terminal buffer and get better p
 #fn main() {
 let mut stdout = stdout();
 
-stdout = stdout.queue(Goto(5,5));
+stdout.queue(Goto(5,5))?;
 
 // some other code ...
 
@@ -285,10 +293,10 @@ This is fine if you are not executing lots of commands.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-stdout().execute(Goto(5,5));
+stdout().execute(Goto(5,5))?;
 #}</code></pre></pre>
 <p>The <code>execute</code> function returns it self, therefore you are able to use this to execute another command
-like <code>stdout.execute(Goto(5,5)).execute(Clear(ClearType::All))</code></p>
+like <code>stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))?</code></p>
 <p><em>macro's</em></p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -307,14 +315,14 @@ use std::io::stdout();
 
 let mut stdout = stdout();
 
-stdout = stdout.execute(Clear(ClearType::All));
+stdout.execute(Clear(ClearType::All))?;
 
 for y in 0..40 {
    for x in 0..150 {
         if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-            stdout = stdout
-                .queue(Goto(x,y))
-                .queue(PrintStyledFont( &quot;█&quot;.magenta()));
+            stdout
+                .queue(Goto(x,y))?
+                .queue(PrintStyledFont( &quot;█&quot;.magenta()))?;
         }
    }
    stdout.flush();
@@ -341,6 +349,10 @@ for y in 0..40 {
 } 
 #}</code></pre></pre>
 <a class="header" href="#styling-module" id="styling-module"><h1>Styling Module</h1></a>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <p>Crossterm provides options for you to style your text and terminal. Take for example coloring output and applying attributes.</p>
 <p><strong>Color support</strong>
 Windows systems with versions less than 10 will only have support for 16 colors and don't have any support for attributes. Most UNIX-terminal is supporting lots of colors and attributes.</p>
@@ -358,7 +370,7 @@ Windows systems with versions less than 10 will only have support for 16 colors 
 </tbody></table>
 <p>In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
 Those colors could be: <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color (24-bit)</a> coloring scheme, which allows you to use <a href="https://nl.wikipedia.org/wiki/RGB-kleursysteem">RGB</a>, and <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit)</a> colors.
-Checkout the examples on how to use this feature.</p>
+Checkout the <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/style.rs">examples</a> on how to use this feature.</p>
 <a class="header" href="#attributes" id="attributes"><h2>Attributes</h2></a>
 <p>Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.
 Not all attributes are widely supported for all terminals, keep that in mind when working with this.</p>
@@ -384,9 +396,7 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 <p>Now we have covered the basics of styling lets go over to some examples.</p>
 <a class="header" href="#example" id="example"><h1>Example</h1></a>
 <p><em>setup the basics</em></p>
-<pre><pre class="playpen"><code class="language-rust">extern crate crossterm;
-
-use crossterm::{Colored, Color, Attribute, Styler, Colorize};
+<pre><pre class="playpen"><code class="language-rust">use crossterm::{Colored, Color, Attribute, Styler, Colorize};
 
 fn main() {
     /* your code here */
@@ -456,9 +466,13 @@ println!(&quot;{}&quot;, &quot;Negative text&quot;.negative();
 Well, the trait <code>Styling</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
 When calling a method on any string crossterm transforms will transform it into a <code>StyledObject</code> who you could use in your write statements.</p>
 <hr />
-<p>More examples could be found at this <a href="https://github.com/TimonPost/crossterm/blob/master/examples/style.rs">link</a>.</p>
+<p>More examples could be found at this <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/style.rs">link</a>.</p>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <p>Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
-Please check out these <a href="https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs">examples</a> for reading a line or a character from the user.</p>
+Please check out these <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/input.rs">examples</a> for reading a line or a character from the user.</p>
 <a class="header" href="#differences-synchronous-and-asynchronous" id="differences-synchronous-and-asynchronous"><h2>Differences Synchronous and Asynchronous</h2></a>
 <p>Crossterm provides two ways to read user input, synchronous and asynchronous.</p>
 <a class="header" href="#synchronous-reading" id="synchronous-reading"><h3>Synchronous reading</h3></a>
@@ -473,7 +487,7 @@ Using asynchronous reading has the benefit that input events are queued until yo
 <p>On UNIX systems crossterm reads from the TTY, on Windows, it uses <code>ReadConsoleInputW</code>.
 For asynchronous reading, a background thread will be fired up to read input events,
 occurred events will be queued on an MPSC-channel, and the user can iterate over those events.</p>
-<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="./screen.html">screen</a> for more info.</p>
+<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="screen.html">screen</a> for more info.</p>
 <a class="header" href="#example-1" id="example-1"><h1>Example</h1></a>
 <p>In the following example, we will create a small program that will listen for mouse and keyboard input.
 On the press of the 'escape' key, the program will be stopped.</p>
@@ -536,7 +550,7 @@ In our case, we want to catch the <code>Escape Key</code>.</p>
 <p>As you see, we check if the <code>KeyEvent::Esc</code> was pressed, if that's true we stop the program by breaking out of the loop.</p>
 <p><em>final code</em></p>
 <pre><pre class="playpen"><code class="language-rust">use std::{thread, time::Duration};
-use crossterm::{input, InputEvent, KeyEvent};
+use crossterm::{input, InputEvent, KeyEvent, RawScreen};
 
 fn main() {
     println!(&quot;Press 'ESC' to quit.&quot;);
@@ -570,7 +584,11 @@ fn main() {
 } // &lt;=== background reader will be disposed when dropped.s
 </code></pre></pre>
 <hr />
-<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/TimonPost/crossterm/tree/master/examples/">here</a>.</p>
+<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/crossterm-rs/crossterm/tree/master/examples/">here</a>.</p>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <a class="header" href="#screen-buffer" id="screen-buffer"><h2>Screen Buffer</h2></a>
 <p>A screen buffer is a two-dimensional array of characters and color data to be output in a console window.
 A terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.</p>
@@ -598,7 +616,7 @@ Note that in raw mode <code>\n</code> <code>\r</code> will move the cursor to a 
 </code></pre>
 <p>To start at the beginning of the next line, use <code>\n\r</code>.</p>
 <hr />
-<p>More examples could be found <a href="https://github.com/TimonPost/crossterm/blob/master/examples/">over here</a>.</p>
+<p>More examples could be found <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/">over here</a>.</p>
 
                     </main>
 

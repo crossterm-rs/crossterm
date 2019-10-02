@@ -1,18 +1,36 @@
-# Set up the Rust toolchain.
+# Build only pushed (merged) master or any pull request. This avoids the
+# pull request to be build twice.
+branches:
+  only:
+    - master
+
 language: rust
+
 rust:
   - stable
-
-before_script:
-  - export PATH=$PATH:/home/travis/.cargo/bin
-  - rustup component add rustfmt-preview
+  - nightly
 
 os:
   - linux
-  - osx
   - windows
+  - osx
+
+git:
+  depth: 1
+  quiet: true
+
+matrix:
+  allow_failures:
+    - rust: nightly
+
+before_script:
+  - export PATH=$PATH:/home/travis/.cargo/bin
+  - rustup component add rustfmt
 
 script:
+  - cargo fmt --version
+  - rustup --version
+  - rustc --version
+  - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build
-  - cargo fmt -- --check
-  - cargo test -- --nocapture --test-threads 1
+  - cargo test --all-features -- --nocapture --test-threads 1

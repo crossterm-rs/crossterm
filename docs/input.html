@@ -140,8 +140,12 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p>Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
-Please check out these <a href="https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs">examples</a> for reading a line or a character from the user.</p>
+                        <blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
+<p>Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
+Please check out these <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/input.rs">examples</a> for reading a line or a character from the user.</p>
 <a class="header" href="#differences-synchronous-and-asynchronous" id="differences-synchronous-and-asynchronous"><h2>Differences Synchronous and Asynchronous</h2></a>
 <p>Crossterm provides two ways to read user input, synchronous and asynchronous.</p>
 <a class="header" href="#synchronous-reading" id="synchronous-reading"><h3>Synchronous reading</h3></a>
@@ -156,7 +160,7 @@ Using asynchronous reading has the benefit that input events are queued until yo
 <p>On UNIX systems crossterm reads from the TTY, on Windows, it uses <code>ReadConsoleInputW</code>.
 For asynchronous reading, a background thread will be fired up to read input events,
 occurred events will be queued on an MPSC-channel, and the user can iterate over those events.</p>
-<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="./screen.html">screen</a> for more info.</p>
+<p>The terminal has to be in raw mode, raw mode prevents the input of the user to be displayed on the terminal screen, see <a href="screen.html">screen</a> for more info.</p>
 <a class="header" href="#example" id="example"><h1>Example</h1></a>
 <p>In the following example, we will create a small program that will listen for mouse and keyboard input.
 On the press of the 'escape' key, the program will be stopped.</p>
@@ -219,7 +223,7 @@ In our case, we want to catch the <code>Escape Key</code>.</p>
 <p>As you see, we check if the <code>KeyEvent::Esc</code> was pressed, if that's true we stop the program by breaking out of the loop.</p>
 <p><em>final code</em></p>
 <pre><pre class="playpen"><code class="language-rust">use std::{thread, time::Duration};
-use crossterm::{input, InputEvent, KeyEvent};
+use crossterm::{input, InputEvent, KeyEvent, RawScreen};
 
 fn main() {
     println!(&quot;Press 'ESC' to quit.&quot;);
@@ -253,7 +257,7 @@ fn main() {
 } // &lt;=== background reader will be disposed when dropped.s
 </code></pre></pre>
 <hr />
-<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/TimonPost/crossterm/tree/master/examples/">here</a>.</p>
+<p>More robust and complete examples on all input aspects like mouse, keys could be found <a href="https://github.com/crossterm-rs/crossterm/tree/master/examples/">here</a>.</p>
 
                     </main>
 

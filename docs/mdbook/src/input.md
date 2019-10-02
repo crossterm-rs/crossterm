@@ -1,5 +1,8 @@
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
-Please check out these [examples](https://github.com/TimonPost/crossterm/blob/master/examples/input/keyboard/input.rs) for reading a line or a character from the user.
+Please check out these [examples](https://github.com/crossterm-rs/crossterm/blob/master/examples/input.rs) for reading a line or a character from the user.
 
 ## Differences Synchronous and Asynchronous
 Crossterm provides two ways to read user input, synchronous and asynchronous.
@@ -94,7 +97,7 @@ As you see, we check if the `KeyEvent::Esc` was pressed, if that's true we stop 
 _final code_
 ```rust
 use std::{thread, time::Duration};
-use crossterm::{input, InputEvent, KeyEvent};
+use crossterm::{input, InputEvent, KeyEvent, RawScreen};
 
 fn main() {
     println!("Press 'ESC' to quit.");
@@ -128,4 +131,4 @@ fn main() {
 } // <=== background reader will be disposed when dropped.s
  ```
 ---------------------------------------------------------------------------------------------------------------------------------------------
-More robust and complete examples on all input aspects like mouse, keys could be found [here](https://github.com/TimonPost/crossterm/tree/master/examples/).
+More robust and complete examples on all input aspects like mouse, keys could be found [here](https://github.com/crossterm-rs/crossterm/tree/master/examples/).

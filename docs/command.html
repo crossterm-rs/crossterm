@@ -141,6 +141,10 @@
                 <div id="content" class="content">
                     <main>
                         <a class="header" href="#command-api" id="command-api"><h1>Command API</h1></a>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <p>The command API makes the use of crossterm much easier and offers more control over when and how a command such as moving the cursor is executed.</p>
 <p>The command API offers:</p>
 <ul>
@@ -222,7 +226,7 @@ By doing this you can make efficient use of the terminal buffer and get better p
 #fn main() {
 let mut stdout = stdout();
 
-stdout = stdout.queue(Goto(5,5));
+stdout.queue(Goto(5,5))?;
 
 // some other code ...
 
@@ -251,10 +255,10 @@ This is fine if you are not executing lots of commands.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-stdout().execute(Goto(5,5));
+stdout().execute(Goto(5,5))?;
 #}</code></pre></pre>
 <p>The <code>execute</code> function returns it self, therefore you are able to use this to execute another command
-like <code>stdout.execute(Goto(5,5)).execute(Clear(ClearType::All))</code></p>
+like <code>stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))?</code></p>
 <p><em>macro's</em></p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -273,14 +277,14 @@ use std::io::stdout();
 
 let mut stdout = stdout();
 
-stdout = stdout.execute(Clear(ClearType::All));
+stdout.execute(Clear(ClearType::All))?;
 
 for y in 0..40 {
    for x in 0..150 {
         if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-            stdout = stdout
-                .queue(Goto(x,y))
-                .queue(PrintStyledFont( &quot;█&quot;.magenta()));
+            stdout
+                .queue(Goto(x,y))?
+                .queue(PrintStyledFont( &quot;█&quot;.magenta()))?;
         }
    }
    stdout.flush();

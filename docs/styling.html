@@ -141,6 +141,10 @@
                 <div id="content" class="content">
                     <main>
                         <a class="header" href="#styling-module" id="styling-module"><h1>Styling Module</h1></a>
+<blockquote>
+<p><strong>WARNING</strong>: This book is deprecated, no longer maintained and will be
+removed soon.</p>
+</blockquote>
 <p>Crossterm provides options for you to style your text and terminal. Take for example coloring output and applying attributes.</p>
 <p><strong>Color support</strong>
 Windows systems with versions less than 10 will only have support for 16 colors and don't have any support for attributes. Most UNIX-terminal is supporting lots of colors and attributes.</p>
@@ -158,7 +162,7 @@ Windows systems with versions less than 10 will only have support for 16 colors 
 </tbody></table>
 <p>In addition to 16 colors, most UNIX terminals and Windows 10 consoles are also supporting more colors.
 Those colors could be: <a href="https://en.wikipedia.org/wiki/Color_depth#True_color_(24-bit)">True color (24-bit)</a> coloring scheme, which allows you to use <a href="https://nl.wikipedia.org/wiki/RGB-kleursysteem">RGB</a>, and <a href="https://jonasjacek.github.io/colors/">256 (Xterm, 8-bit)</a> colors.
-Checkout the examples on how to use this feature.</p>
+Checkout the <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/style.rs">examples</a> on how to use this feature.</p>
 <a class="header" href="#attributes" id="attributes"><h2>Attributes</h2></a>
 <p>Only UNIX and Windows 10 terminals are supporting attributes on top of the text. Crossterm allows you to add attributes to the text.
 Not all attributes are widely supported for all terminals, keep that in mind when working with this.</p>
@@ -184,9 +188,7 @@ Not all attributes are widely supported for all terminals, keep that in mind whe
 <p>Now we have covered the basics of styling lets go over to some examples.</p>
 <a class="header" href="#example" id="example"><h1>Example</h1></a>
 <p><em>setup the basics</em></p>
-<pre><pre class="playpen"><code class="language-rust">extern crate crossterm;
-
-use crossterm::{Colored, Color, Attribute, Styler, Colorize};
+<pre><pre class="playpen"><code class="language-rust">use crossterm::{Colored, Color, Attribute, Styler, Colorize};
 
 fn main() {
     /* your code here */
@@ -256,7 +258,7 @@ println!(&quot;{}&quot;, &quot;Negative text&quot;.negative();
 Well, the trait <code>Styling</code>, who you need to include, is implemented for <code>&amp;'static str</code>.
 When calling a method on any string crossterm transforms will transform it into a <code>StyledObject</code> who you could use in your write statements.</p>
 <hr />
-<p>More examples could be found at this <a href="https://github.com/TimonPost/crossterm/blob/master/examples/style.rs">link</a>.</p>
+<p>More examples could be found at this <a href="https://github.com/crossterm-rs/crossterm/blob/master/examples/style.rs">link</a>.</p>
 
                     </main>
 
