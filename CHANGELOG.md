@@ -1,8 +1,9 @@
 # Version master
 
-- Removed book link
 - Deprecated warning about `crossterm_*` crates
 - Documentation improved
+- Remove all references to the crossterm book
+- Remove the crossterm book
 
 # Version 0.11.1
 
