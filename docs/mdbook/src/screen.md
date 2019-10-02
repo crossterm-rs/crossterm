@@ -1,3 +1,6 @@
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 ## Screen Buffer
 A screen buffer is a two-dimensional array of characters and color data to be output in a console window. 
 A terminal can have multiple of those screen buffers, and the active screen buffer is the one that is displayed on the screen.

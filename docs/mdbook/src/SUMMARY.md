@@ -1,4 +1,8 @@
 # Crossterm
+
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 This book explains how crossterm works, and how you can use different functionalities. 
 We look at how to turn feature flags features on and off, how to style the terminal with colors and attributes, 
 how to read user input and how to make using crossterm easier.

@@ -1,5 +1,8 @@
 # Styling Module
 
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 Crossterm provides options for you to style your text and terminal. Take for example coloring output and applying attributes.
 
 **Color support**
