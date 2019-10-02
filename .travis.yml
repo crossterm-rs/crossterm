@@ -1,3 +1,9 @@
+# Build only pushed (merged) master or any pull request. This avoids the
+# pull request to be build twice.
+branches:
+  only:
+    - master
+
 language: rust
 
 rust:

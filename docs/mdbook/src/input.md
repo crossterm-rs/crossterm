@@ -1,3 +1,6 @@
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 Crossterm provides a way to work with the terminal input. We will not cover the basic usage but instead asynchronous and synchronous reading of input.
 Please check out these [examples](https://github.com/crossterm-rs/crossterm/blob/master/examples/input.rs) for reading a line or a character from the user.
 

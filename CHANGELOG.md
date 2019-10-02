@@ -1,3 +1,9 @@
+# Version master
+
+- Removed book link
+- Deprecated warning about `crossterm_*` crates
+- Documentation improved
+
 # Version 0.11.1
 
 - Maintenance release

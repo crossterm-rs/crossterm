@@ -1,17 +1,22 @@
+//! # Crossterm
+//!
 //! Have you ever been disappointed when a terminal library for rust was only written for UNIX systems?
-//! Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both Windows and UNIX systems.
+//! Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both
+//! Windows and UNIX systems.
 //!
-//! Crossterm aims to be simple and easy to call in code.
-//! Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
+//! Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not
+//! have to worry about the platform you are working with.
 //!
-//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested see [Tested Terminals](#tested-terminals) for more info).
+//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
+//! see [Tested Terminals](https://github.com/crossterm-rs/crossterm/tree/zrzka/docs-update#tested-terminals)
+//! for more info).
 //!
-//! This crate consists of five modules that are provided behind [feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html) so that you can define which features you'd like to have; by default, all features are enabled.
-//! - [Crossterm Style](https://crates.io/crates/crossterm_style)
-//! - [Crossterm Input](https://crates.io/crates/crossterm_input)
-//! - [Crossterm Screen](https://crates.io/crates/crossterm_screen)
-//! - [Crossterm Cursor](https://crates.io/crates/crossterm_cursor)
-//! - [Crossterm Terminal](https://crates.io/crates/crossterm_terminal)
+//! ## Important
+//!
+//! This crate re-exports all other `crossterm_*` crates types only. Please, consult the
+//! `crossterm` crate repository [README](https://github.com/crossterm-rs/crossterm/blob/master/README.md) to
+//! learn how to use features to enable/disable functionality, what's planned, etc. There will be
+//! new code organization, breaking API changes, etc.
 
 #[cfg(feature = "cursor")]
 pub use crossterm_cursor::{

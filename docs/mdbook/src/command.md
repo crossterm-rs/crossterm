@@ -1,4 +1,8 @@
 # Command API
+
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 The command API makes the use of crossterm much easier and offers more control over when and how a command such as moving the cursor is executed.
 
 The command API offers:

@@ -1,3 +1,6 @@
+> **WARNING**: This book is deprecated, no longer maintained and will be
+> removed soon.
+
 From `crossterm 0.6` you are able to use feature flags. 
 
 With feature flags, you can pick the features you want which reduces the size of the library and could prevent you from having unnecessary dependencies.

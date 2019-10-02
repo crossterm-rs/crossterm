@@ -2,332 +2,189 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Travis][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
 
-# cross-platform terminal manipulating library. 
+# Cross-platform Terminal Manipulation Library 
 
-Have you ever been disappointed when a terminal library for rust was only written for UNIX systems? 
-Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both
+Have you ever been disappointed when a terminal library for the Rust language was only written for UNIX systems? 
+Crossterm provides clearing, input handling, styling, cursor movement and terminal actions for both
 Windows and UNIX systems.
 
-Crossterm aims to be simple and easy to call in code. 
-Through the simplicity of Crossterm, you do not have to worry about the platform you are working with.
+Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not have to
+worry about the platform you are working with.
 
-This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
+This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
 see [Tested Terminals](#tested-terminals) for more info).
 
-This crate consists of five modules that are provided behind
-[feature flags](https://crossterm-rs.github.io/crossterm/docs/feature_flags.html) so that you can define
-which features you'd like to have; by default, all features are enabled.
+## Table of Contents
 
-- [crossterm_style](https://crates.io/crates/crossterm_style) 
-- [crossterm_input](https://crates.io/crates/crossterm_input) 
-- [crossterm_screen](https://crates.io/crates/crossterm_screen)
-- [crossterm_cursor](https://crates.io/crates/crossterm_cursor)
-- [crossterm_terminal](https://crates.io/crates/crossterm_terminal)
-
-## Table of contents:
-
-- [Getting started](#getting-started)
-- [Useful links](#useful-links)
-- [Features](#features)
-- [Examples](#examples)
-    - [Styled Text](#styled-text)
-    - [Cursor](#cursor)
-    - [Terminal](#terminal)
-    - [Input Reading](#input-reading)
-- [Tested Terminals](#tested-terminals)
-- [Contributing](#contributing)
-- [Authors](#authors)
-- [License](#license)
-
-## Getting Started
-
-All [examples](https://github.com/crossterm-rs/examples) of how crossterm works can be found in the example repository.
-
-Add the Crossterm package to your `Cargo.toml` file.
-
-```
-[dependencies]
-crossterm = "0.11"
-```
-
-### Useful Links
-
-- [Book](https://crossterm-rs.github.io/crossterm/docs/)
-- [Documentation](https://docs.rs/crossterm/)
-- [Crates.io](https://crates.io/crates/crossterm)
-- [Examples](https://github.com/crossterm-rs/examples)
+* [Features](#features)
+    * [Tested Terminals](#tested-terminals)
+* [Getting Started](#getting-started)
+    * [Feature Flags](#feature-flags)
+    * [`crossterm` vs `crossterm_*` crates](#crossterm-vs-crossterm_-crates)
+* [Other Resources](#other-resources)
+* [Used By](#used-by)
+* [Contributing](#contributing)    
 
 ## Features
 
 - Cross-platform
 - Multi-threaded (send, sync)
-- Detailed Documentation
-- Few Dependencies
-- Cursor
-    - Moving _n_ times (up, down, left, right)
-    - Position (set/get)
-    - Store cursor position and resetting to that later
-    - Hiding/Showing
-    - Blinking Cursor (supported by only some terminals)
-- Styled output
-    - Foreground Color (16 base colors)
-    - Background Color (16 base colors)
-    - 256 (ANSI) Color Support (Windows 10 and UNIX Only)
-    - RGB Color Support (Windows 10 and UNIX only)
-    - Text Attributes: bold, italic, underscore and crossed word and [more](https://crossterm-rs.github.io/crossterm/docs//styling.html#attributes) (Windows 10 and UNIX only)
-- Terminal
-    - Clearing (all lines, current line, from cursor down and up, until new line)
-    - Scrolling (up, down)
-    - Terminal Size (get/set)
-    - Alternate Screen
-    - Raw Screen   
-    - Exit Current Process
-- Input
+- Detailed documentation
+- Few dependencies
+- Cursor (feature `cursor`)
+    - Move the cursor N times (up, down, left, right)
+    - Set/get the cursor position
+    - Store the cursor position and restore to it later
+    - Hide/show the cursor
+    - Enable/disable cursor blinking (not all terminals do support this feature)
+- Styled output (feature `style`)
+    - Foreground color (16 base colors)
+    - Background color (16 base colors)
+    - 256 (ANSI) color support (Windows 10 and UNIX only)
+    - RGB color support (Windows 10 and UNIX only)
+    - Text attributes like bold, italic, underscore, crossed, etc.
+- Terminal (feature `terminal`)
+    - Clear (all lines, current line, from cursor down and up, until new line)
+    - Scroll up, down
+    - Set/get the terminal size
+    - Exit current process
+- Input (feature `input`)
     - Read character
     - Read line
     - Read key input events (async / sync)
     - Read mouse input events (press, release, position, button)
+- Screen (feature `screen`)
+    - Alternate screen
+    - Raw screen   
 
-## Examples
+<!--
+WARNING: Do not change following heading title as it's used in the URL by other crates!
+-->
 
-These are some basic examples demonstrating how to use this crate. See the
-[examples](https://github.com/crossterm-rs/examples) repository.
-
-### Command API
-
-My first recommendation is to use the [command API](https://crossterm-rs.github.io/crossterm/docs/command.html)
-because this might replace some of the existing API in the future. It is more convenient, faster, and easier to use.
-
-### Styled Text
-
-This module enables you to style the terminal text.
-
-Good documentation can be found at the following places: [docs](https://docs.rs/crossterm_style/),
-[book](https://crossterm-rs.github.io/crossterm/docs/styling.html)
-and [examples](https://github.com/crossterm-rs/examples/blob/master/examples/src/bin/key_events.rs).
-
-_style text with attributes_
-
-```rust
-use crossterm::{Colored, Color, Colorize, Styler, Attribute};
-
-// pass any `Attribute` value to the formatting braces.
-println!("{} Underlined {} No Underline", Attribute::Underlined, Attribute::NoUnderline);
-
-// you could also call different attribute methods on a `&str` and keep on chaining if needed.
-let styled_text = "Bold Underlined".bold().underlined();
-println!("{}", styled_text);
-```
-
-_style text with colors_
-
-```rust
-println!("{} Red foreground color", Colored::Fg(Color::Red));
-println!("{} Blue background color", Colored::Bg(Color::Blue));
-
-// you can also call different coloring methods on a `&str`.
-let styled_text = "Bold Underlined".red().on_blue();
-println!("{}", styled_text);
-```
-
-_style text with RGB and ANSI Value_
-
-```rust
-// custom rgb value (Windows 10 and UNIX systems)
-println!("{} some colored text", Colored::Fg(Color::Rgb {
-    r: 10,
-    g: 10,
-    b: 10
-}));
-
-// custom ansi color value (Windows 10 and UNIX systems)
-println!("{} some colored text", Colored::Fg(Color::AnsiValue(10)));
-```
-
-### Cursor
-
-This module enables you to work with the terminal cursor.
-
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_cursor/) and
-[examples](https://github.com/crossterm-rs/examples).
-
-```rust 
-use crossterm::cursor;
-
-let mut cursor = cursor();
-
-/// Moving the cursor
-// Set the cursor to position X: 10, Y: 5 in the terminal
-cursor.goto(10,5);
-
-// Move the cursor up,right,down,left 3 cells.
-cursor.move_up(3);
-cursor.move_right(3);
-cursor.move_down(3);
-cursor.move_left(3);
-
-/// Safe the current cursor position to recall later
-// Goto X: 5 Y: 5
-cursor.goto(5,5);
-// Safe cursor position: X: 5 Y: 5
-cursor.save_position();
-// Goto X: 5 Y: 20
-cursor.goto(5,20);
-// Print at X: 5 Y: 20.
-print!("Yea!");
-// Reset back to X: 5 Y: 5.
-cursor.restore_position();
-// Print 'Back' at X: 5 Y: 5.
-print!("Back");
-
-// hide cursor
-cursor.hide();
-// show cursor
-cursor.show();
-// blink or not blinking of the cursor (not widely supported)
-cursor.blink(true)
-```
-
-### Terminal
-
-This module enables you to work with the terminal in general.
-
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_terminal/) and
-[examples](https://github.com/crossterm-rs/examples).
-
-```rust 
-use crossterm::{terminal,ClearType};
-
-let mut terminal = terminal();
-
-// Clear all lines in terminal;
-terminal.clear(ClearType::All);
-// Clear all cells from current cursor position down.
-terminal.clear(ClearType::FromCursorDown);
-// Clear all cells from current cursor position down.
-terminal.clear(ClearType::FromCursorUp);
-// Clear current line cells.
-terminal.clear(ClearType::CurrentLine);
-// Clear all the cells until next line.
-terminal.clear(ClearType::UntilNewLine);
-
-// Get terminal size
-let (width, height) = terminal.terminal_size();
-print!("X: {}, y: {}", width, height);
-
-// Scroll down, up 10 lines.
-terminal.scroll_down(10);
-terminal.scroll_up(10);
-
-// Set terminal size (width, height)
-terminal.set_size(10,10);
-
-// exit the current process.
-terminal.exit();
-
-// write to the terminal whether you are on the main screen or alternate screen.
-terminal.write("Some text\n Some text on new line");
-```
-
-### Input Reading
-
-This module enables you to read user input events.
-
-Good documentation could be found on the following places: [docs](https://docs.rs/crossterm_input/),
-[book](https://crossterm-rs.github.io/crossterm/docs/input.html) and
-[examples](https://github.com/crossterm-rs/examples).
-
-_available imports_
-```rust
-use crossterm_input::{
-    input, InputEvent, KeyEvent, MouseButton, MouseEvent, TerminalInput, AsyncReader, SyncReader, Screen
-};
-```
-
-_Simple Readings_
-
-```rust 
-let mut input = input();
-
- match input.read_char() {
-    Ok(s) => println!("char typed: {}", s),
-    Err(e) => println!("char error : {}", e),
- }
- 
- match input.read_line() {
-     Ok(s) => println!("string typed: {}", s),
-     Err(e) => println!("error: {}", e),
- }
-```
-
-_Read input events synchronously or asynchronously._
-
-```rust
-// make sure to enable raw mode, this will make sure key events won't be handled by the terminal it's
-// self and allows crossterm to read the input and pass it back to you.
-let screen = RawScreen::into_raw_mode();
-    
-let mut input = input();
-
-// either read the input synchronously 
-let stdin = input.read_sync();
- 
-// or asynchronously
-let stdin = input.read_async();
-
-if let Some(key_event) = stdin.next() {
-     match key_event {
-         InputEvent::Keyboard(event: KeyEvent) => match event { /* check key event */ }
-         InputEvent::Mouse(event: MouseEvent) => match event { /* check mouse event */ }
-     }
- }
-```
-
-_Enable mouse input events._
-
-```rust
-let input = input();
-
-// enable mouse events to be captured.
-input.enable_mouse_mode().unwrap();
-
-// disable mouse events to be captured.
-input.disable_mouse_mode().unwrap();
-```
-
-### Alternate and Raw Screen
-
-These concepts are a little more complex and would take over the README, please check out
-the [docs](https://docs.rs/crossterm_screen/), [book](https://crossterm-rs.github.io/crossterm/docs/screen.html)
-and [examples](https://github.com/crossterm-rs/examples).
-
-## Used by
-
-- [Broot](https://dystroy.org/broot/)
-- [Cursive](https://github.com/gyscos/Cursive)
-- [TUI](https://github.com/fdehau/tui-rs)
-- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
-
-## Tested terminals
+### Tested Terminals
 
 - Windows Powershell
-    - Windows 10 (pro)
+    - Windows 10 (Pro)
 - Windows CMD
-    - Windows 10 (pro)
+    - Windows 10 (Pro)
     - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
 - (Arch, Manjaro) KDE Konsole
 - Linux Mint
 
-This crate supports all Unix terminals and Windows terminals down to Windows 7; however, not all of the
+This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
 terminals have been tested. If you have used this library for a terminal other than the above list without
 issues, then feel free to add it to the above list - I really would appreciate it!
 
+## Getting Started
+
+<details>
+<summary>
+Click to show Cargo.toml.
+</summary>
+
+```toml
+[dependencies]
+crossterm = "0.11"
+```
+
+</details>
+<p></p>
+
+```rust
+use std::io::{stdout, Write};
+
+use crossterm::{execute, Attribute, Color, Output, ResetColor, Result, SetBg, SetFg};
+
+fn main() -> Result<()> {
+    execute!(
+        stdout(),
+        // Blue foreground
+        SetFg(Color::Blue),
+        // Red background
+        SetBg(Color::Red),
+        Output("Styled text here.".to_string()),
+        // Reset to default colors
+        ResetColor
+    )
+}
+```
+
+### Feature Flags
+
+All features are enabled by default. You can disable default features and enable some of them only.
+
+```toml
+[dependencies.crossterm]
+version = "0.11"
+default-features = false        # Disable default features
+features = ["cursor", "screen"] # Enable required features only
+```
+
+| Feature | Description | Links |
+| :-- | :-- | :-- |
+| `input` | Sync/Async input readers | [API documentation](https://docs.rs/crossterm_input), [crates.io](https://crates.io/crates/crossterm_input), [GitHub](https://github.com/crossterm-rs/crossterm-input) |
+| `cursor` | Cursor manipulation | [API documentation](https://docs.rs/crossterm_cursor), [crates.io](https://crates.io/crates/crossterm_cursor), [GitHub](https://github.com/crossterm-rs/crossterm-cursor) |
+| `screen` | Alternate screen & raw mode | [API documentation](https://docs.rs/crossterm_screen), [crates.io](https://crates.io/crates/crossterm_screen), [GitHub](https://github.com/crossterm-rs/crossterm-screen) |
+| `terminal` | Size, clear, scroll | [API documentation](https://docs.rs/crossterm_terminal), [crates.io](https://crates.io/crates/crossterm_terminal), [GitHub](https://github.com/crossterm-rs/crossterm-terminal) |
+| `style` | Colors, text attributes | [API documentation](https://docs.rs/crossterm_style), [crates.io](https://crates.io/crates/crossterm_style), [GitHub](https://github.com/crossterm-rs/crossterm-style) |
+
+### `crossterm` vs `crossterm_*` crates
+
+There're two ways how to use the Crossterm library:
+
+* `crossterm` crate with the `cursor` feature flag,
+* `crossterm_cursor` crate.
+
+Both provide same functionality, the only difference is the namespace (`crossterm` vs `crossterm_cursor`).
+
+The first way (`crossterm` crate with feature flags) is preferred. The second way will be
+deprecated and no longer supported soon. The `crossterm_*` crates will be marked as deprecated and
+repositories archived on the GitHub. See the
+[Merge sub-crates to the crossterm crate](https://github.com/crossterm-rs/crossterm/issues/265)
+for more details.
+
+#### `crossterm` crate:
+
+```toml
+[dependencies.crossterm]
+version = "0.11"
+default-features = false        # Disable default features
+features = ["cursor"]           # Enable cursor feature only
+```
+
+```rust
+use crossterm::cursor;
+```
+
+#### `crossterm_curosr` crate:
+
+```toml
+[dependencies]
+crossterm_cursor = "0.3"
+```
+
+```rust
+use crossterm_cursor::cursor;
+```
+
+### Other Resources
+
+- [API documentation](https://docs.rs/crossterm/)
+- [Examples repository](https://github.com/crossterm-rs/examples)
+
+## Used By
+
+- [Broot](https://dystroy.org/broot/)
+- [Cursive](https://github.com/gyscos/Cursive)
+- [TUI](https://github.com/fdehau/tui-rs)
+- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
+
 ## Contributing
   
-I highly appreciate it when you contribute to this crate. 
-Please visit the discord or issue list for more information
+I highly appreciate when anyone contributes to this crate. Before you do, please,
+read the [Contributing](docs/CONTRIBUTING.md) guidelines. 
 
 ## Authors
 
@@ -335,15 +192,15 @@ Please visit the discord or issue list for more information
 
 ## Support
 
-Would you like crossterm to be even more gorgeous and beautiful? You can help with this by donating. 
+Would you like Crossterm to be even more gorgeous and beautiful? You can help with this by donating. 
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 
 ## License
 
-This project, crossterm and all it's sub-modules: crossterm_screen, crossterm_cursor, crossterm_style,
-crossterm_input, crossterm_terminal, crossterm_winapi, crossterm_utils are licensed under the MIT License - see
-the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/master/LICENSE) file for details
+This project, `crossterm` and all it's sub-crates: `crossterm_screen`, `crossterm_cursor`, `crossterm_style`,
+`crossterm_input`, `crossterm_terminal`, `crossterm_winapi`, `crossterm_utils` are licensed under the MIT
+License - see the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/master/LICENSE) file for details.
 
 [s1]: https://img.shields.io/crates/v/crossterm.svg
 [l1]: https://crates.io/crates/crossterm
