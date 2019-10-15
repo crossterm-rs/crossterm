@@ -31,8 +31,8 @@ pub use crossterm_input::{
 pub use crossterm_screen::{AlternateScreen, IntoRawMode, RawScreen};
 #[cfg(feature = "style")]
 pub use crossterm_style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, SetAttr,
-    SetBg, SetFg, StyledObject, Styler, TerminalColor,
+    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
+    SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]
 pub use crossterm_terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
