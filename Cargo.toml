@@ -24,7 +24,7 @@ input = ["crossterm_input"]
 crossterm_screen = { version = "0.3.1"  , optional = true  }
 crossterm_cursor = { version = "0.3.1"  , optional = true  }
 crossterm_terminal = { version = "0.3.1", optional = true  }
-crossterm_style = { version = "0.5.1"   , optional = true  }
+crossterm_style = {  git = "https://github.com/crossterm-rs/crossterm-style", branch = "master", version = "0.5.1", optional = true }
 crossterm_input = { version = "0.4.1"   , optional = true  }
 crossterm_utils = { version = "0.3.1"   , optional = false }
 
