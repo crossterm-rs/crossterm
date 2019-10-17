@@ -21,7 +21,7 @@ screen = ["crossterm_screen"]
 input = ["crossterm_input"]
 
 [dependencies]
-crossterm_screen = { version = "0.3.1"  , optional = true  }
+crossterm_screen = { git = "https://github.com/crossterm-rs/crossterm-screen", branch = "master", version = "0.3.1"  , optional = true  }
 crossterm_cursor = { version = "0.3.1"  , optional = true  }
 crossterm_terminal = { version = "0.3.1", optional = true  }
 crossterm_style = {  git = "https://github.com/crossterm-rs/crossterm-style", branch = "master", version = "0.5.1", optional = true }
