@@ -28,7 +28,9 @@ pub use crossterm_input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
-pub use crossterm_screen::{AlternateScreen, IntoRawMode, RawScreen};
+pub use crossterm_screen::{
+    AlternateScreen, EnterAlternateScreen, IntoRawMode, LeaveAlternateScreen, RawScreen,
+};
 #[cfg(feature = "style")]
 pub use crossterm_style::{
     color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
