@@ -1,25 +1,53 @@
 name: Crossterm Test
 
 on:
+  # Build master only
   push:
     branches:
-    - master
+      - master
+  # Build pull requests targeting master branch only
+  pull_request:
+    branches:
+      - master
+
 jobs:
-  linux_mac:
+  test:
     name: Running on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2019, macOS-10.14]
+        os: [ubuntu-latest, windows-2019, macOS-latest]
         rust: [stable, nightly]
+        include:
+          - rust: stable
+            can-fail: false
+          - rust: nightly
+            can-fail: true
     steps:
-    - uses: hecrj/setup-rust-action@master
+    - name: Checkout Repository
+      uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+    - name: Install Rust
+      uses: hecrj/setup-rust-action@master
       with:
         rust-version: ${{ matrix.rust }}
-    - uses: actions/checkout@master
-    - name: Run Build
+        components: rustfmt
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Toolchain Information
+      run: |
+        rustc --version
+        rustfmt --version
+        rustup --version
+        cargo --version
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Check Formatting
+      if: matrix.rust == 'stable'
+      run: cargo fmt --all -- --check
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test Build
       run: cargo build
-    - name: Check Examples
-      run: cargo check --examples 
+      continue-on-error: ${{ matrix.can-fail }}
     - name: Run Tests
-      run: cargo test -v
+      run: cargo test --all-features -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
