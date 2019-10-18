@@ -1,7 +1,7 @@
 name: Crossterm Test
 
 on:
-  # Build master only
+  # Build master branch only
   push:
     branches:
       - master
@@ -12,12 +12,13 @@ on:
 
 jobs:
   test:
-    name: Running on ${{ matrix.os }}
+    name: Rust ${{matrix.rust}} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-2019, macOS-latest]
         rust: [stable, nightly]
+        # Allow failures on nightly, it's just informative
         include:
           - rust: stable
             can-fail: false
