@@ -26,8 +26,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+      with:
+        fetch-depth: 1
     - name: Install Rust
       uses: hecrj/setup-rust-action@master
       with:
