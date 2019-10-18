@@ -34,14 +34,12 @@ jobs:
       with:
         rust-version: ${{ matrix.rust }}
         components: rustfmt
-      continue-on-error: ${{ matrix.can-fail }}
     - name: Toolchain Information
       run: |
         rustc --version
         rustfmt --version
         rustup --version
         cargo --version
-      continue-on-error: ${{ matrix.can-fail }}
     - name: Check Formatting
       if: matrix.rust == 'stable'
       run: cargo fmt --all -- --check
