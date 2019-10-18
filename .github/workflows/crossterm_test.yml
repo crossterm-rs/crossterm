@@ -12,7 +12,7 @@ on:
 
 jobs:
   test:
-    name: Rust ${{matrix.rust}} on ${{ matrix.os }}
+    name: ${{matrix.rust}} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
