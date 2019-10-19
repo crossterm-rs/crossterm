@@ -1,4 +1,4 @@
-# Version master
+# Version 0.12.0
 
 - Deprecated warning about `crossterm_*` crates
 - Documentation improved
