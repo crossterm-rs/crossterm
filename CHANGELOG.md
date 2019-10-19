@@ -4,6 +4,19 @@
 - Documentation improved
 - Remove all references to the crossterm book
 - Remove the crossterm book
+- New commands introduced
+  - `EnterAlternateScreen`
+  - `LeaveAlternateScreen`
+  - `ResetColor`
+- Fixed bug with `SetBg` command, WinApi logic
+- Fixed bug with `StyledObject`, used stdout for resetting terminal color
+- Mouse coordinates synchronized with the cursor (breaking)
+  - Upper/left reported as `(0, 0)`
+- Fixed bug that read sync didn't block (Windows)
+- AsyncReader produces mouse events (#271)
+  - One reading thread per application, not per AsyncReader
+- Fixed cursor position getting consumed by async reader
+- Implemented sync reader for read_char (requires raw mode)
 
 # Version 0.11.1
 
