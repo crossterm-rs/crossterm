@@ -1,22 +1,86 @@
 # Version 0.12.0
 
-- Deprecated warning about `crossterm_*` crates
-- Documentation improved
-- Remove all references to the crossterm book
-- Remove the crossterm book
-- New commands introduced
+- Following crates are deprecated and no longer maintained
+  - `crossterm_cursor`
+  - `crossterm_input`
+  - `crossterm_screen`
+  - `crossterm_style`
+  - `crossterm_terminal`
+  - `crossterm_utils`
+
+## `crossterm_cursor` 0.4.0
+
+- Internal refactoring ([PR #2](https://github.com/crossterm-rs/crossterm-cursor/pull/2))
+  - Improved public documentation
+  - `sys` module is no longer public
+- Fixed examples link ([PR #6](https://github.com/crossterm-rs/crossterm-cursor/pull/6))
+- Sync documentation style ([PR #7](https://github.com/crossterm-rs/crossterm-cursor/pull/7))
+- Removed all references to the crossterm book ([PR #8](https://github.com/crossterm-rs/crossterm-cursor/pull/8))
+- Replaced `RAW_MODE_ENABLED` with `is_raw_mode_enabled` ([PR #9](https://github.com/crossterm-rs/crossterm-cursor/pull/9))
+- Use `SyncReader` & `InputEvent::CursorPosition` for `pos_raw()` ([PR #10](https://github.com/crossterm-rs/crossterm-cursor/pull/10))
+
+## `crossterm_input` 0.5.0
+
+- Internal refactoring ([PR #3](https://github.com/crossterm-rs/crossterm-input/pull/3))
+  - Removed unsafe `static mut`
+  - Documentation update
+  - Remove all references to the crossterm book
+- Sync documentation style ([PR #4](https://github.com/crossterm-rs/crossterm-input/pull/4))
+- Sync `SyncReader::next()` Windows and UNIX behavior ([PR #5](https://github.com/crossterm-rs/crossterm-input/pull/5))
+- Remove all references to the crossterm book ([PR #6](https://github.com/crossterm-rs/crossterm-input/pull/6)) 
+- Mouse coordinates synchronized with the cursor ([PR #7](https://github.com/crossterm-rs/crossterm-input/pull/7))
+  - Upper/left reported as `(0, 0)`
+- Fixed bug that read sync didn't block (Windows) ([PR #8](https://github.com/crossterm-rs/crossterm-input/pull/8))
+- Refactored UNIX readers ([PR #9](https://github.com/crossterm-rs/crossterm-input/pull/9))
+  - AsyncReader produces mouse events
+  - One reading thread per application, not per `AsyncReader`
+  - Cursor position no longer consumed by another `AsyncReader`
+  - Implemented sync reader for read_char (requires raw mode)
+  - Fixed `SIGTTIN` when executed under the LLDB
+  - Added mio for reading from FD and more efficient polling (UNIX only)
+
+## `crossterm_screen` 0.3.2
+
+- `to_alternate` switch back to main screen if it fails to switch into raw mode ([PR #4](https://github.com/crossterm-rs/crossterm-screen/pull/4))
+- Improve the documentation ([PR #5](https://github.com/crossterm-rs/crossterm-screen/pull/5))
+  - Public API
+  - Include the book content in the documentation
+- Remove all references to the crossterm book ([PR #6](https://github.com/crossterm-rs/crossterm-screen/pull/6))
+- New commands introduced ([PR #7](https://github.com/crossterm-rs/crossterm-screen/pull/7))
   - `EnterAlternateScreen`
   - `LeaveAlternateScreen`
-  - `ResetColor`
-- Fixed bug with `SetBg` command, WinApi logic
-- Fixed bug with `StyledObject`, used stdout for resetting terminal color
-- Mouse coordinates synchronized with the cursor (breaking)
-  - Upper/left reported as `(0, 0)`
-- Fixed bug that read sync didn't block (Windows)
-- AsyncReader produces mouse events (#271)
-  - One reading thread per application, not per AsyncReader
-- Fixed cursor position getting consumed by async reader
-- Implemented sync reader for read_char (requires raw mode)
+- Sync Windows and UNIX raw mode behavior ([PR #8](https://github.com/crossterm-rs/crossterm-screen/pull/8))
+
+## `crossterm_style` 0.5.2
+
+- Refactoring ([PR #2](https://github.com/crossterm-rs/crossterm-style/pull/2))
+  - Added unit tests 
+  - Restructured files
+  - Improved documentation and added book page to lib.rs
+  - Fixed bug with `SetBg` command, WinApi logic
+  - Fixed bug with `StyledObject`, used stdout for resetting terminal color
+  - Introduced `ResetColor` command
+- Sync documentation style ([PR #3](https://github.com/crossterm-rs/crossterm-style/pull/3))
+- Remove all references to the crossterm book ([PR #4](https://github.com/crossterm-rs/crossterm-style/pull/4))
+- Windows 7 grey/white foreground/intensity swapped ([PR #5](https://github.com/crossterm-rs/crossterm-style/pull/5))
+
+## `crossterm_terminal` 0.3.2
+
+- Removed `crossterm_cursor::sys` dependency ([PR #2](https://github.com/crossterm-rs/crossterm-terminal/pull/2))
+- Internal refactoring & documentation ([PR #3](https://github.com/crossterm-rs/crossterm-terminal/pull/3))
+- Removed all references to the crossterm book ([PR #4](https://github.com/crossterm-rs/crossterm-terminal/pull/4))
+
+## `crossterm_utils` 0.4.0
+
+- Add deprecation note ([PR #3](https://github.com/crossterm-rs/crossterm-utils/pull/3))
+- Remove all references to the crossterm book ([PR #4](https://github.com/crossterm-rs/crossterm-utils/pull/4))
+- Remove unsafe static mut ([PR #5](https://github.com/crossterm-rs/crossterm-utils/pull/5))
+  - `sys::unix::RAW_MODE_ENABLED` replaced with `sys::unix::is_raw_mode_enabled()` (breaking)
+  - New `lazy_static` dependency
+
+## `crossterm_winapi` 0.3.0
+
+- Make read sync block for windows systems ([PR #2](https://github.com/crossterm-rs/crossterm-winapi/pull/2))
 
 # Version 0.11.1
 
