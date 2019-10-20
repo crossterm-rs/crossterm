@@ -158,7 +158,7 @@ features = ["cursor"]           # Enable cursor feature only
 use crossterm::cursor;
 ```
 
-#### `crossterm_curosr` crate:
+#### `crossterm_cursor` crate:
 
 ```toml
 [dependencies]
