@@ -38,6 +38,8 @@
   - Implemented sync reader for read_char (requires raw mode)
   - Fixed `SIGTTIN` when executed under the LLDB
   - Added mio for reading from FD and more efficient polling (UNIX only)
+- Sync UNIX and Windows vertical mouse position ([PR #11](https://github.com/crossterm-rs/crossterm-input/pull/11))
+  - Top is always reported as `0` 
 
 ## `crossterm_screen` 0.3.2
 
