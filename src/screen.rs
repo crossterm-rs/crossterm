@@ -1,12 +1,6 @@
 //! # Screen
 //!
-//! **The `crossterm_screen` crate is deprecated and no longer maintained. The GitHub repository will
-//! be archived soon. All the code is being moved to the `crossterm`
-//! [crate](https://github.com/crossterm-rs/crossterm). You can learn more in
-//! the [Merge sub-crates to the crossterm crate](https://github.com/crossterm-rs/crossterm/issues/265)
-//! issue.**
-//!
-//! The `crossterm_screen` crate provides the functionality to work with the terminal screen.
+//! The `screen` module provides the functionality to work with the terminal screen.
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide

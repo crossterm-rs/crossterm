@@ -1,12 +1,6 @@
 //! # Cursor
 //!
-//! **The `crossterm_cursor` crate is deprecated and no longer maintained. The GitHub repository will
-//! be archived soon. All the code is being moved to the `crossterm`
-//! [crate](https://github.com/crossterm-rs/crossterm). You can learn more in
-//! the [Merge sub-crates to the crossterm crate](https://github.com/crossterm-rs/crossterm/issues/265)
-//! issue.**
-//!
-//! The `crossterm_cursor` crate provides a functionality to work with the terminal cursor.
+//! The `cursor` module provides a functionality to work with the terminal cursor.
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide
