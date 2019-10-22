@@ -1,11 +1,12 @@
 use std::io::{self, Write};
 
-use crate::input::{InputEvent, TerminalInput};
-use crate::utils::{
-    sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
-    Result,
-};
 use crate::{csi, write_cout};
+use crate::input::{event_stream, InputEvent};
+use crate::poll_event;
+use crate::utils::{
+    Result,
+    sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
+};
 
 pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
@@ -40,11 +41,15 @@ fn pos_raw() -> Result<(u16, u16)> {
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
-    let mut reader = TerminalInput::new().read_sync();
+    let mut reader = event_stream();
 
     loop {
-        if let Some(InputEvent::CursorPosition(x, y)) = reader.next() {
-            return Ok((x, y));
+        poll_event()?;
+
+        for event in  reader.events() {
+            if let InputEvent::CursorPosition(x, y) = event {
+                return Ok((x, y));
+            }
         }
     }
 }

@@ -4,9 +4,8 @@
 use std::sync::Mutex;
 
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
-use winapi::um::wincon;
-
 use lazy_static::lazy_static;
+use winapi::um::wincon;
 
 use crate::utils::Result;
 
@@ -192,8 +191,8 @@ lazy_static! {
 #[cfg(test)]
 mod tests {
     use super::{
-        Color, Colored, WinApiColor, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED,
-        ORIGINAL_CONSOLE_COLOR,
+        BG_INTENSITY, BG_RED, Color, Colored, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
+        WinApiColor,
     };
 
     #[test]

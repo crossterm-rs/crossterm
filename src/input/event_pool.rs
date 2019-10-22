@@ -2,13 +2,13 @@ use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use lazy_static::lazy_static;
 
+use crate::{EventSource, Result};
+use crate::EventStream;
 #[cfg(unix)]
 use crate::input::event_source::tty::TTYEventSource;
 #[cfg(windows)]
 use crate::input::event_source::winapi::WinApiEventSource;
 use crate::input::spmc::EventChannel;
-use crate::EventStream;
-use crate::{EventSource, Result};
 
 lazy_static! {
     /// Static event pool that can be used to read input events.
@@ -128,9 +128,9 @@ impl<'a> EventPoolWriteLock<'a> {
 mod tests {
     use std::sync::mpsc::channel;
 
+    use crate::{event_stream, EventPool, poll_event};
     use crate::input::event_source::fake::FakeEventSource;
     use crate::InputEvent;
-    use crate::{event_stream, poll_event, EventPool};
 
     #[test]
     pub fn test_read_input_multiple_consumers() {

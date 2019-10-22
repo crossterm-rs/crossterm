@@ -85,8 +85,8 @@ mod tests {
 
     use shrev::EventChannel;
 
-    use crate::input::spmc::EventConsumer;
     use crate::{InputEvent, KeyEvent, MouseEvent};
+    use crate::input::spmc::EventConsumer;
 
     #[test]
     pub fn test_read_all_events() {

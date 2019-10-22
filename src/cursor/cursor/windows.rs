@@ -4,7 +4,7 @@
 
 use crate::utils::Result;
 
-use super::{super::sys::windows::ScreenBufferCursor, Cursor};
+use super::{Cursor, super::sys::windows::ScreenBufferCursor};
 
 /// This struct is a windows implementation for cursor related actions.
 pub(crate) struct WinApiCursor;

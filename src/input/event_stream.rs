@@ -1,7 +1,7 @@
+use crate::{InputEvent, KeyEvent, MouseEvent};
+use crate::EventIterator;
 use crate::input::event_iterator::IntoEventIterator;
 use crate::input::spmc::EventConsumer;
-use crate::EventIterator;
-use crate::{InputEvent, KeyEvent, MouseEvent};
 
 /// An input stream that can be used to read occurred key events.
 pub struct EventStream {
@@ -70,11 +70,13 @@ impl<'a> EventStream {
 
 #[cfg(test)]
 mod tests {
-    use crate::input::spmc::EventConsumer;
-    use crate::EventStream;
-    use crate::{InputEvent, KeyEvent, MouseEvent};
-    use shrev::EventChannel;
     use std::sync::{Arc, RwLock};
+
+    use shrev::EventChannel;
+
+    use crate::{InputEvent, KeyEvent, MouseEvent};
+    use crate::EventStream;
+    use crate::input::spmc::EventConsumer;
 
     #[test]
     pub fn test_consumer_consumes_channel_key_events() {

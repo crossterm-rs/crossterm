@@ -2,12 +2,12 @@
 //! This module is used for windows 10 terminals and UNIX terminals by default.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position etc.
 
-use crate::utils::Result;
 use crate::{csi, write_cout};
+use crate::utils::Result;
 
 use super::{
-    super::sys::{get_cursor_position, show_cursor},
     Cursor,
+    super::sys::{get_cursor_position, show_cursor},
 };
 
 pub(crate) fn goto_csi_sequence(x: u16, y: u16) -> String {

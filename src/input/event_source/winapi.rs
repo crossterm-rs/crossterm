@@ -1,5 +1,5 @@
-use crate::input::sys::winapi::read_single_event;
 use crate::input::EventSource;
+use crate::input::sys::winapi::read_single_event;
 use crate::InputEvent;
 use crate::Result;
 

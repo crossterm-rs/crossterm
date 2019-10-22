@@ -1,7 +1,8 @@
-use crate::sys::unix::{tty_fd, FileDesc, TtyPoll};
 use crate::EventSource;
+use crate::input::events::InternalEvent;
+use crate::input::sys::unix::{FileDesc, tty_fd, TtyPoll};
+use crate::InputEvent;
 use crate::Result;
-use crate::{InputEvent, InternalEvent};
 
 pub struct TTYEventSource {
     source: TtyPoll,
