@@ -50,7 +50,7 @@
 //!
 //! Functions:
 //!
-//! ```
+//! ```no_run
 //! use std::io::Write;
 //! use crossterm::{Goto, QueueableCommand};
 //!
@@ -67,7 +67,7 @@
 //!
 //! Macros:
 //!
-//! ```
+//! ```no_run
 //! use std::io::Write;
 //! use crossterm::{queue, Goto, QueueableCommand};
 //!
@@ -91,7 +91,7 @@
 //!
 //! Functions:
 //!
-//! ```
+//! ```no_run
 //! use std::io::Write;
 //! use crossterm::{ExecutableCommand, Goto};
 //!
@@ -101,7 +101,7 @@
 //!
 //! Macros:
 //!
-//! ```
+//! ```no_run
 //! use std::io::Write;
 //! use crossterm::{execute, ExecutableCommand, Goto};
 //!
@@ -115,7 +115,7 @@
 //!
 //! Functions:
 //!
-//! ```
+//! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize, Clear, ClearType, Goto, Result};
 //!
@@ -140,7 +140,7 @@
 //!
 //! Macros:
 //!
-//! ```rust
+//! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{execute, queue, Color, PrintStyledFont, Colorize, Goto, Clear, ClearType, Result};
 //!
