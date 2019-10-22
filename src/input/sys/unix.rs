@@ -14,9 +14,8 @@ use mio::{Events, Poll, PollOpt, Ready, Token};
 
 use lazy_static::lazy_static;
 
-use crate::utils::{ErrorKind, Result};
-
-use super::super::{InputEvent, InternalEvent, KeyEvent, MouseButton, MouseEvent};
+use crate::{ErrorKind, Result};
+use crate::{InputEvent, InternalEvent, KeyEvent, MouseButton, MouseEvent};
 
 use self::utils::{check_for_error, check_for_error_result};
 
@@ -177,7 +176,7 @@ fn max_len() -> usize {
 ///
 /// It allows to retrieve raw file descriptor, write to the file descriptor and
 /// mainly it closes the file descriptor once dropped.
-struct FileDesc {
+pub struct FileDesc {
     fd: RawFd,
     close_on_drop: bool,
 }
@@ -248,7 +247,7 @@ fn pipe() -> Result<(FileDesc, FileDesc)> {
 }
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
-fn tty_fd() -> Result<FileDesc> {
+pub fn tty_fd() -> Result<FileDesc> {
     let (fd, close_on_drop) = if unsafe { libc::isatty(libc::STDIN_FILENO) == 1 } {
         (libc::STDIN_FILENO, false)
     } else {
@@ -263,6 +262,77 @@ fn tty_fd() -> Result<FileDesc> {
     };
 
     Ok(FileDesc::with_close_on_drop(fd, close_on_drop))
+}
+
+pub struct TtyPoll {
+    poll: Poll,
+    tty_fd: FileDesc,
+}
+
+// Tokens to identify file descriptor
+const TTY_TOKEN: Token = Token(0);
+
+impl TtyPoll {
+    pub fn new(tty_fd: FileDesc) -> TtyPoll {
+        // Get raw file descriptors for
+        let tty_raw_fd = tty_fd.raw_fd();
+
+        // Setup polling with raw file descriptors
+        let tty_ev = EventedFd(&tty_raw_fd);
+
+        let poll = Poll::new().unwrap();
+        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())
+            .unwrap();
+
+        TtyPoll { poll, tty_fd }
+    }
+
+    pub(crate) fn tty_poll(&mut self) -> Result<Option<InternalEvent>> {
+        let mut events = Events::with_capacity(2);
+        let mut buffer: Vec<u8> = Vec::with_capacity(32);
+
+        let get_tokens =
+            |events: &Events| -> Vec<Token> { events.iter().map(|ev| ev.token()).collect() };
+
+        loop {
+            // Wait for an event on provided raw file descriptors
+            // No timeout means indefinitely
+            self.poll.poll(&mut events, None)?;
+
+            // Get tokens to identify file descriptors
+            let tokens = get_tokens(&events);
+
+            if tokens.contains(&TTY_TOKEN) {
+                // There's an event on tty
+                if let Ok(byte) = self.tty_fd.read_byte() {
+                    // Poll again to check if there's still anything to read when we read one byte.
+                    // This time with 0 timeout which means return immediately.
+                    //
+                    // We need this information to distinguish between Esc key and possible
+                    // Esc sequence.
+                    self.poll.poll(&mut events, Some(Duration::from_secs(0)))?;
+
+                    let tokens = get_tokens(&events);
+
+                    let input_available = tokens.contains(&TTY_TOKEN);
+
+                    buffer.push(byte);
+                    match parse_event(&buffer, input_available) {
+                        // Not enough info to parse the event, wait for more bytes
+                        Ok(None) => {}
+                        // Clear the input buffer and send the event
+                        Ok(Some(event)) => {
+                            buffer.clear();
+                            return Ok(Some(event));
+                        }
+                        // Malformed sequence, clear the buffer
+                        Err(_) => buffer.clear(),
+                    }
+                }
+            }
+        }
+        Ok(None)
+    }
 }
 
 /// A main body of the `TtyReadingThread` reading thread.

@@ -16,12 +16,6 @@ impl Crossterm {
         crate::cursor::TerminalCursor::new()
     }
 
-    /// Creates a new `TerminalInput`.
-    #[cfg(feature = "input")]
-    pub fn input(&self) -> crate::input::TerminalInput {
-        crate::input::TerminalInput::new()
-    }
-
     /// Creates a new `Terminal`.
     #[cfg(feature = "terminal")]
     pub fn terminal(&self) -> crate::terminal::Terminal {

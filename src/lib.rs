@@ -168,7 +168,8 @@ pub use cursor::{
 };
 #[cfg(feature = "input")]
 pub use input::{
-    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
+    event_stream, poll_event, EventIterator, EventPool, EventPoolReadLock, EventPoolWriteLock,
+    EventSource, EventStream, InputEvent, KeyEvent, MouseButton, MouseEvent,
 };
 #[cfg(feature = "screen")]
 pub use screen::{
