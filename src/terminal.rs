@@ -50,13 +50,14 @@
 //! ```
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(windows)]
 use crate::utils::supports_ansi;
 #[doc(no_inline)]
 use crate::utils::{Command, Result};
 use crate::{impl_display, write_cout};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 
 use self::terminal::ansi::AnsiTerminal;
 #[cfg(windows)]

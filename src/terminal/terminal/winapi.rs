@@ -7,10 +7,9 @@
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
 use crate::cursor::TerminalCursor;
-use crate::terminal::sys::winapi::get_terminal_size;
 use crate::utils::{ErrorKind, Result};
 
-use super::{ClearType, Terminal};
+use super::{super::sys::winapi::get_terminal_size, ClearType, Terminal};
 
 /// This struct is a winapi implementation for terminal related actions.
 pub(crate) struct WinApiTerminal;
