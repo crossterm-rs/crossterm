@@ -46,13 +46,13 @@ pub use self::crossterm::Crossterm;
 
 mod crossterm;
 #[cfg(feature = "cursor")]
-mod cursor;
+pub mod cursor;
 #[cfg(feature = "input")]
-mod input;
+pub mod input;
 #[cfg(feature = "screen")]
-mod screen;
+pub mod screen;
 #[cfg(feature = "style")]
-mod style;
+pub mod style;
 #[cfg(feature = "terminal")]
-mod terminal;
+pub mod terminal;
 pub mod utils;
