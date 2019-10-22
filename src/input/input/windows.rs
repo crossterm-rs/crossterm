@@ -29,8 +29,12 @@ use winapi::um::{
 
 use lazy_static::lazy_static;
 
-use crate::input::{input::Input, InputEvent, KeyEvent, MouseButton};
 use crate::utils::Result;
+
+use super::{
+    super::{InputEvent, InternalEvent, KeyEvent, MouseButton},
+    Input,
+};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 

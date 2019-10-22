@@ -35,12 +35,10 @@
 //! on the terminal screen. See the
 //! [`crossterm_screen`](https://docs.rs/crossterm_screen/) crate documentation to learn more.
 
-#[doc(no_inline)]
-pub use crate::screen::{IntoRawMode, RawScreen};
-#[doc(no_inline)]
-pub use crate::utils::Result;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use crate::utils::Result;
 
 #[cfg(unix)]
 use self::input::unix::UnixInput;

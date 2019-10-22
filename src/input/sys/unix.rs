@@ -8,14 +8,15 @@ use std::sync::{
 use std::time::Duration;
 use std::{fs, io, thread};
 
-use crate::utils::{ErrorKind, Result};
 use libc::{c_int, c_void, size_t, ssize_t};
 use mio::unix::EventedFd;
 use mio::{Events, Poll, PollOpt, Ready, Token};
 
 use lazy_static::lazy_static;
 
-use crate::input::{InputEvent, InternalEvent, KeyEvent, MouseButton, MouseEvent};
+use crate::utils::{ErrorKind, Result};
+
+use super::super::{InputEvent, InternalEvent, KeyEvent, MouseButton, MouseEvent};
 
 use self::utils::{check_for_error, check_for_error_result};
 

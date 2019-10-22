@@ -6,8 +6,10 @@ use std::{char, sync::mpsc};
 use crate::utils::Result;
 use crate::{csi, write_cout};
 
-use crate::input::sys::unix::internal_event_receiver;
-use crate::input::{input::Input, InputEvent, InternalEvent, KeyEvent};
+use super::{
+    super::{sys::unix::internal_event_receiver, InputEvent, InternalEvent, KeyEvent},
+    Input,
+};
 
 pub(crate) struct UnixInput;
 
