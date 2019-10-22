@@ -77,7 +77,7 @@ macro_rules! queue {
         $(
             #[cfg(windows)]
             {
-                if $crate::supports_ansi() {
+                if $crate::utils::supports_ansi() {
                     match write!($write, "{}", $command.ansi_code()) {
                         Err(e) => {
                             error = Some(Err($crate::ErrorKind::from(e)));
@@ -149,7 +149,7 @@ macro_rules! execute {
         $(
             #[cfg(windows)]
             {
-                if $crate::supports_ansi() {
+                if $crate::utils::supports_ansi() {
                     if let Err(e) = write_cout!($write, $command.ansi_code()) {
                         error = Some($crate::ErrorKind::from(e));
                     };
