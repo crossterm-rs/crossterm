@@ -1,9 +1,44 @@
+use std::process;
+
 use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
 use crate::utils::Result;
 
 pub(crate) fn exit() {
     ::std::process::exit(0);
+}
+
+/// execute tput with the given argument and parse
+/// the output as a u16.
+///
+/// The arg should be "cols" or "lines"
+fn tput_value(arg: &str) -> Option<u16> {
+    match process::Command::new("tput").arg(arg).output() {
+        Ok(process::Output { stdout, .. }) => {
+            let value = stdout
+                .iter()
+                .map(|&b| b as u16)
+                .take_while(|&b| b >= 48 && b <= 58)
+                .fold(0, |v, b| v * 10 + (b - 48));
+            if value > 0 {
+                Some(value)
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
+}
+
+/// return the size of the screen as determined by tput
+///
+/// This alternate way of computing the size is useful
+///  when in a subshell.
+fn tput_size() -> Option<(u16, u16)> {
+    match (tput_value("cols"), tput_value("lines")) {
+        (Some(w), Some(h)) => Some((w, h)),
+        _ => None,
+    }
 }
 
 pub(crate) fn get_terminal_size() -> Result<(u16, u16)> {
@@ -19,6 +54,6 @@ pub(crate) fn get_terminal_size() -> Result<(u16, u16)> {
     if r == 0 {
         Ok((size.ws_col, size.ws_row))
     } else {
-        Err(std::io::Error::last_os_error().into())
+        tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
     }
 }
