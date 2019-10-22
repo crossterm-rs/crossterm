@@ -35,7 +35,9 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, BlinkOff, BlinkOn, Goto, ResetPos, Result, SavePos};
+//!
+//! use crossterm::{BlinkOff, BlinkOn, execute, Goto, ResetPos, Result, SavePos};
+//!
 //!
 //! fn main() -> Result<()> {
 //!     execute!(
@@ -48,14 +50,15 @@
 //!     )
 //! }
 //! ```
-use crate::impl_display;
-#[cfg(windows)]
-use crate::utils::supports_ansi;
-use crate::utils::{Command, Result};
 use cursor::ansi::{self, AnsiCursor};
 #[cfg(windows)]
 use cursor::windows::WinApiCursor;
 use cursor::Cursor;
+
+use crate::impl_display;
+#[cfg(windows)]
+use crate::utils::supports_ansi;
+use crate::utils::{Command, Result};
 
 mod cursor;
 mod sys;
