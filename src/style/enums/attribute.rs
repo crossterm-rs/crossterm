@@ -114,7 +114,7 @@ pub enum Attribute {
 }
 
 impl Display for Attribute {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", SetAttr(*self))?;
         Ok(())
     }

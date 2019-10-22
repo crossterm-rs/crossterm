@@ -52,7 +52,7 @@ impl<'a, D: Display + 'a + Clone> StyledObject<D> {
 }
 
 impl<D: Display + Clone> Display for StyledObject<D> {
-    fn fmt(&self, f: &mut Formatter) -> result::Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> result::Result<(), fmt::Error> {
         let mut reset = false;
 
         if let Some(bg) = self.object_style.bg_color {

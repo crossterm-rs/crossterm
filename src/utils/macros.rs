@@ -179,7 +179,7 @@ macro_rules! execute {
 macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::result::Result<(), ::std::fmt::Error> {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
                 use $crate::Command;
                 write!(f, "{}", self.ansi_code())
             }

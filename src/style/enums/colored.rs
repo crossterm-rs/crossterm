@@ -29,7 +29,7 @@ pub enum Colored {
 }
 
 impl Display for Colored {
-    fn fmt(&self, _f: &mut ::std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
+    fn fmt(&self, _f: &mut ::std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         let colored_terminal = color();
 
         match *self {
