@@ -53,4 +53,4 @@ mod screen;
 mod style;
 #[cfg(feature = "terminal")]
 mod terminal;
-pub(crate) mod utils;
+pub mod utils;
