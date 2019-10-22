@@ -5,9 +5,10 @@
 use crate::utils::Result;
 use crate::{csi, write_cout};
 
-use crate::cursor::sys::{get_cursor_position, show_cursor};
-
-use super::Cursor;
+use super::{
+    super::sys::{get_cursor_position, show_cursor},
+    Cursor,
+};
 
 pub(crate) fn goto_csi_sequence(x: u16, y: u16) -> String {
     format!(csi!("{};{}H"), y + 1, x + 1)

@@ -2,10 +2,9 @@
 //! This module is used for Windows terminals that do not support ANSI escape codes.
 //! Note that the cursor position is 0 based. This means that we start counting at 0 when setting the cursor position.
 
-use crate::cursor::sys::windows::ScreenBufferCursor;
 use crate::utils::Result;
 
-use super::Cursor;
+use super::{super::sys::windows::ScreenBufferCursor, Cursor};
 
 /// This struct is a windows implementation for cursor related actions.
 pub(crate) struct WinApiCursor;
