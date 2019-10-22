@@ -32,7 +32,7 @@ use lazy_static::lazy_static;
 use crate::utils::Result;
 
 use super::{
-    super::{InputEvent, InternalEvent, KeyEvent, MouseButton},
+    super::{InputEvent, KeyEvent, MouseButton},
     Input,
 };
 
