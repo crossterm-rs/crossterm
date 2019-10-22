@@ -8,8 +8,9 @@ use winapi::um::wincon;
 
 use lazy_static::lazy_static;
 
-use crate::style::{Color, Colored, Style};
 use crate::utils::Result;
+
+use super::super::{Color, Colored, Style};
 
 const FG_GREEN: u16 = wincon::FOREGROUND_GREEN;
 const FG_RED: u16 = wincon::FOREGROUND_RED;

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::StyledObject;
+use super::StyledObject;
 
 /// Provides a set of methods to set the colors.
 ///

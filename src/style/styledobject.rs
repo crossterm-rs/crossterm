@@ -4,9 +4,8 @@ use std::fmt::{self, Display, Formatter};
 use std::result;
 
 use crate::queue;
-use crate::style::{
-    Attribute, Color, Colorize, ObjectStyle, ResetColor, SetAttr, SetBg, SetFg, Styler,
-};
+
+use super::{Attribute, Color, Colorize, ObjectStyle, ResetColor, SetAttr, SetBg, SetFg, Styler};
 
 /// A styled object.
 ///
@@ -134,7 +133,7 @@ impl<D: Display + Clone> Styler<D> for StyledObject<D> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Attribute, Color, ObjectStyle};
+    use super::{Attribute, Color, ObjectStyle};
 
     #[test]
     fn test_set_fg_bg_add_attr() {

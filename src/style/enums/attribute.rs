@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::style::SetAttr;
+use super::super::SetAttr;
 
 /// Represents an attribute.
 ///

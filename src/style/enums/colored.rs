@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::style::{color, enums::Color};
+use super::{super::color, color::Color};
 
 /// Represents a foreground or a background color.
 ///
