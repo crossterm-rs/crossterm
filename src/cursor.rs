@@ -54,7 +54,7 @@
 //!         BlinkOff,
 //!         ResetPos
 //!     )
-//! }   
+//! }
 //! ```
 use crate::impl_display;
 #[cfg(windows)]
