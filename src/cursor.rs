@@ -1,5 +1,3 @@
-#![deny(unused_imports, unused_must_use)]
-
 //! # Cursor
 //!
 //! **The `crossterm_cursor` crate is deprecated and no longer maintained. The GitHub repository will

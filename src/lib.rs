@@ -1,3 +1,5 @@
+#![deny(unused_imports, unused_must_use)]
+
 //! # Crossterm
 //!
 //! Have you ever been disappointed when a terminal library for rust was only written for UNIX systems?

@@ -1,5 +1,3 @@
-#![deny(unused_imports, unused_must_use)]
-
 //! # Screen
 //!
 //! **The `crossterm_screen` crate is deprecated and no longer maintained. The GitHub repository will

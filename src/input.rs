@@ -1,5 +1,3 @@
-#![deny(unused_imports, unused_must_use)]
-
 //! # Input
 //!
 //! **The `crossterm_input` crate is deprecated and no longer maintained. The GitHub repository will
