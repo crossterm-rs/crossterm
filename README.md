@@ -86,7 +86,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.11"
+crossterm = "0.12"
 ```
 
 </details>
@@ -117,7 +117,7 @@ All features are enabled by default. You can disable default features and enable
 
 ```toml
 [dependencies.crossterm]
-version = "0.11"
+version = "0.12"
 default-features = false        # Disable default features
 features = ["cursor", "screen"] # Enable required features only
 ```
