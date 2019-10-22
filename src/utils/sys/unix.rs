@@ -8,7 +8,7 @@ use libc::{cfmakeraw, tcgetattr, tcsetattr, STDIN_FILENO, TCSANOW};
 
 use lazy_static::lazy_static;
 
-use crate::{ErrorKind, Result};
+use super::super::error::{ErrorKind, Result};
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode

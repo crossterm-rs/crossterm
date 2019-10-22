@@ -1,5 +1,5 @@
 #[cfg(windows)]
-use crate::utils::sys::winapi::ansi::set_virtual_terminal_processing;
+use super::sys::winapi::ansi::set_virtual_terminal_processing;
 
 #[cfg(windows)]
 pub fn supports_ansi() -> bool {

@@ -6,7 +6,7 @@ pub use self::error::{ErrorKind, Result};
 pub use self::functions::supports_ansi;
 
 mod command;
-pub mod error;
+mod error;
 mod functions;
-pub mod macros;
-pub mod sys;
+pub(crate) mod macros;
+pub(crate) mod sys;
