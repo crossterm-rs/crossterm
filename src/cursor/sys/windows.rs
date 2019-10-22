@@ -3,13 +3,14 @@
 use std::io;
 use std::sync::Mutex;
 
-use crossterm_winapi::{Coord, Handle, HandleType, is_true, ScreenBuffer};
-use lazy_static::lazy_static;
+use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{CONSOLE_CURSOR_INFO, COORD, SetConsoleCursorInfo, SetConsoleCursorPosition},
+    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
     um::winnt::HANDLE,
 };
+
+use lazy_static::lazy_static;
 
 use crate::utils::Result;
 

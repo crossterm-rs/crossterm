@@ -1,4 +1,4 @@
-use libc::{ioctl, STDOUT_FILENO, TIOCGWINSZ, winsize};
+use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
 use crate::utils::Result;
 

@@ -51,14 +51,14 @@
 //! }
 //! ```
 use cursor::ansi::{self, AnsiCursor};
-use cursor::Cursor;
 #[cfg(windows)]
 use cursor::windows::WinApiCursor;
+use cursor::Cursor;
 
 use crate::impl_display;
-use crate::utils::{Command, Result};
 #[cfg(windows)]
 use crate::utils::supports_ansi;
+use crate::utils::{Command, Result};
 
 mod cursor;
 mod sys;

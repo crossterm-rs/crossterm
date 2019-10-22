@@ -53,16 +53,16 @@ use std::fmt;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{impl_display, write_cout};
-#[doc(no_inline)]
-use crate::utils::{Command, Result};
 #[cfg(windows)]
 use crate::utils::supports_ansi;
+#[doc(no_inline)]
+use crate::utils::{Command, Result};
+use crate::{impl_display, write_cout};
 
 use self::terminal::ansi::AnsiTerminal;
-use self::terminal::Terminal as TerminalTrait;
 #[cfg(windows)]
 use self::terminal::winapi::WinApiTerminal;
+use self::terminal::Terminal as TerminalTrait;
 
 mod sys;
 mod terminal;

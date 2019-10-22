@@ -1,6 +1,6 @@
-use crate::EventSource;
 use crate::input::events::InternalEvent;
-use crate::input::sys::unix::{FileDesc, tty_fd, TtyPoll};
+use crate::input::sys::unix::{tty_fd, FileDesc, TtyPoll};
+use crate::EventSource;
 use crate::InputEvent;
 use crate::Result;
 

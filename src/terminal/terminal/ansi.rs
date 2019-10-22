@@ -1,11 +1,11 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use crate::{csi, write_cout};
 use crate::cursor::TerminalCursor;
 use crate::utils::Result;
+use crate::{csi, write_cout};
 
-use super::{ClearType, super::sys::get_terminal_size, Terminal};
+use super::{super::sys::get_terminal_size, ClearType, Terminal};
 
 pub(crate) static CLEAR_ALL_CSI_SEQUENCE: &'static str = csi!("2J");
 pub(crate) static CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE: &'static str = csi!("J");

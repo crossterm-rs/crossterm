@@ -163,13 +163,13 @@
 
 #[cfg(feature = "cursor")]
 pub use cursor::{
-    BlinkOff, BlinkOn, cursor, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
+    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
     TerminalCursor, Up,
 };
 #[cfg(feature = "input")]
 pub use input::{
-    event_stream, EventIterator, EventPool, EventPoolReadLock, EventPoolWriteLock, EventSource,
-    EventStream, InputEvent, KeyEvent, MouseButton, MouseEvent, poll_event,
+    event_stream, poll_event, EventIterator, EventPool, EventPoolReadLock, EventPoolWriteLock,
+    EventSource, EventStream, InputEvent, KeyEvent, MouseButton, MouseEvent,
 };
 #[cfg(feature = "screen")]
 pub use screen::{
@@ -177,11 +177,11 @@ pub use screen::{
 };
 #[cfg(feature = "style")]
 pub use style::{
-    Attribute, color, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor, SetAttr,
-    SetBg, SetFg, style, StyledObject, Styler, TerminalColor,
+    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
+    SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use terminal::{Clear, ClearType, ScrollDown, ScrollUp, SetSize, terminal, Terminal};
+pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;
