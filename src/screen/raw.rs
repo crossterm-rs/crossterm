@@ -1,7 +1,8 @@
 use std::io::{Stdout, Write};
 
-use crate::screen::sys;
 use crate::utils::Result;
+
+use super::sys;
 
 /// A raw screen.
 ///

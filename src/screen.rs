@@ -50,7 +50,7 @@
 #[allow(unused_imports)]
 use alternate::AlternateScreen as _;
 
-use crate::{Command, Result};
+use crate::utils::{Command, Result};
 
 pub use self::raw::{IntoRawMode, RawScreen};
 
