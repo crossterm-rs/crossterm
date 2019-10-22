@@ -47,8 +47,23 @@ jobs:
     - name: Test Build
       run: cargo build
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Run Tests
+    - name: Test all features
       run: cargo test --all-features -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test cursor Feature
+      run: cargo test --features cursor -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test style Feature
+      run: cargo test --features style -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test terminal Feature
+      run: cargo test --features terminal -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test screen Feature
+      run: cargo test --features screen -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test input Feature
+      run: cargo test --features input -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
       if: matrix.rust == 'stable'
