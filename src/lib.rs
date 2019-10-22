@@ -19,29 +19,38 @@
 //! new code organization, breaking API changes, etc.
 
 #[cfg(feature = "cursor")]
-pub use crossterm_cursor::{
+pub use cursor::{
     cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
     TerminalCursor, Up,
 };
 #[cfg(feature = "input")]
-pub use crossterm_input::{
+pub use input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
-pub use crossterm_screen::{
+pub use screen::{
     AlternateScreen, EnterAlternateScreen, IntoRawMode, LeaveAlternateScreen, RawScreen,
 };
 #[cfg(feature = "style")]
-pub use crossterm_style::{
+pub use style::{
     color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
     SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use crossterm_terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
-pub use crossterm_utils::{
-    execute, queue, Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result,
-};
+pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
+pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;
 
 mod crossterm;
+#[cfg(feature = "cursor")]
+mod cursor;
+#[cfg(feature = "input")]
+mod input;
+#[cfg(feature = "screen")]
+mod screen;
+#[cfg(feature = "style")]
+mod style;
+#[cfg(feature = "terminal")]
+mod terminal;
+mod utils;

@@ -12,34 +12,34 @@ impl Crossterm {
 
     /// Crates a new `TerminalCursor`.
     #[cfg(feature = "cursor")]
-    pub fn cursor(&self) -> crossterm_cursor::TerminalCursor {
-        crossterm_cursor::TerminalCursor::new()
+    pub fn cursor(&self) -> crate::cursor::TerminalCursor {
+        crate::cursor::TerminalCursor::new()
     }
 
     /// Creates a new `TerminalInput`.
     #[cfg(feature = "input")]
-    pub fn input(&self) -> crossterm_input::TerminalInput {
-        crossterm_input::TerminalInput::new()
+    pub fn input(&self) -> crate::input::TerminalInput {
+        crate::input::TerminalInput::new()
     }
 
     /// Creates a new `Terminal`.
     #[cfg(feature = "terminal")]
-    pub fn terminal(&self) -> crossterm_terminal::Terminal {
-        crossterm_terminal::Terminal::new()
+    pub fn terminal(&self) -> crate::terminal::Terminal {
+        crate::terminal::Terminal::new()
     }
 
     /// Creates a new `TerminalColor`.
     #[cfg(feature = "style")]
-    pub fn color(&self) -> crossterm_style::TerminalColor {
-        crossterm_style::TerminalColor::new()
+    pub fn color(&self) -> crate::style::TerminalColor {
+        crate::style::TerminalColor::new()
     }
 
     /// Creates a new `StyledObject`.
     #[cfg(feature = "style")]
-    pub fn style<D>(&self, val: D) -> crossterm_style::StyledObject<D>
+    pub fn style<D>(&self, val: D) -> crate::style::StyledObject<D>
     where
         D: Display + Clone,
     {
-        crossterm_style::ObjectStyle::new().apply_to(val)
+        crate::style::ObjectStyle::new().apply_to(val)
     }
 }

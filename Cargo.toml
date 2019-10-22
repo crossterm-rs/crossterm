@@ -13,20 +13,23 @@ edition = "2018"
 
 [features]
 default = ["cursor", "style", "terminal", "screen", "input"]
-
-cursor = ["crossterm_cursor"]
-style = ["crossterm_style"]
-terminal = ["crossterm_terminal"]
-screen = ["crossterm_screen"]
-input = ["crossterm_input"]
+cursor = ["lazy_static", "input", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
+style = ["lazy_static", "winapi/wincon"]
+terminal = ["cursor"]
+screen = ["winapi/wincon", "winapi/minwindef"]
+input = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
 
 [dependencies]
-crossterm_screen = { version = "0.3.2", optional = true  }
-crossterm_cursor = { version = "0.4.0", optional = true  }
-crossterm_terminal = { version = "0.3.2", optional = true  }
-crossterm_style = { version = "0.5.2", optional = true }
-crossterm_input = { version = "0.5.0", optional = true  }
-crossterm_utils = { version = "0.4.0", optional = false }
+lazy_static = { version = "1.4", optional = true }
+serde = { version = "1.0.0", features = ["derive"], optional = true }
+
+[target.'cfg(windows)'.dependencies]
+winapi = "0.3.8"
+crossterm_winapi = "0.3.0"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.51"
+mio = { version = "0.6.19", optional = true }
 
 [lib]
 name = "crossterm"
