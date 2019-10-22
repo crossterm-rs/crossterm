@@ -104,7 +104,7 @@ mod tests {
         #[cfg(windows)]
         {
             if cfg!(target_os = "windows") {
-                use crossterm_utils::sys::winapi::ansi::set_virtual_terminal_processing;
+                use crate::utils::sys::winapi::ansi::set_virtual_terminal_processing;
 
                 // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
                 match set_virtual_terminal_processing(true) {

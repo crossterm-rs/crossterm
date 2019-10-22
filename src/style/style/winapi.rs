@@ -190,10 +190,10 @@ lazy_static! {
 
 #[cfg(test)]
 mod tests {
-    use crate::style::winapi::{WinApiColor, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED};
-    use crate::{Color, Colored};
-
-    use super::ORIGINAL_CONSOLE_COLOR;
+    use super::{
+        Color, Colored, WinApiColor, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED,
+        ORIGINAL_CONSOLE_COLOR,
+    };
 
     #[test]
     fn test_parse_fg_color() {
