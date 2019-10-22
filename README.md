@@ -86,7 +86,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.11"
+crossterm = "0.12"
 ```
 
 </details>
@@ -117,57 +117,18 @@ All features are enabled by default. You can disable default features and enable
 
 ```toml
 [dependencies.crossterm]
-version = "0.11"
+version = "0.12"
 default-features = false        # Disable default features
 features = ["cursor", "screen"] # Enable required features only
 ```
 
-| Feature | Description | Links |
-| :-- | :-- | :-- |
-| `input` | Sync/Async input readers | [API documentation](https://docs.rs/crossterm_input), [crates.io](https://crates.io/crates/crossterm_input), [GitHub](https://github.com/crossterm-rs/crossterm-input) |
-| `cursor` | Cursor manipulation | [API documentation](https://docs.rs/crossterm_cursor), [crates.io](https://crates.io/crates/crossterm_cursor), [GitHub](https://github.com/crossterm-rs/crossterm-cursor) |
-| `screen` | Alternate screen & raw mode | [API documentation](https://docs.rs/crossterm_screen), [crates.io](https://crates.io/crates/crossterm_screen), [GitHub](https://github.com/crossterm-rs/crossterm-screen) |
-| `terminal` | Size, clear, scroll | [API documentation](https://docs.rs/crossterm_terminal), [crates.io](https://crates.io/crates/crossterm_terminal), [GitHub](https://github.com/crossterm-rs/crossterm-terminal) |
-| `style` | Colors, text attributes | [API documentation](https://docs.rs/crossterm_style), [crates.io](https://crates.io/crates/crossterm_style), [GitHub](https://github.com/crossterm-rs/crossterm-style) |
-
-### `crossterm` vs `crossterm_*` crates
-
-There're two ways how to use the Crossterm library:
-
-* `crossterm` crate with the `cursor` feature flag,
-* `crossterm_cursor` crate.
-
-Both provide same functionality, the only difference is the namespace (`crossterm` vs `crossterm_cursor`).
-
-The first way (`crossterm` crate with feature flags) is preferred. The second way will be
-deprecated and no longer supported soon. The `crossterm_*` crates will be marked as deprecated and
-repositories archived on the GitHub. See the
-[Merge sub-crates to the crossterm crate](https://github.com/crossterm-rs/crossterm/issues/265)
-for more details.
-
-#### `crossterm` crate:
-
-```toml
-[dependencies.crossterm]
-version = "0.11"
-default-features = false        # Disable default features
-features = ["cursor"]           # Enable cursor feature only
-```
-
-```rust
-use crossterm::cursor;
-```
-
-#### `crossterm_cursor` crate:
-
-```toml
-[dependencies]
-crossterm_cursor = "0.3"
-```
-
-```rust
-use crossterm_cursor::cursor;
-```
+| Feature | Description |
+| :-- | :-- |
+| `input` | Sync/Async input readers |
+| `cursor` | Cursor manipulation |
+| `screen` | Alternate screen & raw mode |
+| `terminal` | Size, clear, scroll |
+| `style` | Colors, text attributes |
 
 ### Other Resources
 

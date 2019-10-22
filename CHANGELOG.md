@@ -1,3 +1,10 @@
+# Version 0.12.1
+
+- All the `crossterm_` crates code was moved to the `crossterm` crate
+  - `crossterm_cursor` is in the `cursor` module, etc.
+  - All these modules are public
+- No public API breaking changes
+
 # Version 0.12.0
 
 - Following crates are deprecated and no longer maintained

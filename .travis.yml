@@ -34,3 +34,8 @@ script:
   - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build
   - cargo test --all-features -- --nocapture --test-threads 1
+  - cargo test --features cursor -- --nocapture --test-threads 1
+  - cargo test --features style -- --nocapture --test-threads 1
+  - cargo test --features terminal -- --nocapture --test-threads 1
+  - cargo test --features screen -- --nocapture --test-threads 1
+  - cargo test --features input -- --nocapture --test-threads 1
