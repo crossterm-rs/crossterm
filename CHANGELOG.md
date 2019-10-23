@@ -1,7 +1,10 @@
 # Next Version
 
 - Derived 'Copy' for 'KeyEvent'
-
+- Removed old API
+    - Removed: `TerminalCursor`, `cursor`, `Crossterm::cursor`
+    - Moved: `TerminalCursor::pos` => `crossterm::pos`
+     
 # Version 0.12.1
 
 - All the `crossterm_` crates code was moved to the `crossterm` crate
