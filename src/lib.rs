@@ -180,7 +180,7 @@ pub use style::{
     SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]
-pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
+pub use terminal::{exit, size, Clear, ClearType, ScrollDown, ScrollUp, SetSize};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;

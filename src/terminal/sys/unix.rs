@@ -2,11 +2,11 @@ use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
 use crate::utils::Result;
 
-pub(crate) fn exit() {
+pub fn exit() {
     ::std::process::exit(0);
 }
 
-pub(crate) fn get_terminal_size() -> Result<(u16, u16)> {
+pub fn get_terminal_size() -> Result<(u16, u16)> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let mut size = winsize {
         ws_row: 0,

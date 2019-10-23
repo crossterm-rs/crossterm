@@ -9,34 +9,14 @@
 //!
 //! ## Examples
 //!
-//! ```no_run
-//! use crossterm::{Result, Terminal};
-//!
-//! fn main() -> Result<()> {
-//!     // Get a terminal, save size
-//!     let terminal = Terminal::new();
-//!     let (cols, rows) = terminal.size()?;
-//!
-//!     // Do something with the terminal
-//!     terminal.set_size(10, 10)?;
-//!     terminal.scroll_up(5)?;
-//!
-//!     // Be a good citizen, cleanup
-//!     terminal.set_size(cols, rows)
-//! }
-//! ```
-//!
 //! Commands:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, Result, ScrollUp, SetSize, Terminal};
+//! use crossterm::{execute, Result, ScrollUp, SetSize, size};
 //!
 //! fn main() -> Result<()> {
-//!     // Get a terminal, save size
-//!     let terminal = Terminal::new();
-//!     let (cols, rows) = terminal.size()?;
-//!
+//!     let (cols, rows) = size();
 //!     // Do something with the terminal
 //!     execute!(
 //!         stdout(),
@@ -45,27 +25,22 @@
 //!     )?;
 //!
 //!     // Be a good citizen, cleanup
-//!     terminal.set_size(cols, rows)
+//!     set_size(cols, rows)
 //! }
 //! ```
-use std::fmt;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-#[cfg(windows)]
-use crate::utils::supports_ansi;
+use crate::impl_display;
 #[doc(no_inline)]
 use crate::utils::{Command, Result};
-use crate::{impl_display, write_cout};
 
-use self::terminal::ansi::AnsiTerminal;
-#[cfg(windows)]
-use self::terminal::winapi::WinApiTerminal;
-use self::terminal::Terminal as TerminalTrait;
-
+mod ansi;
 mod sys;
-mod terminal;
+
+pub use sys::exit;
+pub use sys::get_terminal_size as size;
 
 /// Represents different options how to clear the terminal.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -83,127 +58,6 @@ pub enum ClearType {
     UntilNewLine,
 }
 
-/// A terminal.
-///
-/// The `Terminal` instance is stateless and does not hold any data.
-/// You can create as many instances as you want and they will always refer to the
-/// same terminal.
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::{Result, Terminal};
-///
-/// fn main() -> Result<()> {
-///     let terminal = Terminal::new();
-///     let (cols, rows) = terminal.size()?;
-///
-///     terminal.set_size(10, 10)?;
-///     terminal.scroll_up(5)?;
-///
-///     terminal.set_size(cols, rows)
-/// }
-/// ```
-pub struct Terminal {
-    #[cfg(windows)]
-    terminal: Box<(dyn TerminalTrait + Sync + Send)>,
-    #[cfg(unix)]
-    terminal: AnsiTerminal,
-}
-
-impl Terminal {
-    /// Creates a new `Terminal`.
-    pub fn new() -> Terminal {
-        #[cfg(windows)]
-        let terminal = if supports_ansi() {
-            Box::from(AnsiTerminal::new()) as Box<(dyn TerminalTrait + Sync + Send)>
-        } else {
-            WinApiTerminal::new() as Box<(dyn TerminalTrait + Sync + Send)>
-        };
-
-        #[cfg(unix)]
-        let terminal = AnsiTerminal::new();
-
-        Terminal { terminal }
-    }
-
-    /// Clears the terminal.
-    ///
-    /// See the [`ClearType`](enum.ClearType.html) enum to learn about
-    /// all ways how the terminal can be cleared.
-    pub fn clear(&self, clear_type: ClearType) -> Result<()> {
-        self.terminal.clear(clear_type)
-    }
-
-    /// Returns the terminal size (`(columns, rows)`).
-    pub fn size(&self) -> Result<(u16, u16)> {
-        self.terminal.size()
-    }
-
-    /// Scrolls the terminal `row_count` rows up.
-    pub fn scroll_up(&self, row_count: u16) -> Result<()> {
-        self.terminal.scroll_up(row_count)
-    }
-
-    /// Scrolls the terminal `row_count` rows down.
-    pub fn scroll_down(&self, row_count: u16) -> Result<()> {
-        self.terminal.scroll_down(row_count)
-    }
-
-    /// Sets the terminal size.
-    pub fn set_size(&self, columns: u16, rows: u16) -> Result<()> {
-        self.terminal.set_size(columns, rows)
-    }
-
-    /// Exits the current process.
-    ///
-    /// # Platform-specific Behavior
-    ///
-    /// [`std::process::exit`](https://doc.rust-lang.org/std/process/fn.exit.html) is
-    /// called internally with platform specific exit codes.
-    ///
-    /// **Unix**: exit code 0.
-    ///
-    /// **Windows**: exit code 256.
-    pub fn exit(&self) {
-        crate::terminal::sys::exit();
-    }
-
-    /// Writes any displayable content to the current terminal and flushes
-    /// the standard output.
-    pub fn write<D: fmt::Display>(&self, value: D) -> Result<usize> {
-        write_cout!(format!("{}", value))
-    }
-}
-
-/// Creates a new `Terminal`.
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::{terminal, Result};
-///
-/// fn main() -> Result<()> {
-///     // Get a terminal, save size
-///     let terminal = terminal();
-///     let (cols, rows) = terminal.size()?;
-///
-///     // Do something with the terminal
-///     terminal.set_size(10, 10)?;
-///     terminal.scroll_up(5)?;
-///
-///     // Be a good citizen, cleanup
-///     terminal.set_size(cols, rows)
-/// }
-/// ```
-pub fn terminal() -> Terminal {
-    Terminal::new()
-}
-
 /// A command to scroll the terminal given rows up.
 ///
 /// # Notes
@@ -215,12 +69,12 @@ impl Command for ScrollUp {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        terminal::ansi::scroll_up_csi_sequence(self.0)
+        ansi::scroll_up_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiTerminal::new().scroll_up(self.0)
+        sys::scroll_up(self.0)
     }
 }
 
@@ -235,12 +89,12 @@ impl Command for ScrollDown {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        terminal::ansi::scroll_down_csi_sequence(self.0)
+        ansi::scroll_down_csi_sequence(self.0)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiTerminal::new().scroll_down(self.0)
+        sys::scroll_down(self.0)
     }
 }
 
@@ -258,17 +112,17 @@ impl Command for Clear {
 
     fn ansi_code(&self) -> Self::AnsiType {
         match self.0 {
-            ClearType::All => terminal::ansi::CLEAR_ALL_CSI_SEQUENCE,
-            ClearType::FromCursorDown => terminal::ansi::CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE,
-            ClearType::FromCursorUp => terminal::ansi::CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE,
-            ClearType::CurrentLine => terminal::ansi::CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE,
-            ClearType::UntilNewLine => terminal::ansi::CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE,
+            ClearType::All => ansi::CLEAR_ALL_CSI_SEQUENCE,
+            ClearType::FromCursorDown => ansi::CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE,
+            ClearType::FromCursorUp => ansi::CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE,
+            ClearType::CurrentLine => ansi::CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE,
+            ClearType::UntilNewLine => ansi::CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE,
         }
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiTerminal::new().clear(self.0.clone())
+        sys::clear(self.0.clone())
     }
 }
 
@@ -283,12 +137,12 @@ impl Command for SetSize {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        terminal::ansi::set_size_csi_sequence(self.0, self.1)
+        ansi::set_size_csi_sequence(self.0, self.1)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiTerminal::new().set_size(self.0, self.1)
+        sys::set_size(self.0, self.1)
     }
 }
 
