@@ -1,9 +1,8 @@
 //! This is an `ANSI escape code` specific implementation for terminal related action.
 //! This module is used for windows 10 terminals and unix terminals by default.
 
-use crate::cursor::TerminalCursor;
 use crate::utils::Result;
-use crate::{csi, write_cout};
+use crate::{csi, write_cout, Goto};
 
 use super::{super::sys::get_terminal_size, ClearType, Terminal};
 
@@ -45,7 +44,7 @@ impl Terminal for AnsiTerminal {
         };
 
         if clear_type == ClearType::All {
-            TerminalCursor::new().goto(0, 0)?;
+            write_cout!(Goto(0, 0))?;
         }
 
         Ok(())

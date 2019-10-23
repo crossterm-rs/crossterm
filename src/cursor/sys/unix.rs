@@ -7,7 +7,7 @@ use crate::utils::{
 };
 use crate::{csi, write_cout};
 
-pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
+pub fn get_cursor_position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
         pos_raw()
     } else {

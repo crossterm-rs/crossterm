@@ -14,13 +14,58 @@ use lazy_static::lazy_static;
 
 use crate::utils::Result;
 
-pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
+pub fn get_cursor_position() -> Result<(u16, u16)> {
     let cursor = ScreenBufferCursor::new()?;
     Ok(cursor.position()?.into())
 }
 
 pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     ScreenBufferCursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
+}
+
+pub(crate) fn goto(x: u16, y: u16) -> Result<()> {
+    let cursor = ScreenBufferCursor::new()?;
+    cursor.goto(x as i16, y as i16)?;
+    Ok(())
+}
+
+pub(crate) fn pos() -> Result<(u16, u16)> {
+    let cursor = ScreenBufferCursor::new()?;
+    Ok(cursor.position()?.into())
+}
+
+pub(crate) fn move_up(count: u16) -> Result<()> {
+    let (xpos, ypos) = pos()?;
+    goto(xpos, ypos - count)?;
+    Ok(())
+}
+
+pub(crate) fn move_right(count: u16) -> Result<()> {
+    let (xpos, ypos) = pos()?;
+    goto(xpos + count, ypos)?;
+    Ok(())
+}
+
+pub(crate) fn move_down(count: u16) -> Result<()> {
+    let (xpos, ypos) = pos()?;
+    goto(xpos, ypos + count)?;
+    Ok(())
+}
+
+pub(crate) fn move_left(count: u16) -> Result<()> {
+    let (xpos, ypos) = pos()?;
+    goto(xpos - count, ypos)?;
+    Ok(())
+}
+
+pub(crate) fn save_position() -> Result<()> {
+    ScreenBufferCursor::save_cursor_pos()?;
+    Ok(())
+}
+
+pub(crate) fn restore_position() -> Result<()> {
+    ScreenBufferCursor::restore_cursor_pos()?;
+    Ok(())
 }
 
 lazy_static! {
