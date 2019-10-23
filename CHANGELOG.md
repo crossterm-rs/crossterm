@@ -1,6 +1,9 @@
 # Next Version
 
 - Derived 'Copy' for 'KeyEvent'
+- Removed old API
+    - Removed: `Terminal`, `terminal`, `Crossterm::terminal`
+    - Moved: `Terminal::size` => `crossterm::size` 
 
 # Version 0.12.1
 
