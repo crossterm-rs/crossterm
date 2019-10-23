@@ -16,7 +16,7 @@
 //! use crossterm::{execute, Result, ScrollUp, SetSize, size};
 //!
 //! fn main() -> Result<()> {
-//!     let (cols, rows) = size();
+//!     let (cols, rows) = size()?;
 //!     // Do something with the terminal
 //!     execute!(
 //!         stdout(),
@@ -25,9 +25,13 @@
 //!     )?;
 //!
 //!     // Be a good citizen, cleanup
-//!     set_size(cols, rows)
+//!     execute!(stdout(), SetSize(cols, rows))?;
+//!     Ok(())
 //! }
 //! ```
+
+pub use sys::exit;
+pub use sys::get_terminal_size as size;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -38,9 +42,6 @@ use crate::utils::{Command, Result};
 
 mod ansi;
 mod sys;
-
-pub use sys::exit;
-pub use sys::get_terminal_size as size;
 
 /// Represents different options how to clear the terminal.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
