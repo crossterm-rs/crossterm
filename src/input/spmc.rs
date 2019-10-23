@@ -9,7 +9,7 @@ pub(crate) struct EventChannel {
     event_channel: Arc<RwLock<shrev::EventChannel<InputEvent>>>,
 }
 
-impl<'b> EventChannel {
+impl EventChannel {
     /// Constructs a new spmc `InputEventChannel`.
     pub(crate) fn channel(event_channel: shrev::EventChannel<InputEvent>) -> EventChannel {
         EventChannel {
@@ -23,7 +23,7 @@ impl<'b> EventChannel {
     }
 
     /// Tries to acquire the producer that can sent input events to the consumers.
-    pub(crate) fn producer<'a>(&mut self) -> ProducerLock<'_> {
+    pub(crate) fn producer(&mut self) -> ProducerLock<'_> {
         ProducerLock::from_lock_result(self.event_channel.write())
     }
 }
