@@ -162,7 +162,7 @@
 //!```
 
 #[cfg(feature = "cursor")]
-pub use cursor::{BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show, Up};
+pub use cursor::{BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show, Up, pos};
 #[cfg(feature = "input")]
 pub use input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
