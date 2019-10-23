@@ -3,14 +3,27 @@ use crate::input::spmc::EventConsumer;
 use crate::EventIterator;
 use crate::{InputEvent, KeyEvent, MouseEvent};
 
-/// An input stream that can be used to read occurred key events.
+/// An event stream that can be used to read occurred events.
+///
+/// Use [`event_stream`](..link) to obtain an `EventStream`.
+///
+/// ```no_run
+/// use crossterm::event_stream;
+///
+/// fn main() {
+///     let mut event_stream = event_stream();
+///
+///     let occurred_key_events = event_stream.key_events();
+///     let occurred_mouse_events = event_stream.mouse();
+///     let occurred_key_events = event_stream.events();
+/// ```
 pub struct EventStream {
     channel_reader: EventConsumer,
     event_cache: Vec<InputEvent>,
 }
 
 impl<'a> EventStream {
-    /// Constructs a new `InputStream` by passing in the consumer responsible for receiving input events.
+    /// Constructs a new `EventStream` by passing in the consumer responsible for receiving events.
     pub(crate) fn new(channel_reader: EventConsumer) -> EventStream {
         EventStream {
             channel_reader,

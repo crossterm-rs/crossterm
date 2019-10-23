@@ -11,34 +11,72 @@ use crate::EventStream;
 use crate::{EventSource, Result};
 
 lazy_static! {
-    /// Static event pool that can be used to read input events.
-    pub static ref INPUT: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
+    /// Static instance of `EventPool`.
+    /// This needs to be static because there can be one event reader.
+    pub static ref EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
 }
 
-/// Returns a event stream that can be used to read input events with.
+/// Returns a `EventStream` that can be used to read input events with.
+///
+/// Note that in order for the stream to receive events you have to call [`poll_event`](..link) first.
+///
+/// ```no_run
+/// use crossterm::{event_stream, poll_event, RawScreen};
+///
+/// fn main () {
+///     let r = RawScreen::into_raw_mode().unwrap();
+///
+///     let mut stream = event_stream();
+///
+///     while true {
+///         poll_event();
+///
+///         for event in stream.key_events() {
+///             println!("{:?}", event);
+///         }
+///     }
+/// }
+/// ```
 pub fn event_stream() -> EventStream {
     let lock = EventPool::get();
     lock.pool().event_stream()
 }
 
-/// Polls for input from the underlying input source.
+/// Polls for occurred events.
 ///
-/// An input event will be replicated to all consumers aka streams if an input event has occurred.
-/// This poll function will block read for a single key press.
+/// An input event will be replicated to all `EventStreams` when an event has occurred.
+/// This function will wait until an event read until an event is risen.
 pub fn poll_event() -> Result<()> {
     let mut lock = EventPool::get_mut();
     lock.pool().poll()
 }
 
-/// An event pool is a pool that takes care of polling for new input.
-/// Before you are able to use the input pool, you have to acquire a lock for it.
-/// That prevents race conditions while reading input from certain sources.
+/// Produces events to consumers.
+///
+/// There should one and only one instance of this type.
+///
+/// The `EventPool` is responsible for:
+/// - creating `EventStreams`
+/// - passing events listening `EventStreams`
+/// - manage the producer
+///
+/// You can get an instance to this pool by acuring either the read-only or write lock for it:
+///
+/// ```no_run
+/// use crossterm::EventPool;
+///
+/// let read_only = EventPool::get().pool();
+/// let read_only = EventPool::get_mut().pool;
+/// ```
+///
+/// Not that one can obtain only one writer and multiple readers.
 pub struct EventPool {
     pub(crate) event_channel: EventChannel,
     event_source: Box<dyn EventSource>,
 }
 
 impl EventPool {
+    /// Construct an new instance of `EventPool`.
     pub(crate) fn new() -> EventPool {
         #[cfg(windows)]
         let input = WinApiEventSource::new();
@@ -51,19 +89,19 @@ impl EventPool {
         }
     }
 
-    /// Returns a event stream that can be used to read input events with.
-    pub fn event_stream(&self) -> EventStream {
+    /// Returns a [`EventStream`](struct.EventStream.html) that will consume events produced by the producer.
+    pub(crate) fn event_stream(&self) -> EventStream {
         EventStream::new(self.event_channel.new_consumer())
     }
 
-    /// Acquires the `InputPool`, this can be used when you want mutable access to this pool.
+    /// Acquires an write lock to `EventPool`.
     pub fn get_mut<'a>() -> EventPoolWriteLock<'a> {
-        EventPoolWriteLock::from_lock_result(INPUT.write().unwrap_or_else(|e| e.into_inner()))
+        EventPoolWriteLock::from_lock_result(EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
     }
 
-    /// Acquires the `InputPool`, this can be used when you want mutable access to this pool.
+    /// Acquires an read-only lock to `EventPool`.
     pub fn get<'a>() -> EventPoolReadLock<'a> {
-        EventPoolReadLock::from_lock_result(INPUT.read().unwrap_or_else(|e| e.into_inner()))
+        EventPoolReadLock::from_lock_result(EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
     }
 
     /// Changes the default input source to the given input source.
@@ -85,12 +123,14 @@ impl EventPool {
         Ok(())
     }
 
+    /// Enables mouse events to be monitored.
     pub fn enable_mouse_events() {}
 
+    /// Disables mouse events to be monitored.
     pub fn disable_mouse_events() {}
 }
 
-/// An acquired write lock to the event channel producer.
+/// An acquired read lock to the event channel pool.
 pub struct EventPoolReadLock<'a> {
     read_guard: RwLockReadGuard<'a, EventPool>,
 }
@@ -102,12 +142,13 @@ impl<'a> EventPoolReadLock<'a> {
         EventPoolReadLock { read_guard }
     }
 
+    /// Returns the obtained read lock to the pool.
     pub fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
         &self.read_guard
     }
 }
 
-/// An acquired write lock to the event channel producer.
+/// An acquired write lock to the event pool.
 pub struct EventPoolWriteLock<'a> {
     write_guard: RwLockWriteGuard<'a, EventPool>,
 }
@@ -119,6 +160,7 @@ impl<'a> EventPoolWriteLock<'a> {
         EventPoolWriteLock { write_guard }
     }
 
+    /// Returns the obtained write lock to the pool.
     pub fn pool(&mut self) -> &mut RwLockWriteGuard<'a, EventPool> {
         &mut self.write_guard
     }

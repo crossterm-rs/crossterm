@@ -4,7 +4,7 @@ use shrev::{self, ReaderId};
 
 use crate::InputEvent;
 
-/// Single producer multiple consumers channel (SPMC) for input sharing.
+/// Single producer multiple consumers channel (SPMC) for event sharing.
 pub(crate) struct EventChannel {
     event_channel: Arc<RwLock<shrev::EventChannel<InputEvent>>>,
 }
