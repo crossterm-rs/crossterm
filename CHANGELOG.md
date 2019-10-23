@@ -1,3 +1,7 @@
+# Next Version
+
+- Derived 'Copy' for 'KeyEvent'
+
 # Version 0.12.1
 
 - All the `crossterm_` crates code was moved to the `crossterm` crate
@@ -34,7 +38,7 @@
   - Remove all references to the crossterm book
 - Sync documentation style ([PR #4](https://github.com/crossterm-rs/crossterm-input/pull/4))
 - Sync `SyncReader::next()` Windows and UNIX behavior ([PR #5](https://github.com/crossterm-rs/crossterm-input/pull/5))
-- Remove all references to the crossterm book ([PR #6](https://github.com/crossterm-rs/crossterm-input/pull/6)) 
+- Remove all references to the crossterm book ([PR #6](https://github.com/crossterm-rs/crossterm-input/pull/6))
 - Mouse coordinates synchronized with the cursor ([PR #7](https://github.com/crossterm-rs/crossterm-input/pull/7))
   - Upper/left reported as `(0, 0)`
 - Fixed bug that read sync didn't block (Windows) ([PR #8](https://github.com/crossterm-rs/crossterm-input/pull/8))
@@ -46,7 +50,7 @@
   - Fixed `SIGTTIN` when executed under the LLDB
   - Added mio for reading from FD and more efficient polling (UNIX only)
 - Sync UNIX and Windows vertical mouse position ([PR #11](https://github.com/crossterm-rs/crossterm-input/pull/11))
-  - Top is always reported as `0` 
+  - Top is always reported as `0`
 
 ## `crossterm_screen` 0.3.2
 
@@ -63,7 +67,7 @@
 ## `crossterm_style` 0.5.2
 
 - Refactoring ([PR #2](https://github.com/crossterm-rs/crossterm-style/pull/2))
-  - Added unit tests 
+  - Added unit tests
   - Restructured files
   - Improved documentation and added book page to lib.rs
   - Fixed bug with `SetBg` command, WinApi logic
@@ -104,7 +108,7 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 
 - Code Cleanup: [warning-cleanup], [crossterm_style-cleanup], [crossterm_screen-cleanup], [crossterm_terminal-cleanup], [crossterm_utils-cleanup], [2018-cleanup], [api-cleanup-1], [api-cleanup-2], [api-cleanup-3]
 - Examples: [example-cleanup_1], [example-cleanup_2], [example-fix], [commandbar-fix], [snake-game-improved]
-- Fixed all broken tests and added tests 
+- Fixed all broken tests and added tests
 
 ### Important Changes
 
@@ -122,10 +126,10 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
          * `RawScreen::disable_raw_mode` returns `crossterm::Result` instead of `io::Result`
          * `AlternateScreen::to_alternate` returns `crossterm::Result` instead of `io::Result`
          * `TerminalInput::read_line` returns `crossterm::Result` instead of `io::Result`
-         * `TerminalInput::read_char` returns `crossterm::Result` instead of `io::Result`     
-         * Maybe I forgot something, a lot of functions have changed    
+         * `TerminalInput::read_char` returns `crossterm::Result` instead of `io::Result`
+         * Maybe I forgot something, a lot of functions have changed
      - Removed all unwraps/expects from library
-- Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab] 
+- Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab]
 - Synced set/get terminal size behaviour: [fixed-get-set-terminal-size]
 - Method renames:
     * `AsyncReader::stop_reading()` to `stop()`
@@ -171,7 +175,7 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 # Version 0.10.0 ~ yanked
 - Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/crossterm-rs/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/crossterm-rs/crossterm/issues/171)
 - Fixed showing, hiding cursor windows implementation
-- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd) 
+- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd)
 - Made terminal size 1-based [PR](https://github.com/crossterm-rs/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
 - Added some derive implementation
 
@@ -215,20 +219,20 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 This release is all about moving to a stabilized API for 1.0.
 
 - Major refactor and cleanup.
-- Improved performance; 
-    - No locking when writing to stdout. 
-    - UNIX doesn't have any dynamic dispatch anymore. 
+- Improved performance;
+    - No locking when writing to stdout.
+    - UNIX doesn't have any dynamic dispatch anymore.
     - Windows has improved the way to check if ANSI modes are enabled.
     - Removed lot's of complex API calls: `from_screen`, `from_output`
-    - Removed `Arc<TerminalOutput>` from all internal Api's. 
+    - Removed `Arc<TerminalOutput>` from all internal Api's.
 - Removed termios dependency for UNIX systems.
 - Upgraded deps.
 - Removed about 1000 lines of code
-    - `TerminalOutput` 
+    - `TerminalOutput`
     - `Screen`
     - unsafe code
     - Some duplicated code introduced by a previous refactor.
-- Raw modes UNIX systems improved     
+- Raw modes UNIX systems improved
 - Added `NoItalic` attribute
 
 ## Version 0.8.2
@@ -317,9 +321,9 @@ This release is all about moving to a stabilized API for 1.0.
 
 # Version 0.3.0
 
-This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed. 
+This version has some braking changes check [upgrade manual](UPGRADE%20Manual.md) for more information about what is changed.
 I think you should not switch to version `0.3.0` if you aren't going to use the AlternateScreen feature.
-Because you will have some work to get to the new version of crossterm depending on your situation. 
+Because you will have some work to get to the new version of crossterm depending on your situation.
 
 Some Features crossterm 0.3.0
 - Alternate Screen for windows and unix systems.
@@ -331,18 +335,18 @@ Some Features crossterm 0.3.0
 
 ## Alternate screen
 
-This create supports alternate screen for both windows and unix systems. You can use 
+This create supports alternate screen for both windows and unix systems. You can use
 
 *Nix style applications often utilize an alternate screen buffer, so that they can modify the entire contents of the buffer, without affecting the application that started them.
 The alternate buffer is exactly the dimensions of the window, without any scrollback region.
 For an example of this behavior, consider when vim is launched from bash.
 Vim uses the entirety of the screen to edit the file, then returning to bash leaves the original buffer unchanged.
 
-I Highly recommend you to check the `examples/program_examples/first_depth_search` for seeing this in action. 
+I Highly recommend you to check the `examples/program_examples/first_depth_search` for seeing this in action.
 
 ## Raw screen
 
-This crate now supports raw screen for both windows and unix systems. 
+This crate now supports raw screen for both windows and unix systems.
 What exactly is raw state:
 - No line buffering.
    Normally the terminals uses line buffering. This means that the input will be send to the terminal line by line.
@@ -354,7 +358,7 @@ What exactly is raw state:
   Special character have no meaning, like backspace will not be interpret as backspace but instead will be directly send to the terminal.
 With these modes you can easier design the terminal screen.
 
-## Some functionalities added 
+## Some functionalities added
 
 - Hiding and showing terminal cursor
 - Enable or disabling blinking of the cursor for unix systems (this is not widely supported)
@@ -363,7 +367,7 @@ With these modes you can easier design the terminal screen.
 - Exit the current running process
 
 ## Examples
-Added [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) for each version of the crossterm version. 
+Added [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) for each version of the crossterm version.
 Also added a folder with some [real life examples](https://github.com/crossterm-rs/crossterm/tree/master/examples/program_examples).
 
 ## Context
@@ -373,52 +377,52 @@ These points are related to the features like `Alternatescreen` and managing the
 
 - At first `Terminal state`:
 
-    Because this is a terminal manipulating library there will be made changes to terminal when running an process. 
-    If you stop the process you want the terminal back in its original state. 
-    Therefore, I need to track the changes made to the terminal. 
- 
+    Because this is a terminal manipulating library there will be made changes to terminal when running an process.
+    If you stop the process you want the terminal back in its original state.
+    Therefore, I need to track the changes made to the terminal.
+
 - At second `Handle to the console`
 
-    In Rust we can use `stdout()` to get an handle to the current default console handle. 
-    For example when in unix systems you want to print something to the main screen you can use the following code: 
+    In Rust we can use `stdout()` to get an handle to the current default console handle.
+    For example when in unix systems you want to print something to the main screen you can use the following code:
 
         write!(std::io::stdout(), "{}", "some text").
 
-    But things change when we are in alternate screen modes. 
+    But things change when we are in alternate screen modes.
     We can not simply use `stdout()` to get a handle to the alternate screen, since this call returns the current default console handle (handle to mainscreen).
-    
-    Because of that we need to store an handle to the current screen. 
+
+    Because of that we need to store an handle to the current screen.
     This handle could be used to put into alternate screen modes and back into main screen modes.
     Through this stored handle Crossterm can execute its command and write on and to the current screen whether it be alternate screen or main screen.
-    
-    For unix systems we store the handle gotten from `stdout()` for windows systems that are not supporting ANSI escape codes we store WinApi `HANDLE` struct witch will provide access to the current screen. 
-    
-So to recap this `Context` struct is a wrapper for a type that manges terminal state changes. 
+
+    For unix systems we store the handle gotten from `stdout()` for windows systems that are not supporting ANSI escape codes we store WinApi `HANDLE` struct witch will provide access to the current screen.
+
+So to recap this `Context` struct is a wrapper for a type that manges terminal state changes.
 When this `Context` goes out of scope all changes made will be undone.
 Also is this `Context` is a wrapper for access to the current console screen.
 
-Because Crossterm needs access to the above to types quite often I have chosen to add those two in one struct called `Context` so that this type could be shared throughout library. 
-Check this link for more info: [cleanup of rust code](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library). 
+Because Crossterm needs access to the above to types quite often I have chosen to add those two in one struct called `Context` so that this type could be shared throughout library.
+Check this link for more info: [cleanup of rust code](https://stackoverflow.com/questions/48732387/how-can-i-run-clean-up-code-in-a-rust-library).
 More info over writing to alternate screen buffer on windows and unix see this [link](https://github.com/crossterm-rs/crossterm/issues/17)
 
 __Now the user has to pass an context type to the modules of Crossterm like this:__
-      
+
       let context = Context::new();
-      
+
       let cursor = cursor(&context);
       let terminal = terminal(&context);
       let color = color(&context);
-    
+
 Because this looks a little odd I will provide a type withs will manage the `Context` for you. You can call the different modules like the following:
 
       let crossterm = Crossterm::new();
       let color = crossterm.color();
       let cursor = crossterm.cursor();
       let terminal = crossterm.terminal();
-     
-      
+
+
 ### Alternate screen
-When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly. 
+When you want to switch to alternate screen there are a couple of things to keep in mind for it to work correctly.
 First off some code of how to switch to Alternate screen, for more info check the [alternate screen example](https://github.com/crossterm-rs/crossterm/blob/master/examples/alternate_screen.rs).
 
 _Create alternate screen from `Context`_
@@ -426,22 +430,22 @@ _Create alternate screen from `Context`_
         // create context.
         let context = crossterm::Context::new();
         // create instance of Alternatescreen by the given context, this wil also switch to it.
-        let mut screen = crossterm::AlternateScreen::from(context.clone());        
+        let mut screen = crossterm::AlternateScreen::from(context.clone());
         // write to the alternate screen.
         write!(screen,  "test");
-        
+
 _Create alternate screen from `Crossterm`:_
 
         // create context.
         let crossterm = ::crossterm::Crossterm::new();
         // create instance of Alternatescreen by the given refrence to crossterm, this wil also switch to it.
-        let mut screen = crossterm::AlternateScreen::from(&crossterm);        
+        let mut screen = crossterm::AlternateScreen::from(&crossterm);
         // write to the alternate screen.
         write!(screen,  "test");
-         
+
 like demonstrated above, to get the functionalities of `cursor(), color(), terminal()` also working on alternate screen.
 You need to pass it the same `Context` as you have passed to the previous three called functions,
-If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/crossterm-rs/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it. 
+If you don't use the same `Context` in `cursor(), color(), terminal()` than these modules will be using the main screen and you will not see anything at the alternate screen. If you use the [Crossterm](https://github.com/crossterm-rs/crossterm/blob/master/src/shared/crossterm.rs) type you can get the `Context` from it by calling the crossterm.get_context() whereafter you can create the AlternateScreen from it.
 
 # Version 0.2.2
 
@@ -457,8 +461,8 @@ If you don't use the same `Context` in `cursor(), color(), terminal()` than thes
 
 # Version 0.2
 
-- 256 color support. 
-- Text Attributes like: bold, italic, underscore and crossed word ect. 
+- 256 color support.
+- Text Attributes like: bold, italic, underscore and crossed word ect.
 - Custom ANSI color code input to set fore- and background color for unix.
-- Storing the current cursor position and resetting to that stored cursor position later. 
+- Storing the current cursor position and resetting to that stored cursor position later.
 - Resizing the terminal.
