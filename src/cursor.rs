@@ -295,6 +295,7 @@ mod tests {
     use std::io::{self, stdout, Write};
 
     #[test]
+    #[ignore]
     fn test_move_to() {
         let (saved_x, saved_y) = position().unwrap();
 
@@ -306,6 +307,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_move_right() {
         let (saved_x, saved_y) = position().unwrap();
         execute!(io::stdout(), MoveRight(1)).unwrap();
@@ -313,18 +315,21 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_move_left() {
         execute!(stdout(), MoveTo(2, 0), MoveLeft(2)).unwrap();
         assert_eq!(position().unwrap(), (0, 0));
     }
 
     #[test]
+    #[ignore]
     fn test_move_up() {
         execute!(stdout(), MoveTo(0, 2), MoveUp(2)).unwrap();
         assert_eq!(position().unwrap(), (0, 0));
     }
 
     #[test]
+    #[ignore]
     fn test_move_down() {
         execute!(stdout(), MoveTo(0, 0), MoveDown(2)).unwrap();
 
@@ -332,6 +337,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_save_restore_position() {
         let (saved_x, saved_y) = position().unwrap();
 
