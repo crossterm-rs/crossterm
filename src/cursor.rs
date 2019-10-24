@@ -1,6 +1,6 @@
 //! # Cursor
 //!
-//! The `cursor` module provides a functionality to work with the terminal cursor.
+//! The `cursor` module provides functionality to work with the terminal cursor.
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide
@@ -8,36 +8,36 @@
 //! to demonstrate the capabilities.
 //!
 //! ## Examples
-//!
-//! Commands:
+//! Cursor actions can be performed with commands. For a more detailed documentation the lib.rs documention.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{BlinkOff, BlinkOn, execute, Goto, ResetPos, Result, SavePos, ExecutableCommand};
+//! use crossterm::{ExecutableCommand, execute, Result, cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}};
 //!
 //! fn main() -> Result<()> {
 //!     // with macro
 //!     execute!(
 //!         stdout(),
-//!         SavePos,
-//!         Goto(10, 10),
-//!         BlinkOn,
-//!         BlinkOff,
-//!         ResetPos
+//!         SavePosition,
+//!         MoveTo(10, 10),
+//!         EnableBlinking,
+//!         DisableBlinking,
+//!         RestorePosition
 //!     );
 //!
 //!   // with function
 //!   stdout()
-//!     .execute(Goto(11,11))?
-//!     .execute(ResetPos);
+//!     .execute(MoveTo(11,11))?
+//!     .execute(RestorePosition);
 //!
 //!  Ok(())
 //! }
 //! ```
 //! Manual execution control `crossterm::queue`
 
-pub use sys::get_cursor_position as pos;
+/// Returns the cursor position (`(column, row)` tuple).
+pub use sys::position;
 
 use crate::impl_display;
 #[cfg(windows)]
@@ -46,14 +46,14 @@ use crate::utils::{Command, Result};
 mod ansi;
 pub(crate) mod sys;
 
-/// A command to move the cursor to the given position.
+/// Moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Goto(pub u16, pub u16);
+/// - The counting of the given dimensions starts from 0 were column 0 and row 0 is the top left.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct MoveTo(pub u16, pub u16);
 
-impl Command for Goto {
+impl Command for MoveTo {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -62,18 +62,18 @@ impl Command for Goto {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::goto(self.0, self.1)
+        sys::move_to(self.0, self.1)
     }
 }
 
-/// A command to move the cursor given rows up.
+/// Moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Up(pub u16);
+pub struct MoveUp(pub u16);
 
-impl Command for Up {
+impl Command for MoveUp {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -86,14 +86,14 @@ impl Command for Up {
     }
 }
 
-/// A command to move the cursor given rows down.
+/// Moves the terminal cursor a given number of rows down.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Down(pub u16);
+pub struct MoveDown(pub u16);
 
-impl Command for Down {
+impl Command for MoveDown {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -106,14 +106,14 @@ impl Command for Down {
     }
 }
 
-/// A command to move the cursor given columns left.
+/// Moves the terminal cursor a given number of columns to the left.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Left(pub u16);
+pub struct MoveLeft(pub u16);
 
-impl Command for Left {
+impl Command for MoveLeft {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -126,14 +126,14 @@ impl Command for Left {
     }
 }
 
-/// A command to move the cursor given columns right.
+/// Moves the terminal cursor a given number of columns to the right.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Right(pub u16);
+pub struct MoveRight(pub u16);
 
-impl Command for Right {
+impl Command for MoveRight {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -146,17 +146,17 @@ impl Command for Right {
     }
 }
 
-/// A command to save the cursor position.
+/// Saves the current terminal cursor position.
 ///
+/// See the [RestorePosition](struct.cursor.RestorePosition.html#) command.
 /// # Notes
 ///
-/// The cursor position is stored globally and is not related to the current/any
+/// - The cursor position is stored globally and is not related to the current/any
 /// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SavePos;
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct SavePosition;
 
-impl Command for SavePos {
+impl Command for SavePosition {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -169,14 +169,15 @@ impl Command for SavePos {
     }
 }
 
-/// A command to restore the saved cursor position.
+/// Restores the saved terminal cursor position.
 ///
+/// See the [RestorePosition](struct.cursor.SavePosition.html#) command.
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct ResetPos;
+pub struct RestorePosition;
 
-impl Command for ResetPos {
+impl Command for RestorePosition {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -189,14 +190,13 @@ impl Command for ResetPos {
     }
 }
 
-/// A command to hide the cursor.
+/// Hides the terminal cursor indicator.
 ///
 /// # Notes
 ///
-/// The cursor position is stored globally and is not related to the current/any
+/// - The cursor position is stored globally and is not related to the current/any
 /// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Hide;
 
 impl Command for Hide {
@@ -212,14 +212,13 @@ impl Command for Hide {
     }
 }
 
-/// A command to show the cursor.
+/// Shows the terminal cursor indicator.
 ///
 /// # Notes
 ///
-/// The cursor position is stored globally and is not related to the current/any
+/// - The cursor position is stored globally and is not related to the current/any
 /// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Show;
 
 impl Command for Show {
@@ -235,16 +234,15 @@ impl Command for Show {
     }
 }
 
-/// A command to enable the cursor blinking.
+/// Enables the terminal cursor blinking.
 ///
 /// # Notes
 ///
-/// Windows versions lower than Windows 10 do not support this functionality.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct BlinkOn;
+/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct EnableBlinking;
 
-impl Command for BlinkOn {
+impl Command for EnableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -257,16 +255,15 @@ impl Command for BlinkOn {
     }
 }
 
-/// A command to disable the cursor blinking.
+/// Disables the terminal cursor blinking.
 ///
 /// # Notes
 ///
-/// Windows versions lower than Windows 10 do not support this functionality.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct BlinkOff;
+/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct DisableBlinking;
 
-impl Command for BlinkOff {
+impl Command for DisableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -279,14 +276,14 @@ impl Command for BlinkOff {
     }
 }
 
-impl_display!(for Goto);
-impl_display!(for Up);
-impl_display!(for Down);
-impl_display!(for Left);
-impl_display!(for Right);
-impl_display!(for SavePos);
-impl_display!(for ResetPos);
+impl_display!(for MoveTo);
+impl_display!(for MoveUp);
+impl_display!(for MoveDown);
+impl_display!(for MoveLeft);
+impl_display!(for MoveRight);
+impl_display!(for SavePosition);
+impl_display!(for RestorePosition);
 impl_display!(for Hide);
 impl_display!(for Show);
-impl_display!(for BlinkOn);
-impl_display!(for BlinkOff);
+impl_display!(for EnableBlinking);
+impl_display!(for DisableBlinking);

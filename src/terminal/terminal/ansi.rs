@@ -2,7 +2,7 @@
 //! This module is used for windows 10 terminals and unix terminals by default.
 
 use crate::utils::Result;
-use crate::{csi, write_cout, Goto};
+use crate::{csi, cursor::MoveTo, write_cout};
 
 use super::{super::sys::get_terminal_size, ClearType, Terminal};
 
@@ -44,7 +44,7 @@ impl Terminal for AnsiTerminal {
         };
 
         if clear_type == ClearType::All {
-            write_cout!(Goto(0, 0))?;
+            write_cout!(MoveTo(0, 0))?;
         }
 
         Ok(())

@@ -1,3 +1,5 @@
+//! UNIX related logic to cursor manipulation.
+
 use std::io::{self, Write};
 
 use crate::input::{InputEvent, TerminalInput};
@@ -7,11 +9,11 @@ use crate::utils::{
 };
 use crate::{csi, write_cout};
 
-pub fn get_cursor_position() -> Result<(u16, u16)> {
+pub fn position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
-        pos_raw()
+        read_position_raw()
     } else {
-        pos()
+        position()
     }
 }
 
@@ -24,14 +26,14 @@ pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     Ok(())
 }
 
-fn pos() -> Result<(u16, u16)> {
+fn read_position() -> Result<(u16, u16)> {
     enable_raw_mode()?;
-    let pos = pos_raw();
+    let pos = read_position_raw();
     disable_raw_mode()?;
     pos
 }
 
-fn pos_raw() -> Result<(u16, u16)> {
+fn read_position_raw() -> Result<(u16, u16)> {
     // Where is the cursor?
     // Use `ESC [ 6 n`.
     let mut stdout = io::stdout();

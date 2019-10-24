@@ -1,4 +1,4 @@
-//! This module provides the cursor related ANSI codes
+//! This module provides cursor related ANSI escape codes.
 
 use crate::csi;
 
