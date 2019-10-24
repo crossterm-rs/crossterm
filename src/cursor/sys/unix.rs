@@ -26,11 +26,9 @@ fn read_position() -> Result<(u16, u16)> {
 }
 
 fn read_position_raw() -> Result<(u16, u16)> {
-    // Where is the cursor?
-    // Use `ESC [ 6 n`.
+    // Use `ESC [ 6 n` to and retrieve the cursor position.
     let mut stdout = io::stdout();
 
-    // Write command
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 

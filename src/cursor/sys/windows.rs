@@ -27,7 +27,7 @@ pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
 
 pub(crate) fn move_to(x: u16, y: u16) -> Result<()> {
     let cursor = ScreenBufferCursor::new()?;
-    cursor.goto(x as i16, y as i16)?;
+    cursor.move_to(x as i16, y as i16)?;
     Ok(())
 }
 
@@ -56,12 +56,12 @@ pub(crate) fn move_left(count: u16) -> Result<()> {
 }
 
 pub(crate) fn save_position() -> Result<()> {
-    ScreenBufferCursor::save_cursor_pos()?;
+    ScreenBufferCursor::new()?.save_cursor_position()?;
     Ok(())
 }
 
 pub(crate) fn restore_position() -> Result<()> {
-    ScreenBufferCursor::restore_cursor_pos()?;
+    ScreenBufferCursor::new()?.restore_cursor_position()?;
     Ok(())
 }
 
@@ -69,24 +69,22 @@ lazy_static! {
     static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
 }
 
-pub(crate) struct ScreenBufferCursor {
+struct ScreenBufferCursor {
     screen_buffer: ScreenBuffer,
 }
 
 impl ScreenBufferCursor {
-    pub(crate) fn new() -> Result<ScreenBufferCursor> {
+    fn new() -> Result<ScreenBufferCursor> {
         Ok(ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
     }
 
-    /// get the current cursor position.
-    pub(crate) fn position(&self) -> Result<Coord> {
+    fn position(&self) -> Result<Coord> {
         Ok(self.screen_buffer.info()?.cursor_pos())
     }
 
-    /// Set the cursor position to the given x and y. Note that this is 0 based.
-    pub(crate) fn goto(&self, x: i16, y: i16) -> Result<()> {
+    fn move_to(&self, x: i16, y: i16) -> Result<()> {
         if x < 0 || x >= <i16>::max_value() {
             Err(io::Error::new(
                 io::ErrorKind::Other,
@@ -120,8 +118,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    /// change the cursor visibility.
-    pub(crate) fn set_visibility(&self, visible: bool) -> Result<()> {
+    fn set_visibility(&self, visible: bool) -> Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
             bVisible: if visible { TRUE } else { FALSE },
@@ -138,21 +135,16 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    /// Reset to saved cursor position
-    pub(crate) fn restore_cursor_pos() -> Result<()> {
-        let cursor = ScreenBufferCursor::new()?;
-
+    fn restore_cursor_position(&self) -> Result<()> {
         if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
-            cursor.goto(x, y)?;
+            self.move_to(x, y)?;
         }
 
         Ok(())
     }
 
-    /// Save current cursor position to recall later.
-    pub(crate) fn save_cursor_pos() -> Result<()> {
-        let cursor = ScreenBufferCursor::new()?;
-        let position = cursor.position()?;
+    fn save_cursor_position(&self) -> Result<()> {
+        let position = self.position()?;
 
         let mut locked_pos = SAVED_CURSOR_POS.lock().unwrap();
         *locked_pos = Some((position.x, position.y));
