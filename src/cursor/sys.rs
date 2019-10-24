@@ -2,8 +2,6 @@
 
 #[cfg(unix)]
 pub use self::unix::position;
-#[cfg(unix)]
-pub(crate) use self::unix::show_cursor;
 #[cfg(windows)]
 pub use self::windows::position;
 #[cfg(windows)]

@@ -41,7 +41,9 @@ pub use sys::position;
 
 use crate::impl_display;
 #[cfg(windows)]
-use crate::utils::{Command, Result};
+use crate::utils::Result;
+
+use crate::utils::Command;
 
 mod ansi;
 pub(crate) mod sys;
