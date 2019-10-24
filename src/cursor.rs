@@ -8,7 +8,7 @@
 //! to demonstrate the capabilities.
 //!
 //! ## Examples
-//! Cursor actions can be performed with commands. For a more detailed documentation the lib.rs documention.
+//! Cursor actions can be performed with commands. For a more detailed documentation the [command documention](../index.html).
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -34,9 +34,9 @@
 //!  Ok(())
 //! }
 //! ```
-//! Manual execution control `crossterm::queue`
+//!
+//! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
-/// Returns the cursor position (`(column, row)` tuple).
 pub use sys::position;
 
 use crate::impl_display;
@@ -57,7 +57,7 @@ impl Command for MoveTo {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::goto_csi_sequence(self.0, self.1)
+        ansi::move_to_csi_sequence(self.0, self.1)
     }
 
     #[cfg(windows)]
@@ -234,7 +234,7 @@ impl Command for Show {
     }
 }
 
-/// Enables the terminal cursor blinking.
+/// Enables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
@@ -246,7 +246,7 @@ impl Command for EnableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINKING_ON_CSI_SEQUENCE
+        ansi::ENABLE_BLINKING_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -255,7 +255,7 @@ impl Command for EnableBlinking {
     }
 }
 
-/// Disables the terminal cursor blinking.
+/// Disables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
@@ -267,7 +267,7 @@ impl Command for DisableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINKING_OFF_CSI_SEQUENCE
+        ansi::DISABLE_BLINKING_CSI_SEQUENCE
     }
 
     #[cfg(windows)]

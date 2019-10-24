@@ -2,7 +2,7 @@
 
 use crate::csi;
 
-pub(crate) fn goto_csi_sequence(x: u16, y: u16) -> String {
+pub(crate) fn move_to_csi_sequence(x: u16, y: u16) -> String {
     format!(csi!("{};{}H"), y + 1, x + 1)
 }
 
@@ -26,5 +26,5 @@ pub(crate) static SAVE_POSITION_CSI_SEQUENCE: &'static str = csi!("s");
 pub(crate) static RESTORE_POSITION_CSI_SEQUENCE: &'static str = csi!("u");
 pub(crate) static HIDE_CSI_SEQUENCE: &'static str = csi!("?25l");
 pub(crate) static SHOW_CSI_SEQUENCE: &'static str = csi!("?25h");
-pub(crate) static BLINKING_ON_CSI_SEQUENCE: &'static str = csi!("?12h");
-pub(crate) static BLINKING_OFF_CSI_SEQUENCE: &'static str = csi!("?12l");
+pub(crate) static ENABLE_BLINKING_CSI_SEQUENCE: &'static str = csi!("?12h");
+pub(crate) static DISABLE_BLINKING_CSI_SEQUENCE: &'static str = csi!("?12l");

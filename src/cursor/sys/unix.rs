@@ -9,6 +9,8 @@ use crate::utils::{
 };
 use crate::{csi, write_cout};
 
+/// Returns the cursor position (column, row).
+/// The counting starts from 0 were column 0 and row 0 is the top left.
 pub fn position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
         read_position_raw()
@@ -19,9 +21,9 @@ pub fn position() -> Result<(u16, u16)> {
 
 pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     if show_cursor {
-        write_cout!(csi!("?25h"))?;
+        write_cout!(csi!(crate::cursor::ansi::SHOW_CSI_SEQUENCE))?;
     } else {
-        write_cout!(csi!("?25l"))?;
+        write_cout!(csi!(crate::cursor::ansi::HIDE_CSI_SEQUENCE))?;
     }
     Ok(())
 }

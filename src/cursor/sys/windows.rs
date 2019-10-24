@@ -14,6 +14,8 @@ use lazy_static::lazy_static;
 
 use crate::utils::Result;
 
+/// Returns the cursor position (column, row).
+/// The counting starts from 0 were column 0 and row 0 is the top left.
 pub fn position() -> Result<(u16, u16)> {
     let cursor = ScreenBufferCursor::new()?;
     Ok(cursor.position()?.into())
