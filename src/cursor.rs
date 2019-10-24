@@ -8,7 +8,8 @@
 //! to demonstrate the capabilities.
 //!
 //! ## Examples
-//! Cursor actions can be performed with commands. For a more detailed documentation the [command documention](../index.html).
+//! Cursor actions can be performed with commands.
+//! Please have a look at [command documention](../index.html) for a more detailed documentation.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -135,6 +136,15 @@ impl Command for MoveLeft {
 /// Commands must be executed/queued for execution otherwise they do nothing.
 pub struct MoveRight(pub u16);
 
+/// Saves the current terminal cursor position.
+///
+/// See the [RestorePosition](./struct.RestorePosition.html) command.
+/// # Notes
+///
+/// - The cursor position is stored globally.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct SavePosition;
+
 impl Command for MoveRight {
     type AnsiType = String;
 
@@ -147,16 +157,6 @@ impl Command for MoveRight {
         sys::move_right(self.0)
     }
 }
-
-/// Saves the current terminal cursor position.
-///
-/// See the [RestorePosition](struct.cursor.RestorePosition.html#) command.
-/// # Notes
-///
-/// - The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
-/// - Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SavePosition;
 
 impl Command for SavePosition {
     type AnsiType = &'static str;
@@ -173,10 +173,10 @@ impl Command for SavePosition {
 
 /// Restores the saved terminal cursor position.
 ///
-/// See the [RestorePosition](struct.cursor.SavePosition.html#) command.
+/// See the [SavePosition](./struct.SavePosition.html) command.
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// - The cursor position is stored globally.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct RestorePosition;
 
 impl Command for RestorePosition {
@@ -196,8 +196,6 @@ impl Command for RestorePosition {
 ///
 /// # Notes
 ///
-/// - The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Hide;
 
@@ -218,8 +216,6 @@ impl Command for Hide {
 ///
 /// # Notes
 ///
-/// - The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Show;
 
