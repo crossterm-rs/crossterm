@@ -1,9 +1,20 @@
 # Next Version
 
 - Derived 'Copy' for 'KeyEvent'
-- Removed old API
-    - Removed: `TerminalCursor`, `cursor`, `Crossterm::cursor`
-    - Moved: `TerminalCursor::pos` => `crossterm::pos`
+- Removed `TerminalCursor`, `cursor`, `Crossterm::cursor()`
+- Introduces static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
+- Rename `Goto` to `MoveTo`
+- Rename `Up` to `MoveLeft`
+- Rename `Right` to `MoveRight`
+- Rename `Down` to `MoveDown`
+- Rename `BlinkOn` to `EnableBlinking`
+- Rename `BlinkOff` to `DisableBlinking`
+- Rename `ResetPos` to `ResetPosition`
+- Rename `SavePos` to `SavePosition`
+- Removed re-export cursor module types at root level, are now accessible from `crossterm::cursor`
+- Removed: `/cursor/cursor/winapi`, `/cursor/cursor/ansi`, `/cursor/cursor/cursor.rs`
+- Refactored documentation to have a plural beginning and is action-oriented. "Disables ..."
+- Removed some unnecessarily system interaction code. 
      
 # Version 0.12.1
 

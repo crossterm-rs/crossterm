@@ -13,7 +13,7 @@ pub fn position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
         read_position_raw()
     } else {
-        position()
+        read_position()
     }
 }
 
