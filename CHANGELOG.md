@@ -1,4 +1,4 @@
-# Next Version
+# Next Version 13.0
 
 - Derived 'Copy' for 'KeyEvent'
 - Removed `TerminalCursor`, `cursor`, `Crossterm::cursor()`
@@ -12,9 +12,7 @@
 - Rename `ResetPos` to `ResetPosition`
 - Rename `SavePos` to `SavePosition`
 - Removed re-export cursor module types at root level, are now accessible from `crossterm::cursor`
-- Removed: `/cursor/cursor/winapi`, `/cursor/cursor/ansi`, `/cursor/cursor/cursor.rs`
 - Refactored documentation to have a plural beginning and is action-oriented. "Disables ..."
-- Removed some unnecessarily system interaction code. 
      
 # Version 0.12.1
 

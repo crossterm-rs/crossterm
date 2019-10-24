@@ -49,7 +49,7 @@ use crate::utils::Command;
 mod ansi;
 pub(crate) mod sys;
 
-/// Moves the terminal cursor to the given position (column, row).
+/// A command that moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes
 /// - The counting of the given dimensions starts from 0 were column 0 and row 0 is the top left.
@@ -69,7 +69,7 @@ impl Command for MoveTo {
     }
 }
 
-/// Moves the terminal cursor a given number of rows up.
+/// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
 ///
@@ -89,7 +89,7 @@ impl Command for MoveUp {
     }
 }
 
-/// Moves the terminal cursor a given number of rows down.
+/// A command that moves the terminal cursor a given number of rows down.
 ///
 /// # Notes
 ///
@@ -109,7 +109,7 @@ impl Command for MoveDown {
     }
 }
 
-/// Moves the terminal cursor a given number of columns to the left.
+/// A command that moves the terminal cursor a given number of columns to the left.
 ///
 /// # Notes
 ///
@@ -129,14 +129,14 @@ impl Command for MoveLeft {
     }
 }
 
-/// Moves the terminal cursor a given number of columns to the right.
+/// A command that moves the terminal cursor a given number of columns to the right.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
 pub struct MoveRight(pub u16);
 
-/// Saves the current terminal cursor position.
+/// A command that saves the current terminal cursor position.
 ///
 /// See the [RestorePosition](./struct.RestorePosition.html) command.
 /// # Notes
@@ -171,7 +171,7 @@ impl Command for SavePosition {
     }
 }
 
-/// Restores the saved terminal cursor position.
+/// A command that restores the saved terminal cursor position.
 ///
 /// See the [SavePosition](./struct.SavePosition.html) command.
 /// # Notes
@@ -192,7 +192,7 @@ impl Command for RestorePosition {
     }
 }
 
-/// Hides the terminal cursor indicator.
+/// A command that hides the terminal cursor indicator.
 ///
 /// # Notes
 ///
@@ -212,7 +212,7 @@ impl Command for Hide {
     }
 }
 
-/// Shows the terminal cursor indicator.
+/// A command that shows the terminal cursor indicator.
 ///
 /// # Notes
 ///
@@ -232,7 +232,7 @@ impl Command for Show {
     }
 }
 
-/// Enables blinking of the terminal cursor.
+/// A command that enables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
@@ -253,7 +253,7 @@ impl Command for EnableBlinking {
     }
 }
 
-/// Disables blinking of the terminal cursor.
+/// A command that disables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
