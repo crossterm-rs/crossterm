@@ -14,6 +14,10 @@ use lazy_static::lazy_static;
 
 use crate::utils::Result;
 
+lazy_static! {
+    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
+}
+
 /// Returns the cursor position (column, row).
 /// The counting starts from 0 were column 0 and row 0 is the top left.
 pub fn position() -> Result<(u16, u16)> {
@@ -25,50 +29,47 @@ pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     ScreenBufferCursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
 }
 
-pub(crate) fn move_to(x: u16, y: u16) -> Result<()> {
+pub(crate) fn move_to(column: u16, row: u16) -> Result<()> {
     let cursor = ScreenBufferCursor::new()?;
-    cursor.move_to(x as i16, y as i16)?;
+    cursor.move_to(column as i16, row as i16)?;
     Ok(())
 }
 
 pub(crate) fn move_up(count: u16) -> Result<()> {
-    let (xpos, ypos) = position()?;
-    move_to(xpos, ypos - count)?;
+    let (column, row) = position()?;
+    move_to(column, row - count)?;
     Ok(())
 }
 
 pub(crate) fn move_right(count: u16) -> Result<()> {
-    let (xpos, ypos) = position()?;
-    move_to(xpos + count, ypos)?;
+    let (column, row) = position()?;
+    move_to(column + count, row)?;
     Ok(())
 }
 
 pub(crate) fn move_down(count: u16) -> Result<()> {
-    let (xpos, ypos) = position()?;
-    move_to(xpos, ypos + count)?;
+    let (column, row) = position()?;
+    move_to(column, row + count)?;
     Ok(())
 }
 
 pub(crate) fn move_left(count: u16) -> Result<()> {
-    let (xpos, ypos) = position()?;
-    move_to(xpos - count, ypos)?;
+    let (column, row) = position()?;
+    move_to(column - count, row)?;
     Ok(())
 }
 
 pub(crate) fn save_position() -> Result<()> {
-    ScreenBufferCursor::new()?.save_cursor_position()?;
+    ScreenBufferCursor::new()?.save_position()?;
     Ok(())
 }
 
 pub(crate) fn restore_position() -> Result<()> {
-    ScreenBufferCursor::new()?.restore_cursor_position()?;
+    ScreenBufferCursor::new()?.restore_position()?;
     Ok(())
 }
 
-lazy_static! {
-    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
-}
-
+/// WinApi wrapper over terminal cursor behaviour.
 struct ScreenBufferCursor {
     screen_buffer: ScreenBuffer,
 }
@@ -135,7 +136,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    fn restore_cursor_position(&self) -> Result<()> {
+    fn restore_position(&self) -> Result<()> {
         if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
             self.move_to(x, y)?;
         }
@@ -143,7 +144,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    fn save_cursor_position(&self) -> Result<()> {
+    fn save_position(&self) -> Result<()> {
         let position = self.position()?;
 
         let mut locked_pos = SAVED_CURSOR_POS.lock().unwrap();
