@@ -169,3 +169,70 @@ impl From<HANDLE> for ScreenBufferCursor {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        move_down, move_left, move_right, move_to, move_up, position, restore_position,
+        save_position,
+    };
+
+    #[test]
+    fn test_move_to() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        move_to(saved_x + 1, saved_y + 1).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y + 1));
+
+        move_to(saved_x, saved_y).unwrap();
+        assert_eq!(position().unwrap(), (saved_x, saved_y));
+    }
+
+    #[test]
+    fn test_move_right() {
+        let (saved_x, saved_y) = position().unwrap();
+        move_right(1).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
+    }
+
+    #[test]
+    fn test_move_left() {
+        move_to(2, 0).unwrap();
+
+        move_left(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_up() {
+        move_to(0, 2).unwrap();
+
+        move_up(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_down() {
+        move_to(0, 0).unwrap();
+
+        move_down(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 2));
+    }
+
+    #[test]
+    fn test_save_restore_position() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        save_position().unwrap();
+        move_to(saved_x + 1, saved_y + 1).unwrap();
+        restore_position().unwrap();
+
+        let (x, y) = position().unwrap();
+
+        assert_eq!(x, saved_x);
+        assert_eq!(y, saved_y);
+    }
+}
