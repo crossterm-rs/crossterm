@@ -178,7 +178,7 @@ mod tests {
     };
 
     #[test]
-    fn test_move_to() {
+    fn test_move_to_winapi() {
         let (saved_x, saved_y) = position().unwrap();
 
         move_to(saved_x + 1, saved_y + 1).unwrap();
@@ -189,14 +189,14 @@ mod tests {
     }
 
     #[test]
-    fn test_move_right() {
+    fn test_move_right_winapi() {
         let (saved_x, saved_y) = position().unwrap();
         move_right(1).unwrap();
         assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
     }
 
     #[test]
-    fn test_move_left() {
+    fn test_move_left_winapi() {
         move_to(2, 0).unwrap();
 
         move_left(2).unwrap();
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn test_move_up() {
+    fn test_move_up_winapi() {
         move_to(0, 2).unwrap();
 
         move_up(2).unwrap();
@@ -214,7 +214,7 @@ mod tests {
     }
 
     #[test]
-    fn test_move_down() {
+    fn test_move_down_winapi() {
         move_to(0, 0).unwrap();
 
         move_down(2).unwrap();
@@ -223,7 +223,7 @@ mod tests {
     }
 
     #[test]
-    fn test_save_restore_position() {
+    fn test_save_restore_position_winapi() {
         let (saved_x, saved_y) = position().unwrap();
 
         save_position().unwrap();

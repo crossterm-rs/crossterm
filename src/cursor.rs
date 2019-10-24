@@ -294,6 +294,7 @@ mod tests {
     use crate::execute;
     use std::io::{self, stdout, Write};
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_move_to() {
@@ -306,6 +307,7 @@ mod tests {
         assert_eq!(position().unwrap(), (saved_x, saved_y));
     }
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_move_right() {
@@ -314,6 +316,7 @@ mod tests {
         assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
     }
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_move_left() {
@@ -321,6 +324,7 @@ mod tests {
         assert_eq!(position().unwrap(), (0, 0));
     }
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_move_up() {
@@ -328,6 +332,7 @@ mod tests {
         assert_eq!(position().unwrap(), (0, 0));
     }
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_move_down() {
@@ -336,6 +341,7 @@ mod tests {
         assert_eq!(position().unwrap(), (0, 2));
     }
 
+    // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
     fn test_save_restore_position() {
