@@ -1,18 +1,20 @@
-# Next Version 13.0
+# Master Version 13.0
 
-- Derived 'Copy' for 'KeyEvent'
-- Removed `TerminalCursor`, `cursor`, `Crossterm::cursor()`
-- Introduces static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
-- Rename `Goto` to `MoveTo`
-- Rename `Up` to `MoveLeft`
-- Rename `Right` to `MoveRight`
-- Rename `Down` to `MoveDown`
-- Rename `BlinkOn` to `EnableBlinking`
-- Rename `BlinkOff` to `DisableBlinking`
-- Rename `ResetPos` to `ResetPosition`
-- Rename `SavePos` to `SavePosition`
-- Removed re-export cursor module types at root level, are now accessible from `crossterm::cursor`
-- Refactored documentation to have a plural beginning and is action-oriented. "Disables ..."
+- `input` module
+    - Derived 'Copy' for 'KeyEvent'
+- `cursor` module
+    - Removed `TerminalCursor`, `cursor`, `Crossterm::cursor()`
+    - Introduces static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
+    - Rename `Goto` to `MoveTo`
+    - Rename `Up` to `MoveLeft`
+    - Rename `Right` to `MoveRight`
+    - Rename `Down` to `MoveDown`
+    - Rename `BlinkOn` to `EnableBlinking`
+    - Rename `BlinkOff` to `DisableBlinking`
+    - Rename `ResetPos` to `ResetPosition`
+    - Rename `SavePos` to `SavePosition`
+    - Removed re-export cursor module types at root level, are now accessible from `crossterm::cursor`
+    - Refactored documentation to have a plural beginning and is action-oriented. "Disables ..."
      
 # Version 0.12.1
 
