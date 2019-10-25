@@ -156,9 +156,12 @@ impl_display!(for Clear);
 
 #[cfg(test)]
 mod tests {
-    use super::{size, SetSize};
+    use super::{size, ScrollDown, ScrollUp, SetSize};
     use crate::execute;
-    use std::{io::stdout, thread, time};
+    use std::{
+        io::{stdout, Write},
+        thread, time,
+    };
 
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]
@@ -168,7 +171,7 @@ mod tests {
 
         let (width, height) = size().unwrap();
 
-        execute!(stdout(), SetSize(35, 35));
+        execute!(stdout(), SetSize(35, 35)).unwrap();
 
         // see issue: https://github.com/eminence/terminal-size/issues/11
         thread::sleep(time::Duration::from_millis(30));
@@ -176,7 +179,7 @@ mod tests {
         assert_eq!((35, 35), size().unwrap());
 
         // reset to previous size
-        execute!(stdout(), SetSize(width, height));
+        execute!(stdout(), SetSize(width, height)).unwrap();
 
         // see issue: https://github.com/eminence/terminal-size/issues/11
         thread::sleep(time::Duration::from_millis(30));

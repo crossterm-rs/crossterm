@@ -6,6 +6,7 @@ use crate::terminal::ClearType;
 use crate::utils::Result;
 use crate::{ErrorKind, TerminalCursor};
 
+/// Exits the current application.
 pub fn exit() {
     ::std::process::exit(256);
 }
@@ -134,6 +135,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     }
 
     let mut window = window.clone();
+
     // Preserve the position, but change the size.
     window.bottom = window.top + height - 1;
     window.right = window.left + width - 1;
@@ -293,9 +295,6 @@ mod tests {
             .unwrap()
             .terminal_window();
 
-        println!("{:?}", current_window);
-        println!("{:?}", new_window);
-
         assert_eq!(new_window.top, current_window.top + 2);
         assert_eq!(new_window.bottom, current_window.bottom + 2);
     }
@@ -318,9 +317,6 @@ mod tests {
             .info()
             .unwrap()
             .terminal_window();
-
-        println!("{:?}", current_window);
-        println!("{:?}", new_window);
 
         assert_eq!(new_window.top, current_window.top - 2);
         assert_eq!(new_window.bottom, current_window.bottom - 2);

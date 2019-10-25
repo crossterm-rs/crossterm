@@ -5,6 +5,7 @@ use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 use crate::utils::sys::unix::wrap_with_result;
 use crate::utils::Result;
 
+/// Exits the current application.
 pub fn exit() {
     ::std::process::exit(0);
 }
