@@ -9,7 +9,8 @@ use crate::utils::{
 };
 
 /// Returns the cursor position (column, row).
-/// The counting starts from 0 were column 0 and row 0 is the top left.
+///
+/// The top left cell is represented `0,0`.
 pub fn position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
         read_position_raw()

@@ -117,7 +117,10 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize, Clear, ClearType, cursor::MoveTo, Result};
+//! use crossterm::{
+//!     ExecutableCommand, QueueableCommand, Color, PrintStyledFont,
+//!     Colorize, Clear, ClearType, cursor::MoveTo, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
@@ -142,7 +145,10 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, queue, Color, PrintStyledFont, Colorize, cursor::MoveTo, Clear, ClearType, Result};
+//! use crossterm::{
+//!     execute, queue, Color, PrintStyledFont,
+//!     Colorize, cursor::MoveTo, Clear, ClearType, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();

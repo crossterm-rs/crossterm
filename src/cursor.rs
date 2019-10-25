@@ -8,13 +8,17 @@
 //! to demonstrate the capabilities.
 //!
 //! ## Examples
+//!
 //! Cursor actions can be performed with commands.
-//! Please have a look at [command documention](../index.html) for a more detailed documentation.
+//! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{ExecutableCommand, execute, Result, cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}};
+//! use crossterm::{
+//!     ExecutableCommand, execute, Result,
+//!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
+//! };
 //!
 //! fn main() -> Result<()> {
 //!     // with macro
@@ -52,8 +56,9 @@ pub(crate) mod sys;
 /// A command that moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes
-/// - The counting of the given dimensions starts from 0 were column 0 and row 0 is the top left.
-/// - Commands must be executed/queued for execution otherwise they do nothing.
+///
+/// * Top left cell is represented as `0,0`.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 pub struct MoveTo(pub u16, pub u16);
 
 impl Command for MoveTo {
@@ -139,6 +144,7 @@ pub struct MoveRight(pub u16);
 /// A command that saves the current terminal cursor position.
 ///
 /// See the [RestorePosition](./struct.RestorePosition.html) command.
+///
 /// # Notes
 ///
 /// - The cursor position is stored globally.
@@ -174,7 +180,9 @@ impl Command for SavePosition {
 /// A command that restores the saved terminal cursor position.
 ///
 /// See the [SavePosition](./struct.SavePosition.html) command.
+///
 /// # Notes
+///
 /// - The cursor position is stored globally.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct RestorePosition;
@@ -192,7 +200,7 @@ impl Command for RestorePosition {
     }
 }
 
-/// A command that hides the terminal cursor indicator.
+/// A command that hides the terminal cursor.
 ///
 /// # Notes
 ///
@@ -212,7 +220,7 @@ impl Command for Hide {
     }
 }
 
-/// A command that shows the terminal cursor indicator.
+/// A command that shows the terminal cursor.
 ///
 /// # Notes
 ///
