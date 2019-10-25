@@ -115,15 +115,15 @@ use crate::impl_display;
 use crate::utils::supports_ansi;
 use crate::utils::{Command, Result};
 
+pub use self::contentstyle::ContentStyle;
 pub use self::enums::{Attribute, Color, Colored};
-pub use self::objectstyle::ObjectStyle;
 pub use self::styledobject::StyledObject;
 pub use self::traits::{Colorize, Styler};
 
 #[macro_use]
 mod macros;
+mod contentstyle;
 mod enums;
-mod objectstyle;
 mod style;
 mod styledobject;
 mod traits;
@@ -149,7 +149,7 @@ pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
 where
     D: Display + Clone,
 {
-    ObjectStyle::new().apply_to(val)
+    ContentStyle::new().apply(val)
 }
 
 impl Colorize<&'static str> for &'static str {

@@ -176,7 +176,7 @@ pub use screen::{
 };
 #[cfg(feature = "style")]
 pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
+    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledFont, ResetColor,
     SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
 #[cfg(feature = "terminal")]

@@ -5,7 +5,7 @@ use std::result;
 
 use crate::queue;
 
-use super::{Attribute, Color, Colorize, ObjectStyle, ResetColor, SetAttr, SetBg, SetFg, Styler};
+use super::{Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttr, SetBg, SetFg, Styler};
 
 /// A styled object.
 ///
@@ -23,8 +23,8 @@ use super::{Attribute, Color, Colorize, ObjectStyle, ResetColor, SetAttr, SetBg,
 /// ```
 #[derive(Clone)]
 pub struct StyledObject<D: Display + Clone> {
-    /// The object style (colors, content attributes).
-    pub object_style: ObjectStyle,
+    /// The content style (colors, content attributes).
+    pub content_style: ContentStyle,
     /// An object to apply the style on.
     pub content: D,
 }
@@ -32,13 +32,13 @@ pub struct StyledObject<D: Display + Clone> {
 impl<'a, D: Display + 'a + Clone> StyledObject<D> {
     /// Sets the foreground color.
     pub fn with(mut self, foreground_color: Color) -> StyledObject<D> {
-        self.object_style = self.object_style.fg(foreground_color);
+        self.content_style = self.content_style.foreground(foreground_color);
         self
     }
 
     /// Sets the background color.
     pub fn on(mut self, background_color: Color) -> StyledObject<D> {
-        self.object_style = self.object_style.bg(background_color);
+        self.content_style = self.content_style.background(background_color);
         self
     }
 
@@ -46,7 +46,7 @@ impl<'a, D: Display + 'a + Clone> StyledObject<D> {
     ///
     /// You can add more attributes by calling this method multiple times.
     pub fn attr(mut self, attr: Attribute) -> StyledObject<D> {
-        self.object_style.add_attr(attr);
+        self.content_style = self.content_style.attribute(attr);
         self
     }
 }
@@ -55,16 +55,16 @@ impl<D: Display + Clone> Display for StyledObject<D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> result::Result<(), fmt::Error> {
         let mut reset = false;
 
-        if let Some(bg) = self.object_style.bg_color {
+        if let Some(bg) = self.content_style.bg_color {
             queue!(f, SetBg(bg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
-        if let Some(fg) = self.object_style.fg_color {
+        if let Some(fg) = self.content_style.fg_color {
             queue!(f, SetFg(fg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
-        for attr in self.object_style.attrs.iter() {
+        for attr in self.content_style.attrs.iter() {
             queue!(f, SetAttr(*attr)).map_err(|_| fmt::Error)?;
             reset = true;
         }
@@ -133,24 +133,26 @@ impl<D: Display + Clone> Styler<D> for StyledObject<D> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Attribute, Color, ObjectStyle};
+    use super::{Attribute, Color, ContentStyle};
 
     #[test]
     fn test_set_fg_bg_add_attr() {
-        let mut object_style = ObjectStyle::new().fg(Color::Blue).bg(Color::Red);
-        object_style.add_attr(Attribute::Reset);
+        let content_style = ContentStyle::new()
+            .foreground(Color::Blue)
+            .background(Color::Red)
+            .attribute(Attribute::Reset);
 
-        let mut styled_object = object_style.apply_to("test");
+        let mut styled_object = content_style.apply("test");
 
         styled_object = styled_object
             .with(Color::Green)
             .on(Color::Magenta)
             .attr(Attribute::NoItalic);
 
-        assert_eq!(styled_object.object_style.fg_color, Some(Color::Green));
-        assert_eq!(styled_object.object_style.bg_color, Some(Color::Magenta));
-        assert_eq!(styled_object.object_style.attrs.len(), 2);
-        assert_eq!(styled_object.object_style.attrs[0], Attribute::Reset);
-        assert_eq!(styled_object.object_style.attrs[1], Attribute::NoItalic);
+        assert_eq!(styled_object.content_style.fg_color, Some(Color::Green));
+        assert_eq!(styled_object.content_style.bg_color, Some(Color::Magenta));
+        assert_eq!(styled_object.content_style.attrs.len(), 2);
+        assert_eq!(styled_object.content_style.attrs[0], Attribute::Reset);
+        assert_eq!(styled_object.content_style.attrs[1], Attribute::NoItalic);
     }
 }

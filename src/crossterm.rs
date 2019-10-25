@@ -40,6 +40,6 @@ impl Crossterm {
     where
         D: Display + Clone,
     {
-        crate::style::ObjectStyle::new().apply_to(val)
+        crate::style::ContentStyle::new().apply(val)
     }
 }
