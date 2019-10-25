@@ -179,8 +179,6 @@ pub use style::{
     color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
     SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
 };
-#[cfg(feature = "terminal")]
-pub use terminal::{exit, size, Clear, ClearType, ScrollDown, ScrollUp, SetSize};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;

@@ -1,13 +1,19 @@
+//! WinApi related logic for terminal manipulation.
+
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
+use crate::terminal::ClearType;
 use crate::utils::Result;
-use crate::{ClearType, ErrorKind, TerminalCursor};
+use crate::{ErrorKind, TerminalCursor};
 
 pub fn exit() {
     ::std::process::exit(256);
 }
 
-pub fn get_terminal_size() -> Result<(u16, u16)> {
+/// Returns the terminal size `(columns, rows)`.
+///
+/// The top left cell is represented `1,1`.
+pub fn size() -> Result<(u16, u16)> {
     let terminal_size = ScreenBuffer::current()?.info()?.terminal_size();
     // windows starts counting at 0, unix at 1, add one to replicated unix behaviour.
     Ok((
@@ -36,34 +42,34 @@ pub(crate) fn clear(clear_type: ClearType) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn scroll_up(count: u16) -> Result<()> {
+pub(crate) fn scroll_up(row_count: u16) -> Result<()> {
     let csbi = ScreenBuffer::current()?;
     let mut window = csbi.info()?.terminal_window();
 
     // Check whether the window is too close to the screen buffer top
-    let count = count as i16;
+    let count = row_count as i16;
     if window.top >= count {
         window.top -= count; // move top down
-        window.bottom = count; // move bottom down
+        window.bottom -= count; // move bottom down
 
-        Console::new()?.set_console_info(false, window)?;
+        Console::new()?.set_console_info(true, window)?;
     }
     Ok(())
 }
 
-pub(crate) fn scroll_down(count: u16) -> Result<()> {
+pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
     let csbi = screen_buffer.info()?;
     let mut window = csbi.terminal_window();
     let buffer_size = csbi.buffer_size();
 
     // Check whether the window is too close to the screen buffer top
-    let count = count as i16;
+    let count = row_count as i16;
     if window.bottom < buffer_size.height - count {
         window.top += count; // move top down
         window.bottom += count; // move bottom down
 
-        Console::new()?.set_console_info(false, window)?;
+        Console::new()?.set_console_info(true, window)?;
     }
     Ok(())
 }
@@ -72,13 +78,13 @@ pub(crate) fn scroll_down(count: u16) -> Result<()> {
 pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     if width <= 0 {
         return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Cannot set the terminal width lower than 1",
+            "Cannot set the terminal width lower than 1.",
         )));
     }
 
     if height <= 0 {
         return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Cannot set the terminal height lower then 1",
+            "Cannot set the terminal height lower then 1.",
         )));
     }
 
@@ -152,7 +158,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     }
     if height > bounds.y {
         return Err(ErrorKind::ResizingTerminalFailure(format!(
-            "Argument height: {} out of range when setting terminal height",
+            "Argument height: {} out of range when setting terminal height.",
             width
         )));
     }
@@ -160,11 +166,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn clear_after_cursor(
-    location: Coord,
-    buffer_size: Size,
-    current_attribute: u16,
-) -> Result<()> {
+fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
     let (mut x, mut y) = (location.x, location.y);
 
     // if cursor position is at the outer right position
@@ -182,11 +184,7 @@ pub(crate) fn clear_after_cursor(
     clear_winapi(start_location, cells_to_write, current_attribute)
 }
 
-pub(crate) fn clear_before_cursor(
-    location: Coord,
-    buffer_size: Size,
-    current_attribute: u16,
-) -> Result<()> {
+fn clear_before_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
     let (xpos, ypos) = (location.x, location.y);
 
     // one cell after cursor position
@@ -204,7 +202,7 @@ pub(crate) fn clear_before_cursor(
     clear_winapi(start_location, cells_to_write, current_attribute)
 }
 
-pub(crate) fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<()> {
     // get sum cells before cursor
     let cells_to_write = buffer_size.width as u32 * buffer_size.height as u32;
 
@@ -220,11 +218,7 @@ pub(crate) fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> 
     Ok(())
 }
 
-pub(crate) fn clear_current_line(
-    location: Coord,
-    buffer_size: Size,
-    current_attribute: u16,
-) -> Result<()> {
+fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
     // location where to start clearing
     let start_location = Coord::new(0, location.y);
 
@@ -240,11 +234,7 @@ pub(crate) fn clear_current_line(
     Ok(())
 }
 
-pub(crate) fn clear_until_line(
-    location: Coord,
-    buffer_size: Size,
-    current_attribute: u16,
-) -> Result<()> {
+fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
     let (x, y) = (location.x, location.y);
 
     // location where to start clearing
@@ -266,6 +256,73 @@ fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u
     let console = Console::from(Handle::current_out_handle()?);
     console.fill_whit_character(start_location, cells_to_write, ' ')?;
     console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
-
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm_winapi::ScreenBuffer;
+
+    use super::{scroll_down, scroll_up, set_size, size};
+
+    #[test]
+    fn test_resize_winapi() {
+        let (width, height) = size().unwrap();
+
+        set_size(30, 30).unwrap();
+        assert_eq!((30, 30), size().unwrap());
+
+        // reset to previous size
+        set_size(width, height).unwrap();
+        assert_eq!((width, height), size().unwrap());
+    }
+
+    #[test]
+    fn test_scroll_down_winapi() {
+        let current_window = ScreenBuffer::current()
+            .unwrap()
+            .info()
+            .unwrap()
+            .terminal_window();
+
+        scroll_down(2).unwrap();
+
+        let new_window = ScreenBuffer::current()
+            .unwrap()
+            .info()
+            .unwrap()
+            .terminal_window();
+
+        println!("{:?}", current_window);
+        println!("{:?}", new_window);
+
+        assert_eq!(new_window.top, current_window.top + 2);
+        assert_eq!(new_window.bottom, current_window.bottom + 2);
+    }
+
+    #[test]
+    fn test_scroll_up_winapi() {
+        // move the terminal buffer down before moving it up
+        test_scroll_down_winapi();
+
+        let current_window = ScreenBuffer::current()
+            .unwrap()
+            .info()
+            .unwrap()
+            .terminal_window();
+
+        scroll_up(2).unwrap();
+
+        let new_window = ScreenBuffer::current()
+            .unwrap()
+            .info()
+            .unwrap()
+            .terminal_window();
+
+        println!("{:?}", current_window);
+        println!("{:?}", new_window);
+
+        assert_eq!(new_window.top, current_window.top - 2);
+        assert_eq!(new_window.bottom, current_window.bottom - 2);
+    }
 }

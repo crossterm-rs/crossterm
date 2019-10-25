@@ -1,4 +1,4 @@
-//! This module provides terminal related ANSI-escape codes.
+//! This module provides terminal related ANSI escape codes.
 
 use crate::csi;
 

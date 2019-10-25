@@ -1,15 +1,16 @@
 //! # Terminal
 //!
-//! The `terminal` module provides a functionality to work with the terminal.
+//! The `terminal` module provides functionality to work with the terminal.
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide
 //! [examples](https://github.com/crossterm-rs/examples) repository
 //! to demonstrate the capabilities.
 //!
-//! ## Examples
+//! Cursor actions can be performed with commands.
+//! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
 //!
-//! Commands:
+//! ## Examples
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -29,9 +30,10 @@
 //!     Ok(())
 //! }
 //! ```
+//! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
 pub use sys::exit;
-pub use sys::get_terminal_size as size;
+pub use sys::size;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -59,7 +61,7 @@ pub enum ClearType {
     UntilNewLine,
 }
 
-/// A command to scroll the terminal given rows up.
+/// A command that scrolls the terminal screen a given number of rows up.
 ///
 /// # Notes
 ///
@@ -79,7 +81,7 @@ impl Command for ScrollUp {
     }
 }
 
-/// A command to scroll the terminal given rows down.
+/// A command that scrolls the terminal screen a given number of rows down.
 ///
 /// # Notes
 ///
@@ -99,7 +101,7 @@ impl Command for ScrollDown {
     }
 }
 
-/// A command to clear the terminal.
+/// A command that clears the terminal screen buffer.
 ///
 /// See the [`ClearType`](enum.ClearType.html) enum.
 ///
@@ -127,7 +129,7 @@ impl Command for Clear {
     }
 }
 
-/// A command to set the terminal size (rows, columns).
+/// A command that sets the terminal size `(columns, rows)`.
 ///
 /// # Notes
 ///
@@ -151,3 +153,51 @@ impl_display!(for ScrollUp);
 impl_display!(for ScrollDown);
 impl_display!(for SetSize);
 impl_display!(for Clear);
+
+#[cfg(test)]
+mod tests {
+    use super::{size, SetSize};
+    use crate::execute;
+    use std::{io::stdout, thread, time};
+
+    // TODO - Test is disabled, because it's failing on Travis CI
+    #[test]
+    #[ignore]
+    fn test_resize_ansi() {
+        try_enable_ansi();
+
+        let (width, height) = size().unwrap();
+
+        execute!(stdout(), SetSize(35, 35));
+
+        // see issue: https://github.com/eminence/terminal-size/issues/11
+        thread::sleep(time::Duration::from_millis(30));
+
+        assert_eq!((35, 35), size().unwrap());
+
+        // reset to previous size
+        execute!(stdout(), SetSize(width, height));
+
+        // see issue: https://github.com/eminence/terminal-size/issues/11
+        thread::sleep(time::Duration::from_millis(30));
+
+        assert_eq!((width, height), size().unwrap());
+    }
+
+    fn try_enable_ansi() -> bool {
+        #[cfg(windows)]
+        {
+            if cfg!(target_os = "windows") {
+                use crate::utils::sys::winapi::ansi::set_virtual_terminal_processing;
+
+                // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
+                match set_virtual_terminal_processing(true) {
+                    Ok(_) => return true,
+                    Err(_) => return false,
+                }
+            }
+        }
+
+        true
+    }
+}
