@@ -34,9 +34,9 @@ impl Crossterm {
         crate::style::TerminalColor::new()
     }
 
-    /// Creates a new `StyledObject`.
+    /// Creates a new `StyledContent`.
     #[cfg(feature = "style")]
-    pub fn style<D>(&self, val: D) -> crate::style::StyledObject<D>
+    pub fn style<D>(&self, val: D) -> crate::style::StyledContent<D>
     where
         D: Display + Clone,
     {

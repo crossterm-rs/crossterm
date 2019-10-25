@@ -1,8 +1,8 @@
-//! This module contains the `content style` that can be applied to an `styled object`.
+//! This module contains the `content style` that can be applied to an `styled content`.
 
 use std::fmt::Display;
 
-use super::{Attribute, Color, StyledObject};
+use super::{Attribute, Color, StyledContent};
 
 /// A content style.
 #[derive(Debug, Clone, Default)]
@@ -16,12 +16,9 @@ pub struct ContentStyle {
 }
 
 impl ContentStyle {
-    /// Creates a `StyledObject` by applying the style to the given `val`.
-    pub fn apply<D: Display + Clone>(&self, val: D) -> StyledObject<D> {
-        StyledObject {
-            content_style: self.clone(),
-            content: val,
-        }
+    /// Creates a `StyledContent` by applying the style to the given `val`.
+    pub fn apply<D: Display + Clone>(&self, val: D) -> StyledContent<D> {
+        StyledContent::new(self.clone(), val)
     }
 
     /// Creates a new `ContentStyle`.
@@ -73,10 +70,10 @@ mod tests {
             .background(Color::Red)
             .attribute(Attribute::Reset);
 
-        let styled_object = content_style.apply("test");
+        let styled_content = content_style.apply("test");
 
-        assert_eq!(styled_object.content_style.fg_color, Some(Color::Blue));
-        assert_eq!(styled_object.content_style.bg_color, Some(Color::Red));
-        assert_eq!(styled_object.content_style.attrs[0], Attribute::Reset);
+        assert_eq!(styled_content.content_style().fg_color, Some(Color::Blue));
+        assert_eq!(styled_content.content_style().bg_color, Some(Color::Red));
+        assert_eq!(styled_content.content_style().attrs[0], Attribute::Reset);
     }
 }

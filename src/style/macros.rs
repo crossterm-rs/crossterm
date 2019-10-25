@@ -1,6 +1,6 @@
 macro_rules! def_attr {
     ($name:ident => $attr:path) => {
-        fn $name(self) -> StyledObject<D> {
+        fn $name(self) -> StyledContent<D> {
             self.attr($attr)
         }
     };
@@ -8,39 +8,39 @@ macro_rules! def_attr {
 
 macro_rules! def_color {
     ($side:ident: $name:ident => $color:path) => {
-        fn $name(self) -> StyledObject<D> {
-            StyledObject {
-                content_style: ContentStyle {
+        fn $name(self) -> StyledContent<D> {
+            StyledContent::new(
+                ContentStyle {
                     $side: Some($color),
                     ..self.content_style
                 },
-                ..self
-            }
+                self.content
+            )
         }
     };
 }
 
 macro_rules! def_str_color {
     ($side:ident: $name:ident => $color:path) => {
-        fn $name(self) -> StyledObject< &'static str> {
-            StyledObject {
-                content_style: ContentStyle {
+        fn $name(self) -> StyledContent< &'static str> {
+            StyledContent::new(
+                ContentStyle {
                     $side: Some($color),
                     ..Default::default()
                 },
-                content: self
-            }
+                self
+            )
         }
     };
 }
 
 macro_rules! def_str_attr {
     ($name:ident => $color:path) => {
-        fn $name(self) -> StyledObject<&'static str> {
-            StyledObject {
-                content_style: Default::default(),
-                content: self,
-            }
+        fn $name(self) -> StyledContent<&'static str> {
+            StyledContent::new(
+                Default::default(),
+                self
+            )
         }
     }
 }
