@@ -72,8 +72,8 @@ mod tests {
 
         let styled_content = content_style.apply("test");
 
-        assert_eq!(styled_content.content_style().fg_color, Some(Color::Blue));
-        assert_eq!(styled_content.content_style().bg_color, Some(Color::Red));
-        assert_eq!(styled_content.content_style().attrs[0], Attribute::Reset);
+        assert_eq!(styled_content.style().fg_color, Some(Color::Blue));
+        assert_eq!(styled_content.style().bg_color, Some(Color::Red));
+        assert_eq!(styled_content.style().attrs[0], Attribute::Reset);
     }
 }

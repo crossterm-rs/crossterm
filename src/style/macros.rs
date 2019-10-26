@@ -1,7 +1,7 @@
 macro_rules! def_attr {
     ($name:ident => $attr:path) => {
         fn $name(self) -> StyledContent<D> {
-            self.attr($attr)
+            self.attribute($attr)
         }
     };
 }
@@ -12,7 +12,7 @@ macro_rules! def_color {
             StyledContent::new(
                 ContentStyle {
                     $side: Some($color),
-                    ..self.content_style
+                    ..self.style
                 },
                 self.content
             )

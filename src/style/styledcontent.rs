@@ -17,44 +17,41 @@ use super::{Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttr, SetBg
 /// let styled = style("Hello there")
 ///     .with(Color::Yellow)
 ///     .on(Color::Blue)
-///     .attr(Attribute::Bold);
+///     .attribute(Attribute::Bold);
 ///
 /// println!("{}", styled);
 /// ```
 #[derive(Clone)]
 pub struct StyledContent<D: Display + Clone> {
-    /// The content style (colors, content attributes).
-    content_style: ContentStyle,
+    /// The style (colors, content attributes).
+    style: ContentStyle,
     /// A content to apply the style on.
     content: D,
 }
 
 impl<'a, D: Display + 'a + Clone> StyledContent<D> {
     /// Creates a new `StyledContent`.
-    pub fn new(content_style: ContentStyle, content: D) -> StyledContent<D> {
-        StyledContent {
-            content_style,
-            content,
-        }
+    pub fn new(style: ContentStyle, content: D) -> StyledContent<D> {
+        StyledContent { style, content }
     }
 
     /// Sets the foreground color.
     pub fn with(mut self, foreground_color: Color) -> StyledContent<D> {
-        self.content_style = self.content_style.foreground(foreground_color);
+        self.style = self.style.foreground(foreground_color);
         self
     }
 
     /// Sets the background color.
     pub fn on(mut self, background_color: Color) -> StyledContent<D> {
-        self.content_style = self.content_style.background(background_color);
+        self.style = self.style.background(background_color);
         self
     }
 
     /// Adds the attribute.
     ///
     /// You can add more attributes by calling this method multiple times.
-    pub fn attr(mut self, attr: Attribute) -> StyledContent<D> {
-        self.content_style = self.content_style.attribute(attr);
+    pub fn attribute(mut self, attr: Attribute) -> StyledContent<D> {
+        self.style = self.style.attribute(attr);
         self
     }
 
@@ -63,9 +60,9 @@ impl<'a, D: Display + 'a + Clone> StyledContent<D> {
         &self.content
     }
 
-    /// Returns the content style.
-    pub fn content_style(&self) -> &ContentStyle {
-        &self.content_style
+    /// Returns the style.
+    pub fn style(&self) -> &ContentStyle {
+        &self.style
     }
 }
 
@@ -73,16 +70,16 @@ impl<D: Display + Clone> Display for StyledContent<D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> result::Result<(), fmt::Error> {
         let mut reset = false;
 
-        if let Some(bg) = self.content_style.bg_color {
+        if let Some(bg) = self.style.bg_color {
             queue!(f, SetBg(bg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
-        if let Some(fg) = self.content_style.fg_color {
+        if let Some(fg) = self.style.fg_color {
             queue!(f, SetFg(fg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
-        for attr in self.content_style.attrs.iter() {
+        for attr in self.style.attrs.iter() {
             queue!(f, SetAttr(*attr)).map_err(|_| fmt::Error)?;
             reset = true;
         }
@@ -155,22 +152,22 @@ mod tests {
 
     #[test]
     fn test_set_fg_bg_add_attr() {
-        let content_style = ContentStyle::new()
+        let style = ContentStyle::new()
             .foreground(Color::Blue)
             .background(Color::Red)
             .attribute(Attribute::Reset);
 
-        let mut styled_content = content_style.apply("test");
+        let mut styled_content = style.apply("test");
 
         styled_content = styled_content
             .with(Color::Green)
             .on(Color::Magenta)
-            .attr(Attribute::NoItalic);
+            .attribute(Attribute::NoItalic);
 
-        assert_eq!(styled_content.content_style.fg_color, Some(Color::Green));
-        assert_eq!(styled_content.content_style.bg_color, Some(Color::Magenta));
-        assert_eq!(styled_content.content_style.attrs.len(), 2);
-        assert_eq!(styled_content.content_style.attrs[0], Attribute::Reset);
-        assert_eq!(styled_content.content_style.attrs[1], Attribute::NoItalic);
+        assert_eq!(styled_content.style.fg_color, Some(Color::Green));
+        assert_eq!(styled_content.style.bg_color, Some(Color::Magenta));
+        assert_eq!(styled_content.style.attrs.len(), 2);
+        assert_eq!(styled_content.style.attrs[0], Attribute::Reset);
+        assert_eq!(styled_content.style.attrs[1], Attribute::NoItalic);
     }
 }
