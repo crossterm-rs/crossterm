@@ -1,6 +1,10 @@
 # Next Version
 
 - Derived 'Copy' for 'KeyEvent'
+- Refactor the style module [issue](https://github.com/crossterm-rs/crossterm/issues/286)
+  - Renamed ObjectStyle to ContentStyle. Now full names are used for methods.
+  - Renamed StyledObject to StyledContent and made members private. Renamed attr method to attribute.
+  - Renamed Attribute::NoInverse to NoReverse
 
 # Version 0.12.1
 
