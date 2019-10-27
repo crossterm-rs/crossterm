@@ -52,10 +52,10 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{Goto, QueueableCommand};
+//! use crossterm::{QueueableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! stdout.queue(Goto(5,5));
+//! stdout.queue(cursor::MoveTo(5,5));
 //!
 //! // some other code ...
 //!
@@ -69,10 +69,10 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{queue, Goto, QueueableCommand};
+//! use crossterm::{queue, QueueableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! queue!(stdout,  Goto(5, 5));
+//! queue!(stdout,  cursor::MoveTo(5, 5));
 //!
 //! // some other code ...
 //!
@@ -93,20 +93,20 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{ExecutableCommand, Goto};
+//! use crossterm::{ExecutableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! stdout.execute(Goto(5,5));
+//! stdout.execute(cursor::MoveTo(5,5));
 //! ```
 //!
 //! Macros:
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{execute, ExecutableCommand, Goto};
+//! use crossterm::{execute, ExecutableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! execute!(stdout, Goto(5, 5));
+//! execute!(stdout, cursor::MoveTo(5, 5));
 //! ```
 //!
 //! ## Examples
@@ -117,7 +117,10 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize, Clear, ClearType, Goto, Result};
+//! use crossterm::{
+//!     ExecutableCommand, QueueableCommand, Color, PrintStyledFont,
+//!     Colorize, Clear, ClearType, cursor::MoveTo, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
@@ -128,7 +131,7 @@
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
 //!         stdout
-//!           .queue(Goto(x,y))?
+//!           .queue(MoveTo(x,y))?
 //!           .queue(PrintStyledFont( "█".magenta()))?;
 //!       }
 //!     }
@@ -142,7 +145,10 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, queue, Color, PrintStyledFont, Colorize, Goto, Clear, ClearType, Result};
+//! use crossterm::{
+//!     execute, queue, Color, PrintStyledFont,
+//!     Colorize, cursor::MoveTo, Clear, ClearType, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
@@ -152,7 +158,7 @@
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         queue!(stdout, Goto(x,y), PrintStyledFont( "█".magenta()))?;
+//!         queue!(stdout, MoveTo(x,y), PrintStyledFont( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -161,11 +167,6 @@
 //! }
 //!```
 
-#[cfg(feature = "cursor")]
-pub use cursor::{
-    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, Up,
-};
 #[cfg(feature = "input")]
 pub use input::{
     input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
@@ -186,6 +187,7 @@ pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand,
 pub use self::crossterm::Crossterm;
 
 mod crossterm;
+
 /// A functionality to work with the terminal cursor
 #[cfg(feature = "cursor")]
 pub mod cursor;

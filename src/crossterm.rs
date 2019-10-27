@@ -10,12 +10,6 @@ impl Crossterm {
         Crossterm
     }
 
-    /// Crates a new `TerminalCursor`.
-    #[cfg(feature = "cursor")]
-    pub fn cursor(&self) -> crate::cursor::TerminalCursor {
-        crate::cursor::TerminalCursor::new()
-    }
-
     /// Creates a new `TerminalInput`.
     #[cfg(feature = "input")]
     pub fn input(&self) -> crate::input::TerminalInput {

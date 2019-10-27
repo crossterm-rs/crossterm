@@ -1,11 +1,25 @@
-# Next Version
+# Master
 
-- Derived 'Copy' for 'KeyEvent'
-- Refactor the style module [issue](https://github.com/crossterm-rs/crossterm/issues/286)
-  - Renamed ObjectStyle to ContentStyle. Now full names are used for methods.
-  - Renamed StyledObject to StyledContent and made members private. Renamed attr method to attribute.
-  - Renamed Attribute::NoInverse to NoReverse
-
+- `input` module
+    - Derive 'Copy' for 'KeyEvent'
+- `cursor` module
+    - Remove `TerminalCursor`, `cursor`, `Crossterm::cursor()`
+    - Introduce static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
+    - Rename `Goto` to `MoveTo`
+    - Rename `Up` to `MoveLeft`
+    - Rename `Right` to `MoveRight`
+    - Rename `Down` to `MoveDown`
+    - Rename `BlinkOn` to `EnableBlinking`
+    - Rename `BlinkOff` to `DisableBlinking`
+    - Rename `ResetPos` to `ResetPosition`
+    - Rename `SavePos` to `SavePosition`
+    - Remove re-export cursor module types at root level, are now accessible from `crossterm::cursor`
+ - `style module`
+    - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods.
+    - Rename `StyledObject` to `StyledContent` and made members private. 
+    - Rename `attr` method to `attribute`.
+    - Rename `Attribute::NoInverse` to `NoReverse`
+  
 # Version 0.12.1
 
 - All the `crossterm_` crates code was moved to the `crossterm` crate
