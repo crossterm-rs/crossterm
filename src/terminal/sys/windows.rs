@@ -4,7 +4,7 @@ use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
 use crate::terminal::ClearType;
 use crate::utils::Result;
-use crate::{ErrorKind, TerminalCursor};
+use crate::{cursor, ErrorKind};
 
 /// Exits the current application.
 pub fn exit() {
@@ -215,8 +215,7 @@ fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<()> 
     clear_winapi(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at cell 0,0
-    let cursor = TerminalCursor::new();
-    cursor.goto(0, 0)?;
+    cursor::sys::move_to(0, 0)?;
     Ok(())
 }
 
@@ -231,8 +230,7 @@ fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16
     clear_winapi(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at cell 1 on current row
-    let cursor = TerminalCursor::new();
-    cursor.goto(0, location.y as u16)?;
+    cursor::sys::move_to(0, location.y as u16)?;
     Ok(())
 }
 
@@ -249,8 +247,7 @@ fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) 
     clear_winapi(start_location, cells_to_write, current_attribute)?;
 
     // put the cursor back at original cursor position before we did the clearing
-    let cursor = TerminalCursor::new();
-    cursor.goto(x as u16, y as u16)?;
+    cursor::sys::move_to(x as u16, y as u16)?;
     Ok(())
 }
 
