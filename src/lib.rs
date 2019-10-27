@@ -169,7 +169,7 @@
 
 #[cfg(feature = "input")]
 pub use input::{
-    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
+    AsyncReader, input, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
 pub use screen::{
@@ -177,8 +177,8 @@ pub use screen::{
 };
 #[cfg(feature = "style")]
 pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
-    SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
+    Attribute, color, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor, SetAttr,
+    SetBg, SetFg, style, StyledObject, Styler, TerminalColor,
 };
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 

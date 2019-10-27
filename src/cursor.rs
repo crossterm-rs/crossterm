@@ -45,10 +45,9 @@
 pub use sys::position;
 
 use crate::impl_display;
+use crate::utils::Command;
 #[cfg(windows)]
 use crate::utils::Result;
-
-use crate::utils::Command;
 
 mod ansi;
 pub(crate) mod sys;
@@ -296,11 +295,13 @@ impl_display!(for DisableBlinking);
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
-    };
-    use crate::execute;
     use std::io::{self, stdout, Write};
+
+    use crate::execute;
+
+    use super::{
+        MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, position, RestorePosition, SavePosition,
+    };
 
     // Test is disabled, because it's failing on Travis
     #[test]

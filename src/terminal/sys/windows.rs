@@ -2,9 +2,9 @@
 
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
+use crate::{cursor, ErrorKind};
 use crate::terminal::ClearType;
 use crate::utils::Result;
-use crate::{cursor, ErrorKind};
 
 /// Exits the current application.
 pub fn exit() {

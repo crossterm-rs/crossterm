@@ -3,9 +3,9 @@
 use std::{
     char, io,
     sync::{
+        Arc,
         atomic::{AtomicBool, Ordering},
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
+        mpsc::{self, Receiver, Sender}, Mutex,
     },
     thread,
     time::Duration,
@@ -32,8 +32,8 @@ use lazy_static::lazy_static;
 use crate::utils::Result;
 
 use super::{
-    super::{InputEvent, KeyEvent, MouseButton},
     Input,
+    super::{InputEvent, KeyEvent, MouseButton},
 };
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;

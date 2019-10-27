@@ -156,12 +156,14 @@ impl_display!(for Clear);
 
 #[cfg(test)]
 mod tests {
-    use super::{size, ScrollDown, ScrollUp, SetSize};
-    use crate::execute;
     use std::{
         io::{stdout, Write},
         thread, time,
     };
+
+    use crate::execute;
+
+    use super::{ScrollDown, ScrollUp, SetSize, size};
 
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]

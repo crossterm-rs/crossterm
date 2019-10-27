@@ -1,16 +1,16 @@
+use std::{fs, io, thread};
 use std::os::unix::io::IntoRawFd;
 use std::os::unix::io::RawFd;
 use std::sync::{
+    Arc,
     atomic::{AtomicBool, Ordering},
-    mpsc::{self, Receiver, Sender},
-    Arc, Mutex,
+    mpsc::{self, Receiver, Sender}, Mutex,
 };
 use std::time::Duration;
-use std::{fs, io, thread};
 
 use libc::{c_int, c_void, size_t, ssize_t};
-use mio::unix::EventedFd;
 use mio::{Events, Poll, PollOpt, Ready, Token};
+use mio::unix::EventedFd;
 
 use lazy_static::lazy_static;
 

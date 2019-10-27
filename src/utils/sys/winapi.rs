@@ -5,14 +5,14 @@ pub mod ansi {
     use super::super::super::error::Result;
 
     /// Toggle virtual terminal processing.
-    ///
-    /// This method attempts to toggle virtual terminal processing for this
-    /// console. If there was a problem toggling it, then an error returned.
-    /// On success, the caller may assume that toggling it was successful.
-    ///
-    /// When virtual terminal processing is enabled, characters emitted to the
-    /// console are parsed for VT100 and similar control character sequences
-    /// that control color and other similar operations.
+            ///
+            /// This method attempts to toggle virtual terminal processing for this
+            /// console. If there was a problem toggling it, then an error returned.
+            /// On success, the caller may assume that toggling it was successful.
+            ///
+            /// When virtual terminal processing is enabled, characters emitted to the
+            /// console are parsed for VT100 and similar control character sequences
+            /// that control color and other similar operations.
     pub fn set_virtual_terminal_processing(yes: bool) -> Result<()> {
         let mask = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
