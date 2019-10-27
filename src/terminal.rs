@@ -14,7 +14,7 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, Result, ScrollUp, SetSize, size};
+//! use crossterm::{execute, Result, terminal::{ScrollUp, SetSize, size}};
 //!
 //! fn main() -> Result<()> {
 //!     let (cols, rows) = size()?;
