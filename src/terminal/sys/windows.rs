@@ -47,7 +47,7 @@ pub(crate) fn scroll_up(row_count: u16) -> Result<()> {
     let csbi = ScreenBuffer::current()?;
     let mut window = csbi.info()?.terminal_window();
 
-    // Check whether the window is too close to the screen buffer top
+    // check whether the window is too close to the screen buffer top
     let count = row_count as i16;
     if window.top >= count {
         window.top -= count; // move top down
@@ -64,7 +64,7 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
     let mut window = csbi.terminal_window();
     let buffer_size = csbi.buffer_size();
 
-    // Check whether the window is too close to the screen buffer top
+    // check whether the window is too close to the screen buffer top
     let count = row_count as i16;
     if window.bottom < buffer_size.height - count {
         window.top += count; // move top down
@@ -89,7 +89,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
         )));
     }
 
-    // Get the position of the current console window
+    // get the position of the current console window
     let screen_buffer = ScreenBuffer::current()?;
     let console = Console::from(**screen_buffer.handle());
     let csbi = screen_buffer.info()?;
@@ -136,12 +136,12 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
 
     let mut window = window.clone();
 
-    // Preserve the position, but change the size.
+    // preserve the position, but change the size.
     window.bottom = window.top + height - 1;
     window.right = window.left + width - 1;
     console.set_console_info(true, window)?;
 
-    // If we resized the buffer, un-resize it.
+    // if we resized the buffer, un-resize it.
     if resize_buffer {
         if let Err(_) = screen_buffer.set_size(current_size.width - 1, current_size.height - 1) {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(

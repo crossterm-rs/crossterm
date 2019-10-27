@@ -7,8 +7,8 @@ use crate::{csi, write_cout};
 use crate::utils::Result;
 
 use super::{
-    Input,
-    super::{InputEvent, InternalEvent, KeyEvent, sys::unix::internal_event_receiver},
+    ::{InputEvent, InternalEvent, KeyEvent, sys::unix::internal_event_receiver},
+    super Input,
 };
 
 pub(crate) struct UnixInput;
