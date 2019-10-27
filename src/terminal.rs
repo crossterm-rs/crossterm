@@ -165,7 +165,7 @@ mod tests {
 
     use crate::execute;
 
-    use super::{size, ScrollDown, ScrollUp, SetSize};
+    use super::{size, SetSize};
 
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]
