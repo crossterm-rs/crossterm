@@ -40,12 +40,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils::Result;
 
-pub use self::input::{AsyncReader, SyncReader};
-use self::input::Input;
 #[cfg(unix)]
 use self::input::unix::UnixInput;
 #[cfg(windows)]
 use self::input::windows::WindowsInput;
+use self::input::Input;
+pub use self::input::{AsyncReader, SyncReader};
 
 mod input;
 mod sys;

@@ -1,14 +1,14 @@
 //! This is a UNIX specific implementation for input related action.
 
-use std::{char, sync::mpsc};
 use std::sync::mpsc::Receiver;
+use std::{char, sync::mpsc};
 
-use crate::{csi, write_cout};
 use crate::utils::Result;
+use crate::{csi, write_cout};
 
 use super::{
-    ::{InputEvent, InternalEvent, KeyEvent, sys::unix::internal_event_receiver},
-    super Input,
+    super::{sys::unix::internal_event_receiver, InputEvent, InternalEvent, KeyEvent},
+    Input,
 };
 
 pub(crate) struct UnixInput;
