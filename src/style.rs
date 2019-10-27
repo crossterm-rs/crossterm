@@ -106,14 +106,14 @@ use std::env;
 use std::fmt::Display;
 
 use style::ansi::{self, AnsiColor};
+use style::Style;
 #[cfg(windows)]
 use style::winapi::WinApiColor;
-use style::Style;
 
 use crate::impl_display;
+use crate::utils::{Command, Result};
 #[cfg(windows)]
 use crate::utils::supports_ansi;
-use crate::utils::{Command, Result};
 
 pub use self::enums::{Attribute, Color, Colored};
 pub use self::objectstyle::ObjectStyle;

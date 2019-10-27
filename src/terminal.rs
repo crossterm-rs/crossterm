@@ -41,7 +41,6 @@ use serde::{Deserialize, Serialize};
 use crate::impl_display;
 #[doc(no_inline)]
 use crate::utils::Command;
-
 #[cfg(windows)]
 use crate::utils::Result;
 
@@ -166,7 +165,7 @@ mod tests {
 
     use crate::execute;
 
-    use super::{size, ScrollDown, ScrollUp, SetSize};
+    use super::{ScrollDown, ScrollUp, SetSize, size};
 
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]
