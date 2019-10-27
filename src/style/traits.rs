@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::StyledObject;
+use super::StyledContent;
 
 /// Provides a set of methods to set the colors.
 ///
@@ -18,39 +18,39 @@ use super::StyledObject;
 /// println!("{}", styled_text);
 /// ```
 pub trait Colorize<D: Display + Clone> {
-    fn black(self) -> StyledObject<D>;
-    fn dark_grey(self) -> StyledObject<D>;
-    fn red(self) -> StyledObject<D>;
-    fn dark_red(self) -> StyledObject<D>;
-    fn green(self) -> StyledObject<D>;
-    fn dark_green(self) -> StyledObject<D>;
-    fn yellow(self) -> StyledObject<D>;
-    fn dark_yellow(self) -> StyledObject<D>;
-    fn blue(self) -> StyledObject<D>;
-    fn dark_blue(self) -> StyledObject<D>;
-    fn magenta(self) -> StyledObject<D>;
-    fn dark_magenta(self) -> StyledObject<D>;
-    fn cyan(self) -> StyledObject<D>;
-    fn dark_cyan(self) -> StyledObject<D>;
-    fn white(self) -> StyledObject<D>;
-    fn grey(self) -> StyledObject<D>;
+    fn black(self) -> StyledContent<D>;
+    fn dark_grey(self) -> StyledContent<D>;
+    fn red(self) -> StyledContent<D>;
+    fn dark_red(self) -> StyledContent<D>;
+    fn green(self) -> StyledContent<D>;
+    fn dark_green(self) -> StyledContent<D>;
+    fn yellow(self) -> StyledContent<D>;
+    fn dark_yellow(self) -> StyledContent<D>;
+    fn blue(self) -> StyledContent<D>;
+    fn dark_blue(self) -> StyledContent<D>;
+    fn magenta(self) -> StyledContent<D>;
+    fn dark_magenta(self) -> StyledContent<D>;
+    fn cyan(self) -> StyledContent<D>;
+    fn dark_cyan(self) -> StyledContent<D>;
+    fn white(self) -> StyledContent<D>;
+    fn grey(self) -> StyledContent<D>;
 
-    fn on_black(self) -> StyledObject<D>;
-    fn on_dark_grey(self) -> StyledObject<D>;
-    fn on_red(self) -> StyledObject<D>;
-    fn on_dark_red(self) -> StyledObject<D>;
-    fn on_green(self) -> StyledObject<D>;
-    fn on_dark_green(self) -> StyledObject<D>;
-    fn on_yellow(self) -> StyledObject<D>;
-    fn on_dark_yellow(self) -> StyledObject<D>;
-    fn on_blue(self) -> StyledObject<D>;
-    fn on_dark_blue(self) -> StyledObject<D>;
-    fn on_magenta(self) -> StyledObject<D>;
-    fn on_dark_magenta(self) -> StyledObject<D>;
-    fn on_cyan(self) -> StyledObject<D>;
-    fn on_dark_cyan(self) -> StyledObject<D>;
-    fn on_white(self) -> StyledObject<D>;
-    fn on_grey(self) -> StyledObject<D>;
+    fn on_black(self) -> StyledContent<D>;
+    fn on_dark_grey(self) -> StyledContent<D>;
+    fn on_red(self) -> StyledContent<D>;
+    fn on_dark_red(self) -> StyledContent<D>;
+    fn on_green(self) -> StyledContent<D>;
+    fn on_dark_green(self) -> StyledContent<D>;
+    fn on_yellow(self) -> StyledContent<D>;
+    fn on_dark_yellow(self) -> StyledContent<D>;
+    fn on_blue(self) -> StyledContent<D>;
+    fn on_dark_blue(self) -> StyledContent<D>;
+    fn on_magenta(self) -> StyledContent<D>;
+    fn on_dark_magenta(self) -> StyledContent<D>;
+    fn on_cyan(self) -> StyledContent<D>;
+    fn on_dark_cyan(self) -> StyledContent<D>;
+    fn on_white(self) -> StyledContent<D>;
+    fn on_grey(self) -> StyledContent<D>;
 }
 
 /// Provides a set of methods to set the text attributes.
@@ -67,15 +67,15 @@ pub trait Colorize<D: Display + Clone> {
 /// println!("{}", "Negative text".negative());
 /// ```
 pub trait Styler<D: Display + Clone> {
-    fn reset(self) -> StyledObject<D>;
-    fn bold(self) -> StyledObject<D>;
-    fn underlined(self) -> StyledObject<D>;
-    fn reverse(self) -> StyledObject<D>;
-    fn dim(self) -> StyledObject<D>;
-    fn italic(self) -> StyledObject<D>;
-    fn negative(self) -> StyledObject<D>;
-    fn slow_blink(self) -> StyledObject<D>;
-    fn rapid_blink(self) -> StyledObject<D>;
-    fn hidden(self) -> StyledObject<D>;
-    fn crossed_out(self) -> StyledObject<D>;
+    fn reset(self) -> StyledContent<D>;
+    fn bold(self) -> StyledContent<D>;
+    fn underlined(self) -> StyledContent<D>;
+    fn reverse(self) -> StyledContent<D>;
+    fn dim(self) -> StyledContent<D>;
+    fn italic(self) -> StyledContent<D>;
+    fn negative(self) -> StyledContent<D>;
+    fn slow_blink(self) -> StyledContent<D>;
+    fn rapid_blink(self) -> StyledContent<D>;
+    fn hidden(self) -> StyledContent<D>;
+    fn crossed_out(self) -> StyledContent<D>;
 }

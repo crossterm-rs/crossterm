@@ -115,41 +115,41 @@ use crate::impl_display;
 use crate::utils::supports_ansi;
 use crate::utils::{Command, Result};
 
+pub use self::contentstyle::ContentStyle;
 pub use self::enums::{Attribute, Color, Colored};
-pub use self::objectstyle::ObjectStyle;
-pub use self::styledobject::StyledObject;
+pub use self::styledcontent::StyledContent;
 pub use self::traits::{Colorize, Styler};
 
 #[macro_use]
 mod macros;
+mod contentstyle;
 mod enums;
-mod objectstyle;
 mod style;
-mod styledobject;
+mod styledcontent;
 mod traits;
 
-/// Creates a `StyledObject`.
+/// Creates a `StyledContent`.
 ///
 /// This could be used to style any type that implements `Display` with colors and text attributes.
 ///
-/// See [`StyledObject`](struct.StyledObject.html) for more info.
+/// See [`StyledContent`](struct.StyledContent.html) for more info.
 ///
 /// # Examples
 ///
 /// ```no_run
 /// use crossterm::{style, Color};
 ///
-/// let styled_object = style("Blue colored text on yellow background")
+/// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
 ///     .on(Color::Yellow);
 ///
-/// println!("{}", styled_object);
+/// println!("{}", styled_content);
 /// ```
-pub fn style<'a, D: 'a>(val: D) -> StyledObject<D>
+pub fn style<'a, D: 'a>(val: D) -> StyledContent<D>
 where
     D: Display + Clone,
 {
-    ObjectStyle::new().apply_to(val)
+    ContentStyle::new().apply(val)
 }
 
 impl Colorize<&'static str> for &'static str {
@@ -365,20 +365,20 @@ impl Command for SetAttr {
     }
 }
 
-/// A command to print the styled object.
+/// A command to print the styled content.
 ///
-/// See [`StyledObject`](struct.StyledObject.html) for more info.
+/// See [`StyledContent`](struct.StyledContent.html) for more info.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct PrintStyledFont<D: Display + Clone>(pub StyledObject<D>);
+pub struct PrintStyledFont<D: Display + Clone>(pub StyledContent<D>);
 
 impl<D> Command for PrintStyledFont<D>
 where
     D: Display + Clone,
 {
-    type AnsiType = StyledObject<D>;
+    type AnsiType = StyledContent<D>;
 
     fn ansi_code(&self) -> Self::AnsiType {
         self.0.clone()

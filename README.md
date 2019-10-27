@@ -20,7 +20,6 @@ see [Tested Terminals](#tested-terminals) for more info).
     * [Tested Terminals](#tested-terminals)
 * [Getting Started](#getting-started)
     * [Feature Flags](#feature-flags)
-    * [`crossterm` vs `crossterm_*` crates](#crossterm-vs-crossterm_-crates)
 * [Other Resources](#other-resources)
 * [Used By](#used-by)
 * [Contributing](#contributing)    
