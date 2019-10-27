@@ -7,7 +7,7 @@
 //! [examples](https://github.com/crossterm-rs/examples) repository
 //! to demonstrate the capabilities.
 //!
-//! Cursor actions can be performed with commands.
+//! Terminal actions can be performed with commands.
 //! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
 //!
 //! ## Examples
@@ -165,7 +165,7 @@ mod tests {
 
     use crate::execute;
 
-    use super::{ScrollDown, ScrollUp, SetSize, size};
+    use super::{size, ScrollDown, ScrollUp, SetSize};
 
     // TODO - Test is disabled, because it's failing on Travis CI
     #[test]

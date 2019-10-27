@@ -300,7 +300,7 @@ mod tests {
     use crate::execute;
 
     use super::{
-        MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, position, RestorePosition, SavePosition,
+        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

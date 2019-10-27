@@ -1,9 +1,9 @@
 //! UNIX related logic for terminal manipulation.
 
-use libc::{ioctl, STDOUT_FILENO, TIOCGWINSZ, winsize};
+use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
-use crate::utils::Result;
 use crate::utils::sys::unix::wrap_with_result;
+use crate::utils::Result;
 
 /// Exits the current application.
 pub fn exit() {
