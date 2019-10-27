@@ -1,10 +1,10 @@
 //! This module contains all `unix` specific terminal related logic.
 
-use std::{io, mem};
 use std::sync::Mutex;
+use std::{io, mem};
 
-use libc::{cfmakeraw, STDIN_FILENO, tcgetattr, TCSANOW, tcsetattr};
 pub use libc::termios as Termios;
+use libc::{cfmakeraw, tcgetattr, tcsetattr, STDIN_FILENO, TCSANOW};
 
 use lazy_static::lazy_static;
 

@@ -1,8 +1,8 @@
 //! This is a ANSI specific implementation for styling related action.
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
-use crate::{csi, write_cout};
 use crate::utils::Result;
+use crate::{csi, write_cout};
 
 use super::super::{Attribute, Color, Colored, Style};
 

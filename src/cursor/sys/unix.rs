@@ -4,8 +4,8 @@ use std::io::{self, Write};
 
 use crate::input::{InputEvent, TerminalInput};
 use crate::utils::{
-    Result,
     sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
+    Result,
 };
 
 /// Returns the cursor position (column, row).
