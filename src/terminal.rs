@@ -167,7 +167,7 @@ mod tests {
 
     use super::{size, SetSize};
 
-    // TODO - Test is disabled, because it's failing on Travis CI
+    // Test is disabled, because it's failing on Travis CI
     #[test]
     #[ignore]
     fn test_resize_ansi() {
