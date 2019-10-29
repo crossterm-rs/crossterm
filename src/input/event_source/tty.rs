@@ -1,13 +1,8 @@
-use std::collections::VecDeque;
-use std::io::{Error, ErrorKind};
-use std::time::Duration;
-
-use crate::input::event_source::InputMask;
 use crate::input::events::InternalEvent;
 use crate::input::sys::unix::{tty_fd, FileDesc, TtyPoll};
-use crate::Event;
 use crate::EventSource;
 use crate::Result;
+use std::time::Duration;
 
 pub struct TTYEventSource {
     source: TtyPoll,

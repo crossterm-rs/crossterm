@@ -1,44 +1,23 @@
 use std::os::unix::io::IntoRawFd;
 use std::os::unix::io::RawFd;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    mpsc::{self, Receiver, Sender},
-    Arc, Mutex,
-};
 use std::time::Duration;
-use std::{fs, io, thread};
+use std::{fs, io};
 
 use libc::{c_int, c_void, size_t, ssize_t};
 use mio::unix::EventedFd;
 use mio::{Events, Poll, PollOpt, Ready, Token};
 
-use lazy_static::lazy_static;
-
 use crate::input::events::InternalEvent;
 use crate::{ErrorKind, Result};
 use crate::{Event, KeyEvent, MouseButton, MouseEvent};
 
-use self::utils::{check_for_error, check_for_error_result};
-
-lazy_static! {
-    /// A shared internal event provider.
-    static ref INTERNAL_EVENT_PROVIDER: Mutex<Box<dyn InternalEventProvider>> =
-        Mutex::new(default_internal_event_provider());
-}
+use self::utils::check_for_error_result;
 
 // TODO 1.0: Enhance utils::sys::unix::wrap_with_result and use it
 mod utils {
     use std::io;
 
     use libc::c_int;
-
-    pub fn check_for_error(result: c_int) -> io::Result<()> {
-        if result == -1 {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(())
-        }
-    }
 
     // TODO 1.0: Enhance utils::sys::unix::wrap_with_result and use it
     pub fn check_for_error_result(result: c_int) -> io::Result<libc::c_int> {
@@ -47,6 +26,23 @@ mod utils {
         } else {
             Ok(result)
         }
+    }
+}
+
+// libstd::sys::unix::fd.rs
+fn max_len() -> usize {
+    // The maximum read limit on most posix-like systems is `SSIZE_MAX`,
+    // with the man page quoting that if the count of bytes to read is
+    // greater than `SSIZE_MAX` the result is "unspecified".
+    //
+    // On macOS, however, apparently the 64-bit libc is either buggy or
+    // intentionally showing odd behavior by rejecting any read with a size
+    // larger than or equal to INT_MAX. To handle both of these the read
+    // size is capped on both platforms.
+    if cfg!(target_os = "macos") {
+        <c_int>::max_value() as usize - 1
+    } else {
+        <ssize_t>::max_value() as usize
     }
 }
 
@@ -70,7 +66,7 @@ impl FileDesc {
 
     fn read_byte(&self) -> Result<u8> {
         let mut buf: [u8; 1] = [0];
-        utils::check_for_error(unsafe {
+        crate::utils::sys::unix::wrap_with_result(unsafe {
             libc::read(self.fd, buf.as_mut_ptr() as *mut libc::c_void, 1) as c_int
         })?;
 

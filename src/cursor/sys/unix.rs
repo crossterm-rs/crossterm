@@ -1,7 +1,5 @@
 use std::io::{self, Write};
 
-use crate::input::{event_stream, Event};
-use crate::poll;
 use crate::utils::{
     sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
     Result,
@@ -41,15 +39,8 @@ fn pos_raw() -> Result<(u16, u16)> {
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
-    let mut reader = event_stream();
-
     loop {
-        poll()?;
-
-        for event in reader.events() {
-            if let Event::CursorPosition(x, y) = event {
-                return Ok((x, y));
-            }
-        }
+        // TODO: READ MOUSE POSITION
+        return Ok((0, 0));
     }
 }
