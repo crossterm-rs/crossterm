@@ -1,10 +1,14 @@
+//! This module provides platform related functions.
+
 #[cfg(unix)]
-pub(crate) use self::unix::{exit, get_terminal_size};
+pub use self::unix::{exit, size};
 #[cfg(windows)]
-pub(crate) use self::winapi::{exit, get_terminal_size};
+pub(crate) use self::windows::{clear, scroll_down, scroll_up, set_size};
+#[cfg(windows)]
+pub use self::windows::{exit, size};
 
 #[cfg(windows)]
-pub(crate) mod winapi;
+pub(crate) mod windows;
 
 #[cfg(unix)]
 pub(crate) mod unix;
