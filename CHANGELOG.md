@@ -2,7 +2,7 @@
 
 - `input` module
     - Derive 'Copy' for 'KeyEvent'
-    - add the EnableMouseMode and DisableMouseMode commands
+    - Add the EnableMouseMode and DisableMouseMode commands
 - `cursor` module
     - Remove `TerminalCursor`, `cursor`, `Crossterm::cursor()`
     - Introduce static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
