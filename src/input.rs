@@ -442,7 +442,7 @@ impl Command for EnableMouseMode {
     }
 }
 
-/// A command that disables mouse event's to be monitored. 
+/// A command that disables mouse event monitoring.
 ///
 /// Mouse events will be produced by the
 /// [`AsyncReader`](struct.AsyncReader.html)/[`SyncReader`](struct.SyncReader.html).
