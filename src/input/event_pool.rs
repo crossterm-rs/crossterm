@@ -16,10 +16,28 @@ lazy_static! {
     pub static ref EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
 }
 
-/// Return true if there are events to be read.
+/// Polls to check if there are any events that can be read.
+/// True is returned if this is the case.
 ///
-/// This function will block the current thread until the given timeout is elapsed.
-/// It will wait indefinitely if no timeout is given.
+/// This function will block until either at least one  event has been received or a `timeout` has elapsed.
+/// A `timeout` of `None` means that `poll` will block until a readiness event has been received.
+///
+/// To read events use `read`.
+///
+/// ```no_run
+/// use std::time::Duration;
+/// use crossterm::{Result, input::poll};
+///
+/// fn main() -> Result<()> {
+///     // wait maximal 1 second
+///     if poll(Some(Duration::from_millis(1000)))? {  /* logic */  }
+///
+///     // wait indefinitely
+///     if poll(None)? { /* logic */  }
+///
+///     Ok(())
+/// }
+/// ```
 pub fn poll(timeout: Option<Duration>) -> Result<bool> {
     let mut lock = EventPool::get_mut();
     lock.pool().poll(timeout)
@@ -28,6 +46,24 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// Reads a single event.
 ///
 /// This function will block until an event is received.
+///
+/// ```no_run
+/// use crossterm::{Result, input::{read, poll}};
+/// use crossterm::Event;
+/// use std::time::Duration;
+///
+/// fn main() -> Result<()> {
+///     // wait 1 second for events to be ready
+///     if poll(Some(Duration::from_millis(1000)))? {
+///         // read the ready events
+///         match read() {
+///             Ok(Event(event)) => { println!("{:?}", event) }
+///             _ => { }
+///         }
+///      }
+///     Ok(())
+/// }
+/// ```
 pub fn read() -> Result<Event> {
     let mut lock = EventPool::get_mut();
     lock.pool().read()
@@ -84,12 +120,19 @@ impl EventPool {
         self.event_source = event_source;
     }
 
-    /// Polls for event readiness
+    /// Polls to check if there are any events that can be read.
+    /// True is returned if this is the case.
+    ///
+    /// This function blocks the current thread.
+    /// Use `InputPool::poll()` to see if there are events to read.
     pub fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
         self.event_source.poll(timeout)
     }
 
-    /// Reads for an event from the underlying event source
+    /// Reads a single input event.
+    ///
+    /// This function blocks the current thread.
+    /// Use `InputPool::poll()` to see if there are events to read.
     pub fn read(&mut self) -> Result<Event> {
         match self.event_source.read()? {
             Some(InternalEvent::Input(event)) => {
@@ -113,6 +156,7 @@ pub struct EventPoolReadLock<'a> {
 }
 
 impl<'a> EventPoolReadLock<'a> {
+    /// Constructs the read lock from the given `EventPool` read lock.
     pub(crate) fn from_lock_result(
         read_guard: RwLockReadGuard<'a, EventPool>,
     ) -> EventPoolReadLock<'a> {
@@ -131,6 +175,7 @@ pub struct EventPoolWriteLock<'a> {
 }
 
 impl<'a> EventPoolWriteLock<'a> {
+    /// Constructs the write lock from the given `EventPool` write lock.
     pub(crate) fn from_lock_result(
         write_guard: RwLockWriteGuard<'a, EventPool>,
     ) -> EventPoolWriteLock<'a> {

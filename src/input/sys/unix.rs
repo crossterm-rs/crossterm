@@ -13,22 +13,6 @@ use crate::{Event, KeyEvent, MouseButton, MouseEvent};
 
 use self::utils::check_for_error_result;
 
-// TODO 1.0: Enhance utils::sys::unix::wrap_with_result and use it
-mod utils {
-    use std::io;
-
-    use libc::c_int;
-
-    // TODO 1.0: Enhance utils::sys::unix::wrap_with_result and use it
-    pub fn check_for_error_result(result: c_int) -> io::Result<libc::c_int> {
-        if result == -1 {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(result)
-        }
-    }
-}
-
 // libstd::sys::unix::fd.rs
 fn max_len() -> usize {
     // The maximum read limit on most posix-like systems is `SSIZE_MAX`,
@@ -56,14 +40,18 @@ pub struct FileDesc {
 }
 
 impl FileDesc {
+    /// Constructs a new `FileDesc` with the given `RawFd`
     fn new(fd: RawFd) -> FileDesc {
         FileDesc::with_close_on_drop(fd, true)
     }
 
+    /// Constructs a new `FileDesc` with the given `RawFd`.
+    /// Specify weather the file should be closed on drop with `close_on_drop`.
     fn with_close_on_drop(fd: RawFd, close_on_drop: bool) -> FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
+    /// Reads a single byte from the file descriptor.
     fn read_byte(&self) -> Result<u8> {
         let mut buf: [u8; 1] = [0];
         crate::utils::sys::unix::wrap_with_result(unsafe {
@@ -73,9 +61,8 @@ impl FileDesc {
         Ok(buf[0])
     }
 
+    /// Writes a single byte to the file descriptor.
     fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        // libstd::sys::unix::fd.rs
-
         let ret = check_for_error_result(unsafe {
             libc::write(
                 self.fd,
@@ -86,6 +73,7 @@ impl FileDesc {
         Ok(ret as usize)
     }
 
+    /// Returns the underlying file descriptor.
     fn raw_fd(&self) -> RawFd {
         self.fd
     }
@@ -93,7 +81,6 @@ impl FileDesc {
 
 impl Drop for FileDesc {
     // libstd::sys::unix::fd.rs
-
     fn drop(&mut self) {
         if self.close_on_drop {
             // Note that errors are ignored when closing a file descriptor. The
@@ -124,17 +111,19 @@ pub fn tty_fd() -> Result<FileDesc> {
     Ok(FileDesc::with_close_on_drop(fd, close_on_drop))
 }
 
-pub struct TtyPoll {
+// Tokens to identify file descriptor
+const TTY_TOKEN: Token = Token(0);
+
+// Basic abstraction on top of mio poll to read events from TTY.
+pub(crate) struct TtyPoll {
     poll: Poll,
     tty_fd: FileDesc,
     events: Events,
 }
 
-// Tokens to identify file descriptor
-const TTY_TOKEN: Token = Token(0);
-
 impl TtyPoll {
-    pub fn new(tty_fd: FileDesc) -> TtyPoll {
+    /// Constructs a new instance of `TtyPoll`
+    pub(crate) fn new(tty_fd: FileDesc) -> TtyPoll {
         // Get raw file descriptors for
         let tty_raw_fd = tty_fd.raw_fd();
 
@@ -152,10 +141,17 @@ impl TtyPoll {
         }
     }
 
+    /// Waits for readiness events.
+    ///
+    /// The function will block until either at least one readiness event has been received or a timeout has elapsed.
+    /// A timeout of None means that poll will block until a readiness event has been received.
     pub(crate) fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
         Ok(self.poll.poll(&mut self.events, timeout).map(|x| x > 0)?)
     }
 
+    /// Reads events from the TTY.
+    ///
+    /// This function will block until there are new bytes on the TTY.
     pub(crate) fn read(&mut self) -> Result<Option<InternalEvent>> {
         let mut buffer: Vec<u8> = Vec::with_capacity(32);
 

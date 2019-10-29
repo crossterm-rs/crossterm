@@ -7,7 +7,6 @@ use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
     },
-    winnt::INT,
     winuser::{
         VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
         VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT,
@@ -19,10 +18,6 @@ use crate::Result;
 use crate::{Event, KeyEvent, MouseButton};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
-
-extern "C" {
-    fn _getwche() -> INT;
-}
 
 pub fn read_single_event() -> Result<Option<Event>> {
     let console = Console::from(Handle::current_in_handle()?);

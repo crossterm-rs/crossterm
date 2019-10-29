@@ -3,6 +3,7 @@
 use std::sync::Mutex;
 use std::{io, mem};
 
+use libc::c_int;
 pub use libc::termios as Termios;
 use libc::{cfmakeraw, tcgetattr, tcsetattr, STDIN_FILENO, TCSANOW};
 
@@ -20,11 +21,19 @@ pub fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
 }
 
-pub fn wrap_with_result(t: i32) -> Result<()> {
-    if t == -1 {
+pub fn wrap_with_result(result: i32) -> Result<()> {
+    if result == -1 {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
         Ok(())
+    }
+}
+
+pub fn check_for_error_result(result: c_int) -> io::Result<libc::c_int> {
+    if result == -1 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(result)
     }
 }
 
@@ -41,7 +50,7 @@ pub fn get_terminal_attr() -> Result<Termios> {
     }
 }
 
-pub fn set_terminal_attr(termios: &Termios) -> Result<()> {
+pub fn set_terminal_attr(termios: &Termios) -> Result<bool> {
     wrap_with_result(unsafe { tcsetattr(STDIN_FILENO, TCSANOW, termios) })
 }
 
