@@ -178,8 +178,8 @@ pub use screen::{
 };
 #[cfg(feature = "style")]
 pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledContent, ResetColor,
-    SetAttr, SetBg, SetFg, StyledContent, Styler, TerminalColor,
+    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledContent,
+    ResetColor, SetAttr, SetBg, SetFg, StyledContent, Styler, TerminalColor,
 };
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
