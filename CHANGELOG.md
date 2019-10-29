@@ -14,12 +14,17 @@
     - Rename `ResetPos` to `ResetPosition`
     - Rename `SavePos` to `SavePosition`
     - Remove re-export cursor module types at root level, are now accessible from `crossterm::cursor`
- - `style module`
+- `terminal`
+     - Remove `Terminal`, `terminal`, `Crossterm::terminal()`
+     - Introduce static function `crossterm::terminal::size` in place of `Terminal::size`
+     - Introduce static function `crossterm::terminal::exit` in place of `Terminal::exit`
+     - Remove re-export terminal module types at root level, are move those to `crossterm::terminal`
+- `style module`
     - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods.
     - Rename `StyledObject` to `StyledContent` and made members private. 
     - Rename `attr` method to `attribute`.
     - Rename `Attribute::NoInverse` to `NoReverse`
-  
+    
 # Version 0.12.1
 
 - All the `crossterm_` crates code was moved to the `crossterm` crate

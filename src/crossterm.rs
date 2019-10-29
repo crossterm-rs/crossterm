@@ -16,12 +16,6 @@ impl Crossterm {
         crate::input::TerminalInput::new()
     }
 
-    /// Creates a new `Terminal`.
-    #[cfg(feature = "terminal")]
-    pub fn terminal(&self) -> crate::terminal::Terminal {
-        crate::terminal::Terminal::new()
-    }
-
     /// Creates a new `TerminalColor`.
     #[cfg(feature = "style")]
     pub fn color(&self) -> crate::style::TerminalColor {

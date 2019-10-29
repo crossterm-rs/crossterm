@@ -118,21 +118,21 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{
-//!     ExecutableCommand, QueueableCommand, Color, PrintStyledFont,
-//!     Colorize, Clear, ClearType, cursor::MoveTo, Result
+//!     ExecutableCommand, QueueableCommand, Color,
+//!     Colorize, terminal, cursor, style, Result
 //! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   stdout.execute(Clear(ClearType::All))?;
+//!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
 //!         stdout
-//!           .queue(MoveTo(x,y))?
-//!           .queue(PrintStyledFont( "█".magenta()))?;
+//!           .queue(cursor::MoveTo(x,y))?
+//!           .queue(style::PrintStyledFont( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -147,18 +147,18 @@
 //! use std::io::{stdout, Write};
 //! use crossterm::{
 //!     execute, queue, Color, PrintStyledFont,
-//!     Colorize, cursor::MoveTo, Clear, ClearType, Result
+//!     Colorize, cursor, terminal, style, Result
 //! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   execute!(stdout, Clear(ClearType::All))?;
+//!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         queue!(stdout, MoveTo(x,y), PrintStyledFont( "█".magenta()))?;
+//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledFont( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -180,8 +180,6 @@ pub use style::{
     color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledFont, ResetColor,
     SetAttr, SetBg, SetFg, StyledContent, Styler, TerminalColor,
 };
-#[cfg(feature = "terminal")]
-pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;
