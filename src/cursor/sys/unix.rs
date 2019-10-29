@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 
-use crate::input::{event_stream, InputEvent};
-use crate::poll_event;
+use crate::input::{event_stream, Event};
+use crate::poll;
 use crate::utils::{
     sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
     Result,
@@ -44,10 +44,10 @@ fn pos_raw() -> Result<(u16, u16)> {
     let mut reader = event_stream();
 
     loop {
-        poll_event()?;
+        poll()?;
 
         for event in reader.events() {
-            if let InputEvent::CursorPosition(x, y) = event {
+            if let Event::CursorPosition(x, y) = event {
                 return Ok((x, y));
             }
         }

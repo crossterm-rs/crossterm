@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an input event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
-pub enum InputEvent {
+pub enum Event {
     /// A single key or a combination of keys.
     Keyboard(KeyEvent),
     /// A mouse event.
@@ -126,24 +126,23 @@ pub enum KeyEvent {
 ///
 /// Encapsulates publicly available `InputEvent` with additional internal
 /// events that shouldn't be publicly available to the crate users.
-#[cfg(unix)]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
 pub enum InternalEvent {
     /// An input event.
-    Input(InputEvent),
+    Input(Event),
     /// A cursor position (`x`, `y`).
     CursorPosition(u16, u16),
 }
 
 /// Converts an `InternalEvent` into a possible `InputEvent`.
 #[cfg(unix)]
-impl From<InternalEvent> for Option<InputEvent> {
+impl From<InternalEvent> for Option<Event> {
     fn from(ie: InternalEvent) -> Self {
         match ie {
             InternalEvent::Input(input_event) => Some(input_event),
             // TODO 1.0: Swallow `CursorPosition` and return `None`.
             // `cursor::pos_raw()` will be able to use this module `internal_event_receiver()`
-            InternalEvent::CursorPosition(x, y) => Some(InputEvent::CursorPosition(x, y)),
+            InternalEvent::CursorPosition(x, y) => Some(Event::CursorPosition(x, y)),
         }
     }
 }

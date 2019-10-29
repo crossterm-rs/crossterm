@@ -1,7 +1,12 @@
+use std::collections::VecDeque;
+use std::io::{Error, ErrorKind};
+use std::time::Duration;
+
+use crate::input::event_source::InputMask;
 use crate::input::events::InternalEvent;
 use crate::input::sys::unix::{tty_fd, FileDesc, TtyPoll};
+use crate::Event;
 use crate::EventSource;
-use crate::InputEvent;
 use crate::Result;
 
 pub struct TTYEventSource {
@@ -21,12 +26,11 @@ impl TTYEventSource {
 }
 
 impl EventSource for TTYEventSource {
-    fn read_event(&mut self) -> Result<Option<InputEvent>> {
-        match self.source.tty_poll() {
-            Ok(Some(InternalEvent::Input(event))) => return Ok(Some(event)),
-            Ok(Some(InternalEvent::CursorPosition(_, _))) => return Ok(None),
-            Ok(None) => Ok(None),
-            Err(e) => return Err(e),
-        }
+    fn read(&mut self) -> Result<Option<InternalEvent>> {
+        self.source.read()
+    }
+
+    fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        return self.source.poll(timeout);
     }
 }

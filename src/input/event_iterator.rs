@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 
 /// An iterator over occurred input `E`.
 #[derive(Debug)]
-pub struct EventIterator<E> {
+pub(crate) struct EventIterator<E> {
     events: VecDeque<E>,
 }
 

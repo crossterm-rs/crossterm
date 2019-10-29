@@ -16,7 +16,7 @@ use lazy_static::lazy_static;
 
 use crate::input::events::InternalEvent;
 use crate::{ErrorKind, Result};
-use crate::{InputEvent, KeyEvent, MouseButton, MouseEvent};
+use crate::{Event, KeyEvent, MouseButton, MouseEvent};
 
 use self::utils::{check_for_error, check_for_error_result};
 
@@ -131,6 +131,7 @@ pub fn tty_fd() -> Result<FileDesc> {
 pub struct TtyPoll {
     poll: Poll,
     tty_fd: FileDesc,
+    events: Events,
 }
 
 // Tokens to identify file descriptor
@@ -148,23 +149,26 @@ impl TtyPoll {
         poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())
             .unwrap();
 
-        TtyPoll { poll, tty_fd }
+        TtyPoll {
+            poll,
+            tty_fd,
+            events: Events::with_capacity(2),
+        }
     }
 
-    pub(crate) fn tty_poll(&mut self) -> Result<Option<InternalEvent>> {
-        let mut events = Events::with_capacity(2);
+    pub(crate) fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        Ok(self.poll.poll(&mut self.events, timeout).map(|x| x > 0)?)
+    }
+
+    pub(crate) fn read(&mut self) -> Result<Option<InternalEvent>> {
         let mut buffer: Vec<u8> = Vec::with_capacity(32);
 
         let get_tokens =
             |events: &Events| -> Vec<Token> { events.iter().map(|ev| ev.token()).collect() };
 
         loop {
-            // Wait for an event on provided raw file descriptors
-            // No timeout means indefinitely
-            self.poll.poll(&mut events, None)?;
-
             // Get tokens to identify file descriptors
-            let tokens = get_tokens(&events);
+            let tokens = get_tokens(&self.events);
 
             if tokens.contains(&TTY_TOKEN) {
                 // There's an event on tty
@@ -174,9 +178,9 @@ impl TtyPoll {
                     //
                     // We need this information to distinguish between Esc key and possible
                     // Esc sequence.
-                    self.poll.poll(&mut events, Some(Duration::from_secs(0)))?;
+                    self.poll(Some(Duration::from_millis(0)))?;
 
-                    let tokens = get_tokens(&events);
+                    let tokens = get_tokens(&self.events);
 
                     let input_available = tokens.contains(&TTY_TOKEN);
 
@@ -231,9 +235,7 @@ fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option<InternalEv
                     // Possible Esc sequence
                     Ok(None)
                 } else {
-                    Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-                        KeyEvent::Esc,
-                    ))))
+                    Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Esc))))
                 }
             } else {
                 match buffer[1] {
@@ -244,47 +246,39 @@ fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option<InternalEv
                             match buffer[2] {
                                 // F1-F4
                                 val @ b'P'..=b'S' => Ok(Some(InternalEvent::Input(
-                                    InputEvent::Keyboard(KeyEvent::F(1 + val - b'P')),
+                                    Event::Keyboard(KeyEvent::F(1 + val - b'P')),
                                 ))),
                                 _ => Err(could_not_parse_event_error()),
                             }
                         }
                     }
                     b'[' => parse_csi(buffer),
-                    b'\x1B' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-                        KeyEvent::Esc,
-                    )))),
+                    b'\x1B' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Esc)))),
                     _ => parse_utf8_char(&buffer[1..]).map(|maybe_char| {
                         maybe_char
                             .map(KeyEvent::Alt)
-                            .map(InputEvent::Keyboard)
+                            .map(Event::Keyboard)
                             .map(InternalEvent::Input)
                     }),
                 }
             }
         }
-        b'\r' | b'\n' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-            KeyEvent::Enter,
-        )))),
-        b'\t' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-            KeyEvent::Tab,
-        )))),
-        b'\x7F' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
+        b'\r' | b'\n' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Enter)))),
+        b'\t' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Tab)))),
+        b'\x7F' => Ok(Some(InternalEvent::Input(Event::Keyboard(
             KeyEvent::Backspace,
         )))),
-        c @ b'\x01'..=b'\x1A' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-            KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char),
-        )))),
-        c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-            KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char),
-        )))),
-        b'\0' => Ok(Some(InternalEvent::Input(InputEvent::Keyboard(
-            KeyEvent::Null,
-        )))),
+        c @ b'\x01'..=b'\x1A' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Ctrl(
+            (c as u8 - 0x1 + b'a') as char,
+        ))))),
+        c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Ctrl(
+            (c as u8 - 0x1C + b'4') as char,
+        ))))),
+        b'\0' => Ok(Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Null)))),
         _ => parse_utf8_char(buffer).map(|maybe_char| {
             maybe_char
                 .map(KeyEvent::Char)
-                .map(InputEvent::Keyboard)
+                .map(Event::Keyboard)
                 .map(InternalEvent::Input)
         }),
     }
@@ -305,18 +299,18 @@ fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 match buffer[3] {
                     // NOTE (@imdaveho): cannot find when this occurs;
                     // having another '[' after ESC[ not a likely scenario
-                    val @ b'A'..=b'E' => Some(InputEvent::Keyboard(KeyEvent::F(1 + val - b'A'))),
-                    _ => Some(InputEvent::Unknown),
+                    val @ b'A'..=b'E' => Some(Event::Keyboard(KeyEvent::F(1 + val - b'A'))),
+                    _ => Some(Event::Unknown),
                 }
             }
         }
-        b'D' => Some(InputEvent::Keyboard(KeyEvent::Left)),
-        b'C' => Some(InputEvent::Keyboard(KeyEvent::Right)),
-        b'A' => Some(InputEvent::Keyboard(KeyEvent::Up)),
-        b'B' => Some(InputEvent::Keyboard(KeyEvent::Down)),
-        b'H' => Some(InputEvent::Keyboard(KeyEvent::Home)),
-        b'F' => Some(InputEvent::Keyboard(KeyEvent::End)),
-        b'Z' => Some(InputEvent::Keyboard(KeyEvent::BackTab)),
+        b'D' => Some(Event::Keyboard(KeyEvent::Left)),
+        b'C' => Some(Event::Keyboard(KeyEvent::Right)),
+        b'A' => Some(Event::Keyboard(KeyEvent::Up)),
+        b'B' => Some(Event::Keyboard(KeyEvent::Down)),
+        b'H' => Some(Event::Keyboard(KeyEvent::Home)),
+        b'F' => Some(Event::Keyboard(KeyEvent::End)),
+        b'Z' => Some(Event::Keyboard(KeyEvent::BackTab)),
         b'M' => return parse_csi_x10_mouse(buffer),
         b'<' => return parse_csi_xterm_mouse(buffer),
         b'0'..=b'9' => {
@@ -339,7 +333,7 @@ fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 }
             }
         }
-        _ => Some(InputEvent::Unknown),
+        _ => Some(Event::Unknown),
     };
 
     Ok(input_event.map(InternalEvent::Input))
@@ -380,15 +374,15 @@ fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     let key = buffer[buffer.len() - 1];
 
     let input_event = match (modifier, key) {
-        (53, 65) => InputEvent::Keyboard(KeyEvent::CtrlUp),
-        (53, 66) => InputEvent::Keyboard(KeyEvent::CtrlDown),
-        (53, 67) => InputEvent::Keyboard(KeyEvent::CtrlRight),
-        (53, 68) => InputEvent::Keyboard(KeyEvent::CtrlLeft),
-        (50, 65) => InputEvent::Keyboard(KeyEvent::ShiftUp),
-        (50, 66) => InputEvent::Keyboard(KeyEvent::ShiftDown),
-        (50, 67) => InputEvent::Keyboard(KeyEvent::ShiftRight),
-        (50, 68) => InputEvent::Keyboard(KeyEvent::ShiftLeft),
-        _ => InputEvent::Unknown,
+        (53, 65) => Event::Keyboard(KeyEvent::CtrlUp),
+        (53, 66) => Event::Keyboard(KeyEvent::CtrlDown),
+        (53, 67) => Event::Keyboard(KeyEvent::CtrlRight),
+        (53, 68) => Event::Keyboard(KeyEvent::CtrlLeft),
+        (50, 65) => Event::Keyboard(KeyEvent::ShiftUp),
+        (50, 66) => Event::Keyboard(KeyEvent::ShiftDown),
+        (50, 67) => Event::Keyboard(KeyEvent::ShiftRight),
+        (50, 68) => Event::Keyboard(KeyEvent::ShiftLeft),
+        _ => Event::Unknown,
     };
 
     Ok(Some(InternalEvent::Input(input_event)))
@@ -407,20 +401,20 @@ fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
 
     if next_parsed::<u8>(&mut split).is_ok() {
         // TODO: handle multiple values for key modifiers (ex: values [3, 2] means Shift+Delete)
-        return Ok(Some(InternalEvent::Input(InputEvent::Unknown)));
+        return Ok(Some(InternalEvent::Input(Event::Unknown)));
     }
 
     let input_event = match first {
-        1 | 7 => InputEvent::Keyboard(KeyEvent::Home),
-        2 => InputEvent::Keyboard(KeyEvent::Insert),
-        3 => InputEvent::Keyboard(KeyEvent::Delete),
-        4 | 8 => InputEvent::Keyboard(KeyEvent::End),
-        5 => InputEvent::Keyboard(KeyEvent::PageUp),
-        6 => InputEvent::Keyboard(KeyEvent::PageDown),
-        v @ 11..=15 => InputEvent::Keyboard(KeyEvent::F(v - 10)),
-        v @ 17..=21 => InputEvent::Keyboard(KeyEvent::F(v - 11)),
-        v @ 23..=24 => InputEvent::Keyboard(KeyEvent::F(v - 12)),
-        _ => InputEvent::Unknown,
+        1 | 7 => Event::Keyboard(KeyEvent::Home),
+        2 => Event::Keyboard(KeyEvent::Insert),
+        3 => Event::Keyboard(KeyEvent::Delete),
+        4 | 8 => Event::Keyboard(KeyEvent::End),
+        5 => Event::Keyboard(KeyEvent::PageUp),
+        6 => Event::Keyboard(KeyEvent::PageDown),
+        v @ 11..=15 => Event::Keyboard(KeyEvent::F(v - 10)),
+        v @ 17..=21 => Event::Keyboard(KeyEvent::F(v - 11)),
+        v @ 23..=24 => Event::Keyboard(KeyEvent::F(v - 12)),
+        _ => Event::Unknown,
     };
 
     Ok(Some(InternalEvent::Input(input_event)))
@@ -451,9 +445,7 @@ fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         _ => MouseEvent::Unknown,
     };
 
-    Ok(Some(InternalEvent::Input(InputEvent::Mouse(
-        mouse_input_event,
-    ))))
+    Ok(Some(InternalEvent::Input(Event::Mouse(mouse_input_event))))
 }
 
 fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
@@ -493,9 +485,7 @@ fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         _ => MouseEvent::Unknown,
     };
 
-    Ok(Some(InternalEvent::Input(InputEvent::Mouse(
-        mouse_input_event,
-    ))))
+    Ok(Some(InternalEvent::Input(Event::Mouse(mouse_input_event))))
 }
 
 fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
@@ -530,16 +520,16 @@ fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 _ => unreachable!(),
             };
             match buffer.last().unwrap() {
-                b'M' => InputEvent::Mouse(MouseEvent::Press(button, cx, cy)),
-                b'm' => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-                _ => InputEvent::Unknown,
+                b'M' => Event::Mouse(MouseEvent::Press(button, cx, cy)),
+                b'm' => Event::Mouse(MouseEvent::Release(cx, cy)),
+                _ => Event::Unknown,
             }
         }
         // TODO 1.0: Add MouseButton to Hold and report which button is pressed
         // 33 - middle, 34 - right
-        32 => InputEvent::Mouse(MouseEvent::Hold(cx, cy)),
-        3 => InputEvent::Mouse(MouseEvent::Release(cx, cy)),
-        _ => InputEvent::Unknown,
+        32 => Event::Mouse(MouseEvent::Hold(cx, cy)),
+        3 => Event::Mouse(MouseEvent::Release(cx, cy)),
+        _ => Event::Unknown,
     };
 
     Ok(Some(InternalEvent::Input(input_event)))
@@ -595,7 +585,7 @@ mod tests {
     fn test_esc_key() {
         assert_eq!(
             parse_event("\x1B".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Esc))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Esc))),
         );
     }
 
@@ -608,9 +598,7 @@ mod tests {
     fn test_alt_key() {
         assert_eq!(
             parse_event("\x1Bc".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Alt(
-                'c'
-            )))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Alt('c')))),
         );
     }
 
@@ -628,27 +616,25 @@ mod tests {
         // parse_csi
         assert_eq!(
             parse_event("\x1B[D".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Left))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Left))),
         );
 
         // parse_csi_modifier_key_code
         assert_eq!(
             parse_event("\x1B[2D".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(
-                KeyEvent::ShiftLeft
-            ))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::ShiftLeft))),
         );
 
         // parse_csi_special_key_code
         assert_eq!(
             parse_event("\x1B[3~".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Delete))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Delete))),
         );
 
         // parse_csi_rxvt_mouse
         assert_eq!(
             parse_event("\x1B[32;30;40;M".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 29,
                 39
@@ -658,7 +644,7 @@ mod tests {
         // parse_csi_x10_mouse
         assert_eq!(
             parse_event("\x1B[M0\x60\x70".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 63,
                 79
@@ -668,7 +654,7 @@ mod tests {
         // parse_csi_xterm_mouse
         assert_eq!(
             parse_event("\x1B[<0;20;10;M".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 19,
                 9
@@ -678,9 +664,7 @@ mod tests {
         // parse_utf8_char
         assert_eq!(
             parse_event("Ž".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Char(
-                'Ž'
-            )))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Char('Ž')))),
         );
     }
 
@@ -688,7 +672,7 @@ mod tests {
     fn test_parse_event() {
         assert_eq!(
             parse_event("\t".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Tab))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Tab))),
         );
     }
 
@@ -704,7 +688,7 @@ mod tests {
     fn test_parse_csi() {
         assert_eq!(
             parse_csi("\x1B[D".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Left))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Left))),
         );
     }
 
@@ -712,9 +696,7 @@ mod tests {
     fn test_parse_csi_modifier_key_code() {
         assert_eq!(
             parse_csi_modifier_key_code("\x1B[2D".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(
-                KeyEvent::ShiftLeft
-            ))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::ShiftLeft))),
         );
     }
 
@@ -722,7 +704,7 @@ mod tests {
     fn test_parse_csi_special_key_code() {
         assert_eq!(
             parse_csi_special_key_code("\x1B[3~".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Keyboard(KeyEvent::Delete))),
+            Some(InternalEvent::Input(Event::Keyboard(KeyEvent::Delete))),
         );
     }
 
@@ -730,7 +712,7 @@ mod tests {
     fn test_parse_csi_special_key_code_multiple_values_not_supported() {
         assert_eq!(
             parse_csi_special_key_code("\x1B[3;2~".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Unknown)),
+            Some(InternalEvent::Input(Event::Unknown)),
         );
     }
 
@@ -738,7 +720,7 @@ mod tests {
     fn test_parse_csi_rxvt_mouse() {
         assert_eq!(
             parse_csi_rxvt_mouse("\x1B[32;30;40;M".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 29,
                 39
@@ -750,7 +732,7 @@ mod tests {
     fn test_parse_csi_x10_mouse() {
         assert_eq!(
             parse_csi_x10_mouse("\x1B[M0\x60\x70".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 63,
                 79
@@ -762,7 +744,7 @@ mod tests {
     fn test_parse_csi_xterm_mouse() {
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10;M".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 19,
                 9
@@ -770,7 +752,7 @@ mod tests {
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10M".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Press(
                 MouseButton::Left,
                 19,
                 9
@@ -778,15 +760,15 @@ mod tests {
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10;m".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(
-                MouseEvent::Release(19, 9)
-            )))
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Release(
+                19, 9
+            ))))
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10m".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(InputEvent::Mouse(
-                MouseEvent::Release(19, 9)
-            )))
+            Some(InternalEvent::Input(Event::Mouse(MouseEvent::Release(
+                19, 9
+            ))))
         );
     }
 

@@ -16,7 +16,7 @@ use winapi::um::{
 };
 
 use crate::Result;
-use crate::{InputEvent, KeyEvent, MouseButton};
+use crate::{Event, KeyEvent, MouseButton};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
@@ -24,7 +24,7 @@ extern "C" {
     fn _getwche() -> INT;
 }
 
-pub fn read_single_event() -> Result<Option<InputEvent>> {
+pub fn read_single_event() -> Result<Option<Event>> {
     let console = Console::from(Handle::current_in_handle()?);
 
     let input = console.read_single_input_event()?;
@@ -43,17 +43,17 @@ pub fn read_single_event() -> Result<Option<InputEvent>> {
     }
 }
 
-fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<InputEvent>> {
+fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
     if let Some(event) = parse_mouse_event_record(&mouse_event) {
-        return Ok(Some(InputEvent::Mouse(event)));
+        return Ok(Some(Event::Mouse(event)));
     }
     Ok(None)
 }
 
-fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<InputEvent>> {
+fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     if key_event.key_down {
         if let Some(event) = parse_key_event_record(&key_event) {
-            return Ok(Some(InputEvent::Keyboard(event)));
+            return Ok(Some(Event::Keyboard(event)));
         }
     }
 

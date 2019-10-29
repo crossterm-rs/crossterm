@@ -35,11 +35,9 @@
 //! on the terminal screen.
 
 pub use self::{
-    event_iterator::EventIterator,
-    event_pool::{event_stream, poll_event, EventPool, EventPoolReadLock, EventPoolWriteLock},
+    event_pool::{poll, read, EventPool, EventPoolReadLock, EventPoolWriteLock},
     event_source::EventSource,
-    event_stream::EventStream,
-    events::{InputEvent, KeyEvent, MouseButton, MouseEvent},
+    events::{Event, KeyEvent, MouseButton, MouseEvent},
     spmc::ProducerLock,
 };
 

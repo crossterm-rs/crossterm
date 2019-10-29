@@ -1,4 +1,6 @@
+use std::io::{Error, ErrorKind};
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::time::Duration;
 
 use lazy_static::lazy_static;
 
@@ -6,9 +8,10 @@ use lazy_static::lazy_static;
 use crate::input::event_source::tty::TTYEventSource;
 #[cfg(windows)]
 use crate::input::event_source::winapi::WinApiEventSource;
+use crate::input::event_stream::EventStream;
+use crate::input::events::InternalEvent;
 use crate::input::spmc::EventChannel;
-use crate::EventStream;
-use crate::{EventSource, Result};
+use crate::{Event, EventSource, Result};
 
 lazy_static! {
     /// Static instance of `EventPool`.
@@ -16,39 +19,21 @@ lazy_static! {
     pub static ref EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
 }
 
-/// Returns a `EventStream` that can be used to read input events with.
+/// Return true if there are events to be read.
 ///
-/// Note that in order for the stream to receive events you have to call [`poll_event`](..link) first.
-///
-/// ```no_run
-/// use crossterm::{event_stream, poll_event, RawScreen};
-///
-/// fn main () {
-///     let r = RawScreen::into_raw_mode().unwrap();
-///
-///     let mut stream = event_stream();
-///
-///     while true {
-///         poll_event();
-///
-///         for event in stream.key_events() {
-///             println!("{:?}", event);
-///         }
-///     }
-/// }
-/// ```
-pub fn event_stream() -> EventStream {
-    let lock = EventPool::get();
-    lock.pool().event_stream()
+/// This function will block the current thread until the given timeout is elapsed.
+/// It will wait indefinitely if no timeout is given.
+pub fn poll(timeout: Option<Duration>) -> Result<bool> {
+    let mut lock = EventPool::get_mut();
+    lock.pool().poll(timeout)
 }
 
-/// Polls for occurred events.
+/// Reads a single event.
 ///
-/// An input event will be replicated to all `EventStreams` when an event has occurred.
-/// This function will wait until an event read until an event is risen.
-pub fn poll_event() -> Result<()> {
+/// This function will block until an event is received.
+pub fn read() -> Result<Event> {
     let mut lock = EventPool::get_mut();
-    lock.pool().poll()
+    lock.pool().read()
 }
 
 /// Produces events to consumers.
@@ -83,9 +68,11 @@ impl EventPool {
         #[cfg(unix)]
         let input = TTYEventSource::new();
 
+        let event_channel = EventChannel::channel(shrev::EventChannel::new());
+
         EventPool {
             event_source: Box::new(input) as Box<dyn EventSource + Sync + Send>,
-            event_channel: EventChannel::channel(shrev::EventChannel::new()),
+            event_channel,
         }
     }
 
@@ -104,23 +91,34 @@ impl EventPool {
         EventPoolReadLock::from_lock_result(EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
     }
 
-    /// Changes the default input source to the given input source.
+    /// Changes the default `EventSource` to the given `EventSource`.
     pub fn set_event_source(&mut self, event_source: Box<dyn EventSource>) {
         self.event_source = event_source;
     }
 
-    /// Polls for input from the underlying input source.
-    ///
-    /// An input event will be replicated to all consumers aka streams if an input event has occurred.
-    /// This poll function will block read for a single key press.
-    pub fn poll(&mut self) -> Result<()> {
-        // poll for occurred input events
-        if let Some(event) = self.event_source.read_event()? {
-            // produce the input event for the consumers
-            self.event_channel.producer().produce_input_event(event);
-        }
+    /// Polls for event readiness
+    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        self.event_source.poll(timeout)
+    }
 
-        Ok(())
+    /// Reads for an event from the underlying event source
+    pub fn read(&mut self) -> Result<Event> {
+        match self.event_source.read()? {
+            Some(InternalEvent::Input(event)) => {
+                return Ok(event);
+            }
+            Some(internal_event) => {
+                // internal events are produced to internal listening consumers.
+                self.event_channel.producer().produce_event(internal_event);
+
+                // TODO: this is not correct, how can we pass internal events to internal listeners.
+                Err(Error::new(
+                    ErrorKind::Other,
+                    "Something went wrong when reading input",
+                ))?
+            }
+            None => return self.read(),
+        }
     }
 
     /// Enables mouse events to be monitored.
@@ -171,8 +169,8 @@ mod tests {
     use std::sync::mpsc::channel;
 
     use crate::input::event_source::fake::FakeEventSource;
-    use crate::InputEvent;
-    use crate::{event_stream, poll_event, EventPool};
+    use crate::Event;
+    use crate::{event_stream, poll, EventPool};
 
     #[test]
     pub fn test_read_input_multiple_consumers() {
@@ -184,7 +182,7 @@ mod tests {
 
         // set input source, and sent fake input
         pool.set_event_source(Box::new(FakeEventSource::new(input_receiver)));
-        input_sender.send(InputEvent::Unknown).unwrap();
+        input_sender.send(Event::Unknown).unwrap();
 
         // drop write lock
         drop(lock);
@@ -194,9 +192,9 @@ mod tests {
         let mut stream2 = event_stream();
 
         // poll for input
-        poll_event().unwrap();
+        poll().unwrap();
 
-        assert_eq!(stream1.events().next(), Some(InputEvent::Unknown));
-        assert_eq!(stream2.events().next(), Some(InputEvent::Unknown));
+        assert_eq!(stream1.events().next(), Some(Event::Unknown));
+        assert_eq!(stream2.events().next(), Some(Event::Unknown));
     }
 }

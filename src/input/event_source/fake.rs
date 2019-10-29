@@ -1,15 +1,16 @@
 use std::sync::mpsc::Receiver;
 use std::sync::Mutex;
+use std::time::Duration;
 
+use crate::input::events::InternalEvent;
 use crate::EventSource;
-use crate::InputEvent;
 
 pub struct FakeEventSource {
-    input_receiver: Mutex<Receiver<InputEvent>>,
+    input_receiver: Mutex<Receiver<InternalEvent>>,
 }
 
 impl FakeEventSource {
-    pub fn new(input_receiver: Receiver<InputEvent>) -> FakeEventSource {
+    pub fn new(input_receiver: Receiver<InternalEvent>) -> FakeEventSource {
         FakeEventSource {
             input_receiver: Mutex::new(input_receiver),
         }
@@ -17,7 +18,7 @@ impl FakeEventSource {
 }
 
 impl EventSource for FakeEventSource {
-    fn read_event(&mut self) -> crate::Result<Option<InputEvent>> {
+    fn read(&mut self) -> crate::Result<Option<InternalEvent>> {
         let input_receiver = self
             .input_receiver
             .lock()
@@ -28,5 +29,10 @@ impl EventSource for FakeEventSource {
                 .recv()
                 .expect("Can't receive input from channel"),
         ))
+    }
+
+    fn poll(&mut self, timeout: Option<Duration>) -> crate::Result<bool> {
+        // implement poll for receiver
+        return Ok(true);
     }
 }

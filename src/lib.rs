@@ -168,8 +168,8 @@ pub use cursor::{
 };
 #[cfg(feature = "input")]
 pub use input::{
-    event_stream, poll_event, EventIterator, EventPool, EventPoolReadLock, EventPoolWriteLock,
-    EventSource, EventStream, InputEvent, KeyEvent, MouseButton, MouseEvent,
+    Event, EventPool, EventPoolReadLock, EventPoolWriteLock, EventSource, KeyEvent, MouseButton,
+    MouseEvent,
 };
 #[cfg(feature = "screen")]
 pub use screen::{
