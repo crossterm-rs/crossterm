@@ -8,9 +8,6 @@ pub mod tty;
 #[cfg(windows)]
 pub mod winapi;
 
-// to be implemented
-struct InputMask;
-
 pub trait EventSource: Sync + Send {
     /// Block read for input.
     fn read(&mut self) -> crate::Result<Option<InternalEvent>>;

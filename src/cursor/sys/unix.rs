@@ -4,7 +4,7 @@ use crate::utils::{
     sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
     Result,
 };
-use crate::{csi, write_cout};
+use crate::{csi, write_cout, Event, EventPool};
 
 pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
     if is_raw_mode_enabled() {
@@ -39,8 +39,18 @@ fn pos_raw() -> Result<(u16, u16)> {
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
+    // acquire mutable lock until we read the position, so that the user can't steal it from us.
+    let mut lock = EventPool::get_mut();
+    let mut pool = lock.pool();
+
     loop {
-        // TODO: READ MOUSE POSITION
-        return Ok((0, 0));
+        match pool.poll(None).and_then(|_| pool.read()) {
+            Ok(event) => {
+                if let Event::CursorPosition(x, y) = event {
+                    return Ok((x, y));
+                }
+            }
+            Err(e) => Err(e),
+        }
     }
 }

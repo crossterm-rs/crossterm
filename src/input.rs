@@ -38,14 +38,10 @@ pub use self::{
     event_pool::{poll, read, EventPool, EventPoolReadLock, EventPoolWriteLock},
     event_source::EventSource,
     events::{Event, KeyEvent, MouseButton, MouseEvent},
-    spmc::ProducerLock,
 };
 
 mod sys;
 
-mod event_iterator;
 mod event_pool;
 mod event_source;
-mod event_stream;
 mod events;
-mod spmc;

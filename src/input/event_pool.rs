@@ -1,4 +1,3 @@
-use std::io::{Error, ErrorKind};
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use std::time::Duration;
 
@@ -8,9 +7,7 @@ use lazy_static::lazy_static;
 use crate::input::event_source::tty::TTYEventSource;
 #[cfg(windows)]
 use crate::input::event_source::winapi::WinApiEventSource;
-use crate::input::event_stream::EventStream;
 use crate::input::events::InternalEvent;
-use crate::input::spmc::EventChannel;
 use crate::{Event, EventSource, Result};
 
 lazy_static! {
@@ -51,12 +48,11 @@ pub fn read() -> Result<Event> {
 /// use crossterm::EventPool;
 ///
 /// let read_only = EventPool::get().pool();
-/// let read_only = EventPool::get_mut().pool;
+/// let read_only = EventPool::get_mut().pool();
 /// ```
 ///
 /// Not that one can obtain only one writer and multiple readers.
 pub struct EventPool {
-    pub(crate) event_channel: EventChannel,
     event_source: Box<dyn EventSource>,
 }
 
@@ -68,17 +64,9 @@ impl EventPool {
         #[cfg(unix)]
         let input = TTYEventSource::new();
 
-        let event_channel = EventChannel::channel(shrev::EventChannel::new());
-
         EventPool {
             event_source: Box::new(input) as Box<dyn EventSource + Sync + Send>,
-            event_channel,
         }
-    }
-
-    /// Returns a [`EventStream`](struct.EventStream.html) that will consume events produced by the producer.
-    pub(crate) fn event_stream(&self) -> EventStream {
-        EventStream::new(self.event_channel.new_consumer())
     }
 
     /// Acquires an write lock to `EventPool`.
@@ -107,16 +95,7 @@ impl EventPool {
             Some(InternalEvent::Input(event)) => {
                 return Ok(event);
             }
-            Some(internal_event) => {
-                // internal events are produced to internal listening consumers.
-                self.event_channel.producer().produce_event(internal_event);
-
-                // TODO: this is not correct, how can we pass internal events to internal listeners.
-                Err(Error::new(
-                    ErrorKind::Other,
-                    "Something went wrong when reading input",
-                ))?
-            }
+            Some(InternalEvent::CursorPosition(x, y)) => return Ok(Event::CursorPosition(x, y)),
             None => return self.read(),
         }
     }
