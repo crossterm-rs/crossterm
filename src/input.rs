@@ -38,7 +38,7 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::utils::Result;
+use crate::utils::{Command, Result};
 
 #[cfg(unix)]
 use self::input::unix::UnixInput;
@@ -47,6 +47,7 @@ use self::input::windows::WindowsInput;
 use self::input::Input;
 pub use self::input::{AsyncReader, SyncReader};
 
+mod ansi;
 mod input;
 mod sys;
 
@@ -422,4 +423,38 @@ impl TerminalInput {
 /// ```
 pub fn input() -> TerminalInput {
     TerminalInput::new()
+}
+
+/// A command that enables mouse mode
+///
+pub struct EnableMouseMode;
+
+impl Command for EnableMouseMode {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::enable_mouse_mode_csi_sequence()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        input().enable_mouse_mode();
+    }
+}
+
+/// A command that disables mouse mode
+///
+pub struct DisableMouseMode;
+
+impl Command for DisableMouseMode {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::disable_mouse_mode_csi_sequence()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        input().disable_mouse_mode();
+    }
 }
