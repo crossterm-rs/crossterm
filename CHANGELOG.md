@@ -2,6 +2,7 @@
 
 - `input` module
     - Derive 'Copy' for 'KeyEvent'
+    - Add the `EnableMouseCapture` and `EnableMouseCapture` commands
 - `cursor` module
     - Remove `TerminalCursor`, `cursor`, `Crossterm::cursor()`
     - Introduce static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
@@ -21,10 +22,10 @@
      - Remove re-export terminal module types at root level, are move those to `crossterm::terminal`
 - `style module`
     - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods.
-    - Rename `StyledObject` to `StyledContent` and made members private. 
+    - Rename `StyledObject` to `StyledContent` and made members private.
     - Rename `attr` method to `attribute`.
     - Rename `Attribute::NoInverse` to `NoReverse`
-    
+
 # Version 0.12.1
 
 - All the `crossterm_` crates code was moved to the `crossterm` crate
