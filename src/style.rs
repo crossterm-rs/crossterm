@@ -372,9 +372,9 @@ impl Command for SetAttr {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct PrintStyledFont<D: Display + Clone>(pub StyledContent<D>);
+pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
 
-impl<D> Command for PrintStyledFont<D>
+impl<D> Command for PrintStyledContent<D>
 where
     D: Display + Clone,
 {
@@ -413,6 +413,6 @@ impl Command for ResetColor {
 impl_display!(for SetFg);
 impl_display!(for SetBg);
 impl_display!(for SetAttr);
-impl_display!(for PrintStyledFont<String>);
-impl_display!(for PrintStyledFont<&'static str>);
+impl_display!(for PrintStyledContent<String>);
+impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);

@@ -132,7 +132,7 @@
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
 //!         stdout
 //!           .queue(cursor::MoveTo(x,y))?
-//!           .queue(style::PrintStyledFont( "█".magenta()))?;
+//!           .queue(style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -146,7 +146,7 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{
-//!     execute, queue, Color, PrintStyledFont,
+//!     execute, queue, Color, PrintStyledContent,
 //!     Colorize, cursor, terminal, style, Result
 //! };
 //!
@@ -158,7 +158,7 @@
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledFont( "█".magenta()))?;
+//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -178,7 +178,7 @@ pub use screen::{
 };
 #[cfg(feature = "style")]
 pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledFont, ResetColor,
+    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledContent, ResetColor,
     SetAttr, SetBg, SetFg, StyledContent, Styler, TerminalColor,
 };
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};

@@ -23,6 +23,7 @@
 - `style module`
     - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods.
     - Rename `StyledObject` to `StyledContent` and made members private.
+    - Rename `PrintStyledFont` to `PrintStyledContent`
     - Rename `attr` method to `attribute`.
     - Rename `Attribute::NoInverse` to `NoReverse`
 
