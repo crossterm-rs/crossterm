@@ -169,7 +169,7 @@
 
 #[cfg(feature = "input")]
 pub use input::{
-    input, AsyncReader, DisableMouseMode, EnableMouseMode, InputEvent, KeyEvent, MouseButton,
+    input, AsyncReader, DisableMouseCapture, EnableMouseCapture, InputEvent, KeyEvent, MouseButton,
     MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]

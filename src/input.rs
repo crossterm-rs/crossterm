@@ -427,9 +427,9 @@ pub fn input() -> TerminalInput {
 
 /// A command that enables mouse mode
 ///
-pub struct EnableMouseMode;
+pub struct EnableMouseCapture;
 
-impl Command for EnableMouseMode {
+impl Command for EnableMouseCapture {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -447,9 +447,9 @@ impl Command for EnableMouseMode {
 /// Mouse events will be produced by the
 /// [`AsyncReader`](struct.AsyncReader.html)/[`SyncReader`](struct.SyncReader.html).
 ///
-pub struct DisableMouseMode;
+pub struct DisableMouseCapture;
 
-impl Command for DisableMouseMode {
+impl Command for DisableMouseCapture {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
