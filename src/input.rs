@@ -438,7 +438,7 @@ impl Command for EnableMouseMode {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        input().enable_mouse_mode();
+        input().enable_mouse_mode()
     }
 }
 
@@ -455,6 +455,6 @@ impl Command for DisableMouseMode {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        input().disable_mouse_mode();
+        input().disable_mouse_mode()
     }
 }
