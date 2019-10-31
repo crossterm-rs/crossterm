@@ -1,3 +1,4 @@
+#[cfg(feature = "style")]
 use std::fmt::Display;
 
 // TODO Should be removed? This adds just another way to achieve the same thing.
