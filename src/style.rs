@@ -25,15 +25,16 @@
 //! use std::io::{stdout, Write};
 //!
 //! use crossterm::{execute, Result, Output};
-//! use crossterm::{SetBg, SetFg, ResetColor, Color, Attribute};
+//! use crossterm::style::{SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
 //!
 //! fn main() -> Result<()> {
 //!     execute!(
 //!         stdout(),
 //!         // Blue foreground
-//!         SetFg(Color::Blue),
+//!         SetForegroundColor(Color::Blue),
 //!         // Red background
-//!         SetBg(Color::Red),
+//!         SetBackgroundColor(Color::Red),
+//!         // output text
 //!         Output("Styled text here.".to_string()),
 //!         // Reset to default colors
 //!         ResetColor
@@ -41,19 +42,10 @@
 //! }
 //! ```
 //!
-//! The [`Colored`](enum.Colored.html) & [`Color`](enum.Color.html) enums:
-//!
-//! ```no_run
-//! use crossterm::{Colored, Color};
-//!
-//! println!("{} Red foreground", Colored::Fg(Color::Red));
-//! println!("{} Blue background", Colored::Bg(Color::Blue));
-//! ```
-//!
 //! The [`Colorize`](trait.Colorize.html) trait:
 //!
 //! ```no_run
-//! use crossterm::Colorize;
+//! use crossterm::style::Colorize;
 //!
 //! println!("{}", "Red foreground color & blue background.".red().on_blue());
 //! ```
@@ -66,16 +58,16 @@
 //! use std::io::{stdout, Write};
 //!
 //! use crossterm::{execute, Result, Output};
-//! use crossterm::{SetAttr, Attribute};
+//! use crossterm::style::{SetAttribute, Attribute};
 //!
 //! fn main() -> Result<()> {
 //!     execute!(
 //!         stdout(),
 //!         // Set to bold
-//!         SetAttr(Attribute::Bold),
+//!         SetAttribute(Attribute::Bold),
 //!         Output("Styled text here.".to_string()),
 //!         // Reset all attributes
-//!         SetAttr(Attribute::Reset)
+//!         SetAttribute(Attribute::Reset)
 //!     )
 //! }
 //! ```
@@ -83,7 +75,7 @@
 //! The [`Styler`](trait.Styler.html) trait:
 //!
 //! ```no_run
-//! use crossterm::Styler;
+//! use crossterm::style::Styler;
 //!
 //! println!("{}", "Bold".bold());
 //! println!("{}", "Underlined".underlined());
@@ -93,7 +85,7 @@
 //! The [`Attribute`](enum.Attribute.html) enum:
 //!
 //! ```no_run
-//! use crossterm::Attribute;
+//! use crossterm::style::Attribute;
 //!
 //! println!(
 //!     "{} Underlined {} No Underline",
@@ -105,27 +97,22 @@
 use std::env;
 use std::fmt::Display;
 
-use style::ansi::{self, AnsiColor};
-#[cfg(windows)]
-use style::winapi::WinApiColor;
-use style::Style;
-
 use crate::impl_display;
-#[cfg(windows)]
-use crate::utils::supports_ansi;
 use crate::utils::{Command, Result};
 
-pub use self::contentstyle::ContentStyle;
-pub use self::enums::{Attribute, Color, Colored};
-pub use self::styledcontent::StyledContent;
+pub use self::content_style::ContentStyle;
+pub(crate) use self::enums::Colored;
+pub use self::enums::{Attribute, Color};
+pub use self::styled_content::StyledContent;
 pub use self::traits::{Colorize, Styler};
 
 #[macro_use]
 mod macros;
-mod contentstyle;
+mod ansi;
+mod content_style;
 mod enums;
-mod style;
-mod styledcontent;
+mod styled_content;
+mod sys;
 mod traits;
 
 /// Creates a `StyledContent`.
@@ -137,7 +124,7 @@ mod traits;
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::{style, Color};
+/// use crossterm::style::{style, Color};
 ///
 /// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
@@ -154,40 +141,40 @@ where
 
 impl Colorize<&'static str> for &'static str {
     // foreground colors
-    def_str_color!(fg_color: black => Color::Black);
-    def_str_color!(fg_color: dark_grey => Color::DarkGrey);
-    def_str_color!(fg_color: red => Color::Red);
-    def_str_color!(fg_color: dark_red => Color::DarkRed);
-    def_str_color!(fg_color: green => Color::Green);
-    def_str_color!(fg_color: dark_green => Color::DarkGreen);
-    def_str_color!(fg_color: yellow => Color::Yellow);
-    def_str_color!(fg_color: dark_yellow => Color::DarkYellow);
-    def_str_color!(fg_color: blue => Color::Blue);
-    def_str_color!(fg_color: dark_blue => Color::DarkBlue);
-    def_str_color!(fg_color: magenta => Color::Magenta);
-    def_str_color!(fg_color: dark_magenta => Color::DarkMagenta);
-    def_str_color!(fg_color: cyan => Color::Cyan);
-    def_str_color!(fg_color: dark_cyan => Color::DarkCyan);
-    def_str_color!(fg_color: white => Color::White);
-    def_str_color!(fg_color: grey => Color::Grey);
+    def_str_color!(foreground_color: black => Color::Black);
+    def_str_color!(foreground_color: dark_grey => Color::DarkGrey);
+    def_str_color!(foreground_color: red => Color::Red);
+    def_str_color!(foreground_color: dark_red => Color::DarkRed);
+    def_str_color!(foreground_color: green => Color::Green);
+    def_str_color!(foreground_color: dark_green => Color::DarkGreen);
+    def_str_color!(foreground_color: yellow => Color::Yellow);
+    def_str_color!(foreground_color: dark_yellow => Color::DarkYellow);
+    def_str_color!(foreground_color: blue => Color::Blue);
+    def_str_color!(foreground_color: dark_blue => Color::DarkBlue);
+    def_str_color!(foreground_color: magenta => Color::Magenta);
+    def_str_color!(foreground_color: dark_magenta => Color::DarkMagenta);
+    def_str_color!(foreground_color: cyan => Color::Cyan);
+    def_str_color!(foreground_color: dark_cyan => Color::DarkCyan);
+    def_str_color!(foreground_color: white => Color::White);
+    def_str_color!(foreground_color: grey => Color::Grey);
 
     // background colors
-    def_str_color!(bg_color: on_black => Color::Black);
-    def_str_color!(bg_color: on_dark_grey => Color::DarkGrey);
-    def_str_color!(bg_color: on_red => Color::Red);
-    def_str_color!(bg_color: on_dark_red => Color::DarkRed);
-    def_str_color!(bg_color: on_green => Color::Green);
-    def_str_color!(bg_color: on_dark_green => Color::DarkGreen);
-    def_str_color!(bg_color: on_yellow => Color::Yellow);
-    def_str_color!(bg_color: on_dark_yellow => Color::DarkYellow);
-    def_str_color!(bg_color: on_blue => Color::Blue);
-    def_str_color!(bg_color: on_dark_blue => Color::DarkBlue);
-    def_str_color!(bg_color: on_magenta => Color::Magenta);
-    def_str_color!(bg_color: on_dark_magenta => Color::DarkMagenta);
-    def_str_color!(bg_color: on_cyan => Color::Cyan);
-    def_str_color!(bg_color: on_dark_cyan => Color::DarkCyan);
-    def_str_color!(bg_color: on_white => Color::White);
-    def_str_color!(bg_color: on_grey => Color::Grey);
+    def_str_color!(background_color: on_black => Color::Black);
+    def_str_color!(background_color: on_dark_grey => Color::DarkGrey);
+    def_str_color!(background_color: on_red => Color::Red);
+    def_str_color!(background_color: on_dark_red => Color::DarkRed);
+    def_str_color!(background_color: on_green => Color::Green);
+    def_str_color!(background_color: on_dark_green => Color::DarkGreen);
+    def_str_color!(background_color: on_yellow => Color::Yellow);
+    def_str_color!(background_color: on_dark_yellow => Color::DarkYellow);
+    def_str_color!(background_color: on_blue => Color::Blue);
+    def_str_color!(background_color: on_dark_blue => Color::DarkBlue);
+    def_str_color!(background_color: on_magenta => Color::Magenta);
+    def_str_color!(background_color: on_dark_magenta => Color::DarkMagenta);
+    def_str_color!(background_color: on_cyan => Color::Cyan);
+    def_str_color!(background_color: on_dark_cyan => Color::DarkCyan);
+    def_str_color!(background_color: on_white => Color::White);
+    def_str_color!(background_color: on_grey => Color::Grey);
 }
 
 impl Styler<&'static str> for &'static str {
@@ -204,110 +191,27 @@ impl Styler<&'static str> for &'static str {
     def_str_attr!(crossed_out => Attribute::CrossedOut);
 }
 
-/// A terminal color.
+/// Returns available color count.
 ///
-/// # Examples
+/// # Notes
 ///
-/// Basic usage:
-///
-/// ```no_run
-/// // You can replace the following line with `use crossterm::TerminalColor;`
-/// // if you're using the `crossterm` crate with the `style` feature enabled.
-/// use crossterm::{Result, TerminalColor, Color};
-///
-/// fn main() -> Result<()> {
-///     let color = TerminalColor::new();
-///     // Set foreground color
-///     color.set_fg(Color::Blue)?;
-///     // Set background color
-///     color.set_bg(Color::Red)?;
-///     // Reset to the default colors
-///     color.reset()
-/// }
-/// ```
-pub struct TerminalColor {
-    #[cfg(windows)]
-    color: Box<(dyn Style + Sync + Send)>,
-    #[cfg(unix)]
-    color: AnsiColor,
+/// This does not always provide a good result.
+pub fn available_color_count() -> u16 {
+    env::var("TERM")
+        .map(|x| if x.contains("256color") { 256 } else { 8 })
+        .unwrap_or(8)
 }
 
-impl TerminalColor {
-    /// Creates a new `TerminalColor`.
-    pub fn new() -> TerminalColor {
-        #[cfg(windows)]
-        let color = if supports_ansi() {
-            Box::from(AnsiColor::new()) as Box<(dyn Style + Sync + Send)>
-        } else {
-            WinApiColor::new() as Box<(dyn Style + Sync + Send)>
-        };
-
-        #[cfg(unix)]
-        let color = AnsiColor::new();
-
-        TerminalColor { color }
-    }
-
-    /// Sets the foreground color.
-    pub fn set_fg(&self, color: Color) -> Result<()> {
-        self.color.set_fg(color)
-    }
-
-    /// Sets the background color.
-    pub fn set_bg(&self, color: Color) -> Result<()> {
-        self.color.set_bg(color)
-    }
-
-    /// Resets the terminal colors and attributes to the default ones.
-    pub fn reset(&self) -> Result<()> {
-        self.color.reset()
-    }
-
-    /// Returns available color count.
-    ///
-    /// # Notes
-    ///
-    /// This does not always provide a good result.
-    pub fn available_color_count(&self) -> u16 {
-        env::var("TERM")
-            .map(|x| if x.contains("256color") { 256 } else { 8 })
-            .unwrap_or(8)
-    }
-}
-
-/// Creates a new `TerminalColor`.
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::{color, Color, Result};
-///
-/// fn main() -> Result<()> {
-///     let color = color();
-///     // Set foreground color
-///     color.set_fg(Color::Blue)?;
-///     // Set background color
-///     color.set_bg(Color::Red)?;
-///     // Reset to the default colors
-///     color.reset()
-/// }
-/// ```
-pub fn color() -> TerminalColor {
-    TerminalColor::new()
-}
-
-/// A command to set the foreground color.
+/// A command that sets the the foreground color.
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SetFg(pub Color);
+pub struct SetForegroundColor(pub Color);
 
-impl Command for SetFg {
+impl Command for SetForegroundColor {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -316,20 +220,20 @@ impl Command for SetFg {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiColor::new().set_fg(self.0)
+        sys::windows::set_foreground_color(self.0)
     }
 }
 
-/// A command to set the background color.
+/// A command that sets the the background color.
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SetBg(pub Color);
+pub struct SetBackgroundColor(pub Color);
 
-impl Command for SetBg {
+impl Command for SetBackgroundColor {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -338,20 +242,20 @@ impl Command for SetBg {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiColor::new().set_bg(self.0)
+        sys::windows::set_background_color(self.0)
     }
 }
 
-/// A command to set the text attribute.
+/// A command that sets an attribute.
 ///
 /// See [`Attribute`](enum.Attribute.html) for more info.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SetAttr(pub Attribute);
+pub struct SetAttribute(pub Attribute);
 
-impl Command for SetAttr {
+impl Command for SetAttribute {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -365,7 +269,7 @@ impl Command for SetAttr {
     }
 }
 
-/// A command to print the styled content.
+/// A command that prints styled content.
 ///
 /// See [`StyledContent`](struct.StyledContent.html) for more info.
 ///
@@ -390,7 +294,7 @@ where
     }
 }
 
-/// A command to reset the colors back to default ones.
+/// A command that resets the colors back to default.
 ///
 /// # Notes
 ///
@@ -406,13 +310,13 @@ impl Command for ResetColor {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiColor::new().reset()
+        sys::windows::reset()
     }
 }
 
-impl_display!(for SetFg);
-impl_display!(for SetBg);
-impl_display!(for SetAttr);
+impl_display!(for SetForegroundColor);
+impl_display!(for SetBackgroundColor);
+impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);

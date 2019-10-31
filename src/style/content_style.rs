@@ -2,17 +2,17 @@
 
 use std::fmt::Display;
 
-use super::{Attribute, Color, StyledContent};
+use crate::style::{Attribute, Color, StyledContent};
 
 /// A content style.
 #[derive(Debug, Clone, Default)]
 pub struct ContentStyle {
     /// The foreground color.
-    pub fg_color: Option<Color>,
+    pub foreground_color: Option<Color>,
     /// The background color.
-    pub bg_color: Option<Color>,
+    pub background_color: Option<Color>,
     /// List of attributes.
-    pub attrs: Vec<Attribute>,
+    pub attributes: Vec<Attribute>,
 }
 
 impl ContentStyle {
@@ -28,13 +28,13 @@ impl ContentStyle {
 
     /// Sets the background color.
     pub fn background(mut self, color: Color) -> ContentStyle {
-        self.bg_color = Some(color);
+        self.background_color = Some(color);
         self
     }
 
     /// Sets the foreground color.
     pub fn foreground(mut self, color: Color) -> ContentStyle {
-        self.fg_color = Some(color);
+        self.foreground_color = Some(color);
         self
     }
 
@@ -42,14 +42,14 @@ impl ContentStyle {
     ///
     /// You can add more attributes by calling this method multiple times.
     pub fn attribute(mut self, attr: Attribute) -> ContentStyle {
-        self.attrs.push(attr);
+        self.attributes.push(attr);
         self
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{Attribute, Color, ContentStyle};
+    use crate::style::{Attribute, Color, ContentStyle};
 
     #[test]
     fn test_set_fg_bg_add_attr() {
@@ -58,9 +58,9 @@ mod tests {
             .background(Color::Red)
             .attribute(Attribute::Reset);
 
-        assert_eq!(content_style.fg_color, Some(Color::Blue));
-        assert_eq!(content_style.bg_color, Some(Color::Red));
-        assert_eq!(content_style.attrs[0], Attribute::Reset);
+        assert_eq!(content_style.foreground_color, Some(Color::Blue));
+        assert_eq!(content_style.background_color, Some(Color::Red));
+        assert_eq!(content_style.attributes[0], Attribute::Reset);
     }
 
     #[test]
@@ -72,8 +72,8 @@ mod tests {
 
         let styled_content = content_style.apply("test");
 
-        assert_eq!(styled_content.style().fg_color, Some(Color::Blue));
-        assert_eq!(styled_content.style().bg_color, Some(Color::Red));
-        assert_eq!(styled_content.style().attrs[0], Attribute::Reset);
+        assert_eq!(styled_content.style().foreground_color, Some(Color::Blue));
+        assert_eq!(styled_content.style().background_color, Some(Color::Red));
+        assert_eq!(styled_content.style().attributes[0], Attribute::Reset);
     }
 }

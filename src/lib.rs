@@ -118,8 +118,8 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{
-//!     ExecutableCommand, QueueableCommand, Color,
-//!     Colorize, terminal, cursor, style, Result
+//!     ExecutableCommand, QueueableCommand,
+//!     terminal, cursor, style::{self, Colorize}, Result
 //! };
 //!
 //! fn main() -> Result<()> {
@@ -146,8 +146,8 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //! use crossterm::{
-//!     execute, queue, Color, PrintStyledContent,
-//!     Colorize, cursor, terminal, style, Result
+//!     execute, queue,
+//!     style::{self, Colorize}, cursor, terminal, Result
 //! };
 //!
 //! fn main() -> Result<()> {
@@ -176,11 +176,7 @@ pub use input::{
 pub use screen::{
     AlternateScreen, EnterAlternateScreen, IntoRawMode, LeaveAlternateScreen, RawScreen,
 };
-#[cfg(feature = "style")]
-pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ContentStyle, PrintStyledContent,
-    ResetColor, SetAttr, SetBg, SetFg, StyledContent, Styler, TerminalColor,
-};
+
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;
