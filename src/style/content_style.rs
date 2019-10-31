@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use crate::style::{Attribute, Color, StyledContent};
 
-/// A content style.
+/// The style that can be put on content.
 #[derive(Debug, Clone, Default)]
 pub struct ContentStyle {
     /// The foreground color.

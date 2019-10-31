@@ -4,13 +4,12 @@ use std::fmt::{self, Display, Formatter};
 use std::result;
 
 use crate::queue;
-
 use crate::style::{
     Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttribute, SetBackgroundColor,
     SetForegroundColor, Styler,
 };
 
-/// A styled content.
+/// The style with the content to be styled.
 ///
 /// # Examples
 ///

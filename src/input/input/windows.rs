@@ -29,12 +29,8 @@ use winapi::um::{
 
 use lazy_static::lazy_static;
 
+use crate::input::{input::Input, InputEvent, KeyEvent, MouseButton};
 use crate::utils::Result;
-
-use super::{
-    super::{InputEvent, KeyEvent, MouseButton},
-    Input,
-};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
@@ -172,7 +168,7 @@ impl Input for WindowsInput {
 /// ```no_run
 /// use std::{thread, time::Duration};
 ///
-/// use crossterm::{input, InputEvent, KeyEvent, RawScreen};
+/// use crossterm::{screen::RawScreen,  input::{input, InputEvent, KeyEvent}};
 ///
 /// fn main() {
 ///     println!("Press 'ESC' to quit.");
@@ -245,7 +241,7 @@ impl Iterator for SyncReader {
 /// ```no_run
 /// use std::{thread, time::Duration};
 ///
-/// use crossterm::{input, InputEvent, KeyEvent, RawScreen};
+/// use crossterm::{screen::RawScreen,  input::{input, InputEvent, KeyEvent}};
 ///
 /// fn main() {
 ///     println!("Press 'ESC' to quit.");
@@ -534,7 +530,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     }
 }
 
-fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEvent>> {
+fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::input::MouseEvent>> {
     // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
@@ -554,10 +550,12 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEve
         EventFlags::PressOrRelease => {
             // Single click
             match event.button_state {
-                ButtonState::Release => Some(crate::MouseEvent::Release(xpos as u16, ypos as u16)),
+                ButtonState::Release => {
+                    Some(crate::input::MouseEvent::Release(xpos as u16, ypos as u16))
+                }
                 ButtonState::FromLeft1stButtonPressed => {
                     // left click
-                    Some(crate::MouseEvent::Press(
+                    Some(crate::input::MouseEvent::Press(
                         MouseButton::Left,
                         xpos as u16,
                         ypos as u16,
@@ -565,7 +563,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEve
                 }
                 ButtonState::RightmostButtonPressed => {
                     // right click
-                    Some(crate::MouseEvent::Press(
+                    Some(crate::input::MouseEvent::Press(
                         MouseButton::Right,
                         xpos as u16,
                         ypos as u16,
@@ -573,7 +571,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEve
                 }
                 ButtonState::FromLeft2ndButtonPressed => {
                     // middle click
-                    Some(crate::MouseEvent::Press(
+                    Some(crate::input::MouseEvent::Press(
                         MouseButton::Middle,
                         xpos as u16,
                         ypos as u16,
@@ -586,7 +584,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEve
             // Click + Move
             // NOTE (@imdaveho) only register when mouse is not released
             if event.button_state != ButtonState::Release {
-                Some(crate::MouseEvent::Hold(xpos as u16, ypos as u16))
+                Some(crate::input::MouseEvent::Hold(xpos as u16, ypos as u16))
             } else {
                 None
             }
@@ -596,13 +594,13 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::MouseEve
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
             if event.button_state != ButtonState::Negative {
-                Some(crate::MouseEvent::Press(
+                Some(crate::input::MouseEvent::Press(
                     MouseButton::WheelUp,
                     xpos as u16,
                     ypos as u16,
                 ))
             } else {
-                Some(crate::MouseEvent::Press(
+                Some(crate::input::MouseEvent::Press(
                     MouseButton::WheelDown,
                     xpos as u16,
                     ypos as u16,

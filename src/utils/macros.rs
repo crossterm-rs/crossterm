@@ -1,10 +1,12 @@
 /// Append a the first few characters of an ANSI escape code to the given string.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
 /// Write a string to standard output whereafter the stdout will be flushed.
+#[doc(hidden)]
 #[macro_export]
 macro_rules! write_cout {
     ($write:expr, $string:expr) => {{
@@ -175,6 +177,7 @@ macro_rules! execute {
     }}
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! impl_display {
     (for $($t:ty),+) => {
@@ -187,6 +190,7 @@ macro_rules! impl_display {
     }
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! impl_from {
     ($from:path, $to:expr) => {

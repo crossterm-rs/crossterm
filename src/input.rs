@@ -205,7 +205,7 @@ impl From<InternalEvent> for Option<InputEvent> {
 /// ```no_run
 /// // You can replace the following line with `use crossterm::...;`
 /// // if you're using the `crossterm` crate with the `input` feature enabled.
-/// use crossterm::{Result, TerminalInput, RawScreen};
+/// use crossterm::{Result, input::{TerminalInput}, screen::RawScreen};
 ///
 /// fn main() -> Result<()> {
 ///     let input = TerminalInput::new();
@@ -261,7 +261,7 @@ impl TerminalInput {
     /// # Examples
     ///
     /// ```no_run
-    /// let input = crossterm::input();
+    /// let input = crossterm::input::input();
     /// match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),
@@ -276,7 +276,7 @@ impl TerminalInput {
     /// # Examples
     ///
     /// ```no_run
-    /// let input = crossterm::input();
+    /// let input = crossterm::input::input();
     /// match input.read_char() {
     ///     Ok(c) => println!("character pressed: {}", c),
     ///     Err(e) => println!("error: {}", e),
@@ -302,7 +302,7 @@ impl TerminalInput {
     ///
     /// ```no_run
     /// use std::{thread, time::Duration};
-    /// use crossterm::input;
+    /// use crossterm::input::input;
     ///
     /// let mut async_stdin = input().read_async();
     ///
@@ -335,8 +335,9 @@ impl TerminalInput {
     ///
     /// ```no_run
     /// use std::{thread, time::Duration};
+    /// use crossterm::input::input;
     ///
-    /// let mut async_stdin = crossterm::input().read_until_async(b'x');
+    /// let mut async_stdin = input().read_until_async(b'x');
     ///
     /// loop {
     ///     if let Some(key_event) = async_stdin.next() {
@@ -360,8 +361,9 @@ impl TerminalInput {
     ///
     /// ```no_run
     /// use std::{thread, time::Duration};
+    /// use crossterm::input::input;
     ///
-    /// let mut sync_stdin = crossterm::input().read_sync();
+    /// let mut sync_stdin = input().read_sync();
     ///
     /// loop {
     ///     if let Some(key_event) = sync_stdin.next() {
@@ -397,7 +399,7 @@ impl TerminalInput {
 /// ```no_run
 /// // You can replace the following line with `use crossterm::...;`
 /// // if you're using the `crossterm` crate with the `input` feature enabled.
-/// use crossterm::{input, RawScreen, Result};
+/// use crossterm::{input::input, screen::RawScreen, Result};
 ///
 /// fn main() -> Result<()> {
 ///     let input = input();

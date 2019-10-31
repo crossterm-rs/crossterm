@@ -92,7 +92,7 @@ impl Input for UnixInput {
 /// ```no_run
 /// use std::{thread, time::Duration};
 ///
-/// use crossterm::{input, InputEvent, KeyEvent, RawScreen};
+/// use crossterm::{screen::RawScreen,  input::{input, InputEvent, KeyEvent}};
 ///
 /// fn main() {
 ///     println!("Press 'ESC' to quit.");
@@ -221,7 +221,7 @@ impl Iterator for AsyncReader {
 /// ```no_run
 /// use std::{thread, time::Duration};
 ///
-/// use crossterm::{input, InputEvent, KeyEvent, RawScreen};
+/// use crossterm::{screen::RawScreen,  input::{input, InputEvent, KeyEvent}};
 ///
 /// fn main() {
 ///     println!("Press 'ESC' to quit.");

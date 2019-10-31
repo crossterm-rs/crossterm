@@ -1,10 +1,14 @@
-# Master
+# Version 0.13.0
+**Major API-change, removed old-api**
 
+- Remove `Crossterm` type
+- Remove `TerminalCursor`, `TerminalColor`, `Terminal`
+- Remove `cursor()`, `color()` , `terminal()`
+- Remove re-exports at root, accessible via `module::types` (`cursor::MoveTo`)
 - `input` module
     - Derive 'Copy' for 'KeyEvent'
     - Add the `EnableMouseCapture` and `EnableMouseCapture` commands
 - `cursor` module
-    - Remove `TerminalCursor`, `cursor`, `Crossterm::cursor()`
     - Introduce static function `crossterm::cursor::position` in place of `TerminalCursor::pos`
     - Rename `Goto` to `MoveTo`
     - Rename `Up` to `MoveLeft`
@@ -14,24 +18,17 @@
     - Rename `BlinkOff` to `DisableBlinking`
     - Rename `ResetPos` to `ResetPosition`
     - Rename `SavePos` to `SavePosition`
-    - Remove re-export cursor module types at root level, are now accessible from `crossterm::cursor`
 - `terminal`
-     - Remove `Terminal`, `terminal`, `Crossterm::terminal()`
      - Introduce static function `crossterm::terminal::size` in place of `Terminal::size`
      - Introduce static function `crossterm::terminal::exit` in place of `Terminal::exit`
-     - Remove re-export terminal module types at root level, are move those to `crossterm::terminal`
 - `style module`
-    - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods.
-    - Rename `StyledObject` to `StyledContent` and made members private.
+    - Rename `ObjectStyle` to `ContentStyle`. Now full names are used for methods
+    - Rename `StyledObject` to `StyledContent` and made members private
     - Rename `PrintStyledFont` to `PrintStyledContent`
     - Rename `attr` method to `attribute`.
     - Rename `Attribute::NoInverse` to `NoReverse`
-    - `Crossterm::style()` and `Crossterm::color()`
-    - Remove re-exports from style module at at root and only expose those in the `crossterm::style` module.
-    - Remove `TerminalColor` (/style.rs), 
-    - Remove `color` (style.rs)
     - Update documentation
-    - Made `Colored` private, user should use commands instead. 
+    - Made `Colored` private, user should use commands instead
     - Rename `SetFg` -> `SetForegroundColor`
     - Rename `SetBg` -> `SetBackgroundColor`
     - Rename `SetAttr` -> `SetAttribute`

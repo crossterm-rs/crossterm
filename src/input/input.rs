@@ -39,7 +39,7 @@ pub(crate) trait Input {
     /// # Examples
     ///
     /// ```no_run
-    /// let input = crossterm::input();
+    /// let input = crossterm::input::input();
     /// match input.read_line() {
     ///     Ok(s) => println!("string typed: {}", s),
     ///     Err(e) => println!("error: {}", e),

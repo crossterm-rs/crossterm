@@ -16,10 +16,14 @@
 //! * [Attribute](enum.Attribute.html#platform-specific-notes)
 //!
 //! ## Examples
+//! A few examples of how to use the style module.
 //!
 //! ### Colors
+//! How to change the terminal text color.
 //!
-//! The command API:
+//! **Command API**
+//!
+//! Using the Command API to color text.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -42,7 +46,9 @@
 //! }
 //! ```
 //!
-//! The [`Colorize`](trait.Colorize.html) trait:
+//! **Functions**
+//!
+//! Using functions from [`Colorize`](trait.Colorize.html) on a `String` or `&'static str` to color it.
 //!
 //! ```no_run
 //! use crossterm::style::Colorize;
@@ -51,8 +57,11 @@
 //! ```
 //!
 //! ### Attributes
+//! How to appy terminal attributes to text.
 //!
-//! The command API:
+//! **Command API**
+//!
+//! Using the Command API to set attributes.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -72,7 +81,9 @@
 //! }
 //! ```
 //!
-//! The [`Styler`](trait.Styler.html) trait:
+//! **Functions**:
+//!
+//! Using [`Styler`](trait.Styler.html) functions on a `String` or `&'static str` to set attributes to it.
 //!
 //! ```no_run
 //! use crossterm::style::Styler;
@@ -82,7 +93,9 @@
 //! println!("{}", "Negative".negative());
 //! ```
 //!
-//! The [`Attribute`](enum.Attribute.html) enum:
+//! **Displayable**
+//!
+//! [`Attribute`](enum.Attribute.html) implements [Display](https://doc.rust-lang.org/beta/std/fmt/trait.Display.html) and therefore it can be formatted like:
 //!
 //! ```no_run
 //! use crossterm::style::Attribute;
@@ -99,7 +112,6 @@ use std::fmt::Display;
 
 use crate::impl_display;
 use crate::utils::Command;
-
 #[cfg(windows)]
 use crate::Result;
 
