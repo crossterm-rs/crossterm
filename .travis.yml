@@ -33,9 +33,9 @@ script:
   - rustc --version
   - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build
-  - cargo test --all-features -- --nocapture --test-threads 1
-  - cargo test --features cursor -- --nocapture --test-threads 1
-  - cargo test --features style -- --nocapture --test-threads 1
-  - cargo test --features terminal -- --nocapture --test-threads 1
-  - cargo test --features screen -- --nocapture --test-threads 1
-  - cargo test --features input -- --nocapture --test-threads 1
+  - cargo test --all-features --no-default-features -- --nocapture --test-threads 1
+  - cargo test --features cursor --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features style --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features terminal --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features input --no-default-features --lib -- --nocapture --test-threads 1
