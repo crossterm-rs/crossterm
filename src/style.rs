@@ -98,7 +98,10 @@ use std::env;
 use std::fmt::Display;
 
 use crate::impl_display;
-use crate::utils::{Command, Result};
+use crate::utils::Command;
+
+#[cfg(windows)]
+use crate::Result;
 
 pub use self::content_style::ContentStyle;
 pub(crate) use self::enums::Colored;
