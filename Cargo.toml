@@ -16,7 +16,7 @@ default = ["cursor", "style", "terminal", "screen", "input"]
 cursor = ["lazy_static", "input", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
 style = ["lazy_static", "winapi/wincon"]
 terminal = ["cursor"]
-screen = ["winapi/wincon", "winapi/minwindef"]
+screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
 input = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
 
 [dependencies]
