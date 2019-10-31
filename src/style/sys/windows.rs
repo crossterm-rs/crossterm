@@ -1,6 +1,3 @@
-//! This is a `WinApi` specific implementation for styling related action.
-//! This module is used for non supporting `ANSI` Windows terminals.
-
 use std::sync::Mutex;
 
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
@@ -10,7 +7,7 @@ use lazy_static::lazy_static;
 
 use crate::utils::Result;
 
-use super::super::{Color, Colored, Style};
+use super::super::{Color, Colored};
 
 const FG_GREEN: u16 = wincon::FOREGROUND_GREEN;
 const FG_RED: u16 = wincon::FOREGROUND_RED;
@@ -22,80 +19,98 @@ const BG_RED: u16 = wincon::BACKGROUND_RED;
 const BG_BLUE: u16 = wincon::BACKGROUND_BLUE;
 const BG_INTENSITY: u16 = wincon::BACKGROUND_INTENSITY;
 
-/// This struct is a WinApi implementation for color related actions.
-pub(crate) struct WinApiColor;
+pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
+    init_console_color()?;
 
-impl WinApiColor {
-    pub fn new() -> Box<WinApiColor> {
-        init_console_color().unwrap();
-        Box::from(WinApiColor)
+    let color_value: u16 = Colored::ForegroundColor(fg_color).into();
+
+    let screen_buffer = ScreenBuffer::current()?;
+    let csbi = screen_buffer.info()?;
+
+    // Notice that the color values are stored in wAttribute.
+    // So we need to use bitwise operators to check if the values exists or to get current console colors.
+    let mut color: u16;
+    let attrs = csbi.attributes();
+    let bg_color = attrs & 0x0070;
+    color = color_value | bg_color;
+
+    // background intensity is a separate value in attrs,
+    // wee need to check if this was applied to the current bg color.
+    if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
+        color = color | wincon::BACKGROUND_INTENSITY as u16;
     }
+
+    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
+
+    Ok(())
 }
 
-impl Style for WinApiColor {
-    fn set_fg(&self, fg_color: Color) -> Result<()> {
-        let color_value: u16 = Colored::Fg(fg_color).into();
+pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
+    init_console_color()?;
 
+    let color_value: u16 = Colored::BackgroundColor(bg_color).into();
+
+    let screen_buffer = ScreenBuffer::current()?;
+    let csbi = screen_buffer.info()?;
+
+    // Notice that the color values are stored in wAttribute.
+    // So wee need to use bitwise operators to check if the values exists or to get current console colors.
+    let mut color: u16;
+    let attrs = csbi.attributes();
+    let fg_color = attrs & 0x0007;
+    color = fg_color | color_value;
+
+    // Foreground intensity is a separate value in attrs,
+    // So we need to check if this was applied to the current fg color.
+    if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
+        color = color | wincon::FOREGROUND_INTENSITY as u16;
+    }
+
+    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
+
+    Ok(())
+}
+
+pub(crate) fn reset() -> Result<()> {
+    let original_color = original_console_color();
+
+    Console::from(Handle::new(HandleType::CurrentOutputHandle)?)
+        .set_text_attribute(original_color)?;
+
+    Ok(())
+}
+
+/// Initializes the default console color. It will will be skipped if it has already been initialized.
+pub(crate) fn init_console_color() -> Result<()> {
+    let mut locked_pos = ORIGINAL_CONSOLE_COLOR.lock().unwrap();
+
+    if locked_pos.is_none() {
         let screen_buffer = ScreenBuffer::current()?;
-        let csbi = screen_buffer.info()?;
-
-        // Notice that the color values are stored in wAttribute.
-        // So we need to use bitwise operators to check if the values exists or to get current console colors.
-        let mut color: u16;
-        let attrs = csbi.attributes();
-        let bg_color = attrs & 0x0070;
-        color = color_value | bg_color;
-
-        // background intensity is a separate value in attrs,
-        // wee need to check if this was applied to the current bg color.
-        if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
-            color = color | wincon::BACKGROUND_INTENSITY as u16;
-        }
-
-        Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
-
-        Ok(())
+        let attr = screen_buffer.info()?.attributes();
+        *locked_pos = Some(attr);
     }
 
-    fn set_bg(&self, bg_color: Color) -> Result<()> {
-        let color_value: u16 = Colored::Bg(bg_color).into();
+    Ok(())
+}
 
-        let screen_buffer = ScreenBuffer::current()?;
-        let csbi = screen_buffer.info()?;
+/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
+pub(crate) fn original_console_color() -> u16 {
+    // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
+    ORIGINAL_CONSOLE_COLOR
+        .lock()
+        .unwrap()
+        .expect("Initial console color not set")
+}
 
-        // Notice that the color values are stored in wAttribute.
-        // So wee need to use bitwise operators to check if the values exists or to get current console colors.
-        let mut color: u16;
-        let attrs = csbi.attributes();
-        let fg_color = attrs & 0x0007;
-        color = fg_color | color_value;
-
-        // Foreground intensity is a separate value in attrs,
-        // So we need to check if this was applied to the current fg color.
-        if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
-            color = color | wincon::FOREGROUND_INTENSITY as u16;
-        }
-
-        Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
-
-        Ok(())
-    }
-
-    fn reset(&self) -> Result<()> {
-        let original_color = original_console_color();
-
-        Console::from(Handle::new(HandleType::CurrentOutputHandle)?)
-            .set_text_attribute(original_color)?;
-
-        Ok(())
-    }
+lazy_static! {
+    static ref ORIGINAL_CONSOLE_COLOR: Mutex<Option<u16>> = Mutex::new(None);
 }
 
 impl From<Colored> for u16 {
     /// Returns the WinApi color value (u16) from the `Colored` struct.
     fn from(colored: Colored) -> Self {
         match colored {
-            Colored::Fg(color) => {
+            Colored::ForegroundColor(color) => {
                 match color {
                     Color::Black => 0,
                     Color::DarkGrey => FG_INTENSITY,
@@ -128,7 +143,7 @@ impl From<Colored> for u16 {
                     Color::AnsiValue(_val) => 0,
                 }
             }
-            Colored::Bg(color) => {
+            Colored::BackgroundColor(color) => {
                 match color {
                     Color::Black => 0,
                     Color::DarkGrey => BG_INTENSITY,
@@ -163,48 +178,22 @@ impl From<Colored> for u16 {
     }
 }
 
-/// Initializes the default console color. It will will be skipped if it has already been initialized.
-fn init_console_color() -> Result<()> {
-    let mut locked_pos = ORIGINAL_CONSOLE_COLOR.lock().unwrap();
-
-    if locked_pos.is_none() {
-        let screen_buffer = ScreenBuffer::current()?;
-        let attr = screen_buffer.info()?.attributes();
-        *locked_pos = Some(attr);
-    }
-
-    Ok(())
-}
-
-/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
-fn original_console_color() -> u16 {
-    // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
-    ORIGINAL_CONSOLE_COLOR
-        .lock()
-        .unwrap()
-        .expect("Initial console color not set")
-}
-
-lazy_static! {
-    static ref ORIGINAL_CONSOLE_COLOR: Mutex<Option<u16>> = Mutex::new(None);
-}
-
 #[cfg(test)]
 mod tests {
     use super::{
-        Color, Colored, WinApiColor, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED,
-        ORIGINAL_CONSOLE_COLOR,
+        Color, Colored, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
     };
+    use crate::style::sys::windows::set_foreground_color;
 
     #[test]
     fn test_parse_fg_color() {
-        let colored = Colored::Fg(Color::Red);
+        let colored = Colored::ForegroundColor(Color::Red);
         assert_eq!(Into::<u16>::into(colored), FG_INTENSITY | FG_RED);
     }
 
     #[test]
     fn test_parse_bg_color() {
-        let colored = Colored::Bg(Color::Red);
+        let colored = Colored::BackgroundColor(Color::Red);
         assert_eq!(Into::<u16>::into(colored), BG_INTENSITY | BG_RED);
     }
 
@@ -213,7 +202,7 @@ mod tests {
         assert!(ORIGINAL_CONSOLE_COLOR.lock().unwrap().is_none());
 
         // will call `init_console_color`
-        let _ = WinApiColor::new();
+        set_foreground_color(Color::Blue).unwrap();
 
         assert!(ORIGINAL_CONSOLE_COLOR.lock().unwrap().is_some());
     }

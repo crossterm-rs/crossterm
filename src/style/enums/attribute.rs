@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use super::super::SetAttr;
+use super::super::SetAttribute;
 
 /// Represents an attribute.
 ///
@@ -37,7 +37,7 @@ use super::super::SetAttr;
 /// Basic usage:
 ///
 /// ```no_run
-/// use crossterm::Attribute;
+/// use crossterm::style::Attribute;
 ///
 /// println!(
 ///     "{} Underlined {} No Underline",
@@ -49,7 +49,7 @@ use super::super::SetAttr;
 /// Style existing text:
 ///
 /// ```no_run
-/// use crossterm::Styler;
+/// use crossterm::style::Styler;
 ///
 /// println!("{}", "Bold text".bold());
 /// println!("{}", "Underlined text".underlined());
@@ -115,7 +115,7 @@ pub enum Attribute {
 
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        write!(f, "{}", SetAttr(*self))?;
+        write!(f, "{}", SetAttribute(*self))?;
         Ok(())
     }
 }

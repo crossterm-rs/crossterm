@@ -26,6 +26,18 @@
     - Rename `PrintStyledFont` to `PrintStyledContent`
     - Rename `attr` method to `attribute`.
     - Rename `Attribute::NoInverse` to `NoReverse`
+    - `Crossterm::style()` and `Crossterm::color()`
+    - Remove re-exports from style module at at root and only expose those in the `crossterm::style` module.
+    - Remove `TerminalColor` (/style.rs), 
+    - Remove `color` (style.rs)
+    - Update documentation
+    - Made `Colored` private, user should use commands instead. 
+    - Rename `SetFg` -> `SetForegroundColor`
+    - Rename `SetBg` -> `SetBackgroundColor`
+    - Rename `SetAttr` -> `SetAttribute`
+    - Rename `ContentStyle::fg_color` -> `ContentStyle::foreground_color`
+    - Rename `ContentStyle::bg_color` -> `ContentStyle::background_color`
+    - Rename `ContentStyle::attrs` -> `ContentStyle::attributes`
 
 # Version 0.12.1
 

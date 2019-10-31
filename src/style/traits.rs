@@ -12,7 +12,7 @@ use super::StyledContent;
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::Colorize;
+/// use crossterm::style::Colorize;
 ///
 /// let styled_text = "Red foreground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
@@ -60,7 +60,7 @@ pub trait Colorize<D: Display + Clone> {
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::Styler;
+/// use crossterm::style::Styler;
 ///
 /// println!("{}", "Bold text".bold());
 /// println!("{}", "Underlined text".underlined());
