@@ -52,10 +52,10 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{Goto, QueueableCommand};
+//! use crossterm::{QueueableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! stdout.queue(Goto(5,5));
+//! stdout.queue(cursor::MoveTo(5,5));
 //!
 //! // some other code ...
 //!
@@ -69,10 +69,10 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{queue, Goto, QueueableCommand};
+//! use crossterm::{queue, QueueableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! queue!(stdout,  Goto(5, 5));
+//! queue!(stdout,  cursor::MoveTo(5, 5));
 //!
 //! // some other code ...
 //!
@@ -93,20 +93,20 @@
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{ExecutableCommand, Goto};
+//! use crossterm::{ExecutableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! stdout.execute(Goto(5,5));
+//! stdout.execute(cursor::MoveTo(5,5));
 //! ```
 //!
 //! Macros:
 //!
 //! ```no_run
 //! use std::io::Write;
-//! use crossterm::{execute, ExecutableCommand, Goto};
+//! use crossterm::{execute, ExecutableCommand, cursor};
 //!
 //! let mut stdout = std::io::stdout();
-//! execute!(stdout, Goto(5, 5));
+//! execute!(stdout, cursor::MoveTo(5, 5));
 //! ```
 //!
 //! ## Examples
@@ -117,19 +117,22 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize, Clear, ClearType, Goto, Result};
+//! use crossterm::{
+//!     ExecutableCommand, QueueableCommand,
+//!     terminal, cursor, style::{self, Colorize}, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   stdout.execute(Clear(ClearType::All))?;
+//!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
 //!         stdout
-//!           .queue(Goto(x,y))?
-//!           .queue(PrintStyledFont( "█".magenta()))?;
+//!           .queue(cursor::MoveTo(x,y))?
+//!           .queue(style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -142,17 +145,20 @@
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, queue, Color, PrintStyledFont, Colorize, Goto, Clear, ClearType, Result};
+//! use crossterm::{
+//!     execute, queue,
+//!     style::{self, Colorize}, cursor, terminal, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   execute!(stdout, Clear(ClearType::All))?;
+//!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         queue!(stdout, Goto(x,y), PrintStyledFont( "█".magenta()))?;
+//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -161,31 +167,21 @@
 //! }
 //!```
 
-#[cfg(feature = "cursor")]
-pub use cursor::{
-    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, Up,
-};
 #[cfg(feature = "input")]
 pub use input::{
-    input, AsyncReader, InputEvent, KeyEvent, MouseButton, MouseEvent, SyncReader, TerminalInput,
+    input, AsyncReader, DisableMouseCapture, EnableMouseCapture, InputEvent, KeyEvent, MouseButton,
+    MouseEvent, SyncReader, TerminalInput,
 };
 #[cfg(feature = "screen")]
 pub use screen::{
     AlternateScreen, EnterAlternateScreen, IntoRawMode, LeaveAlternateScreen, RawScreen,
 };
-#[cfg(feature = "style")]
-pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
-    SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
-};
-#[cfg(feature = "terminal")]
-pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 pub use self::crossterm::Crossterm;
 
 mod crossterm;
+
 /// A functionality to work with the terminal cursor
 #[cfg(feature = "cursor")]
 pub mod cursor;

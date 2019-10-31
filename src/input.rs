@@ -38,7 +38,7 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::utils::Result;
+use crate::utils::{Command, Result};
 
 #[cfg(unix)]
 use self::input::unix::UnixInput;
@@ -47,6 +47,7 @@ use self::input::windows::WindowsInput;
 use self::input::Input;
 pub use self::input::{AsyncReader, SyncReader};
 
+mod ansi;
 mod input;
 mod sys;
 
@@ -102,7 +103,7 @@ pub enum MouseButton {
 }
 
 /// Represents a key or a combination of keys.
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum KeyEvent {
     /// Backspace key.
@@ -422,4 +423,41 @@ impl TerminalInput {
 /// ```
 pub fn input() -> TerminalInput {
     TerminalInput::new()
+}
+
+/// A command that enables mouse mode
+///
+pub struct EnableMouseCapture;
+
+impl Command for EnableMouseCapture {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::enable_mouse_mode_csi_sequence()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        input().enable_mouse_mode()
+    }
+}
+
+/// A command that disables mouse event monitoring.
+///
+/// Mouse events will be produced by the
+/// [`AsyncReader`](struct.AsyncReader.html)/[`SyncReader`](struct.SyncReader.html).
+///
+pub struct DisableMouseCapture;
+
+impl Command for DisableMouseCapture {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::disable_mouse_mode_csi_sequence()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        input().disable_mouse_mode()
+    }
 }

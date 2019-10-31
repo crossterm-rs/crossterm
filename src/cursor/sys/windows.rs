@@ -1,4 +1,4 @@
-//! This module handles some logic for cursor interaction in the windows console.
+//! WinApi related logic to cursor manipulation.
 
 use std::io;
 use std::sync::Mutex;
@@ -14,7 +14,14 @@ use lazy_static::lazy_static;
 
 use crate::utils::Result;
 
-pub(crate) fn get_cursor_position() -> Result<(u16, u16)> {
+lazy_static! {
+    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
+}
+
+/// Returns the cursor position (column, row).
+///
+/// The top left cell is represented `0,0`.
+pub fn position() -> Result<(u16, u16)> {
     let cursor = ScreenBufferCursor::new()?;
     Ok(cursor.position()?.into())
 }
@@ -23,28 +30,63 @@ pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
     ScreenBufferCursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
 }
 
-lazy_static! {
-    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
+pub(crate) fn move_to(column: u16, row: u16) -> Result<()> {
+    let cursor = ScreenBufferCursor::new()?;
+    cursor.move_to(column as i16, row as i16)?;
+    Ok(())
 }
 
-pub(crate) struct ScreenBufferCursor {
+pub(crate) fn move_up(count: u16) -> Result<()> {
+    let (column, row) = position()?;
+    move_to(column, row - count)?;
+    Ok(())
+}
+
+pub(crate) fn move_right(count: u16) -> Result<()> {
+    let (column, row) = position()?;
+    move_to(column + count, row)?;
+    Ok(())
+}
+
+pub(crate) fn move_down(count: u16) -> Result<()> {
+    let (column, row) = position()?;
+    move_to(column, row + count)?;
+    Ok(())
+}
+
+pub(crate) fn move_left(count: u16) -> Result<()> {
+    let (column, row) = position()?;
+    move_to(column - count, row)?;
+    Ok(())
+}
+
+pub(crate) fn save_position() -> Result<()> {
+    ScreenBufferCursor::new()?.save_position()?;
+    Ok(())
+}
+
+pub(crate) fn restore_position() -> Result<()> {
+    ScreenBufferCursor::new()?.restore_position()?;
+    Ok(())
+}
+
+/// WinApi wrapper over terminal cursor behaviour.
+struct ScreenBufferCursor {
     screen_buffer: ScreenBuffer,
 }
 
 impl ScreenBufferCursor {
-    pub(crate) fn new() -> Result<ScreenBufferCursor> {
+    fn new() -> Result<ScreenBufferCursor> {
         Ok(ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
     }
 
-    /// get the current cursor position.
-    pub(crate) fn position(&self) -> Result<Coord> {
+    fn position(&self) -> Result<Coord> {
         Ok(self.screen_buffer.info()?.cursor_pos())
     }
 
-    /// Set the cursor position to the given x and y. Note that this is 0 based.
-    pub(crate) fn goto(&self, x: i16, y: i16) -> Result<()> {
+    fn move_to(&self, x: i16, y: i16) -> Result<()> {
         if x < 0 || x >= <i16>::max_value() {
             Err(io::Error::new(
                 io::ErrorKind::Other,
@@ -78,8 +120,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    /// change the cursor visibility.
-    pub(crate) fn set_visibility(&self, visible: bool) -> Result<()> {
+    fn set_visibility(&self, visible: bool) -> Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
             bVisible: if visible { TRUE } else { FALSE },
@@ -96,21 +137,16 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    /// Reset to saved cursor position
-    pub(crate) fn restore_cursor_pos() -> Result<()> {
-        let cursor = ScreenBufferCursor::new()?;
-
+    fn restore_position(&self) -> Result<()> {
         if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
-            cursor.goto(x, y)?;
+            self.move_to(x, y)?;
         }
 
         Ok(())
     }
 
-    /// Save current cursor position to recall later.
-    pub(crate) fn save_cursor_pos() -> Result<()> {
-        let cursor = ScreenBufferCursor::new()?;
-        let position = cursor.position()?;
+    fn save_position(&self) -> Result<()> {
+        let position = self.position()?;
 
         let mut locked_pos = SAVED_CURSOR_POS.lock().unwrap();
         *locked_pos = Some((position.x, position.y));
@@ -132,5 +168,72 @@ impl From<HANDLE> for ScreenBufferCursor {
         ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(handle),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        move_down, move_left, move_right, move_to, move_up, position, restore_position,
+        save_position,
+    };
+
+    #[test]
+    fn test_move_to_winapi() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        move_to(saved_x + 1, saved_y + 1).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y + 1));
+
+        move_to(saved_x, saved_y).unwrap();
+        assert_eq!(position().unwrap(), (saved_x, saved_y));
+    }
+
+    #[test]
+    fn test_move_right_winapi() {
+        let (saved_x, saved_y) = position().unwrap();
+        move_right(1).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
+    }
+
+    #[test]
+    fn test_move_left_winapi() {
+        move_to(2, 0).unwrap();
+
+        move_left(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_up_winapi() {
+        move_to(0, 2).unwrap();
+
+        move_up(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_down_winapi() {
+        move_to(0, 0).unwrap();
+
+        move_down(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 2));
+    }
+
+    #[test]
+    fn test_save_restore_position_winapi() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        save_position().unwrap();
+        move_to(saved_x + 1, saved_y + 1).unwrap();
+        restore_position().unwrap();
+
+        let (x, y) = position().unwrap();
+
+        assert_eq!(x, saved_x);
+        assert_eq!(y, saved_y);
     }
 }

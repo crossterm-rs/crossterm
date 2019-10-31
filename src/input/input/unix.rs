@@ -4,10 +4,14 @@ use std::sync::mpsc::Receiver;
 use std::{char, sync::mpsc};
 
 use crate::utils::Result;
-use crate::{csi, write_cout};
+use crate::write_cout;
 
 use super::{
-    super::{sys::unix::internal_event_receiver, InputEvent, InternalEvent, KeyEvent},
+    super::{
+        ansi::{disable_mouse_mode_csi_sequence, enable_mouse_mode_csi_sequence},
+        sys::unix::internal_event_receiver,
+        InputEvent, InternalEvent, KeyEvent,
+    },
     Input,
 };
 
@@ -50,24 +54,12 @@ impl Input for UnixInput {
     }
 
     fn enable_mouse_mode(&self) -> Result<()> {
-        write_cout!(&format!(
-            "{}h{}h{}h{}h",
-            csi!("?1000"),
-            csi!("?1002"),
-            csi!("?1015"),
-            csi!("?1006")
-        ))?;
+        write_cout!(enable_mouse_mode_csi_sequence())?;
         Ok(())
     }
 
     fn disable_mouse_mode(&self) -> Result<()> {
-        write_cout!(&format!(
-            "{}l{}l{}l{}l",
-            csi!("?1006"),
-            csi!("?1015"),
-            csi!("?1002"),
-            csi!("?1000")
-        ))?;
+        write_cout!(disable_mouse_mode_csi_sequence())?;
         Ok(())
     }
 }
@@ -216,7 +208,7 @@ impl Iterator for AsyncReader {
 /// `SyncReader` is an individual iterator and it doesn't use `None` to indicate that the iteration is
 /// finished. You can expect additional `Some(InputEvent)` after calling `next` even if you have already
 /// received `None`. Unfortunately, `None` means that an error occurred, but you're free to call `next`
-/// again. This behavior will be changed in the future to avoid errors consumption.  
+/// again. This behavior will be changed in the future to avoid errors consumption.
 ///
 /// # Notes
 ///
