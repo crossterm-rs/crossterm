@@ -3,7 +3,7 @@ pub(crate) use ansi::AnsiAlternateScreen;
 pub(crate) use windows::WinApiAlternateScreen;
 
 #[cfg(windows)]
-use crate::utils::supports_ansi;
+use crate::supports_ansi;
 use crate::utils::Result;
 
 pub(crate) mod ansi;

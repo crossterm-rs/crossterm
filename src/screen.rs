@@ -76,7 +76,7 @@ mod sys;
 /// Alternate screen with raw mode enabled:
 ///
 /// ```no_run
-/// use crossterm::{AlternateScreen, Result};
+/// use crossterm::{screen::{AlternateScreen}, Result};
 ///
 /// fn main() -> Result<()> {
 ///     let _alternate = AlternateScreen::to_alternate(true)?;
@@ -145,7 +145,7 @@ impl Drop for AlternateScreen {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, EnterAlternateScreen, LeaveAlternateScreen};
+/// use crossterm::{execute, Result,screen::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
@@ -181,7 +181,7 @@ impl Command for EnterAlternateScreen {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, EnterAlternateScreen, LeaveAlternateScreen};
+/// use crossterm::{execute, Result, screen::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;

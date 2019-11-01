@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use std::io::Write;
 
-use crate::{execute, impl_display, queue, write_cout};
+use crate::{execute, queue, write_cout};
 
 use super::error::Result;
 
@@ -93,13 +93,13 @@ where
     }
 }
 
-/// When executed, this command will output the given string to the terminal.
+/// When executed, this command will output the given displayable to the buffer.
 ///
 /// See `crossterm/examples/command.rs` for more information on how to execute commands.
-pub struct Output(pub String);
+pub struct Output<T: Display + Clone>(pub T);
 
-impl Command for Output {
-    type AnsiType = String;
+impl<T: Display + Clone> Command for Output<T> {
+    type AnsiType = T;
 
     fn ansi_code(&self) -> Self::AnsiType {
         return self.0.clone();
@@ -112,4 +112,11 @@ impl Command for Output {
     }
 }
 
-impl_display!(for Output);
+impl<T: Display + Clone> Display for Output<T> {
+    fn fmt(
+        &self,
+        f: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::result::Result<(), ::std::fmt::Error> {
+        write!(f, "{}", self.ansi_code())
+    }
+}

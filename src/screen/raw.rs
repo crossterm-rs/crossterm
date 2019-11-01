@@ -15,7 +15,7 @@ use super::sys;
 /// Basic usage:
 ///
 /// ```no_run
-/// use crossterm::{RawScreen, Result};
+/// use crossterm::{screen::RawScreen, Result};
 ///
 /// fn main() -> Result<()> {
 ///     let _raw = RawScreen::into_raw_mode()?;
@@ -27,7 +27,7 @@ use super::sys;
 /// Do not disable the raw mode implicitly:
 ///
 /// ```no_run
-/// use crossterm::{RawScreen, Result};
+/// use crossterm::{screen::RawScreen, Result};
 ///
 /// fn main() -> Result<()> {
 ///     let mut raw = RawScreen::into_raw_mode()?;
@@ -93,7 +93,7 @@ impl RawScreen {
 ///
 /// ```no_run
 /// use std::io::stdout;
-/// use crossterm::{IntoRawMode, Result};
+/// use crossterm::{screen::IntoRawMode, Result};
 ///
 /// fn main() -> Result<()> {
 ///     let stdout = stdout();

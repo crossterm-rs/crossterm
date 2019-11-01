@@ -180,10 +180,11 @@ impl From<Colored> for u16 {
 
 #[cfg(test)]
 mod tests {
+    use crate::style::sys::windows::set_foreground_color;
+
     use super::{
         Color, Colored, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
     };
-    use crate::style::sys::windows::set_foreground_color;
 
     #[test]
     fn test_parse_fg_color() {
