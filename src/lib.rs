@@ -38,37 +38,37 @@
 //!
 //! ### Supported Commands
 //!
-//!| *Command Name*                  |  *Description*                                                                    |
-//!| :------------------------------ | :----------------------------                                                     |
-//!|   **crossterm::cursor module**   |                                                                                  |
-//!|  `cursor::DisableBlinking`	      | A command that disables blinking of the terminal cursor.                         |
-//!|  `cursor::EnableBlinking`	      | A command that enables blinking of the terminal cursor.                          |
-//!|  `cursor::Hide`	              | A command that hides the terminal cursor.                                        |
-//!|  `cursor::MoveDown`	          | A command that moves the terminal cursor a given number of rows down.            |
-//!|  `cursor::MoveLeft`	          | A command that moves the terminal cursor a given number of columns to the left.  |
-//!|  `cursor::MoveRight`	          | A command that moves the terminal cursor a given number of columns to the right. |
-//!|  `cursor::MoveTo`	              | A command that moves the terminal cursor to the given position (column, row).    |
-//!|  `cursor::MoveUp`	              | A command that moves the terminal cursor a given number of rows up.              |
-//!|  `cursor::RestorePosition`	      | A command that restores the saved terminal cursor position.                      |
-//!|  `cursor::SavePosition`	      | A command that saves the current terminal cursor position.                       |
-//!|  `cursor::Show`	              | A command that shows the terminal cursor.                                        |
-//!|   **crossterm::input module**    |                                                                                  |
-//!|  `input::DisableMouseCapture`    | A command that disables mouse event monitoring.                                  |
-//!|  `input::EnableMouseCapture`	  | A command that enables mouse mode                                                |
-//!|                                  |                                                                                  |
-//!|  `screen::EnterAlternateScreen`  | A command to switch to the alternate screen.                                     |
-//!|  `screen::LeaveAlternateScreen`  |	A command to switch back to the main screen.                                     |
-//!|   **crossterm::style module**    |                                                                                  |
-//!|  `style::PrintStyledContent`     | A command that prints styled content.                                            |
-//!|  `style::ResetColor`	          | A command that resets the colors back to default.                                |
-//!|  `style::SetAttribute`	          | A command that sets an attribute.                                                |
-//!|  `style::SetBackgroundColor`     | A command that sets the the background color.                                    |
-//!|  `style::SetForegroundColor`     | A command that sets the the foreground color.                                    |
-//!|   **crossterm::terminal module** |                                                                                  |
-//!|  `terminal::Clear`	              | A command that clears the terminal screen buffer.                                |
-//!|  `terminal::ScrollDown`	      | A command that scrolls the terminal screen a given number of rows down.          |
-//!|  `terminal::ScrollUp`	          | A command that scrolls the terminal screen a given number of rows up.            |
-//!|  `terminal::SetSize`             | A command that sets the terminal size (columns, rows).                           |
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
+//!|   **crossterm::cursor module**   |                                                                   |
+//!|  `cursor::DisableBlinking`	      | disables blinking of the terminal cursor.                         |
+//!|  `cursor::EnableBlinking`	      | enables blinking of the terminal cursor.                          |
+//!|  `cursor::Hide`	              | hides the terminal cursor.                                        |
+//!|  `cursor::MoveDown`	          | moves the terminal cursor a given number of rows down.            |
+//!|  `cursor::MoveLeft`	          | moves the terminal cursor a given number of columns to the left.  |
+//!|  `cursor::MoveRight`	          | moves the terminal cursor a given number of columns to the right. |
+//!|  `cursor::MoveTo`	              | moves the terminal cursor to the given position (column, row).    |
+//!|  `cursor::MoveUp`	              | moves the terminal cursor a given number of rows up.              |
+//!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
+//!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
+//!|  `cursor::Show`	              | shows the terminal cursor.                                        |
+//!|   **crossterm::input module**    |                                                                   |
+//!|  `input::DisableMouseCapture`    | disables mouse event monitoring.                                  |
+//!|  `input::EnableMouseCapture`	  | enables mouse mode                                                |
+//!|                                  |                                                                   |
+//!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
+//!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
+//!|   **crossterm::style module**    |                                                                   |
+//!|  `style::PrintStyledContent`     | prints styled content.                                            |
+//!|  `style::ResetColor`	          | resets the colors back to default.                                |
+//!|  `style::SetAttribute`	          | sets an attribute.                                                |
+//!|  `style::SetBackgroundColor`     | sets the the background color.                                    |
+//!|  `style::SetForegroundColor`     | sets the the foreground color.                                    |
+//!|   **crossterm::terminal module** |                                                                   |
+//!|  `terminal::Clear`	              | clears the terminal screen buffer.                                |
+//!|  `terminal::ScrollDown`	      | scrolls the terminal screen a given number of rows down.          |
+//!|  `terminal::ScrollUp`	          | scrolls the terminal screen a given number of rows up.            |
+//!|  `terminal::SetSize`             | sets the terminal size (columns, rows).                           |
 //!
 //! There are two different way's to execute commands.
 //! * [Lazy Execution](#lazy-execution)
