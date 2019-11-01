@@ -35,10 +35,12 @@
     - Rename `ContentStyle::fg_color` -> `ContentStyle::foreground_color`
     - Rename `ContentStyle::bg_color` -> `ContentStyle::background_color`
     - Rename `ContentStyle::attrs` -> `ContentStyle::attributes`
+- Improve documentation
+- Unix terminal size calculation with TPUT
 
 # Version 0.12.1
 
-- All the `crossterm_` crates code was moved to the `crossterm` crate
+- Move all the `crossterm_` crates code was moved to the `crossterm` crate
   - `crossterm_cursor` is in the `cursor` module, etc.
   - All these modules are public
 - No public API breaking changes
@@ -55,34 +57,27 @@
 
 ## `crossterm_cursor` 0.4.0
 
-- Internal refactoring ([PR #2](https://github.com/crossterm-rs/crossterm-cursor/pull/2))
-  - Improved public documentation
-  - `sys` module is no longer public
-- Fixed examples link ([PR #6](https://github.com/crossterm-rs/crossterm-cursor/pull/6))
+- Fix examples link ([PR #6](https://github.com/crossterm-rs/crossterm-cursor/pull/6))
 - Sync documentation style ([PR #7](https://github.com/crossterm-rs/crossterm-cursor/pull/7))
-- Removed all references to the crossterm book ([PR #8](https://github.com/crossterm-rs/crossterm-cursor/pull/8))
-- Replaced `RAW_MODE_ENABLED` with `is_raw_mode_enabled` ([PR #9](https://github.com/crossterm-rs/crossterm-cursor/pull/9))
+- Remove all references to the crossterm book ([PR #8](https://github.com/crossterm-rs/crossterm-cursor/pull/8))
+- Replace `RAW_MODE_ENABLED` with `is_raw_mode_enabled` ([PR #9](https://github.com/crossterm-rs/crossterm-cursor/pull/9))
 - Use `SyncReader` & `InputEvent::CursorPosition` for `pos_raw()` ([PR #10](https://github.com/crossterm-rs/crossterm-cursor/pull/10))
 
 ## `crossterm_input` 0.5.0
 
-- Internal refactoring ([PR #3](https://github.com/crossterm-rs/crossterm-input/pull/3))
-  - Removed unsafe `static mut`
-  - Documentation update
-  - Remove all references to the crossterm book
 - Sync documentation style ([PR #4](https://github.com/crossterm-rs/crossterm-input/pull/4))
 - Sync `SyncReader::next()` Windows and UNIX behavior ([PR #5](https://github.com/crossterm-rs/crossterm-input/pull/5))
 - Remove all references to the crossterm book ([PR #6](https://github.com/crossterm-rs/crossterm-input/pull/6))
 - Mouse coordinates synchronized with the cursor ([PR #7](https://github.com/crossterm-rs/crossterm-input/pull/7))
   - Upper/left reported as `(0, 0)`
-- Fixed bug that read sync didn't block (Windows) ([PR #8](https://github.com/crossterm-rs/crossterm-input/pull/8))
-- Refactored UNIX readers ([PR #9](https://github.com/crossterm-rs/crossterm-input/pull/9))
+- Fix bug that read sync didn't block (Windows) ([PR #8](https://github.com/crossterm-rs/crossterm-input/pull/8))
+- Refactor UNIX readers ([PR #9](https://github.com/crossterm-rs/crossterm-input/pull/9))
   - AsyncReader produces mouse events
   - One reading thread per application, not per `AsyncReader`
   - Cursor position no longer consumed by another `AsyncReader`
-  - Implemented sync reader for read_char (requires raw mode)
-  - Fixed `SIGTTIN` when executed under the LLDB
-  - Added mio for reading from FD and more efficient polling (UNIX only)
+  - Implement sync reader for read_char (requires raw mode)
+  - Fix `SIGTTIN` when executed under the LLDB
+  - Add mio for reading from FD and more efficient polling (UNIX only)
 - Sync UNIX and Windows vertical mouse position ([PR #11](https://github.com/crossterm-rs/crossterm-input/pull/11))
   - Top is always reported as `0`
 
@@ -100,10 +95,9 @@
 
 ## `crossterm_style` 0.5.2
 
-- Refactoring ([PR #2](https://github.com/crossterm-rs/crossterm-style/pull/2))
+- Refactor ([PR #2](https://github.com/crossterm-rs/crossterm-style/pull/2))
   - Added unit tests
-  - Restructured files
-  - Improved documentation and added book page to lib.rs
+  - Improved documentation and added book page to `lib.rs`
   - Fixed bug with `SetBg` command, WinApi logic
   - Fixed bug with `StyledObject`, used stdout for resetting terminal color
   - Introduced `ResetColor` command
@@ -163,8 +157,8 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
          * `TerminalInput::read_char` returns `crossterm::Result` instead of `io::Result`
          * Maybe I forgot something, a lot of functions have changed
      - Removed all unwraps/expects from library
-- Added KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab]
-- Synced set/get terminal size behaviour: [fixed-get-set-terminal-size]
+- Add KeyEvent::Enter and KeyEvent::Tab: [added-key-event-enter], [added-key-event-tab]
+- Sync set/get terminal size behaviour: [fixed-get-set-terminal-size]
 - Method renames:
     * `AsyncReader::stop_reading()` to `stop()`
     * `RawScreen::disable_raw_mode_on_drop` to `keep_raw_mode_on_drop`
@@ -207,11 +201,11 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 # Version 0.10.1
 
 # Version 0.10.0 ~ yanked
-- Implemented command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/crossterm-rs/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/crossterm-rs/crossterm/issues/171)
-- Fixed showing, hiding cursor windows implementation
-- Removed some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd)
+- Implement command API, to have better performance and more control over how and when commands are executed. [PR](https://github.com/crossterm-rs/crossterm/commit/1a60924abd462ab169b6706aab68f4cca31d7bc2), [issue](https://github.com/crossterm-rs/crossterm/issues/171)
+- Fix showing, hiding cursor windows implementation
+- Remove some of the parsing logic from windows keys to ansi codes to key events [PR](https://github.com/crossterm-rs/crossterm/commit/762c3a9b8e3d1fba87acde237f8ed09e74cd9ecd)
 - Made terminal size 1-based [PR](https://github.com/crossterm-rs/crossterm/commit/d689d7e8ed46a335474b8262bd76f21feaaf0c50)
-- Added some derive implementation
+- Add some derives
 
 # Version 0.9.6
 
@@ -222,7 +216,7 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 
 # Version 0.9.5
 
-- Prefetching buffer size for more efficient windows input reads. [PR](https://github.com/crossterm-rs/crossterm/pull/144)
+- Prefetch buffer size for more efficient windows input reads. [PR](https://github.com/crossterm-rs/crossterm/pull/144)
 
 # Version 0.9.4
 
