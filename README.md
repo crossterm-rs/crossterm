@@ -17,15 +17,13 @@ see [Tested Terminals](#tested-terminals) for more info).
 ## Note on Migration
 
 You may have noticed that Crossterm has been [changing](https://github.com/crossterm-rs/crossterm/blob/master/CHANGELOG.md) very quickly with the latest versions. 
-We have done a lot of API-breaking things by renaming functions, commands, changing the exports, improving the encapsulation, etc.. 
-However, all of this happens to improve the library and make it ready for a possible [1.0 release](#287). 
+We have done a lot of API-breaking changes by renaming functions, commands, changing the exports, improving the encapsulation, etc.. 
+However, all of this happens to improve the library and make it better and ready for a possible [1.0 release](#287). 
 We want to stick to the [Command API](https://docs.rs/crossterm/#command-api) and remove all other ways to use crossterm. 
 Try to use this API and change your code accordingly. 
 This way you will survive or overcome major migration problems ;). 
-We want to reduce the ways crossterm can be used to make it simpler and easier to maintain. 
 
-We hope you can understand this, feel free to ask around in [discord ](https://discord.gg/K4nyTDB) if you have questions on how to migrate. 
-Also, for up-to-date examples, have a look at the [examples](https://github.com/crossterm-rs/examples/tree/masteri) repository.
+We hope you can understand this, feel free to ask around in [discord ](https://discord.gg/K4nyTDB) if you have questions. For up-to-date examples, have a look at the [examples](https://github.com/crossterm-rs/examples/tree/masteri) repository. Sorry for the inconvenience. 
 
 ## Table of Contents
 
