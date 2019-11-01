@@ -30,6 +30,7 @@ see [Tested Terminals](#tested-terminals) for more info).
 - Multi-threaded (send, sync)
 - Detailed documentation
 - Few dependencies
+- Full control over output buffer
 - Cursor (feature `cursor`)
     - Move the cursor N times (up, down, left, right)
     - Set/get the cursor position
@@ -94,21 +95,30 @@ crossterm = "0.12"
 ```rust
 use std::io::{stdout, Write};
 
-use crossterm::{execute, Attribute, Color, Output, ResetColor, Result, SetBg, SetFg};
+use crossterm::{execute, ExecutableCommand, style::{Attribute, Color, SetForegroundColor, SetBackgroundColor, ResetColor}, Output, Result};
 
 fn main() -> Result<()> {
+    // using the macro
     execute!(
         stdout(),
-        // Blue foreground
-        SetFg(Color::Blue),
-        // Red background
-        SetBg(Color::Red),
-        Output("Styled text here.".to_string()),
-        // Reset to default colors
+        SetForegroundColor(Color::Blue),
+        SetBackgroundColor(Color::Red),
+        Output("Styled text here."),
         ResetColor
-    )
+    )?;
+
+    // or using functions
+    stdout()
+        .execute(SetForegroundColor(Color::Blue))?
+        .execute(SetBackgroundColor(Color::Red))?
+        .execute(Output("Styled text here."))?
+        .execute(ResetColor)?;
+
+    Ok(())
 }
 ```
+
+Checkout this [list](https://docs.rs/crossterm/0.13.0/crossterm/index.html#supported-commands) with all possible commands.
 
 ### Feature Flags
 
