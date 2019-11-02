@@ -97,7 +97,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.12"
+crossterm = "0.13"
 ```
 
 </details>
