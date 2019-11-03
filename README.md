@@ -23,7 +23,7 @@ We want to stick to the [Command API](https://docs.rs/crossterm/#command-api) an
 Try to use this API and change your code accordingly. 
 This way you will survive or overcome major migration problems ;). 
 
-We hope you can understand this, feel free to ask around in [discord ](https://discord.gg/K4nyTDB) if you have questions. For up-to-date examples, have a look at the [examples](https://github.com/crossterm-rs/examples/tree/masteri) repository. Sorry for the inconvenience. 
+We hope you can understand this, feel free to ask around in [discord](https://discord.gg/K4nyTDB) if you have questions. For up-to-date examples, have a look at the [examples](https://github.com/crossterm-rs/examples/tree/master) repository. Sorry for the inconvenience. 
 
 ## Table of Contents
 
