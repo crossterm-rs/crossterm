@@ -1,5 +1,4 @@
 //#![deny(unused_imports, unused_must_use)]
-
 //! # Input
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
@@ -40,8 +39,10 @@ pub use self::{
     events::{Event, KeyEvent, MouseButton, MouseEvent},
 };
 
+mod ansi;
 mod sys;
-
 mod event_pool;
 mod event_source;
 mod events;
+
+

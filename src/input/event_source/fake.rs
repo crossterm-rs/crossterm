@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 use crate::input::events::InternalEvent;
-use crate::EventSource;
+use crate::input::EventSource;
 
 pub struct FakeEventSource {
     input_receiver: Mutex<Receiver<InternalEvent>>,

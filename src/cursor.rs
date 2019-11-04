@@ -1,6 +1,6 @@
 //! # Cursor
 //!
-//! The `cursor` module provides a functionality to work with the terminal cursor.
+//! The `cursor` module provides functionality to work with the terminal cursor.
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide
@@ -9,239 +9,78 @@
 //!
 //! ## Examples
 //!
-//! Basic usage:
-//!
-//! ```no_run
-//! // You can replace the following line with `use crossterm::TerminalCursor;`
-//! // if you're using the `crossterm` crate with the `cursor` feature enabled.
-//! use crossterm::{Result, TerminalCursor};
-//!
-//! fn main() -> Result<()> {
-//!     // Get a cursor, save position
-//!     let cursor = TerminalCursor::new();
-//!     cursor.save_position()?;
-//!
-//!     // Do something with the cursor
-//!     cursor.goto(10, 10)?;
-//!     cursor.blink(true)?;
-//!
-//!     // Be a good citizen, cleanup
-//!     cursor.blink(false)?;
-//!     cursor.restore_position()
-//! }
-//! ```
-//!
-//! Commands:
+//! Cursor actions can be performed with commands.
+//! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{BlinkOff, BlinkOn, execute, Goto, ResetPos, Result, SavePos};
-//!
+//! use crossterm::{
+//!     ExecutableCommand, execute, Result,
+//!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
+//! };
 //!
 //! fn main() -> Result<()> {
+//!     // with macro
 //!     execute!(
 //!         stdout(),
-//!         SavePos,
-//!         Goto(10, 10),
-//!         BlinkOn,
-//!         BlinkOff,
-//!         ResetPos
-//!     )
+//!         SavePosition,
+//!         MoveTo(10, 10),
+//!         EnableBlinking,
+//!         DisableBlinking,
+//!         RestorePosition
+//!     );
+//!
+//!   // with function
+//!   stdout()
+//!     .execute(MoveTo(11,11))?
+//!     .execute(RestorePosition);
+//!
+//!  Ok(())
 //! }
 //! ```
-use cursor::ansi::{self, AnsiCursor};
-#[cfg(windows)]
-use cursor::windows::WinApiCursor;
-use cursor::Cursor;
+//!
+//! For manual execution control check out [crossterm::queue](../macro.queue.html).
+
+pub use sys::position;
 
 use crate::impl_display;
+use crate::utils::Command;
 #[cfg(windows)]
-use crate::utils::supports_ansi;
-use crate::utils::{Command, Result};
+use crate::utils::Result;
 
-mod cursor;
-mod sys;
+mod ansi;
+pub(crate) mod sys;
 
-/// A terminal cursor.
-///
-/// The `TerminalCursor` instance is stateless and does not hold any data.
-/// You can create as many instances as you want and they will always refer to the
-/// same terminal cursor.
-///
-/// The cursor position is 0 based. For example `0` means first column/row, `1`
-/// second column/row, etc.
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::{Result, TerminalCursor};
-///
-/// fn main() -> Result<()> {
-///     let cursor = TerminalCursor::new();
-///     cursor.save_position()?;
-///
-///     cursor.goto(10, 10)?;
-///     cursor.blink(true)?;
-///
-///     cursor.blink(false)?;
-///     cursor.restore_position()
-/// }
-/// ```
-pub struct TerminalCursor {
-    #[cfg(windows)]
-    cursor: Box<(dyn Cursor + Sync + Send)>,
-    #[cfg(unix)]
-    cursor: AnsiCursor,
-}
-
-impl TerminalCursor {
-    /// Creates a new `TerminalCursor`.
-    pub fn new() -> TerminalCursor {
-        #[cfg(windows)]
-        let cursor = if supports_ansi() {
-            Box::new(AnsiCursor::new()) as Box<(dyn Cursor + Sync + Send)>
-        } else {
-            Box::new(WinApiCursor::new()) as Box<(dyn Cursor + Sync + Send)>
-        };
-
-        #[cfg(unix)]
-        let cursor = AnsiCursor::new();
-
-        TerminalCursor { cursor }
-    }
-
-    /// Moves the cursor to the given position.
-    pub fn goto(&self, column: u16, row: u16) -> Result<()> {
-        self.cursor.goto(column, row)
-    }
-
-    /// Returns the cursor position (`(column, row)` tuple).
-    pub fn pos(&self) -> Result<(u16, u16)> {
-        self.cursor.pos()
-    }
-
-    /// Moves the cursor `row_count` times up.
-    pub fn move_up(&mut self, row_count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_up(row_count)?;
-        Ok(self)
-    }
-
-    /// Moves the cursor `col_count` times right.
-    pub fn move_right(&mut self, col_count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_right(col_count)?;
-        Ok(self)
-    }
-
-    /// Moves the cursor `row_count` times down.
-    pub fn move_down(&mut self, row_count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_down(row_count)?;
-        Ok(self)
-    }
-
-    /// Moves the cursor `col_count` times left.
-    pub fn move_left(&mut self, col_count: u16) -> Result<&mut TerminalCursor> {
-        self.cursor.move_left(col_count)?;
-        Ok(self)
-    }
-
-    /// Saves the cursor position.
-    ///
-    /// See the [restore_position](struct.TerminalCursor.html#method.restore_position) method.
-    ///
-    /// # Notes
-    ///
-    /// The cursor position is stored globally and is not related to the current/any
-    /// `TerminalCursor` instance.
-    pub fn save_position(&self) -> Result<()> {
-        self.cursor.save_position()
-    }
-
-    /// Restores the saved cursor position.
-    ///
-    /// See the [save_position](struct.TerminalCursor.html#method.save_position) method.
-    pub fn restore_position(&self) -> Result<()> {
-        self.cursor.restore_position()
-    }
-
-    /// Hides the cursor.
-    ///
-    /// See the [show](struct.TerminalCursor.html#method.show) method.
-    pub fn hide(&self) -> Result<()> {
-        self.cursor.hide()
-    }
-
-    /// Shows the cursor.
-    ///
-    /// See the [hide](struct.TerminalCursor.html#method.hide) method.
-    pub fn show(&self) -> Result<()> {
-        self.cursor.show()
-    }
-
-    /// Enables or disables the cursor blinking.
-    ///
-    /// # Notes
-    ///
-    /// Windows versions lower than Windows 10 do not support this functionality.
-    pub fn blink(&self, blink: bool) -> Result<()> {
-        self.cursor.blink(blink)
-    }
-}
-
-/// Creates a new `TerminalCursor`.
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::{cursor, Result};
-///
-/// fn main() -> Result<()> {
-///     let cursor = cursor();
-///     cursor.save_position()?;
-///
-///     cursor.goto(10, 10)?;
-///     cursor.blink(true)?;
-///
-///     cursor.blink(false)?;
-///     cursor.restore_position()
-/// }
-/// ```
-pub fn cursor() -> TerminalCursor {
-    TerminalCursor::new()
-}
-
-/// A command to move the cursor to the given position.
+/// A command that moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Goto(pub u16, pub u16);
+/// * Top left cell is represented as `0,0`.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+pub struct MoveTo(pub u16, pub u16);
 
-impl Command for Goto {
+impl Command for MoveTo {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::goto_csi_sequence(self.0, self.1)
+        ansi::move_to_csi_sequence(self.0, self.1)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().goto(self.0, self.1)
+        sys::move_to(self.0, self.1)
     }
 }
 
-/// A command to move the cursor given rows up.
+/// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Up(pub u16);
+pub struct MoveUp(pub u16);
 
-impl Command for Up {
+impl Command for MoveUp {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -250,18 +89,18 @@ impl Command for Up {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().move_up(self.0)
+        sys::move_up(self.0)
     }
 }
 
-/// A command to move the cursor given rows down.
+/// A command that moves the terminal cursor a given number of rows down.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Down(pub u16);
+pub struct MoveDown(pub u16);
 
-impl Command for Down {
+impl Command for MoveDown {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -270,18 +109,18 @@ impl Command for Down {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().move_down(self.0)
+        sys::move_down(self.0)
     }
 }
 
-/// A command to move the cursor given columns left.
+/// A command that moves the terminal cursor a given number of columns to the left.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Left(pub u16);
+pub struct MoveLeft(pub u16);
 
-impl Command for Left {
+impl Command for MoveLeft {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -290,18 +129,28 @@ impl Command for Left {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().move_left(self.0)
+        sys::move_left(self.0)
     }
 }
 
-/// A command to move the cursor given columns right.
+/// A command that moves the terminal cursor a given number of columns to the right.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct Right(pub u16);
+pub struct MoveRight(pub u16);
 
-impl Command for Right {
+/// A command that saves the current terminal cursor position.
+///
+/// See the [RestorePosition](./struct.RestorePosition.html) command.
+///
+/// # Notes
+///
+/// - The cursor position is stored globally.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct SavePosition;
+
+impl Command for MoveRight {
     type AnsiType = String;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -310,21 +159,11 @@ impl Command for Right {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().move_right(self.0)
+        sys::move_right(self.0)
     }
 }
 
-/// A command to save the cursor position.
-///
-/// # Notes
-///
-/// The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct SavePos;
-
-impl Command for SavePos {
+impl Command for SavePosition {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -333,18 +172,21 @@ impl Command for SavePos {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().save_position()
+        sys::save_position()
     }
 }
 
-/// A command to restore the saved cursor position.
+/// A command that restores the saved terminal cursor position.
+///
+/// See the [SavePosition](./struct.SavePosition.html) command.
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct ResetPos;
+/// - The cursor position is stored globally.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct RestorePosition;
 
-impl Command for ResetPos {
+impl Command for RestorePosition {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
@@ -353,18 +195,15 @@ impl Command for ResetPos {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().restore_position()
+        sys::restore_position()
     }
 }
 
-/// A command to hide the cursor.
+/// A command that hides the terminal cursor.
 ///
 /// # Notes
 ///
-/// The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Hide;
 
 impl Command for Hide {
@@ -376,18 +215,15 @@ impl Command for Hide {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().hide()
+        sys::show_cursor(false)
     }
 }
 
-/// A command to show the cursor.
+/// A command that shows the terminal cursor.
 ///
 /// # Notes
 ///
-/// The cursor position is stored globally and is not related to the current/any
-/// `TerminalCursor` instance.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Show;
 
 impl Command for Show {
@@ -399,24 +235,23 @@ impl Command for Show {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        WinApiCursor::new().show()
+        sys::show_cursor(true)
     }
 }
 
-/// A command to enable the cursor blinking.
+/// A command that enables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
-/// Windows versions lower than Windows 10 do not support this functionality.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct BlinkOn;
+/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct EnableBlinking;
 
-impl Command for BlinkOn {
+impl Command for EnableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINKING_ON_CSI_SEQUENCE
+        ansi::ENABLE_BLINKING_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -425,20 +260,19 @@ impl Command for BlinkOn {
     }
 }
 
-/// A command to disable the cursor blinking.
+/// A command that disables blinking of the terminal cursor.
 ///
 /// # Notes
 ///
-/// Windows versions lower than Windows 10 do not support this functionality.
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct BlinkOff;
+/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+pub struct DisableBlinking;
 
-impl Command for BlinkOff {
+impl Command for DisableBlinking {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::BLINKING_OFF_CSI_SEQUENCE
+        ansi::DISABLE_BLINKING_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -447,14 +281,92 @@ impl Command for BlinkOff {
     }
 }
 
-impl_display!(for Goto);
-impl_display!(for Up);
-impl_display!(for Down);
-impl_display!(for Left);
-impl_display!(for Right);
-impl_display!(for SavePos);
-impl_display!(for ResetPos);
+impl_display!(for MoveTo);
+impl_display!(for MoveUp);
+impl_display!(for MoveDown);
+impl_display!(for MoveLeft);
+impl_display!(for MoveRight);
+impl_display!(for SavePosition);
+impl_display!(for RestorePosition);
 impl_display!(for Hide);
 impl_display!(for Show);
-impl_display!(for BlinkOn);
-impl_display!(for BlinkOff);
+impl_display!(for EnableBlinking);
+impl_display!(for DisableBlinking);
+
+#[cfg(test)]
+mod tests {
+    use std::io::{self, stdout, Write};
+
+    use crate::execute;
+
+    use super::{
+        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+    };
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_move_to() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        execute!(stdout(), MoveTo(saved_x + 1, saved_y + 1)).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y + 1));
+
+        execute!(stdout(), MoveTo(saved_x, saved_y)).unwrap();
+        assert_eq!(position().unwrap(), (saved_x, saved_y));
+    }
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_move_right() {
+        let (saved_x, saved_y) = position().unwrap();
+        execute!(io::stdout(), MoveRight(1)).unwrap();
+        assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
+    }
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_move_left() {
+        execute!(stdout(), MoveTo(2, 0), MoveLeft(2)).unwrap();
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_move_up() {
+        execute!(stdout(), MoveTo(0, 2), MoveUp(2)).unwrap();
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_move_down() {
+        execute!(stdout(), MoveTo(0, 0), MoveDown(2)).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 2));
+    }
+
+    // Test is disabled, because it's failing on Travis
+    #[test]
+    #[ignore]
+    fn test_save_restore_position() {
+        let (saved_x, saved_y) = position().unwrap();
+
+        execute!(
+            stdout(),
+            SavePosition,
+            MoveTo(saved_x + 1, saved_y + 1),
+            RestorePosition
+        )
+        .unwrap();
+
+        let (x, y) = position().unwrap();
+
+        assert_eq!(x, saved_x);
+        assert_eq!(y, saved_y);
+    }
+}

@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.12.1"
+version = "0.13.0"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -10,13 +10,14 @@ keywords = ["console", "color", "cursor", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
+categories = ["Command-line interface", "Command line utilities"]
 
 [features]
 default = ["cursor", "style", "terminal", "screen", "input"]
 cursor = ["lazy_static", "input", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
 style = ["lazy_static", "winapi/wincon"]
 terminal = ["cursor"]
-screen = ["winapi/wincon", "winapi/minwindef"]
+screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
 input = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
 
 [dependencies]

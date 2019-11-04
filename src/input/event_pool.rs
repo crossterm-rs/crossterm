@@ -8,7 +8,9 @@ use crate::input::event_source::tty::TTYEventSource;
 #[cfg(windows)]
 use crate::input::event_source::winapi::WinApiEventSource;
 use crate::input::events::InternalEvent;
-use crate::{Event, EventSource, Result};
+use crate::input::{Event, EventSource};
+use crate::Result;
+use std::collections::VecDeque;
 
 lazy_static! {
     /// Static instance of `EventPool`.
@@ -89,19 +91,14 @@ pub fn read() -> Result<Event> {
 ///
 /// Not that one can obtain only one writer and multiple readers.
 pub struct EventPool {
-    event_source: Box<dyn EventSource>,
+    buffer: VecDeque<Event>
 }
 
 impl EventPool {
     /// Construct an new instance of `EventPool`.
     pub(crate) fn new() -> EventPool {
-        #[cfg(windows)]
-        let input = WinApiEventSource::new();
-        #[cfg(unix)]
-        let input = TTYEventSource::new();
-
         EventPool {
-            event_source: Box::new(input) as Box<dyn EventSource + Sync + Send>,
+            buffer: VecDeque::new(),
         }
     }
 
@@ -125,15 +122,96 @@ impl EventPool {
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
-        self.event_source.poll(timeout)
+    pub fn poll(&self, timeout: Option<Duration>) -> bool {
+        self.buffer.len() != 0
     }
 
     /// Reads a single input event.
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn read(&mut self) -> Result<Event> {
+    pub fn read(&mut self) -> Option<Event> {
+        Ok(self.buffer.pop_front())
+    }
+
+    /// Enables mouse events to be monitored.
+    pub fn enable_mouse_events() {}
+
+    /// Disables mouse events to be monitored.
+    pub fn disable_mouse_events() {}
+}
+
+/// An acquired read lock to the event channel pool.
+pub struct EventPoolReadLock<'a> {
+    read_guard: RwLockReadGuard<'a, EventPool>,
+}
+
+impl<'a> EventPoolReadLock<'a> {
+    /// Constructs the read lock from the given `EventPool` read lock.
+    pub(crate) fn from_lock_result(
+        read_guard: RwLockReadGuard<'a, EventPool>,
+    ) -> EventPoolReadLock<'a> {
+        EventPoolReadLock { read_guard }
+    }
+
+    /// Returns the obtained read lock to the pool.
+    pub fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
+        &self.read_guard
+    }
+}
+
+lazy_static! {
+    /// Static instance of `EventPool`.
+    /// This needs to be static because there can be one event reader.
+    pub static ref INTERNAL_EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
+}
+
+pub struct InternalEventPool {
+    event_source: Box<dyn EventSource>
+}
+
+impl InternalEventPool  {
+    /// Construct an new instance of `EventPool`.
+    pub(crate) fn new() -> InternalEventPool  {
+        #[cfg(windows)]
+            let input = WinApiEventSource::new();
+        #[cfg(unix)]
+            let input = TTYEventSource::new();
+
+        InternalEventPool  {
+            event_source: Box::new(input) as Box<dyn EventSource + Sync + Send>,
+        }
+    }
+
+    /// Acquires an write lock to `EventPool`.
+    pub fn get_mut<'a>() -> EventPoolWriteLock<'a> {
+        EventPoolWriteLock::from_lock_result(INTERNAL_EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
+    }
+
+    /// Acquires an read-only lock to `EventPool`.
+    pub fn get<'a>() -> EventPoolReadLock<'a> {
+        EventPoolReadLock::from_lock_result(INTERNAL_EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
+    }
+
+    /// Changes the default `EventSource` to the given `EventSource`.
+    pub fn set_event_source(&mut self, event_source: Box<dyn EventSource>) {
+        self.event_source = event_source;
+    }
+
+    /// Polls to check if there are any events that can be read.
+    /// True is returned if this is the case.
+    ///
+    /// This function blocks the current thread.
+    /// Use `InputPool::poll()` to see if there are events to read.
+    pub fn poll(&self, timeout: Option<Duration>) -> bool {
+        self.buffer.len() != 0
+    }
+
+    /// Reads a single input event.
+    ///
+    /// This function blocks the current thread.
+    /// Use `InputPool::poll()` to see if there are events to read.
+    pub fn read(&mut self) -> Option<Event> {
         match self.event_source.read()? {
             Some(InternalEvent::Input(event)) => {
                 return Ok(event);

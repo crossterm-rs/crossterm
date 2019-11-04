@@ -16,7 +16,9 @@
 //! ## Command API
 //!
 //! The command API makes the use of `crossterm` much easier and offers more control over when and how a
-//! command such as moving the cursor is executed. The command API offers:
+//! command is executed. An command is just an action you can perform on the terminal e.g. cursor movement.
+//!
+//! The command API offers:
 //!
 //! * Better Performance.
 //! * Complete control over when to flush.
@@ -30,106 +32,159 @@
 //! * Macros are generally seen as more difficult but offer an API with less boilerplate code. If you are
 //!   not afraid of macros, this is a recommendation.
 //!
-//! Before `crossterm` 10.0 was released, `crossterm` had some performance issues. It did a `flush` after each command
-//! (cursor movement). A `flush` is heavy action on the terminal, and if it is done more often the performance
-//! will go down quickly.
-//!
 //! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or rather a
 //! byte sequence. When we `write` and `flush` those to the terminal we can perform some action.
+//! For older windows systems a WinApi call is made.
+//!
+//! ### Supported Commands
+//!
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
+//!|   **crossterm::cursor module**   |                                                                   |
+//!|  `cursor::DisableBlinking`	      | disables blinking of the terminal cursor.                         |
+//!|  `cursor::EnableBlinking`	      | enables blinking of the terminal cursor.                          |
+//!|  `cursor::Hide`	              | hides the terminal cursor.                                        |
+//!|  `cursor::MoveDown`	          | moves the terminal cursor a given number of rows down.            |
+//!|  `cursor::MoveLeft`	          | moves the terminal cursor a given number of columns to the left.  |
+//!|  `cursor::MoveRight`	          | moves the terminal cursor a given number of columns to the right. |
+//!|  `cursor::MoveTo`	              | moves the terminal cursor to the given position (column, row).    |
+//!|  `cursor::MoveUp`	              | moves the terminal cursor a given number of rows up.              |
+//!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
+//!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
+//!|  `cursor::Show`	              | shows the terminal cursor.                                        |
+//!|   **crossterm::input module**    |                                                                   |
+//!|  `input::DisableMouseCapture`    | disables mouse event monitoring.                                  |
+//!|  `input::EnableMouseCapture`	  | enables mouse mode                                                |
+//!|                                  |                                                                   |
+//!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
+//!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
+//!|   **crossterm::style module**    |                                                                   |
+//!|  `style::PrintStyledContent`     | prints styled content.                                            |
+//!|  `style::ResetColor`	          | resets the colors back to default.                                |
+//!|  `style::SetAttribute`	          | sets an attribute.                                                |
+//!|  `style::SetBackgroundColor`     | sets the the background color.                                    |
+//!|  `style::SetForegroundColor`     | sets the the foreground color.                                    |
+//!|   **crossterm::terminal module** |                                                                   |
+//!|  `terminal::Clear`	              | clears the terminal screen buffer.                                |
+//!|  `terminal::ScrollDown`	      | scrolls the terminal screen a given number of rows down.          |
+//!|  `terminal::ScrollUp`	          | scrolls the terminal screen a given number of rows up.            |
+//!|  `terminal::SetSize`             | sets the terminal size (columns, rows).                           |
+//!
+//! There are two different way's to execute commands.
+//! * [Lazy Execution](#lazy-execution)
+//! * [Direct Execution](#direct-execution)
 //!
 //! ## Lazy Execution
 //!
-//! Because `flush` is a heavy system call we can instead `write` the commands to the `stdout` without flushing.
-//! When can do a `flush` when we do want to execute the commands.
+//! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
+//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer at the same time.
 //!
-//! If you create a terminal editor or TUI, it is wise to use this option. For example, you can `write` commands
-//! to the terminal `stdout` and `flush` the `stdout` at every frame. By doing this you can make efficient use of the
-//! terminal buffer and get better performance because you are not calling `flush` after every command.
+//! Crossterm offers the possibility to do this with `queue`.
+//! With `queue` you can queue commands, and when you call [Write::flush][flush] these commands will be executed.
+//!
+//! You can pass a custom buffer implementing [std::io::Write][write] to this `queue` operation.
+//! The commands will be executed on that buffer.
+//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
 //! ### Examples
+//! A simple demonstration that shows the command API in action with cursor commands.
 //!
-//! Functions:
+//! **Functions**
 //!
 //! ```no_run
-//! use std::io::Write;
-//! use crossterm::{Goto, QueueableCommand};
+//! use std::io::{Write, stdout};
+//! use crossterm::{QueueableCommand, cursor};
 //!
-//! let mut stdout = std::io::stdout();
-//! stdout.queue(Goto(5,5));
+//! let mut stdout = stdout();
+//! stdout.queue(cursor::MoveTo(5,5));
 //!
 //! // some other code ...
 //!
 //! stdout.flush();
 //! ```
 //!
-//! The `queue` function returns itself, therefore you can use this to queue another command. Like
+//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another command. Like
 //! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! Macros:
+//! **Macros**
 //!
 //! ```no_run
-//! use std::io::Write;
-//! use crossterm::{queue, Goto, QueueableCommand};
+//! use std::io::{Write, stdout};
+//! use crossterm::{queue, QueueableCommand, cursor};
 //!
-//! let mut stdout = std::io::stdout();
-//! queue!(stdout,  Goto(5, 5));
+//! let mut stdout = stdout();
+//! queue!(stdout,  cursor::MoveTo(5, 5));
 //!
 //! // some other code ...
 //!
+//! // move operation is performed only if we flush the buffer.
 //! stdout.flush();
 //! ```
 //!
-//! You can pass more than one command into the macro like `queue!(stdout, Goto(5, 5), Clear(ClearType::All))` and
+//! You can pass more than one command into the [queue](./macro.queue.html) macro like `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
 //! they will be executed in the given order from left to right.
 //!
 //! ## Direct Execution
 //!
-//! If you want to execute commands directly, this is also possible. You don't have to flush the 'stdout',
-//! as described above. This is fine if you are not executing lots of commands.
+//! For many applications it is not at all important to be efficient with 'flush' operations.
+//! For this use case there is the `execute` operation.
+//! This operation executes the command immediately, and calls the `flush` under water.
+//!
+//! You can pass a custom buffer implementing [std::io::Write][write] to this `execute` operation.
+//! The commands will be executed on that buffer.
+//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
 //! ### Examples
 //!
-//! Functions:
+//! **Functions**
 //!
 //! ```no_run
-//! use std::io::Write;
-//! use crossterm::{ExecutableCommand, Goto};
+//! use std::io::{Write, stdout};
+//! use crossterm::{ExecutableCommand, cursor};
 //!
-//! let mut stdout = std::io::stdout();
-//! stdout.execute(Goto(5,5));
+//! let mut stdout = stdout();
+//! stdout.execute(cursor::MoveTo(5,5));
 //! ```
+//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue another command. Like
+//! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! Macros:
+//! **Macros**
 //!
 //! ```no_run
-//! use std::io::Write;
-//! use crossterm::{execute, ExecutableCommand, Goto};
+//! use std::io::{Write, stdout};
+//! use crossterm::{execute, ExecutableCommand, cursor};
 //!
-//! let mut stdout = std::io::stdout();
-//! execute!(stdout, Goto(5, 5));
+//! let mut stdout = stdout();
+//! execute!(stdout, cursor::MoveTo(5, 5));
 //! ```
+//! You can pass more than one command into the [execute](./macro.execute.html) macro like `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
+//! they will be executed in the given order from left to right.
 //!
 //! ## Examples
 //!
 //! Print a rectangle colored with magenta and use both direct execution and lazy execution.
 //!
-//! Functions:
+//! **Functions**
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{ExecutableCommand, QueueableCommand, Color, PrintStyledFont, Colorize, Clear, ClearType, Goto, Result};
+//! use crossterm::{
+//!     ExecutableCommand, QueueableCommand,
+//!     terminal, cursor, style::{self, Colorize}, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   stdout.execute(Clear(ClearType::All))?;
+//!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+//!         // in this loop we are more efficient by not flushing the buffer.
 //!         stdout
-//!           .queue(Goto(x,y))?
-//!           .queue(PrintStyledFont( "█".magenta()))?;
+//!           .queue(cursor::MoveTo(x,y))?
+//!           .queue(style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -138,21 +193,25 @@
 //! }
 //! ```
 //!
-//! Macros:
+//! **Macros:**
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, queue, Color, PrintStyledFont, Colorize, Goto, Clear, ClearType, Result};
+//! use crossterm::{
+//!     execute, queue,
+//!     style::{self, Colorize}, cursor, terminal, Result
+//! };
 //!
 //! fn main() -> Result<()> {
 //!   let mut stdout = stdout();
 //!
-//!   execute!(stdout, Clear(ClearType::All))?;
+//!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
 //!   for y in 0..40 {
 //!     for x in 0..150 {
 //!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         queue!(stdout, Goto(x,y), PrintStyledFont( "█".magenta()))?;
+//!         // in this loop we are more efficient by not flushing the buffer.
+//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledContent( "█".magenta()))?;
 //!       }
 //!     }
 //!   }
@@ -160,46 +219,30 @@
 //!   Ok(())
 //! }
 //!```
+//!
+//! [write]: https://doc.rust-lang.org/std/io/trait.Write.html
+//! [stdout]: https://doc.rust-lang.org/std/io/fn.stdout.html
+//! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
+//! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-#[cfg(feature = "cursor")]
-pub use cursor::{
-    cursor, BlinkOff, BlinkOn, Down, Goto, Hide, Left, ResetPos, Right, SavePos, Show,
-    TerminalCursor, Up,
-};
-#[cfg(feature = "input")]
-pub use input::{
-    Event, EventPool, EventPoolReadLock, EventPoolWriteLock, EventSource, KeyEvent, MouseButton,
-    MouseEvent,
-};
-#[cfg(feature = "screen")]
-pub use screen::{
-    AlternateScreen, EnterAlternateScreen, IntoRawMode, LeaveAlternateScreen, RawScreen,
-};
-#[cfg(feature = "style")]
-pub use style::{
-    color, style, Attribute, Color, Colored, Colorize, ObjectStyle, PrintStyledFont, ResetColor,
-    SetAttr, SetBg, SetFg, StyledObject, Styler, TerminalColor,
-};
-#[cfg(feature = "terminal")]
-pub use terminal::{terminal, Clear, ClearType, ScrollDown, ScrollUp, SetSize, Terminal};
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
-pub use self::crossterm::Crossterm;
+#[cfg(windows)]
+pub use utils::functions::supports_ansi;
 
-mod crossterm;
-/// A functionality to work with the terminal cursor
+/// A module to work with the terminal cursor
 #[cfg(feature = "cursor")]
 pub mod cursor;
-/// A functionality to read the input events.
+/// A module to read the input events.
 #[cfg(feature = "input")]
 pub mod input;
-/// A functionality to work with the terminal screen.
+/// A module to work with the terminal screen.
 #[cfg(feature = "screen")]
 pub mod screen;
-/// A functionality to apply attributes and colors on your text.
+/// A module to apply attributes and colors on your text.
 #[cfg(feature = "style")]
 pub mod style;
-/// A functionality to work with the terminal.
+/// A module to work with the terminal.
 #[cfg(feature = "terminal")]
 pub mod terminal;
 /// Shared utilities.

@@ -1,10 +1,12 @@
 /// Append a the first few characters of an ANSI escape code to the given string.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
 /// Write a string to standard output whereafter the stdout will be flushed.
+#[doc(hidden)]
 #[macro_export]
 macro_rules! write_cout {
     ($write:expr, $string:expr) => {{
@@ -77,7 +79,7 @@ macro_rules! queue {
         $(
             #[cfg(windows)]
             {
-                if $crate::utils::supports_ansi() {
+                if $crate::supports_ansi() {
                     match write!($write, "{}", $command.ansi_code()) {
                         Err(e) => {
                             error = Some(Err($crate::ErrorKind::from(e)));
@@ -149,7 +151,7 @@ macro_rules! execute {
         $(
             #[cfg(windows)]
             {
-                if $crate::utils::supports_ansi() {
+                if $crate::supports_ansi() {
                     if let Err(e) = write_cout!($write, $command.ansi_code()) {
                         error = Some($crate::ErrorKind::from(e));
                     };
@@ -175,11 +177,12 @@ macro_rules! execute {
     }}
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::result::Result<(), ::std::fmt::Error> {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
                 use $crate::Command;
                 write!(f, "{}", self.ansi_code())
             }
@@ -187,6 +190,7 @@ macro_rules! impl_display {
     }
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! impl_from {
     ($from:path, $to:expr) => {

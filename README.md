@@ -14,13 +14,23 @@ worry about the platform you are working with.
 This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
 see [Tested Terminals](#tested-terminals) for more info).
 
+## Note on Migration
+
+You may have noticed that Crossterm has been [changing](https://github.com/crossterm-rs/crossterm/blob/master/CHANGELOG.md) very quickly with the latest versions. 
+We have done a lot of API-breaking changes by renaming functions, commands, changing the exports, improving the encapsulation, etc.. 
+However, all of this happens to improve the library and make it better and ready for a possible [1.0 release](#287). 
+We want to stick to the [Command API](https://docs.rs/crossterm/#command-api) and remove all other ways to use crossterm. 
+Try to use this API and change your code accordingly. 
+This way you will survive or overcome major migration problems ;). 
+
+We hope you can understand this, feel free to ask around in [discord](https://discord.gg/K4nyTDB) if you have questions. For up-to-date examples, have a look at the [examples](https://github.com/crossterm-rs/examples/tree/master) repository. Sorry for the inconvenience. 
+
 ## Table of Contents
 
 * [Features](#features)
     * [Tested Terminals](#tested-terminals)
 * [Getting Started](#getting-started)
     * [Feature Flags](#feature-flags)
-    * [`crossterm` vs `crossterm_*` crates](#crossterm-vs-crossterm_-crates)
 * [Other Resources](#other-resources)
 * [Used By](#used-by)
 * [Contributing](#contributing)    
@@ -31,6 +41,7 @@ see [Tested Terminals](#tested-terminals) for more info).
 - Multi-threaded (send, sync)
 - Detailed documentation
 - Few dependencies
+- Full control over output buffer
 - Cursor (feature `cursor`)
     - Move the cursor N times (up, down, left, right)
     - Set/get the cursor position
@@ -86,7 +97,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.12"
+crossterm = "0.13"
 ```
 
 </details>
@@ -95,21 +106,30 @@ crossterm = "0.12"
 ```rust
 use std::io::{stdout, Write};
 
-use crossterm::{execute, Attribute, Color, Output, ResetColor, Result, SetBg, SetFg};
+use crossterm::{execute, ExecutableCommand, style::{Attribute, Color, SetForegroundColor, SetBackgroundColor, ResetColor}, Output, Result};
 
 fn main() -> Result<()> {
+    // using the macro
     execute!(
         stdout(),
-        // Blue foreground
-        SetFg(Color::Blue),
-        // Red background
-        SetBg(Color::Red),
-        Output("Styled text here.".to_string()),
-        // Reset to default colors
+        SetForegroundColor(Color::Blue),
+        SetBackgroundColor(Color::Red),
+        Output("Styled text here."),
         ResetColor
-    )
+    )?;
+
+    // or using functions
+    stdout()
+        .execute(SetForegroundColor(Color::Blue))?
+        .execute(SetBackgroundColor(Color::Red))?
+        .execute(Output("Styled text here."))?
+        .execute(ResetColor)?;
+
+    Ok(())
 }
 ```
+
+Checkout this [list](https://docs.rs/crossterm/0.13.0/crossterm/index.html#supported-commands) with all possible commands.
 
 ### Feature Flags
 

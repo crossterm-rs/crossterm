@@ -1,6 +1,6 @@
 use crate::input::events::InternalEvent;
 use crate::input::sys::unix::{tty_fd, FileDesc, TtyPoll};
-use crate::EventSource;
+use crate::input::EventSource;
 use crate::Result;
 use std::time::Duration;
 
