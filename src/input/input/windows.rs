@@ -273,6 +273,7 @@ impl Iterator for SyncReader {
 pub struct AsyncReader {
     event_rx: Receiver<InputEvent>,
     shutdown: Arc<AtomicBool>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 impl AsyncReader {
@@ -289,13 +290,14 @@ impl AsyncReader {
         let (event_tx, event_rx) = mpsc::channel();
         let thread_shutdown = shutdown_handle.clone();
 
-        thread::spawn(move || loop {
+        let thread = thread::spawn(move || {
             function(&event_tx, &thread_shutdown);
         });
 
         AsyncReader {
             event_rx,
             shutdown: shutdown_handle,
+            thread: Some(thread),
         }
     }
 
@@ -309,7 +311,10 @@ impl AsyncReader {
     /// * You don't need to call this method, because it will be automatically called when the
     ///   `AsyncReader` is dropped.
     pub fn stop(&mut self) {
-        self.shutdown.store(true, Ordering::SeqCst);
+        if let Some(thread) = self.thread.take() {
+            self.shutdown.store(true, Ordering::SeqCst);
+            thread.join().expect("failed to join background thread");
+        }
     }
 }
 
