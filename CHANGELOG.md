@@ -1,4 +1,4 @@
-# master
+# Version 0.13.2
 
 - New `input::stop_reading_thread()` function
   - Temporary workaround for the UNIX platform to stop the background
