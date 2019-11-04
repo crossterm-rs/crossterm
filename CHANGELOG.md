@@ -1,3 +1,6 @@
+# Version 0.13.1
+- Async Reader fix, join background thread and avoid looping forever on windows.
+
 # Version 0.13.0
 **Major API-change, removed old-api**
 
