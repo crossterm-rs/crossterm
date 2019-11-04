@@ -1,7 +1,16 @@
+# master
+
+- New `input::stop_reading_thread()` function
+  - Temporary workaround for the UNIX platform to stop the background
+    reading thread and close the file descriptor
+  - This function will be removed in the next version
+
 # Version 0.13.1
+
 - Async Reader fix, join background thread and avoid looping forever on windows.
 
 # Version 0.13.0
+
 **Major API-change, removed old-api**
 
 - Remove `Crossterm` type
