@@ -50,6 +50,10 @@ mod utils {
     }
 }
 
+pub(crate) fn stop_reading_thread() {
+    INTERNAL_EVENT_PROVIDER.lock().unwrap().pause()
+}
+
 /// An internal event provider interface.
 pub(crate) trait InternalEventProvider: Send {
     /// Pauses the provider.
@@ -83,6 +87,12 @@ impl UnixInternalEventChannels {
         UnixInternalEventChannels {
             senders: Arc::new(Mutex::new(vec![])),
         }
+    }
+
+    /// Clears all senders.
+    fn clear(&mut self) {
+        let mut guard = self.senders.lock().unwrap();
+        guard.clear();
     }
 
     /// Sends an `InternalEvent` to all available channels.
@@ -129,6 +139,7 @@ impl InternalEventProvider for UnixInternalEventProvider {
     fn pause(&mut self) {
         // Thread will shutdown on it's own once dropped.
         self.reading_thread = None;
+        self.channels.clear();
     }
 
     /// Creates a new `InternalEvent` receiver and spawns a new reading
