@@ -40,8 +40,7 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
         color = color | wincon::BACKGROUND_INTENSITY as u16;
     }
 
-    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
-
+    Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
     Ok(())
 }
 
@@ -66,8 +65,7 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
         color = color | wincon::FOREGROUND_INTENSITY as u16;
     }
 
-    Console::from(**screen_buffer.handle()).set_text_attribute(color)?;
-
+    Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
     Ok(())
 }
 
