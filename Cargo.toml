@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.13.1"
+version = "0.13.2"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -10,7 +10,7 @@ keywords = ["console", "color", "cursor", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
-categories = ["Command-line interface", "Command line utilities"]
+categories = ["command-line-interface", "command-line-utilities"]
 
 [features]
 default = ["cursor", "style", "terminal", "screen", "input"]
