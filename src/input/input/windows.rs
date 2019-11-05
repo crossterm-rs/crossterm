@@ -256,6 +256,8 @@ impl AsyncReader {
             delimiter,
         }
     }
+
+    pub fn stop(&mut self) {}
 }
 
 impl Iterator for AsyncReader {
