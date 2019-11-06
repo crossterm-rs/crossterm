@@ -21,11 +21,11 @@ pub fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
 }
 
-pub fn wrap_with_result(result: i32) -> Result<()> {
+pub fn wrap_with_result(result: i32) -> Result<bool> {
     if result == -1 {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
-        Ok(())
+        Ok(true)
     }
 }
 

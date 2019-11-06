@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use std::time::Duration;
 
 #[cfg(unix)]
@@ -10,6 +9,7 @@ use crate::input::events::InternalEvent;
 use crate::input::poll_timeout::PollTimeOut;
 use crate::input::Event;
 use crate::Result;
+use std::collections::vec_deque::VecDeque;
 
 /// An interface for polling and reading events.
 pub trait EventPoll {
@@ -32,7 +32,7 @@ impl InternalEventReader {
         #[cfg(windows)]
         let event_source = WinApiEventSource::new();
         #[cfg(unix)]
-        let event_source = TtyInternalEventSource::new();
+        let event_source = TtyInternalEventSource::new().expect("Failed to setup the default event reader.");
 
         InternalEventReader {
             event_source: Box::new(event_source),

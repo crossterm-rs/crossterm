@@ -34,17 +34,16 @@
 //! on the terminal screen.
 
 pub use self::{
-    event_pool::{poll, read, EventPool, EventPoolReadLock, EventPoolWriteLock},
-    event_source::{EventSource, FakeEventSource},
+    event_pool::{poll, read},
+    event_source::{EventSource, fake::FakeEventSource},
     events::{Event, KeyEvent, MouseButton, MouseEvent},
 };
 
-pub(crate) use self::events::InternalEvent;
-
 mod ansi;
 mod event_poll;
-mod event_pool;
 mod event_source;
-mod events;
-mod poll_timeout;
 mod sys;
+
+pub (crate) mod events;
+pub(crate) mod event_pool;
+pub(crate) mod poll_timeout;

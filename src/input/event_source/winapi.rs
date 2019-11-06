@@ -5,9 +5,9 @@ use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEve
 
 use crate::input::event_source::EventSource;
 use crate::input::events::InternalEvent;
-use crate::input::poll_timeout::PollTimeOut;
 use crate::input::sys::winapi::{handle_key_event, handle_mouse_event};
 use crate::Result;
+use crate::input::PollTimeOut;
 
 pub struct WinApiEventSource;
 

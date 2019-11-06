@@ -1,18 +1,16 @@
-use std::collections::VecDeque;
 use std::os::unix::io::IntoRawFd;
 use std::os::unix::io::RawFd;
-use std::time::{Duration, Instant};
 use std::{fs, io};
 
 use libc::{c_int, c_void, size_t, ssize_t};
-use mio::unix::EventedFd;
-use mio::{Events, Poll, PollOpt, Ready, Token};
 
 use crate::input::events::InternalEvent;
 use crate::{ErrorKind, Result};
-use crate::{Event, KeyEvent, MouseButton, MouseEvent};
-
-use self::utils::check_for_error_result;
+use crate::utils::sys::unix::check_for_error_result;
+use crate::input::KeyEvent;
+use crate::input::Event;
+use crate::input::MouseEvent;
+use crate::input::MouseButton;
 
 // libstd::sys::unix::fd.rs
 fn max_len() -> usize {
@@ -489,6 +487,8 @@ pub fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::input::MouseEvent;
+    use crate::input::MouseButton;
 
     #[test]
     fn test_esc_key() {

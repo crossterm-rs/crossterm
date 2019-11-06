@@ -1,7 +1,10 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{Command, Result};
+use crate::utils::Command;
+
+#[cfg(windows)]
+use crate::utils::Result;
 
 use super::ansi;
 
