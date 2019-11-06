@@ -7,7 +7,8 @@ use lazy_static::lazy_static;
 
 use crate::{
     input::{
-        event_poll::{EventPoll, EventReader, InternalEventReader},
+        event_poll::EventPoll,
+        event_reader::{EventReader, InternalEventReader},
         event_source::EventSource,
         events::InternalEvent,
         Event,
@@ -55,11 +56,10 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// Reads a single event.
 ///
 /// This function will block until an event is received.
-/// Use [poll](LINK) for ready events.
+/// Use [poll](LINK) to check for ready events.
 ///
 /// ```no_run
-/// use crossterm::{Result, input::{read, poll}};
-/// use crossterm::Event;
+/// use crossterm::{Result, input::{read, poll, Event}};
 /// use std::time::Duration;
 ///
 /// fn main() -> Result<()> {
@@ -88,25 +88,10 @@ pub fn swap_event_source(new: Box<dyn EventSource>) {
     lock.pool().swap_event_source(new);
 }
 
-/// Produces events to consumers.
+/// Wrapper for event readers which exposes an reading API for those.
 ///
-/// There should one and only one instance of this type.
-///
-/// The `EventPool` is responsible for:
-/// - creating `EventStreams`
-/// - passing events listening `EventStreams`
-/// - manage the producer
-///
-/// You can get an instance to this pool by acuring either the read-only or write lock for it:
-///
-/// ```no_run
-/// use crossterm::EventPool;
-///
-/// let read_only = EventPool::get().pool();
-/// let read_only = EventPool::get_mut().pool();
-/// ```
-///
-/// Not that one can obtain only one writer and multiple readers.
+/// There should be one and only one instance of this type,
+/// because We can only have on source that is polling from the system for events.
 pub(crate) struct EventPool {
     event_reader: EventReader,
     internal_event_reader: InternalEventReader,
@@ -126,58 +111,29 @@ impl EventPool {
         EventPoolWriteLock::from_lock_result(EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
     }
 
-    /// Acquires an read-only lock to `EventPool`.
-    pub(crate) fn get<'a>() -> EventPoolReadLock<'a> {
-        EventPoolReadLock::from_lock_result(EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
-    }
-
     /// Changes the default `EventSource` to the given `EventSource`.
     pub(crate) fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
         self.internal_event_reader.swap_event_source(new)
     }
 
-    /// Polls to check if there are any events that can be read.
-    /// True is returned if this is the case.
-    ///
-    /// This function blocks the current thread.
-    /// Use `InputPool::poll()` to see if there are events to read.
+    /// Polls to check if there are any `Event`s that can be read withing the given duration.
     pub(crate) fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
         self.event_reader.poll(timeout)
     }
 
-    /// Reads a single input event.
-    ///
-    /// This function blocks the current thread.
-    /// Use `InputPool::poll()` to see if there are events to read.
+    /// Reads a single `Event`.
     pub(crate) fn read(&mut self) -> Result<Event> {
         self.event_reader.read()
     }
 
+    /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
     pub(crate) fn poll_internal(&mut self, timeout: Option<Duration>) -> Result<bool> {
         self.internal_event_reader.poll(timeout)
     }
 
+    /// Reads a single `InternalEvent`.
     pub(crate) fn read_internal(&mut self) -> Result<InternalEvent> {
         self.internal_event_reader.read()
-    }
-}
-
-/// An acquired read lock to the event channel pool.
-pub(crate) struct EventPoolReadLock<'a> {
-    read_guard: RwLockReadGuard<'a, EventPool>,
-}
-
-impl<'a> EventPoolReadLock<'a> {
-    /// Constructs the read lock from the given `EventPool` read lock.
-    pub(crate) fn from_lock_result(
-        read_guard: RwLockReadGuard<'a, EventPool>,
-    ) -> EventPoolReadLock<'a> {
-        EventPoolReadLock { read_guard }
-    }
-
-    /// Returns the obtained read lock to the pool.
-    pub(crate) fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
-        &self.read_guard
     }
 }
 

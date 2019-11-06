@@ -41,6 +41,7 @@ pub use self::{
 
 mod ansi;
 mod event_poll;
+mod event_reader;
 mod event_source;
 mod sys;
 

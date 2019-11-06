@@ -8,6 +8,7 @@ pub mod tty;
 #[cfg(windows)]
 pub mod winapi;
 
+/// An interface for trying to read an `InternalEvent` within an optional `Duration`.
 pub trait EventSource: Sync + Send {
     /// Tries to read an `InternalEvent` within the given duration.
     ///
