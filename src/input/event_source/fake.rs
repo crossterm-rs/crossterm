@@ -1,38 +1,39 @@
+use std::collections::VecDeque;
 use std::sync::mpsc::Receiver;
 use std::sync::Mutex;
 use std::time::Duration;
 
+use crate::input::event_source::EventSource;
 use crate::input::events::InternalEvent;
-use crate::input::EventSource;
+use crate::Result;
 
+/// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
 pub struct FakeEventSource {
     input_receiver: Mutex<Receiver<InternalEvent>>,
+    internal_buf: VecDeque<InternalEvent>,
 }
 
 impl FakeEventSource {
+    /// Constructs a new `FakeEventSource` with the given `Receiver`, use the sender to trigger the event reader..
     pub fn new(input_receiver: Receiver<InternalEvent>) -> FakeEventSource {
         FakeEventSource {
             input_receiver: Mutex::new(input_receiver),
+            internal_buf: VecDeque::new(),
         }
     }
 }
 
 impl EventSource for FakeEventSource {
-    fn read(&mut self) -> crate::Result<Option<InternalEvent>> {
-        let input_receiver = self
-            .input_receiver
-            .lock()
-            .expect("Can't acquire input receiver lock");
-
-        Ok(Some(
-            input_receiver
-                .recv()
-                .expect("Can't receive input from channel"),
-        ))
-    }
-
-    fn poll(&mut self, timeout: Option<Duration>) -> crate::Result<bool> {
-        // implement poll for receiver
-        return Ok(true);
+    fn try_read(&mut self, timeout: Option<Duration>) -> Result<(bool, Option<InternalEvent>)> {
+        if let Some(timeout) = timeout {
+            if let Ok(val) = self.input_receiver.lock().unwrap().recv_timeout(timeout) {
+                return Ok((true, Some(val)));
+            } else {
+                return Ok((false, None));
+            }
+        } else {
+            let val = self.input_receiver.lock().unwrap().recv().unwrap();
+            return Ok((true, Some(val)));
+        }
     }
 }

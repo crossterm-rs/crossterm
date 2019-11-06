@@ -35,14 +35,16 @@
 
 pub use self::{
     event_pool::{poll, read, EventPool, EventPoolReadLock, EventPoolWriteLock},
-    event_source::EventSource,
+    event_source::{EventSource, FakeEventSource},
     events::{Event, KeyEvent, MouseButton, MouseEvent},
 };
 
+pub(crate) use self::events::InternalEvent;
+
 mod ansi;
-mod sys;
+mod event_poll;
 mod event_pool;
 mod event_source;
 mod events;
-
-
+mod poll_timeout;
+mod sys;

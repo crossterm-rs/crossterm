@@ -1,6 +1,8 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
 use crate::utils::{Command, Result};
+
 use super::ansi;
 
 /// Represents an input event.
@@ -17,11 +19,6 @@ pub enum Event {
     Unsupported(Vec<u8>), // TODO Not used, should be removed.
     /// An unknown event.
     Unknown,
-    /// Internal cursor position event. Don't use it, it will be removed in the
-    /// `crossterm` 1.0.
-    #[doc(hidden)]
-    #[cfg(unix)]
-    CursorPosition(u16, u16), // TODO 1.0: Remove
 }
 
 /// Represents a mouse event.
@@ -137,7 +134,7 @@ impl Command for EnableMouseCapture {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-//        crate::input::sys::winapi::enable_mouse_mode()
+        //        crate::input::sys::winapi::enable_mouse_mode()
         Ok(())
     }
 }
@@ -158,7 +155,7 @@ impl Command for DisableMouseCapture {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-//        crate::input::sys::winapi::disable_mouse_mode()
+        //        crate::input::sys::winapi::disable_mouse_mode()
         Ok(())
     }
 }
@@ -174,18 +171,3 @@ pub enum InternalEvent {
     /// A cursor position (`x`, `y`).
     CursorPosition(u16, u16),
 }
-
-/// Converts an `InternalEvent` into a possible `InputEvent`.
-#[cfg(unix)]
-impl From<InternalEvent> for Option<Event> {
-    fn from(ie: InternalEvent) -> Self {
-        match ie {
-            InternalEvent::Input(input_event) => Some(input_event),
-            // TODO 1.0: Swallow `CursorPosition` and return `None`.
-            // `cursor::pos_raw()` will be able to use this module `internal_event_receiver()`
-            InternalEvent::CursorPosition(x, y) => Some(Event::CursorPosition(x, y)),
-        }
-    }
-}
-
-

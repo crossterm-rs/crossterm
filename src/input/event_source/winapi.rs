@@ -1,11 +1,12 @@
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
-use crossterm_winapi::{Console, Handle};
+use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
 
+use crate::input::event_source::EventSource;
 use crate::input::events::InternalEvent;
-use crate::input::sys::winapi::read_single_event;
-use crate::input::EventSource;
+use crate::input::poll_timeout::PollTimeOut;
+use crate::input::sys::winapi::{handle_key_event, handle_mouse_event};
 use crate::Result;
 
 pub struct WinApiEventSource;
@@ -17,34 +18,43 @@ impl WinApiEventSource {
 }
 
 impl EventSource for WinApiEventSource {
-    fn read(&mut self) -> Result<Option<InternalEvent>> {
-        match read_single_event()? {
-            Some(event) => {
-                return Ok(Some(InternalEvent::Input(event.clone())));
-            }
-            None => {
-                return Ok(None);
-            }
-        }
-    }
+    fn try_read(&mut self, timeout: Option<Duration>) -> Result<(bool, Option<InternalEvent>)> {
+        let mut poll_timout = PollTimeOut::new(timeout);
 
-    fn poll(&mut self, timeout: Option<Duration>) -> crate::Result<bool> {
-        let start_time = Instant::now();
         loop {
-            if let Some(timeout) = timeout {
-                if start_time.elapsed() >= timeout {
-                    return Ok(false);
-                }
-            }
-
             let number_of_events =
                 Console::from(Handle::current_in_handle()?).number_of_console_input_events()?;
 
             if number_of_events != 0 {
-                return Ok(true);
+                let console = Console::from(Handle::current_in_handle()?);
+
+                let input = console.read_single_input_event()?;
+
+                let event = match input.event_type {
+                    InputEventType::KeyEvent => {
+                        handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })?
+                    }
+                    InputEventType::MouseEvent => {
+                        handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })?
+                    }
+                    InputEventType::WindowBufferSizeEvent
+                    | InputEventType::FocusEvent
+                    | InputEventType::MenuEvent => None,
+                };
+
+                match event {
+                    None => return Ok((false, None)),
+                    Some(event) => return Ok((true, Some(InternalEvent::Input(event)))),
+                };
             }
 
-            thread::sleep(Duration::from_millis(100))
+            if poll_timout.elapsed() {
+                break;
+            }
+
+            thread::sleep(Duration::from_millis(50))
         }
+
+        Ok((true, None))
     }
 }

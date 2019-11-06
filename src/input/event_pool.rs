@@ -3,14 +3,11 @@ use std::time::Duration;
 
 use lazy_static::lazy_static;
 
-#[cfg(unix)]
-use crate::input::event_source::tty::TTYEventSource;
-#[cfg(windows)]
-use crate::input::event_source::winapi::WinApiEventSource;
+use crate::input::event_poll::{EventPoll, EventReader, InternalEventReader};
+use crate::input::event_source::EventSource;
 use crate::input::events::InternalEvent;
-use crate::input::{Event, EventSource};
+use crate::input::Event;
 use crate::Result;
-use std::collections::VecDeque;
 
 lazy_static! {
     /// Static instance of `EventPool`.
@@ -18,23 +15,27 @@ lazy_static! {
     pub static ref EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
 }
 
-/// Polls to check if there are any events that can be read.
-/// True is returned if this is the case.
+/// Polls during an given duration for ready events.
 ///
-/// This function will block until either at least one  event has been received or a `timeout` has elapsed.
-/// A `timeout` of `None` means that `poll` will block until a readiness event has been received.
+/// This function takes in an optional duration.
+/// * `None`: will block indefinitely until an event is read.
+/// * `Some(duration)`: will block for the given duration.
 ///
-/// To read events use `read`.
+/// The following value can be returned:
+/// * `Ok(true)`: in case an event is ready.
+/// * `Ok(false)`: in case the given duration is elapsed.
+/// * `Err(err)`: in case of an error.
 ///
+/// An ready event can be read with [read](LINK)
 /// ```no_run
 /// use std::time::Duration;
 /// use crossterm::{Result, input::poll};
 ///
 /// fn main() -> Result<()> {
-///     // wait maximal 1 second
+///     // poll maximal 1 second
 ///     if poll(Some(Duration::from_millis(1000)))? {  /* logic */  }
 ///
-///     // wait indefinitely
+///     // poll indefinitely
 ///     if poll(None)? { /* logic */  }
 ///
 ///     Ok(())
@@ -48,6 +49,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// Reads a single event.
 ///
 /// This function will block until an event is received.
+/// Use [poll](LINK) for ready events.
 ///
 /// ```no_run
 /// use crossterm::{Result, input::{read, poll}};
@@ -55,9 +57,9 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// use std::time::Duration;
 ///
 /// fn main() -> Result<()> {
-///     // wait 1 second for events to be ready
+///     // poll maximal 1 second for an ready event.
 ///     if poll(Some(Duration::from_millis(1000)))? {
-///         // read the ready events
+///         // read the ready event.
 ///         match read() {
 ///             Ok(Event(event)) => { println!("{:?}", event) }
 ///             _ => { }
@@ -69,6 +71,15 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 pub fn read() -> Result<Event> {
     let mut lock = EventPool::get_mut();
     lock.pool().read()
+}
+
+/// Changes the default `EventSource` to the given `EventSource`.
+///
+/// This might be usefull for testing.
+/// See [FakeEventSource](LINK) for more information.
+pub fn swap_event_source(new: Box<dyn EventSource>) {
+    let mut lock = EventPool::get_mut();
+    lock.pool().swap_event_source(new);
 }
 
 /// Produces events to consumers.
@@ -90,15 +101,17 @@ pub fn read() -> Result<Event> {
 /// ```
 ///
 /// Not that one can obtain only one writer and multiple readers.
-pub struct EventPool {
-    buffer: VecDeque<Event>
+pub(crate) struct EventPool {
+    event_reader: EventReader,
+    internal_event_reader: InternalEventReader,
 }
 
 impl EventPool {
     /// Construct an new instance of `EventPool`.
     pub(crate) fn new() -> EventPool {
         EventPool {
-            buffer: VecDeque::new(),
+            event_reader: EventReader::new(),
+            internal_event_reader: InternalEventReader::new(),
         }
     }
 
@@ -113,8 +126,8 @@ impl EventPool {
     }
 
     /// Changes the default `EventSource` to the given `EventSource`.
-    pub fn set_event_source(&mut self, event_source: Box<dyn EventSource>) {
-        self.event_source = event_source;
+    pub fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
+        self.internal_event_reader.swap_event_source(new)
     }
 
     /// Polls to check if there are any events that can be read.
@@ -122,110 +135,25 @@ impl EventPool {
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn poll(&self, timeout: Option<Duration>) -> bool {
-        self.buffer.len() != 0
+    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        self.event_reader.poll(timeout)
     }
 
     /// Reads a single input event.
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn read(&mut self) -> Option<Event> {
-        Ok(self.buffer.pop_front())
+    pub fn read(&mut self) -> Result<Event> {
+        self.event_reader.read()
     }
 
-    /// Enables mouse events to be monitored.
-    pub fn enable_mouse_events() {}
-
-    /// Disables mouse events to be monitored.
-    pub fn disable_mouse_events() {}
-}
-
-/// An acquired read lock to the event channel pool.
-pub struct EventPoolReadLock<'a> {
-    read_guard: RwLockReadGuard<'a, EventPool>,
-}
-
-impl<'a> EventPoolReadLock<'a> {
-    /// Constructs the read lock from the given `EventPool` read lock.
-    pub(crate) fn from_lock_result(
-        read_guard: RwLockReadGuard<'a, EventPool>,
-    ) -> EventPoolReadLock<'a> {
-        EventPoolReadLock { read_guard }
+    pub(crate) fn poll_internal(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        self.internal_event_reader.poll(timeout)
     }
 
-    /// Returns the obtained read lock to the pool.
-    pub fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
-        &self.read_guard
+    pub(crate) fn read_internal(&mut self) -> Result<InternalEvent> {
+        self.internal_event_reader.read()
     }
-}
-
-lazy_static! {
-    /// Static instance of `EventPool`.
-    /// This needs to be static because there can be one event reader.
-    pub static ref INTERNAL_EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
-}
-
-pub struct InternalEventPool {
-    event_source: Box<dyn EventSource>
-}
-
-impl InternalEventPool  {
-    /// Construct an new instance of `EventPool`.
-    pub(crate) fn new() -> InternalEventPool  {
-        #[cfg(windows)]
-            let input = WinApiEventSource::new();
-        #[cfg(unix)]
-            let input = TTYEventSource::new();
-
-        InternalEventPool  {
-            event_source: Box::new(input) as Box<dyn EventSource + Sync + Send>,
-        }
-    }
-
-    /// Acquires an write lock to `EventPool`.
-    pub fn get_mut<'a>() -> EventPoolWriteLock<'a> {
-        EventPoolWriteLock::from_lock_result(INTERNAL_EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
-    }
-
-    /// Acquires an read-only lock to `EventPool`.
-    pub fn get<'a>() -> EventPoolReadLock<'a> {
-        EventPoolReadLock::from_lock_result(INTERNAL_EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
-    }
-
-    /// Changes the default `EventSource` to the given `EventSource`.
-    pub fn set_event_source(&mut self, event_source: Box<dyn EventSource>) {
-        self.event_source = event_source;
-    }
-
-    /// Polls to check if there are any events that can be read.
-    /// True is returned if this is the case.
-    ///
-    /// This function blocks the current thread.
-    /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn poll(&self, timeout: Option<Duration>) -> bool {
-        self.buffer.len() != 0
-    }
-
-    /// Reads a single input event.
-    ///
-    /// This function blocks the current thread.
-    /// Use `InputPool::poll()` to see if there are events to read.
-    pub fn read(&mut self) -> Option<Event> {
-        match self.event_source.read()? {
-            Some(InternalEvent::Input(event)) => {
-                return Ok(event);
-            }
-            Some(InternalEvent::CursorPosition(x, y)) => return Ok(Event::CursorPosition(x, y)),
-            None => return self.read(),
-        }
-    }
-
-    /// Enables mouse events to be monitored.
-    pub fn enable_mouse_events() {}
-
-    /// Disables mouse events to be monitored.
-    pub fn disable_mouse_events() {}
 }
 
 /// An acquired read lock to the event channel pool.
@@ -267,36 +195,4 @@ impl<'a> EventPoolWriteLock<'a> {
 }
 
 #[cfg(test)]
-mod tests {
-    use std::sync::mpsc::channel;
-
-    use crate::input::event_source::fake::FakeEventSource;
-    use crate::Event;
-    use crate::{event_stream, poll, EventPool};
-
-    #[test]
-    pub fn test_read_input_multiple_consumers() {
-        let mut lock = EventPool::get_mut();
-        let mut pool = lock.pool();
-
-        // sender can be used to send fake data, receiver is used to provide the fake input source with input events.
-        let (input_sender, input_receiver) = channel();
-
-        // set input source, and sent fake input
-        pool.set_event_source(Box::new(FakeEventSource::new(input_receiver)));
-        input_sender.send(Event::Unknown).unwrap();
-
-        // drop write lock
-        drop(lock);
-
-        // acquire consumers
-        let mut stream1 = event_stream();
-        let mut stream2 = event_stream();
-
-        // poll for input
-        poll().unwrap();
-
-        assert_eq!(stream1.events().next(), Some(Event::Unknown));
-        assert_eq!(stream2.events().next(), Some(Event::Unknown));
-    }
-}
+mod tests {}

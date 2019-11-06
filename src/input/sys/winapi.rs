@@ -1,8 +1,6 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use crossterm_winapi::{
-    ButtonState, Console, EventFlags, Handle, InputEventType, KeyEventRecord, MouseEvent,
-};
+use crossterm_winapi::{ButtonState, EventFlags, KeyEventRecord, MouseEvent};
 use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
@@ -14,38 +12,19 @@ use winapi::um::{
     },
 };
 
-use crate::Result;
 use crate::input::{self, Event, KeyEvent, MouseButton};
+use crate::Result;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
-pub fn read_single_event() -> Result<Option<Event>> {
-    let console = Console::from(Handle::current_in_handle()?);
-
-    let input = console.read_single_input_event()?;
-
-    match input.event_type {
-        InputEventType::KeyEvent => {
-            handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })
-        }
-        InputEventType::MouseEvent => {
-            handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })
-        }
-        // NOTE (@imdaveho): ignore below
-        InputEventType::WindowBufferSizeEvent => return Ok(None), // TODO implement terminal resize event
-        InputEventType::FocusEvent => Ok(None),
-        InputEventType::MenuEvent => Ok(None),
-    }
-}
-
-fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
+pub fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
     if let Some(event) = parse_mouse_event_record(&mouse_event) {
         return Ok(Some(Event::Mouse(event)));
     }
     Ok(None)
 }
 
-fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
+pub fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     if key_event.key_down {
         if let Some(event) = parse_key_event_record(&key_event) {
             return Ok(Some(Event::Keyboard(event)));
@@ -55,7 +34,7 @@ fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     return Ok(None);
 }
 
-fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
+pub fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     let key_code = key_event.virtual_key_code as i32;
     match key_code {
         VK_SHIFT | VK_CONTROL | VK_MENU => None,

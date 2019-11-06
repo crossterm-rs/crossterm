@@ -9,9 +9,17 @@ pub mod tty;
 pub mod winapi;
 
 pub trait EventSource: Sync + Send {
-    /// Block read for input.
-    fn read(&mut self) -> crate::Result<Option<InternalEvent>>;
-
-    /// Poll for event readiness.
-    fn poll(&mut self, timeout: Option<Duration>) -> crate::Result<bool>;
+    /// Tries to read an `InternalEvent` within the given duration.
+    ///
+    /// This function takes in an optional duration.
+    /// * `None`: will block indefinitely until an event is read.
+    /// * `Some(duration)`: will block for the given duration.
+    ///
+    /// Returns:
+    /// `Ok((true, Some(event)))`: in case an event is ready.
+    /// `Ok((false, None))`: in case an event is not ready.
+    fn try_read(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> crate::Result<(bool, Option<InternalEvent>)>;
 }
