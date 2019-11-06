@@ -1,4 +1,4 @@
-use std::{collections::vec_deque::VecDeque, time::Duration};
+use std::time::Duration;
 
 use crate::Result;
 

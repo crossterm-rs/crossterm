@@ -1,5 +1,5 @@
 use std::{
-    sync::{RwLock, RwLockReadGuard, RwLockWriteGuard},
+    sync::{RwLock, RwLockWriteGuard},
     time::Duration,
 };
 
