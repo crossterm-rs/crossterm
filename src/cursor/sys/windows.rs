@@ -1,13 +1,13 @@
 //! WinApi related logic to cursor manipulation.
 
-use std::io;
-use std::sync::Mutex;
+use std::{io, sync::Mutex};
 
 use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
-    um::winnt::HANDLE,
+    um::{
+        wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+    },
 };
 
 use lazy_static::lazy_static;
@@ -22,7 +22,7 @@ lazy_static! {
 ///
 /// The top left cell is represented `0,0`.
 pub fn position() -> Result<(u16, u16)> {
-    let cursor = ScreenBufferCursor::new()?;
+    let cursor = ScreenBufferCursor::output()?;
     Ok(cursor.position()?.into())
 }
 
@@ -31,7 +31,7 @@ pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
 }
 
 pub(crate) fn move_to(column: u16, row: u16) -> Result<()> {
-    let cursor = ScreenBufferCursor::new()?;
+    let cursor = ScreenBufferCursor::output()?;
     cursor.move_to(column as i16, row as i16)?;
     Ok(())
 }
@@ -61,12 +61,12 @@ pub(crate) fn move_left(count: u16) -> Result<()> {
 }
 
 pub(crate) fn save_position() -> Result<()> {
-    ScreenBufferCursor::new()?.save_position()?;
+    ScreenBufferCursor::output()?.save_position()?;
     Ok(())
 }
 
 pub(crate) fn restore_position() -> Result<()> {
-    ScreenBufferCursor::new()?.restore_position()?;
+    ScreenBufferCursor::output()?.restore_position()?;
     Ok(())
 }
 
@@ -76,7 +76,7 @@ struct ScreenBufferCursor {
 }
 
 impl ScreenBufferCursor {
-    fn new() -> Result<ScreenBufferCursor> {
+    fn output() -> Result<ScreenBufferCursor> {
         Ok(ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
@@ -157,14 +157,6 @@ impl ScreenBufferCursor {
 
 impl From<Handle> for ScreenBufferCursor {
     fn from(handle: Handle) -> Self {
-        ScreenBufferCursor {
-            screen_buffer: ScreenBuffer::from(handle),
-        }
-    }
-}
-
-impl From<HANDLE> for ScreenBufferCursor {
-    fn from(handle: HANDLE) -> Self {
         ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(handle),
         }

@@ -1,8 +1,8 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use crossterm_winapi::{
-    ButtonState, Console, EventFlags, Handle, InputEventType, KeyEventRecord, MouseEvent,
-};
+use std::sync::Mutex;
+
+use crossterm_winapi::{ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent};
 use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
@@ -14,45 +14,66 @@ use winapi::um::{
     },
 };
 
-use crate::Result;
-use crate::input::{self, Event, KeyEvent, MouseButton};
+use lazy_static::lazy_static;
+
+use crate::{
+    event::{self, Event, KeyEvent, MouseButton},
+    Result,
+};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
-pub fn read_single_event() -> Result<Option<Event>> {
-    let console = Console::from(Handle::current_in_handle()?);
+lazy_static! {
+    static ref ORIGINAL_CONSOLE_MODE: Mutex<Option<u32>> = Mutex::new(None);
+}
 
-    let input = console.read_single_input_event()?;
+/// Initializes the default console color. It will will be skipped if it has already been initialized.
+fn init_original_console_mode(original_mode: u32) {
+    let mut lock = ORIGINAL_CONSOLE_MODE.lock().unwrap();
 
-    match input.event_type {
-        InputEventType::KeyEvent => {
-            handle_key_event(unsafe { KeyEventRecord::from(*input.event.KeyEvent()) })
-        }
-        InputEventType::MouseEvent => {
-            handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })
-        }
-        // NOTE (@imdaveho): ignore below
-        InputEventType::WindowBufferSizeEvent => return Ok(None), // TODO implement terminal resize event
-        InputEventType::FocusEvent => Ok(None),
-        InputEventType::MenuEvent => Ok(None),
+    if lock.is_none() {
+        *lock = Some(original_mode);
     }
 }
 
-fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
+/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
+fn original_console_mode() -> u32 {
+    // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
+    ORIGINAL_CONSOLE_MODE
+        .lock()
+        .unwrap()
+        .expect("Original console mode not set")
+}
+
+pub(crate) fn enable_mouse_capture() -> Result<()> {
+    let mode = ConsoleMode::from(Handle::current_in_handle()?);
+    init_original_console_mode(mode.mode()?);
+    mode.set_mode(ENABLE_MOUSE_MODE)?;
+
+    Ok(())
+}
+
+pub(crate) fn disable_mouse_capture() -> Result<()> {
+    let mode = ConsoleMode::from(Handle::current_in_handle()?);
+    mode.set_mode(original_console_mode())?;
+    Ok(())
+}
+
+pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
     if let Some(event) = parse_mouse_event_record(&mouse_event) {
         return Ok(Some(Event::Mouse(event)));
     }
     Ok(None)
 }
 
-fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
+pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     if key_event.key_down {
         if let Some(event) = parse_key_event_record(&key_event) {
-            return Ok(Some(Event::Keyboard(event)));
+            return Ok(Some(Event::Key(event)));
         }
     }
 
-    return Ok(None);
+    Ok(None)
 }
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
@@ -70,7 +91,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
             let ctrl_pressed = key_state.has_state(RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED);
             let shift_pressed = key_state.has_state(SHIFT_PRESSED);
 
-            let event = match key_code {
+            match key_code {
                 VK_LEFT => {
                     if ctrl_pressed {
                         Some(KeyEvent::CtrlLeft)
@@ -108,9 +129,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     }
                 }
                 _ => None,
-            };
-
-            event
+            }
         }
         VK_PRIOR | VK_NEXT => {
             if key_code == VK_PRIOR {
@@ -179,7 +198,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     }
 }
 
-fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
+fn parse_mouse_event_record(event: &MouseEvent) -> Option<event::MouseEvent> {
     // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
@@ -195,10 +214,10 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
         EventFlags::PressOrRelease => {
             // Single click
             match event.button_state {
-                ButtonState::Release => Some(input::MouseEvent::Release(xpos as u16, ypos as u16)),
+                ButtonState::Release => Some(event::MouseEvent::Release(xpos as u16, ypos as u16)),
                 ButtonState::FromLeft1stButtonPressed => {
                     // left click
-                    Some(input::MouseEvent::Press(
+                    Some(event::MouseEvent::Press(
                         MouseButton::Left,
                         xpos as u16,
                         ypos as u16,
@@ -206,7 +225,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
                 }
                 ButtonState::RightmostButtonPressed => {
                     // right click
-                    Some(input::MouseEvent::Press(
+                    Some(event::MouseEvent::Press(
                         MouseButton::Right,
                         xpos as u16,
                         ypos as u16,
@@ -214,7 +233,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
                 }
                 ButtonState::FromLeft2ndButtonPressed => {
                     // middle click
-                    Some(input::MouseEvent::Press(
+                    Some(event::MouseEvent::Press(
                         MouseButton::Middle,
                         xpos as u16,
                         ypos as u16,
@@ -227,7 +246,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
             // Click + Move
             // NOTE (@imdaveho) only register when mouse is not released
             if event.button_state != ButtonState::Release {
-                Some(input::MouseEvent::Hold(xpos as u16, ypos as u16))
+                Some(event::MouseEvent::Hold(xpos as u16, ypos as u16))
             } else {
                 None
             }
@@ -237,13 +256,13 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<input::MouseEvent> {
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
             if event.button_state != ButtonState::Negative {
-                Some(input::MouseEvent::Press(
+                Some(event::MouseEvent::Press(
                     MouseButton::WheelUp,
                     xpos as u16,
                     ypos as u16,
                 ))
             } else {
-                Some(input::MouseEvent::Press(
+                Some(event::MouseEvent::Press(
                     MouseButton::WheelDown,
                     xpos as u16,
                     ypos as u16,

@@ -1,5 +1,4 @@
-use std::fmt::Display;
-use std::io::Write;
+use std::{fmt::Display, io::Write};
 
 use crate::{execute, queue, write_cout};
 

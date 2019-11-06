@@ -63,7 +63,7 @@ jobs:
       run: cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test input Feature
-      run: cargo test --features input --no-default-features --lib -- --nocapture --test-threads 1
+      run: cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
       if: matrix.rust == 'stable'

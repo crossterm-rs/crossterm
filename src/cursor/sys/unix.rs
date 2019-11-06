@@ -1,10 +1,15 @@
-use std::io::{self, Write};
-
-use crate::utils::{
-    sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
-    Result,
+use std::{
+    io::{self, Error, ErrorKind, Write},
+    time::Duration,
 };
-use crate::{csi, write_cout, Event, EventPool};
+
+use crate::{
+    event::{enqueue_internal, poll_internal, read_internal, InternalEvent},
+    utils::{
+        sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
+        Result,
+    },
+};
 
 /// Returns the cursor position (column, row).
 ///
@@ -27,23 +32,30 @@ fn read_position() -> Result<(u16, u16)> {
 fn read_position_raw() -> Result<(u16, u16)> {
     // Use `ESC [ 6 n` to and retrieve the cursor position.
     let mut stdout = io::stdout();
-
-    // Write command
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
-    // acquire mutable lock until we read the position, so that the user can't steal it from us.
-    let mut lock = EventPool::get_mut();
-    let mut pool = lock.pool();
-
     loop {
-        match pool.poll(None).and_then(|_| pool.read()) {
-            Ok(event) => {
-                if let Event::CursorPosition(x, y) = event {
-                    return Ok((x, y));
-                }
+        match poll_internal(Some(Duration::from_millis(2000))) {
+            Ok(true) => {
+                match read_internal() {
+                    Ok(InternalEvent::CursorPosition(x, y)) => {
+                        return Ok((x, y));
+                    }
+                    Ok(event) => {
+                        // We don't want to steal user events.
+                        enqueue_internal(event);
+                    }
+                    _ => {}
+                };
             }
-            Err(e) => Err(e),
+            Ok(false) => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "The cursor position could not be read within a normal duration",
+                ))?;
+            }
+            Err(_) => {}
         }
     }
 }

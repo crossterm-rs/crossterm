@@ -2,9 +2,7 @@
 
 use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
 
-use crate::terminal::ClearType;
-use crate::utils::Result;
-use crate::{cursor, ErrorKind};
+use crate::{cursor, terminal::ClearType, utils::Result, ErrorKind};
 
 /// Exits the current application.
 pub fn exit() {
@@ -53,7 +51,7 @@ pub(crate) fn scroll_up(row_count: u16) -> Result<()> {
         window.top -= count; // move top down
         window.bottom -= count; // move bottom down
 
-        Console::new()?.set_console_info(true, window)?;
+        Console::output()?.set_console_info(true, window)?;
     }
     Ok(())
 }
@@ -70,7 +68,7 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
         window.top += count; // move top down
         window.bottom += count; // move bottom down
 
-        Console::new()?.set_console_info(true, window)?;
+        Console::output()?.set_console_info(true, window)?;
     }
     Ok(())
 }
@@ -91,7 +89,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
 
     // get the position of the current console window
     let screen_buffer = ScreenBuffer::current()?;
-    let console = Console::from(**screen_buffer.handle());
+    let console = Console::from(screen_buffer.handle().clone());
     let csbi = screen_buffer.info()?;
 
     let current_size = csbi.buffer_size();

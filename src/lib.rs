@@ -3,7 +3,7 @@
 //! # Crossterm
 //!
 //! Have you ever been disappointed when a terminal library for rust was only written for UNIX systems?
-//! Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both
+//! Crossterm provides clearing, event (input) handling, styling, cursor movement, and terminal actions for both
 //! Windows and UNIX systems.
 //!
 //! Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not
@@ -16,7 +16,7 @@
 //! ## Command API
 //!
 //! The command API makes the use of `crossterm` much easier and offers more control over when and how a
-//! command is executed. An command is just an action you can perform on the terminal e.g. cursor movement.
+//! command is executed. A command is just an action you can perform on the terminal e.g. cursor movement.
 //!
 //! The command API offers:
 //!
@@ -52,9 +52,9 @@
 //!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
 //!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
 //!|  `cursor::Show`	              | shows the terminal cursor.                                        |
-//!|   **crossterm::input module**    |                                                                   |
-//!|  `input::DisableMouseCapture`    | disables mouse event monitoring.                                  |
-//!|  `input::EnableMouseCapture`	  | enables mouse mode                                                |
+//!|   **crossterm::event module**    |                                                                   |
+//!|  `event::DisableMouseCapture`    | disables mouse event monitoring.                                  |
+//!|  `event::EnableMouseCapture`	  | enables mouse mode                                                |
 //!|                                  |                                                                   |
 //!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
 //!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
@@ -225,17 +225,16 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
-
 #[cfg(windows)]
 pub use utils::functions::supports_ansi;
+pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor
 #[cfg(feature = "cursor")]
 pub mod cursor;
-/// A module to read the input events.
-#[cfg(feature = "input")]
-pub mod input;
+/// A module to read events.
+#[cfg(feature = "event")]
+pub mod event;
 /// A module to work with the terminal screen.
 #[cfg(feature = "screen")]
 pub mod screen;

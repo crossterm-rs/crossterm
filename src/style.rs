@@ -107,19 +107,19 @@
 //! );
 //! ```
 
-use std::env;
-use std::fmt::Display;
+use std::{env, fmt::Display};
 
-use crate::impl_display;
-use crate::utils::Command;
 #[cfg(windows)]
 use crate::Result;
+use crate::{impl_display, utils::Command};
 
-pub use self::content_style::ContentStyle;
 pub(crate) use self::enums::Colored;
-pub use self::enums::{Attribute, Color};
-pub use self::styled_content::StyledContent;
-pub use self::traits::{Colorize, Styler};
+pub use self::{
+    content_style::ContentStyle,
+    enums::{Attribute, Color},
+    styled_content::StyledContent,
+    traits::{Colorize, Styler},
+};
 
 #[macro_use]
 mod macros;

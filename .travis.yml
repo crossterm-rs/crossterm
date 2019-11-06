@@ -38,4 +38,4 @@ script:
   - cargo test --features style --no-default-features --lib -- --nocapture --test-threads 1
   - cargo test --features terminal --no-default-features --lib -- --nocapture --test-threads 1
   - cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
-  - cargo test --features input --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1

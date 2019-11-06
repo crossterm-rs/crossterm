@@ -1,4 +1,34 @@
+# Version Master
+
+- `input` module
+    - Rename `InputEvent` to `Event`
+    - Rename `Event::KeyBord` to `Event::Key`
+    - Rename `crossterm::input` to `crossterm::event`
+    - Rename `input` feature flag to `event`
+    - Remove `Event::CursorPosition(x,y)`
+    - Remove `Event::UnSupported`
+    - Remove `AsyncReader`, `SyncReader`
+    - Remove `TerminalInput`
+    - Introduce `poll` and `read` as new API.
+    
+# Version 0.13.3
+
+- Remove thread from AsyncReader on Windows.
+- Improve HANDLE management windows.
+
+# Version 0.13.2
+
+- New `input::stop_reading_thread()` function
+  - Temporary workaround for the UNIX platform to stop the background
+    reading thread and close the file descriptor
+  - This function will be removed in the next version
+
+# Version 0.13.1
+
+- Async Reader fix, join background thread and avoid looping forever on windows.
+
 # Version 0.13.0
+
 **Major API-change, removed old-api**
 
 - Remove `Crossterm` type

@@ -1,6 +1,5 @@
 use crossterm_winapi::{ConsoleMode, Handle};
-use winapi::shared::minwindef::DWORD;
-use winapi::um::wincon;
+use winapi::{shared::minwindef::DWORD, um::wincon};
 
 use crate::utils::Result;
 

@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.13.0"
+version = "0.13.3"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -10,15 +10,15 @@ keywords = ["console", "color", "cursor", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
-categories = ["Command-line interface", "Command line utilities"]
+categories = ["command-line-interface", "command-line-utilities"]
 
 [features]
-default = ["cursor", "style", "terminal", "screen", "input"]
-cursor = ["lazy_static", "input", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
+default = ["cursor", "style", "terminal", "screen", "event"]
+cursor = ["lazy_static", "event", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
 style = ["lazy_static", "winapi/wincon"]
 terminal = ["cursor"]
 screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
-input = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
+event = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
 
 [dependencies]
 lazy_static = { version = "1.4", optional = true }
@@ -26,7 +26,7 @@ serde = { version = "1.0.0", features = ["derive"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.8"
-crossterm_winapi = "0.3.0"
+crossterm_winapi = "0.4.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"

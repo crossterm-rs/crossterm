@@ -32,11 +32,10 @@
 //! ```
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
-pub use sys::exit;
-pub use sys::size;
-
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+pub use sys::{exit, size};
 
 use crate::impl_display;
 #[doc(no_inline)]
