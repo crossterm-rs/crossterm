@@ -21,7 +21,7 @@ impl WinApiEventSource {
 }
 
 impl EventSource for WinApiEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<(bool, Option<InternalEvent>)> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let mut poll_timout = PollTimeOut::new(timeout);
 
         loop {
@@ -46,9 +46,9 @@ impl EventSource for WinApiEventSource {
                 };
 
                 match event {
-                    None => return Ok((false, None)),
-                    Some(event) => return Ok((true, Some(InternalEvent::Input(event)))),
-                };
+                    None => return Ok(None),
+                    Some(event) => return Ok(Some(InternalEvent::Input(event))),
+                }
             }
 
             if poll_timout.elapsed() {
@@ -58,6 +58,6 @@ impl EventSource for WinApiEventSource {
             thread::sleep(Duration::from_millis(50))
         }
 
-        Ok((true, None))
+        Ok(None)
     }
 }

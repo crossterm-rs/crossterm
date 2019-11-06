@@ -76,7 +76,7 @@ impl TtyInternalEventSource {
 }
 
 impl EventSource for TtyInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<(bool, Option<InternalEvent>)> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let mut poll_timout = PollTimeOut::new(timeout);
 
         loop {
@@ -92,7 +92,7 @@ impl EventSource for TtyInternalEventSource {
                         }
                         Ok(Some(ie)) => {
                             self.buffer.clear();
-                            return Ok((true, Some(ie)));
+                            return Ok(Some(ie));
                         }
                         Err(_) => {
                             // Can't parse an event, clear buffer and start over
@@ -101,7 +101,7 @@ impl EventSource for TtyInternalEventSource {
                     };
                 }
                 false => {
-                    return Ok((false, None));
+                    return Ok(None);
                 }
             };
 

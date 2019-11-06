@@ -17,10 +17,10 @@ pub trait EventSource: Sync + Send {
     /// * `Some(duration)`: will block for the given duration.
     ///
     /// Returns:
-    /// `Ok((true, Some(event)))`: in case an event is ready.
-    /// `Ok((false, None))`: in case an event is not ready.
+    /// `Ok(Some(event))`: in case an event is ready.
+    /// `Ok(None)`: in case an event is not ready.
     fn try_read(
         &mut self,
         timeout: Option<Duration>,
-    ) -> crate::Result<(bool, Option<InternalEvent>)>;
+    ) -> crate::Result<Option<InternalEvent>>;
 }

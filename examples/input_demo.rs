@@ -14,13 +14,12 @@ fn sync_read1() {
     loop {
         match read() {
             Ok(event) => {
-                if should_stop(&event) {
+                if handle_event(&event) {
                     break;
                 }
-                println!("{:?}", event);
             }
             Err(_) => {
-                // read() error
+                // `read()` error
             }
         }
     }
@@ -29,36 +28,31 @@ fn sync_read1() {
 fn sync_read2() {
     loop {
         match poll(None) {
-            Ok(_) => {
+            Ok(true) => {
                 match read() {
                     Ok(event) => {
-                        if should_stop(&event) {
+                        if handle_event(&event) {
                             break;
                         }
-                        println!("{:?}", event);
                     }
-                    Err(_) => {
-                        // read() error
-                    }
+                    Err(_) => { /* Error when reading */ }
                 }
             }
-            Err(_) => {
-                // poll() error
-            }
+            Ok(false) => { /* not possible, only possible on timeout */ }
+            Err(_) => { /* poll() error */ }
         }
     }
 }
 
 fn sync_read3() {
     loop {
-        match poll(None).and_then(|_| read()) {
+        match poll(None).and_then(|succeed| read()) {
             Ok(event) => {
-                if should_stop(&event) {
+                if handle_event(&event) {
                     break;
                 }
-                println!("{:?}", event);
             }
-            Err(e) => println!("{:?}", e),
+            Err(_) => { /* Error when reading */ }
         }
     }
 }
@@ -70,27 +64,21 @@ fn read_async() {
                 // Event available - read() wont block
                 match read() {
                     Ok(event) => {
-                        if should_stop(&event) {
+                        if handle_event(&event) {
                             break;
                         }
-                        println!("{:?}", event);
                     }
-                    Err(_) => {
-                        // read() error
-                    }
+                    Err(_) => { /* Error when reading */ }
                 }
             }
-            Ok(false) => {
-                // Event not available, but 100ms timeout expired
-                // 10fps if there's no event available
-            }
-            Err(_) => {
-                // poll() error
-            }
+            Ok(false) => { /* Event not available, but 100ms timeout expired  */ }
+            Err(_) => { /* poll() error */ }
         }
     }
 }
 
-fn should_stop(event: &Event) -> bool {
+fn handle_event(event: &Event) -> bool {
+    println!("{:?}", event);
+
     *event == Event::Keyboard(KeyEvent::Esc)
 }

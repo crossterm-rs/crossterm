@@ -52,7 +52,7 @@ impl EventPoll for InternalEventReader {
             return Ok(true);
         }
 
-        let (event_read, event) = self.event_source.try_read(timeout)?;
+        let event = self.event_source.try_read(timeout)?;
 
         match event {
             None => Ok(false),
