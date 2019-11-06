@@ -1,9 +1,9 @@
 //! UNIX related logic for terminal manipulation.
-use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 use std::process;
 
-use crate::utils::sys::unix::wrap_with_result;
-use crate::utils::Result;
+use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
+
+use crate::utils::{sys::unix::wrap_with_result, Result};
 
 /// Exits the current application.
 pub fn exit() {
@@ -55,7 +55,8 @@ pub fn size() -> Result<(u16, u16)> {
         ws_ypixel: 0,
     };
 
-    if let Ok(true) = wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) })
+    if let Ok(true) =
+        wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) })
     {
         return Ok((size.ws_col, size.ws_row));
     } else {

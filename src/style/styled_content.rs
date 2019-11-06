@@ -1,12 +1,16 @@
 //! This module contains the logic to style some content.
 
-use std::fmt::{self, Display, Formatter};
-use std::result;
+use std::{
+    fmt::{self, Display, Formatter},
+    result,
+};
 
-use crate::queue;
-use crate::style::{
-    Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttribute, SetBackgroundColor,
-    SetForegroundColor, Styler,
+use crate::{
+    queue,
+    style::{
+        Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttribute, SetBackgroundColor,
+        SetForegroundColor, Styler,
+    },
 };
 
 /// The style with the content to be styled.

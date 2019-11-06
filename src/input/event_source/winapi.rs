@@ -1,13 +1,16 @@
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
 
-use crate::input::event_source::EventSource;
-use crate::input::events::InternalEvent;
-use crate::input::sys::winapi::{handle_key_event, handle_mouse_event};
-use crate::Result;
-use crate::input::PollTimeOut;
+use crate::{
+    input::{
+        event_source::EventSource,
+        events::InternalEvent,
+        poll_timeout::PollTimeOut,
+        sys::winapi::{handle_key_event, handle_mouse_event},
+    },
+    Result,
+};
 
 pub struct WinApiEventSource;
 

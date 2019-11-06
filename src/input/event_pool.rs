@@ -1,13 +1,19 @@
-use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
-use std::time::Duration;
+use std::{
+    sync::{RwLock, RwLockReadGuard, RwLockWriteGuard},
+    time::Duration,
+};
 
 use lazy_static::lazy_static;
 
-use crate::input::event_poll::{EventPoll, EventReader, InternalEventReader};
-use crate::input::event_source::EventSource;
-use crate::input::events::InternalEvent;
-use crate::input::Event;
-use crate::Result;
+use crate::{
+    input::{
+        event_poll::{EventPoll, EventReader, InternalEventReader},
+        event_source::EventSource,
+        events::InternalEvent,
+        Event,
+    },
+    Result,
+};
 
 lazy_static! {
     /// Static instance of `EventPool`.
@@ -116,17 +122,17 @@ impl EventPool {
     }
 
     /// Acquires an write lock to `EventPool`.
-    pub (crate) fn get_mut<'a>() -> EventPoolWriteLock<'a> {
+    pub(crate) fn get_mut<'a>() -> EventPoolWriteLock<'a> {
         EventPoolWriteLock::from_lock_result(EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
     }
 
     /// Acquires an read-only lock to `EventPool`.
-    pub (crate) fn get<'a>() -> EventPoolReadLock<'a> {
+    pub(crate) fn get<'a>() -> EventPoolReadLock<'a> {
         EventPoolReadLock::from_lock_result(EVENT_POOL.read().unwrap_or_else(|e| e.into_inner()))
     }
 
     /// Changes the default `EventSource` to the given `EventSource`.
-    pub (crate) fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
+    pub(crate) fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
         self.internal_event_reader.swap_event_source(new)
     }
 
@@ -135,7 +141,7 @@ impl EventPool {
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub (crate) fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+    pub(crate) fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
         self.event_reader.poll(timeout)
     }
 
@@ -143,7 +149,7 @@ impl EventPool {
     ///
     /// This function blocks the current thread.
     /// Use `InputPool::poll()` to see if there are events to read.
-    pub (crate) fn read(&mut self) -> Result<Event> {
+    pub(crate) fn read(&mut self) -> Result<Event> {
         self.event_reader.read()
     }
 
@@ -157,7 +163,7 @@ impl EventPool {
 }
 
 /// An acquired read lock to the event channel pool.
-pub (crate) struct EventPoolReadLock<'a> {
+pub(crate) struct EventPoolReadLock<'a> {
     read_guard: RwLockReadGuard<'a, EventPool>,
 }
 
@@ -170,13 +176,13 @@ impl<'a> EventPoolReadLock<'a> {
     }
 
     /// Returns the obtained read lock to the pool.
-    pub (crate) fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
+    pub(crate) fn pool(&self) -> &RwLockReadGuard<'a, EventPool> {
         &self.read_guard
     }
 }
 
 /// An acquired write lock to the event pool.
-pub (crate) struct EventPoolWriteLock<'a> {
+pub(crate) struct EventPoolWriteLock<'a> {
     write_guard: RwLockWriteGuard<'a, EventPool>,
 }
 
@@ -189,7 +195,7 @@ impl<'a> EventPoolWriteLock<'a> {
     }
 
     /// Returns the obtained write lock to the pool.
-    pub (crate) fn pool(&mut self) -> &mut RwLockWriteGuard<'a, EventPool> {
+    pub(crate) fn pool(&mut self) -> &mut RwLockWriteGuard<'a, EventPool> {
         &mut self.write_guard
     }
 }

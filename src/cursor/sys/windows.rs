@@ -1,13 +1,14 @@
 //! WinApi related logic to cursor manipulation.
 
-use std::io;
-use std::sync::Mutex;
+use std::{io, sync::Mutex};
 
 use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
-    um::winnt::HANDLE,
+    um::{
+        wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+        winnt::HANDLE,
+    },
 };
 
 use lazy_static::lazy_static;

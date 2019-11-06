@@ -2,7 +2,6 @@
 use serde::{Deserialize, Serialize};
 
 use crate::utils::Command;
-
 #[cfg(windows)]
 use crate::utils::Result;
 

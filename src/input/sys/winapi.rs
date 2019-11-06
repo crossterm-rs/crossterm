@@ -12,8 +12,10 @@ use winapi::um::{
     },
 };
 
-use crate::input::{self, Event, KeyEvent, MouseButton};
-use crate::Result;
+use crate::{
+    input::{self, Event, KeyEvent, MouseButton},
+    Result,
+};
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 

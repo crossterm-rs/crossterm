@@ -1,8 +1,9 @@
+use std::time::Duration;
+
 use crossterm::{
     input::{poll, read, Event, KeyEvent},
     screen::RawScreen,
 };
-use std::time::Duration;
 
 fn main() {
     let r = RawScreen::into_raw_mode().unwrap();

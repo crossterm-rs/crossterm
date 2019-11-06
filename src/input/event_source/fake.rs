@@ -1,11 +1,13 @@
-use std::collections::VecDeque;
-use std::sync::mpsc::Receiver;
-use std::sync::Mutex;
-use std::time::Duration;
+use std::{
+    collections::VecDeque,
+    sync::{mpsc::Receiver, Mutex},
+    time::Duration,
+};
 
-use crate::input::event_source::EventSource;
-use crate::input::events::InternalEvent;
-use crate::Result;
+use crate::{
+    input::{event_source::EventSource, events::InternalEvent},
+    Result,
+};
 
 /// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
 pub struct FakeEventSource {

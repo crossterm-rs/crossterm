@@ -225,10 +225,9 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
-
 #[cfg(windows)]
 pub use utils::functions::supports_ansi;
+pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor
 #[cfg(feature = "cursor")]

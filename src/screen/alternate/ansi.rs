@@ -1,5 +1,4 @@
-use crate::utils::Result;
-use crate::{csi, write_cout};
+use crate::{csi, utils::Result, write_cout};
 
 use super::AlternateScreen;
 

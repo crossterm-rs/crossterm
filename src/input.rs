@@ -35,7 +35,7 @@
 
 pub use self::{
     event_pool::{poll, read},
-    event_source::{EventSource, fake::FakeEventSource},
+    event_source::{fake::FakeEventSource, EventSource},
     events::{Event, KeyEvent, MouseButton, MouseEvent},
 };
 
@@ -44,6 +44,6 @@ mod event_poll;
 mod event_source;
 mod sys;
 
-pub (crate) mod events;
 pub(crate) mod event_pool;
+pub(crate) mod events;
 pub(crate) mod poll_timeout;

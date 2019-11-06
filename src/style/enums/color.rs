@@ -1,5 +1,4 @@
-use std::convert::AsRef;
-use std::str::FromStr;
+use std::{convert::AsRef, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

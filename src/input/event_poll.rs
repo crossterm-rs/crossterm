@@ -1,15 +1,13 @@
-use std::time::Duration;
+use std::{collections::vec_deque::VecDeque, time::Duration};
 
 #[cfg(unix)]
 use crate::input::event_source::tty::TtyInternalEventSource;
 #[cfg(windows)]
 use crate::input::event_source::winapi::WinApiEventSource;
-use crate::input::event_source::EventSource;
-use crate::input::events::InternalEvent;
-use crate::input::poll_timeout::PollTimeOut;
-use crate::input::Event;
-use crate::Result;
-use std::collections::vec_deque::VecDeque;
+use crate::{
+    input::{event_source::EventSource, events::InternalEvent, poll_timeout::PollTimeOut, Event},
+    Result,
+};
 
 /// An interface for polling and reading events.
 pub trait EventPoll {
@@ -32,7 +30,8 @@ impl InternalEventReader {
         #[cfg(windows)]
         let event_source = WinApiEventSource::new();
         #[cfg(unix)]
-        let event_source = TtyInternalEventSource::new().expect("Failed to setup the default event reader.");
+        let event_source =
+            TtyInternalEventSource::new().expect("Failed to setup the default event reader.");
 
         InternalEventReader {
             event_source: Box::new(event_source),
@@ -143,15 +142,19 @@ impl EventPoll for EventReader {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::mpsc::{channel, Sender};
-    use std::thread;
-    use std::thread::JoinHandle;
-    use std::time::Duration;
+    use std::{
+        sync::mpsc::{channel, Sender},
+        thread,
+        thread::JoinHandle,
+        time::Duration,
+    };
 
-    use crate::input::event_poll::{EventPoll, InternalEventReader};
-    use crate::input::event_source::fake::FakeEventSource;
-    use crate::input::events::InternalEvent;
-    use crate::input::Event;
+    use crate::input::{
+        event_poll::{EventPoll, InternalEventReader},
+        event_source::fake::FakeEventSource,
+        events::InternalEvent,
+        Event,
+    };
 
     #[test]
     fn test_internal_poll_with_timeout_should_return() {

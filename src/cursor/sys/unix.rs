@@ -1,12 +1,15 @@
-use std::io::{self, Error, ErrorKind, Write};
-
-use crate::input::events::InternalEvent;
-use crate::utils::{
-    sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
-    Result,
+use std::{
+    io::{self, Error, ErrorKind, Write},
+    time::Duration,
 };
-use crate::input::event_pool::EventPool;
-use std::time::Duration;
+
+use crate::{
+    input::{event_pool::EventPool, events::InternalEvent},
+    utils::{
+        sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
+        Result,
+    },
+};
 
 /// Returns the cursor position (column, row).
 ///
@@ -51,7 +54,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                     "The cursor position could not be read within a normal duration",
                 ))?;
             }
-            Err(_) => { }
+            Err(_) => {}
         }
     }
 }
