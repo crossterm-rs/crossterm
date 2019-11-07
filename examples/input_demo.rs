@@ -59,10 +59,14 @@ fn sync_read3() {
 
 fn read_async() {
     loop {
-        match poll(Some(Duration::from_millis(100))) {
+        match poll(Some(Duration::from_millis(200))) {
             Ok(true) => {
                 // Event available - read() wont block
                 match read() {
+                    Ok(Event::Keyboard(KeyEvent::Char('c'))) => {
+                        let cursor = crossterm::cursor::position();
+                        println!("Cursor position: {:?}\r", cursor);
+                    }
                     Ok(event) => {
                         if handle_event(&event) {
                             break;
@@ -71,14 +75,17 @@ fn read_async() {
                     Err(_) => { /* Error when reading */ }
                 }
             }
-            Ok(false) => { /* Event not available, but 100ms timeout expired  */ }
+            Ok(false) => {
+                /* Event not available, but 100ms timeout expired  */
+                println!(".\r");
+            }
             Err(_) => { /* poll() error */ }
         }
     }
 }
 
 fn handle_event(event: &Event) -> bool {
-    println!("{:?}", event);
+    println!("{:?}\r", event);
 
     *event == Event::Keyboard(KeyEvent::Esc)
 }
