@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use super::events::InternalEvent;
 
-pub mod fake;
 #[cfg(unix)]
 pub mod tty;
 #[cfg(windows)]

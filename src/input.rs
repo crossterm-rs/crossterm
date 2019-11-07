@@ -39,8 +39,6 @@ use std::time::Duration;
 use crate::{Command, Result};
 
 pub use self::events::{Event, KeyEvent, MouseButton, MouseEvent};
-use event_pool::EventPool;
-use event_source::EventSource;
 
 mod ansi;
 mod event_poll;
@@ -107,15 +105,6 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 pub fn read() -> Result<Event> {
     let mut lock = event_pool::EventPool::get_mut();
     lock.pool().read()
-}
-
-/// Changes the default `EventSource` to the given `EventSource`.
-///
-/// This might be usefull for testing.
-/// See [FakeEventSource](LINK) for more information.
-pub(crate) fn swap_event_source(new: Box<dyn EventSource>) {
-    let mut lock = EventPool::get_mut();
-    lock.pool().swap_event_source(new);
 }
 
 /// A command that enables mouse mode

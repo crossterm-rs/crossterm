@@ -10,7 +10,6 @@ use crate::{input::Event, Result};
 use super::{
     event_poll::EventPoll,
     event_reader::{EventReader, InternalEventReader},
-    event_source::EventSource,
     events::InternalEvent,
 };
 
@@ -41,11 +40,6 @@ impl EventPool {
     /// Acquires an write lock to `EventPool`.
     pub(crate) fn get_mut<'a>() -> EventPoolWriteLock<'a> {
         EventPoolWriteLock::from_lock_result(EVENT_POOL.write().unwrap_or_else(|e| e.into_inner()))
-    }
-
-    /// Changes the default `EventSource` to the given `EventSource`.
-    pub(crate) fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
-        self.internal_event_reader.swap_event_source(new)
     }
 
     /// Polls to check if there are any `Event`s that can be read withing the given duration.

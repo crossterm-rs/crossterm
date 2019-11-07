@@ -33,11 +33,6 @@ impl InternalEventReader {
         }
     }
 
-    /// Swaps the default `EventSource` to the given `EventSource`.
-    pub(crate) fn swap_event_source(&mut self, new: Box<dyn EventSource>) {
-        self.event_source = new;
-    }
-
     /// Enqueues the given `InternalEvent` onto the internal input buffer.
     pub(crate) fn enqueue(&mut self, event: InternalEvent) {
         self.events.push_back(event);
@@ -136,16 +131,52 @@ impl EventPoll for EventReader {
 #[cfg(test)]
 mod tests {
     use std::{
-        sync::mpsc::{channel, Sender},
+        sync::{
+            mpsc::{channel, Receiver, Sender},
+            Mutex,
+        },
         thread,
         thread::JoinHandle,
         time::Duration,
     };
 
-    use crate::input::{
-        event_poll::EventPoll, event_reader::InternalEventReader,
-        event_source::fake::FakeEventSource, events::InternalEvent, Event, KeyEvent,
+    use crate::{
+        input::{Event, KeyEvent},
+        Result,
     };
+
+    use super::super::{
+        event_poll::EventPoll, event_reader::InternalEventReader, event_source::EventSource,
+        events::InternalEvent,
+    };
+
+    /// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
+    pub struct FakeEventSource {
+        input_receiver: Mutex<Receiver<InternalEvent>>,
+    }
+
+    impl FakeEventSource {
+        /// Constructs a new `FakeEventSource` with the given `Receiver`, use the sender to trigger the event reader..
+        pub fn new(input_receiver: Receiver<InternalEvent>) -> FakeEventSource {
+            FakeEventSource {
+                input_receiver: Mutex::new(input_receiver),
+            }
+        }
+    }
+
+    impl EventSource for FakeEventSource {
+        fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+            if let Some(timeout) = timeout {
+                if let Ok(val) = self.input_receiver.lock().unwrap().recv_timeout(timeout) {
+                    Ok(Some(val))
+                } else {
+                    Ok(None)
+                }
+            } else {
+                Ok(Some(self.input_receiver.lock().unwrap().recv().unwrap()))
+            }
+        }
+    }
 
     #[test]
     fn test_internal_poll_with_timeout_should_return() {
@@ -208,7 +239,7 @@ mod tests {
         let mut reader = InternalEventReader::new();
         let (event_sender, event_receiver) = channel();
 
-        reader.swap_event_source(Box::from(FakeEventSource::new(event_receiver)));
+        reader.event_source = Box::from(FakeEventSource::new(event_receiver));
 
         let handle = thread::spawn(move || {
             let poll_result = reader.poll(timeout).unwrap();
