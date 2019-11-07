@@ -98,7 +98,7 @@ impl EventPoll for EventReader {
         loop {
             if self.internal_poll.poll(timeout.leftover())? {
                 match self.internal_poll.read()? {
-                    InternalEvent::Input(ev) => {
+                    InternalEvent::Event(ev) => {
                         self.events.push_back(ev);
                         return Ok(true);
                     }
@@ -187,7 +187,7 @@ mod tests {
         thread::sleep(Duration::from_millis(500));
 
         poll.event_sender
-            .send(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+            .send(InternalEvent::Event(Event::Key(KeyEvent::Char('q'))))
             .unwrap();
 
         let (poll_result, read) = poll.handle.join().unwrap();
@@ -195,7 +195,7 @@ mod tests {
         assert_eq!(poll_result, true);
         assert_eq!(
             read,
-            Some(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+            Some(InternalEvent::Event(Event::Key(KeyEvent::Char('q'))))
         );
     }
 
@@ -222,7 +222,7 @@ mod tests {
         thread::sleep(Duration::from_millis(500));
 
         poll.event_sender
-            .send(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+            .send(InternalEvent::Event(Event::Key(KeyEvent::Char('q'))))
             .unwrap();
 
         let (poll_result, read) = poll.handle.join().unwrap();
@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(poll_result, true);
         assert_eq!(
             read,
-            Some(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+            Some(InternalEvent::Event(Event::Key(KeyEvent::Char('q'))))
         );
     }
 

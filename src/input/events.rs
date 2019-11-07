@@ -116,7 +116,7 @@ pub enum KeyEvent {
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
 pub enum InternalEvent {
     /// An input event.
-    Input(Event),
+    Event(Event),
     /// A cursor position (`x`, `y`).
     CursorPosition(u16, u16),
 }
