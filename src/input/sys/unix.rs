@@ -175,7 +175,7 @@ pub fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                     // NOTE (@imdaveho): cannot find when this occurs;
                     // having another '[' after ESC[ not a likely scenario
                     val @ b'A'..=b'E' => Some(Event::Keyboard(KeyEvent::F(1 + val - b'A'))),
-                    _ => Some(Event::Unknown),
+                    _ => return Err(could_not_parse_event_error()),
                 }
             }
         }
@@ -208,7 +208,7 @@ pub fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 }
             }
         }
-        _ => Some(Event::Unknown),
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(input_event.map(InternalEvent::Input))
@@ -257,7 +257,7 @@ pub fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent
         (50, 66) => Event::Keyboard(KeyEvent::ShiftDown),
         (50, 67) => Event::Keyboard(KeyEvent::ShiftRight),
         (50, 68) => Event::Keyboard(KeyEvent::ShiftLeft),
-        _ => Event::Unknown,
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(Some(InternalEvent::Input(input_event)))
@@ -276,7 +276,7 @@ pub fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>
 
     if next_parsed::<u8>(&mut split).is_ok() {
         // TODO: handle multiple values for key modifiers (ex: values [3, 2] means Shift+Delete)
-        return Ok(Some(InternalEvent::Input(Event::Unknown)));
+        return Err(could_not_parse_event_error());
     }
 
     let input_event = match first {
@@ -289,7 +289,7 @@ pub fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>
         v @ 11..=15 => Event::Keyboard(KeyEvent::F(v - 10)),
         v @ 17..=21 => Event::Keyboard(KeyEvent::F(v - 11)),
         v @ 23..=24 => Event::Keyboard(KeyEvent::F(v - 12)),
-        _ => Event::Unknown,
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(Some(InternalEvent::Input(input_event)))
@@ -317,7 +317,7 @@ pub fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         35 => MouseEvent::Release(cx, cy),
         64 => MouseEvent::Hold(cx, cy),
         96 | 97 => MouseEvent::Press(MouseButton::WheelUp, cx, cy),
-        _ => MouseEvent::Unknown,
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(Some(InternalEvent::Input(Event::Mouse(mouse_input_event))))
@@ -357,7 +357,7 @@ pub fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         }
         2 => MouseEvent::Press(MouseButton::Right, cx, cy),
         3 => MouseEvent::Release(cx, cy),
-        _ => MouseEvent::Unknown,
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(Some(InternalEvent::Input(Event::Mouse(mouse_input_event))))
@@ -397,14 +397,14 @@ pub fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
             match buffer.last().unwrap() {
                 b'M' => Event::Mouse(MouseEvent::Press(button, cx, cy)),
                 b'm' => Event::Mouse(MouseEvent::Release(cx, cy)),
-                _ => Event::Unknown,
+                _ => return Err(could_not_parse_event_error()),
             }
         }
         // TODO 1.0: Add MouseButton to Hold and report which button is pressed
         // 33 - middle, 34 - right
         32 => Event::Mouse(MouseEvent::Hold(cx, cy)),
         3 => Event::Mouse(MouseEvent::Release(cx, cy)),
-        _ => Event::Unknown,
+        _ => return Err(could_not_parse_event_error()),
     };
 
     Ok(Some(InternalEvent::Input(input_event)))

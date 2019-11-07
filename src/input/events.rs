@@ -9,12 +9,6 @@ pub enum Event {
     Keyboard(KeyEvent),
     /// A mouse event.
     Mouse(MouseEvent),
-    /// An unsupported event.
-    ///
-    /// You can ignore this type of event, because it isn't used.
-    Unsupported(Vec<u8>), // TODO Not used, should be removed.
-    /// An unknown event.
-    Unknown,
 }
 
 /// Represents a mouse event.
@@ -27,8 +21,6 @@ pub enum MouseEvent {
     Release(u16, u16),
     /// Mouse moved with a pressed left button to the new location (column, row).
     Hold(u16, u16),
-    /// An unknown mouse event.
-    Unknown,
 }
 
 /// Represents a mouse button/wheel.
