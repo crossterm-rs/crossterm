@@ -86,6 +86,3 @@ impl<'a> EventPoolWriteLock<'a> {
         &mut self.write_guard
     }
 }
-
-#[cfg(test)]
-mod tests {}
