@@ -3,10 +3,9 @@ use std::{
     time::Duration,
 };
 
-use crate::{
-    input::{event_source::EventSource, events::InternalEvent},
-    Result,
-};
+use crate::Result;
+
+use super::super::{event_source::EventSource, events::InternalEvent};
 
 /// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
 pub struct FakeEventSource {

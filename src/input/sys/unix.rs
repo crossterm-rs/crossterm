@@ -6,9 +6,11 @@ use std::{
 use libc::c_int;
 
 use crate::{
-    input::{events::InternalEvent, Event, KeyEvent, MouseButton, MouseEvent},
+    input::{Event, KeyEvent, MouseButton, MouseEvent},
     ErrorKind, Result,
 };
+
+use super::super::events::InternalEvent;
 
 /// A file descriptor wrapper.
 ///

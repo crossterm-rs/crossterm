@@ -36,12 +36,11 @@
 
 use std::time::Duration;
 
-use crate::{input::event_pool::EventPool, Command, Result};
+use crate::{Command, Result};
 
-pub use self::{
-    event_source::{fake::FakeEventSource, EventSource},
-    events::{Event, KeyEvent, MouseButton, MouseEvent},
-};
+pub use self::events::{Event, KeyEvent, MouseButton, MouseEvent};
+use event_pool::EventPool;
+use event_source::EventSource;
 
 mod ansi;
 mod event_poll;
@@ -80,7 +79,7 @@ pub(crate) mod poll_timeout;
 /// }
 /// ```
 pub fn poll(timeout: Option<Duration>) -> Result<bool> {
-    let mut lock = EventPool::get_mut();
+    let mut lock = event_pool::EventPool::get_mut();
     lock.pool().poll(timeout)
 }
 
@@ -106,7 +105,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// }
 /// ```
 pub fn read() -> Result<Event> {
-    let mut lock = EventPool::get_mut();
+    let mut lock = event_pool::EventPool::get_mut();
     lock.pool().read()
 }
 
@@ -114,7 +113,7 @@ pub fn read() -> Result<Event> {
 ///
 /// This might be usefull for testing.
 /// See [FakeEventSource](LINK) for more information.
-pub fn swap_event_source(new: Box<dyn EventSource>) {
+pub(crate) fn swap_event_source(new: Box<dyn EventSource>) {
     let mut lock = EventPool::get_mut();
     lock.pool().swap_event_source(new);
 }

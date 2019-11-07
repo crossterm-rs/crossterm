@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::input::events::InternalEvent;
+use super::events::InternalEvent;
 
 pub mod fake;
 #[cfg(unix)]

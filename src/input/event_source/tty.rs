@@ -2,14 +2,13 @@ use std::time::Duration;
 
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
 
-use crate::{
-    input::{
-        events::InternalEvent,
-        poll_timeout::PollTimeout,
-        sys::unix::{parse_event, tty_fd, FileDesc},
-        EventSource,
-    },
-    Result,
+use crate::Result;
+
+use super::super::{
+    event_source::EventSource,
+    events::InternalEvent,
+    poll_timeout::PollTimeout,
+    sys::unix::{parse_event, tty_fd, FileDesc},
 };
 
 // Tokens to identify file descriptor

@@ -5,15 +5,13 @@ use std::{
 
 use lazy_static::lazy_static;
 
-use crate::{
-    input::{
-        event_poll::EventPoll,
-        event_reader::{EventReader, InternalEventReader},
-        event_source::EventSource,
-        events::InternalEvent,
-        Event,
-    },
-    Result,
+use crate::{input::Event, Result};
+
+use super::{
+    event_poll::EventPoll,
+    event_reader::{EventReader, InternalEventReader},
+    event_source::EventSource,
+    events::InternalEvent,
 };
 
 lazy_static! {
