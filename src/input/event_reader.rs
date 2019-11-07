@@ -7,7 +7,7 @@ use crate::input::event_source::winapi::WinApiEventSource;
 use crate::{
     input::{
         event_poll::EventPoll, event_source::EventSource, events::InternalEvent,
-        poll_timeout::PollTimeOut, Event,
+        poll_timer::PollTimer, Event,
     },
     Result,
 };
@@ -98,10 +98,10 @@ impl EventPoll for EventReader {
             return Ok(true);
         }
 
-        let mut poll_timout = PollTimeOut::new(timeout);
+        let mut timer = PollTimer::new(timeout);
 
         loop {
-            match self.internal_poll.poll(poll_timout.left_over())? {
+            match self.internal_poll.poll(timer.left_over())? {
                 true => {
                     match self.internal_poll.read()? {
                         InternalEvent::Input(ev) => {
@@ -119,7 +119,7 @@ impl EventPoll for EventReader {
                 }
             };
 
-            poll_timout.elapsed();
+            timer.elapsed();
         }
     }
 

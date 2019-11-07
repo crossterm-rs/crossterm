@@ -1,12 +1,6 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::utils::Command;
-#[cfg(windows)]
-use crate::utils::Result;
-
-use super::ansi;
-
 /// Represents an input event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
@@ -121,45 +115,6 @@ pub enum KeyEvent {
     ShiftRight,
     /// Shift + left arrow key.
     ShiftLeft,
-}
-
-/// A command that enables mouse mode
-///
-pub struct EnableMouseCapture;
-
-impl Command for EnableMouseCapture {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::enable_mouse_mode_csi_sequence()
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        //        crate::input::sys::winapi::enable_mouse_mode()
-        Ok(())
-    }
-}
-
-/// A command that disables mouse event monitoring.
-///
-/// Mouse events will be produced by the
-/// [`AsyncReader`](struct.AsyncReader.html)/[`SyncReader`](struct.SyncReader.html).
-///
-pub struct DisableMouseCapture;
-
-impl Command for DisableMouseCapture {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::disable_mouse_mode_csi_sequence()
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        //        crate::input::sys::winapi::disable_mouse_mode()
-        Ok(())
-    }
 }
 
 /// An internal event.

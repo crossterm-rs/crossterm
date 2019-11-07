@@ -6,7 +6,7 @@ use crate::{
     input::{
         event_source::EventSource,
         events::InternalEvent,
-        poll_timeout::PollTimeOut,
+        poll_timer::PollTimer,
         sys::winapi::{handle_key_event, handle_mouse_event},
     },
     Result,
@@ -22,7 +22,7 @@ impl WinApiEventSource {
 
 impl EventSource for WinApiEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
-        let mut poll_timout = PollTimeOut::new(timeout);
+        let mut timer = PollTimer::new(timeout);
 
         loop {
             let number_of_events =
@@ -51,13 +51,11 @@ impl EventSource for WinApiEventSource {
                 }
             }
 
-            if poll_timout.elapsed() {
-                break;
+            if timer.elapsed() {
+                return Ok(None);
             }
 
             thread::sleep(Duration::from_millis(50))
         }
-
-        Ok(None)
     }
 }

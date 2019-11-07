@@ -19,8 +19,5 @@ pub trait EventSource: Sync + Send {
     /// Returns:
     /// `Ok(Some(event))`: in case an event is ready.
     /// `Ok(None)`: in case an event is not ready.
-    fn try_read(
-        &mut self,
-        timeout: Option<Duration>,
-    ) -> crate::Result<Option<InternalEvent>>;
+    fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
 }

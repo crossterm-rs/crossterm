@@ -1,23 +1,24 @@
 use std::time::{Duration, Instant};
 
 /// Keeps track of the elapsed time since the moment the polling started.
-pub struct PollTimeOut {
+pub struct PollTimer {
     total_timeout: Option<Duration>,
     left_timeout: Option<Duration>,
     start: Instant,
 }
 
-impl PollTimeOut {
+impl PollTimer {
     /// Constructs a new `PollTimeout` with the given optional `Duration`.
-    pub fn new(timeout: Option<Duration>) -> PollTimeOut {
-        PollTimeOut {
+    pub fn new(timeout: Option<Duration>) -> PollTimer {
+        PollTimer {
             total_timeout: timeout.clone(),
             left_timeout: timeout.clone(),
             start: Instant::now(),
         }
     }
 
-    /// Returns whether the poll duration has elapsed.
+    /// Returns whether the the poll timer has elapsed the duration.
+    /// This wil also calculate the left over poll duration.
     /// This will always return `false` in case that the duration is `None`.
     pub fn elapsed(&mut self) -> bool {
         if let Some(timeout) = self.total_timeout {

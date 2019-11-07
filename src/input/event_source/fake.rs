@@ -1,5 +1,4 @@
 use std::{
-    collections::VecDeque,
     sync::{mpsc::Receiver, Mutex},
     time::Duration,
 };
@@ -12,7 +11,6 @@ use crate::{
 /// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
 pub struct FakeEventSource {
     input_receiver: Mutex<Receiver<InternalEvent>>,
-    internal_buf: VecDeque<InternalEvent>,
 }
 
 impl FakeEventSource {
@@ -20,7 +18,6 @@ impl FakeEventSource {
     pub fn new(input_receiver: Receiver<InternalEvent>) -> FakeEventSource {
         FakeEventSource {
             input_receiver: Mutex::new(input_receiver),
-            internal_buf: VecDeque::new(),
         }
     }
 }

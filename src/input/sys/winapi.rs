@@ -1,6 +1,6 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use crossterm_winapi::{ButtonState, EventFlags, KeyEventRecord, MouseEvent};
+use crossterm_winapi::{ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent};
 use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
@@ -16,17 +16,55 @@ use crate::{
     input::{self, Event, KeyEvent, MouseButton},
     Result,
 };
+use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
-pub fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
+lazy_static! {
+    static ref ORIGINAL_CONSOLE_MODE: Mutex<Option<u32>> = Mutex::new(None);
+}
+
+/// Initializes the default console color. It will will be skipped if it has already been initialized.
+fn init_original_console_mode(original_mode: u32) {
+    let mut lock = ORIGINAL_CONSOLE_MODE.lock().unwrap();
+
+    if lock.is_none() {
+        *lock = Some(original_mode);
+    }
+}
+
+/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
+fn original_console_mode() -> u32 {
+    // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
+    ORIGINAL_CONSOLE_MODE
+        .lock()
+        .unwrap()
+        .expect("Original console mode not set")
+}
+
+pub(crate) fn enable_mouse_capture() -> Result<()> {
+    let mode = ConsoleMode::from(Handle::current_in_handle()?);
+    init_original_console_mode(mode.mode()?);
+    mode.set_mode(ENABLE_MOUSE_MODE)?;
+
+    Ok(())
+}
+
+pub(crate) fn disable_mouse_capture() -> Result<()> {
+    let mode = ConsoleMode::from(Handle::current_in_handle()?);
+    mode.set_mode(original_console_mode())?;
+    Ok(())
+}
+
+pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
     if let Some(event) = parse_mouse_event_record(&mouse_event) {
         return Ok(Some(Event::Mouse(event)));
     }
     Ok(None)
 }
 
-pub fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
+pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     if key_event.key_down {
         if let Some(event) = parse_key_event_record(&key_event) {
             return Ok(Some(Event::Keyboard(event)));
@@ -36,7 +74,7 @@ pub fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     return Ok(None);
 }
 
-pub fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
+fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     let key_code = key_event.virtual_key_code as i32;
     match key_code {
         VK_SHIFT | VK_CONTROL | VK_MENU => None,
