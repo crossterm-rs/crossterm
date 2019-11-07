@@ -39,7 +39,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
 
     // acquire mutable lock until we read the position, so that the user can't steal it from us.
     let mut lock = EventPool::get_mut();
-    let mut pool = lock.pool();
+    let pool = lock.pool();
 
     loop {
         match pool.poll_internal(Some(Duration::from_millis(2000))) {
