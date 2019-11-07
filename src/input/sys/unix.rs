@@ -3,30 +3,12 @@ use std::{
     os::unix::io::{IntoRawFd, RawFd},
 };
 
-use libc::{c_int, c_void, size_t, ssize_t};
+use libc::c_int;
 
 use crate::{
     input::{events::InternalEvent, Event, KeyEvent, MouseButton, MouseEvent},
-    utils::sys::unix::check_for_error_result,
     ErrorKind, Result,
 };
-
-// libstd::sys::unix::fd.rs
-fn max_len() -> usize {
-    // The maximum read limit on most posix-like systems is `SSIZE_MAX`,
-    // with the man page quoting that if the count of bytes to read is
-    // greater than `SSIZE_MAX` the result is "unspecified".
-    //
-    // On macOS, however, apparently the 64-bit libc is either buggy or
-    // intentionally showing odd behavior by rejecting any read with a size
-    // larger than or equal to INT_MAX. To handle both of these the read
-    // size is capped on both platforms.
-    if cfg!(target_os = "macos") {
-        <c_int>::max_value() as usize - 1
-    } else {
-        <ssize_t>::max_value() as usize
-    }
-}
 
 /// A file descriptor wrapper.
 ///
@@ -38,14 +20,13 @@ pub struct FileDesc {
 }
 
 impl FileDesc {
-    /// Constructs a new `FileDesc` with the given `RawFd`
-    pub fn new(fd: RawFd) -> FileDesc {
-        FileDesc::with_close_on_drop(fd, true)
-    }
-
     /// Constructs a new `FileDesc` with the given `RawFd`.
-    /// Specify weather the file should be closed on drop with `close_on_drop`.
-    pub fn with_close_on_drop(fd: RawFd, close_on_drop: bool) -> FileDesc {
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - raw file descriptor
+    /// * `close_on_drop` - specify if the raw file descriptor should be closed once the `FileDesc` is dropped
+    pub fn new(fd: RawFd, close_on_drop: bool) -> FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
@@ -57,18 +38,6 @@ impl FileDesc {
         })?;
 
         Ok(buf[0])
-    }
-
-    /// Writes a single byte to the file descriptor.
-    pub fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        let ret = check_for_error_result(unsafe {
-            libc::write(
-                self.fd,
-                buf.as_ptr() as *const c_void,
-                std::cmp::min(buf.len(), max_len()) as size_t,
-            ) as c_int
-        })?;
-        Ok(ret as usize)
     }
 
     /// Returns the underlying file descriptor.
@@ -106,7 +75,7 @@ pub fn tty_fd() -> Result<FileDesc> {
         )
     };
 
-    Ok(FileDesc::with_close_on_drop(fd, close_on_drop))
+    Ok(FileDesc::new(fd, close_on_drop))
 }
 
 //

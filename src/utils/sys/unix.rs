@@ -3,7 +3,7 @@
 use std::{io, mem, sync::Mutex};
 
 pub use libc::termios as Termios;
-use libc::{c_int, cfmakeraw, tcgetattr, tcsetattr, STDIN_FILENO, TCSANOW};
+use libc::{cfmakeraw, tcgetattr, tcsetattr, STDIN_FILENO, TCSANOW};
 
 use lazy_static::lazy_static;
 
@@ -24,14 +24,6 @@ pub fn wrap_with_result(result: i32) -> Result<bool> {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
         Ok(true)
-    }
-}
-
-pub fn check_for_error_result(result: c_int) -> io::Result<libc::c_int> {
-    if result == -1 {
-        Err(io::Error::last_os_error())
-    } else {
-        Ok(result)
     }
 }
 
