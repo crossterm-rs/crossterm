@@ -154,3 +154,18 @@ impl Command for DisableMouseCapture {
         sys::winapi::disable_mouse_capture()
     }
 }
+
+/// Stops the reading thread.
+///
+/// # Notes
+///
+/// This function is a no-op on the Windows platform.
+///
+/// When you call this function on the UNIX platform, all event channel senders
+/// are dropped and as a consequence you have to drop all `SyncReader`/`AsyncReader` readers.
+pub fn stop_reading_thread() {
+    #[cfg(unix)]
+    {
+        sys::unix::stop_reading_thread();
+    }
+}

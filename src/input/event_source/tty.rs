@@ -28,7 +28,7 @@ impl TtyInternalEventSource {
         Ok(TtyInternalEventSource::from_file_descriptor(tty_fd()?))
     }
 
-    pub(crate)  fn from_file_descriptor(input_fd: FileDesc) -> TtyInternalEventSource {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> TtyInternalEventSource {
         let buffer = Vec::new();
 
         // Get raw file descriptors for
