@@ -24,7 +24,7 @@ pub(crate) fn set_attr_csi_sequence(attribute: Attribute) -> String {
     format!(csi!("{}m"), attribute as i16)
 }
 
-pub(crate) static RESET_CSI_SEQUENCE: &'static str = csi!("0m");
+pub(crate) static RESET_CSI_SEQUENCE: &str = csi!("0m");
 
 impl From<Colored> for String {
     fn from(colored: Colored) -> Self {

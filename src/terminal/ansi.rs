@@ -2,11 +2,11 @@
 
 use crate::csi;
 
-pub(crate) static CLEAR_ALL_CSI_SEQUENCE: &'static str = csi!("2J");
-pub(crate) static CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE: &'static str = csi!("J");
-pub(crate) static CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE: &'static str = csi!("1J");
-pub(crate) static CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE: &'static str = csi!("2K");
-pub(crate) static CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE: &'static str = csi!("K");
+pub(crate) static CLEAR_ALL_CSI_SEQUENCE: &str = csi!("2J");
+pub(crate) static CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE: &str = csi!("J");
+pub(crate) static CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE: &str = csi!("1J");
+pub(crate) static CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE: &str = csi!("2K");
+pub(crate) static CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE: &str = csi!("K");
 
 pub(crate) fn scroll_up_csi_sequence(count: u16) -> String {
     format!(csi!("{}S"), count)

@@ -2,8 +2,8 @@ use crate::{csi, utils::Result, write_cout};
 
 use super::AlternateScreen;
 
-pub(crate) static ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE: &'static str = csi!("?1049h");
-pub(crate) static LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE: &'static str = csi!("?1049l");
+pub(crate) static ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE: &str = csi!("?1049h");
+pub(crate) static LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE: &str = csi!("?1049l");
 
 pub(crate) struct AnsiAlternateScreen;
 

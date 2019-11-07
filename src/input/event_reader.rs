@@ -101,23 +101,20 @@ impl EventPoll for EventReader {
         let timeout = PollTimeout::new(timeout);
 
         loop {
-            match self.internal_poll.poll(timeout.leftover())? {
-                true => {
-                    match self.internal_poll.read()? {
-                        InternalEvent::Input(ev) => {
-                            self.events.push_back(ev);
-                            return Ok(true);
-                        }
-                        event => {
-                            // write internal event back, we don't need it. But user might.
-                            self.internal_poll.enqueue(event)
-                        }
+            if self.internal_poll.poll(timeout.leftover())? {
+                match self.internal_poll.read()? {
+                    InternalEvent::Input(ev) => {
+                        self.events.push_back(ev);
+                        return Ok(true);
+                    }
+                    event => {
+                        // write internal event back, we don't need it. But user might.
+                        self.internal_poll.enqueue(event)
                     }
                 }
-                false => {
-                    return Ok(false);
-                }
-            };
+            } else {
+                return Ok(false);
+            }
 
             if timeout.elapsed() {
                 return Ok(false);

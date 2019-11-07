@@ -19,7 +19,7 @@ fn tput_value(arg: &str) -> Option<u16> {
         Ok(process::Output { stdout, .. }) => {
             let value = stdout
                 .iter()
-                .map(|&b| b as u16)
+                .map(|&b| u16::from(b))
                 .take_while(|&b| b >= 48 && b <= 58)
                 .fold(0, |v, b| v * 10 + (b - 48));
             if value > 0 {
@@ -55,10 +55,8 @@ pub fn size() -> Result<(u16, u16)> {
         ws_ypixel: 0,
     };
 
-    if let Ok(true) =
-        wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) })
-    {
-        return Ok((size.ws_col, size.ws_row));
+    if let Ok(true) = wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &mut size) }) {
+        Ok((size.ws_col, size.ws_row))
     } else {
         tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
     }

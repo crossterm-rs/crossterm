@@ -26,12 +26,12 @@ impl EventSource for FakeEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         if let Some(timeout) = timeout {
             if let Ok(val) = self.input_receiver.lock().unwrap().recv_timeout(timeout) {
-                return Ok(Some(val));
+                Ok(Some(val))
             } else {
-                return Ok(None);
+                Ok(None)
             }
         } else {
-            return Ok(Some(self.input_receiver.lock().unwrap().recv().unwrap()));
+            Ok(Some(self.input_receiver.lock().unwrap().recv().unwrap()))
         }
     }
 }

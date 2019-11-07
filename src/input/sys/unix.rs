@@ -217,7 +217,7 @@ where
     T: std::str::FromStr,
 {
     iter.next()
-        .ok_or_else(|| could_not_parse_event_error())?
+        .ok_or_else(could_not_parse_event_error)?
         .parse::<T>()
         .map_err(|_| could_not_parse_event_error())
 }
@@ -335,8 +335,8 @@ pub fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     // See http://www.xfree86.org/current/ctlseqs.html#Mouse%20Tracking
     // The upper left character position on the terminal is denoted as 1,1.
     // Subtract 1 to keep it synced with cursor
-    let cx = buffer[4].saturating_sub(32) as u16 - 1;
-    let cy = buffer[5].saturating_sub(32) as u16 - 1;
+    let cx = u16::from(buffer[4].saturating_sub(32)) - 1;
+    let cy = u16::from(buffer[5].saturating_sub(32)) - 1;
 
     let mouse_input_event = match cb & 0b11 {
         0 => {
@@ -411,10 +411,7 @@ pub fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
 pub fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {
     match std::str::from_utf8(buffer) {
         Ok(s) => {
-            let ch = s
-                .chars()
-                .next()
-                .ok_or_else(|| could_not_parse_event_error())?;
+            let ch = s.chars().next().ok_or_else(could_not_parse_event_error)?;
 
             Ok(Some(ch))
         }
