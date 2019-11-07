@@ -1,5 +1,7 @@
 //! This is a WINDOWS specific implementation for input related action.
 
+use std::sync::Mutex;
+
 use crossterm_winapi::{ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent};
 use winapi::um::{
     wincon::{
@@ -12,12 +14,12 @@ use winapi::um::{
     },
 };
 
+use lazy_static::lazy_static;
+
 use crate::{
     input::{self, Event, KeyEvent, MouseButton},
     Result,
 };
-use lazy_static::lazy_static;
-use std::sync::Mutex;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
