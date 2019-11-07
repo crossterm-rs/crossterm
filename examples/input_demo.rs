@@ -63,7 +63,7 @@ fn read_async() {
             Ok(true) => {
                 // Event available - read() wont block
                 match read() {
-                    Ok(Event::Keyboard(KeyEvent::Char('c'))) => {
+                    Ok(Event::Key(KeyEvent::Char('c'))) => {
                         let cursor = crossterm::cursor::position();
                         println!("Cursor position: {:?}\r", cursor);
                     }
@@ -87,5 +87,5 @@ fn read_async() {
 fn handle_event(event: &Event) -> bool {
     println!("{:?}\r", event);
 
-    *event == Event::Keyboard(KeyEvent::Esc)
+    *event == Event::Key(KeyEvent::Esc)
 }

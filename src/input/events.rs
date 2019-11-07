@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
 pub enum Event {
     /// A single key or a combination of keys.
-    Keyboard(KeyEvent),
+    Key(KeyEvent),
     /// A mouse event.
     Mouse(MouseEvent),
 }

@@ -69,7 +69,7 @@ pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event
 pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event>> {
     if key_event.key_down {
         if let Some(event) = parse_key_event_record(&key_event) {
-            return Ok(Some(Event::Keyboard(event)));
+            return Ok(Some(Event::Key(event)));
         }
     }
 
