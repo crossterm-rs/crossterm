@@ -5,7 +5,7 @@ use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
 use crate::{
     input::{
         events::InternalEvent,
-        poll_timer::PollTimer,
+        poll_timeout::PollTimeout,
         sys::unix::{parse_event, tty_fd, FileDesc},
         EventSource,
     },
@@ -51,7 +51,7 @@ impl TtyInternalEventSource {
 
 impl EventSource for TtyInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
-        let mut timer = PollTimer::new(timeout);
+        let timeout = PollTimeout::new(timeout);
 
         loop {
             let poll =
@@ -61,7 +61,7 @@ impl EventSource for TtyInternalEventSource {
                         .map_err(Into::into)
                 };
 
-            match poll(&mut self.poll, &mut self.events, timer.left_over())? {
+            match poll(&mut self.poll, &mut self.events, timeout.leftover())? {
                 true => {
                     self.buffer.push(self.tty_fd.read_byte()?);
 
@@ -90,7 +90,9 @@ impl EventSource for TtyInternalEventSource {
                 }
             };
 
-            timer.elapsed();
+            if timeout.elapsed() {
+                return Ok(None);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-//#![deny(unused_imports, unused_must_use)]
+#![deny(unused_imports, unused_must_use)]
+
 //! # Input
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
@@ -50,7 +51,7 @@ mod sys;
 
 pub(crate) mod event_pool;
 pub(crate) mod events;
-pub(crate) mod poll_timer;
+pub(crate) mod poll_timeout;
 
 /// Polls during an given duration for ready events.
 ///

@@ -6,7 +6,7 @@ use crate::{
     input::{
         event_source::EventSource,
         events::InternalEvent,
-        poll_timer::PollTimer,
+        poll_timeout::PollTimer,
         sys::winapi::{handle_key_event, handle_mouse_event},
     },
     Result,
