@@ -146,10 +146,8 @@ mod tests {
     };
 
     use crate::input::{
-        event_poll::{EventPoll, InternalEventReader},
-        event_source::fake::FakeEventSource,
-        events::InternalEvent,
-        Event,
+        event_poll::EventPoll, event_reader::InternalEventReader,
+        event_source::fake::FakeEventSource, events::InternalEvent, Event, KeyEvent,
     };
 
     #[test]
@@ -161,13 +159,16 @@ mod tests {
         thread::sleep(Duration::from_millis(500));
 
         poll.event_sender
-            .send(InternalEvent::Input(Event::Unknown))
+            .send(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
             .unwrap();
 
         let (poll_result, read) = poll.handle.join().unwrap();
 
         assert_eq!(poll_result, true);
-        assert_eq!(read, Some(InternalEvent::Input(Event::Unknown)));
+        assert_eq!(
+            read,
+            Some(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+        );
     }
 
     #[test]
@@ -193,13 +194,16 @@ mod tests {
         thread::sleep(Duration::from_millis(500));
 
         poll.event_sender
-            .send(InternalEvent::Input(Event::Unknown))
+            .send(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
             .unwrap();
 
         let (poll_result, read) = poll.handle.join().unwrap();
 
         assert_eq!(poll_result, true);
-        assert_eq!(read, Some(InternalEvent::Input(Event::Unknown)));
+        assert_eq!(
+            read,
+            Some(InternalEvent::Input(Event::Key(KeyEvent::Char('q'))))
+        );
     }
 
     /// Returns the handle to the thread that polls for input as long as the given duration and the sender to trigger the the thread to read the event.
@@ -210,7 +214,7 @@ mod tests {
         reader.swap_event_source(Box::from(FakeEventSource::new(event_receiver)));
 
         let handle = thread::spawn(move || {
-            let poll_result = reader.poll(Some(Duration::from_millis(2000))).unwrap();
+            let poll_result = reader.poll(timeout).unwrap();
 
             let read = if poll_result {
                 Some(reader.read().unwrap())

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::time::Duration;
 
 use crossterm::{
@@ -6,7 +8,7 @@ use crossterm::{
 };
 
 fn main() {
-    let r = RawScreen::into_raw_mode().unwrap();
+    let _r = RawScreen::into_raw_mode().unwrap();
     read_async();
 }
 
@@ -46,7 +48,7 @@ fn sync_read2() {
 
 fn sync_read3() {
     loop {
-        match poll(None).and_then(|succeed| read()) {
+        match poll(None).and_then(|_| read()) {
             Ok(event) => {
                 if handle_event(&event) {
                     break;

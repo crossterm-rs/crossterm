@@ -585,10 +585,7 @@ mod tests {
 
     #[test]
     fn test_parse_csi_special_key_code_multiple_values_not_supported() {
-        assert_eq!(
-            parse_csi_special_key_code("\x1B[3;2~".as_bytes()).unwrap(),
-            Some(InternalEvent::Input(Event::Unknown)),
-        );
+        assert!(parse_csi_special_key_code("\x1B[3;2~".as_bytes()).is_err());
     }
 
     #[test]

@@ -98,7 +98,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 ///     if poll(Some(Duration::from_millis(1000)))? {
 ///         // read the ready event.
 ///         match read() {
-///             Ok(Event(event)) => { println!("{:?}", event) }
+///             Ok(event) => { println!("{:?}", event) }
 ///             _ => { }
 ///         }
 ///      }
