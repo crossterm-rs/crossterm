@@ -44,9 +44,16 @@ fn read_position_raw() -> Result<(u16, u16)> {
     loop {
         match pool.poll_internal(Some(Duration::from_millis(2000))) {
             Ok(true) => {
-                if let Ok(InternalEvent::CursorPosition(x, y)) = pool.read_internal() {
-                    return Ok((x, y));
-                }
+                match pool.read_internal() {
+                    Ok(InternalEvent::CursorPosition(x, y)) => {
+                        return Ok((x, y));
+                    }
+                    Ok(event) => {
+                        // We don't want to steal user events.
+                        pool.enqueue_internal(event);
+                    }
+                    _ => {}
+                };
             }
             Ok(false) => {
                 return Err(Error::new(
