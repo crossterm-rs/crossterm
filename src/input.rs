@@ -1,5 +1,3 @@
-#![deny(unused_imports, unused_must_use)]
-
 //! # Input
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
