@@ -35,7 +35,7 @@ impl PollTimer {
         return false;
     }
 
-    /// Returns the remaining duration.
+    /// Returns the left over duration.
     pub fn left_over(&self) -> Option<Duration> {
         self.left_timeout
     }

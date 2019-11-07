@@ -22,7 +22,7 @@ lazy_static! {
     static ref EVENT_POOL: RwLock<EventPool> = { RwLock::new(EventPool::new()) };
 }
 
-/// Wrapper for event readers which exposes an reading API for those.
+/// Wrapper for event readers.
 ///
 /// There should be one and only one instance of this type,
 /// because We can only have on source that is polling from the system for events.
