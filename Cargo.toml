@@ -26,7 +26,7 @@ serde = { version = "1.0.0", features = ["derive"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.8"
-crossterm_winapi = { version = "0.3.0", path = "../crossterm-winapi" }
+crossterm_winapi = { version = "0.4.0" }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
