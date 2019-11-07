@@ -54,22 +54,14 @@ impl EventSource for TtyInternalEventSource {
         let timeout = PollTimeout::new(timeout);
 
         loop {
-            let poll =
-                |poll: &mut Poll, events: &mut Events, timeout: Option<Duration>| -> Result<bool> {
-                    poll.poll(events, timeout)
-                        .map(|x| x > 0)
-                        .map_err(Into::into)
-                };
-
-            match poll(&mut self.poll, &mut self.events, timeout.leftover())? {
-                true => {
+            match self.poll.poll(&mut self.events, timeout.leftover())? {
+                event_count if event_count > 0 => {
                     self.buffer.push(self.tty_fd.read_byte()?);
 
-                    let input_available = poll(
-                        &mut self.poll,
-                        &mut self.events,
-                        Some(Duration::from_secs(0)),
-                    )?;
+                    let input_available = self
+                        .poll
+                        .poll(&mut self.events, Some(Duration::from_secs(0)))
+                        .map(|x| x > 0)?;
 
                     match parse_event(&self.buffer, input_available) {
                         Ok(None) => {
@@ -85,9 +77,7 @@ impl EventSource for TtyInternalEventSource {
                         }
                     };
                 }
-                false => {
-                    return Ok(None);
-                }
+                _ => return Ok(None),
             };
 
             if timeout.elapsed() {
