@@ -41,14 +41,14 @@ use crate::{Command, Result};
 pub use self::events::{Event, KeyEvent, MouseButton, MouseEvent};
 
 mod ansi;
-mod event_poll;
-mod event_reader;
-mod event_source;
+mod poll;
+mod reader;
+mod source;
 mod sys;
 
-pub(crate) mod event_pool;
 pub(crate) mod events;
-pub(crate) mod poll_timeout;
+pub(crate) mod pool;
+pub(crate) mod timeout;
 
 /// Polls during an given duration for ready events.
 ///
@@ -77,7 +77,7 @@ pub(crate) mod poll_timeout;
 /// }
 /// ```
 pub fn poll(timeout: Option<Duration>) -> Result<bool> {
-    let mut lock = event_pool::EventPool::get_mut();
+    let mut lock = pool::EventPool::get_mut();
     lock.pool().poll(timeout)
 }
 
@@ -103,7 +103,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// }
 /// ```
 pub fn read() -> Result<Event> {
-    let mut lock = event_pool::EventPool::get_mut();
+    let mut lock = pool::EventPool::get_mut();
     lock.pool().read()
 }
 

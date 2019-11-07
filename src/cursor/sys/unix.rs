@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    input::{event_pool::EventPool, events::InternalEvent},
+    input::{events::InternalEvent, pool::EventPool},
     utils::{
         sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
         Result,

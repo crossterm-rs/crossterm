@@ -8,9 +8,9 @@ use lazy_static::lazy_static;
 use crate::{input::Event, Result};
 
 use super::{
-    event_poll::EventPoll,
-    event_reader::{EventReader, InternalEventReader},
     events::InternalEvent,
+    poll::EventPoll,
+    reader::{EventReader, InternalEventReader},
 };
 
 lazy_static! {

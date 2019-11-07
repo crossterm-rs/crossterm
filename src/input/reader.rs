@@ -3,14 +3,11 @@ use std::{collections::vec_deque::VecDeque, time::Duration};
 use crate::{input::Event, Result};
 
 #[cfg(unix)]
-use super::event_source::tty::TtyInternalEventSource;
+use super::source::tty::TtyInternalEventSource;
 #[cfg(windows)]
-use super::event_source::winapi::WinApiEventSource;
+use super::source::winapi::WinApiEventSource;
 
-use super::{
-    event_poll::EventPoll, event_source::EventSource, events::InternalEvent,
-    poll_timeout::PollTimeout,
-};
+use super::{events::InternalEvent, poll::EventPoll, source::EventSource, timeout::PollTimeout};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -146,8 +143,7 @@ mod tests {
     };
 
     use super::super::{
-        event_poll::EventPoll, event_reader::InternalEventReader, event_source::EventSource,
-        events::InternalEvent,
+        events::InternalEvent, poll::EventPoll, reader::InternalEventReader, source::EventSource,
     };
 
     /// This event source can be used for test purposes. And gives you direct control over the events read by crossterm.
