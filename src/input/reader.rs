@@ -128,6 +128,7 @@ impl EventPoll for EventReader {
 #[cfg(test)]
 mod tests {
     use std::{
+        collections::VecDeque,
         sync::{
             mpsc::{channel, Receiver, Sender},
             Mutex,
@@ -232,10 +233,13 @@ mod tests {
 
     /// Returns the handle to the thread that polls for input as long as the given duration and the sender to trigger the the thread to read the event.
     fn get_polling_thread(timeout: Option<Duration>) -> PollThreadHandleStub {
-        let mut reader = InternalEventReader::new();
         let (event_sender, event_receiver) = channel();
 
-        reader.event_source = Box::from(FakeEventSource::new(event_receiver));
+        let event_source = Box::from(FakeEventSource::new(event_receiver));
+        let mut reader = InternalEventReader {
+            event_source,
+            events: VecDeque::new(),
+        };
 
         let handle = thread::spawn(move || {
             let poll_result = reader.poll(timeout).unwrap();
