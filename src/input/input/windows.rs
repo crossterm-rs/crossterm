@@ -1,15 +1,6 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::{
-    char, io,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
-    },
-    thread,
-    time::Duration,
-};
+use std::{char, collections::VecDeque, io, sync::Mutex};
 
 use crossterm_winapi::{
     ButtonState, Console, ConsoleMode, EventFlags, Handle, InputEventType, KeyEventRecord,
@@ -85,41 +76,15 @@ impl Input for WindowsInput {
     }
 
     fn read_async(&self) -> AsyncReader {
-        AsyncReader::new(Box::new(move |event_tx, cancellation_token| loop {
-            for i in read_input_events().unwrap().1 {
-                if event_tx.send(i).is_err() {
-                    return;
-                }
-            }
-
-            if cancellation_token.load(Ordering::SeqCst) {
-                return;
-            }
-
-            thread::sleep(Duration::from_millis(1));
-        }))
+        let handle = Handle::current_in_handle().expect("failed to create console input handle");
+        let console = Console::from(handle);
+        AsyncReader::new(console, None)
     }
 
     fn read_until_async(&self, delimiter: u8) -> AsyncReader {
-        AsyncReader::new(Box::new(move |event_tx, cancellation_token| loop {
-            for event in read_input_events().unwrap().1 {
-                if let InputEvent::Keyboard(KeyEvent::Char(key)) = event {
-                    if (key as u8) == delimiter {
-                        return;
-                    }
-                }
-
-                if cancellation_token.load(Ordering::SeqCst) {
-                    return;
-                } else {
-                    if event_tx.send(event).is_err() {
-                        return;
-                    }
-                }
-
-                thread::sleep(Duration::from_millis(1));
-            }
-        }))
+        let handle = Handle::current_in_handle().expect("failed to create console input handle");
+        let console = Console::from(handle);
+        AsyncReader::new(console, Some(delimiter))
     }
 
     fn read_sync(&self) -> SyncReader {
@@ -271,9 +236,9 @@ impl Iterator for SyncReader {
 /// } // `reader` dropped <- thread cleaned up, `_raw` dropped <- raw mode disabled
 /// ```
 pub struct AsyncReader {
-    event_rx: Receiver<InputEvent>,
-    shutdown: Arc<AtomicBool>,
-    thread: Option<thread::JoinHandle<()>>,
+    console: Console,
+    buffer: VecDeque<InputEvent>,
+    delimiter: Option<u8>,
 }
 
 impl AsyncReader {
@@ -284,44 +249,15 @@ impl AsyncReader {
     ///
     /// * A thread is spawned to read the input.
     /// * The reading thread is cleaned up when you drop the `AsyncReader`.
-    pub fn new(function: Box<dyn Fn(&Sender<InputEvent>, &Arc<AtomicBool>) + Send>) -> AsyncReader {
-        let shutdown_handle = Arc::new(AtomicBool::new(false));
-
-        let (event_tx, event_rx) = mpsc::channel();
-        let thread_shutdown = shutdown_handle.clone();
-
-        let thread = thread::spawn(move || {
-            function(&event_tx, &thread_shutdown);
-        });
-
+    pub fn new(console: Console, delimiter: Option<u8>) -> AsyncReader {
         AsyncReader {
-            event_rx,
-            shutdown: shutdown_handle,
-            thread: Some(thread),
+            console,
+            buffer: VecDeque::new(),
+            delimiter,
         }
     }
 
-    // TODO If we we keep the Drop semantics, do we really need this in the public API? It's useless as
-    //      there's no `start`, etc.
-    /// Stops the input reader.
-    ///
-    /// # Notes
-    ///
-    /// * The reading thread is cleaned up.
-    /// * You don't need to call this method, because it will be automatically called when the
-    ///   `AsyncReader` is dropped.
-    pub fn stop(&mut self) {
-        if let Some(thread) = self.thread.take() {
-            self.shutdown.store(true, Ordering::SeqCst);
-            thread.join().expect("failed to join background thread");
-        }
-    }
-}
-
-impl Drop for AsyncReader {
-    fn drop(&mut self) {
-        self.stop();
-    }
+    pub fn stop(&mut self) {}
 }
 
 impl Iterator for AsyncReader {
@@ -332,8 +268,31 @@ impl Iterator for AsyncReader {
     /// `None` doesn't mean that the iteration is finished. See the
     /// [`AsyncReader`](struct.AsyncReader.html) documentation for more information.
     fn next(&mut self) -> Option<Self::Item> {
-        let mut iterator = self.event_rx.try_iter();
-        iterator.next()
+        loop {
+            if self.buffer.is_empty() {
+                let (_, events) = read_input_events(&self.console).expect("read failed");
+
+                if events.is_empty() {
+                    return None;
+                }
+
+                self.buffer.extend(events);
+            }
+
+            if let Some(delimiter) = self.delimiter {
+                while let Some(e) = self.buffer.pop_front() {
+                    if let InputEvent::Keyboard(KeyEvent::Char(key)) = e {
+                        if (key as u8) == delimiter {
+                            return Some(e);
+                        }
+                    }
+                }
+
+                continue;
+            }
+
+            return self.buffer.pop_front();
+        }
     }
 }
 
@@ -361,9 +320,7 @@ fn read_single_event() -> Result<Option<InputEvent>> {
 }
 
 /// partially inspired by: https://github.com/retep998/wio-rs/blob/master/src/console.rs#L130
-fn read_input_events() -> Result<(u32, Vec<InputEvent>)> {
-    let console = Console::from(Handle::current_in_handle()?);
-
+fn read_input_events(console: &Console) -> Result<(u32, Vec<InputEvent>)> {
     let result = console.read_console_input()?;
 
     let mut input_events = Vec::with_capacity(result.0 as usize);

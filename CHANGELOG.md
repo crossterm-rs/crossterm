@@ -1,3 +1,7 @@
+# Unreleased
+
+- Remove thread from AsyncReader on Windows ([PR #309](https://github.com/crossterm-rs/crossterm/pull/309))
+
 # Version 0.13.2
 
 - New `input::stop_reading_thread()` function
