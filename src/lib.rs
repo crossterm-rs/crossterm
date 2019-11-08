@@ -16,7 +16,7 @@
 //! ## Command API
 //!
 //! The command API makes the use of `crossterm` much easier and offers more control over when and how a
-//! command is executed. An command is just an action you can perform on the terminal e.g. cursor movement.
+//! command is executed. A command is just an action you can perform on the terminal e.g. cursor movement.
 //!
 //! The command API offers:
 //!
