@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.13.2"
+version = "0.13.3"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -26,7 +26,7 @@ serde = { version = "1.0.0", features = ["derive"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.8"
-crossterm_winapi = { version = "0.4.0" }
+crossterm_winapi = "0.4.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"

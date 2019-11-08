@@ -1,6 +1,7 @@
-# Unreleased
+# Version 0.13.3
 
-- Remove thread from AsyncReader on Windows ([PR #309](https://github.com/crossterm-rs/crossterm/pull/309))
+- Remove thread from AsyncReader on Windows.
+- Improve HANDLE management windows.
 
 # Version 0.13.2
 
