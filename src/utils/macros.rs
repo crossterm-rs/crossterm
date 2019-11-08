@@ -114,20 +114,10 @@ macro_rules! queue {
 
 #[test]
 fn test_queue() {
-    use std::io::{stdout, Write};
     use super::command::Output;
-    assert!(
-        queue!(
-            stdout(),
-            Output("hi"),
-        ).is_ok()
-    );
-    assert!(
-        queue!(
-            stdout(),
-            Output("hi"),
-        ).is_ok()
-    );
+    use std::io::{stdout, Write};
+    assert!(queue!(stdout(), Output("hi"),).is_ok());
+    assert!(queue!(stdout(), Output("hi")).is_ok());
 }
 
 /// Execute one or more command(s)
