@@ -10,6 +10,7 @@ use crate::{
         Result,
     },
 };
+use std::collections::VecDeque;
 
 /// Returns the cursor position (column, row).
 ///
@@ -36,17 +37,28 @@ fn read_position_raw() -> Result<(u16, u16)> {
     stdout.flush()?;
 
     loop {
+        let mut temp_buffer = VecDeque::new();
+
         match poll_internal(Some(Duration::from_millis(2000))) {
             Ok(true) => {
                 match read_internal() {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
+                        if !temp_buffer.is_empty() {
+                            for event in temp_buffer {
+                                enqueue_internal(event);
+                            }
+                        }
                         return Ok((x, y));
                     }
                     Ok(event) => {
-                        // We don't want to steal user events.
-                        enqueue_internal(event);
+                        // We can not write events directly back to the reader.
+                        // If we did we would, we would put put our self'ss into an recursive call,
+                        // by enqueueing and popping the same event again and again.
+                        // Therefore, store them into the temporary buffer,
+                        // and enqueue the events back when we read the cursor position.
+                        temp_buffer.push_back(event);
                     }
-                    _ => {}
+                    e => {}
                 };
             }
             Ok(false) => {
@@ -55,7 +67,9 @@ fn read_position_raw() -> Result<(u16, u16)> {
                     "The cursor position could not be read within a normal duration",
                 ))?;
             }
-            Err(_) => {}
+            Err(e) => {
+                println!("{:?}", e);
+            }
         }
     }
 }
