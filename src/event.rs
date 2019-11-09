@@ -1,31 +1,32 @@
 #![deny(unused_imports, unused_must_use)]
 
-//! # Input
-//! The `input` module provides the functionality to read the input events.
-//! Before we start, have a look over at the example [repository](https://github.com/crossterm-rs/examples).
+//! # Event
+//! The `event` module provides the functionality to read events.
+//! Events include: input events, signal events, and terminal events.
+//! Currently, only input events are supported however the ohter ones are upcomming.
 //!
-//! Two functions are important to read input with crossterm.
+//! There are two functions important to know when you want to read events with crossterm.
 //!
-//! These are:
-//! 1. [poll](LINK)
-//! `poll(Option<Duration>)`, tells you if there are any events to be read withing the optional duration.
-//! 2. [read](LINK)
-//! `read`, reads events and returns immediately if there are events. Otherwise, a blocking read is performed.
+//! Those are:
+//! 1. [poll(Duration)](./event/fn.poll.html)
+//! Tells you if there are any events to be read withing the given optional duration.
+//! 2. [read](./event/fn.read.html)
+//! Reads events and returns immediately if there are events. Otherwise, a blocking read is performed.
 //!
-//! These two functions can, don't have to, be used together to read events asynchronous and synchronous.
-//! The useful thing about `poll` is that it gives you control over how long you want to wait for an event while `read` blocks until an event occurs.
+//! These two functions can be used together to read events asynchronous and synchronous.
+//! The useful thing about `poll` is that it gives you complete control over how long you want to wait for an event while `read` blocks until an event occurs.
 //!
 //! Let's look at an example that shows these two functions in action.
 //!
 //! ```no_run
 //! use crossterm::event::{poll, read, Event};
+//! use std::time::Duration;
 //!
-//! fn example() -> crossterm::Result<()> {
-//!     if poll(None)? {
+//! fn try_get_event() -> crossterm::Result<()> {
+//!     if poll(Some(Duration::from_millis(500)))? {
 //!         match read()? {
 //!             Event::Key(key_event) => { println!("{:?}", key_event) }
 //!             Event::Mouse(mouse_event) => { println!("{:?}", mouse_event) }
-//!             Event::Unknown => { println!("crossterm could not recognise event") }
 //!         }
 //!     } else {
 //!         println!("timeout occurred");
@@ -35,12 +36,22 @@
 //! }
 //! ```
 //!
+//! As you can see, we poll first for input.
+//! We indicate that we want to wait a maximum of 500ms for this.
+//! If an event has occurred during this time, we will read it with `read`, and print it to the console.
+//! Otherwise we print "timeout occured".
+//!
+//! Please have a look over at the [examples directory](https://github.com/crossterm-rs/examples) for more robust examples.
+//!
 //! ## Technical Implementation
-//! UNIX systems use MIO poll to monitor event readiness.
-//! For windows we use a delayed spinning loop that checks for `GetNumberOfConsoleInputEvents`.
-//! `poll` and `read` are static functions that aquire an underlying lock to crossterms input system.
+//! Crossterm uses the poll/read meganism.
+//! On UNIX we can use [MIO](https://docs.rs/mio/) to poll for event readiness.
+//! However, for windows we use a delayed spinning loop that checks for `GetNumberOfConsoleInputEvents` and tells based on that if an event is ready to be read.
+//! In the future we are probably going to improve this by using `Semaphore Objects`.
+//!
+//! `poll` and `read` are static functions that both aquire an underlying lock to crossterms input system.
 //! You mustn't call `poll` from two threads because this can cause a deadlock.
-//! However, `poll` and read can be called separately without influencing each other.
+//! However, `poll` and `read` can be called independently without influencing each other.
 
 use std::{sync::RwLock, time::Duration};
 
@@ -74,15 +85,15 @@ lazy_static! {
 /// Polls during an given duration for ready events.
 ///
 /// This function takes in an optional duration.
-/// * `None`: will block indefinitely until an event is read.
-/// * `Some(duration)`: will block for the given duration.
+/// * `None`: blocks indefinitely until an event is able to be read.
+/// * `Some(duration)`: blocks for the given duration.
 ///
-/// The following value can be returned:
-/// * `Ok(true)`: in case an event is ready.
-/// * `Ok(false)`: in case the given duration is elapsed.
-/// * `Err(err)`: in case of an error.
+/// The following value is returned returned when:
+/// * `Ok(true)`: an event is ready.
+/// * `Ok(false)`: the given duration is elapsed.
+/// * `Err(err)`: there is an error.
 ///
-/// An ready event can be read with [read](LINK)
+/// Read an ready event with [read](fn.read.html)
 /// ```no_run
 /// use std::time::Duration;
 /// use crossterm::{Result, event::poll};
@@ -105,7 +116,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// Reads a single event.
 ///
 /// This function will block until an event is received.
-/// Use [poll](LINK) to check for ready events.
+/// Use [poll](fn.poll.html) to check for ready events.
 ///
 /// ```no_run
 /// use crossterm::{Result, event::{read, poll, Event}};
@@ -153,8 +164,9 @@ pub(crate) fn enqueue_internal(event: InternalEvent) {
     reader.enqueue(event)
 }
 
-/// A command that enables mouse mode
+/// A command that enables mouse event capturing.
 ///
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
 pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
@@ -170,11 +182,9 @@ impl Command for EnableMouseCapture {
     }
 }
 
-/// A command that disables mouse event monitoring.
+/// A command that disables mouse event capturing.
 ///
-/// Mouse events will be produced by the
-/// [`AsyncReader`](struct.AsyncReader.html)/[`SyncReader`](struct.SyncReader.html).
-///
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
 pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
@@ -198,8 +208,6 @@ pub enum Event {
     Key(KeyEvent),
     /// A mouse event.
     Mouse(MouseEvent),
-    /// An unknown event.
-    Unknown,
 }
 
 /// Represents a mouse event.
@@ -212,8 +220,6 @@ pub enum MouseEvent {
     Release(u16, u16),
     /// Mouse moved with a pressed left button to the new location (column, row).
     Hold(u16, u16),
-    /// An unknown mouse event.
-    Unknown,
 }
 
 /// Represents a mouse button/wheel.

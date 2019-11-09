@@ -6,7 +6,7 @@
     - Rename `crossterm::input` to `crossterm::event`
     - Rename `input` feature flag to `event`
     - Remove `Event::CursorPosition(x,y)`
-    - Remove `Event::UnSupported`
+    - Remove `Event::UnSupported` and `Event::Unknown` and `MouseEvent::Unknown`
     - Remove `AsyncReader`, `SyncReader`
     - Remove `TerminalInput`
     - Introduce `poll` and `read` as new API.

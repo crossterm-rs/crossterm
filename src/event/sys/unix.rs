@@ -7,6 +7,7 @@ use libc::c_int;
 
 use crate::{
     event::{Event, KeyEvent, MouseButton, MouseEvent},
+    utils::sys::unix::wrap_with_result,
     ErrorKind, Result,
 };
 
@@ -35,7 +36,7 @@ impl FileDesc {
     /// Reads a single byte from the file descriptor.
     pub fn read_byte(&self) -> Result<u8> {
         let mut buf: [u8; 1] = [0];
-        crate::utils::sys::unix::wrap_with_result(unsafe {
+        wrap_with_result(unsafe {
             libc::read(self.fd, buf.as_mut_ptr() as *mut libc::c_void, 1) as c_int
         })?;
 
@@ -49,7 +50,6 @@ impl FileDesc {
 }
 
 impl Drop for FileDesc {
-    // libstd::sys::unix::fd.rs
     fn drop(&mut self) {
         if self.close_on_drop {
             // Note that errors are ignored when closing a file descriptor. The

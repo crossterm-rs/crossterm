@@ -20,14 +20,12 @@ impl WinApiEventSource {
 impl EventSource for WinApiEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let mut timeout = PollTimeout::new(timeout);
+        let console = Console::from(Handle::current_in_handle()?);
 
         loop {
-            let number_of_events =
-                Console::from(Handle::current_in_handle()?).number_of_console_input_events()?;
+            let number_of_events = console.number_of_console_input_events()?;
 
             if number_of_events != 0 {
-                let console = Console::from(Handle::current_in_handle()?);
-
                 let input = console.read_single_input_event()?;
 
                 let event = match input.event_type {

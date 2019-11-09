@@ -98,10 +98,10 @@ impl EventPoll for EventReader {
             return Ok(true);
         }
 
-        let mut timer = PollTimeout::new(timeout);
+        let mut timeout = PollTimeout::new(timeout);
 
         loop {
-            if poll_internal(timer.leftover())? {
+            if poll_internal(timeout.leftover())? {
                 match read_internal() {
                     Ok(InternalEvent::Event(ev)) => {
                         self.events.push_back(ev);
@@ -109,7 +109,7 @@ impl EventPoll for EventReader {
                     }
                     #[cfg(unix)]
                     Ok(event) => {
-                        // write internal event back, we don't need it. But user might.
+                        // enqueue the `InternalEvent` back into it's original buffer, we don't want to steel it from the user.
                         super::enqueue_internal(event);
                     }
                     _ => {}
@@ -118,7 +118,7 @@ impl EventPoll for EventReader {
                 return Ok(false);
             }
 
-            if timer.elapsed() {
+            if timeout.elapsed() {
                 return Ok(false);
             }
         }
