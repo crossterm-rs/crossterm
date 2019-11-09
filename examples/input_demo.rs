@@ -5,8 +5,7 @@ use crossterm::{
     execute,
     screen::RawScreen,
 };
-use std::io::Write;
-use std::time::Duration;
+use std::{io::Write, time::Duration};
 
 fn main() {
     execute!(std::io::stdout(), EnableMouseCapture);

@@ -327,8 +327,9 @@ mod tests {
     use crate::event::read::InternalEventReader;
 
     use super::{
-        poll, poll_internal, read, read_internal, source::fake::FakeEventSource,
-        source::EventSource, Event, InternalEvent, KeyEvent,
+        poll, poll_internal, read, read_internal,
+        source::{fake::FakeEventSource, EventSource},
+        Event, InternalEvent, KeyEvent,
     };
 
     #[test]
