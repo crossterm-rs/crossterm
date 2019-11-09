@@ -18,7 +18,7 @@ pub(crate) struct InternalEventReader {
 impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
-        let event_source = WinApiEventSource::new();
+        let event_source = WinApiEventSource::default();
         #[cfg(unix)]
         let event_source =
             TtyInternalEventSource::new().expect("Failed to setup the default event reader.");
