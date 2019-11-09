@@ -33,7 +33,7 @@ impl Default for InternalEventReader {
 impl InternalEventReader {
     /// Constructs a new `InternalEventReader`.
     #[cfg(test)]
-    pub(crate) fn new(source: Box<dyn EventSource>) -> InternalEventReader {
+    pub(crate) fn new(source: Box<dyn EventSource>) -> Self {
         InternalEventReader {
             event_source: source,
             events: VecDeque::new(),
@@ -109,7 +109,7 @@ impl EventPoll for EventReader {
                     }
                     #[cfg(unix)]
                     Ok(event) => {
-                        // enqueue the `InternalEvent` back into it's original buffer, we don't want to steel it from the user.
+                        // enqueue the `InternalEvent` back into it's original buffer, we don't want to steal it from the user.
                         super::enqueue_internal(event);
                     }
                     _ => {}

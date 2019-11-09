@@ -11,8 +11,8 @@ use super::super::{
 
 pub(crate) struct WinApiEventSource;
 
-impl WinApiEventSource {
-    pub fn new() -> WinApiEventSource {
+impl Default for WinApiEventSource {
+    fn default() -> Self {
         WinApiEventSource
     }
 }

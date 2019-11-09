@@ -15,7 +15,7 @@ pub(crate) struct FakeEventSource {
 
 impl FakeEventSource {
     /// Constructs a new `FakeEventSource` with the given `Receiver`, use the sender to trigger the event reader..
-    pub(crate) fn new(input_receiver: Receiver<InternalEvent>) -> FakeEventSource {
+    pub(crate) fn new(input_receiver: Receiver<InternalEvent>) -> Self {
         FakeEventSource {
             input_receiver: Mutex::new(input_receiver),
         }

@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     io::{self, Error, ErrorKind, Write},
     time::Duration,
 };
@@ -10,7 +11,6 @@ use crate::{
         Result,
     },
 };
-use std::collections::VecDeque;
 
 /// Returns the cursor position (column, row).
 ///
@@ -44,7 +44,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                 match read_internal() {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
                         if !temp_buffer.is_empty() {
-                            for event in temp_buffer {
+                            while let Some(event) = temp_buffer.pop_front() {
                                 enqueue_internal(event);
                             }
                         }
@@ -52,7 +52,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                     }
                     Ok(event) => {
                         // We can not write events directly back to the reader.
-                        // If we did we would, we would put put our self'ss into an recursive call,
+                        // If we did we would, we would put put our self's into an recursive call,
                         // by enqueueing and popping the same event again and again.
                         // Therefore, store them into the temporary buffer,
                         // and enqueue the events back when we read the cursor position.
