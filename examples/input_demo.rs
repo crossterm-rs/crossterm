@@ -1,19 +1,17 @@
 #![allow(dead_code)]
 
-use std::time::Duration;
-use std::io::Write;
 use crossterm::{
-    event::{poll, read, Event, KeyEvent, EnableMouseCapture},
-    screen::RawScreen,
+    event::{poll, read, EnableMouseCapture, Event, KeyEvent},
     execute,
+    screen::RawScreen,
 };
+use std::io::Write;
+use std::time::Duration;
 
 fn main() {
     execute!(std::io::stdout(), EnableMouseCapture);
     let _r = RawScreen::into_raw_mode().unwrap();
-    sync_read2();\
-
-
+    read_async_1();
 }
 
 fn sync_read1() {
