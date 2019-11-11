@@ -18,7 +18,7 @@ fn main() {
     let poll = Poll::new().unwrap();
 
     // Start listening for incoming connections
-    poll.register(&signals, TOKEN, Ready::readable(), PollOpt::level())
+    poll.register(&signals, TOKEN, Ready::readable(), PollOpt::edge())
         .unwrap();
 
     loop {
@@ -29,8 +29,6 @@ fn main() {
 /// Having this as an function is done to simulate the way we read the other events.
 fn read_signal(poll: &Poll, events: &mut Events) {
     poll.poll(events, None).unwrap();
-
-    println!("events: length {:?}", events.len());
 
     for event in events.iter() {
         match event.token() {
@@ -44,6 +42,4 @@ fn read_signal(poll: &Poll, events: &mut Events) {
             _ => unreachable!(),
         }
     }
-
-    thread::sleep(Duration::from_millis(30));
 }
