@@ -64,6 +64,7 @@ use poll::EventPoll;
 use crate::{Command, Result};
 
 mod ansi;
+pub(crate) mod mask;
 mod poll;
 mod read;
 mod source;
@@ -136,7 +137,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// ```
 pub fn read() -> Result<Event> {
     let mut reader = EVENT_READER.write().unwrap_or_else(|e| e.into_inner());
-    reader.read()
+    reader.read(mask::EventOnlyMask)
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
@@ -148,11 +149,11 @@ pub(crate) fn poll_internal(timeout: Option<Duration>) -> Result<bool> {
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal() -> Result<InternalEvent> {
+pub(crate) fn read_internal(mask: impl mask::EventMask) -> Result<InternalEvent> {
     let mut reader = INTERNAL_EVENT_READER
         .write()
         .unwrap_or_else(|e| e.into_inner());
-    reader.read()
+    reader.read(mask)
 }
 
 /// Enqueues an `InternalEvent` into the internal event reader.

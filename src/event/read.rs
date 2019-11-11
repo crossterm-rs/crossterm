@@ -8,6 +8,7 @@ use super::{
     poll::EventPoll, poll_internal, read_internal, source::EventSource, timeout::PollTimeout,
     Event, InternalEvent, Result,
 };
+use crate::event::mask::{EventMask, EventOnlyMask};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -66,10 +67,14 @@ impl EventPoll for InternalEventReader {
         }
     }
 
-    fn read(&mut self) -> Result<Self::Output> {
+    fn read(&mut self, mask: impl EventMask) -> Result<Self::Output> {
         loop {
             if let Some(event) = self.events.pop_front() {
-                return Ok(event);
+                if mask.filter(&event) {
+                    return Ok(event);
+                } else {
+                    self.events.push_front(event);
+                }
             }
 
             let _ = self.poll(None)?;
@@ -102,15 +107,10 @@ impl EventPoll for EventReader {
 
         loop {
             if poll_internal(timeout.leftover())? {
-                match read_internal() {
+                match read_internal(EventOnlyMask) {
                     Ok(InternalEvent::Event(ev)) => {
                         self.events.push_back(ev);
                         return Ok(true);
-                    }
-                    #[cfg(unix)]
-                    Ok(event) => {
-                        // Enqueue the `InternalEvent` back into it's original buffer, we don't want to steal it from the user.
-                        super::enqueue_internal(event);
                     }
                     _ => {}
                 }
@@ -124,7 +124,7 @@ impl EventPoll for EventReader {
         }
     }
 
-    fn read(&mut self) -> Result<Self::Output> {
+    fn read(&mut self, _: impl EventMask) -> Result<Self::Output> {
         loop {
             if let Some(event) = self.events.pop_front() {
                 return Ok(event);

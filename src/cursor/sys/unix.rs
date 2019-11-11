@@ -6,6 +6,7 @@ use std::{
 
 use crate::{
     event::{enqueue_internal, poll_internal, read_internal, InternalEvent},
+    mask::CursorEventMask,
     utils::{
         sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
         Result,
@@ -41,7 +42,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
 
         match poll_internal(Some(Duration::from_millis(2000))) {
             Ok(true) => {
-                match read_internal() {
+                match read_internal(CursorEventMask) {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
                         if !temp_buffer.is_empty() {
                             while let Some(event) = temp_buffer.pop_front() {

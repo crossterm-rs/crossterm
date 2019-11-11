@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use super::mask::EventMask;
 use crate::Result;
 
 /// An interface for polling event readiness and reading events.
@@ -8,5 +9,5 @@ pub(crate) trait EventPoll {
 
     fn poll(&mut self, timeout: Option<Duration>) -> Result<bool>;
 
-    fn read(&mut self) -> Result<Self::Output>;
+    fn read(&mut self, mask: impl EventMask) -> Result<Self::Output>;
 }
