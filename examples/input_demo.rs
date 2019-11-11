@@ -2,11 +2,10 @@
 
 use crossterm::cursor::position;
 use crossterm::{
-    event::{poll, read, EnableMouseCapture, Event, KeyEvent},
-    execute,
+    event::{poll, read, Event, KeyEvent},
     screen::RawScreen,
 };
-use std::{io::Write, time::Duration};
+use std::time::Duration;
 
 fn main() {
     let _r = RawScreen::into_raw_mode().unwrap();
@@ -75,7 +74,7 @@ fn handle_event(event: &Event) -> bool {
         &Event::Key(KeyEvent::Char('c')) => {
             println!("{:?}\r", position());
         }
-        e => println!("{:?}\r", event),
+        e => println!("{:?}\r", e),
     }
 
     *event == Event::Key(KeyEvent::Esc)

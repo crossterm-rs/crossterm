@@ -156,15 +156,6 @@ pub(crate) fn read_internal(mask: impl mask::EventMask) -> Result<InternalEvent>
     reader.read(mask)
 }
 
-/// Enqueues an `InternalEvent` into the internal event reader.
-#[cfg(unix)]
-pub(crate) fn enqueue_internal(event: InternalEvent) {
-    let mut reader = INTERNAL_EVENT_READER
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
-    reader.enqueue(event)
-}
-
 /// A command that enables mouse event capturing.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).

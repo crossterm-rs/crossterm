@@ -40,12 +40,6 @@ impl InternalEventReader {
             events: VecDeque::new(),
         }
     }
-
-    /// Enqueues the given `InternalEvent` onto the internal input buffer.
-    #[cfg(unix)]
-    pub(crate) fn enqueue(&mut self, event: InternalEvent) {
-        self.events.push_back(event);
-    }
 }
 
 impl EventPoll for InternalEventReader {
@@ -68,12 +62,27 @@ impl EventPoll for InternalEventReader {
     }
 
     fn read(&mut self, mask: impl EventMask) -> Result<Self::Output> {
+        let mut unsatisfied_events = VecDeque::new();
+
         loop {
             if let Some(event) = self.events.pop_front() {
                 if mask.filter(&event) {
+                    if !unsatisfied_events.is_empty() {
+                        while let Some(event) = unsatisfied_events.pop_front() {
+                            self.events.push_back(event);
+                        }
+                    }
+
                     return Ok(event);
                 } else {
-                    self.events.push_front(event);
+                    // We can not directly write events back to `self.events`.
+                    // If we did, we would put our self's into an endless loop
+                    // that would enqueue -> dequeue -> enqueue etc.
+                    // This happens because `poll` in this function will always return true if there are events in it's.
+                    // And because we just put the non-fulfilling event there this is going to be the case.
+                    // Instead we can store them into the temporary buffer,
+                    // and then when the filter is fulfilled write all events back in order.
+                    unsatisfied_events.push_back(event);
                 }
             }
 

@@ -1,11 +1,10 @@
 use std::{
-    collections::VecDeque,
     io::{self, Error, ErrorKind, Write},
     time::Duration,
 };
 
 use crate::{
-    event::{enqueue_internal, poll_internal, read_internal, InternalEvent, mask::CursorEventMask},
+    event::{mask::CursorEventMask, poll_internal, read_internal, InternalEvent},
     utils::{
         sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
         Result,
@@ -37,28 +36,13 @@ fn read_position_raw() -> Result<(u16, u16)> {
     stdout.flush()?;
 
     loop {
-        let mut temp_buffer = VecDeque::new();
-
         match poll_internal(Some(Duration::from_millis(2000))) {
             Ok(true) => {
                 match read_internal(CursorEventMask) {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
-                        if !temp_buffer.is_empty() {
-                            while let Some(event) = temp_buffer.pop_front() {
-                                enqueue_internal(event);
-                            }
-                        }
                         return Ok((x, y));
                     }
-                    Ok(event) => {
-                        // We can not write events directly back to the reader.
-                        // If we did we would, we would put put our self's into an recursive call,
-                        // by enqueueing and popping the same event again and again.
-                        // Therefore, store them into the temporary buffer,
-                        // and enqueue the events back when we read the cursor position.
-                        temp_buffer.push_back(event);
-                    }
-                    Err(_) => {}
+                    _ => { /* un-reachable */ }
                 };
             }
             Ok(false) => {
