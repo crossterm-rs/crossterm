@@ -1,7 +1,8 @@
 use std::time::Duration;
 
-use super::filter::Filter;
 use crate::Result;
+
+use super::filter::Filter;
 
 /// An interface for polling event readiness and reading events.
 pub(crate) trait EventPoll {

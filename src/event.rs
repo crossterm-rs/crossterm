@@ -322,6 +322,7 @@ mod tests {
         time::Duration,
     };
 
+    use crate::event::filter::{CursorPositionFilter, Filter, InternalEventFilter};
     use crate::event::read::InternalEventReader;
 
     use super::{
@@ -329,7 +330,6 @@ mod tests {
         source::{fake::FakeEventSource, EventSource},
         Event, InternalEvent, KeyEvent,
     };
-    use crate::event::filter::{CursorPositionFilter, Filter, InternalEventFilter};
 
     #[test]
     fn test_internal_poll_with_timeout_should_return() {

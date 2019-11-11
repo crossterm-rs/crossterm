@@ -1,5 +1,7 @@
 use std::{collections::vec_deque::VecDeque, time::Duration};
 
+use crate::event::filter::{EventFilter, Filter};
+
 #[cfg(unix)]
 use super::source::tty::TtyInternalEventSource;
 #[cfg(windows)]
@@ -8,7 +10,6 @@ use super::{
     poll::EventPoll, poll_internal, read_internal, source::EventSource, timeout::PollTimeout,
     Event, InternalEvent, Result,
 };
-use crate::event::filter::{EventFilter, Filter};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
