@@ -322,7 +322,7 @@ mod tests {
         time::Duration,
     };
 
-    use crate::event::filter::{CursorPositionFilter, Filter, InternalEventFilter};
+    use crate::event::filter::{Filter, InternalEventFilter};
     use crate::event::read::InternalEventReader;
 
     use super::{
