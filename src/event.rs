@@ -329,10 +329,15 @@ mod tests {
         source::{fake::FakeEventSource, EventSource},
         Event, InternalEvent, KeyEvent,
     };
+    use crate::event::filter::{CursorPositionFilter, Filter, InternalEventFilter};
 
     #[test]
     fn test_internal_poll_with_timeout_should_return() {
-        let poll = internal_event_polling_thread(Some(Duration::from_millis(200)), true);
+        let poll = internal_event_polling_thread(
+            Some(Duration::from_millis(200)),
+            true,
+            InternalEventFilter,
+        );
 
         sleep_thread_millis(100);
 
@@ -346,7 +351,11 @@ mod tests {
 
     #[test]
     fn test_internal_poll_with_timeout_should_not_return() {
-        let poll = internal_event_polling_thread(Some(Duration::from_millis(100)), true);
+        let poll = internal_event_polling_thread(
+            Some(Duration::from_millis(100)),
+            true,
+            InternalEventFilter,
+        );
 
         sleep_thread_millis(200);
 
@@ -359,7 +368,7 @@ mod tests {
     #[test]
     fn test_internal_poll_without_timeout_should_return() {
         // spin up a thread waiting 2 seconds for input.
-        let poll = internal_event_polling_thread(None, true);
+        let poll = internal_event_polling_thread(None, true, InternalEventFilter);
 
         poll.event_sender.send(test_internal_key()).unwrap();
 
@@ -429,7 +438,11 @@ mod tests {
         assert_eq!(read, None);
 
         // then try to read with `InternalEventReader`, the cursor position event should still be in cache.
-        let internal_poll = internal_event_polling_thread(Some(Duration::from_millis(100)), false);
+        let internal_poll = internal_event_polling_thread(
+            Some(Duration::from_millis(100)),
+            false,
+            InternalEventFilter,
+        );
 
         let (poll_result, read) = internal_poll.handle.join().unwrap();
 
@@ -441,6 +454,7 @@ mod tests {
     fn internal_event_polling_thread(
         timeout: Option<Duration>,
         set_fake_source: bool,
+        filter: impl Filter,
     ) -> PollThreadHandleStub<InternalEvent> {
         let (event_sender, event_receiver) = channel();
 
@@ -452,7 +466,7 @@ mod tests {
             let poll_result = poll_internal(timeout).unwrap();
 
             let read = if poll_result {
-                Some(read_internal().unwrap())
+                Some(read_internal(filter).unwrap())
             } else {
                 None
             };
