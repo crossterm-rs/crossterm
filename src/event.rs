@@ -200,6 +200,8 @@ pub enum Event {
     Key(KeyEvent),
     /// A mouse event.
     Mouse(MouseEvent),
+    /// An resize event with new dimensions after resize (columns, rows).
+    Resize(u16, u16),
 }
 
 /// Represents a mouse event.

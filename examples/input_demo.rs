@@ -13,6 +13,7 @@ use std::time::Duration;
 /// Sync main
 fn main() {
     let _r = RawScreen::into_raw_mode().unwrap();
+    read_sync(ReadMode::ReadWithoutTimeout)
 }
 
 /// Async main
