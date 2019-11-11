@@ -53,7 +53,7 @@ impl TtyInternalEventSource {
             poll,
             tty_fd: input_fd,
             events: Events::with_capacity(2),
-            signals,
+            _signals: signals,
         }
     }
 }
@@ -63,7 +63,7 @@ impl EventSource for TtyInternalEventSource {
         let mut timeout = PollTimeout::new(timeout);
 
         loop {
-            let mut event_count = self.poll.poll(&mut self.events, timeout.leftover())?;
+            let event_count = self.poll.poll(&mut self.events, timeout.leftover())?;
 
             match event_count {
                 event_count if event_count > 0 => {
