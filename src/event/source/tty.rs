@@ -21,7 +21,7 @@ pub(crate) struct TtyInternalEventSource {
     poll: Poll,
     tty_fd: FileDesc,
     events: Events,
-    signals: Signals,
+    _signals: Signals,
 }
 
 impl TtyInternalEventSource {
@@ -40,10 +40,11 @@ impl TtyInternalEventSource {
 
         let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
 
+        // Register tty reader
         poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())
             .unwrap();
 
-        // Start listening for incoming connections
+        // Register signals
         poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())
             .unwrap();
 

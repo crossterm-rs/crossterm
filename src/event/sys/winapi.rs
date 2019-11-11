@@ -2,7 +2,9 @@
 
 use std::sync::Mutex;
 
-use crossterm_winapi::{ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent};
+use crossterm_winapi::{
+    ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
+};
 use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
@@ -17,7 +19,7 @@ use winapi::um::{
 use lazy_static::lazy_static;
 
 use crate::{
-    event::{self, Event, KeyEvent, MouseButton},
+    event::{Event, KeyEvent, MouseButton},
     Result,
 };
 
@@ -60,7 +62,7 @@ pub(crate) fn disable_mouse_capture() -> Result<()> {
 }
 
 pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
-    if let Some(event) = parse_mouse_event_record(&mouse_event) {
+    if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event) {
         return Ok(Some(Event::Mouse(event)));
     }
     Ok(None)
@@ -198,45 +200,48 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     }
 }
 
-fn parse_mouse_event_record(event: &MouseEvent) -> Option<event::MouseEvent> {
+// The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.
+// This means that when the mouse cursor is at the top left it will be x: 0, y: 2295 (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0 to the window.
+pub fn parse_relative_y(y: i16) -> Result<i16> {
+    let window_size = ScreenBuffer::current()?.info()?.terminal_window();
+    Ok(y - window_size.top)
+}
+
+fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
     // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
     // mouse button is held down (ie. mouse drag)
+    let xpos = event.mouse_position.x as u16;
+    let ypos = parse_relative_y(event.mouse_position.y)? as u16;
 
-    // Windows returns (0, 0) for upper/left
-    let xpos = event.mouse_position.x;
-    let ypos = event.mouse_position.y;
-
-    // TODO (@imdaveho): check if linux only provides coords for visible terminal window vs the total buffer
-
-    match event.event_flags {
+    Ok(match event.event_flags {
         EventFlags::PressOrRelease => {
             // Single click
             match event.button_state {
-                ButtonState::Release => Some(event::MouseEvent::Release(xpos as u16, ypos as u16)),
+                ButtonState::Release => Some(crate::event::MouseEvent::Release(xpos, ypos)),
                 ButtonState::FromLeft1stButtonPressed => {
                     // left click
-                    Some(event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Press(
                         MouseButton::Left,
-                        xpos as u16,
-                        ypos as u16,
+                        xpos,
+                        ypos,
                     ))
                 }
                 ButtonState::RightmostButtonPressed => {
                     // right click
-                    Some(event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Press(
                         MouseButton::Right,
-                        xpos as u16,
-                        ypos as u16,
+                        xpos,
+                        ypos,
                     ))
                 }
                 ButtonState::FromLeft2ndButtonPressed => {
                     // middle click
-                    Some(event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Press(
                         MouseButton::Middle,
-                        xpos as u16,
-                        ypos as u16,
+                        xpos,
+                        ypos,
                     ))
                 }
                 _ => None,
@@ -246,7 +251,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<event::MouseEvent> {
             // Click + Move
             // NOTE (@imdaveho) only register when mouse is not released
             if event.button_state != ButtonState::Release {
-                Some(event::MouseEvent::Hold(xpos as u16, ypos as u16))
+                Some(crate::event::MouseEvent::Hold(xpos, ypos))
             } else {
                 None
             }
@@ -256,21 +261,21 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Option<event::MouseEvent> {
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
             if event.button_state != ButtonState::Negative {
-                Some(event::MouseEvent::Press(
+                Some(crate::event::MouseEvent::Press(
                     MouseButton::WheelUp,
-                    xpos as u16,
-                    ypos as u16,
+                    xpos,
+                    ypos,
                 ))
             } else {
-                Some(event::MouseEvent::Press(
+                Some(crate::event::MouseEvent::Press(
                     MouseButton::WheelDown,
-                    xpos as u16,
-                    ypos as u16,
+                    xpos,
+                    ypos,
                 ))
             }
         }
         EventFlags::DoubleClick => None, // NOTE (@imdaveho): double click not supported by unix terminals
         EventFlags::MouseHwheeled => None, // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
                                            // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
-    }
+    })
 }

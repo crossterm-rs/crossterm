@@ -18,7 +18,7 @@ cursor = ["lazy_static", "event", "winapi/wincon", "winapi/winnt", "winapi/minwi
 style = ["lazy_static", "winapi/wincon"]
 terminal = ["cursor"]
 screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
-event = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser"]
+event = ["mio", "lazy_static", "screen", "winapi/winnt", "winapi/winuser", "winapi/wincon"]
 
 [dependencies]
 lazy_static = { version = "1.4", optional = true }

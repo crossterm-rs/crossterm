@@ -1,26 +1,21 @@
 use std::{thread, time::Duration};
 
-use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent, Size, ConsoleMode};
-use winapi::wincon::ENABLE_MOUSE_INPUT;
+use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
 
 use super::super::{
     source::EventSource,
+    sys::winapi::enable_mouse_capture,
     sys::winapi::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,
-    InternalEvent, Result, Event
+    InternalEvent, Result,
 };
+use crate::event::Event;
 
 pub(crate) struct WinApiEventSource;
 
 impl WinApiEventSource {
     pub(crate) fn new() -> Result<Self> {
-        let console_mode = ConsoleMode::from(Handle::input_handle()?);
-
-        let dw_mode = console_mode.mode()?;
-
-        let new_mode = dw_mode & ENABLE_MOUSE_INPUT;
-
-        console_mode.set_mode(new_mode);
+        enable_mouse_capture()?;
 
         Ok(WinApiEventSource)
     }
@@ -45,11 +40,10 @@ impl EventSource for WinApiEventSource {
                         handle_mouse_event(unsafe { MouseEvent::from(*input.event.MouseEvent()) })?
                     }
                     InputEventType::WindowBufferSizeEvent => {
-                        let size = Size::from(*input.event.WindowBufferSizeEvent());
-                        Some(Event::Resize(size.width, size.height))
+                        let new_size = crate::terminal::size()?;
+                        Some(Event::Resize(new_size.0, new_size.1))
                     }
-                    InputEventType::FocusEvent
-                    | InputEventType::MenuEvent => None,
+                    InputEventType::FocusEvent | InputEventType::MenuEvent => None,
                 };
 
                 if let Some(event) = event {
