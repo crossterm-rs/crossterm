@@ -5,11 +5,31 @@ use crossterm::{
     event::{poll, read, Event, KeyEvent},
     screen::RawScreen,
 };
+use futures::{Stream, StreamExt};
+use std::pin::Pin;
+use std::task::{Context, Poll};
 use std::time::Duration;
 
-fn main() {
+/// Sync main
+//fn main() {
+//    let _r = RawScreen::into_raw_mode().unwrap();
+//    read_sync(ReadMode::ReadWithTimeout);
+//}
+
+/// Async main
+#[tokio::main]
+async fn main() {
     let _r = RawScreen::into_raw_mode().unwrap();
-    read_sync(ReadMode::ReadWithTimeout);
+
+    let mut stream = EventStream;
+
+    while let Some(event) = stream.next().await {
+        if let Ok(Event::Key(KeyEvent::Esc)) = event {
+            break;
+        }
+
+        println!("event: {:?}", event);
+    }
 }
 
 // Demonstrates different ways to use the event read api.
@@ -78,4 +98,19 @@ fn handle_event(event: &Event) -> bool {
     }
 
     *event == Event::Key(KeyEvent::Esc)
+}
+
+struct EventStream;
+
+impl Stream for EventStream {
+    type Item = crossterm::Result<Event>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+        if poll(Some(Duration::from_millis(50))).unwrap() {
+            Poll::Ready(Some(read()))
+        } else {
+            cx.waker().wake_by_ref();
+            Poll::Pending
+        }
+    }
 }

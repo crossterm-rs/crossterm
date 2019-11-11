@@ -35,3 +35,7 @@ mio = { version = "0.6.19", optional = true }
 [lib]
 name = "crossterm"
 path = "src/lib.rs"
+
+[dev-dependencies]
+tokio = "0.2.0-alpha.6"
+futures = "0.3.1"
