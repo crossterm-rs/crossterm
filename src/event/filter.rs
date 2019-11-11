@@ -1,14 +1,16 @@
 use crate::event::InternalEvent;
 
-pub(crate) trait EventMask {
+/// Interface for filtering an `InternalEvent`.
+pub(crate) trait Filter {
+    /// Returns whether the given event fulfills the filter.
     fn filter(&self, event: &InternalEvent) -> bool;
 }
 
 #[cfg(unix)]
-pub(crate) struct CursorEventMask;
+pub(crate) struct CursorPositionFilter;
 
 #[cfg(unix)]
-impl EventMask for CursorEventMask {
+impl Filter for CursorPositionFilter {
     fn filter(&self, event: &InternalEvent) -> bool {
         if let &InternalEvent::CursorPosition(_, _) = event {
             return true;
@@ -18,9 +20,9 @@ impl EventMask for CursorEventMask {
     }
 }
 
-pub(crate) struct EventOnlyMask;
+pub(crate) struct EventFilter;
 
-impl EventMask for EventOnlyMask {
+impl Filter for EventFilter {
     fn filter(&self, event: &InternalEvent) -> bool {
         match event {
             &InternalEvent::Event(_) => true,
@@ -30,9 +32,9 @@ impl EventMask for EventOnlyMask {
     }
 }
 
-pub(crate) struct InternalEventMask;
+pub(crate) struct InternalEventFilter;
 
-impl EventMask for InternalEventMask {
+impl Filter for InternalEventFilter {
     fn filter(&self, _: &InternalEvent) -> bool {
         return true;
     }

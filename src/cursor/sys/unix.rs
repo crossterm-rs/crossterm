@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    event::{mask::CursorEventMask, poll_internal, read_internal, InternalEvent},
+    event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
     utils::{
         sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
         Result,
@@ -38,11 +38,11 @@ fn read_position_raw() -> Result<(u16, u16)> {
     loop {
         match poll_internal(Some(Duration::from_millis(2000))) {
             Ok(true) => {
-                match read_internal(CursorEventMask) {
+                match read_internal(CursorPositionFilter) {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
                         return Ok((x, y));
                     }
-                    _ => { /* un-reachable */ }
+                    _ => { /* unreachable */ }
                 };
             }
             Ok(false) => {

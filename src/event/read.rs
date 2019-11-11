@@ -8,7 +8,7 @@ use super::{
     poll::EventPoll, poll_internal, read_internal, source::EventSource, timeout::PollTimeout,
     Event, InternalEvent, Result,
 };
-use crate::event::mask::{EventMask, EventOnlyMask};
+use crate::event::filter::{EventFilter, Filter};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -61,7 +61,7 @@ impl EventPoll for InternalEventReader {
         }
     }
 
-    fn read(&mut self, mask: impl EventMask) -> Result<Self::Output> {
+    fn read(&mut self, mask: impl Filter) -> Result<Self::Output> {
         let mut unsatisfied_events = VecDeque::new();
 
         loop {
@@ -116,12 +116,12 @@ impl EventPoll for EventReader {
 
         loop {
             if poll_internal(timeout.leftover())? {
-                match read_internal(EventOnlyMask) {
+                match read_internal(EventFilter) {
                     Ok(InternalEvent::Event(ev)) => {
                         self.events.push_back(ev);
                         return Ok(true);
                     }
-                    _ => {}
+                    _ => { /* unreachable */ }
                 }
             } else {
                 return Ok(false);
@@ -133,7 +133,7 @@ impl EventPoll for EventReader {
         }
     }
 
-    fn read(&mut self, _: impl EventMask) -> Result<Self::Output> {
+    fn read(&mut self, _: impl Filter) -> Result<Self::Output> {
         loop {
             if let Some(event) = self.events.pop_front() {
                 return Ok(event);

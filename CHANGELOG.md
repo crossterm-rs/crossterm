@@ -1,11 +1,11 @@
 # Version Master
 
 - `input` module
-    - input event is called event from now on. 
-       The motivation for this is that input event is restricted input, 
-       however the events that crossterm will be able to send in the future are not only input events. 
-       Examples of non-input events are: ResizeEvent, MouseEvent, Signal Events. 
-       Therefore, event seems a better, more generalized, future proof, name.
+   Input event is called event from now on.
+   The motivation for this is that input event is restricted input,
+   however the events that crossterm will be able to send in the future are going to be more than input events.
+   Examples of non-input events are: ResizeEvent, MouseEvent, Signal Events.
+   Therefore, event seems a better, more generalized, future proof, name.
     - Rename `InputEvent` to `Event`
     - Rename `InputEvent::KeyBoard` to `Event::Key`
     - Rename `crossterm::input` to `crossterm::event`

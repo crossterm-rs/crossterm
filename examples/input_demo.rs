@@ -74,7 +74,7 @@ fn handle_event(event: &Event) -> bool {
         &Event::Key(KeyEvent::Char('c')) => {
             println!("{:?}\r", position());
         }
-        e => println!("{:?}\r", e),
+        _ => println!("{:?}\r", event),
     }
 
     *event == Event::Key(KeyEvent::Esc)
