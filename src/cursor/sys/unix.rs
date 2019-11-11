@@ -5,8 +5,7 @@ use std::{
 };
 
 use crate::{
-    event::{enqueue_internal, poll_internal, read_internal, InternalEvent},
-    mask::CursorEventMask,
+    event::{enqueue_internal, poll_internal, read_internal, InternalEvent, mask::CursorEventMask},
     utils::{
         sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
         Result,
