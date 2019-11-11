@@ -61,12 +61,12 @@ impl EventPoll for InternalEventReader {
         }
     }
 
-    fn read(&mut self, mask: impl Filter) -> Result<Self::Output> {
+    fn read(&mut self, event_filter: impl Filter) -> Result<Self::Output> {
         let mut unsatisfied_events = VecDeque::new();
 
         loop {
             if let Some(event) = self.events.pop_front() {
-                if mask.filter(&event) {
+                if event_filter.filter(&event) {
                     if !unsatisfied_events.is_empty() {
                         while let Some(event) = unsatisfied_events.pop_front() {
                             self.events.push_back(event);
