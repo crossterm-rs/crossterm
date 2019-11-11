@@ -58,7 +58,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                         // and enqueue the events back when we read the cursor position.
                         temp_buffer.push_back(event);
                     }
-                    e => {}
+                    Err(_) => {}
                 };
             }
             Ok(false) => {
@@ -67,9 +67,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                     "The cursor position could not be read within a normal duration",
                 ))?;
             }
-            Err(e) => {
-                println!("{:?}", e);
-            }
+            Err(_) => {}
         }
     }
 }

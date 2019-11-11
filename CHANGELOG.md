@@ -1,12 +1,17 @@
 # Version Master
 
 - `input` module
+    - input event is called event from now on. 
+       The motivation for this is that input event is restricted input, 
+       however the events that crossterm will be able to send in the future are not only input events. 
+       Examples of non-input events are: ResizeEvent, MouseEvent, Signal Events. 
+       Therefore, event seems a better, more generalized, future proof, name.
     - Rename `InputEvent` to `Event`
-    - Rename `Event::KeyBord` to `Event::Key`
+    - Rename `InputEvent::KeyBoard` to `Event::Key`
     - Rename `crossterm::input` to `crossterm::event`
     - Rename `input` feature flag to `event`
-    - Remove `Event::CursorPosition(x,y)`
-    - Remove `Event::UnSupported` and `Event::Unknown` and `MouseEvent::Unknown`
+    - Remove `InputEvent::CursorPosition(x,y)`
+    - Remove `InputEvent::UnSupported` and `InputEvent::Unknown` and `InputEvent::Unknown`
     - Remove `AsyncReader`, `SyncReader`
     - Remove `TerminalInput`
     - Introduce `poll` and `read` as new API.

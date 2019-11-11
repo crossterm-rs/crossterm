@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use crossterm::cursor::position;
 use crossterm::{
     event::{poll, read, EnableMouseCapture, Event, KeyEvent},
     execute,
@@ -67,7 +68,15 @@ enum ReadMode {
     ReadWithoutPoll,
 }
 
+// Prints the key event, or cursor position when c is pressed.
+// Returns true if the given key is 'Esc'.
 fn handle_event(event: &Event) -> bool {
-    println!("{:?}\r", event);
+    match event {
+        &Event::Key(KeyEvent::Char('c')) => {
+            println!("{:?}\r", position());
+        }
+        e => println!("{:?}\r", event),
+    }
+
     *event == Event::Key(KeyEvent::Esc)
 }
