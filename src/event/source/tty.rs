@@ -8,17 +8,20 @@ use super::super::{
     source::EventSource,
     sys::unix::{parse_event, tty_fd, FileDesc},
     timeout::PollTimeout,
-    InternalEvent,
+    Event, InternalEvent,
 };
+use signal_hook::iterator::Signals;
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
+const SIGNAL_TOKEN: Token = Token(1);
 
 pub(crate) struct TtyInternalEventSource {
     buffer: Vec<u8>,
     poll: Poll,
     tty_fd: FileDesc,
     events: Events,
+    signals: Signals,
 }
 
 impl TtyInternalEventSource {
@@ -27,8 +30,6 @@ impl TtyInternalEventSource {
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Self {
-        let buffer = Vec::new();
-
         // Get raw file descriptors for
         let tty_raw_fd = input_fd.raw_fd();
 
@@ -36,14 +37,22 @@ impl TtyInternalEventSource {
         let tty_ev = EventedFd(&tty_raw_fd);
 
         let poll = Poll::new().unwrap();
+
+        let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
+
         poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())
             .unwrap();
 
+        // Start listening for incoming connections
+        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())
+            .unwrap();
+
         TtyInternalEventSource {
-            buffer,
+            buffer: Vec::new(),
             poll,
             tty_fd: input_fd,
             events: Events::with_capacity(2),
+            signals,
         }
     }
 }
@@ -53,28 +62,49 @@ impl EventSource for TtyInternalEventSource {
         let mut timeout = PollTimeout::new(timeout);
 
         loop {
-            match self.poll.poll(&mut self.events, timeout.leftover())? {
+            let mut event_count = self.poll.poll(&mut self.events, timeout.leftover())?;
+
+            match event_count {
                 event_count if event_count > 0 => {
-                    self.buffer.push(self.tty_fd.read_byte()?);
+                    let events_count = self
+                        .events
+                        .iter()
+                        .map(|x| x.token())
+                        .collect::<Vec<Token>>();
 
-                    let input_available = self
-                        .poll
-                        .poll(&mut self.events, Some(Duration::from_secs(0)))
-                        .map(|x| x > 0)?;
+                    for event in events_count {
+                        match event {
+                            TTY_TOKEN => {
+                                self.buffer.push(self.tty_fd.read_byte()?);
 
-                    match parse_event(&self.buffer, input_available) {
-                        Ok(None) => {
-                            // Not enough bytes to construct an InternalEvent
+                                let input_available = self
+                                    .poll
+                                    .poll(&mut self.events, Some(Duration::from_secs(0)))
+                                    .map(|x| x > 0)?;
+
+                                match parse_event(&self.buffer, input_available) {
+                                    Ok(None) => {
+                                        // Not enough bytes to construct an InternalEvent
+                                    }
+                                    Ok(Some(ie)) => {
+                                        self.buffer.clear();
+                                        return Ok(Some(ie));
+                                    }
+                                    Err(_) => {
+                                        // Can't parse an event, clear buffer and start over
+                                        self.buffer.clear();
+                                    }
+                                };
+                            }
+                            SIGNAL_TOKEN => {
+                                let new_size = crate::terminal::size()?;
+                                return Ok(Some(InternalEvent::Event(Event::Resize(
+                                    new_size.0, new_size.1,
+                                ))));
+                            }
+                            _ => {}
                         }
-                        Ok(Some(ie)) => {
-                            self.buffer.clear();
-                            return Ok(Some(ie));
-                        }
-                        Err(_) => {
-                            // Can't parse an event, clear buffer and start over
-                            self.buffer.clear();
-                        }
-                    };
+                    }
                 }
                 _ => return Ok(None),
             };

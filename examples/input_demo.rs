@@ -11,26 +11,26 @@ use std::task::{Context, Poll};
 use std::time::Duration;
 
 /// Sync main
-//fn main() {
-//    let _r = RawScreen::into_raw_mode().unwrap();
-//    read_sync(ReadMode::ReadWithTimeout);
-//}
+fn main() {
+    let _r = RawScreen::into_raw_mode().unwrap();
+    read_sync(ReadMode::ReadWithoutTimeout)
+}
 
 /// Async main
-#[tokio::main]
-async fn main() {
-    let _r = RawScreen::into_raw_mode().unwrap();
-
-    let mut stream = EventStream;
-
-    while let Some(event) = stream.next().await {
-        if let Ok(Event::Key(KeyEvent::Esc)) = event {
-            break;
-        }
-
-        println!("event: {:?}", event);
-    }
-}
+//#[tokio::main]
+//async fn main() {
+//    let _r = RawScreen::into_raw_mode().unwrap();
+//
+//    let mut stream = EventStream;
+//
+//    while let Some(event) = stream.next().await {
+//        if let Ok(Event::Key(KeyEvent::Esc)) = event {
+//            break;
+//        }
+//
+//        println!("event: {:?}", event);
+//    }
+//}
 
 // Demonstrates different ways to use the event read api.
 fn read_sync(read_mode: ReadMode) {

@@ -31,6 +31,7 @@ crossterm_winapi = "0.4.0"
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
 mio = { version = "0.6.19", optional = true }
+signal-hook = { version = "0.1.11", features=["mio-support"]}
 
 [lib]
 name = "crossterm"
