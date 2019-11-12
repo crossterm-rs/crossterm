@@ -42,6 +42,10 @@ impl InternalEventReader {
             events: VecDeque::new(),
         }
     }
+
+    pub(crate) fn wake(&self) {
+        self.event_source.wake()
+    }
 }
 
 impl EventPoll for InternalEventReader {

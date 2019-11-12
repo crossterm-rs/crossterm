@@ -21,4 +21,7 @@ pub(crate) trait EventSource: Sync + Send {
     /// `Ok(Some(event))`: in case an event is ready.
     /// `Ok(None)`: in case an event is not ready.
     fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
+
+    /// Forces the `try_read` method to return `Ok(None)` immediately.
+    fn wake(&self);
 }

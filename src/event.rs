@@ -153,6 +153,13 @@ pub fn read() -> Result<Event> {
     reader.read(filter::EventFilter)
 }
 
+/// Wakes up the sleeping `poll` function.
+///
+/// `poll` returns immediately with `Ok(false)`.
+pub fn wake() {
+    INTERNAL_EVENT_READER.read().wake();
+}
+
 /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
 pub(crate) fn poll_internal(timeout: Option<Duration>) -> Result<bool> {
     let (mut reader, timeout) = if let Some(timeout) = timeout {

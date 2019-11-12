@@ -1,6 +1,8 @@
+use std::io;
 use std::time::Duration;
 
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
+use signal_hook::iterator::Signals;
 
 use crate::Result;
 
@@ -10,11 +12,27 @@ use super::super::{
     timeout::PollTimeout,
     Event, InternalEvent,
 };
-use signal_hook::iterator::Signals;
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
 const SIGNAL_TOKEN: Token = Token(1);
+const WAKE_TOKEN: Token = Token(3);
+
+/// Creates a new pipe and returns `(read, write)` file descriptors.
+fn pipe() -> Result<(FileDesc, FileDesc)> {
+    let (read_fd, write_fd) = unsafe {
+        let mut pipe_fds: [libc::c_int; 2] = [0; 2];
+        if libc::pipe(pipe_fds.as_mut_ptr()) == -1 {
+            return Err(io::Error::last_os_error().into());
+        }
+        (pipe_fds[0], pipe_fds[1])
+    };
+
+    let read_fd = FileDesc::new(read_fd, true);
+    let write_fd = FileDesc::new(write_fd, true);
+
+    Ok((read_fd, write_fd))
+}
 
 pub(crate) struct TtyInternalEventSource {
     buffer: Vec<u8>,
@@ -22,6 +40,8 @@ pub(crate) struct TtyInternalEventSource {
     tty_fd: FileDesc,
     events: Events,
     _signals: Signals,
+    wake_read_fd: FileDesc,
+    wake_write_fd: FileDesc,
 }
 
 impl TtyInternalEventSource {
@@ -36,6 +56,11 @@ impl TtyInternalEventSource {
         // Setup polling with raw file descriptors
         let tty_ev = EventedFd(&tty_raw_fd);
 
+        // Wake self pipe
+        let (wake_read_fd, wake_write_fd) = pipe().expect("Unable to create self pipe");
+        let wake_read_raw_fd = wake_read_fd.raw_fd();
+        let wake_read_ev = EventedFd(&wake_read_raw_fd);
+
         let poll = Poll::new().unwrap();
 
         let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
@@ -48,12 +73,22 @@ impl TtyInternalEventSource {
         poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())
             .unwrap();
 
+        poll.register(
+            &wake_read_ev,
+            WAKE_TOKEN,
+            Ready::readable(),
+            PollOpt::edge(),
+        )
+        .unwrap();
+
         TtyInternalEventSource {
             buffer: Vec::new(),
             poll,
             tty_fd: input_fd,
             events: Events::with_capacity(2),
             _signals: signals,
+            wake_read_fd,
+            wake_write_fd,
         }
     }
 }
@@ -103,6 +138,10 @@ impl EventSource for TtyInternalEventSource {
                                     new_size.0, new_size.1,
                                 ))));
                             }
+                            WAKE_TOKEN => {
+                                let _ = self.wake_read_fd.read_byte();
+                                return Ok(None);
+                            }
                             _ => {}
                         }
                     }
@@ -114,5 +153,9 @@ impl EventSource for TtyInternalEventSource {
                 return Ok(None);
             }
         }
+    }
+
+    fn wake(&self) {
+        let _ = self.wake_write_fd.write("W".as_bytes());
     }
 }

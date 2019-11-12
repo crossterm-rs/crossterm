@@ -58,4 +58,7 @@ impl EventSource for WinApiEventSource {
             thread::sleep(Duration::from_millis(50))
         }
     }
+
+    // TODO See TtyInternalEventSource::wake
+    fn wake(&self) {}
 }
