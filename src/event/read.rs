@@ -5,7 +5,7 @@ use crate::event::filter::{EventFilter, Filter};
 #[cfg(unix)]
 use super::source::tty::TtyInternalEventSource;
 #[cfg(windows)]
-use super::source::winapi::WinApiEventSource;
+use super::source::windows::WindowsEventSource;
 use super::{
     poll::EventPoll, poll_internal, read_internal, source::EventSource, timeout::PollTimeout,
     Event, InternalEvent, Result,
@@ -20,7 +20,7 @@ pub(crate) struct InternalEventReader {
 impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
-        let event_source = WinApiEventSource::new();
+        let event_source = WindowsEventSource::new();
         #[cfg(unix)]
         let event_source = TtyInternalEventSource::new();
 

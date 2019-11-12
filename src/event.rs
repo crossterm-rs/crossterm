@@ -56,16 +56,15 @@
 
 use std::time::Duration;
 
+use parking_lot::RwLock;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use lazy_static::lazy_static;
-use parking_lot::RwLock;
 use poll::EventPoll;
+use timeout::PollTimeout;
 
 use crate::{Command, Result};
-
-use timeout::PollTimeout;
 
 mod ansi;
 pub(crate) mod filter;
@@ -195,7 +194,7 @@ impl Command for EnableMouseCapture {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::winapi::enable_mouse_capture()
+        sys::windows::enable_mouse_capture()
     }
 }
 
@@ -213,7 +212,7 @@ impl Command for DisableMouseCapture {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::winapi::disable_mouse_capture()
+        sys::windows::disable_mouse_capture()
     }
 }
 

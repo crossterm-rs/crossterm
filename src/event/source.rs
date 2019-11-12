@@ -7,7 +7,7 @@ pub mod fake;
 #[cfg(unix)]
 pub mod tty;
 #[cfg(windows)]
-pub mod winapi;
+pub mod windows;
 
 /// An interface for trying to read an `InternalEvent` within an optional `Duration`.
 pub(crate) trait EventSource: Sync + Send {

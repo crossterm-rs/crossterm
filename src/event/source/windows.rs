@@ -1,0 +1,76 @@
+use std::time::Duration;
+
+use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
+
+use crate::event::sys::windows::WinApiPoll;
+use crate::event::Event;
+
+use super::super::{
+    source::EventSource,
+    sys::windows::enable_mouse_capture,
+    sys::windows::{handle_key_event, handle_mouse_event},
+    timeout::PollTimeout,
+    InternalEvent, Result,
+};
+
+pub(crate) struct WindowsEventSource {
+    console: Console,
+    poll: WinApiPoll,
+}
+
+impl WindowsEventSource {
+    pub(crate) fn new() -> Result<WindowsEventSource> {
+        enable_mouse_capture()?;
+        let console = Console::from(Handle::current_in_handle()?);
+        Ok(WindowsEventSource {
+            console,
+            poll: WinApiPoll::new()?,
+        })
+    }
+}
+
+impl EventSource for WindowsEventSource {
+    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+        let mut poll_timeout = PollTimeout::new(timeout.clone());
+
+        loop {
+            if let Some(event_ready) = self.poll.poll(timeout)? {
+                if event_ready {
+                    if self.console.number_of_console_input_events()? != 0 {
+                        let input = self.console.read_single_input_event()?;
+
+                        let event = match input.event_type {
+                            InputEventType::KeyEvent => handle_key_event(unsafe {
+                                KeyEventRecord::from(*input.event.KeyEvent())
+                            })?,
+                            InputEventType::MouseEvent => handle_mouse_event(unsafe {
+                                MouseEvent::from(*input.event.MouseEvent())
+                            })?,
+                            InputEventType::WindowBufferSizeEvent => {
+                                let new_size = crate::terminal::size()?;
+                                Some(Event::Resize(new_size.0, new_size.1))
+                            }
+                            InputEventType::FocusEvent | InputEventType::MenuEvent => None,
+                        };
+
+                        if let Some(event) = event {
+                            return Ok(Some(InternalEvent::Event(event)));
+                        } else {
+                            return Ok(None);
+                        }
+                    }
+                }
+            } else {
+                return Ok(None);
+            }
+
+            if poll_timeout.elapsed() {
+                return Ok(None);
+            }
+        }
+    }
+
+    fn wake(&self) {
+        let _ = self.poll.cancel();
+    }
+}
