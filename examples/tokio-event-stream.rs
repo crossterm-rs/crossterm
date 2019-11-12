@@ -21,6 +21,7 @@ use crossterm::{
 #[derive(Default)]
 struct EventReader {
     wake_thread_spawned: Arc<AtomicBool>,
+    wake_thread_shutdown: Arc<AtomicBool>,
 }
 
 impl Stream for EventReader {
@@ -34,24 +35,40 @@ impl Stream for EventReader {
                     .wake_thread_spawned
                     .compare_and_swap(false, true, Ordering::SeqCst)
                 {
-                    eprintln!(" - wake thread spawned\r");
                     let waker = cx.waker().clone();
                     let wake_thread_spawned = self.wake_thread_spawned.clone();
+                    let wake_thread_shutdown = self.wake_thread_shutdown.clone();
+
+                    wake_thread_shutdown.store(false, Ordering::SeqCst);
+
                     thread::spawn(move || {
                         loop {
-                            if let Ok(true) = poll(None) {
+                            if let Ok(true) = poll(Some(Duration::from_secs(50))) {
+                                break;
+                            }
+
+                            if wake_thread_shutdown.load(Ordering::SeqCst) {
                                 break;
                             }
                         }
                         wake_thread_spawned.store(false, Ordering::SeqCst);
                         waker.wake();
+                        eprintln!(" - wake thread exit\r");
                     });
+
+                    eprintln!(" - wake thread spawned\r");
                 }
                 Poll::Pending
             }
             Err(e) => Poll::Ready(Some(Err(e))),
         };
         result
+    }
+}
+
+impl Drop for EventReader {
+    fn drop(&mut self) {
+        self.wake_thread_shutdown.store(true, Ordering::SeqCst);
     }
 }
 
