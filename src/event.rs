@@ -529,9 +529,7 @@ mod tests {
     }
 
     fn swap_event_source(new: Box<dyn EventSource>) {
-        let mut reader = super::INTERNAL_EVENT_READER
-            .write()
-            .unwrap_or_else(|e| e.into_inner());
+        let mut reader = super::INTERNAL_EVENT_READER.write();
         *reader = InternalEventReader::new(new);
     }
 
