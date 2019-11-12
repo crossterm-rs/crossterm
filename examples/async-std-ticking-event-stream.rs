@@ -47,8 +47,8 @@ impl Stream for EventReader {
                                 break;
                             }
                         }
-                        waker.wake();
                         wake_thread_spawned.store(false, Ordering::SeqCst);
+                        waker.wake();
                     });
                 }
                 Poll::Pending
