@@ -1,14 +1,16 @@
 #![allow(dead_code)]
 
+use std::pin::Pin;
+use std::task::{Context, Poll};
+use std::time::Duration;
+
+use futures::Stream;
+
 use crossterm::cursor::position;
 use crossterm::{
     event::{poll, read, Event, KeyEvent},
     screen::RawScreen,
 };
-use futures::{Stream, StreamExt};
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use std::time::Duration;
 
 /// Sync main
 fn main() {
