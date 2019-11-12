@@ -27,6 +27,7 @@
 //!         match read()? {
 //!             Event::Key(key_event) => { println!("{:?}", key_event) }
 //!             Event::Mouse(mouse_event) => { println!("{:?}", mouse_event) }
+//!             Event::Resize(width, height) => { println!("Terminal resized to {}x{}", width, height) }
 //!         }
 //!     } else {
 //!         println!("timeout occurred");
