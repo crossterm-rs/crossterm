@@ -1,23 +1,23 @@
 #![allow(dead_code)]
 
 use std::pin::Pin;
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 use async_std::task;
 use futures::{
     future::FutureExt,
     select,
-    Stream,
-    StreamExt, task::{Context, Poll},
+    task::{Context, Poll},
+    Stream, StreamExt,
 };
 use futures_timer::Delay;
 
 use crossterm::{
     cursor::position,
-    event::{Event, KeyEvent, poll, read},
-    Result,
+    event::{poll, read, Event, KeyEvent},
     screen::RawScreen,
+    Result,
 };
 
 struct EventReader;
@@ -31,11 +31,11 @@ impl Stream for EventReader {
             Ok(true) => {
                 eprintln!(" - poll -> Ok(true)\r");
                 Poll::Ready(Some(read()))
-            },
+            }
             Err(e) => {
                 eprintln!(" - poll -> Err({:?})\r", e);
                 Poll::Ready(Some(Err(e)))
-            },
+            }
             _ => {
                 eprintln!(" - poll -> Ok(false)\r");
                 let waker = cx.waker().clone();
