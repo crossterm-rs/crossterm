@@ -1,4 +1,8 @@
 use std::pin::Pin;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 use std::thread;
 use std::time::Duration;
 
@@ -18,44 +22,45 @@ use crossterm::{
     Result,
 };
 
-struct EventReader;
+#[derive(Default)]
+struct EventReader {
+    wake_thread_spawned: Arc<AtomicBool>,
+}
 
 impl Stream for EventReader {
     type Item = Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        eprintln!("EventReader::poll_next\r");
         let result = match poll(Some(Duration::from_secs(0))) {
-            Ok(true) => {
-                eprintln!(" - poll -> Ok(true)\r");
-                Poll::Ready(Some(read()))
-            }
+            Ok(true) => Poll::Ready(Some(read())),
             Ok(false) => {
-                eprintln!(" - poll -> Ok(false)\r");
-                let waker = cx.waker().clone();
-                thread::spawn(move || {
-                    loop {
-                        if let Ok(true) = poll(None) {
-                            break;
+                if !self
+                    .wake_thread_spawned
+                    .compare_and_swap(false, true, Ordering::SeqCst)
+                {
+                    eprintln!(" - wake thread spawned\r");
+                    let waker = cx.waker().clone();
+                    let wake_thread_spawned = self.wake_thread_spawned.clone();
+                    thread::spawn(move || {
+                        loop {
+                            if let Ok(true) = poll(None) {
+                                break;
+                            }
                         }
-                    }
-                    eprintln!(" - wake\r");
-                    waker.wake();
-                });
+                        waker.wake();
+                        wake_thread_spawned.store(false, Ordering::SeqCst);
+                    });
+                }
                 Poll::Pending
             }
-            Err(e) => {
-                eprintln!(" - poll -> Err({:?})\r", e);
-                Poll::Ready(Some(Err(e)))
-            }
+            Err(e) => Poll::Ready(Some(Err(e))),
         };
-        eprintln!("EventReader::poll_next -> {:?}\r", result);
         result
     }
 }
 
 async fn print_ticking_events() {
-    let mut reader = EventReader;
+    let mut reader = EventReader::default();
 
     loop {
         let mut delay = Delay::new(Duration::from_millis(100)).fuse();

@@ -53,15 +53,18 @@
 //! You mustn't call `poll` from two threads because this can cause a deadlock.
 //! However, `poll` and `read` can be called independently without influencing each other.
 
-use std::{sync::RwLock, time::Duration};
+use std::time::Duration;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use lazy_static::lazy_static;
+use parking_lot::RwLock;
 use poll::EventPoll;
 
 use crate::{Command, Result};
+
+use timeout::PollTimeout;
 
 mod ansi;
 pub(crate) mod filter;
@@ -110,7 +113,16 @@ lazy_static! {
 /// }
 /// ```
 pub fn poll(timeout: Option<Duration>) -> Result<bool> {
-    let mut reader = EVENT_READER.write().unwrap_or_else(|e| e.into_inner());
+    let (mut reader, timeout) = if let Some(timeout) = timeout {
+        let poll_timeout = PollTimeout::new(Some(timeout));
+        if let Some(reader) = EVENT_READER.try_write_for(timeout) {
+            (reader, poll_timeout.leftover())
+        } else {
+            return Ok(false);
+        }
+    } else {
+        (EVENT_READER.write(), None)
+    };
     reader.poll(timeout)
 }
 
@@ -136,23 +148,28 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 /// }
 /// ```
 pub fn read() -> Result<Event> {
-    let mut reader = EVENT_READER.write().unwrap_or_else(|e| e.into_inner());
+    let mut reader = EVENT_READER.write();
     reader.read(filter::EventFilter)
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
 pub(crate) fn poll_internal(timeout: Option<Duration>) -> Result<bool> {
-    let mut reader = INTERNAL_EVENT_READER
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let (mut reader, timeout) = if let Some(timeout) = timeout {
+        let poll_timeout = PollTimeout::new(Some(timeout));
+        if let Some(reader) = INTERNAL_EVENT_READER.try_write_for(timeout) {
+            (reader, poll_timeout.leftover())
+        } else {
+            return Ok(false);
+        }
+    } else {
+        (INTERNAL_EVENT_READER.write(), None)
+    };
     reader.poll(timeout)
 }
 
 /// Reads a single `InternalEvent`.
 pub(crate) fn read_internal(mask: impl filter::Filter) -> Result<InternalEvent> {
-    let mut reader = INTERNAL_EVENT_READER
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut reader = INTERNAL_EVENT_READER.write();
     reader.read(mask)
 }
 
