@@ -13,7 +13,7 @@ use futures::{
 
 use crossterm::{
     cursor::position,
-    event::{poll, read, Event, KeyEvent},
+    event::{poll, read, wake, Event, KeyEvent},
     screen::RawScreen,
     Result,
 };
@@ -43,7 +43,7 @@ impl Stream for EventReader {
 
                     thread::spawn(move || {
                         loop {
-                            if let Ok(true) = poll(Some(Duration::from_secs(50))) {
+                            if let Ok(true) = poll(None) {
                                 break;
                             }
 
@@ -69,6 +69,7 @@ impl Stream for EventReader {
 impl Drop for EventReader {
     fn drop(&mut self) {
         self.wake_thread_shutdown.store(true, Ordering::SeqCst);
+        wake();
     }
 }
 
