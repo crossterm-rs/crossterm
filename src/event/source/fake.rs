@@ -23,6 +23,8 @@ impl FakeEventSource {
 }
 
 impl EventSource for FakeEventSource {
+    fn wake(&self) {}
+
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         if let Some(timeout) = timeout {
             if let Ok(val) = self.input_receiver.lock().unwrap().recv_timeout(timeout) {
