@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::pin::Pin;
 use std::thread;
 use std::time::Duration;
@@ -32,11 +30,7 @@ impl Stream for EventReader {
                 eprintln!(" - poll -> Ok(true)\r");
                 Poll::Ready(Some(read()))
             }
-            Err(e) => {
-                eprintln!(" - poll -> Err({:?})\r", e);
-                Poll::Ready(Some(Err(e)))
-            }
-            _ => {
+            Ok(false) => {
                 eprintln!(" - poll -> Ok(false)\r");
                 let waker = cx.waker().clone();
                 thread::spawn(move || {
@@ -50,29 +44,17 @@ impl Stream for EventReader {
                 });
                 Poll::Pending
             }
+            Err(e) => {
+                eprintln!(" - poll -> Err({:?})\r", e);
+                Poll::Ready(Some(Err(e)))
+            }
         };
         eprintln!("EventReader::poll_next -> {:?}\r", result);
         result
     }
 }
 
-async fn print_events() {
-    let mut reader = EventReader;
-
-    while let Some(Ok(event)) = reader.next().await {
-        println!("{:?}\r", event);
-
-        if event == Event::Key(KeyEvent::Char('c')) {
-            println!("Cursor {:?}\r", position());
-        }
-
-        if event == Event::Key(KeyEvent::Esc) {
-            break;
-        }
-    }
-}
-
-async fn print_timed_events() {
+async fn print_ticking_events() {
     let mut reader = EventReader;
 
     loop {
@@ -80,14 +62,13 @@ async fn print_timed_events() {
         let mut event = reader.next().fuse();
 
         select! {
-            delay = delay => { println!("Tick\r"); },
+            _ = delay => { println!("Tick tock\r"); },
             maybe_event = event => {
-                println!("Event: {:?}\r", maybe_event);
                 if let Some(Ok(event)) = maybe_event {
                     println!("{:?}\r", event);
 
                     if event == Event::Key(KeyEvent::Char('c')) {
-                        println!("Cursor {:?}\r", position());
+                        println!("Cursor position: {:?}\r", position());
                     }
 
                     if event == Event::Key(KeyEvent::Esc) {
@@ -101,5 +82,5 @@ async fn print_timed_events() {
 
 fn main() {
     let _r = RawScreen::into_raw_mode().unwrap();
-    task::block_on(print_events());
+    task::block_on(print_ticking_events());
 }
