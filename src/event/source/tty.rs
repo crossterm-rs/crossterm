@@ -46,10 +46,10 @@ pub(crate) struct TtyInternalEventSource {
 
 impl TtyInternalEventSource {
     pub fn new() -> Result<Self> {
-        Ok(TtyInternalEventSource::from_file_descriptor(tty_fd()?))
+        Ok(TtyInternalEventSource::from_file_descriptor(tty_fd()?)?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Self {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
         // Get raw file descriptors for
         let tty_raw_fd = input_fd.raw_fd();
 
@@ -57,31 +57,28 @@ impl TtyInternalEventSource {
         let tty_ev = EventedFd(&tty_raw_fd);
 
         // Wake self pipe
-        let (wake_read_fd, wake_write_fd) = pipe().expect("Unable to create self pipe");
+        let (wake_read_fd, wake_write_fd) = pipe()?;
         let wake_read_raw_fd = wake_read_fd.raw_fd();
         let wake_read_ev = EventedFd(&wake_read_raw_fd);
 
-        let poll = Poll::new().unwrap();
+        let poll = Poll::new()?;
 
-        let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
+        let signals = Signals::new(&[signal_hook::SIGWINCH])?;
 
         // Register tty reader
-        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())
-            .unwrap();
+        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
 
         // Register signals
-        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())
-            .unwrap();
+        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())?;
 
         poll.register(
             &wake_read_ev,
             WAKE_TOKEN,
             Ready::readable(),
             PollOpt::edge(),
-        )
-        .unwrap();
+        )?;
 
-        TtyInternalEventSource {
+        Ok(TtyInternalEventSource {
             buffer: Vec::new(),
             poll,
             tty_fd: input_fd,
@@ -89,7 +86,7 @@ impl TtyInternalEventSource {
             _signals: signals,
             wake_read_fd,
             wake_write_fd,
-        }
+        })
     }
 }
 

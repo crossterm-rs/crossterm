@@ -14,20 +14,23 @@ use super::{
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
-    event_source: Box<dyn EventSource>,
+    event_source: Option<Box<dyn EventSource>>,
 }
 
 impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
-        let event_source =
-            WinApiEventSource::new().expect("Failed to setup the default event reader.");
+        let event_source = WinApiEventSource::new();
         #[cfg(unix)]
-        let event_source =
-            TtyInternalEventSource::new().expect("Failed to setup the default event reader.");
+        let event_source = TtyInternalEventSource::new();
+
+        let event_source = match event_source {
+            Ok(source) => Some(Box::new(source) as Box<dyn EventSource>),
+            Err(_) => None,
+        };
 
         InternalEventReader {
-            event_source: Box::new(event_source),
+            event_source,
             events: VecDeque::new(),
         }
     }
@@ -38,13 +41,15 @@ impl InternalEventReader {
     #[cfg(test)]
     pub(crate) fn new(source: Box<dyn EventSource>) -> Self {
         InternalEventReader {
-            event_source: source,
+            event_source: Some(source),
             events: VecDeque::new(),
         }
     }
 
     pub(crate) fn wake(&self) {
-        self.event_source.wake()
+        if let Some(source) = self.event_source.as_ref() {
+            source.wake();
+        }
     }
 }
 
@@ -52,11 +57,22 @@ impl EventPoll for InternalEventReader {
     type Output = InternalEvent;
 
     fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
+        let event_source = match self.event_source.as_mut() {
+            Some(source) => source,
+            None => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "Failed to initialize input reader",
+                )
+                .into())
+            }
+        };
+
         if !self.events.is_empty() {
             return Ok(true);
         }
 
-        let event = self.event_source.try_read(timeout)?;
+        let event = event_source.try_read(timeout)?;
 
         match event {
             None => Ok(false),
