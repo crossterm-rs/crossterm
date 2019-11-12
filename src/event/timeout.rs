@@ -50,6 +50,12 @@ mod tests {
         assert_eq!(timer.leftover(), None)
     }
 
+    // TODO Rewrite test
+    //
+    // This kind of test is not good. We're relying on the environment which isn't under our
+    // control. To test it properly, we have to provide our own/custom `Instant` for the `PollTimeout`,
+    // modify it and then test that the `PollTimeout` returns correct values.
+    #[ignore]
     #[test]
     pub fn test_timer_with_duration_should_have_leftover() {
         let timeout = Duration::from_millis(200);
@@ -67,6 +73,12 @@ mod tests {
         );
     }
 
+    // TODO Rewrite test
+    //
+    // This kind of test is not good. We're relying on the environment which isn't under our
+    // control. To test it properly, we have to provide our own/custom `Instant` for the `PollTimeout`,
+    // modify it and then test that the `PollTimeout` returns correct values.
+    #[ignore]
     #[test]
     pub fn test_timer_timeout_should_elapse() {
         let mut timer = PollTimeout::new(Some(Duration::from_millis(2)));
