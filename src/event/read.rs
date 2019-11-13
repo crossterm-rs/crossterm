@@ -122,3 +122,40 @@ impl InternalEventReader {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::VecDeque;
+    use std::time::Duration;
+
+    use super::{
+        super::{filter::InternalEventFilter, Event},
+        {InternalEvent, InternalEventReader},
+    };
+
+    #[test]
+    fn test_poll_fails_without_event_source() {
+        let mut reader = InternalEventReader {
+            events: VecDeque::new(),
+            event_source: None,
+        };
+
+        assert!(reader.poll(None, &InternalEventFilter).is_err());
+        assert!(reader
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .is_err());
+        assert!(reader
+            .poll(Some(Duration::from_secs(10)), &InternalEventFilter)
+            .is_err());
+    }
+
+    #[test]
+    fn test_poll_returns_true_for_queued_and_matching_events() {
+        let mut reader = InternalEventReader {
+            events: vec![InternalEvent::Event(Event::Resize(10, 10))].into(),
+            event_source: None,
+        };
+
+        assert!(reader.poll(None, &InternalEventFilter).unwrap());
+    }
+}
