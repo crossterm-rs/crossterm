@@ -220,4 +220,3 @@ mod test {
         assert!(execute!(stdout(), Output("hi")).is_ok());
     }
 }
-
