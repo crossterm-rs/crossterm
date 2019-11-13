@@ -12,8 +12,6 @@ use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
-    //    #[cfg(windows)]
-    //    event_source: Option<FakeEventSource>,
     #[cfg(windows)]
     event_source: Option<WindowsEventSource>,
     #[cfg(unix)]
@@ -24,9 +22,6 @@ impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
         let event_source = WindowsEventSource::new();
-        //        #[cfg(windows)]
-        //        let event_source: Result<FakeEventSource> = Ok(FakeEventSource);
-
         #[cfg(unix)]
         let event_source = TtyInternalEventSource::new();
 

@@ -68,6 +68,6 @@ impl EventSource for WindowsEventSource {
     }
 
     fn wake(&self) {
-        let _ = self.poll.cancel().unwrap();
+        let _ = self.poll.cancel();
     }
 }
