@@ -1,3 +1,7 @@
+# Version Master
+
+- `queue!` & `execute!` macros allow trailing comma
+
 # Version 0.13.3
 
 - Remove thread from AsyncReader on Windows.
