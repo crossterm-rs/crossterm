@@ -1,15 +1,12 @@
 use std::{collections::vec_deque::VecDeque, time::Duration};
 
-use crate::event::filter::{EventFilter, Filter};
+use super::filter::Filter;
 
 #[cfg(unix)]
 use super::source::tty::TtyInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
-use super::{
-    poll::EventPoll, poll_internal, read_internal, source::EventSource, timeout::PollTimeout,
-    Event, InternalEvent, Result,
-};
+use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -37,15 +34,6 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
-    /// Constructs a new `InternalEventReader`.
-    #[cfg(test)]
-    pub(crate) fn new(source: Box<dyn EventSource>) -> Self {
-        InternalEventReader {
-            event_source: Some(source),
-            events: VecDeque::new(),
-        }
-    }
-
     pub(crate) fn wake(&self) {
         if let Some(source) = self.event_source.as_ref() {
             source.wake();
@@ -131,53 +119,6 @@ impl InternalEventReader {
             }
 
             let _ = self.poll(None, filter)?;
-        }
-    }
-}
-
-/// Can be used to read `Event`s.
-pub struct EventReader {
-    events: VecDeque<Event>,
-}
-
-impl Default for EventReader {
-    fn default() -> Self {
-        EventReader {
-            events: VecDeque::new(),
-        }
-    }
-}
-
-impl EventPoll for EventReader {
-    type Output = Event;
-
-    fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
-        if !self.events.is_empty() {
-            return Ok(true);
-        }
-
-        loop {
-            if poll_internal(timeout, &EventFilter)? {
-                match read_internal(&EventFilter) {
-                    Ok(InternalEvent::Event(ev)) => {
-                        self.events.push_back(ev);
-                        return Ok(true);
-                    }
-                    _ => unreachable!(),
-                };
-            } else {
-                return Ok(false);
-            }
-        }
-    }
-
-    fn read(&mut self, _: impl Filter) -> Result<Self::Output> {
-        loop {
-            if let Some(event) = self.events.pop_front() {
-                return Ok(event);
-            }
-
-            let _ = self.poll(None)?;
         }
     }
 }
