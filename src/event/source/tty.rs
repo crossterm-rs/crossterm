@@ -89,7 +89,7 @@ impl TtyInternalEventSource {
             buffer: Vec::new(),
             poll,
             tty_fd: input_fd,
-            events: Events::with_capacity(2),
+            events: Events::with_capacity(3),
             signals,
             wake_read_fd,
             wake_write_fd,
