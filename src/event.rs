@@ -131,6 +131,7 @@ pub fn poll(timeout: Option<Duration>) -> Result<bool> {
 pub fn read() -> Result<Event> {
     match read_internal(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
+        #[cfg(unix)]
         _ => unreachable!(),
     }
 }
