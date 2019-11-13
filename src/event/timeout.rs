@@ -83,7 +83,7 @@ mod tests {
 
     #[test]
     pub fn test_not_elapsed_timeout_has_positive_leftover() {
-        const TIMEOUT_SECS: u64 = 3_600;
+        const TIMEOUT_SECS: u64 = 60;
 
         let timeout = PollTimeout {
             timeout: Some(Duration::from_secs(TIMEOUT_SECS)),
