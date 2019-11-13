@@ -83,12 +83,7 @@ mod tests {
 
     #[test]
     pub fn test_not_elapsed_timeout_has_positive_leftover() {
-        const TIMEOUT_SECS: u64 = 60;
-
-        let timeout = PollTimeout {
-            timeout: Some(Duration::from_secs(TIMEOUT_SECS)),
-            start: Instant::now() - Duration::from_secs(TIMEOUT_SECS - 1),
-        };
+        let timeout = PollTimeout::new(Some(Duration::from_secs(60)));
 
         assert!(!timeout.elapsed());
         assert!(timeout.leftover().unwrap() > Duration::from_secs(0));
