@@ -140,6 +140,13 @@ impl EventSource for TtyInternalEventSource {
                                 for signal in &self.signals {
                                     match signal as libc::c_int {
                                         signal_hook::SIGWINCH => {
+                                            // TODO Should we remove tput?
+                                            //
+                                            // This can take a really long time, because terminal::size can
+                                            // launch new process (tput) and then it parses its output. It's
+                                            // not a really long time from the absolute time point of view, but
+                                            // it's a really long time from the mio, async-std/tokio executor, ...
+                                            // point of view.
                                             let new_size = crate::terminal::size()?;
                                             return Ok(Some(InternalEvent::Event(Event::Resize(
                                                 new_size.0, new_size.1,
@@ -150,6 +157,9 @@ impl EventSource for TtyInternalEventSource {
                                 }
                             }
                             WAKE_TOKEN => {
+                                // Something happened on the self pipe. Try to read single byte
+                                // (see wake() fn) and ignore result. If we can't read the byte,
+                                // mio Poll::poll will fire another event with WAKE_TOKEN.
                                 let _ = self.wake_read_fd.read_byte();
                                 return Ok(None);
                             }
@@ -167,6 +177,10 @@ impl EventSource for TtyInternalEventSource {
     }
 
     fn wake(&self) {
-        let _ = self.wake_write_fd.write("W".as_bytes());
+        // DO NOT write more than 1 byte. See try_read & WAKE_TOKEN
+        // handling - it reads just 1 byte. If you write more than
+        // 1 byte, lets say N, then the try_read will be woken up
+        // N times.
+        let _ = self.wake_write_fd.write(&[0x57]);
     }
 }
