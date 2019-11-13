@@ -40,56 +40,57 @@ impl PollTimeout {
 
 #[cfg(test)]
 mod tests {
-    use std::{thread, time::Duration};
+    use std::time::{Duration, Instant};
 
-    use crate::event::timeout::PollTimeout;
+    use super::PollTimeout;
 
     #[test]
-    pub fn test_timer_without_duration_should_have_no_leftover() {
-        let timer = PollTimeout::new(None);
-        assert_eq!(timer.leftover(), None)
+    pub fn test_timeout_without_duration_does_not_have_leftover() {
+        let timeout = PollTimeout::new(None);
+        assert_eq!(timeout.leftover(), None)
     }
 
-    // TODO Rewrite test
-    //
-    // This kind of test is not good. We're relying on the environment which isn't under our
-    // control. To test it properly, we have to provide our own/custom `Instant` for the `PollTimeout`,
-    // modify it and then test that the `PollTimeout` returns correct values.
-    #[ignore]
     #[test]
-    pub fn test_timer_with_duration_should_have_leftover() {
-        let timeout = Duration::from_millis(200);
-
-        let timer = PollTimeout::new(Some(timeout.clone()));
-
-        sleep_thread_millis(50);
-
-        let left_over = timer.leftover().unwrap();
-
-        // should be - ~1ms ~150ms, however we can't be sure with the CI because `thread::sleep` might be off by some millis.
-        assert!(
-            left_over < timeout - Duration::from_millis(50)
-                && left_over > Duration::from_millis(140)
-        );
+    pub fn test_timeout_without_duration_never_elapses() {
+        let timeout = PollTimeout::new(None);
+        assert!(!timeout.elapsed());
     }
 
-    // TODO Rewrite test
-    //
-    // This kind of test is not good. We're relying on the environment which isn't under our
-    // control. To test it properly, we have to provide our own/custom `Instant` for the `PollTimeout`,
-    // modify it and then test that the `PollTimeout` returns correct values.
-    #[ignore]
     #[test]
-    pub fn test_timer_timeout_should_elapse() {
-        let timer = PollTimeout::new(Some(Duration::from_millis(2)));
+    pub fn test_timeout_elapses() {
+        const TIMEOUT_MILLIS: u64 = 100;
 
-        sleep_thread_millis(5);
+        let timeout = PollTimeout {
+            timeout: Some(Duration::from_millis(TIMEOUT_MILLIS)),
+            start: Instant::now() - Duration::from_millis(2 * TIMEOUT_MILLIS),
+        };
 
-        assert_eq!(timer.elapsed(), true);
-        assert_eq!(timer.leftover(), Some(Duration::from_millis(0)));
+        assert!(timeout.elapsed());
     }
 
-    fn sleep_thread_millis(duration: u64) {
-        thread::sleep(Duration::from_millis(duration));
+    #[test]
+    pub fn test_elapsed_timeout_has_zero_leftover() {
+        const TIMEOUT_MILLIS: u64 = 100;
+
+        let timeout = PollTimeout {
+            timeout: Some(Duration::from_millis(TIMEOUT_MILLIS)),
+            start: Instant::now() - Duration::from_millis(2 * TIMEOUT_MILLIS),
+        };
+
+        assert!(timeout.elapsed());
+        assert_eq!(timeout.leftover(), Some(Duration::from_millis(0)));
+    }
+
+    #[test]
+    pub fn test_not_elapsed_timeout_has_positive_leftover() {
+        const TIMEOUT_SECS: u64 = 3_600;
+
+        let timeout = PollTimeout {
+            timeout: Some(Duration::from_secs(TIMEOUT_SECS)),
+            start: Instant::now() - Duration::from_secs(TIMEOUT_SECS - 1),
+        };
+
+        assert!(!timeout.elapsed());
+        assert!(timeout.leftover().unwrap() > Duration::from_secs(0));
     }
 }
