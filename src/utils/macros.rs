@@ -203,20 +203,33 @@ macro_rules! impl_from {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
+    use crate::utils::{command::Command, error::ErrorKind};
+    use std::io::{stdout, Write};
+    pub struct FakeCommand;
+
+    impl Command for FakeCommand {
+        type AnsiType = &'static str;
+
+        fn ansi_code(&self) -> Self::AnsiType {
+            ""
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> Result<(), ErrorKind> {
+            Ok(())
+        }
+    }
+
     #[test]
     fn test_queue() {
-        use crate::utils::command::Output;
-        use std::io::{stdout, Write};
-        assert!(queue!(stdout(), Output("hi"),).is_ok());
-        assert!(queue!(stdout(), Output("hi")).is_ok());
+        assert!(queue!(stdout(), FakeCommand,).is_ok());
+        assert!(queue!(stdout(), FakeCommand).is_ok());
     }
 
     #[test]
     fn test_execute() {
-        use crate::utils::command::Output;
-        use std::io::{stdout, Write};
-        assert!(execute!(stdout(), Output("hi"),).is_ok());
-        assert!(execute!(stdout(), Output("hi")).is_ok());
+        assert!(execute!(stdout(), FakeCommand,).is_ok());
+        assert!(execute!(stdout(), FakeCommand).is_ok());
     }
 }
