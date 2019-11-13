@@ -50,32 +50,39 @@ impl TtyInternalEventSource {
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
-        // Get raw file descriptors for
+        let poll = Poll::new()?;
+
+        // PollOpt::level vs PollOpt::edge mio documentation:
+        //
+        // > With edge-triggered events, operations must be performed on the Evented type until
+        // > WouldBlock is returned.
+        //
+        // TL;DR - DO NOT use PollOpt::edge.
+        //
+        // Because of the try_read nature (loop with returns) we can't use PollOpt::edge. All
+        // Evented handles MUST be registered with the PollOpt::level.
+        //
+        // If you have to use PollOpt::edge and there's no way how to do it with the PollOpt::level,
+        // be aware that the whole TtyInternalEventSource have to be rewritten
+        // (read everything from each Evented, process without returns, store all InternalEvent events
+        // into a buffer and then return first InternalEvent, etc.). Even these changes wont be
+        // enough, because Poll::poll wont fire again until additional Evented event happens and
+        // we can still have a buffer filled with InternalEvent events.
         let tty_raw_fd = input_fd.raw_fd();
-
-        // Setup polling with raw file descriptors
         let tty_ev = EventedFd(&tty_raw_fd);
+        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
 
-        // Wake self pipe
+        let signals = Signals::new(&[signal_hook::SIGWINCH])?;
+        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
+
         let (wake_read_fd, wake_write_fd) = pipe()?;
         let wake_read_raw_fd = wake_read_fd.raw_fd();
         let wake_read_ev = EventedFd(&wake_read_raw_fd);
-
-        let poll = Poll::new()?;
-
-        let signals = Signals::new(&[signal_hook::SIGWINCH])?;
-
-        // Register tty reader
-        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
-
-        // Register signals
-        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
-
         poll.register(
             &wake_read_ev,
             WAKE_TOKEN,
             Ready::readable(),
-            PollOpt::edge(),
+            PollOpt::level(),
         )?;
 
         Ok(TtyInternalEventSource {
