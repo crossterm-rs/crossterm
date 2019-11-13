@@ -1,16 +1,19 @@
 use std::{collections::vec_deque::VecDeque, time::Duration};
 
 use super::filter::Filter;
-
 #[cfg(unix)]
 use super::source::tty::TtyInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
 use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
+//use crate::event::source::windows::FakeEventSource;
+
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
+    //    #[cfg(windows)]
+    //    event_source: Option<FakeEventSource>,
     #[cfg(windows)]
     event_source: Option<WindowsEventSource>,
     #[cfg(unix)]
@@ -21,6 +24,9 @@ impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
         let event_source = WindowsEventSource::new();
+        //        #[cfg(windows)]
+        //        let event_source: Result<FakeEventSource> = Ok(FakeEventSource);
+
         #[cfg(unix)]
         let event_source = TtyInternalEventSource::new();
 

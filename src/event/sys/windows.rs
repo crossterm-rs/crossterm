@@ -1,6 +1,7 @@
 //! This is a WINDOWS specific implementation for input related action.
 
 use std::io;
+use std::io::ErrorKind;
 use std::ptr;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -10,6 +11,12 @@ use crossterm_winapi::{
 };
 use winapi::shared::winerror::WAIT_TIMEOUT;
 use winapi::um::{
+    handleapi::CloseHandle,
+    synchapi::{CreateSemaphoreW, ReleaseSemaphore, WaitForMultipleObjects},
+    winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
+    winnt::HANDLE,
+};
+use winapi::um::{
     wincon::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
     },
@@ -17,15 +24,6 @@ use winapi::um::{
         VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
         VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT,
         VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
-    },
-};
-use winapi::{
-    shared::minwindef::DWORD,
-    um::{
-        handleapi::CloseHandle,
-        synchapi::{CreateSemaphoreW, ReleaseSemaphore, WaitForMultipleObjects},
-        winbase::{INFINITE, WAIT_FAILED, WAIT_OBJECT_0},
-        winnt::HANDLE,
     },
 };
 
@@ -294,67 +292,64 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
 }
 
 pub(crate) struct WinApiPoll {
-    semaphore: Semaphore,
-    handles: [HANDLE; 2],
+    semaphore: Option<Semaphore>,
 }
 
 impl WinApiPoll {
     pub(crate) fn new() -> Result<WinApiPoll> {
-        let console_handle = Handle::current_in_handle()?;
-        let semaphore = Semaphore::new()?;
-
-        Ok(WinApiPoll {
-            handles: [*console_handle, semaphore.handle()],
-            semaphore,
-        })
+        Ok(WinApiPoll { semaphore: None })
     }
 }
 
 impl WinApiPoll {
-    pub fn poll(&self, timeout: Option<Duration>) -> Result<Option<bool>> {
-        let len = self.handles.len() as DWORD;
-
+    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<Option<bool>> {
         let dw_millis = if let Some(duration) = timeout {
             duration.as_millis() as u32
         } else {
             INFINITE
         };
 
-        loop {
-            let output =
-                unsafe { WaitForMultipleObjects(len, self.handles.as_ptr(), 0, dw_millis) };
+        let console_handle = Handle::current_in_handle()?;
+        let semaphore = Semaphore::new()?;
 
-            match output {
-                output if output == WAIT_OBJECT_0 + 0 => {
-                    // input handle triggered
-                    return Ok(Some(true));
-                }
-                output if output == WAIT_OBJECT_0 + 1 => {
-                    // semaphore handle triggered
-                    return Ok(None);
-                }
-                WAIT_TIMEOUT => {
-                    // timeout elapsed
-                    return Ok(None);
-                }
-                WAIT_FAILED => return Err(io::Error::last_os_error())?,
-                _ => {}
-            };
-        }
+        let handles = &[*console_handle, semaphore.handle()];
+
+        self.semaphore = Some(semaphore);
+
+        let output =
+            unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
+
+        let result = match output {
+            output if output == WAIT_OBJECT_0 + 0 => {
+                // input handle triggered
+                Ok(Some(true))
+            }
+            output if output == WAIT_OBJECT_0 + 1 => {
+                // semaphore handle triggered
+                Ok(None)
+            }
+            WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
+                // timeout elapsed
+                Ok(None)
+            }
+            WAIT_FAILED => return Err(io::Error::last_os_error())?,
+            _ => Err(io::Error::new(
+                ErrorKind::Other,
+                "WaitForMultipleObjects returned unexpected result.",
+            ))?,
+        };
+
+        self.semaphore = None;
+
+        result
     }
 
     pub fn cancel(&self) -> Result<()> {
-        Ok(self.semaphore.release()?)
-    }
-}
-
-impl Drop for WinApiPoll {
-    fn drop(&mut self) {
-        for handle in self.handles.iter() {
-            unsafe {
-                CloseHandle(*handle);
-            }
+        if let Some(semaphore) = &self.semaphore {
+            semaphore.release()?
         }
+
+        Ok(())
     }
 }
 
@@ -369,7 +364,7 @@ struct Semaphore(HANDLE);
 impl Semaphore {
     /// Construct a new semaphore.
     pub fn new() -> io::Result<Self> {
-        let handle = unsafe { CreateSemaphoreW(ptr::null_mut(), 0, 2, ptr::null_mut()) };
+        let handle = unsafe { CreateSemaphoreW(ptr::null_mut(), 0, 1, ptr::null_mut()) };
 
         if handle == ptr::null_mut() {
             return Err(io::Error::last_os_error());

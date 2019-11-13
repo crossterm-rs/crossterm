@@ -35,30 +35,27 @@ impl EventSource for WindowsEventSource {
 
         loop {
             if let Some(event_ready) = self.poll.poll(timeout)? {
-                if event_ready {
-                    if self.console.number_of_console_input_events()? != 0 {
-                        let input = self.console.read_single_input_event()?;
+                if event_ready && self.console.number_of_console_input_events()? != 0 {
+                    let input = self.console.read_single_input_event()?;
 
-                        let event = match input.event_type {
-                            InputEventType::KeyEvent => handle_key_event(unsafe {
-                                KeyEventRecord::from(*input.event.KeyEvent())
-                            })?,
-                            InputEventType::MouseEvent => handle_mouse_event(unsafe {
-                                MouseEvent::from(*input.event.MouseEvent())
-                            })?,
-                            InputEventType::WindowBufferSizeEvent => {
-                                let new_size = crate::terminal::size()?;
-                                Some(Event::Resize(new_size.0, new_size.1))
-                            }
-                            InputEventType::FocusEvent | InputEventType::MenuEvent => None,
-                        };
-
-                        if let Some(event) = event {
-                            return Ok(Some(InternalEvent::Event(event)));
-                        } else {
-                            return Ok(None);
+                    let event = match input.event_type {
+                        InputEventType::KeyEvent => handle_key_event(unsafe {
+                            KeyEventRecord::from(*input.event.KeyEvent())
+                        })?,
+                        InputEventType::MouseEvent => handle_mouse_event(unsafe {
+                            MouseEvent::from(*input.event.MouseEvent())
+                        })?,
+                        InputEventType::WindowBufferSizeEvent => {
+                            let new_size = crate::terminal::size()?;
+                            Some(Event::Resize(new_size.0, new_size.1))
                         }
-                    }
+                        InputEventType::FocusEvent | InputEventType::MenuEvent => None,
+                    };
+
+                    return Ok(match event {
+                        None => None,
+                        Some(event) => Some(InternalEvent::Event(event)),
+                    });
                 }
             } else {
                 return Ok(None);
@@ -71,6 +68,6 @@ impl EventSource for WindowsEventSource {
     }
 
     fn wake(&self) {
-        let _ = self.poll.cancel();
+        let _ = self.poll.cancel().unwrap();
     }
 }
