@@ -45,7 +45,7 @@ impl InternalEventReader {
         F: Filter,
     {
         for event in &self.events {
-            if filter.filter(&event) {
+            if filter.eval(&event) {
                 return Ok(true);
             }
         }
@@ -68,7 +68,7 @@ impl InternalEventReader {
             let maybe_event = match event_source.try_read(timeout)? {
                 None => None,
                 Some(event) => {
-                    if filter.filter(&event) {
+                    if filter.eval(&event) {
                         Some(event)
                     } else {
                         skipped_events.push_back(event);
@@ -100,7 +100,7 @@ impl InternalEventReader {
 
         loop {
             while let Some(event) = self.events.pop_front() {
-                if filter.filter(&event) {
+                if filter.eval(&event) {
                     while let Some(event) = skipped_events.pop_front() {
                         self.events.push_back(event);
                     }
