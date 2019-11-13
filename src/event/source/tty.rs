@@ -39,7 +39,7 @@ pub(crate) struct TtyInternalEventSource {
     poll: Poll,
     tty_fd: FileDesc,
     events: Events,
-    _signals: Signals,
+    signals: Signals,
     wake_read_fd: FileDesc,
     wake_write_fd: FileDesc,
 }
@@ -69,7 +69,7 @@ impl TtyInternalEventSource {
         poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
 
         // Register signals
-        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::edge())?;
+        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
 
         poll.register(
             &wake_read_ev,
@@ -83,7 +83,7 @@ impl TtyInternalEventSource {
             poll,
             tty_fd: input_fd,
             events: Events::with_capacity(2),
-            _signals: signals,
+            signals,
             wake_read_fd,
             wake_write_fd,
         })
@@ -130,10 +130,17 @@ impl EventSource for TtyInternalEventSource {
                                 };
                             }
                             SIGNAL_TOKEN => {
-                                let new_size = crate::terminal::size()?;
-                                return Ok(Some(InternalEvent::Event(Event::Resize(
-                                    new_size.0, new_size.1,
-                                ))));
+                                for signal in &self.signals {
+                                    match signal as libc::c_int {
+                                        signal_hook::SIGWINCH => {
+                                            let new_size = crate::terminal::size()?;
+                                            return Ok(Some(InternalEvent::Event(Event::Resize(
+                                                new_size.0, new_size.1,
+                                            ))));
+                                        }
+                                        _ => unreachable!(),
+                                    };
+                                }
                             }
                             WAKE_TOKEN => {
                                 let _ = self.wake_read_fd.read_byte();
