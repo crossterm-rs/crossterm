@@ -11,7 +11,10 @@ use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
-    event_source: Option<Box<dyn EventSource>>,
+    #[cfg(windows)]
+    event_source: Option<WindowsEventSource>,
+    #[cfg(unix)]
+    event_source: Option<TtyInternalEventSource>,
 }
 
 impl Default for InternalEventReader {
@@ -22,7 +25,7 @@ impl Default for InternalEventReader {
         let event_source = TtyInternalEventSource::new();
 
         let event_source = match event_source {
-            Ok(source) => Some(Box::new(source) as Box<dyn EventSource>),
+            Ok(source) => Some(source),
             Err(_) => None,
         };
 

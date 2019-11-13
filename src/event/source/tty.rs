@@ -59,14 +59,14 @@ impl TtyInternalEventSource {
         //
         // TL;DR - DO NOT use PollOpt::edge.
         //
-        // Because of the try_read nature (loop with returns) we can't use PollOpt::edge. All
-        // Evented handles MUST be registered with the PollOpt::level.
+        // Because of the `try_read` nature (loop with returns) we can't use `PollOpt::edge`. All
+        // `Evented` handles MUST be registered with the `PollOpt::level`.
         //
-        // If you have to use PollOpt::edge and there's no way how to do it with the PollOpt::level,
-        // be aware that the whole TtyInternalEventSource have to be rewritten
-        // (read everything from each Evented, process without returns, store all InternalEvent events
+        // If you have to use `PollOpt::edge` and there's no way how to do it with the `PollOpt::level`,
+        // be aware that the whole `TtyInternalEventSource` have to be rewritten
+        // (read everything from each `Evented`, process without returns, store all InternalEvent events
         // into a buffer and then return first InternalEvent, etc.). Even these changes wont be
-        // enough, because Poll::poll wont fire again until additional Evented event happens and
+        // enough, because `Poll::poll` wont fire again until additional `Evented` event happens and
         // we can still have a buffer filled with InternalEvent events.
         let tty_raw_fd = input_fd.raw_fd();
         let tty_ev = EventedFd(&tty_raw_fd);
