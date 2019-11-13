@@ -16,7 +16,7 @@ use super::super::{
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
 const SIGNAL_TOKEN: Token = Token(1);
-const WAKE_TOKEN: Token = Token(3);
+const WAKE_TOKEN: Token = Token(2);
 
 /// Creates a new pipe and returns `(read, write)` file descriptors.
 fn pipe() -> Result<(FileDesc, FileDesc)> {
