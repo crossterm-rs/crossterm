@@ -112,14 +112,6 @@ macro_rules! queue {
     }}
 }
 
-#[test]
-fn test_queue() {
-    use super::command::Output;
-    use std::io::{stdout, Write};
-    assert!(queue!(stdout(), Output("hi"),).is_ok());
-    assert!(queue!(stdout(), Output("hi")).is_ok());
-}
-
 /// Execute one or more command(s)
 ///
 /// # Parameters
@@ -209,3 +201,23 @@ macro_rules! impl_from {
         }
     };
 }
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_queue() {
+        use crate::utils::command::Output;
+        use std::io::{stdout, Write};
+        assert!(queue!(stdout(), Output("hi"),).is_ok());
+        assert!(queue!(stdout(), Output("hi")).is_ok());
+    }
+
+    #[test]
+    fn test_execute() {
+        use crate::utils::command::Output;
+        use std::io::{stdout, Write};
+        assert!(execute!(stdout(), Output("hi"),).is_ok());
+        assert!(execute!(stdout(), Output("hi")).is_ok());
+    }
+}
+
