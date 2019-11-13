@@ -35,10 +35,10 @@ fn pipe() -> Result<(FileDesc, FileDesc)> {
 }
 
 pub(crate) struct TtyInternalEventSource {
-    buffer: Vec<u8>,
     poll: Poll,
-    tty_fd: FileDesc,
     events: Events,
+    tty_buffer: Vec<u8>,
+    tty_fd: FileDesc,
     signals: Signals,
     wake_read_fd: FileDesc,
     wake_write_fd: FileDesc,
@@ -86,10 +86,10 @@ impl TtyInternalEventSource {
         )?;
 
         Ok(TtyInternalEventSource {
-            buffer: Vec::new(),
             poll,
-            tty_fd: input_fd,
             events: Events::with_capacity(3),
+            tty_buffer: Vec::new(),
+            tty_fd: input_fd,
             signals,
             wake_read_fd,
             wake_write_fd,
@@ -115,24 +115,24 @@ impl EventSource for TtyInternalEventSource {
                     for event in events_count {
                         match event {
                             TTY_TOKEN => {
-                                self.buffer.push(self.tty_fd.read_byte()?);
+                                self.tty_buffer.push(self.tty_fd.read_byte()?);
 
                                 let input_available = self
                                     .poll
                                     .poll(&mut self.events, Some(Duration::from_secs(0)))
                                     .map(|x| x > 0)?;
 
-                                match parse_event(&self.buffer, input_available) {
+                                match parse_event(&self.tty_buffer, input_available) {
                                     Ok(None) => {
                                         // Not enough bytes to construct an InternalEvent
                                     }
                                     Ok(Some(ie)) => {
-                                        self.buffer.clear();
+                                        self.tty_buffer.clear();
                                         return Ok(Some(ie));
                                     }
                                     Err(_) => {
                                         // Can't parse an event, clear buffer and start over
-                                        self.buffer.clear();
+                                        self.tty_buffer.clear();
                                     }
                                 };
                             }
