@@ -1,5 +1,3 @@
-#![deny(unused_imports, unused_must_use)]
-
 //! # Event
 //! The `event` module provides the functionality to read events.
 //! Events include: input events, signal events, and terminal events.
@@ -60,6 +58,7 @@ use parking_lot::RwLock;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use filter::Filter;
 use lazy_static::lazy_static;
 use poll::EventPoll;
 use timeout::PollTimeout;
@@ -160,7 +159,10 @@ pub fn wake() {
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
-pub(crate) fn poll_internal(timeout: Option<Duration>) -> Result<bool> {
+pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool>
+where
+    F: Filter,
+{
     let (mut reader, timeout) = if let Some(timeout) = timeout {
         let poll_timeout = PollTimeout::new(Some(timeout));
         if let Some(reader) = INTERNAL_EVENT_READER.try_write_for(timeout) {
@@ -171,13 +173,16 @@ pub(crate) fn poll_internal(timeout: Option<Duration>) -> Result<bool> {
     } else {
         (INTERNAL_EVENT_READER.write(), None)
     };
-    reader.poll(timeout)
+    reader.poll(timeout, filter)
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal(mask: impl filter::Filter) -> Result<InternalEvent> {
+pub(crate) fn read_internal<F>(filter: &F) -> Result<InternalEvent>
+where
+    F: Filter,
+{
     let mut reader = INTERNAL_EVENT_READER.write();
-    reader.read(mask)
+    reader.read(filter)
 }
 
 /// A command that enables mouse event capturing.
@@ -362,7 +367,7 @@ mod tests {
         let poll = internal_event_polling_thread(
             Some(Duration::from_millis(200)),
             true,
-            InternalEventFilter,
+            &InternalEventFilter,
         );
 
         sleep_thread_millis(100);
@@ -380,7 +385,7 @@ mod tests {
         let poll = internal_event_polling_thread(
             Some(Duration::from_millis(100)),
             true,
-            InternalEventFilter,
+            &InternalEventFilter,
         );
 
         sleep_thread_millis(200);
@@ -394,7 +399,7 @@ mod tests {
     #[test]
     fn test_internal_poll_without_timeout_should_return() {
         // spin up a thread waiting 2 seconds for input.
-        let poll = internal_event_polling_thread(None, true, InternalEventFilter);
+        let poll = internal_event_polling_thread(None, true, &InternalEventFilter);
 
         poll.event_sender.send(test_internal_key()).unwrap();
 
@@ -449,7 +454,6 @@ mod tests {
     }
 
     // TODO Remove ignore & fix. Just testing CI that it's passing with rest.
-    #[ignore]
     #[test]
     #[cfg(unix)]
     fn test_event_should_not_thrown_away() {
@@ -469,7 +473,7 @@ mod tests {
         let internal_poll = internal_event_polling_thread(
             Some(Duration::from_millis(100)),
             false,
-            InternalEventFilter,
+            &InternalEventFilter,
         );
 
         let (poll_result, read) = internal_poll.handle.join().unwrap();
@@ -479,11 +483,14 @@ mod tests {
     }
 
     /// Returns the handle to the thread that polls for input as long as the given duration and the sender to trigger the the thread to read the event.
-    fn internal_event_polling_thread(
+    fn internal_event_polling_thread<F>(
         timeout: Option<Duration>,
         set_fake_source: bool,
-        filter: impl Filter,
-    ) -> PollThreadHandleStub<InternalEvent> {
+        filter: &'static F,
+    ) -> PollThreadHandleStub<InternalEvent>
+    where
+        F: Filter,
+    {
         let (event_sender, event_receiver) = channel();
 
         let handle = thread::spawn(move || {
@@ -491,7 +498,7 @@ mod tests {
                 swap_event_source(Box::from(FakeEventSource::new(event_receiver)));
             }
 
-            let poll_result = poll_internal(timeout).unwrap();
+            let poll_result = poll_internal(timeout, filter).unwrap();
 
             let read = if poll_result {
                 Some(read_internal(filter).unwrap())

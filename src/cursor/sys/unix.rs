@@ -36,9 +36,9 @@ fn read_position_raw() -> Result<(u16, u16)> {
     stdout.flush()?;
 
     loop {
-        match poll_internal(Some(Duration::from_millis(2000))) {
+        match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
             Ok(true) => {
-                match read_internal(CursorPositionFilter) {
+                match read_internal(&CursorPositionFilter) {
                     Ok(InternalEvent::CursorPosition(x, y)) => {
                         return Ok((x, y));
                     }

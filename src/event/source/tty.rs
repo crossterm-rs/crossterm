@@ -99,7 +99,7 @@ impl TtyInternalEventSource {
 
 impl EventSource for TtyInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
-        let mut timeout = PollTimeout::new(timeout);
+        let timeout = PollTimeout::new(timeout);
 
         loop {
             let event_count = self.poll.poll(&mut self.events, timeout.leftover())?;

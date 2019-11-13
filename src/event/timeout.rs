@@ -18,7 +18,7 @@ impl PollTimeout {
     /// Returns whether the timeout has elapsed.
     ///
     /// It always returns `false` if the initial timeout was set to `None`.
-    pub fn elapsed(&mut self) -> bool {
+    pub fn elapsed(&self) -> bool {
         self.timeout
             .map(|timeout| self.start.elapsed() >= timeout)
             .unwrap_or(false)
@@ -81,7 +81,7 @@ mod tests {
     #[ignore]
     #[test]
     pub fn test_timer_timeout_should_elapse() {
-        let mut timer = PollTimeout::new(Some(Duration::from_millis(2)));
+        let timer = PollTimeout::new(Some(Duration::from_millis(2)));
 
         sleep_thread_millis(5);
 

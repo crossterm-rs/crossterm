@@ -51,12 +51,17 @@ impl InternalEventReader {
             source.wake();
         }
     }
-}
 
-impl EventPoll for InternalEventReader {
-    type Output = InternalEvent;
+    pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> Result<bool>
+    where
+        F: Filter,
+    {
+        for event in &self.events {
+            if filter.filter(&event) {
+                return Ok(true);
+            }
+        }
 
-    fn poll(&mut self, timeout: Option<Duration>) -> Result<bool> {
         let event_source = match self.event_source.as_mut() {
             Some(source) => source,
             None => {
@@ -68,31 +73,48 @@ impl EventPoll for InternalEventReader {
             }
         };
 
-        if !self.events.is_empty() {
-            return Ok(true);
-        }
+        let poll_timeout = PollTimeout::new(timeout);
+        let mut skipped_events = VecDeque::new();
 
-        let event = event_source.try_read(timeout)?;
+        loop {
+            let maybe_event = match event_source.try_read(timeout)? {
+                None => None,
+                Some(event) => {
+                    if filter.filter(&event) {
+                        Some(event)
+                    } else {
+                        skipped_events.push_back(event);
+                        None
+                    }
+                }
+            };
 
-        match event {
-            None => Ok(false),
-            Some(event) => {
-                self.events.push_back(event);
-                Ok(true)
+            if poll_timeout.elapsed() || maybe_event.is_some() {
+                while let Some(event) = skipped_events.pop_front() {
+                    self.events.push_back(event);
+                }
+
+                if let Some(event) = maybe_event {
+                    self.events.push_front(event);
+                    return Ok(true);
+                }
+
+                return Ok(false);
             }
         }
     }
 
-    fn read(&mut self, event_filter: impl Filter) -> Result<Self::Output> {
-        let mut unsatisfied_events = VecDeque::new();
+    pub(crate) fn read<F>(&mut self, filter: &F) -> Result<InternalEvent>
+    where
+        F: Filter,
+    {
+        let mut skipped_events = VecDeque::new();
 
         loop {
-            if let Some(event) = self.events.pop_front() {
-                if event_filter.filter(&event) {
-                    if !unsatisfied_events.is_empty() {
-                        while let Some(event) = unsatisfied_events.pop_front() {
-                            self.events.push_back(event);
-                        }
+            while let Some(event) = self.events.pop_front() {
+                if filter.filter(&event) {
+                    while let Some(event) = skipped_events.pop_front() {
+                        self.events.push_back(event);
                     }
 
                     return Ok(event);
@@ -104,11 +126,11 @@ impl EventPoll for InternalEventReader {
                     // And because we just put the non-fulfilling event there this is going to be the case.
                     // Instead we can store them into the temporary buffer,
                     // and then when the filter is fulfilled write all events back in order.
-                    unsatisfied_events.push_back(event);
+                    skipped_events.push_back(event);
                 }
             }
 
-            let _ = self.poll(None)?;
+            let _ = self.poll(None, filter)?;
         }
     }
 }
@@ -134,22 +156,16 @@ impl EventPoll for EventReader {
             return Ok(true);
         }
 
-        let mut timeout = PollTimeout::new(timeout);
-
         loop {
-            if poll_internal(timeout.leftover())? {
-                match read_internal(EventFilter) {
+            if poll_internal(timeout, &EventFilter)? {
+                match read_internal(&EventFilter) {
                     Ok(InternalEvent::Event(ev)) => {
                         self.events.push_back(ev);
                         return Ok(true);
                     }
-                    _ => { /* unreachable */ }
-                }
+                    _ => unreachable!(),
+                };
             } else {
-                return Ok(false);
-            }
-
-            if timeout.elapsed() {
                 return Ok(false);
             }
         }
