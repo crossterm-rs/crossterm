@@ -282,21 +282,21 @@ impl KeyEvent {
         KeyEvent { code, modifiers }
     }
 
-    pub fn with_control(code: KeyCode) -> KeyEvent {
+    pub(crate) fn with_control(code: KeyCode) -> KeyEvent {
         KeyEvent {
             code,
             modifiers: KeyModifiers::CONTROL,
         }
     }
 
-    pub fn with_alt(code: KeyCode) -> KeyEvent {
+    pub(crate) fn with_alt(code: KeyCode) -> KeyEvent {
         KeyEvent {
             code,
             modifiers: KeyModifiers::ALT,
         }
     }
 
-    pub fn with_shift(code: KeyCode) -> KeyEvent {
+    pub(crate) fn with_shift(code: KeyCode) -> KeyEvent {
         KeyEvent {
             code,
             modifiers: KeyModifiers::SHIFT,
