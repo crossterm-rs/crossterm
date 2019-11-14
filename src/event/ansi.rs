@@ -2,22 +2,16 @@
 
 use crate::csi;
 
-pub(crate) fn enable_mouse_mode_csi_sequence() -> String {
-    format!(
-        "{}h{}h{}h{}h",
-        csi!("?1000"),
-        csi!("?1002"),
-        csi!("?1015"),
-        csi!("?1006")
-    )
-}
+pub(crate) const ENABLE_MOUSE_MODE_CSI_SEQUENCE: &str = concat!(
+    csi!("?1000h"),
+    csi!("?1002h"),
+    csi!("?1015h"),
+    csi!("?1006h")
+);
 
-pub(crate) fn disable_mouse_mode_csi_sequence() -> String {
-    format!(
-        "{}l{}l{}l{}l",
-        csi!("?1006"),
-        csi!("?1015"),
-        csi!("?1002"),
-        csi!("?1000")
-    )
-}
+pub(crate) const DISABLE_MOUSE_MODE_CSI_SEQUENCE: &str = concat!(
+    csi!("?1006l"),
+    csi!("?1015l"),
+    csi!("?1002l"),
+    csi!("?1000l")
+);

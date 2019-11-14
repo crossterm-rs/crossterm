@@ -190,10 +190,10 @@ where
 pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
-    type AnsiType = String;
+    type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::enable_mouse_mode_csi_sequence()
+        ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -208,10 +208,10 @@ impl Command for EnableMouseCapture {
 pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
-    type AnsiType = String;
+    type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::disable_mouse_mode_csi_sequence()
+        ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
