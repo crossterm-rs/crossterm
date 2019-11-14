@@ -70,7 +70,7 @@ macro_rules! write_cout {
 /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
 #[macro_export]
 macro_rules! queue {
-    ($write:expr, $($command:expr), *) => {{
+    ($write:expr, $($command:expr), * $(,)? ) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::Command;
@@ -142,7 +142,7 @@ macro_rules! queue {
 /// Because of that there is no difference between `execute` and `queue` for those windows versions.
 #[macro_export]
 macro_rules! execute {
-    ($write:expr, $($command:expr), *) => {{
+    ($write:expr, $($command:expr), * $(,)? ) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::{Command, write_cout};
@@ -200,4 +200,40 @@ macro_rules! impl_from {
             }
         }
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::{stdout, Write};
+
+    use crate::utils::command::Command;
+    #[cfg(windows)]
+    use crate::utils::error::ErrorKind;
+
+    pub struct FakeCommand;
+
+    impl Command for FakeCommand {
+        type AnsiType = &'static str;
+
+        fn ansi_code(&self) -> Self::AnsiType {
+            ""
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> Result<(), ErrorKind> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn test_queue() {
+        assert!(queue!(stdout(), FakeCommand,).is_ok());
+        assert!(queue!(stdout(), FakeCommand).is_ok());
+    }
+
+    #[test]
+    fn test_execute() {
+        assert!(execute!(stdout(), FakeCommand,).is_ok());
+        assert!(execute!(stdout(), FakeCommand).is_ok());
+    }
 }
