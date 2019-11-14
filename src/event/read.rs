@@ -412,20 +412,24 @@ mod tests {
             &mut self,
             _timeout: Option<Duration>,
         ) -> Result<Option<InternalEvent>, ErrorKind> {
+            // Return error if set in case there's just one remaining event
             if self.events.len() == 1 {
                 if let Some(error) = self.error.take() {
                     return Err(error);
                 }
             }
 
+            // Return all events from the queue
             if let Some(event) = self.events.pop_front() {
                 return Ok(Some(event));
             }
 
+            // Return error if there're no more events
             if let Some(error) = self.error.take() {
                 return Err(error);
             }
 
+            // Timeout
             Ok(None)
         }
 
