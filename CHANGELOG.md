@@ -1,5 +1,6 @@
 # Version Master
 
+- `queue!` & `execute!` macros allow trailing comma
 - `input` module
    Input event is called event from now on.
    The motivation for this is that input event is restricted input,
@@ -15,7 +16,7 @@
     - Remove `AsyncReader`, `SyncReader`
     - Remove `TerminalInput`
     - Introduce `poll` and `read` as new API.
-    
+
 # Version 0.13.3
 
 - Remove thread from AsyncReader on Windows.
