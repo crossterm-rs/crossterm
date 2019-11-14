@@ -1,5 +1,5 @@
 //
-// cargo run --example event-async
+// cargo run --example event-poll-read
 //
 use std::io::{stdout, Write};
 use std::time::Duration;
@@ -12,7 +12,7 @@ use crossterm::{
     Result,
 };
 
-const HELP: &str = r#"Non blocking poll() & read()
+const HELP: &str = r#"Blocking poll() & non-blocking read()
  - Keyboard, mouse and terminal resize events enabled
  - Prints "." every second if there's no event 
  - Hit "c" to print current cursor position

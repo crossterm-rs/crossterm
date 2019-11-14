@@ -1,5 +1,5 @@
 //
-// cargo run --example event-sync
+// cargo run --example event-read
 //
 use std::io::{stdout, Write};
 
