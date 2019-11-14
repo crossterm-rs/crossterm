@@ -353,14 +353,6 @@ pub enum KeyCode {
     ///
     /// `KeyEvent::Char('c')` represents `c` character, etc.
     Char(char),
-    /// Alt key + character.
-    ///
-    /// `KeyEvent::Alt('c')` represents `Alt + c`, etc.
-    Alt(char),
-    /// Ctrl key + character.
-    ///
-    /// `KeyEvent::Ctrl('c') ` represents `Ctrl + c`, etc.
-    Ctrl(char),
     /// Null.
     Null,
     /// Escape key.
