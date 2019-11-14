@@ -15,7 +15,7 @@
 //! The useful thing about `poll` is that it gives you complete control over how long you want to wait for an event while `read` blocks until an event occurs.
 //!
 //! Next to those two functions we have `wake()` that can be usefull in async envoirments.
-//! This function will directly interupt the `poll` by making it return `Ok(false)`.
+//! This function will directly interupt the `poll` call and will make it return `Ok(false)`.
 //!
 //! Let's look at an example that shows these two functions in action.
 //!
@@ -47,12 +47,16 @@
 //!
 //! ## Technical Implementation
 //! Crossterm uses the poll/read meganism.
-//! On UNIX we can use [MIO](https://docs.rs/mio/) to poll for event readiness.
-//! However, for windows we use a delayed spinning loop that checks for `GetNumberOfConsoleInputEvents` and tells based on that if an event is ready to be read.
-//! In the future we are probably going to improve this by using `Semaphore Objects`.
+//! **Unix**
+//!
+//! [MIO](https://docs.rs/mio/) is used on UNIX systems. It will poll for event readiness from an file descriptor.
+//! **Windows**
+//!
+//! On windows crossterm uses `WaitForMultipleObjects`, with this call we wait for a signal from eighter the input HANDLE or a semaphore HANDLE.
+//! The semaphore HANDLE can be used to interupt the the waiting.
 //!
 //! `poll` and `read` are static functions that both aquire an underlying lock to crossterms input system.
-//! You mustn't call `poll` from two threads because this can cause a deadlock.
+//! You mustn't call `poll` from two threads at the same time because this can cause a deadlock.
 //! However, `poll` and `read` can be called independently without influencing each other.
 
 use std::time::Duration;
