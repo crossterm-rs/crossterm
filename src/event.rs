@@ -14,6 +14,9 @@
 //! These two functions can be used together to read events asynchronous and synchronous.
 //! The useful thing about `poll` is that it gives you complete control over how long you want to wait for an event while `read` blocks until an event occurs.
 //!
+//! Next to those two functions we have `wake()` that can be usefull in async envoirments.
+//! This function will directly interupt the `poll` by making it return `Ok(false)`.
+//!
 //! Let's look at an example that shows these two functions in action.
 //!
 //! ```no_run

@@ -21,12 +21,11 @@ use winapi::um::{
         LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
     },
     winuser::{
-        VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11, VK_F12,
-        VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT, VK_LEFT,
-        VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
+        VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME,
+        VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
     },
 };
-
+//  VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12
 use lazy_static::lazy_static;
 
 use crate::{
@@ -96,8 +95,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_BACK => Some(KeyEvent::Backspace),
         VK_ESCAPE => Some(KeyEvent::Esc),
         VK_RETURN => Some(KeyEvent::Enter),
-        VK_F1 | VK_F2 | VK_F3 | VK_F4 | VK_F5 | VK_F6 | VK_F7 | VK_F8 | VK_F9 | VK_F10 | VK_F11
-        | VK_F12 => Some(KeyEvent::F((key_event.virtual_key_code - 111) as u8)),
+        VK_F1..=VK_F24 => Some(KeyEvent::F((key_event.virtual_key_code - 111) as u8)),
         VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => {
             // Modifier Keys (Ctrl, Shift) Support
             let key_state = &key_event.control_key_state;
@@ -309,9 +307,8 @@ impl WinApiPoll {
             INFINITE
         };
 
-        let console_handle = Handle::current_in_handle()?;
         let semaphore = Semaphore::new()?;
-
+        let console_handle = Handle::current_in_handle()?;
         let handles = &[*console_handle, semaphore.handle()];
 
         self.semaphore = Some(semaphore);
