@@ -12,6 +12,9 @@ readme = "README.md"
 edition = "2018"
 categories = ["command-line-interface", "command-line-utilities"]
 
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
 default = ["cursor", "style", "terminal", "screen", "event"]
 cursor = ["lazy_static", "event", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
