@@ -65,6 +65,9 @@ jobs:
     - name: Test event feature
       run: cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
+    - name: Test async-event feature
+      run: cargo test --features async-event --no-default-features --lib -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
       if: matrix.rust == 'stable'
       run: cargo package
