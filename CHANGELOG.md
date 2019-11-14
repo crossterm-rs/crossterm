@@ -2,21 +2,22 @@
 
 - `queue!` & `execute!` macros allow trailing comma
 - `input` module
-   Input event is called event from now on.
-   The motivation for this is that input event is restricted input,
-   however the events that crossterm will be able to send in the future are going to be more than input events.
-   Examples of non-input events are: ResizeEvent, MouseEvent, Signal Events.
-   Therefore, event seems a better, more generalized, future proof, name.
-    - Rename `InputEvent` to `Event`
-    - Rename `InputEvent::KeyBoard` to `Event::Key`
-    - Rename `crossterm::input` to `crossterm::event`
-    - Rename `input` feature flag to `event`
-    - Remove `InputEvent::CursorPosition(x,y)`
-    - Remove `InputEvent::UnSupported` and `InputEvent::Unknown` and `InputEvent::Unknown`
-    - Remove `AsyncReader`, `SyncReader`
-    - Remove `TerminalInput`
-    - Introduce `poll` and `read` as new API.
-
+  - Remove `stop_reading_thread()` function introduced in `0.13.2`
+  - Rename the whole module, corresponding types and feature to `event`, `Event*`, ...
+- `event` module
+  - Remove `InputEvent::CursorPosition(x,y)`
+  - Remove `InputEvent::Unsupported`, `InputEvent::Unknown` and `MouseEvent::Unknown` variants 
+  - Remove `AsyncReader`, `SyncReader`
+  - Remove `TerminalInput`
+  - Rename `InputEvent` to `Event`
+  - Rename `InputEvent::Keyboard` to `Event::Key`
+  - Rename `crossterm::input` to `crossterm::event`
+  - Rename `input` feature flag to `event`
+  - New `Event::Resize` variant
+  - New `poll` & `read` functions  
+  - New `EventStream` based on `futures::Stream`
+    - Available only if `async-event` feature is enabled
+ 
 # Version 0.13.3
 
 - Remove thread from AsyncReader on Windows.
