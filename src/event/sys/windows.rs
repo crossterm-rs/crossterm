@@ -7,7 +7,8 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 use crossterm_winapi::{
-    ButtonState, ConsoleMode, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
+    ButtonState, ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent,
+    ScreenBuffer,
 };
 use winapi::shared::winerror::WAIT_TIMEOUT;
 use winapi::um::{
@@ -25,6 +26,7 @@ use winapi::um::{
         VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
     },
 };
+
 //  VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12
 use lazy_static::lazy_static;
 
@@ -88,89 +90,96 @@ pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event
     Ok(None)
 }
 
-fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
-    let key_code = key_event.virtual_key_code as i32;
-    match key_code {
-        VK_SHIFT | VK_CONTROL | VK_MENU => None,
-        VK_BACK => Some(KeyCode::Backspace.into()),
-        VK_ESCAPE => Some(KeyCode::Esc.into()),
-        VK_RETURN => Some(KeyCode::Enter.into()),
-        VK_F1..=VK_F24 => Some(KeyCode::F((key_event.virtual_key_code - 111) as u8).into()),
-        VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => {
-            // Modifier Keys (Ctrl, Shift) Support
-            let key_state = &key_event.control_key_state;
+impl From<ControlKeyState> for KeyModifiers {
+    fn from(state: ControlKeyState) -> Self {
+        let shift = (state.has_state(SHIFT_PRESSED));
+        let alt = (state.has_state((LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)));
+        let control = (state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED));
 
-            let control = if key_state.has_state(RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED) {
-                KeyModifiers::CONTROL
-            } else {
-                KeyModifiers::empty()
-            };
+        let mut modifier = KeyModifiers::empty();
 
-            let shift = if key_state.has_state(SHIFT_PRESSED) {
-                KeyModifiers::SHIFT
-            } else {
-                KeyModifiers::empty()
-            };
-
-            match key_code {
-                VK_LEFT => Some(KeyEvent::new(KeyCode::Left, control | shift)),
-                VK_UP => Some(KeyEvent::new(KeyCode::Up, control | shift)),
-                VK_RIGHT => Some(KeyEvent::new(KeyCode::Right, control | shift)),
-                VK_DOWN => Some(KeyEvent::new(KeyCode::Down, control | shift)),
-                _ => None,
-            }
+        if shift {
+            modifier |= KeyModifiers::SHIFT;
         }
-        VK_PRIOR => Some(KeyCode::PageUp.into()),
-        VK_NEXT => Some(KeyCode::PageDown.into()),
-        VK_HOME => Some(KeyCode::Home.into()),
-        VK_END => Some(KeyCode::End.into()),
-        VK_DELETE => Some(KeyCode::Delete.into()),
-        VK_INSERT => Some(KeyCode::Insert.into()),
+        if control {
+            modifier |= KeyModifiers::CONTROL;
+        }
+        if alt {
+            modifier |= KeyModifiers::ALT;
+        }
+
+        modifier
+    }
+}
+
+fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
+    let modifiers = KeyModifiers::from(key_event.control_key_state);
+
+    let key_code = key_event.virtual_key_code as i32;
+
+    let parse_result = match key_code {
+        VK_SHIFT | VK_CONTROL | VK_MENU => None,
+        VK_BACK => Some(KeyCode::Backspace),
+        VK_ESCAPE => Some(KeyCode::Esc),
+        VK_RETURN => Some(KeyCode::Enter),
+        VK_F1..=VK_F24 => Some(KeyCode::F((key_event.virtual_key_code - 111) as u8)),
+        VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => Some(match key_code {
+            VK_LEFT => KeyCode::Left,
+            VK_UP => KeyCode::Up,
+            VK_RIGHT => KeyCode::Right,
+            VK_DOWN => KeyCode::Down,
+            _ => unreachable!("unreachable pattern"),
+        }),
+        VK_PRIOR => Some(KeyCode::PageUp),
+        VK_NEXT => Some(KeyCode::PageDown),
+        VK_HOME => Some(KeyCode::Home),
+        VK_END => Some(KeyCode::End),
+        VK_DELETE => Some(KeyCode::Delete),
+        VK_INSERT => Some(KeyCode::Insert),
         _ => {
             // Modifier Keys (Ctrl, Alt, Shift) Support
             let character_raw = { (unsafe { *key_event.u_char.UnicodeChar() } as u16) };
 
             if character_raw < 255 {
-                let character = character_raw as u8 as char;
+                let mut character = character_raw as u8 as char;
 
-                let key_state = &key_event.control_key_state;
-
-                if key_state.has_state(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED) {
+                if modifiers.contains(KeyModifiers::ALT) {
                     // If the ALT key is held down, pressing the A key produces ALT+A, which the system does not treat as a character at all, but rather as a system command.
                     // The pressed command is stored in `virtual_key_code`.
                     let command = key_event.virtual_key_code as u8 as char;
 
-                    if (command).is_alphabetic() {
-                        Some(KeyEvent::with_alt(KeyCode::Char(command)))
+                    if command.is_alphabetic() {
+                        character = command;
                     } else {
-                        None
+                        return None;
                     }
-                } else if key_state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) {
-                    match character_raw as u8 {
-                        c @ b'\x01'..=b'\x1A' => Some(KeyEvent::with_control(KeyCode::Char(
-                            (c as u8 - 0x1 + b'a') as char,
-                        ))),
-                        c @ b'\x1C'..=b'\x1F' => Some(KeyEvent::with_control(KeyCode::Char(
-                            (c as u8 - 0x1C + b'4') as char,
-                        ))),
-                        _ => None,
+                } else if modifiers.contains(KeyModifiers::CONTROL) {
+                    // we need to do some parsing
+                    character = match character_raw as u8 {
+                        c @ b'\x01'..=b'\x1A' => (c as u8 - 0x1 + b'a') as char,
+                        c @ b'\x1C'..=b'\x1F' => (c as u8 - 0x1C + b'4') as char,
+                        _ => return None,
                     }
-                } else if key_state.has_state(SHIFT_PRESSED) && character == '\t' {
-                    Some(KeyCode::BackTab.into())
+                }
+
+                if modifiers.contains(KeyModifiers::SHIFT) && character == '\t' {
+                    Some(KeyCode::BackTab)
+                } else if character == '\t' {
+                    Some(KeyCode::Tab)
                 } else {
-                    if character == '\t' {
-                        Some(KeyCode::Tab.into())
-                    } else {
-                        // Shift + key press, essentially the same as single key press
-                        // Separating to be explicit about the Shift press.
-                        Some(KeyCode::Char(character).into())
-                    }
+                    Some(KeyCode::Char(character))
                 }
             } else {
                 None
             }
         }
+    };
+
+    if let Some(key_code) = parse_result {
+        return Some(KeyEvent::new(key_code, modifiers));
     }
+
+    None
 }
 
 // The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.

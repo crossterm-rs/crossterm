@@ -127,15 +127,14 @@ mod tests {
     use std::collections::VecDeque;
     use std::time::Duration;
 
+    use crate::ErrorKind;
+
     #[cfg(unix)]
     use super::super::filter::CursorPositionFilter;
-
     use super::{
         super::{filter::InternalEventFilter, Event},
         {EventSource, InternalEvent, InternalEventReader},
     };
-
-    use crate::ErrorKind;
 
     #[test]
     fn test_poll_fails_without_event_source() {

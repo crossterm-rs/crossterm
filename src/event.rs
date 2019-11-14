@@ -70,7 +70,6 @@ use std::sync::{
 use std::thread;
 use std::time::Duration;
 
-use bitflags::bitflags;
 #[cfg(feature = "async-event")]
 use futures::{
     task::{Context, Poll},
@@ -80,6 +79,7 @@ use parking_lot::RwLock;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use bitflags::bitflags;
 use filter::{EventFilter, Filter};
 use lazy_static::lazy_static;
 use timeout::PollTimeout;
