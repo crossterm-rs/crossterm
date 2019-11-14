@@ -70,6 +70,7 @@ use std::sync::{
 use std::thread;
 use std::time::Duration;
 
+use bitflags::bitflags;
 #[cfg(feature = "async-event")]
 use futures::{
     task::{Context, Poll},
@@ -260,10 +261,62 @@ pub enum MouseButton {
     WheelDown,
 }
 
+bitflags! {
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    pub struct KeyModifiers: u8 {
+        const SHIFT = 0b00000001;
+        const CONTROL = 0b00000010;
+        const ALT = 0b00000100;
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
+pub struct KeyEvent {
+    pub code: KeyCode,
+    pub modifiers: KeyModifiers,
+}
+
+impl KeyEvent {
+    pub fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
+        KeyEvent { code, modifiers }
+    }
+
+    pub fn with_control(code: KeyCode) -> KeyEvent {
+        KeyEvent {
+            code,
+            modifiers: KeyModifiers::CONTROL,
+        }
+    }
+
+    pub fn with_alt(code: KeyCode) -> KeyEvent {
+        KeyEvent {
+            code,
+            modifiers: KeyModifiers::ALT,
+        }
+    }
+
+    pub fn with_shift(code: KeyCode) -> KeyEvent {
+        KeyEvent {
+            code,
+            modifiers: KeyModifiers::SHIFT,
+        }
+    }
+}
+
+impl From<KeyCode> for KeyEvent {
+    fn from(code: KeyCode) -> Self {
+        KeyEvent {
+            code,
+            modifiers: KeyModifiers::empty(),
+        }
+    }
+}
+
 /// Represents a key or a combination of keys.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum KeyEvent {
+pub enum KeyCode {
     /// Backspace key.
     Backspace,
     /// Enter key.
@@ -312,22 +365,6 @@ pub enum KeyEvent {
     Null,
     /// Escape key.
     Esc,
-    /// Ctrl + up arrow key.
-    CtrlUp,
-    /// Ctrl + down arrow key.
-    CtrlDown,
-    /// Ctrl + right arrow key.
-    CtrlRight,
-    /// Ctrl + left arrow key.
-    CtrlLeft,
-    /// Shift + up arrow key.
-    ShiftUp,
-    /// Shift + down arrow key.
-    ShiftDown,
-    /// Shift + right arrow key.
-    ShiftRight,
-    /// Shift + left arrow key.
-    ShiftLeft,
 }
 
 /// An internal event.

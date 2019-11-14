@@ -29,7 +29,7 @@ use winapi::um::{
 use lazy_static::lazy_static;
 
 use crate::{
-    event::{Event, KeyEvent, MouseButton},
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
     Result,
 };
 
@@ -92,76 +92,40 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
     let key_code = key_event.virtual_key_code as i32;
     match key_code {
         VK_SHIFT | VK_CONTROL | VK_MENU => None,
-        VK_BACK => Some(KeyEvent::Backspace),
-        VK_ESCAPE => Some(KeyEvent::Esc),
-        VK_RETURN => Some(KeyEvent::Enter),
-        VK_F1..=VK_F24 => Some(KeyEvent::F((key_event.virtual_key_code - 111) as u8)),
+        VK_BACK => Some(KeyCode::Backspace.into()),
+        VK_ESCAPE => Some(KeyCode::Esc.into()),
+        VK_RETURN => Some(KeyCode::Enter.into()),
+        VK_F1..=VK_F24 => Some(KeyCode::F((key_event.virtual_key_code - 111) as u8).into()),
         VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => {
             // Modifier Keys (Ctrl, Shift) Support
             let key_state = &key_event.control_key_state;
-            let ctrl_pressed = key_state.has_state(RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED);
-            let shift_pressed = key_state.has_state(SHIFT_PRESSED);
+
+            let control = if key_state.has_state(RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED) {
+                KeyModifiers::CONTROL
+            } else {
+                KeyModifiers::empty()
+            };
+
+            let shift = if key_state.has_state(SHIFT_PRESSED) {
+                KeyModifiers::SHIFT
+            } else {
+                KeyModifiers::empty()
+            };
 
             match key_code {
-                VK_LEFT => {
-                    if ctrl_pressed {
-                        Some(KeyEvent::CtrlLeft)
-                    } else if shift_pressed {
-                        Some(KeyEvent::ShiftLeft)
-                    } else {
-                        Some(KeyEvent::Left)
-                    }
-                }
-                VK_UP => {
-                    if ctrl_pressed {
-                        Some(KeyEvent::CtrlUp)
-                    } else if shift_pressed {
-                        Some(KeyEvent::ShiftUp)
-                    } else {
-                        Some(KeyEvent::Up)
-                    }
-                }
-                VK_RIGHT => {
-                    if ctrl_pressed {
-                        Some(KeyEvent::CtrlRight)
-                    } else if shift_pressed {
-                        Some(KeyEvent::ShiftRight)
-                    } else {
-                        Some(KeyEvent::Right)
-                    }
-                }
-                VK_DOWN => {
-                    if ctrl_pressed {
-                        Some(KeyEvent::CtrlDown)
-                    } else if shift_pressed {
-                        Some(KeyEvent::ShiftDown)
-                    } else {
-                        Some(KeyEvent::Down)
-                    }
-                }
+                VK_LEFT => Some(KeyEvent::new(KeyCode::Left, control | shift)),
+                VK_UP => Some(KeyEvent::new(KeyCode::Up, control | shift)),
+                VK_RIGHT => Some(KeyEvent::new(KeyCode::Right, control | shift)),
+                VK_DOWN => Some(KeyEvent::new(KeyCode::Down, control | shift)),
                 _ => None,
             }
         }
-        VK_PRIOR | VK_NEXT => {
-            if key_code == VK_PRIOR {
-                Some(KeyEvent::PageUp)
-            } else if key_code == VK_NEXT {
-                Some(KeyEvent::PageDown)
-            } else {
-                None
-            }
-        }
-        VK_END | VK_HOME => {
-            if key_code == VK_HOME {
-                Some(KeyEvent::Home)
-            } else if key_code == VK_END {
-                Some(KeyEvent::End)
-            } else {
-                None
-            }
-        }
-        VK_DELETE => Some(KeyEvent::Delete),
-        VK_INSERT => Some(KeyEvent::Insert),
+        VK_PRIOR => Some(KeyCode::PageUp.into()),
+        VK_NEXT => Some(KeyCode::PageDown.into()),
+        VK_HOME => Some(KeyCode::Home.into()),
+        VK_END => Some(KeyCode::End.into()),
+        VK_DELETE => Some(KeyCode::Delete.into()),
+        VK_INSERT => Some(KeyCode::Insert.into()),
         _ => {
             // Modifier Keys (Ctrl, Alt, Shift) Support
             let character_raw = { (unsafe { *key_event.u_char.UnicodeChar() } as u16) };
@@ -177,29 +141,29 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     let command = key_event.virtual_key_code as u8 as char;
 
                     if (command).is_alphabetic() {
-                        Some(KeyEvent::Alt(command))
+                        Some(KeyEvent::with_alt(KeyCode::Char(command)))
                     } else {
                         None
                     }
                 } else if key_state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) {
                     match character_raw as u8 {
-                        c @ b'\x01'..=b'\x1A' => {
-                            Some(KeyEvent::Ctrl((c as u8 - 0x1 + b'a') as char))
-                        }
-                        c @ b'\x1C'..=b'\x1F' => {
-                            Some(KeyEvent::Ctrl((c as u8 - 0x1C + b'4') as char))
-                        }
+                        c @ b'\x01'..=b'\x1A' => Some(KeyEvent::with_control(KeyCode::Char(
+                            (c as u8 - 0x1 + b'a') as char,
+                        ))),
+                        c @ b'\x1C'..=b'\x1F' => Some(KeyEvent::with_control(KeyCode::Char(
+                            (c as u8 - 0x1C + b'4') as char,
+                        ))),
                         _ => None,
                     }
                 } else if key_state.has_state(SHIFT_PRESSED) && character == '\t' {
-                    Some(KeyEvent::BackTab)
+                    Some(KeyCode::BackTab.into())
                 } else {
                     if character == '\t' {
-                        Some(KeyEvent::Tab)
+                        Some(KeyCode::Tab.into())
                     } else {
                         // Shift + key press, essentially the same as single key press
                         // Separating to be explicit about the Shift press.
-                        Some(KeyEvent::Char(character))
+                        Some(KeyCode::Char(character).into())
                     }
                 }
             } else {

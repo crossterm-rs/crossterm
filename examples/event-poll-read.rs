@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use crossterm::{
     cursor::position,
-    event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyEvent},
+    event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     screen::RawScreen,
     Result,
@@ -28,11 +28,11 @@ fn print_events() -> Result<()> {
 
             println!("Event::{:?}\r", event);
 
-            if event == Event::Key(KeyEvent::Char('c')) {
+            if event == Event::Key(KeyCode::Char('c').into()) {
                 println!("Cursor position: {:?}\r", position());
             }
 
-            if event == Event::Key(KeyEvent::Esc) {
+            if event == Event::Key(KeyCode::Esc.into()) {
                 break;
             }
         } else {

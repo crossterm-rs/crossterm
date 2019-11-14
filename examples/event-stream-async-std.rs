@@ -9,7 +9,7 @@ use futures_timer::Delay;
 
 use crossterm::{
     cursor::position,
-    event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyEvent},
+    event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode},
     execute,
     screen::RawScreen,
     Result,
@@ -36,11 +36,11 @@ async fn print_events() {
                     Some(Ok(event)) => {
                         println!("Event::{:?}\r", event);
 
-                        if event == Event::Key(KeyEvent::Char('c')) {
+                        if event == Event::Key(KeyCode::Char('c').into()) {
                             println!("Cursor position: {:?}\r", position());
                         }
 
-                        if event == Event::Key(KeyEvent::Esc) {
+                        if event == Event::Key(KeyCode::Esc.into()) {
                             break;
                         }
                     }

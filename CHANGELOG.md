@@ -17,6 +17,7 @@
   - New `poll` & `read` functions  
   - New `EventStream` based on `futures::Stream`
     - Available only if `async-event` feature is enabled
+  - New `KeyEvent` with public `code` (`KeyCode`) and `modifiers` (`KeyModifiers`) fields
  
 # Version 0.13.3
 
