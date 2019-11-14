@@ -3,7 +3,7 @@ use std::time::Duration;
 use super::InternalEvent;
 
 #[cfg(unix)]
-pub mod tty;
+pub mod unix;
 #[cfg(windows)]
 pub mod windows;
 

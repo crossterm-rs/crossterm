@@ -34,7 +34,7 @@ fn pipe() -> Result<(FileDesc, FileDesc)> {
     Ok((read_fd, write_fd))
 }
 
-pub(crate) struct TtyInternalEventSource {
+pub(crate) struct UnixInternalEventSource {
     poll: Poll,
     events: Events,
     tty_buffer: Vec<u8>,
@@ -44,9 +44,9 @@ pub(crate) struct TtyInternalEventSource {
     wake_write_fd: FileDesc,
 }
 
-impl TtyInternalEventSource {
+impl UnixInternalEventSource {
     pub fn new() -> Result<Self> {
-        Ok(TtyInternalEventSource::from_file_descriptor(tty_fd()?)?)
+        Ok(UnixInternalEventSource::from_file_descriptor(tty_fd()?)?)
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
@@ -85,7 +85,7 @@ impl TtyInternalEventSource {
             PollOpt::level(),
         )?;
 
-        Ok(TtyInternalEventSource {
+        Ok(UnixInternalEventSource {
             poll,
             events: Events::with_capacity(3),
             tty_buffer: Vec::new(),
@@ -97,7 +97,7 @@ impl TtyInternalEventSource {
     }
 }
 
-impl EventSource for TtyInternalEventSource {
+impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let timeout = PollTimeout::new(timeout);
 

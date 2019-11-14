@@ -2,7 +2,7 @@ use std::{collections::vec_deque::VecDeque, time::Duration};
 
 use super::filter::Filter;
 #[cfg(unix)]
-use super::source::tty::TtyInternalEventSource;
+use super::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
 use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
@@ -15,7 +15,7 @@ pub(crate) struct InternalEventReader {
     #[cfg(windows)]
     event_source: Option<WindowsEventSource>,
     #[cfg(unix)]
-    event_source: Option<TtyInternalEventSource>,
+    event_source: Option<UnixInternalEventSource>,
 }
 
 impl Default for InternalEventReader {
@@ -23,7 +23,7 @@ impl Default for InternalEventReader {
         #[cfg(windows)]
         let event_source = WindowsEventSource::new();
         #[cfg(unix)]
-        let event_source = TtyInternalEventSource::new();
+        let event_source = UnixInternalEventSource::new();
 
         let event_source = match event_source {
             Ok(source) => Some(source),
