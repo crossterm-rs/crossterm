@@ -355,6 +355,7 @@ pub struct EventStream {
     wake_thread_should_shutdown: Arc<AtomicBool>,
 }
 
+#[cfg(feature = "async-event")]
 impl EventStream {
     pub fn new() -> EventStream {
         EventStream {

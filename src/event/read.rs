@@ -38,6 +38,7 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
+    #[cfg(feature = "async-event")]
     pub(crate) fn wake(&self) {
         if let Some(source) = self.event_source.as_ref() {
             source.wake();
