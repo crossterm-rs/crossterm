@@ -123,13 +123,10 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_ESCAPE => Some(KeyCode::Esc),
         VK_RETURN => Some(KeyCode::Enter),
         VK_F1..=VK_F24 => Some(KeyCode::F((key_event.virtual_key_code - 111) as u8)),
-        VK_LEFT | VK_UP | VK_RIGHT | VK_DOWN => Some(match key_code {
-            VK_LEFT => KeyCode::Left,
-            VK_UP => KeyCode::Up,
-            VK_RIGHT => KeyCode::Right,
-            VK_DOWN => KeyCode::Down,
-            _ => unreachable!("unreachable pattern"),
-        }),
+        VK_LEFT => Some(KeyCode::Left),
+        VK_UP => Some(KeyCode::Up),
+        VK_RIGHT => Some(KeyCode::Right),
+        VK_DOWN => Some(KeyCode::Down),
         VK_PRIOR => Some(KeyCode::PageUp),
         VK_NEXT => Some(KeyCode::PageDown),
         VK_HOME => Some(KeyCode::Home),
@@ -190,6 +187,13 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 }
 
 fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
+    let modifiers = KeyModifiers::from(event.control_key_state);
+
+    // todo implement
+    let shift = modifiers.contains(KeyModifiers::SHIFT);
+    let ctrl = modifiers.contains(KeyModifiers::CONTROL);
+    let alt = modifiers.contains(KeyModifiers::ALT);
+
     // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
