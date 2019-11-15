@@ -1,23 +1,10 @@
 # Version Master
 
 - `queue!` & `execute!` macros allow trailing comma
-- `input` module
-  - Remove `stop_reading_thread()` function introduced in `0.13.2`
-  - Rename the whole module, corresponding types and feature to `event`, `Event*`, ...
-- `event` module
-  - Remove `InputEvent::CursorPosition(x,y)`
-  - Remove `InputEvent::Unsupported`, `InputEvent::Unknown` and `MouseEvent::Unknown` variants 
-  - Remove `AsyncReader`, `SyncReader`
-  - Remove `TerminalInput`
-  - Rename `InputEvent` to `Event`
-  - Rename `InputEvent::Keyboard` to `Event::Key`
-  - Rename `crossterm::input` to `crossterm::event`
-  - Rename `input` feature flag to `event`
-  - New `Event::Resize` variant
-  - New `poll` & `read` functions  
-  - New `EventStream` based on `futures::Stream`
-    - Available only if `async-event` feature is enabled
-  - New `KeyEvent` with public `code` (`KeyCode`) and `modifiers` (`KeyModifiers`) fields
+- Remove the `input` module
+- New `event` module
+  - Brand new `input` module replacement
+  - TODO Add links to the docs & Wiki explaining the upgrade path
  
 # Version 0.13.3
 
