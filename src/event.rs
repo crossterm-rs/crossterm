@@ -234,20 +234,36 @@ pub enum Event {
 }
 
 /// Represents a mouse event.
+///
+/// # Platform-specific Notes
+///
+/// ## Mouse Buttons
+///
+/// Some platforms/terminals does not report mouse button for the
+/// `MouseEvent::Up` and `MouseEvent::Drag` events. `MouseButton::Left`
+/// is returned if we don't know which button was used.
+///
+/// ## Key Modifiers
+///
+/// Some platforms/terminals does not report all key modifiers
+/// combinations for all mouse event types. For example - macOS reports
+/// `Ctrl` + left mouse button click as a right mouse button click.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseEvent {
-    /// Pressed mouse button at the location (column, row).
+    /// Pressed mouse button with pointer at the location (column, row).
     Down(MouseButton, u16, u16, KeyModifiers),
-    /// Released mouse button at the location (column, row).
+    /// Released mouse button with pointer at the location (column, row).
     Up(MouseButton, u16, u16, KeyModifiers),
-    /// Mouse moved with a pressed left button to the new location (column, row).
+    /// Moved mouse pointer with a pressed button to the new location (column, row).
     Drag(MouseButton, u16, u16, KeyModifiers),
+    /// Mouse wheel scrolled down with pointer at the location (column, row).
     ScrollDown(u16, u16, KeyModifiers),
+    /// Mouse wheel scrolled up with pointer at the location (column, row).
     ScrollUp(u16, u16, KeyModifiers),
 }
 
-/// Represents a mouse button/wheel.
+/// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseButton {
