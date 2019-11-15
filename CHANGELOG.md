@@ -1,10 +1,12 @@
 # Version Master
 
 - `queue!` & `execute!` macros allow trailing comma
-- Remove the `input` module
-- New `event` module
-  - Brand new `input` module replacement
-  - TODO Add links to the docs & Wiki explaining the upgrade path
+- Replace the `input` module with brand new `event` module
+  - It's **highly recommended** to read the
+    [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
+    documentation
+* Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
+  documentation
  
 # Version 0.13.3
 
