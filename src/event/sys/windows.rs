@@ -205,29 +205,37 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
         EventFlags::PressOrRelease => {
             // Single click
             match event.button_state {
-                ButtonState::Release => Some(crate::event::MouseEvent::Release(xpos, ypos)),
+                ButtonState::Release => Some(crate::event::MouseEvent::Up(
+                    MouseButton::Left,
+                    xpos,
+                    ypos,
+                    KeyModifiers::empty(),
+                )),
                 ButtonState::FromLeft1stButtonPressed => {
                     // left click
-                    Some(crate::event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Down(
                         MouseButton::Left,
                         xpos,
                         ypos,
+                        KeyModifiers::empty(),
                     ))
                 }
                 ButtonState::RightmostButtonPressed => {
                     // right click
-                    Some(crate::event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Down(
                         MouseButton::Right,
                         xpos,
                         ypos,
+                        KeyModifiers::empty(),
                     ))
                 }
                 ButtonState::FromLeft2ndButtonPressed => {
                     // middle click
-                    Some(crate::event::MouseEvent::Press(
+                    Some(crate::event::MouseEvent::Down(
                         MouseButton::Middle,
                         xpos,
                         ypos,
+                        KeyModifiers::empty(),
                     ))
                 }
                 _ => None,
@@ -237,7 +245,12 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
             // Click + Move
             // NOTE (@imdaveho) only register when mouse is not released
             if event.button_state != ButtonState::Release {
-                Some(crate::event::MouseEvent::Hold(xpos, ypos))
+                Some(crate::event::MouseEvent::Drag(
+                    MouseButton::Left,
+                    xpos,
+                    ypos,
+                    KeyModifiers::empty(),
+                ))
             } else {
                 None
             }
@@ -247,16 +260,16 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
             if event.button_state != ButtonState::Negative {
-                Some(crate::event::MouseEvent::Press(
-                    MouseButton::WheelUp,
+                Some(crate::event::MouseEvent::ScrollUp(
                     xpos,
                     ypos,
+                    KeyModifiers::empty(),
                 ))
             } else {
-                Some(crate::event::MouseEvent::Press(
-                    MouseButton::WheelDown,
+                Some(crate::event::MouseEvent::ScrollDown(
                     xpos,
                     ypos,
+                    KeyModifiers::empty(),
                 ))
             }
         }
