@@ -402,7 +402,7 @@ pub(crate) fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>
         return Ok(None);
     }
 
-    let cb = buffer[3] as i8 - 32;
+    let cb = buffer[3] - 0x30;
     // See http://www.xfree86.org/current/ctlseqs.html#Mouse%20Tracking
     // The upper left character position on the terminal is denoted as 1,1.
     // Subtract 1 to keep it synced with cursor
