@@ -238,11 +238,13 @@ pub enum Event {
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub enum MouseEvent {
     /// Pressed mouse button at the location (column, row).
-    Press(MouseButton, u16, u16),
+    Down(MouseButton, u16, u16, KeyModifiers),
     /// Released mouse button at the location (column, row).
-    Release(u16, u16),
+    Up(MouseButton, u16, u16, KeyModifiers),
     /// Mouse moved with a pressed left button to the new location (column, row).
-    Hold(u16, u16),
+    Drag(MouseButton, u16, u16, KeyModifiers),
+    ScrollDown(u16, u16, KeyModifiers),
+    ScrollUp(u16, u16, KeyModifiers),
 }
 
 /// Represents a mouse button/wheel.
@@ -255,10 +257,6 @@ pub enum MouseButton {
     Right,
     /// Middle mouse button.
     Middle,
-    /// Wheel scrolled up.
-    WheelUp,
-    /// Wheel scrolled down.
-    WheelDown,
 }
 
 bitflags! {

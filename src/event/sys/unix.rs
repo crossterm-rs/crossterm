@@ -6,7 +6,7 @@ use std::{
 use libc::{c_int, c_void, size_t, ssize_t};
 
 use crate::{
-    event::{Event, KeyCode, KeyEvent, MouseButton, MouseEvent},
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
     utils::sys::unix::wrap_with_result,
     ErrorKind, Result,
 };
@@ -352,12 +352,12 @@ pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent
     let cy = next_parsed::<u16>(&mut split)? - 1;
 
     let mouse_input_event = match cb {
-        32 => MouseEvent::Press(MouseButton::Left, cx, cy),
-        33 => MouseEvent::Press(MouseButton::Middle, cx, cy),
-        34 => MouseEvent::Press(MouseButton::Right, cx, cy),
-        35 => MouseEvent::Release(cx, cy),
-        64 => MouseEvent::Hold(cx, cy),
-        96 | 97 => MouseEvent::Press(MouseButton::WheelUp, cx, cy),
+        32 => MouseEvent::Down(MouseButton::Left, cx, cy, KeyModifiers::empty()),
+        33 => MouseEvent::Down(MouseButton::Middle, cx, cy, KeyModifiers::empty()),
+        34 => MouseEvent::Down(MouseButton::Right, cx, cy, KeyModifiers::empty()),
+        35 => MouseEvent::Up(MouseButton::Left, cx, cy, KeyModifiers::empty()),
+        64 => MouseEvent::Drag(MouseButton::Left, cx, cy, KeyModifiers::empty()),
+        96 | 97 => MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty()),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -384,20 +384,20 @@ pub(crate) fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>
     let mouse_input_event = match cb & 0b11 {
         0 => {
             if cb & 0x40 != 0 {
-                MouseEvent::Press(MouseButton::WheelUp, cx, cy)
+                MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty())
             } else {
-                MouseEvent::Press(MouseButton::Left, cx, cy)
+                MouseEvent::Down(MouseButton::Left, cx, cy, KeyModifiers::empty())
             }
         }
         1 => {
             if cb & 0x40 != 0 {
-                MouseEvent::Press(MouseButton::WheelDown, cx, cy)
+                MouseEvent::ScrollDown(cx, cy, KeyModifiers::empty())
             } else {
-                MouseEvent::Press(MouseButton::Middle, cx, cy)
+                MouseEvent::Down(MouseButton::Middle, cx, cy, KeyModifiers::empty())
             }
         }
-        2 => MouseEvent::Press(MouseButton::Right, cx, cy),
-        3 => MouseEvent::Release(cx, cy),
+        2 => MouseEvent::Down(MouseButton::Right, cx, cy, KeyModifiers::empty()),
+        3 => MouseEvent::Up(MouseButton::Left, cx, cy, KeyModifiers::empty()),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -426,25 +426,35 @@ pub(crate) fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEven
     let cy = next_parsed::<u16>(&mut split)? - 1;
 
     let input_event = match cb {
-        0..=2 | 64..=65 => {
+        64 => Event::Mouse(MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty())),
+        65 => Event::Mouse(MouseEvent::ScrollDown(cx, cy, KeyModifiers::empty())),
+        0..=2 => {
             let button = match cb {
                 0 => MouseButton::Left,
                 1 => MouseButton::Middle,
                 2 => MouseButton::Right,
-                64 => MouseButton::WheelUp,
-                65 => MouseButton::WheelDown,
                 _ => unreachable!(),
             };
             match buffer.last().unwrap() {
-                b'M' => Event::Mouse(MouseEvent::Press(button, cx, cy)),
-                b'm' => Event::Mouse(MouseEvent::Release(cx, cy)),
+                b'M' => Event::Mouse(MouseEvent::Down(button, cx, cy, KeyModifiers::empty())),
+                b'm' => Event::Mouse(MouseEvent::Up(button, cx, cy, KeyModifiers::empty())),
                 _ => return Err(could_not_parse_event_error()),
             }
         }
         // TODO 1.0: Add MouseButton to Hold and report which button is pressed
         // 33 - middle, 34 - right
-        32 => Event::Mouse(MouseEvent::Hold(cx, cy)),
-        3 => Event::Mouse(MouseEvent::Release(cx, cy)),
+        32 => Event::Mouse(MouseEvent::Drag(
+            MouseButton::Left,
+            cx,
+            cy,
+            KeyModifiers::empty(),
+        )),
+        3 => Event::Mouse(MouseEvent::Up(
+            MouseButton::Left,
+            cx,
+            cy,
+            KeyModifiers::empty(),
+        )),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -492,7 +502,7 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::event::{MouseButton, MouseEvent};
+    use crate::event::{KeyModifiers, MouseButton, MouseEvent};
 
     use super::*;
 
@@ -553,30 +563,33 @@ mod tests {
         // parse_csi_rxvt_mouse
         assert_eq!(
             parse_event("\x1B[32;30;40;M".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 29,
-                39
+                39,
+                KeyModifiers::empty(),
             ))))
         );
 
         // parse_csi_x10_mouse
         assert_eq!(
             parse_event("\x1B[M0\x60\x70".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 63,
-                79
+                79,
+                KeyModifiers::empty(),
             ))))
         );
 
         // parse_csi_xterm_mouse
         assert_eq!(
             parse_event("\x1B[<0;20;10;M".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 19,
-                9
+                9,
+                KeyModifiers::empty(),
             ))))
         );
 
@@ -638,10 +651,11 @@ mod tests {
     fn test_parse_csi_rxvt_mouse() {
         assert_eq!(
             parse_csi_rxvt_mouse("\x1B[32;30;40;M".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 29,
-                39
+                39,
+                KeyModifiers::empty(),
             ))))
         );
     }
@@ -650,10 +664,11 @@ mod tests {
     fn test_parse_csi_x10_mouse() {
         assert_eq!(
             parse_csi_x10_mouse("\x1B[M0\x60\x70".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 63,
-                79
+                79,
+                KeyModifiers::empty(),
             ))))
         );
     }
@@ -662,30 +677,38 @@ mod tests {
     fn test_parse_csi_xterm_mouse() {
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10;M".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 19,
-                9
+                9,
+                KeyModifiers::empty(),
             ))))
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10M".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Press(
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Down(
                 MouseButton::Left,
                 19,
-                9
+                9,
+                KeyModifiers::empty(),
             ))))
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10;m".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Release(
-                19, 9
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Up(
+                MouseButton::Left,
+                19,
+                9,
+                KeyModifiers::empty(),
             ))))
         );
         assert_eq!(
             parse_csi_xterm_mouse("\x1B[<0;20;10m".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Release(
-                19, 9
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent::Up(
+                MouseButton::Left,
+                19,
+                9,
+                KeyModifiers::empty(),
             ))))
         );
     }
