@@ -92,9 +92,9 @@ pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Result<Option<Event
 
 impl From<ControlKeyState> for KeyModifiers {
     fn from(state: ControlKeyState) -> Self {
-        let shift = (state.has_state(SHIFT_PRESSED));
-        let alt = (state.has_state((LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)));
-        let control = (state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED));
+        let shift = state.has_state(SHIFT_PRESSED);
+        let alt = state.has_state(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED);
+        let control = state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED);
 
         let mut modifier = KeyModifiers::empty();
 
@@ -189,11 +189,6 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
     let modifiers = KeyModifiers::from(event.control_key_state);
 
-    // todo implement
-    let shift = modifiers.contains(KeyModifiers::SHIFT);
-    let ctrl = modifiers.contains(KeyModifiers::CONTROL);
-    let alt = modifiers.contains(KeyModifiers::ALT);
-
     // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
     // individually as bytes into a buffer; the below cxbs and cybs replicates that and
     // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
@@ -209,7 +204,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
                     MouseButton::Left,
                     xpos,
                     ypos,
-                    KeyModifiers::empty(),
+                    modifiers,
                 )),
                 ButtonState::FromLeft1stButtonPressed => {
                     // left click
@@ -217,7 +212,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
                         MouseButton::Left,
                         xpos,
                         ypos,
-                        KeyModifiers::empty(),
+                        modifiers,
                     ))
                 }
                 ButtonState::RightmostButtonPressed => {
@@ -226,7 +221,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
                         MouseButton::Right,
                         xpos,
                         ypos,
-                        KeyModifiers::empty(),
+                        modifiers,
                     ))
                 }
                 ButtonState::FromLeft2ndButtonPressed => {
@@ -235,7 +230,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
                         MouseButton::Middle,
                         xpos,
                         ypos,
-                        KeyModifiers::empty(),
+                        modifiers,
                     ))
                 }
                 _ => None,
@@ -249,7 +244,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
                     MouseButton::Left,
                     xpos,
                     ypos,
-                    KeyModifiers::empty(),
+                    modifiers,
                 ))
             } else {
                 None
@@ -260,22 +255,13 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
             // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
             if event.button_state != ButtonState::Negative {
-                Some(crate::event::MouseEvent::ScrollUp(
-                    xpos,
-                    ypos,
-                    KeyModifiers::empty(),
-                ))
+                Some(crate::event::MouseEvent::ScrollUp(xpos, ypos, modifiers))
             } else {
-                Some(crate::event::MouseEvent::ScrollDown(
-                    xpos,
-                    ypos,
-                    KeyModifiers::empty(),
-                ))
+                Some(crate::event::MouseEvent::ScrollDown(xpos, ypos, modifiers))
             }
         }
         EventFlags::DoubleClick => None, // NOTE (@imdaveho): double click not supported by unix terminals
         EventFlags::MouseHwheeled => None, // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
-                                           // TODO: Handle Ctrl + Mouse, Alt + Mouse, etc.
     })
 }
 
