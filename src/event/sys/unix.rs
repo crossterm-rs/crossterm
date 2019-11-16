@@ -351,17 +351,45 @@ pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent
     let cx = next_parsed::<u16>(&mut split)? - 1;
     let cy = next_parsed::<u16>(&mut split)? - 1;
 
-    let mouse_input_event = match cb {
-        32 => MouseEvent::Down(MouseButton::Left, cx, cy, KeyModifiers::empty()),
-        33 => MouseEvent::Down(MouseButton::Middle, cx, cy, KeyModifiers::empty()),
-        34 => MouseEvent::Down(MouseButton::Right, cx, cy, KeyModifiers::empty()),
-        35 => MouseEvent::Up(MouseButton::Left, cx, cy, KeyModifiers::empty()),
-        64 => MouseEvent::Drag(MouseButton::Left, cx, cy, KeyModifiers::empty()),
-        96 | 97 => MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty()),
-        _ => return Err(could_not_parse_event_error()),
+    let mut modifiers = KeyModifiers::empty();
+
+    if cb & 0b0000_0100 == 0b0000_0100 {
+        modifiers |= KeyModifiers::SHIFT;
+    }
+
+    if cb & 0b0000_1000 == 0b0000_1000 {
+        modifiers |= KeyModifiers::ALT;
+    }
+
+    if cb & 0b0001_0000 == 0b0001_0000 {
+        modifiers |= KeyModifiers::CONTROL;
+    }
+
+    let event = if cb & 0b0110_0000 == 0b0110_0000 {
+        if cb & 0b0000_0001 == 0b0000_0001 {
+            MouseEvent::ScrollDown(cx, cy, modifiers)
+        } else {
+            MouseEvent::ScrollUp(cx, cy, modifiers)
+        }
+    } else {
+        let drag = cb & 0b0100_0000 == 0b0100_0000;
+
+        match (cb & 0b0000_0011, drag) {
+            (0b0000_0000, false) => MouseEvent::Down(MouseButton::Left, cx, cy, modifiers),
+            (0b0000_0010, false) => MouseEvent::Down(MouseButton::Right, cx, cy, modifiers),
+            (0b0000_0001, false) => MouseEvent::Down(MouseButton::Middle, cx, cy, modifiers),
+
+            (0b0000_0000, true) => MouseEvent::Drag(MouseButton::Left, cx, cy, modifiers),
+            (0b0000_0010, true) => MouseEvent::Drag(MouseButton::Right, cx, cy, modifiers),
+            (0b0000_0001, true) => MouseEvent::Drag(MouseButton::Middle, cx, cy, modifiers),
+
+            (0b0000_0011, false) => MouseEvent::Up(MouseButton::Left, cx, cy, modifiers),
+
+            _ => return Err(could_not_parse_event_error()),
+        }
     };
 
-    Ok(Some(InternalEvent::Event(Event::Mouse(mouse_input_event))))
+    Ok(Some(InternalEvent::Event(Event::Mouse(event))))
 }
 
 pub(crate) fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>> {
@@ -374,30 +402,44 @@ pub(crate) fn parse_csi_x10_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>
         return Ok(None);
     }
 
-    let cb = buffer[3] as i8 - 32;
+    let cb = buffer[3] - 0x30;
     // See http://www.xfree86.org/current/ctlseqs.html#Mouse%20Tracking
     // The upper left character position on the terminal is denoted as 1,1.
     // Subtract 1 to keep it synced with cursor
     let cx = u16::from(buffer[4].saturating_sub(32)) - 1;
     let cy = u16::from(buffer[5].saturating_sub(32)) - 1;
 
-    let mouse_input_event = match cb & 0b11 {
+    let mut modifiers = KeyModifiers::empty();
+
+    if cb & 0b0000_0100 == 0b0000_0100 {
+        modifiers |= KeyModifiers::SHIFT;
+    }
+
+    if cb & 0b0000_1000 == 0b0000_1000 {
+        modifiers |= KeyModifiers::ALT;
+    }
+
+    if cb & 0b0001_0000 == 0b0001_0000 {
+        modifiers |= KeyModifiers::CONTROL;
+    }
+
+    let mouse_input_event = match cb & 0b0000_0011 {
         0 => {
-            if cb & 0x40 != 0 {
-                MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty())
+            if cb & 0b0100_0000 == 0b0100_0000 {
+                MouseEvent::ScrollUp(cx, cy, modifiers)
             } else {
-                MouseEvent::Down(MouseButton::Left, cx, cy, KeyModifiers::empty())
+                MouseEvent::Down(MouseButton::Left, cx, cy, modifiers)
             }
         }
         1 => {
-            if cb & 0x40 != 0 {
-                MouseEvent::ScrollDown(cx, cy, KeyModifiers::empty())
+            if cb & 0b0100_0000 == 0b0100_0000 {
+                MouseEvent::ScrollDown(cx, cy, modifiers)
             } else {
-                MouseEvent::Down(MouseButton::Middle, cx, cy, KeyModifiers::empty())
+                MouseEvent::Down(MouseButton::Middle, cx, cy, modifiers)
             }
         }
-        2 => MouseEvent::Down(MouseButton::Right, cx, cy, KeyModifiers::empty()),
-        3 => MouseEvent::Up(MouseButton::Left, cx, cy, KeyModifiers::empty()),
+        2 => MouseEvent::Down(MouseButton::Right, cx, cy, modifiers),
+        3 => MouseEvent::Up(MouseButton::Left, cx, cy, modifiers),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -425,40 +467,50 @@ pub(crate) fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEven
     let cx = next_parsed::<u16>(&mut split)? - 1;
     let cy = next_parsed::<u16>(&mut split)? - 1;
 
-    let input_event = match cb {
-        64 => Event::Mouse(MouseEvent::ScrollUp(cx, cy, KeyModifiers::empty())),
-        65 => Event::Mouse(MouseEvent::ScrollDown(cx, cy, KeyModifiers::empty())),
-        0..=2 => {
-            let button = match cb {
-                0 => MouseButton::Left,
-                1 => MouseButton::Middle,
-                2 => MouseButton::Right,
-                _ => unreachable!(),
-            };
-            match buffer.last().unwrap() {
-                b'M' => Event::Mouse(MouseEvent::Down(button, cx, cy, KeyModifiers::empty())),
-                b'm' => Event::Mouse(MouseEvent::Up(button, cx, cy, KeyModifiers::empty())),
-                _ => return Err(could_not_parse_event_error()),
-            }
+    let mut modifiers = KeyModifiers::empty();
+
+    if cb & 0b0000_0100 == 0b0000_0100 {
+        modifiers |= KeyModifiers::SHIFT;
+    }
+
+    if cb & 0b0000_1000 == 0b0000_1000 {
+        modifiers |= KeyModifiers::ALT;
+    }
+
+    if cb & 0b0001_0000 == 0b0001_0000 {
+        modifiers |= KeyModifiers::CONTROL;
+    }
+
+    let event = if cb & 0b0100_0000 == 0b0100_0000 {
+        if cb & 0b0000_0001 == 0b0000_0001 {
+            MouseEvent::ScrollDown(cx, cy, modifiers)
+        } else {
+            MouseEvent::ScrollUp(cx, cy, modifiers)
         }
-        // TODO 1.0: Add MouseButton to Hold and report which button is pressed
-        // 33 - middle, 34 - right
-        32 => Event::Mouse(MouseEvent::Drag(
-            MouseButton::Left,
-            cx,
-            cy,
-            KeyModifiers::empty(),
-        )),
-        3 => Event::Mouse(MouseEvent::Up(
-            MouseButton::Left,
-            cx,
-            cy,
-            KeyModifiers::empty(),
-        )),
-        _ => return Err(could_not_parse_event_error()),
+    } else {
+        let up = match buffer.last().unwrap() {
+            b'm' => true,
+            b'M' => false,
+            _ => return Err(could_not_parse_event_error()),
+        };
+
+        let drag = cb & 0b0010_0000 == 0b0010_0000;
+
+        match (cb & 0b111, up, drag) {
+            (0, true, _) => MouseEvent::Up(MouseButton::Left, cx, cy, modifiers),
+            (0, false, false) => MouseEvent::Down(MouseButton::Left, cx, cy, modifiers),
+            (0, false, true) => MouseEvent::Drag(MouseButton::Left, cx, cy, modifiers),
+            (1, true, _) => MouseEvent::Up(MouseButton::Middle, cx, cy, modifiers),
+            (1, false, false) => MouseEvent::Down(MouseButton::Middle, cx, cy, modifiers),
+            (1, false, true) => MouseEvent::Drag(MouseButton::Middle, cx, cy, modifiers),
+            (2, true, _) => MouseEvent::Up(MouseButton::Right, cx, cy, modifiers),
+            (2, false, false) => MouseEvent::Down(MouseButton::Right, cx, cy, modifiers),
+            (2, false, true) => MouseEvent::Drag(MouseButton::Right, cx, cy, modifiers),
+            _ => return Err(could_not_parse_event_error()),
+        }
     };
 
-    Ok(Some(InternalEvent::Event(input_event)))
+    Ok(Some(InternalEvent::Event(Event::Mouse(event))))
 }
 
 pub(crate) fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {

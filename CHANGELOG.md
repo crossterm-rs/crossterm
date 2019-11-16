@@ -1,23 +1,12 @@
 # Version Master
 
 - `queue!` & `execute!` macros allow trailing comma
-- `input` module
-  - Remove `stop_reading_thread()` function introduced in `0.13.2`
-  - Rename the whole module, corresponding types and feature to `event`, `Event*`, ...
-- `event` module
-  - Remove `InputEvent::CursorPosition(x,y)`
-  - Remove `InputEvent::Unsupported`, `InputEvent::Unknown` and `MouseEvent::Unknown` variants 
-  - Remove `AsyncReader`, `SyncReader`
-  - Remove `TerminalInput`
-  - Rename `InputEvent` to `Event`
-  - Rename `InputEvent::Keyboard` to `Event::Key`
-  - Rename `crossterm::input` to `crossterm::event`
-  - Rename `input` feature flag to `event`
-  - New `Event::Resize` variant
-  - New `poll` & `read` functions  
-  - New `EventStream` based on `futures::Stream`
-    - Available only if `async-event` feature is enabled
-  - New `KeyEvent` with public `code` (`KeyCode`) and `modifiers` (`KeyModifiers`) fields
+- Replace the `input` module with brand new `event` module
+  - It's **highly recommended** to read the
+    [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
+    documentation
+* Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
+  documentation
  
 # Version 0.13.3
 
