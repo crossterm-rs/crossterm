@@ -2,20 +2,17 @@
 
 use std::io;
 use std::io::ErrorKind;
-use std::ptr;
 use std::sync::Mutex;
 use std::time::Duration;
 
 use crossterm_winapi::{
-    ButtonState, ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent,
-    ScreenBuffer,
+    ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
+    Semaphore,
 };
 use winapi::shared::winerror::WAIT_TIMEOUT;
 use winapi::um::{
-    handleapi::CloseHandle,
-    synchapi::{CreateSemaphoreW, ReleaseSemaphore, WaitForMultipleObjects},
+    synchapi::WaitForMultipleObjects,
     winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
-    winnt::HANDLE,
 };
 use winapi::um::{
     wincon::{
@@ -27,14 +24,12 @@ use winapi::um::{
     },
 };
 
-//  VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12
 use lazy_static::lazy_static;
 
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
     Result,
 };
-
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
 lazy_static! {
@@ -189,62 +184,43 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
     let modifiers = KeyModifiers::from(event.control_key_state);
 
-    // NOTE (@imdaveho): xterm emulation takes the digits of the coords and passes them
-    // individually as bytes into a buffer; the below cxbs and cybs replicates that and
-    // mimicks the behavior; additionally, in xterm, mouse move is only handled when a
-    // mouse button is held down (ie. mouse drag)
     let xpos = event.mouse_position.x as u16;
     let ypos = parse_relative_y(event.mouse_position.y)? as u16;
 
+    let button_state = event.button_state;
+    let mut button = MouseButton::Left;
+
+    if button_state.right_button() {
+        button = MouseButton::Right;
+    }
+
+    if button_state.middle_button() {
+        button = MouseButton::Middle;
+    }
+
     Ok(match event.event_flags {
         EventFlags::PressOrRelease => {
-            // Single click
-            match event.button_state {
-                ButtonState::Release => Some(crate::event::MouseEvent::Up(
+            if button_state.release_button() {
+                // in order to read the up button type, we have to check the last down input record.
+                Some(crate::event::MouseEvent::Up(
                     MouseButton::Left,
                     xpos,
                     ypos,
                     modifiers,
-                )),
-                ButtonState::FromLeft1stButtonPressed => {
-                    // left click
-                    Some(crate::event::MouseEvent::Down(
-                        MouseButton::Left,
-                        xpos,
-                        ypos,
-                        modifiers,
-                    ))
-                }
-                ButtonState::RightmostButtonPressed => {
-                    // right click
-                    Some(crate::event::MouseEvent::Down(
-                        MouseButton::Right,
-                        xpos,
-                        ypos,
-                        modifiers,
-                    ))
-                }
-                ButtonState::FromLeft2ndButtonPressed => {
-                    // middle click
-                    Some(crate::event::MouseEvent::Down(
-                        MouseButton::Middle,
-                        xpos,
-                        ypos,
-                        modifiers,
-                    ))
-                }
-                _ => None,
+                ))
+            } else {
+                Some(crate::event::MouseEvent::Down(
+                    button, xpos, ypos, modifiers,
+                ))
             }
         }
         EventFlags::MouseMoved => {
             // Click + Move
-            // NOTE (@imdaveho) only register when mouse is not released
-            if event.button_state != ButtonState::Release {
+            // Only register when mouse is not released
+            // because unix systems share this behaviour.
+            if !button_state.release_button() {
                 Some(crate::event::MouseEvent::Drag(
-                    MouseButton::Left,
-                    xpos,
-                    ypos,
-                    modifiers,
+                    button, xpos, ypos, modifiers,
                 ))
             } else {
                 None
@@ -252,16 +228,18 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
         }
         EventFlags::MouseWheeled => {
             // Vertical scroll
-            // NOTE (@imdaveho) from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
+            // from https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str
             // if `button_state` is negative then the wheel was rotated backward, toward the user.
-            if event.button_state != ButtonState::Negative {
+            if button_state.scroll_down() {
+                Some(crate::event::MouseEvent::ScrollDown(xpos, ypos, modifiers))
+            } else if button_state.scroll_up() {
                 Some(crate::event::MouseEvent::ScrollUp(xpos, ypos, modifiers))
             } else {
-                Some(crate::event::MouseEvent::ScrollDown(xpos, ypos, modifiers))
+                None
             }
         }
-        EventFlags::DoubleClick => None, // NOTE (@imdaveho): double click not supported by unix terminals
-        EventFlags::MouseHwheeled => None, // NOTE (@imdaveho): horizontal scroll not supported by unix terminals
+        EventFlags::DoubleClick => None, // double click not supported by unix terminals
+        EventFlags::MouseHwheeled => None, // horizontal scroll not supported by unix terminals
     })
 }
 
@@ -325,53 +303,3 @@ impl WinApiPoll {
         Ok(())
     }
 }
-
-// HANDLE can be send
-unsafe impl Send for WinApiPoll {}
-// HANDLE can be sync
-unsafe impl Sync for WinApiPoll {}
-
-//// TODO, maybe move to crossterm_winapi
-struct Semaphore(HANDLE);
-
-impl Semaphore {
-    /// Construct a new semaphore.
-    pub fn new() -> io::Result<Self> {
-        let handle = unsafe { CreateSemaphoreW(ptr::null_mut(), 0, 1, ptr::null_mut()) };
-
-        if handle == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
-
-        Ok(Self(handle))
-    }
-
-    /// Release a permit on the semaphore.
-    pub fn release(&self) -> io::Result<()> {
-        let result = unsafe { ReleaseSemaphore(self.0, 1, ptr::null_mut()) };
-
-        if result == 0 {
-            return Err(io::Error::last_os_error());
-        }
-
-        Ok(())
-    }
-
-    /// Access the underlying handle to the semaphore.
-    pub fn handle(&self) -> HANDLE {
-        self.0
-    }
-}
-
-impl Drop for Semaphore {
-    fn drop(&mut self) {
-        assert!(
-            unsafe { CloseHandle(self.0) } != 0,
-            "failed to close handle"
-        );
-    }
-}
-
-unsafe impl Send for Semaphore {}
-
-unsafe impl Sync for Semaphore {}
