@@ -35,10 +35,13 @@ macro_rules! def_str_color {
 }
 
 macro_rules! def_str_attr {
-    ($name:ident => $color:path) => {
+    ($name:ident => $attr:path) => {
         fn $name(self) -> StyledContent<&'static str> {
             StyledContent::new(
-                Default::default(),
+                ContentStyle {
+                    attributes: vec![ $attr ],
+                    ..Default::default()
+                },
                 self
             )
         }
