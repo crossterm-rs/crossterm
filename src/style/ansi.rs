@@ -1,8 +1,10 @@
 //! This is a ANSI specific implementation for styling related action.
 //! This module is used for Windows 10 terminals and Unix terminals by default.
 
-use crate::csi;
-use crate::style::{Attribute, Color, Colored};
+use crate::{
+    csi,
+    style::{Attribute, Color, Colored},
+};
 
 pub(crate) fn set_fg_csi_sequence(fg_color: Color) -> String {
     format!(

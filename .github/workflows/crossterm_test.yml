@@ -50,20 +50,23 @@ jobs:
     - name: Test all features
       run: cargo test --all-features --no-default-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test cursor Feature
+    - name: Test cursor feature
       run: cargo test --features cursor --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test style Feature
+    - name: Test style feature
       run: cargo test --features style --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test terminal Feature
+    - name: Test terminal feature
       run: cargo test --features terminal --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test screen Feature
+    - name: Test screen feature
       run: cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test input Feature
-      run: cargo test --features input --no-default-features --lib -- --nocapture --test-threads 1
+    - name: Test event feature
+      run: cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Test async-event feature
+      run: cargo test --features event-stream --no-default-features --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
       if: matrix.rust == 'stable'

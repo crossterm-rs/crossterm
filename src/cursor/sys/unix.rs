@@ -1,11 +1,14 @@
-//! UNIX related logic to cursor manipulation.
+use std::{
+    io::{self, Error, ErrorKind, Write},
+    time::Duration,
+};
 
-use std::io::{self, Write};
-
-use crate::input::{InputEvent, TerminalInput};
-use crate::utils::{
-    sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
-    Result,
+use crate::{
+    event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
+    utils::{
+        sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
+        Result,
+    },
 };
 
 /// Returns the cursor position (column, row).
@@ -29,15 +32,26 @@ fn read_position() -> Result<(u16, u16)> {
 fn read_position_raw() -> Result<(u16, u16)> {
     // Use `ESC [ 6 n` to and retrieve the cursor position.
     let mut stdout = io::stdout();
-
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
-    let mut reader = TerminalInput::new().read_sync();
-
     loop {
-        if let Some(InputEvent::CursorPosition(x, y)) = reader.next() {
-            return Ok((x, y));
+        match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
+            Ok(true) => {
+                match read_internal(&CursorPositionFilter) {
+                    Ok(InternalEvent::CursorPosition(x, y)) => {
+                        return Ok((x, y));
+                    }
+                    _ => { /* unreachable */ }
+                };
+            }
+            Ok(false) => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "The cursor position could not be read within a normal duration",
+                ))?;
+            }
+            Err(_) => {}
         }
     }
 }

@@ -3,7 +3,7 @@
 //! # Crossterm
 //!
 //! Have you ever been disappointed when a terminal library for rust was only written for UNIX systems?
-//! Crossterm provides clearing, input handling, styling, cursor movement, and terminal actions for both
+//! Crossterm provides clearing, event (input) handling, styling, cursor movement, and terminal actions for both
 //! Windows and UNIX systems.
 //!
 //! Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not
@@ -38,46 +38,45 @@
 //!
 //! ### Supported Commands
 //!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|   **crossterm::cursor module**   |                                                                   |
-//!|  `cursor::DisableBlinking`	      | disables blinking of the terminal cursor.                         |
-//!|  `cursor::EnableBlinking`	      | enables blinking of the terminal cursor.                          |
-//!|  `cursor::Hide`	              | hides the terminal cursor.                                        |
-//!|  `cursor::MoveDown`	          | moves the terminal cursor a given number of rows down.            |
-//!|  `cursor::MoveLeft`	          | moves the terminal cursor a given number of columns to the left.  |
-//!|  `cursor::MoveRight`	          | moves the terminal cursor a given number of columns to the right. |
-//!|  `cursor::MoveTo`	              | moves the terminal cursor to the given position (column, row).    |
-//!|  `cursor::MoveUp`	              | moves the terminal cursor a given number of rows up.              |
-//!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
-//!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
-//!|  `cursor::Show`	              | shows the terminal cursor.                                        |
-//!|   **crossterm::input module**    |                                                                   |
-//!|  `input::DisableMouseCapture`    | disables mouse event monitoring.                                  |
-//!|  `input::EnableMouseCapture`	  | enables mouse mode                                                |
-//!|                                  |                                                                   |
-//!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
-//!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
-//!|   **crossterm::style module**    |                                                                   |
-//!|  `style::PrintStyledContent`     | prints styled content.                                            |
-//!|  `style::ResetColor`	          | resets the colors back to default.                                |
-//!|  `style::SetAttribute`	          | sets an attribute.                                                |
-//!|  `style::SetBackgroundColor`     | sets the the background color.                                    |
-//!|  `style::SetForegroundColor`     | sets the the foreground color.                                    |
-//!|   **crossterm::terminal module** |                                                                   |
-//!|  `terminal::Clear`	              | clears the terminal screen buffer.                                |
-//!|  `terminal::ScrollDown`	      | scrolls the terminal screen a given number of rows down.          |
-//!|  `terminal::ScrollUp`	          | scrolls the terminal screen a given number of rows up.            |
-//!|  `terminal::SetSize`             | sets the terminal size (columns, rows).                           |
+//! - Module `cursor`
+//!   - Visibility - [`Show`](cursor/struct.Show.html), [`Hide`](cursor/struct.Show.html)
+//!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
+//!     [`DisableBlinking`](cursor/struct.DisableBlinking.html)
+//!   - Position -
+//!     [`SavePosition`](cursor/struct.SavePosition.html), [`RestorePosition`](cursor/struct.RestorePosition.html),
+//!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
+//!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
+//!     [`MoveTo`](cursor/struct.MoveTo.html)
+//! - Module `event`
+//!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
+//!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
+//! - Module `screen`
+//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
+//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
+//! - Module `style`
+//!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
+//!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
+//!     [`ResetColor`](style/struct.ResetColor.html)
+//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html),
+//!     [`PrintStyledContent`](style/struct.PrintStyledContent.html)
+//! - Module `terminal`
+//!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
+//!     [`ScrollDown`](terminal/struct.ScrollDown.html)
+//!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
+//!     [`SetSize`](terminal/struct.SetSize.html)
 //!
-//! There are two different way's to execute commands.
+//! ### Command Execution
+//!
+//! There are two different way's to execute commands:
+//!
 //! * [Lazy Execution](#lazy-execution)
 //! * [Direct Execution](#direct-execution)
 //!
-//! ## Lazy Execution
+//! #### Lazy Execution
 //!
 //! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
-//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer at the same time.
+//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer
+//! at the same time.
 //!
 //! Crossterm offers the possibility to do this with `queue`.
 //! With `queue` you can queue commands, and when you call [Write::flush][flush] these commands will be executed.
@@ -86,10 +85,11 @@
 //! The commands will be executed on that buffer.
 //! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
-//! ### Examples
+//! ##### Examples
+//!
 //! A simple demonstration that shows the command API in action with cursor commands.
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -103,10 +103,10 @@
 //! stdout.flush();
 //! ```
 //!
-//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another command. Like
-//! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another
+//! command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! **Macros**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -121,10 +121,11 @@
 //! stdout.flush();
 //! ```
 //!
-//! You can pass more than one command into the [queue](./macro.queue.html) macro like `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
+//! You can pass more than one command into the [queue](./macro.queue.html) macro like
+//! `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
 //! they will be executed in the given order from left to right.
 //!
-//! ## Direct Execution
+//! #### Direct Execution
 //!
 //! For many applications it is not at all important to be efficient with 'flush' operations.
 //! For this use case there is the `execute` operation.
@@ -134,9 +135,9 @@
 //! The commands will be executed on that buffer.
 //! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
-//! ### Examples
+//! ##### Examples
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -145,10 +146,10 @@
 //! let mut stdout = stdout();
 //! stdout.execute(cursor::MoveTo(5,5));
 //! ```
-//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue another command. Like
-//! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue
+//! another command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! **Macros**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -157,14 +158,15 @@
 //! let mut stdout = stdout();
 //! execute!(stdout, cursor::MoveTo(5, 5));
 //! ```
-//! You can pass more than one command into the [execute](./macro.execute.html) macro like `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
-//! they will be executed in the given order from left to right.
+//! You can pass more than one command into the [execute](./macro.execute.html) macro like
+//! `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and they will be executed in the given order from
+//! left to right.
 //!
 //! ## Examples
 //!
 //! Print a rectangle colored with magenta and use both direct execution and lazy execution.
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -193,7 +195,7 @@
 //! }
 //! ```
 //!
-//! **Macros:**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -225,17 +227,16 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
-
 #[cfg(windows)]
 pub use utils::functions::supports_ansi;
+pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor
 #[cfg(feature = "cursor")]
 pub mod cursor;
-/// A module to read the input events.
-#[cfg(feature = "input")]
-pub mod input;
+/// A module to read events.
+#[cfg(feature = "event")]
+pub mod event;
 /// A module to work with the terminal screen.
 #[cfg(feature = "screen")]
 pub mod screen;

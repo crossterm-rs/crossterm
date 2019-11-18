@@ -1,7 +1,6 @@
 //! WinApi related logic to cursor manipulation.
 
-use std::io;
-use std::sync::Mutex;
+use std::{io, sync::Mutex};
 
 use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
