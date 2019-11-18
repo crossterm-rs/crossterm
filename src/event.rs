@@ -59,26 +59,14 @@
 //! You mustn't call `poll` from two threads at the same time because this can cause a deadlock.
 //! However, `poll` and `read` can be called independently without influencing each other.
 
-#[cfg(feature = "async-event")]
-use std::pin::Pin;
-#[cfg(feature = "async-event")]
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-#[cfg(feature = "async-event")]
-use std::thread;
 use std::time::Duration;
 
-#[cfg(feature = "async-event")]
-use futures::{
-    task::{Context, Poll},
-    Stream,
-};
 use parking_lot::RwLock;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "async-event")]
+pub use async_event::EventStream;
 use bitflags::bitflags;
 use filter::{EventFilter, Filter};
 use lazy_static::lazy_static;
@@ -386,73 +374,86 @@ pub(crate) enum InternalEvent {
     CursorPosition(u16, u16),
 }
 
-//
-//
-// ====== feature(async-event) ======
-//
-//
-
 #[cfg(feature = "async-event")]
-pub struct EventStream {
-    wake_thread_spawned: Arc<AtomicBool>,
-    wake_thread_should_shutdown: Arc<AtomicBool>,
-}
+mod async_event {
+    use std::{
+        pin::Pin,
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        },
+        thread,
+        time::Duration,
+    };
 
-#[cfg(feature = "async-event")]
-impl EventStream {
-    pub fn new() -> EventStream {
-        EventStream {
-            wake_thread_spawned: Arc::new(AtomicBool::new(false)),
-            wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
+    use futures::{
+        task::{Context, Poll},
+        Stream,
+    };
+
+    use crate::{
+        event::{poll, read, Event},
+        Result,
+    };
+
+    pub struct EventStream {
+        wake_thread_spawned: Arc<AtomicBool>,
+        wake_thread_should_shutdown: Arc<AtomicBool>,
+    }
+
+    impl EventStream {
+        pub fn new() -> EventStream {
+            EventStream {
+                wake_thread_spawned: Arc::new(AtomicBool::new(false)),
+                wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
+            }
         }
     }
-}
 
-#[cfg(feature = "async-event")]
-impl Stream for EventStream {
-    type Item = Result<Event>;
+    impl Stream for EventStream {
+        type Item = Result<Event>;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match poll(Some(Duration::from_secs(0))) {
-            Ok(true) => Poll::Ready(Some(read())),
-            Ok(false) => {
-                if !self
-                    .wake_thread_spawned
-                    .compare_and_swap(false, true, Ordering::SeqCst)
-                {
-                    let waker = cx.waker().clone();
-                    let wake_thread_spawned = self.wake_thread_spawned.clone();
-                    let wake_thread_should_shutdown = self.wake_thread_should_shutdown.clone();
+        fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+            let result = match poll(Some(Duration::from_secs(0))) {
+                Ok(true) => Poll::Ready(Some(read())),
+                Ok(false) => {
+                    if !self
+                        .wake_thread_spawned
+                        .compare_and_swap(false, true, Ordering::SeqCst)
+                    {
+                        let waker = cx.waker().clone();
+                        let wake_thread_spawned = self.wake_thread_spawned.clone();
+                        let wake_thread_should_shutdown = self.wake_thread_should_shutdown.clone();
 
-                    wake_thread_should_shutdown.store(false, Ordering::SeqCst);
+                        wake_thread_should_shutdown.store(false, Ordering::SeqCst);
 
-                    thread::spawn(move || {
-                        loop {
-                            if let Ok(true) = poll(None) {
-                                break;
+                        thread::spawn(move || {
+                            loop {
+                                if let Ok(true) = poll(None) {
+                                    break;
+                                }
+
+                                if wake_thread_should_shutdown.load(Ordering::SeqCst) {
+                                    break;
+                                }
                             }
-
-                            if wake_thread_should_shutdown.load(Ordering::SeqCst) {
-                                break;
-                            }
-                        }
-                        wake_thread_spawned.store(false, Ordering::SeqCst);
-                        waker.wake();
-                    });
+                            wake_thread_spawned.store(false, Ordering::SeqCst);
+                            waker.wake();
+                        });
+                    }
+                    Poll::Pending
                 }
-                Poll::Pending
-            }
-            Err(e) => Poll::Ready(Some(Err(e))),
-        };
-        result
+                Err(e) => Poll::Ready(Some(Err(e))),
+            };
+            result
+        }
     }
-}
 
-#[cfg(feature = "async-event")]
-impl Drop for EventStream {
-    fn drop(&mut self) {
-        self.wake_thread_should_shutdown
-            .store(true, Ordering::SeqCst);
-        INTERNAL_EVENT_READER.read().wake();
+    impl Drop for EventStream {
+        fn drop(&mut self) {
+            self.wake_thread_should_shutdown
+                .store(true, Ordering::SeqCst);
+            INTERNAL_EVENT_READER.read().wake();
+        }
     }
 }
