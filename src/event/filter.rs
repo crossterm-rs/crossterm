@@ -43,33 +43,25 @@ impl Filter for InternalEventFilter {
 #[cfg(test)]
 #[cfg(unix)]
 mod tests {
-    use super::{CursorPositionFilter, EventFilter, Filter, InternalEventFilter};
-    use crate::event::{Event, InternalEvent, KeyCode, KeyEvent};
+    use super::{
+        super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent, InternalEventFilter,
+    };
 
     #[test]
     fn test_cursor_position_filter_filters_cursor_position() {
-        assert_eq!(
-            CursorPositionFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
-            false
-        );
-        assert_eq!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0), true));
+        assert!(!CursorPositionFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0)));
     }
 
     #[test]
     fn test_event_filter_filters_events() {
-        assert_eq!(
-            EventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
-            true
-        );
-        assert_eq!(EventFilter.eval(&InternalEvent::CursorPosition(0, 0), false));
+        assert!(EventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(!EventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
     }
 
     #[test]
     fn test_event_filter_filters_internal_events() {
-        assert_eq!(
-            InternalEventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
-            true
-        );
-        assert_eq!(InternalEventFilter.eval(&InternalEvent::CursorPosition(0, 0), true));
+        assert!(InternalEventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(InternalEventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
     }
 }
