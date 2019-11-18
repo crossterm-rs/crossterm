@@ -30,6 +30,7 @@
 //!     Ok(())
 //! }
 //! ```
+//!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
 #[cfg(feature = "serde")]

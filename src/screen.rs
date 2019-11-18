@@ -36,7 +36,7 @@
 //! to remove letters. Sometimes it can be useful to disable these modes because this is undesirable.
 //! This may be undesirable if your application wants to read the input without it being shown on the screen.
 //! Raw modes are the modes to create this possibility.
-//
+//!
 //! Those modes will be set when enabling raw modes:
 //!
 //! - Input will not be forwarded to screen

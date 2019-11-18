@@ -16,12 +16,14 @@
 //! * [Attribute](enum.Attribute.html#platform-specific-notes)
 //!
 //! ## Examples
+//!
 //! A few examples of how to use the style module.
 //!
 //! ### Colors
+//!
 //! How to change the terminal text color.
 //!
-//! **Command API**
+//! Command API:
 //!
 //! Using the Command API to color text.
 //!
@@ -46,7 +48,7 @@
 //! }
 //! ```
 //!
-//! **Functions**
+//! Functions:
 //!
 //! Using functions from [`Colorize`](trait.Colorize.html) on a `String` or `&'static str` to color it.
 //!
@@ -57,9 +59,10 @@
 //! ```
 //!
 //! ### Attributes
+//!
 //! How to appy terminal attributes to text.
 //!
-//! **Command API**
+//! Command API:
 //!
 //! Using the Command API to set attributes.
 //!
@@ -81,7 +84,7 @@
 //! }
 //! ```
 //!
-//! **Functions**:
+//! Functions:
 //!
 //! Using [`Styler`](trait.Styler.html) functions on a `String` or `&'static str` to set attributes to it.
 //!
@@ -93,7 +96,7 @@
 //! println!("{}", "Negative".negative());
 //! ```
 //!
-//! **Displayable**
+//! Displayable:
 //!
 //! [`Attribute`](enum.Attribute.html) implements [Display](https://doc.rust-lang.org/beta/std/fmt/trait.Display.html) and therefore it can be formatted like:
 //!
