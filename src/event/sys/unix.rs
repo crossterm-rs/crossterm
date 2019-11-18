@@ -169,7 +169,7 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
                     _ => parse_utf8_char(&buffer[1..]).map(|maybe_char| {
                         maybe_char
                             .map(KeyCode::Char)
-                            .map(KeyEvent::with_alt)
+                            .map(|code| KeyEvent::new(code, KeyModifiers::ALT))
                             .map(Event::Key)
                             .map(InternalEvent::Event)
                     }),
@@ -183,12 +183,14 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
         b'\x7F' => Ok(Some(InternalEvent::Event(Event::Key(
             KeyCode::Backspace.into(),
         )))),
-        c @ b'\x01'..=b'\x1A' => Ok(Some(InternalEvent::Event(Event::Key(
-            KeyEvent::with_control(KeyCode::Char((c as u8 - 0x1 + b'a') as char)),
-        )))),
-        c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Event(Event::Key(
-            KeyEvent::with_control(KeyCode::Char((c as u8 - 0x1C + b'4') as char)),
-        )))),
+        c @ b'\x01'..=b'\x1A' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+            KeyCode::Char((c as u8 - 0x1 + b'a') as char),
+            KeyModifiers::CONTROL,
+        ))))),
+        c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+            KeyCode::Char((c as u8 - 0x1C + b'4') as char),
+            KeyModifiers::CONTROL,
+        ))))),
         b'\0' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Null.into())))),
         _ => parse_utf8_char(buffer).map(|maybe_char| {
             maybe_char
@@ -290,14 +292,14 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
     let key = buffer[buffer.len() - 1];
 
     let input_event = match (modifier, key) {
-        (53, 65) => Event::Key(KeyEvent::with_control(KeyCode::Up)),
-        (53, 66) => Event::Key(KeyEvent::with_control(KeyCode::Down)),
-        (53, 67) => Event::Key(KeyEvent::with_control(KeyCode::Right)),
-        (53, 68) => Event::Key(KeyEvent::with_control(KeyCode::Left)),
-        (50, 65) => Event::Key(KeyEvent::with_shift(KeyCode::Up)),
-        (50, 66) => Event::Key(KeyEvent::with_shift(KeyCode::Down)),
-        (50, 67) => Event::Key(KeyEvent::with_shift(KeyCode::Right)),
-        (50, 68) => Event::Key(KeyEvent::with_shift(KeyCode::Left)),
+        (53, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::CONTROL)),
+        (53, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::CONTROL)),
+        (53, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::CONTROL)),
+        (53, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::CONTROL)),
+        (50, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::SHIFT)),
+        (50, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::SHIFT)),
+        (50, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::SHIFT)),
+        (50, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::SHIFT)),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -575,8 +577,9 @@ mod tests {
     fn test_alt_key() {
         assert_eq!(
             parse_event("\x1Bc".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyEvent::with_alt(
-                KeyCode::Char('c')
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('c'),
+                KeyModifiers::ALT
             )))),
         );
     }
@@ -601,8 +604,9 @@ mod tests {
         // parse_csi_modifier_key_code
         assert_eq!(
             parse_event("\x1B[2D".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyEvent::with_shift(
-                KeyCode::Left
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Left,
+                KeyModifiers::SHIFT
             ))))
         );
 
@@ -680,8 +684,9 @@ mod tests {
     fn test_parse_csi_modifier_key_code() {
         assert_eq!(
             parse_csi_modifier_key_code("\x1B[2D".as_bytes()).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyEvent::with_shift(
-                KeyCode::Left
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Left,
+                KeyModifiers::SHIFT
             )))),
         );
     }

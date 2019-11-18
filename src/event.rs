@@ -332,27 +332,6 @@ impl KeyEvent {
     pub fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
         KeyEvent { code, modifiers }
     }
-
-    pub(crate) fn with_control(code: KeyCode) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers: KeyModifiers::CONTROL,
-        }
-    }
-
-    pub(crate) fn with_alt(code: KeyCode) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers: KeyModifiers::ALT,
-        }
-    }
-
-    pub(crate) fn with_shift(code: KeyCode) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers: KeyModifiers::SHIFT,
-        }
-    }
 }
 
 impl From<KeyCode> for KeyEvent {
