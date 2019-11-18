@@ -5,8 +5,8 @@
 //! * The [`read`](fn.read.html) function returns an [`Event`](enum.Event.html) immediately
 //! (if available) or blocks until an [`Event`](enum.Event.html) is available.
 //!
-//! * The [`poll`](fn.poll.html) function allows you to check if there's an [`Event`](enum.Event.html) available
-//! or not within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
+//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an [`Event`](enum.Event.html) available
+//! within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
 //! function will block or not.
 //!
 //! It's **not allowed** to call these functions from different threads or combine them with the
@@ -100,7 +100,7 @@ lazy_static! {
     static ref INTERNAL_EVENT_READER: RwLock<read::InternalEventReader> = { RwLock::new(read::InternalEventReader::default()) };
 }
 
-/// Checks if there's an [`Event`](enum.Event.html) available.
+/// Checks if there is an [`Event`](enum.Event.html) available.
 ///
 /// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
 ///
@@ -109,7 +109,7 @@ lazy_static! {
 ///
 /// # Arguments
 ///
-/// * `timeout` - maximum wait time.
+/// * `timeout` - maximum waiting time for event availability
 ///
 /// # Examples
 ///
@@ -144,7 +144,7 @@ pub fn poll(timeout: Duration) -> Result<bool> {
     poll_internal(Some(timeout), &EventFilter)
 }
 
-/// Reads a single event.
+/// Reads a single [`Event`](enum.Event.html).
 ///
 /// This function blocks until an [`Event`](enum.Event.html) is available. Combine it with the
 /// [`poll`](fn.poll.html) function to get non-blocking reads.
@@ -256,11 +256,11 @@ impl Command for DisableMouseCapture {
 
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Event {
-    /// A single key or a combination of keys.
+    /// A single key event with additional pressed modifiers.
     Key(KeyEvent),
-    /// A mouse event.
+    /// A singe mouse event with additional pressed modifiers.
     Mouse(MouseEvent),
     /// An resize event with new dimensions after resize (columns, rows).
     Resize(u16, u16),
@@ -272,7 +272,7 @@ pub enum Event {
 ///
 /// ## Mouse Buttons
 ///
-/// Some platforms/terminals does not report mouse button for the
+/// Some platforms/terminals do not report mouse button for the
 /// `MouseEvent::Up` and `MouseEvent::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
 ///
@@ -282,23 +282,33 @@ pub enum Event {
 /// combinations for all mouse event types. For example - macOS reports
 /// `Ctrl` + left mouse button click as a right mouse button click.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseEvent {
-    /// Pressed mouse button with pointer at the location (column, row).
+    /// Pressed mouse button.
+    ///
+    /// Contains mouse button, pressed pointer location (column, row), and additional key modifiers.
     Down(MouseButton, u16, u16, KeyModifiers),
-    /// Released mouse button with pointer at the location (column, row).
+    /// Released mouse button.
+    ///
+    /// Contains mouse button, released pointer location (column, row), and additional key modifiers.
     Up(MouseButton, u16, u16, KeyModifiers),
-    /// Moved mouse pointer with a pressed button to the new location (column, row).
+    /// Moved mouse pointer while pressing a mouse button.
+    ///
+    /// Contains the pressed mouse button, released pointer location (column, row), and additional key modifiers.
     Drag(MouseButton, u16, u16, KeyModifiers),
-    /// Mouse wheel scrolled down with pointer at the location (column, row).
+    /// Scrolled mouse wheel downwards (towards the user).
+    ///
+    /// Contains the scroll location (column, row), and additional key modifiers.
     ScrollDown(u16, u16, KeyModifiers),
-    /// Mouse wheel scrolled up with pointer at the location (column, row).
+    /// Scrolled mouse wheel upwards (away from the user).
+    ///
+    /// Contains the scroll location (column, row), and additional key modifiers.
     ScrollUp(u16, u16, KeyModifiers),
 }
 
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseButton {
     /// Left mouse button.
     Left,
@@ -309,22 +319,22 @@ pub enum MouseButton {
 }
 
 bitflags! {
-    /// Represents key modifiers (shift, control, ...).
+    /// Represents key modifiers (shift, control, alt).
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct KeyModifiers: u8 {
-        const SHIFT = 0b00000001;
-        const CONTROL = 0b00000010;
-        const ALT = 0b00000100;
+        const SHIFT = 0b0000_0001;
+        const CONTROL = 0b0000_0010;
+        const ALT = 0b0000_0100;
     }
 }
 
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub struct KeyEvent {
-    /// Key code.
+    /// The key itself.
     pub code: KeyCode,
-    /// Key modifiers.
+    /// Additional key modifiers.
     pub modifiers: KeyModifiers,
 }
 
@@ -343,7 +353,7 @@ impl From<KeyCode> for KeyEvent {
     }
 }
 
-/// Represents a key or a combination of keys.
+/// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum KeyCode {

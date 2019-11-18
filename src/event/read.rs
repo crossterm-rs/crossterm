@@ -7,8 +7,6 @@ use super::source::unix::UnixInternalEventSource;
 use super::source::windows::WindowsEventSource;
 use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
-//use crate::event::source::windows::FakeEventSource;
-
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,

@@ -36,6 +36,7 @@ pub struct EventStream {
 }
 
 impl EventStream {
+    /// Constructs a new instance of `EventStream`.
     pub fn new() -> EventStream {
         EventStream {
             wake_thread_spawned: Arc::new(AtomicBool::new(false)),

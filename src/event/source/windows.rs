@@ -31,7 +31,7 @@ impl WindowsEventSource {
 
 impl EventSource for WindowsEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
-        let poll_timeout = PollTimeout::new(timeout.clone());
+        let poll_timeout = PollTimeout::new(timeout);
 
         loop {
             if let Some(event_ready) = self.poll.poll(timeout)? {
