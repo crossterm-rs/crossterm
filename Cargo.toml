@@ -12,6 +12,10 @@ readme = "README.md"
 edition = "2018"
 categories = ["command-line-interface", "command-line-utilities"]
 
+[lib]
+name = "crossterm"
+path = "src/lib.rs"
+
 [package.metadata.docs.rs]
 all-features = true
 
@@ -40,13 +44,8 @@ libc = "0.2.51"
 mio = { version = "0.6.19", optional = true }
 signal-hook = { version = "0.1.11", features=["mio-support"]}
 
-[lib]
-name = "crossterm"
-path = "src/lib.rs"
-
 [dev-dependencies]
 tokio = "0.2.0-alpha.6"
 futures = "0.3"
 futures-timer = "2"
 async-std = "1"
-
