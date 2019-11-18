@@ -29,6 +29,7 @@ use super::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
+#[derive(Default)]
 pub struct EventStream {
     wake_thread_spawned: Arc<AtomicBool>,
     wake_thread_should_shutdown: Arc<AtomicBool>,

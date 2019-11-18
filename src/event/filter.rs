@@ -12,7 +12,7 @@ pub(crate) struct CursorPositionFilter;
 #[cfg(unix)]
 impl Filter for CursorPositionFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
-        if let &InternalEvent::CursorPosition(_, _) = event {
+        if let InternalEvent::CursorPosition(_, _) = *event {
             true
         } else {
             false
@@ -25,7 +25,7 @@ pub(crate) struct EventFilter;
 impl Filter for EventFilter {
     #[cfg(unix)]
     fn eval(&self, event: &InternalEvent) -> bool {
-        if let &InternalEvent::Event(_) = event {
+        if let InternalEvent::Event(_) = *event {
             true
         } else {
             false
