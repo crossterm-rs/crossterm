@@ -14,14 +14,21 @@ use std::{
 
 use crate::Result;
 
-use super::{poll, read, Event, INTERNAL_EVENT_READER};
+use super::{
+    filter::EventFilter, poll_internal, read_internal, Event, InternalEvent, INTERNAL_EVENT_READER,
+};
 
-/// Stream that reads events asynchronously.
+/// A stream of `Result<Event>`.
 ///
-/// When calling `next`, it will try to poll for event readiness and return the ready event.
-/// If no event is ready to be read, a thread is spawned that waits for event readiness.
-/// Then, if there is an event is ready, it will `wake` the associated task of the `Waker`.
-/// This spawned thread will always be closed when the stream drops.
+/// **This type is not available by default. You have to use the `event-stream` feature flag
+/// to make it available.**
+///
+/// It implements the [`futures::stream::Stream`](https://docs.rs/futures/0.3.1/futures/stream/trait.Stream.html)
+/// trait and allows you to receive `Event`s with [`async-std`](https://crates.io/crates/async-std)
+/// or [`tokio`](https://crates.io/crates/tokio) crates.
+///
+/// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
+/// it (`event-stream-*`).
 pub struct EventStream {
     wake_thread_spawned: Arc<AtomicBool>,
     wake_thread_should_shutdown: Arc<AtomicBool>,
@@ -40,8 +47,12 @@ impl Stream for EventStream {
     type Item = Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match poll(Some(Duration::from_secs(0))) {
-            Ok(true) => Poll::Ready(Some(read())),
+        let result = match poll_internal(Some(Duration::from_secs(0)), &EventFilter) {
+            Ok(true) => match read_internal(&EventFilter) {
+                Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
+                Err(e) => Poll::Ready(Some(Err(e))),
+                _ => unreachable!(),
+            },
             Ok(false) => {
                 if !self
                     .wake_thread_spawned
@@ -55,7 +66,7 @@ impl Stream for EventStream {
 
                     thread::spawn(move || {
                         loop {
-                            if let Ok(true) = poll(None) {
+                            if let Ok(true) = poll_internal(None, &EventFilter) {
                                 break;
                             }
 

@@ -1,63 +1,74 @@
 //! # Event
-//! The `event` module provides the functionality to read events.
-//! Events include: input events, signal events, and terminal events.
-//! Currently, only input events are supported however the ohter ones are upcomming.
 //!
-//! There are two functions important to know when you want to read events with crossterm.
+//! The `event` module provides the functionality to read keyboard, mouse and terminal resize events.
 //!
-//! Those are:
-//! 1. [poll(Duration)](./event/fn.poll.html)
-//! Tells you if there are any events to be read withing the given optional duration.
-//! 2. [read](./event/fn.read.html)
-//! Reads events and returns immediately if there are events. Otherwise, a blocking read is performed.
+//! * The [`read`](fn.read.html) function returns an [`Event`](enum.Event.html) immediately
+//! (if available) or blocks until an [`Event`](enum.Event.html) is available.
 //!
-//! These two functions can be used together to read events asynchronous and synchronous.
-//! The useful thing about `poll` is that it gives you complete control over how long you want to wait for an event while `read` blocks until an event occurs.
+//! * The [`poll`](fn.poll.html) function allows you to check if there's an [`Event`](enum.Event.html) available
+//! or not within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
+//! function will block or not.
 //!
-//! Next to those two functions we have `wake()` that can be usefull in async envoirments.
-//! This function will directly interupt the `poll` call and will make it return `Ok(false)`.
+//! It's **not allowed** to call these functions from different threads or combine them with the
+//! [`EventStream`](struct.EventStream.html). You're allowed to either:
 //!
-//! Let's look at an example that shows these two functions in action.
+//! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
+//! * or the [`EventStream`](struct.EventStream.html).
+//!
+//! ## Mouse Events
+//!
+//! Mouse events are not enabled by default. You have to enable them with the
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](../index.html#command-api)
+//! for more information.
+//!
+//! ## Examples
+//!
+//! Blocking read:
 //!
 //! ```no_run
-//! use crossterm::event::{poll, read, Event};
-//! use std::time::Duration;
+//! use crossterm::event::{read, Event};
 //!
-//! fn try_get_event() -> crossterm::Result<()> {
-//!     if poll(Some(Duration::from_millis(500)))? {
+//! fn print_events() -> crossterm::Result<()> {
+//!     loop {
+//!         // `read()` blocks until an `Event` is available
 //!         match read()? {
-//!             Event::Key(key_event) => { println!("{:?}", key_event) }
-//!             Event::Mouse(mouse_event) => { println!("{:?}", mouse_event) }
-//!             Event::Resize(width, height) => { println!("Terminal resized to {}x{}", width, height) }
+//!             Event::Key(event) => println!("{:?}", event),
+//!             Event::Mouse(event) => println!("{:?}", event),
+//!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!         }
-//!     } else {
-//!         println!("timeout occurred");
 //!     }
-//!
 //!     Ok(())
 //! }
 //! ```
 //!
-//! As you can see, we poll first for input.
-//! We indicate that we want to wait a maximum of 500ms for this.
-//! If an event has occurred during this time, we will read it with `read`, and print it to the console.
-//! Otherwise we print "timeout occured".
+//! Non-blocking read:
 //!
-//! Please have a look over at the [examples directory](https://github.com/crossterm-rs/examples) for more robust examples.
+//! ```no_run
+//! use std::time::Duration;
 //!
-//! ## Technical Implementation
-//! Crossterm uses the poll/read meganism.
-//! **Unix**
+//! use crossterm::event::{poll, read, Event};
 //!
-//! [MIO](https://docs.rs/mio/) is used on UNIX systems. It will poll for event readiness from an file descriptor.
-//! **Windows**
+//! fn print_events() -> crossterm::Result<()> {
+//!     loop {
+//!         // `poll()` waits for an `Event` for a given time period
+//!         if poll(Duration::from_millis(500))? {
+//!             // It's guaranteed that the `read()` won't block when the `poll()`
+//!             // function returns `true`
+//!             match read()? {
+//!                 Event::Key(event) => println!("{:?}", event),
+//!                 Event::Mouse(event) => println!("{:?}", event),
+//!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!             }
+//!         } else {
+//!             // Timeout expired and no `Event` is available
+//!         }
+//!     }
+//!     Ok(())
+//! }
+//! ```
 //!
-//! On windows crossterm uses `WaitForMultipleObjects`, with this call we wait for a signal from eighter the input HANDLE or a semaphore HANDLE.
-//! The semaphore HANDLE can be used to interupt the the waiting.
-//!
-//! `poll` and `read` are static functions that both aquire an underlying lock to crossterms input system.
-//! You mustn't call `poll` from two threads at the same time because this can cause a deadlock.
-//! However, `poll` and `read` can be called independently without influencing each other.
+//! Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder for more of
+//! them (`event-*`).
 
 use std::time::Duration;
 
@@ -89,56 +100,88 @@ lazy_static! {
     static ref INTERNAL_EVENT_READER: RwLock<read::InternalEventReader> = { RwLock::new(read::InternalEventReader::default()) };
 }
 
-/// Polls during an given duration for ready events.
+/// Checks if there's an [`Event`](enum.Event.html) available.
 ///
-/// This function takes in an optional duration.
-/// * `None`: blocks indefinitely until an event is able to be read.
-/// * `Some(duration)`: blocks for the given duration.
+/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
 ///
-/// The following value is returned returned when:
-/// * `Ok(true)`: an event is ready.
-/// * `Ok(false)`: the given duration is elapsed.
-/// * `Err(err)`: there is an error.
+/// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
+/// wont block.
 ///
-/// Read an ready event with [read](fn.read.html)
+/// # Arguments
+///
+/// * `timeout` - maximum wait time.
+///
+/// # Examples
+///
+/// Return immediately:
+///
 /// ```no_run
 /// use std::time::Duration;
-/// use crossterm::{Result, event::poll};
 ///
-/// fn main() -> Result<()> {
-///     // poll maximal 1 second
-///     if poll(Some(Duration::from_millis(1000)))? {  /* logic */  }
+/// use crossterm::{event::poll, Result};
 ///
-///     // poll indefinitely
-///     if poll(None)? { /* logic */  }
-///
-///     Ok(())
+/// fn is_event_available() -> Result<bool> {
+///     // Zero duration says that the `poll` function must return immediately
+///     // with an `Event` availability information
+///     poll(Duration::from_secs(0))
 /// }
 /// ```
-pub fn poll(timeout: Option<Duration>) -> Result<bool> {
-    poll_internal(timeout, &EventFilter)
+///
+/// Wait up to 100ms:
+///
+/// ```no_run
+/// use std::time::Duration;
+///
+/// use crossterm::{event::poll, Result};
+///
+/// fn is_event_available() -> Result<bool> {
+///     // Wait for an `Event` availability for 100ms. It returns immediately
+///     // if an `Event` is/becomes available.
+///     poll(Duration::from_millis(100))
+/// }
+/// ```
+pub fn poll(timeout: Duration) -> Result<bool> {
+    poll_internal(Some(timeout), &EventFilter)
 }
 
 /// Reads a single event.
 ///
-/// This function will block until an event is received.
-/// Use [poll](fn.poll.html) to check for ready events.
+/// This function blocks until an [`Event`](enum.Event.html) is available. Combine it with the
+/// [`poll`](fn.poll.html) function to get non-blocking reads.
+///
+/// # Examples
+///
+/// Blocking read:
 ///
 /// ```no_run
-/// use crossterm::{Result, event::{read, poll, Event}};
+/// use crossterm::{event::read, Result};
+///
+/// fn print_events() -> Result<bool> {
+///     loop {
+///         // Blocks until an `Event` is available
+///         println!("{:?}", read()?);
+///     }
+/// }   
+/// ```
+///
+/// Non-blocking read:
+///
+/// ```no_run
 /// use std::time::Duration;
 ///
-/// fn main() -> Result<()> {
-///     // poll maximal 1 second for an ready event.
-///     if poll(Some(Duration::from_millis(1000)))? {
-///         // read the ready event.
-///         match read() {
-///             Ok(event) => { println!("{:?}", event) }
-///             _ => { }
-///         }
-///      }
-///     Ok(())
-/// }
+/// use crossterm::{event::{read, poll}, Result};
+///
+/// fn print_events() -> Result<bool> {
+///     loop {
+///         if poll(Duration::from_millis(100))? {
+///             // It's guaranteed that `read` wont block, because `poll` returned
+///             // `Ok(true)`.
+///             println!("{:?}", read()?);
+///         } else {
+///             // Timeout expired, no `Event` is available
+///         }       
+///     }
+/// }   
 /// ```
 pub fn read() -> Result<Event> {
     match read_internal(&EventFilter)? {
@@ -266,6 +309,7 @@ pub enum MouseButton {
 }
 
 bitflags! {
+    /// Represents key modifiers (shift, control, ...).
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct KeyModifiers: u8 {
         const SHIFT = 0b00000001;
@@ -274,10 +318,13 @@ bitflags! {
     }
 }
 
+/// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Copy)]
 pub struct KeyEvent {
+    /// Key code.
     pub code: KeyCode,
+    /// Key modifiers.
     pub modifiers: KeyModifiers,
 }
 
