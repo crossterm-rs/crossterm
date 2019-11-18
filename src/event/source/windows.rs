@@ -7,7 +7,6 @@ use crate::event::Event;
 
 use super::super::{
     source::EventSource,
-    sys::windows::enable_mouse_capture,
     sys::windows::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,
     InternalEvent, Result,
@@ -20,7 +19,6 @@ pub(crate) struct WindowsEventSource {
 
 impl WindowsEventSource {
     pub(crate) fn new() -> Result<WindowsEventSource> {
-        enable_mouse_capture()?;
         let console = Console::from(Handle::current_in_handle()?);
         Ok(WindowsEventSource {
             console,
