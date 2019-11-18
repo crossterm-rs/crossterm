@@ -39,4 +39,4 @@ script:
   - cargo test --features terminal --no-default-features --lib -- --nocapture --test-threads 1
   - cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
   - cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1
-  - cargo test --features async-event --no-default-features --lib -- --nocapture --test-threads 1
+  - cargo test --features event-stream --no-default-features --lib -- --nocapture --test-threads 1
