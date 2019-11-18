@@ -51,6 +51,7 @@ impl Stream for EventStream {
             Ok(true) => match read_internal(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
                 Err(e) => Poll::Ready(Some(Err(e))),
+                #[cfg(unix)]
                 _ => unreachable!(),
             },
             Ok(false) => {
