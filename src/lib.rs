@@ -38,9 +38,10 @@
 //!
 //! ### Supported Commands
 //!
+//! #### Module `cursor`
+//!
 //!| *Command Name*                  |  *Description*                                                     |
 //!| :------------------------------ | :----------------------------                                      |
-//!|   **crossterm::cursor module**   |                                                                   |
 //!|  `cursor::DisableBlinking`	      | disables blinking of the terminal cursor.                         |
 //!|  `cursor::EnableBlinking`	      | enables blinking of the terminal cursor.                          |
 //!|  `cursor::Hide`	              | hides the terminal cursor.                                        |
@@ -52,32 +53,50 @@
 //!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
 //!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
 //!|  `cursor::Show`	              | shows the terminal cursor.                                        |
-//!|   **crossterm::event module**    |                                                                   |
+//!
+//! #### Module `event`
+//!
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
 //!|  `event::DisableMouseCapture`    | disables mouse event monitoring.                                  |
 //!|  `event::EnableMouseCapture`	  | enables mouse mode                                                |
-//!|                                  |                                                                   |
+//!
+//! #### Module `screen`
+//!
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
 //!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
 //!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
-//!|   **crossterm::style module**    |                                                                   |
+//!
+//! #### Module `style`
+//!
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
 //!|  `style::PrintStyledContent`     | prints styled content.                                            |
 //!|  `style::ResetColor`	          | resets the colors back to default.                                |
 //!|  `style::SetAttribute`	          | sets an attribute.                                                |
 //!|  `style::SetBackgroundColor`     | sets the the background color.                                    |
 //!|  `style::SetForegroundColor`     | sets the the foreground color.                                    |
-//!|   **crossterm::terminal module** |                                                                   |
+//!
+//! #### Module `terminal`
+//!
+//!| *Command Name*                  |  *Description*                                                     |
+//!| :------------------------------ | :----------------------------                                      |
 //!|  `terminal::Clear`	              | clears the terminal screen buffer.                                |
 //!|  `terminal::ScrollDown`	      | scrolls the terminal screen a given number of rows down.          |
 //!|  `terminal::ScrollUp`	          | scrolls the terminal screen a given number of rows up.            |
 //!|  `terminal::SetSize`             | sets the terminal size (columns, rows).                           |
 //!
-//! There are two different way's to execute commands.
+//! There are two different way's to execute commands:
+//!
 //! * [Lazy Execution](#lazy-execution)
 //! * [Direct Execution](#direct-execution)
 //!
 //! ## Lazy Execution
 //!
 //! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
-//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer at the same time.
+//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer
+//! at the same time.
 //!
 //! Crossterm offers the possibility to do this with `queue`.
 //! With `queue` you can queue commands, and when you call [Write::flush][flush] these commands will be executed.
@@ -87,9 +106,10 @@
 //! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
 //! ### Examples
+//!
 //! A simple demonstration that shows the command API in action with cursor commands.
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -103,10 +123,10 @@
 //! stdout.flush();
 //! ```
 //!
-//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another command. Like
-//! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another
+//! command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! **Macros**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -121,7 +141,8 @@
 //! stdout.flush();
 //! ```
 //!
-//! You can pass more than one command into the [queue](./macro.queue.html) macro like `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
+//! You can pass more than one command into the [queue](./macro.queue.html) macro like
+//! `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
 //! they will be executed in the given order from left to right.
 //!
 //! ## Direct Execution
@@ -136,7 +157,7 @@
 //!
 //! ### Examples
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -145,10 +166,10 @@
 //! let mut stdout = stdout();
 //! stdout.execute(cursor::MoveTo(5,5));
 //! ```
-//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue another command. Like
-//! `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue
+//! another command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
 //!
-//! **Macros**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{Write, stdout};
@@ -157,14 +178,15 @@
 //! let mut stdout = stdout();
 //! execute!(stdout, cursor::MoveTo(5, 5));
 //! ```
-//! You can pass more than one command into the [execute](./macro.execute.html) macro like `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
-//! they will be executed in the given order from left to right.
+//! You can pass more than one command into the [execute](./macro.execute.html) macro like
+//! `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and they will be executed in the given order from
+//! left to right.
 //!
 //! ## Examples
 //!
 //! Print a rectangle colored with magenta and use both direct execution and lazy execution.
 //!
-//! **Functions**
+//! Functions:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
@@ -193,7 +215,7 @@
 //! }
 //! ```
 //!
-//! **Macros:**
+//! Macros:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
