@@ -22,7 +22,7 @@ style = ["lazy_static", "winapi/wincon"]
 terminal = ["cursor"]
 screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
 event = ["bitflags", "mio", "lazy_static", "parking_lot", "screen", "terminal", "winapi/winnt", "winapi/winuser", "winapi/wincon", "winapi/synchapi", "winapi/namedpipeapi", "winapi/impl-default"]
-async-event = ["event", "futures"]
+event-stream = ["event", "futures"]
 
 [dependencies]
 bitflags = { version = "1.2", optional = true }

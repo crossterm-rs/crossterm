@@ -1,5 +1,5 @@
 //
-// cargo run --features async-event --example event-stream-async-std
+// cargo run --features event-stream --example event-stream-async-std
 //
 use std::io::{stdout, Write};
 use std::time::Duration;
