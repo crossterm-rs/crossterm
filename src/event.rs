@@ -396,6 +396,12 @@ mod async_event {
         Result,
     };
 
+    /// Stream that reads events asynchronously.
+    ///
+    /// When calling `next`, it will try to poll for event readiness and return the ready event.
+    /// If no event is ready to be read, a thread is spawned that waits for event readiness.
+    /// Then, if there is an event is ready, it will `wake` the associated task of the `Waker`.
+    /// This spawned thread will always be closed when the stream drops.
     pub struct EventStream {
         wake_thread_spawned: Arc<AtomicBool>,
         wake_thread_should_shutdown: Arc<AtomicBool>,

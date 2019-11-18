@@ -39,3 +39,37 @@ impl Filter for InternalEventFilter {
         true
     }
 }
+
+#[cfg(test)]
+#[cfg(unix)]
+mod tests {
+    use super::{CursorPositionFilter, EventFilter, Filter, InternalEventFilter};
+    use crate::event::{Event, InternalEvent, KeyCode, KeyEvent};
+
+    #[test]
+    fn test_cursor_position_filter_filters_cursor_position() {
+        assert_eq!(
+            CursorPositionFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
+            false
+        );
+        assert_eq!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0), true));
+    }
+
+    #[test]
+    fn test_event_filter_filters_events() {
+        assert_eq!(
+            EventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
+            true
+        );
+        assert_eq!(EventFilter.eval(&InternalEvent::CursorPosition(0, 0), false));
+    }
+
+    #[test]
+    fn test_event_filter_filters_internal_events() {
+        assert_eq!(
+            InternalEventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))),
+            true
+        );
+        assert_eq!(InternalEventFilter.eval(&InternalEvent::CursorPosition(0, 0), true));
+    }
+}
