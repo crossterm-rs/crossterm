@@ -392,7 +392,7 @@ mod async_event {
     };
 
     use crate::{
-        event::{poll, read, Event},
+        event::{poll, read, Event, INTERNAL_EVENT_READER},
         Result,
     };
 
