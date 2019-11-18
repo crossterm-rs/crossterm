@@ -38,61 +38,41 @@
 //!
 //! ### Supported Commands
 //!
-//! #### Module `cursor`
+//! - Module `cursor`
+//!   - Visibility - [`Show`](cursor/struct.Show.html), [`Hide`](cursor/struct.Show.html)
+//!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
+//!     [`DisableBlinking`](cursor/struct.DisableBlinking.html)
+//!   - Position -
+//!     [`SavePosition`](cursor/struct.SavePosition.html), [`RestorePosition`](cursor/struct.RestorePosition.html),
+//!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
+//!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
+//!     [`MoveTo`](cursor/struct.MoveTo.html)
+//! - Module `event`
+//!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
+//!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
+//! - Module `screen`
+//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
+//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
+//! - Module `style`
+//!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
+//!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
+//!     [`ResetColor`](style/struct.ResetColor.html)
+//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html),
+//!     [`PrintStyledContent`](style/struct.PrintStyledContent.html)
+//! - Module `terminal`
+//!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
+//!     [`ScrollDown`](terminal/struct.ScrollDown.html)
+//!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
+//!     [`SetSize`](terminal/struct.SetSize.html)
 //!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|  `cursor::DisableBlinking`	      | disables blinking of the terminal cursor.                         |
-//!|  `cursor::EnableBlinking`	      | enables blinking of the terminal cursor.                          |
-//!|  `cursor::Hide`	              | hides the terminal cursor.                                        |
-//!|  `cursor::MoveDown`	          | moves the terminal cursor a given number of rows down.            |
-//!|  `cursor::MoveLeft`	          | moves the terminal cursor a given number of columns to the left.  |
-//!|  `cursor::MoveRight`	          | moves the terminal cursor a given number of columns to the right. |
-//!|  `cursor::MoveTo`	              | moves the terminal cursor to the given position (column, row).    |
-//!|  `cursor::MoveUp`	              | moves the terminal cursor a given number of rows up.              |
-//!|  `cursor::RestorePosition`	      | restores the saved terminal cursor position.                      |
-//!|  `cursor::SavePosition`	      | saves the current terminal cursor position.                       |
-//!|  `cursor::Show`	              | shows the terminal cursor.                                        |
-//!
-//! #### Module `event`
-//!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|  `event::DisableMouseCapture`    | disables mouse event monitoring.                                  |
-//!|  `event::EnableMouseCapture`	  | enables mouse mode                                                |
-//!
-//! #### Module `screen`
-//!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|  `screen::EnterAlternateScreen`  | switches to the alternate screen.                                 |
-//!|  `screen::LeaveAlternateScreen`  |	switches back to the main screen.                                 |
-//!
-//! #### Module `style`
-//!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|  `style::PrintStyledContent`     | prints styled content.                                            |
-//!|  `style::ResetColor`	          | resets the colors back to default.                                |
-//!|  `style::SetAttribute`	          | sets an attribute.                                                |
-//!|  `style::SetBackgroundColor`     | sets the the background color.                                    |
-//!|  `style::SetForegroundColor`     | sets the the foreground color.                                    |
-//!
-//! #### Module `terminal`
-//!
-//!| *Command Name*                  |  *Description*                                                     |
-//!| :------------------------------ | :----------------------------                                      |
-//!|  `terminal::Clear`	              | clears the terminal screen buffer.                                |
-//!|  `terminal::ScrollDown`	      | scrolls the terminal screen a given number of rows down.          |
-//!|  `terminal::ScrollUp`	          | scrolls the terminal screen a given number of rows up.            |
-//!|  `terminal::SetSize`             | sets the terminal size (columns, rows).                           |
+//! ### Command Execution
 //!
 //! There are two different way's to execute commands:
 //!
 //! * [Lazy Execution](#lazy-execution)
 //! * [Direct Execution](#direct-execution)
 //!
-//! ## Lazy Execution
+//! #### Lazy Execution
 //!
 //! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
 //! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer
@@ -105,7 +85,7 @@
 //! The commands will be executed on that buffer.
 //! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
-//! ### Examples
+//! ##### Examples
 //!
 //! A simple demonstration that shows the command API in action with cursor commands.
 //!
@@ -145,7 +125,7 @@
 //! `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
 //! they will be executed in the given order from left to right.
 //!
-//! ## Direct Execution
+//! #### Direct Execution
 //!
 //! For many applications it is not at all important to be efficient with 'flush' operations.
 //! For this use case there is the `execute` operation.
@@ -155,7 +135,7 @@
 //! The commands will be executed on that buffer.
 //! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
 //!
-//! ### Examples
+//! ##### Examples
 //!
 //! Functions:
 //!
