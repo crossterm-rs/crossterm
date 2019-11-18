@@ -33,7 +33,7 @@ impl Filter for EventFilter {
     }
 
     #[cfg(windows)]
-    fn eval(&self, event: &InternalEvent) -> bool {
+    fn eval(&self, _: &InternalEvent) -> bool {
         true
     }
 }
