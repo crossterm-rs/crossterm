@@ -26,12 +26,14 @@ matrix:
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin
   - rustup component add rustfmt
+  - rustup component add clippy
 
 script:
   - cargo fmt --version
   - rustup --version
   - rustc --version
   - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo fmt --all -- --check; fi
+  - cargo clippy -- -D clippy::all
   - cargo build
   - cargo test --all-features --no-default-features -- --nocapture --test-threads 1
   - cargo test --features cursor --no-default-features --lib -- --nocapture --test-threads 1

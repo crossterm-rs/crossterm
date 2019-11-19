@@ -35,6 +35,7 @@ impl RawModeCommand {
     }
 
     /// Disables raw mode.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn disable(&self) -> Result<()> {
         let console_mode = ConsoleMode::from(Handle::input_handle()?);
 
@@ -44,6 +45,6 @@ impl RawModeCommand {
 
         console_mode.set_mode(new_mode)?;
 
-        return Ok(());
+        Ok(())
     }
 }

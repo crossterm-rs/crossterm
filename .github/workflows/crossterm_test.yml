@@ -33,7 +33,7 @@ jobs:
       uses: hecrj/setup-rust-action@master
       with:
         rust-version: ${{ matrix.rust }}
-        components: rustfmt
+        components: rustfmt,clippy
     - name: Toolchain Information
       run: |
         rustc --version
@@ -43,6 +43,9 @@ jobs:
     - name: Check Formatting
       if: matrix.rust == 'stable'
       run: cargo fmt --all -- --check
+      continue-on-error: ${{ matrix.can-fail }}
+    - name: Clippy
+      run: cargo clippy -- -D clippy::all
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Build
       run: cargo build

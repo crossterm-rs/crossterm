@@ -189,15 +189,13 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
     let ypos = parse_relative_y(event.mouse_position.y)? as u16;
 
     let button_state = event.button_state;
-    let mut button = MouseButton::Left;
-
-    if button_state.right_button() {
-        button = MouseButton::Right;
-    }
-
-    if button_state.middle_button() {
-        button = MouseButton::Middle;
-    }
+    let button = if button_state.right_button() {
+        MouseButton::Right
+    } else if button_state.middle_button() {
+        MouseButton::Middle
+    } else {
+        MouseButton::Left
+    };
 
     Ok(match event.event_flags {
         EventFlags::PressOrRelease => {
@@ -272,7 +270,7 @@ impl WinApiPoll {
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 
         let result = match output {
-            output if output == WAIT_OBJECT_0 + 0 => {
+            output if output == WAIT_OBJECT_0 => {
                 // input handle triggered
                 Ok(Some(true))
             }

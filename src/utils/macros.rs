@@ -80,28 +80,21 @@ macro_rules! queue {
             #[cfg(windows)]
             {
                 if $crate::supports_ansi() {
-                    match write!($write, "{}", $command.ansi_code()) {
-                        Err(e) => {
-                            error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
+                    if let Err(e) = write!($write, "{}", $command.ansi_code()) {
+                        error = Some(Err($crate::ErrorKind::from(e)));
                     };
                 } else {
-                    match $command.execute_winapi() {
-                        Err(e) => {
-                            error = Some(Err($crate::ErrorKind::from(e)));
-                        }
-                        _ => {}
-                    };
+                    if let Err(e) = $command.execute_winapi() {
+                        error = Some(Err($crate::ErrorKind::from(e)));
+                    }
                 };
             }
             #[cfg(unix)]
-            match write!($write, "{}", $command.ansi_code()) {
-                Err(e) => {
+            {
+                if let Err(e) = write!($write, "{}", $command.ansi_code()) {
                     error = Some(Err($crate::ErrorKind::from(e)));
                 }
-                _ => {}
-             };
+            }
         )*
 
         if let Some(error) = error {

@@ -22,9 +22,9 @@ pub(crate) fn move_left_csi_sequence(count: u16) -> String {
     format!(csi!("{}D"), count)
 }
 
-pub(crate) static SAVE_POSITION_CSI_SEQUENCE: &'static str = "\x1B7";
-pub(crate) static RESTORE_POSITION_CSI_SEQUENCE: &'static str = "\x1B8";
-pub(crate) static HIDE_CSI_SEQUENCE: &'static str = csi!("?25l");
-pub(crate) static SHOW_CSI_SEQUENCE: &'static str = csi!("?25h");
-pub(crate) static ENABLE_BLINKING_CSI_SEQUENCE: &'static str = csi!("?12h");
-pub(crate) static DISABLE_BLINKING_CSI_SEQUENCE: &'static str = csi!("?12l");
+pub(crate) const SAVE_POSITION_CSI_SEQUENCE: &str = "\x1B7";
+pub(crate) const RESTORE_POSITION_CSI_SEQUENCE: &str = "\x1B8";
+pub(crate) const HIDE_CSI_SEQUENCE: &str = csi!("?25l");
+pub(crate) const SHOW_CSI_SEQUENCE: &str = csi!("?25h");
+pub(crate) const ENABLE_BLINKING_CSI_SEQUENCE: &str = csi!("?12h");
+pub(crate) const DISABLE_BLINKING_CSI_SEQUENCE: &str = csi!("?12l");
