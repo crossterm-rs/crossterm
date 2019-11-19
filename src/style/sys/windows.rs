@@ -137,7 +137,7 @@ impl From<Colored> for u16 {
                     }
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
             }
@@ -168,7 +168,7 @@ impl From<Colored> for u16 {
                         (original_color & !(REMOVE_FG_MASK))
                     }
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
             }

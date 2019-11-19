@@ -44,6 +44,6 @@ impl RawModeCommand {
 
         console_mode.set_mode(new_mode)?;
 
-        return Ok(());
+        Ok(())
     }
 }
