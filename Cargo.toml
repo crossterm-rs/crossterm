@@ -44,7 +44,7 @@ serde = { version = "1.0.0", features = ["derive"], optional = true }
 #
 [target.'cfg(windows)'.dependencies.winapi]
 version = "0.3.8"
-features = ["wincon", "minwindef", "winnt", "winuser", "synchapi", "namedpipeapi", "impl-default"]
+features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
 crossterm_winapi = "0.5.0"
