@@ -96,12 +96,11 @@ macro_rules! queue {
                 };
             }
             #[cfg(unix)]
-            match write!($write, "{}", $command.ansi_code()) {
-                Err(e) => {
+            {
+                if let Err(e) = write!($write, "{}", $command.ansi_code()) {
                     error = Some(Err($crate::ErrorKind::from(e)));
                 }
-                _ => {}
-             };
+            }
         )*
 
         if let Some(error) = error {

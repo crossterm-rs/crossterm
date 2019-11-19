@@ -105,6 +105,7 @@ impl AlternateScreen {
     ///
     /// You'll be automatically switched to the main screen if this function
     /// fails.
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_alternate(raw_mode: bool) -> Result<AlternateScreen> {
         let alternate = alternate::alternate_screen();
         alternate.enter()?;

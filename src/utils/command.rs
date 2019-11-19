@@ -101,7 +101,7 @@ impl<T: Display + Clone> Command for Output<T> {
     type AnsiType = T;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        return self.0.clone();
+        self.0.clone()
     }
 
     #[cfg(windows)]
