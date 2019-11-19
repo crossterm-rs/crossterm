@@ -124,15 +124,14 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
         resize_buffer = true;
     }
 
-    if resize_buffer {
-        if screen_buffer
+    if resize_buffer
+        && screen_buffer
             .set_size(new_size.width - 1, new_size.height - 1)
             .is_err()
-        {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from(
-                "Something went wrong when setting screen buffer size.",
-            )));
-        }
+    {
+        return Err(ErrorKind::ResizingTerminalFailure(String::from(
+            "Something went wrong when setting screen buffer size.",
+        )));
     }
 
     let mut window = window;
@@ -143,15 +142,14 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     console.set_console_info(true, window)?;
 
     // if we resized the buffer, un-resize it.
-    if resize_buffer {
-        if screen_buffer
+    if resize_buffer
+        && screen_buffer
             .set_size(current_size.width - 1, current_size.height - 1)
             .is_err()
-        {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from(
-                "Something went wrong when setting screen buffer size.",
-            )));
-        }
+    {
+        return Err(ErrorKind::ResizingTerminalFailure(String::from(
+            "Something went wrong when setting screen buffer size.",
+        )));
     }
 
     let bounds = console.largest_window_size();
