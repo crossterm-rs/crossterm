@@ -59,7 +59,7 @@ jobs:
     - name: Test event-stream feature
       run: cargo test --lib --features event-stream -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test all feature
+    - name: Test all features
       run: cargo test --all-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
