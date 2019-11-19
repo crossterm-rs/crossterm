@@ -75,13 +75,13 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
 
 /// Set the current terminal size
 pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
-    if width <= 0 {
+    if width <= 1 {
         return Err(ErrorKind::ResizingTerminalFailure(String::from(
             "Cannot set the terminal width lower than 1.",
         )));
     }
 
-    if height <= 0 {
+    if height <= 1 {
         return Err(ErrorKind::ResizingTerminalFailure(String::from(
             "Cannot set the terminal height lower then 1.",
         )));
@@ -125,14 +125,17 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     }
 
     if resize_buffer {
-        if let Err(_) = screen_buffer.set_size(new_size.width - 1, new_size.height - 1) {
+        if screen_buffer
+            .set_size(new_size.width - 1, new_size.height - 1)
+            .is_err()
+        {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(
                 "Something went wrong when setting screen buffer size.",
             )));
         }
     }
 
-    let mut window = window.clone();
+    let mut window = window;
 
     // preserve the position, but change the size.
     window.bottom = window.top + height - 1;
@@ -141,7 +144,10 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
 
     // if we resized the buffer, un-resize it.
     if resize_buffer {
-        if let Err(_) = screen_buffer.set_size(current_size.width - 1, current_size.height - 1) {
+        if screen_buffer
+            .set_size(current_size.width - 1, current_size.height - 1)
+            .is_err()
+        {
             return Err(ErrorKind::ResizingTerminalFailure(String::from(
                 "Something went wrong when setting screen buffer size.",
             )));

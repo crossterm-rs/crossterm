@@ -85,24 +85,26 @@ impl ScreenBufferCursor {
     }
 
     fn move_to(&self, x: i16, y: i16) -> Result<()> {
-        if x < 0 || x >= <i16>::max_value() {
-            Err(io::Error::new(
+        if x < 0 {
+            return Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
                     "Argument Out of Range Exception when setting cursor position to X: {}",
                     x
                 ),
-            ))?;
+            )
+            .into());
         }
 
-        if y < 0 || y >= <i16>::max_value() {
-            Err(io::Error::new(
+        if y < 0 {
+            return Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
                     "Argument Out of Range Exception when setting cursor position to Y: {}",
                     y
                 ),
-            ))?;
+            )
+            .into());
         }
 
         let position = COORD { X: x, Y: y };
@@ -112,7 +114,7 @@ impl ScreenBufferCursor {
                 **self.screen_buffer.handle(),
                 position,
             )) {
-                Err(io::Error::last_os_error())?;
+                return Err(io::Error::last_os_error().into());
             }
         }
         Ok(())
@@ -129,7 +131,7 @@ impl ScreenBufferCursor {
                 **self.screen_buffer.handle(),
                 &cursor_info,
             )) {
-                Err(io::Error::last_os_error())?;
+                return Err(io::Error::last_os_error().into());
             }
         }
         Ok(())
