@@ -37,7 +37,7 @@ futures = {version = "0.3", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.8"
-crossterm_winapi = { git = "https://github.com/crossterm-rs/crossterm-winapi", branch = "input_rewrite_changes" }
+crossterm_winapi = "0.5.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
