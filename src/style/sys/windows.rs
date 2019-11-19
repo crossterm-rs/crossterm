@@ -37,7 +37,7 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
     // background intensity is a separate value in attrs,
     // wee need to check if this was applied to the current bg color.
     if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
-        color = color | wincon::BACKGROUND_INTENSITY as u16;
+        color |= wincon::BACKGROUND_INTENSITY as u16;
     }
 
     Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
@@ -62,7 +62,7 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
     // Foreground intensity is a separate value in attrs,
     // So we need to check if this was applied to the current fg color.
     if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
-        color = color | wincon::FOREGROUND_INTENSITY as u16;
+        color |= wincon::FOREGROUND_INTENSITY as u16;
     }
 
     Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
@@ -137,7 +137,7 @@ impl From<Colored> for u16 {
                     }
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
             }
@@ -168,7 +168,7 @@ impl From<Colored> for u16 {
                         (original_color & !(REMOVE_FG_MASK))
                     }
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
-                    Color::Rgb { r: _, g: _, b: _ } => 0,
+                    Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
             }

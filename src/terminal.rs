@@ -127,7 +127,7 @@ impl Command for Clear {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::clear(self.0.clone())
+        sys::clear(self.0)
     }
 }
 

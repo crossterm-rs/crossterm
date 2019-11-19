@@ -38,18 +38,18 @@ fn read_position_raw() -> Result<(u16, u16)> {
     loop {
         match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
             Ok(true) => {
-                match read_internal(&CursorPositionFilter) {
-                    Ok(InternalEvent::CursorPosition(x, y)) => {
-                        return Ok((x, y));
-                    }
-                    _ => { /* unreachable */ }
-                };
+                if let Ok(InternalEvent::CursorPosition(x, y)) =
+                    read_internal(&CursorPositionFilter)
+                {
+                    return Ok((x, y));
+                }
             }
             Ok(false) => {
                 return Err(Error::new(
                     ErrorKind::Other,
                     "The cursor position could not be read within a normal duration",
-                ))?;
+                )
+                .into());
             }
             Err(_) => {}
         }
