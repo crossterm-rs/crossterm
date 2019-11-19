@@ -33,7 +33,7 @@ jobs:
       uses: hecrj/setup-rust-action@master
       with:
         rust-version: ${{ matrix.rust }}
-        components: rustfmt
+        components: rustfmt,clippy
     - name: Toolchain Information
       run: |
         rustc --version

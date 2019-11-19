@@ -26,6 +26,7 @@ matrix:
 before_script:
   - export PATH=$PATH:/home/travis/.cargo/bin
   - rustup component add rustfmt
+  - rustup component add clippy
 
 script:
   - cargo fmt --version
