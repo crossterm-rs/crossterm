@@ -47,26 +47,17 @@ jobs:
     - name: Test Build
       run: cargo build
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test all features
-      run: cargo test --all-features --no-default-features -- --nocapture --test-threads 1
+    - name: Test default features
+      run: cargo test --lib -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test cursor feature
-      run: cargo test --features cursor --no-default-features --lib -- --nocapture --test-threads 1
+    - name: Test serde feature
+      run: cargo test --lib --features serde -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test style feature
-      run: cargo test --features style --no-default-features --lib -- --nocapture --test-threads 1
+    - name: Test event-stream feature
+      run: cargo test --lib --features event-stream -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
-    - name: Test terminal feature
-      run: cargo test --features terminal --no-default-features --lib -- --nocapture --test-threads 1
-      continue-on-error: ${{ matrix.can-fail }}
-    - name: Test screen feature
-      run: cargo test --features screen --no-default-features --lib -- --nocapture --test-threads 1
-      continue-on-error: ${{ matrix.can-fail }}
-    - name: Test event feature
-      run: cargo test --features event --no-default-features --lib -- --nocapture --test-threads 1
-      continue-on-error: ${{ matrix.can-fail }}
-    - name: Test async-event feature
-      run: cargo test --features event-stream --no-default-features --lib -- --nocapture --test-threads 1
+    - name: Test all feature
+      run: cargo test --all-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
       if: matrix.rust == 'stable'

@@ -16,34 +16,50 @@ categories = ["command-line-interface", "command-line-utilities"]
 name = "crossterm"
 path = "src/lib.rs"
 
+#
+# Build documentation with all features -> EventStream is available
+#
 [package.metadata.docs.rs]
 all-features = true
 
+#
+# Features
+#
 [features]
-default = ["cursor", "style", "terminal", "screen", "event"]
-cursor = ["lazy_static", "event", "winapi/wincon", "winapi/winnt", "winapi/minwindef"]
-style = ["lazy_static", "winapi/wincon"]
-terminal = ["cursor"]
-screen = ["lazy_static", "winapi/wincon", "winapi/minwindef"]
-event = ["bitflags", "mio", "lazy_static", "parking_lot", "screen", "terminal", "winapi/winnt", "winapi/winuser", "winapi/wincon", "winapi/synchapi", "winapi/namedpipeapi", "winapi/impl-default"]
-event-stream = ["event", "futures"]
+default = []
+event-stream = ["futures"]
 
+#
+# Shared dependencies
+#
 [dependencies]
-bitflags = { version = "1.2", optional = true }
-lazy_static = { version = "1.4", optional = true }
-parking_lot = { version = "0.9", optional = true }
+bitflags = "1.2"
+futures = { version = "0.3", optional = true }
+lazy_static = "1.4"
+parking_lot = "0.9"
 serde = { version = "1.0.0", features = ["derive"], optional = true }
-futures = {version = "0.3", optional = true }
+
+#
+# Windows dependencies
+#
+[target.'cfg(windows)'.dependencies.winapi]
+version = "0.3.8"
+features = ["wincon", "winnt", "minwindef", "winnt", "winuser", "synchapi", "namedpipeapi", "impl-default"]
 
 [target.'cfg(windows)'.dependencies]
-winapi = "0.3.8"
 crossterm_winapi = "0.5.0"
 
+#
+# UNIX dependencies
+#
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.51"
-mio = { version = "0.6.19", optional = true }
-signal-hook = { version = "0.1.11", features=["mio-support"]}
+mio = "0.6.19"
+signal-hook = { version = "0.1.11", features = ["mio-support"] }
 
+#
+# Dev dependencies (examples, ...)
+#
 [dev-dependencies]
 tokio = "0.2.0-alpha.6"
 futures = "0.3"
