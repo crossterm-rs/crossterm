@@ -44,6 +44,9 @@ jobs:
       if: matrix.rust == 'stable'
       run: cargo fmt --all -- --check
       continue-on-error: ${{ matrix.can-fail }}
+    - name: Clippy
+      run: cargo clippy -- -D clippy::all
+      continue-on-error: ${{ matrix.can-fail }}
     - name: Test Build
       run: cargo build
       continue-on-error: ${{ matrix.can-fail }}
