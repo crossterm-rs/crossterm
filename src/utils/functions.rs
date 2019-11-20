@@ -41,13 +41,3 @@ fn is_specific_term() -> bool {
         Err(_) => false,
     }
 }
-
-pub(crate) fn flush<W: io::Write>(writer: &mut W) -> Option<crate::Result<()>> {
-    let result = writer.flush().map_err(|e| crate::ErrorKind::IoError(e));
-
-    if let Err(_) = &result {
-        Some(result)
-    } else {
-        None
-    }
-}
