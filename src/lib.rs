@@ -232,19 +232,14 @@ pub use utils::functions::supports_ansi;
 pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor
-#[cfg(feature = "cursor")]
 pub mod cursor;
 /// A module to read events.
-#[cfg(feature = "event")]
 pub mod event;
 /// A module to work with the terminal screen and modes.
-#[cfg(feature = "screen")]
 pub mod screen;
 /// A module to apply attributes and colors on your text.
-#[cfg(feature = "style")]
 pub mod style;
 /// A module to work with the terminal.
-#[cfg(feature = "terminal")]
 pub mod terminal;
 /// Shared utilities.
 pub mod utils;
