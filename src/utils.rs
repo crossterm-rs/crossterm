@@ -1,7 +1,7 @@
 //! # Utils
 
 pub use self::{
-    command::{Command, ExecutableCommand, Output, QueueableCommand},
+    command::{Command, ExecutableCommand, QueueableCommand},
     error::{ErrorKind, Result},
 };
 

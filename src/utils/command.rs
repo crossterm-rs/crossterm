@@ -1,6 +1,6 @@
 use std::{fmt::Display, io::Write};
 
-use crate::{execute, queue, write_cout};
+use crate::{execute, queue};
 
 use super::error::Result;
 
@@ -89,33 +89,5 @@ where
     fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
         execute!(self, command)?;
         Ok(self)
-    }
-}
-
-/// When executed, this command will output the given displayable to the buffer.
-///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
-pub struct Output<T: Display + Clone>(pub T);
-
-impl<T: Display + Clone> Command for Output<T> {
-    type AnsiType = T;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        self.0.clone()
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        print!("{}", self.0);
-        Ok(())
-    }
-}
-
-impl<T: Display + Clone> Display for Output<T> {
-    fn fmt(
-        &self,
-        f: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::result::Result<(), ::std::fmt::Error> {
-        write!(f, "{}", self.ansi_code())
     }
 }

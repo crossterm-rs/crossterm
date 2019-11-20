@@ -1,5 +1,6 @@
 #[cfg(windows)]
 use super::sys::winapi::ansi::set_virtual_terminal_processing;
+use std::io;
 
 #[cfg(windows)]
 pub fn supports_ansi() -> bool {
@@ -38,5 +39,15 @@ fn is_specific_term() -> bool {
     match std::env::var("TERM") {
         Ok(val) => val != "dumb" || TERMS.contains(&val.as_str()),
         Err(_) => false,
+    }
+}
+
+pub(crate) fn flush<W: io::Write>(writer: &mut W) -> Option<crate::Result<()>> {
+    let result = writer.flush().map_err(|e| crate::ErrorKind::IoError(e));
+
+    if let Err(_) = &result {
+        Some(result)
+    } else {
+        None
     }
 }

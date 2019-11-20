@@ -332,6 +332,34 @@ impl Command for ResetColor {
     }
 }
 
+/// When executed, this command will output the given displayable to the buffer.
+///
+/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+pub struct Print<T: Display + Clone>(pub T);
+
+impl<T: Display + Clone> Command for Print<T> {
+    type AnsiType = T;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        self.0.clone()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        print!("{}", self.0);
+        Ok(())
+    }
+}
+
+impl<T: Display + Clone> Display for Print<T> {
+    fn fmt(
+        &self,
+        f: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::result::Result<(), ::std::fmt::Error> {
+        write!(f, "{}", self.ansi_code())
+    }
+}
+
 impl_display!(for SetForegroundColor);
 impl_display!(for SetBackgroundColor);
 impl_display!(for SetAttribute);

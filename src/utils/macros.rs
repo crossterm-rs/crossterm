@@ -8,24 +8,48 @@ macro_rules! csi {
 /// Write a string to standard output whereafter the stdout will be flushed.
 #[doc(hidden)]
 #[macro_export]
-macro_rules! write_cout {
+macro_rules! write_string {
     ($write:expr, $string:expr) => {{
-        use $crate::ErrorKind;
-
-        let fmt = format!("{}", $string);
-        let bytes = fmt.as_bytes();
-
-        $write
-            .write_all(bytes)
-            .and_then(|_| $write.flush().map(|_| bytes.len()))
-            .map_err(ErrorKind::IoError)
-    }};
-    ($string:expr) => {{
-        // Bring Write into the scope and ignore unused imports if it's
-        // already imported by the user
+        use std::error::Error;
         #[allow(unused_imports)]
-        use std::io::Write;
-        write_cout!(::std::io::stdout(), $string)
+        use std::io::{self, ErrorKind, Write};
+
+        let result = write!($write, "{}", $string)
+            .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
+            .map_err(|e| $crate::ErrorKind::IoError(e));
+
+        if let Err(_) = &result {
+            Some(result)
+        } else {
+            None
+        }
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! handle_command {
+    ($write:expr, $string:expr) => {{
+        // Silent warning when the macro is used inside the `command` module
+        #[allow(unused_imports)]
+        use $crate::{write_string, Command};
+
+        #[cfg(windows)]
+        {
+            if $crate::supports_ansi() {
+                write_string!($write, $string.ansi_code())
+            } else {
+                if let Err(e) = $string.execute_winapi() {
+                    Some(Err($crate::ErrorKind::from(e)))
+                } else {
+                    None
+                }
+            }
+        }
+        #[cfg(unix)]
+        {
+            write_string!($write, $string.ansi_code())
+        }
     }};
 }
 
@@ -46,7 +70,6 @@ macro_rules! write_cout {
 ///
 /// # Example
 /// ```rust
-///
 /// use std::io::{Write, stdout};
 ///
 /// use crossterm::{queue, Output};
@@ -70,38 +93,17 @@ macro_rules! write_cout {
 /// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
 #[macro_export]
 macro_rules! queue {
-    ($write:expr, $($command:expr), * $(,)? ) => {{
+    ($write:expr, $($command:expr), * $(,)?) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
-        use $crate::Command;
+        use $crate::{Command, handle_command};
         let mut error = None;
 
         $(
-            #[cfg(windows)]
-            {
-                if $crate::supports_ansi() {
-                    if let Err(e) = write!($write, "{}", $command.ansi_code()) {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    };
-                } else {
-                    if let Err(e) = $command.execute_winapi() {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                };
-            }
-            #[cfg(unix)]
-            {
-                if let Err(e) = write!($write, "{}", $command.ansi_code()) {
-                    error = Some(Err($crate::ErrorKind::from(e)));
-                }
-            }
+            error = handle_command!($write, $command);
         )*
 
-        if let Some(error) = error {
-            error
-        } else {
-            Ok(())
-        }
+        error.unwrap_or(Ok(()))
     }}
 }
 
@@ -138,35 +140,14 @@ macro_rules! execute {
     ($write:expr, $($command:expr), * $(,)? ) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
-        use $crate::{Command, write_cout};
+        use $crate::{handle_command, Command};
         let mut error = None;
 
         $(
-            #[cfg(windows)]
-            {
-                if $crate::supports_ansi() {
-                    if let Err(e) = write_cout!($write, $command.ansi_code()) {
-                        error = Some($crate::ErrorKind::from(e));
-                    };
-                } else {
-                    if let Err(e) = $command.execute_winapi() {
-                        error = Some($crate::ErrorKind::from(e));
-                    };
-                };
-            }
-            #[cfg(unix)]
-            {
-                if let Err(e) = write_cout!($write, $command.ansi_code()) {
-                    error = Some($crate::ErrorKind::from(e));
-                }
-            }
+            error = handle_command!($write, $command).and_then(|_| Some($write.flush().map_err(|e| $crate::ErrorKind::IoError(e))));
         )*
 
-        if let Some(error) = error {
-            Err(error)
-        } else {
-            Ok(())
-        }
+        error.unwrap_or(Ok(()))
     }}
 }
 
@@ -176,8 +157,7 @@ macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
-                use $crate::Command;
-                write!(f, "{}", self.ansi_code())
+                $crate::queue!(f, self).map_err(|_| ::std::fmt::Error)
             }
         })*
     }
