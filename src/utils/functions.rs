@@ -1,6 +1,5 @@
 #[cfg(windows)]
 use super::sys::winapi::ansi::set_virtual_terminal_processing;
-use std::io;
 
 #[cfg(windows)]
 pub fn supports_ansi() -> bool {
