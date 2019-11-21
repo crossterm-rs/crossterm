@@ -28,14 +28,14 @@ pub trait Command {
     fn execute_winapi(&self) -> Result<()>;
 }
 
-/// A trait that defines behaviour for a command that can be used to be executed at a later time point.
+/// A trait that defines behaviour for a command which can be executed at a later time.
 /// This can be used in order to get more performance.
 pub trait QueueableCommand<T: Display>: Sized {
     /// Queues the given command for later execution.
     fn queue(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
 }
 
-/// A trait that defines behaviour for a command that will be executed immediately.
+/// A trait that defines behaviour for a command which will be executed immediately.
 pub trait ExecutableCommand<T: Display>: Sized {
     /// Execute the given command directly.
     fn execute(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;

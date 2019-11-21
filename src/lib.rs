@@ -29,7 +29,7 @@
 //!
 //! * Functions can execute commands on types that implement Write. Functions are easier to use and debug.
 //!   There is a disadvantage, and that is that there is a boilerplate code involved.
-//! * Macros are generally seen as more difficult but offer an API with less boilerplate code. If you are
+//! * Macros are generally seen as more difficult and aren't always well supported by editors but offer an API with less boilerplate code. If you are
 //!   not afraid of macros, this is a recommendation.
 //!
 //! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or rather a
@@ -39,7 +39,7 @@
 //! ### Supported Commands
 //!
 //! - Module `cursor`
-//!   - Visibility - [`Show`](cursor/struct.Show.html), [`Hide`](cursor/struct.Show.html)
+//!   - Visibility - [`Show`](cursor/struct.Show.html), [`Hide`](cursor/struct.Hide.html)
 //!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
 //!     [`DisableBlinking`](cursor/struct.DisableBlinking.html)
 //!   - Position -
@@ -235,7 +235,7 @@ pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand,
 pub mod cursor;
 /// A module to read events.
 pub mod event;
-/// A module to work with the terminal screen.
+/// A module to work with the terminal screen and modes.
 pub mod screen;
 /// A module to apply attributes and colors on your text.
 pub mod style;
