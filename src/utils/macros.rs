@@ -16,9 +16,9 @@ macro_rules! write_string {
 
         let result = write!($write, "{}", $string)
             .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
-            .map_err(|e| $crate::ErrorKind::IoError(e));
+            .map_err($crate::ErrorKind::IoError);
 
-        if let Err(_) = &result {
+        if result.is_err() {
             Some(result)
         } else {
             None
@@ -151,7 +151,7 @@ macro_rules! execute {
             if let Some(Err(e)) = handle_command!($write, $command) {
                 error = Some(Err(e));
             }else {
-                $write.flush().map_err(|e| $crate::ErrorKind::IoError(e)).unwrap();
+                $write.flush().map_err($crate::ErrorKind::IoError).unwrap();
             }
         )*
 
