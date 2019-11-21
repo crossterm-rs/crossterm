@@ -97,6 +97,8 @@ macro_rules! queue {
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::{Command, handle_command};
+
+        #[allow(unused_assignments)]
         let mut error = None;
 
         $(
@@ -141,10 +143,16 @@ macro_rules! execute {
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::{handle_command, Command};
+
+        #[allow(unused_assignments)]
         let mut error = None;
 
         $(
-            error = handle_command!($write, $command).and_then(|_| Some($write.flush().map_err(|e| $crate::ErrorKind::IoError(e))));
+            if let Some(Err(e)) = handle_command!($write, $command) {
+                error = Some(Err(e));
+            }else {
+                $write.flush().map_err(|e| $crate::ErrorKind::IoError(e)).unwrap();
+            }
         )*
 
         error.unwrap_or(Ok(()))
