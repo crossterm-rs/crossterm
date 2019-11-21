@@ -72,12 +72,12 @@ macro_rules! handle_command {
 /// ```rust
 /// use std::io::{Write, stdout};
 ///
-/// use crossterm::{queue, Output};
+/// use crossterm::{queue, style::Print};
 ///
 /// let mut stdout = stdout();
 ///
 /// // will be executed when flush is called
-/// queue!(stdout, Output("foo".to_string()));
+/// queue!(stdout, Print("foo".to_string()));
 ///
 /// // some other code (no execution happening here) ...
 ///
@@ -123,13 +123,13 @@ macro_rules! queue {
 /// ```rust
 /// use std::io::Write;
 ///
-/// use crossterm::{execute, Output};
+/// use crossterm::{execute, Print};
 ///
 /// // will be executed directly
-/// execute!(std::io::stdout(), Output("foo".to_string()));
+/// execute!(std::io::stdout(), Print("foo".to_string()));
 ///
 /// // will be executed directly
-/// execute!(std::io::stdout(), Output("foo".to_string()), Output("bar".to_string()));
+/// execute!(std::io::stdout(), Print("foo".to_string()), Print("bar".to_string()));
 /// ```
 ///
 /// # Remarks
