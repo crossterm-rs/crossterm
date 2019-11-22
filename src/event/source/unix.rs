@@ -8,7 +8,7 @@ use crate::Result;
 
 use super::super::{
     source::EventSource,
-    sys::unix::{parse_event, tty_fd, FileDesc},
+    sys::unix::{tty_fd, FileDesc},
     timeout::PollTimeout,
     Event, InternalEvent,
 };
@@ -35,9 +35,9 @@ fn pipe() -> Result<(FileDesc, FileDesc)> {
 }
 
 pub(crate) struct UnixInternalEventSource {
+    parser: anes::Parser,
     poll: Poll,
     events: Events,
-    tty_buffer: Vec<u8>,
     tty_fd: FileDesc,
     signals: Signals,
     wake_read_fd: FileDesc,
@@ -86,9 +86,9 @@ impl UnixInternalEventSource {
         )?;
 
         Ok(UnixInternalEventSource {
+            parser: anes::Parser::default(),
             poll,
             events: Events::with_capacity(3),
-            tty_buffer: Vec::new(),
             tty_fd: input_fd,
             signals,
             wake_read_fd,
@@ -115,26 +115,18 @@ impl EventSource for UnixInternalEventSource {
                     for event in events_count {
                         match event {
                             TTY_TOKEN => {
-                                self.tty_buffer.push(self.tty_fd.read_byte()?);
+                                let byte = self.tty_fd.read_byte()?;
 
                                 let input_available = self
                                     .poll
                                     .poll(&mut self.events, Some(Duration::from_secs(0)))
                                     .map(|x| x > 0)?;
 
-                                match parse_event(&self.tty_buffer, input_available) {
-                                    Ok(None) => {
-                                        // Not enough bytes to construct an InternalEvent
-                                    }
-                                    Ok(Some(ie)) => {
-                                        self.tty_buffer.clear();
-                                        return Ok(Some(ie));
-                                    }
-                                    Err(_) => {
-                                        // Can't parse an event, clear buffer and start over
-                                        self.tty_buffer.clear();
-                                    }
-                                };
+                                self.parser.advance(byte, input_available);
+
+                                if let Some(event) = self.parser.next() {
+                                    return Ok(Some(event.into()));
+                                }
                             }
                             SIGNAL_TOKEN => {
                                 for signal in &self.signals {

@@ -85,6 +85,7 @@ use timeout::PollTimeout;
 
 use crate::{Command, Result};
 
+mod anes;
 mod ansi;
 pub(crate) mod filter;
 mod read;
