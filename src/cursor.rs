@@ -72,6 +72,63 @@ impl Command for MoveTo {
     }
 }
 
+/// A command that moves the terminal cursor up the given number of lines, and resets it to the first column at the beginning of the line.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+struct MoveToNextLine(u16);
+
+impl Command for MoveToNextLine {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::move_to_next_line_csi_sequence(self.0)
+    }
+
+    fn execute_winapi(&self) -> Result<()> {
+        sys::move_to_next_line(self.0)
+    }
+}
+
+/// A command that moves the terminal cursor down the given number of lines, and resets it to the first column at the beginning of the line.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+struct MoveToPreviousLine(u16);
+
+impl Command for MoveToPreviousLine {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::move_to_previous_line_csi_sequence(self.0)
+    }
+
+    fn execute_winapi(&self) -> Result<()> {
+        sys::move_to_previous_line(self.0)
+    }
+}
+
+/// A command that moves the terminal cursor to the given column on the current row.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+struct MoveToColumn(u16);
+
+impl Command for MoveToColumn {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::move_to_column_csi_sequence(self.0)
+    }
+
+    fn execute_winapi(&self) -> Result<()> {
+        sys::move_to_column(self.0)
+    }
+}
+
 /// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
@@ -149,63 +206,6 @@ impl Command for MoveLeft {
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::move_left(self.0)
-    }
-}
-
-/// A command that moves the terminal cursor up the given number of lines, and resets it to the first column at the beginning of the line.
-///
-/// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToNextLine(u16);
-
-impl Command for MoveToNextLine {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_next_line_csi_sequence(self.0)
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        sys::move_to_next_line(self.0)
-    }
-}
-
-/// A command that moves the terminal cursor down the given number of lines, and resets it to the first column at the beginning of the line.
-///
-/// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToPreviousLine(u16);
-
-impl Command for MoveToPreviousLine {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_previous_line_csi_sequence(self.0)
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        sys::move_to_previous_line(self.0)
-    }
-}
-
-/// A command that moves the terminal cursor to the given column on the current row.
-///
-/// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToColumn(u16);
-
-impl Command for MoveToColumn {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_column_csi_sequence(self.0)
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        sys::move_to_column(self.0)
     }
 }
 
