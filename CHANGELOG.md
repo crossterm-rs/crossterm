@@ -5,8 +5,9 @@
   - It's **highly recommended** to read the
     [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
     documentation
-* Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
+- Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
+- Renamed, moved `crossterm::Output` to `crossterm::Print`
  
 # Version 0.13.3
 

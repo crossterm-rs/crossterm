@@ -10,9 +10,10 @@ macro_rules! csi {
 #[macro_export]
 macro_rules! write_string {
     ($write:expr, $string:expr) => {{
-        use std::error::Error;
-        #[allow(unused_imports)]
-        use std::io::{self, ErrorKind, Write};
+        use std::{
+            error::Error,
+            io::{self, ErrorKind},
+        };
 
         let result = write!($write, "{}", $string)
             .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
@@ -56,41 +57,46 @@ macro_rules! handle_command {
 /// Queue one or more command(s) for execution in the near future.
 ///
 /// Queued commands will be executed in the following cases:
-/// - When you manually call `flush` on the given writer.
-/// - When the buffer is to full, then the terminal will flush for you.
-/// - Incase of `stdout` each line, because `stdout` is line buffered.
+/// - When `flush` is called manually on the given type implementing `io::Write`.
+/// - When the buffer is to full, then the terminal will `flush` for you.
+/// - Each line inc ase of `stdout`, because `stdout` is line buffered.
 ///
 /// # Parameters
 /// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
 ///
-///     Crossterm will write the ANSI escape codes to this given writer (No flush will be done).
+///     ANSI escape codes are written on the given 'writer', after which they are flushed.
 /// - [Command](./trait.Command.html)
 ///
-///     Give one or more commands that you want to queue for execution
+///     One or more commands that you want to execute
 ///
 /// # Example
 /// ```rust
 /// use std::io::{Write, stdout};
-///
 /// use crossterm::{queue, style::Print};
 ///
-/// let mut stdout = stdout();
+/// fn main() {
+///     let mut stdout = stdout();
 ///
-/// // will be executed when flush is called
-/// queue!(stdout, Print("foo".to_string()));
+///     // `Print` will executed executed when `flush` is called.
+///     queue!(stdout, Print("foo".to_string()));
 ///
-/// // some other code (no execution happening here) ...
+///     // some other code (no execution happening here) ...
 ///
-/// // when calling flush on stdout, all commands will be written to the stdout and therefor executed.
-/// stdout.flush();
+///     // when calling `flush` on `stdout`, all commands will be written to the stdout and therefore executed.
+///     stdout.flush();
+///
+///     // ==== Output ====
+///     // foo
+/// }
 /// ```
 ///
+/// For the full documentation of the command API, please have a look over [here](./#command-api).
+///
 /// # Remarks
-/// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+/// - In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
 /// - In case of Windows versions lower than 10, a direct WinApi call will be made.
-/// This is happening because windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
-/// Because of that there is no difference between `execute` and `queue` for those windows versions.
-/// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
+/// The reason for this is that Windows versions lower than 10 do not support ANSI codes, and can therefore not be written to the given `writer`.
+/// Therefore, there is no difference between [execute](macro.execute.html) and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! queue {
     ($write:expr, $($command:expr), * $(,)?) => {{
@@ -109,34 +115,41 @@ macro_rules! queue {
     }}
 }
 
-/// Execute one or more command(s)
+/// Execute one or more command(s).
 ///
 /// # Parameters
 /// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
 ///
-///     Crossterm will write the ANSI escape codes to this given. (A flush will be done)
+///     ANSI escape codes are written on the given 'writer', after which they are flushed.
 /// - [Command](./trait.Command.html)
 ///
-///     Give one or more commands that you want to execute
+///     One or more commands that you want to execute
 ///
 /// # Example
 /// ```rust
-/// use std::io::Write;
+/// use std::io::{Write, stdout};
+/// use crossterm::{execute, style::Print};
 ///
-/// use crossterm::{execute, Print};
+///  fn main() {
+///      // will be executed directly
+///      execute!(stdout(), Print("sum:\n".to_string()));
 ///
-/// // will be executed directly
-/// execute!(std::io::stdout(), Print("foo".to_string()));
+///      // will be executed directly
+///      execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
 ///
-/// // will be executed directly
-/// execute!(std::io::stdout(), Print("foo".to_string()), Print("bar".to_string()));
+///      // ==== Output ====
+///      // sum:
+///      // 1 + 1 = 2
+///  }
 /// ```
 ///
+/// For the full documentation of the command API, please have a look over [here](./#command-api).
+///
 /// # Remarks
-/// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
+/// - In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
 /// - In case of Windows versions lower than 10, a direct WinApi call will be made.
-/// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
-/// Because of that there is no difference between `execute` and `queue` for those windows versions.
+/// The reason for this is that Windows versions lower than 10 do not support ANSI codes, and can therefore not be written to the given `writer`.
+/// Therefore, there is no difference between [execute](macro.execute.html) and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
     ($write:expr, $($command:expr), * $(,)? ) => {{
@@ -161,6 +174,7 @@ macro_rules! execute {
 
 #[doc(hidden)]
 #[macro_export]
+/// Do'nt
 macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {

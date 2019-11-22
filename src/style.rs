@@ -30,8 +30,8 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{execute, Result, Output};
-//! use crossterm::style::{SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
+//! use crossterm::{execute, Result};
+//! use crossterm::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
 //!
 //! fn main() -> Result<()> {
 //!     execute!(
@@ -41,7 +41,7 @@
 //!         // Red background
 //!         SetBackgroundColor(Color::Red),
 //!         // output text
-//!         Output("Styled text here.".to_string()),
+//!         Print("Styled text here.".to_string()),
 //!         // Reset to default colors
 //!         ResetColor
 //!     )
@@ -69,7 +69,7 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{execute, Result, Output};
+//! use crossterm::{execute, Result, Print};
 //! use crossterm::style::{SetAttribute, Attribute};
 //!
 //! fn main() -> Result<()> {
@@ -77,7 +77,7 @@
 //!         stdout(),
 //!         // Set to bold
 //!         SetAttribute(Attribute::Bold),
-//!         Output("Styled text here.".to_string()),
+//!         Print("Styled text here.".to_string()),
 //!         // Reset all attributes
 //!         SetAttribute(Attribute::Reset)
 //!     )
