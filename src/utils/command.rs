@@ -44,7 +44,7 @@ where
     A: Display,
     T: Write,
 {
-    /// Queue the given command for execution in the near future.
+    /// Queues the given command for execution in the near future.
     ///
     /// Queued commands will be executed in the following cases:
     /// - When `flush` is called manually on the given type implementing `io::Write`.
@@ -101,7 +101,7 @@ where
     A: Display,
     T: Write,
 {
-    /// Execute the given command directly.
+    /// Executes the given command directly.
     ///
     /// The given command its ANSI escape code will be written and flushed onto `Self`.
     ///

@@ -69,7 +69,7 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{execute, Result, Print};
+//! use crossterm::{execute, Result, style::Print};
 //! use crossterm::style::{SetAttribute, Attribute};
 //!
 //! fn main() -> Result<()> {
@@ -332,7 +332,7 @@ impl Command for ResetColor {
     }
 }
 
-/// When executed, this command will output the given displayable to the buffer.
+/// When executed, this command will print the given displayable to the buffer.
 ///
 /// See `crossterm/examples/command.rs` for more information on how to execute commands.
 pub struct Print<T: Display + Clone>(pub T);
@@ -366,3 +366,4 @@ impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);
+impl_display!(for Print);
