@@ -4,7 +4,7 @@ use crate::{execute, queue};
 
 use super::error::Result;
 
-/// An interface for a command that can be entered on the terminal.
+/// An interface for a command that can be executed on the terminal.
 ///
 /// Crossterm provides a set of commands, and there is no immediate reason to implement a command yourself.
 /// In order to understand how to use and execute commands, it is recommended that you take a look at [this](../#command-api) chapter.
