@@ -86,6 +86,7 @@ impl Command for MoveToNextLine {
         ansi::move_to_next_line_csi_sequence(self.0)
     }
 
+    #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::move_to_next_line(self.0)
     }
@@ -105,6 +106,7 @@ impl Command for MoveToPreviousLine {
         ansi::move_to_previous_line_csi_sequence(self.0)
     }
 
+    #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::move_to_previous_line(self.0)
     }
@@ -124,6 +126,7 @@ impl Command for MoveToColumn {
         ansi::move_to_column_csi_sequence(self.0)
     }
 
+    #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::move_to_column(self.0)
     }
