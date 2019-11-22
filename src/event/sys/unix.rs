@@ -498,7 +498,7 @@ pub(crate) fn parse_csi_xterm_mouse(buffer: &[u8]) -> Result<Option<InternalEven
 
         let drag = cb & 0b0010_0000 == 0b0010_0000;
 
-        match (cb & 0b111, up, drag) {
+        match (cb & 0b0000_0011, up, drag) {
             (0, true, _) => MouseEvent::Up(MouseButton::Left, cx, cy, modifiers),
             (0, false, false) => MouseEvent::Down(MouseButton::Left, cx, cy, modifiers),
             (0, false, true) => MouseEvent::Drag(MouseButton::Left, cx, cy, modifiers),
