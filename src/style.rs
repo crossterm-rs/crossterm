@@ -366,4 +366,3 @@ impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);
-impl_display!(for Print);
