@@ -7,7 +7,7 @@ use crate::event::Event;
 
 use super::super::{
     source::EventSource,
-    sys::windows::{handle_key_event, handle_mouse_event},
+    sys::windows::{handle_key_event, handle_mouse_event, CancelRx},
     timeout::PollTimeout,
     InternalEvent, Result,
 };
@@ -28,11 +28,15 @@ impl WindowsEventSource {
 }
 
 impl EventSource for WindowsEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(
+        &mut self,
+        timeout: Option<Duration>,
+        cancel: Option<&CancelRx>,
+    ) -> Result<Option<InternalEvent>> {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            if let Some(event_ready) = self.poll.poll(timeout)? {
+            if let Some(event_ready) = self.poll.poll(timeout, cancel)? {
                 if event_ready && self.console.number_of_console_input_events()? != 0 {
                     let input = self.console.read_single_input_event()?;
 
@@ -63,9 +67,5 @@ impl EventSource for WindowsEventSource {
                 return Ok(None);
             }
         }
-    }
-
-    fn wake(&self) {
-        let _ = self.poll.cancel();
     }
 }

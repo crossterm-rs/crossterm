@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::io;
 use std::time::Duration;
 
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
@@ -11,7 +10,7 @@ use super::super::{
     source::EventSource,
     sys::unix::{parse_event, tty_fd, FileDesc},
     timeout::PollTimeout,
-    Event, InternalEvent,
+    CancelRx, Event, InternalEvent,
 };
 
 // Tokens to identify file descriptor
@@ -24,22 +23,6 @@ const WAKE_TOKEN: Token = Token(2);
 // is enough.
 const TTY_BUFFER_SIZE: usize = 1_204;
 
-/// Creates a new pipe and returns `(read, write)` file descriptors.
-fn pipe() -> Result<(FileDesc, FileDesc)> {
-    let (read_fd, write_fd) = unsafe {
-        let mut pipe_fds: [libc::c_int; 2] = [0; 2];
-        if libc::pipe(pipe_fds.as_mut_ptr()) == -1 {
-            return Err(io::Error::last_os_error().into());
-        }
-        (pipe_fds[0], pipe_fds[1])
-    };
-
-    let read_fd = FileDesc::new(read_fd, true);
-    let write_fd = FileDesc::new(write_fd, true);
-
-    Ok((read_fd, write_fd))
-}
-
 pub(crate) struct UnixInternalEventSource {
     poll: Poll,
     events: Events,
@@ -47,8 +30,6 @@ pub(crate) struct UnixInternalEventSource {
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_fd: FileDesc,
     signals: Signals,
-    wake_read_fd: FileDesc,
-    wake_write_fd: FileDesc,
 }
 
 impl UnixInternalEventSource {
@@ -82,16 +63,6 @@ impl UnixInternalEventSource {
         let signals = Signals::new(&[signal_hook::SIGWINCH])?;
         poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
 
-        let (wake_read_fd, wake_write_fd) = pipe()?;
-        let wake_read_raw_fd = wake_read_fd.raw_fd();
-        let wake_read_ev = EventedFd(&wake_read_raw_fd);
-        poll.register(
-            &wake_read_ev,
-            WAKE_TOKEN,
-            Ready::readable(),
-            PollOpt::level(),
-        )?;
-
         Ok(UnixInternalEventSource {
             poll,
             events: Events::with_capacity(3),
@@ -99,14 +70,14 @@ impl UnixInternalEventSource {
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_fd: input_fd,
             signals,
-            wake_read_fd,
-            wake_write_fd,
         })
     }
-}
 
-impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn inner_try_read(
+        &mut self,
+        timeout: Option<Duration>,
+        cancel: Option<&CancelRx>,
+    ) -> Result<Option<InternalEvent>> {
         if let Some(event) = self.parser.next() {
             return Ok(Some(event));
         }
@@ -169,8 +140,11 @@ impl EventSource for UnixInternalEventSource {
                         // Something happened on the self pipe. Try to read single byte
                         // (see wake() fn) and ignore result. If we can't read the byte,
                         // mio Poll::poll will fire another event with WAKE_TOKEN.
-                        let mut buf = [0u8; 1];
-                        let _ = self.wake_read_fd.read(&mut buf, 1);
+                        if let Some(cancel) = cancel {
+                            let mut buf = [0u8; 1];
+                            let _ = cancel.0.read(&mut buf, 1);
+                        }
+
                         return Ok(None);
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
@@ -183,13 +157,28 @@ impl EventSource for UnixInternalEventSource {
             }
         }
     }
+}
 
-    fn wake(&self) {
-        // DO NOT write more than 1 byte. See try_read & WAKE_TOKEN
-        // handling - it reads just 1 byte. If you write more than
-        // 1 byte, lets say N, then the try_read will be woken up
-        // N times.
-        let _ = self.wake_write_fd.write(&[0x57]);
+impl EventSource for UnixInternalEventSource {
+    fn try_read(
+        &mut self,
+        timeout: Option<Duration>,
+        cancel: Option<&CancelRx>,
+    ) -> Result<Option<InternalEvent>> {
+        let cancel = match cancel {
+            Some(cancel) => cancel,
+            None => return self.inner_try_read(timeout, None),
+        };
+
+        let wake_read_raw_fd = cancel.0.raw_fd();
+        let evented = EventedFd(&wake_read_raw_fd);
+
+        self.poll
+            .register(&evented, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
+
+        let result = self.inner_try_read(timeout, Some(cancel));
+        self.poll.deregister(&evented)?;
+        result
     }
 }
 

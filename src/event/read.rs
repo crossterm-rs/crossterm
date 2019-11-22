@@ -5,7 +5,11 @@ use super::filter::Filter;
 use super::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
-use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
+use super::{
+    source::{CancelRx, EventSource},
+    timeout::PollTimeout,
+    InternalEvent, Result,
+};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -32,14 +36,12 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
-    #[cfg(feature = "event-stream")]
-    pub(crate) fn wake(&self) {
-        if let Some(source) = self.source.as_ref() {
-            source.wake();
-        }
-    }
-
-    pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> Result<bool>
+    pub(crate) fn poll<F>(
+        &mut self,
+        timeout: Option<Duration>,
+        filter: &F,
+        cancel: Option<&CancelRx>,
+    ) -> Result<bool>
     where
         F: Filter,
     {
@@ -63,7 +65,7 @@ impl InternalEventReader {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            let maybe_event = match event_source.try_read(timeout)? {
+            let maybe_event = match event_source.try_read(timeout, cancel)? {
                 None => None,
                 Some(event) => {
                     if filter.eval(&event) {
@@ -114,7 +116,7 @@ impl InternalEventReader {
                 }
             }
 
-            let _ = self.poll(None, filter)?;
+            let _ = self.poll(None, filter, None)?;
         }
     }
 }
@@ -130,7 +132,7 @@ mod tests {
     use super::super::filter::CursorPositionFilter;
     use super::{
         super::{filter::InternalEventFilter, Event},
-        {EventSource, InternalEvent, InternalEventReader},
+        {CancelRx, EventSource, InternalEvent, InternalEventReader},
     };
 
     #[test]
@@ -141,12 +143,12 @@ mod tests {
             skipped_events: Vec::with_capacity(32),
         };
 
-        assert!(reader.poll(None, &InternalEventFilter).is_err());
+        assert!(reader.poll(None, &InternalEventFilter, None).is_err());
         assert!(reader
-            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
             .is_err());
         assert!(reader
-            .poll(Some(Duration::from_secs(10)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(10)), &InternalEventFilter, None)
             .is_err());
     }
 
@@ -158,7 +160,7 @@ mod tests {
             skipped_events: Vec::with_capacity(32),
         };
 
-        assert!(reader.poll(None, &InternalEventFilter).unwrap());
+        assert!(reader.poll(None, &InternalEventFilter, None).unwrap());
     }
 
     #[test]
@@ -174,7 +176,7 @@ mod tests {
             skipped_events: Vec::with_capacity(32),
         };
 
-        assert!(reader.poll(None, &CursorPositionFilter).unwrap());
+        assert!(reader.poll(None, &CursorPositionFilter, None).unwrap());
     }
 
     #[test]
@@ -231,7 +233,7 @@ mod tests {
         };
 
         assert!(!reader
-            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
             .unwrap());
     }
 
@@ -245,9 +247,9 @@ mod tests {
             skipped_events: Vec::with_capacity(32),
         };
 
-        assert!(reader.poll(None, &InternalEventFilter).unwrap());
+        assert!(reader.poll(None, &InternalEventFilter, None).unwrap());
         assert!(reader
-            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
             .unwrap());
     }
 
@@ -299,7 +301,7 @@ mod tests {
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
         assert!(!reader
-            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
             .unwrap());
     }
 
@@ -315,7 +317,7 @@ mod tests {
 
         assert_eq!(
             reader
-                .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+                .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
                 .err()
                 .map(|e| format!("{:?}", &e)),
             Some(format!(
@@ -365,7 +367,7 @@ mod tests {
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
         assert!(reader.read(&InternalEventFilter).is_err());
         assert!(reader
-            .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
+            .poll(Some(Duration::from_secs(0)), &InternalEventFilter, None)
             .unwrap());
     }
 
@@ -422,6 +424,7 @@ mod tests {
         fn try_read(
             &mut self,
             _timeout: Option<Duration>,
+            _cancel: Option<&CancelRx>,
         ) -> Result<Option<InternalEvent>, ErrorKind> {
             // Return error if set in case there's just one remaining event
             if self.events.len() == 1 {
@@ -443,7 +446,5 @@ mod tests {
             // Timeout
             Ok(None)
         }
-
-        fn wake(&self) {}
     }
 }

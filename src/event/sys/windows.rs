@@ -11,8 +11,8 @@ use crossterm_winapi::{
 };
 use winapi::shared::winerror::WAIT_TIMEOUT;
 use winapi::um::{
-    synchapi::WaitForMultipleObjects,
-    winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
+    synchapi::{WaitForMultipleObjects, WaitForSingleObject},
+    winbase::{INFINITE, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
 };
 use winapi::um::{
     wincon::{
@@ -242,34 +242,71 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
     })
 }
 
-pub(crate) struct WinApiPoll {
-    semaphore: Option<Semaphore>,
+pub struct CancelTx(Semaphore);
+
+impl CancelTx {
+    /// Release the cancellation token.
+    pub fn release(self) -> Result<()> {
+        // DO NOT write more than 1 byte. See try_read & WAKE_TOKEN
+        // handling - it reads just 1 byte. If you write more than
+        // 1 byte, lets say N, then the try_read will be woken up
+        // N times.
+        self.0.release()?;
+        Ok(())
+    }
 }
+
+#[derive(Clone)]
+pub struct CancelRx(pub(crate) Semaphore);
+
+/// Construct a cancellation pair.
+pub fn cancellation() -> Result<(CancelTx, CancelRx)> {
+    let semaphore = Semaphore::new()?;
+    Ok((CancelTx(semaphore.clone()), CancelRx(semaphore)))
+}
+
+pub(crate) struct WinApiPoll;
 
 impl WinApiPoll {
     pub(crate) fn new() -> Result<WinApiPoll> {
-        Ok(WinApiPoll { semaphore: None })
+        Ok(WinApiPoll)
     }
 }
 
 impl WinApiPoll {
-    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<Option<bool>> {
+    pub fn poll(
+        &mut self,
+        timeout: Option<Duration>,
+        cancel: Option<&CancelRx>,
+    ) -> Result<Option<bool>> {
         let dw_millis = if let Some(duration) = timeout {
             duration.as_millis() as u32
         } else {
             INFINITE
         };
 
-        let semaphore = Semaphore::new()?;
         let console_handle = Handle::current_in_handle()?;
-        let handles = &[*console_handle, semaphore.handle()];
 
-        self.semaphore = Some(semaphore);
+        let cancel = match cancel {
+            Some(cancel) => cancel,
+            None => {
+                let output = unsafe { WaitForSingleObject(*console_handle, dw_millis) };
+
+                return Ok(match output {
+                    WAIT_OBJECT_0 => Some(true),
+                    WAIT_ABANDONED | WAIT_TIMEOUT => None,
+                    WAIT_FAILED => return Err(io::Error::last_os_error().into()),
+                    output => panic!("unexpected output: {}", output),
+                });
+            }
+        };
+
+        let handles = &[*console_handle, **cancel.0.handle()];
 
         let output =
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 
-        let result = match output {
+        match output {
             output if output == WAIT_OBJECT_0 => {
                 // input handle triggered
                 Ok(Some(true))
@@ -282,24 +319,12 @@ impl WinApiPoll {
                 // timeout elapsed
                 Ok(None)
             }
-            WAIT_FAILED => return Err(io::Error::last_os_error().into()),
+            WAIT_FAILED => Err(io::Error::last_os_error().into()),
             _ => Err(io::Error::new(
                 ErrorKind::Other,
                 "WaitForMultipleObjects returned unexpected result.",
             )
             .into()),
-        };
-
-        self.semaphore = None;
-
-        result
-    }
-
-    pub fn cancel(&self) -> Result<()> {
-        if let Some(semaphore) = &self.semaphore {
-            semaphore.release()?
         }
-
-        Ok(())
     }
 }

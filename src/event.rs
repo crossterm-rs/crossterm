@@ -84,6 +84,7 @@ pub use stream::EventStream;
 use timeout::PollTimeout;
 
 use crate::{Command, Result};
+pub use source::{cancellation, CancelRx, CancelTx};
 
 mod ansi;
 pub(crate) mod filter;
@@ -141,7 +142,7 @@ lazy_static! {
 /// }
 /// ```
 pub fn poll(timeout: Duration) -> Result<bool> {
-    poll_internal(Some(timeout), &EventFilter)
+    poll_internal(Some(timeout), &EventFilter, None)
 }
 
 /// Reads a single [`Event`](enum.Event.html).
@@ -192,7 +193,11 @@ pub fn read() -> Result<Event> {
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool>
+pub(crate) fn poll_internal<F>(
+    timeout: Option<Duration>,
+    filter: &F,
+    cancel: Option<&CancelRx>,
+) -> Result<bool>
 where
     F: Filter,
 {
@@ -206,7 +211,7 @@ where
     } else {
         (INTERNAL_EVENT_READER.write(), None)
     };
-    reader.poll(timeout, filter)
+    reader.poll(timeout, filter, cancel)
 }
 
 /// Reads a single `InternalEvent`.

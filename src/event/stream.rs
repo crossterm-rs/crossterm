@@ -15,7 +15,8 @@ use std::{
 use crate::Result;
 
 use super::{
-    filter::EventFilter, poll_internal, read_internal, Event, InternalEvent, INTERNAL_EVENT_READER,
+    cancellation, filter::EventFilter, poll_internal, read_internal, CancelRx, CancelTx, Event,
+    InternalEvent,
 };
 
 /// A stream of `Result<Event>`.
@@ -29,19 +30,24 @@ use super::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
-#[derive(Default)]
 pub struct EventStream {
     wake_thread_spawned: Arc<AtomicBool>,
     wake_thread_should_shutdown: Arc<AtomicBool>,
+    cancel_tx: Option<CancelTx>,
+    cancel_rx: CancelRx,
 }
 
 impl EventStream {
     /// Constructs a new instance of `EventStream`.
-    pub fn new() -> EventStream {
-        EventStream {
+    pub fn new() -> Result<EventStream> {
+        let (cancel_tx, cancel_rx) = cancellation()?;
+
+        Ok(EventStream {
             wake_thread_spawned: Arc::new(AtomicBool::new(false)),
             wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
-        }
+            cancel_tx: Some(cancel_tx),
+            cancel_rx,
+        })
     }
 }
 
@@ -49,7 +55,11 @@ impl Stream for EventStream {
     type Item = Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match poll_internal(Some(Duration::from_secs(0)), &EventFilter) {
+        let result = match poll_internal(
+            Some(Duration::from_secs(0)),
+            &EventFilter,
+            Some(&self.cancel_rx),
+        ) {
             Ok(true) => match read_internal(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
                 Err(e) => Poll::Ready(Some(Err(e))),
@@ -65,11 +75,13 @@ impl Stream for EventStream {
                     let wake_thread_spawned = self.wake_thread_spawned.clone();
                     let wake_thread_should_shutdown = self.wake_thread_should_shutdown.clone();
 
+                    let cancel_rx = self.cancel_rx.clone();
+
                     wake_thread_should_shutdown.store(false, Ordering::SeqCst);
 
                     thread::spawn(move || {
                         loop {
-                            if let Ok(true) = poll_internal(None, &EventFilter) {
+                            if let Ok(true) = poll_internal(None, &EventFilter, Some(&cancel_rx)) {
                                 break;
                             }
 
@@ -93,6 +105,9 @@ impl Drop for EventStream {
     fn drop(&mut self) {
         self.wake_thread_should_shutdown
             .store(true, Ordering::SeqCst);
-        INTERNAL_EVENT_READER.read().wake();
+
+        if let Some(cancel_tx) = self.cancel_tx.take() {
+            cancel_tx.release().expect("failed to release cancel token");
+        }
     }
 }

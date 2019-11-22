@@ -1,6 +1,7 @@
 use std::{
     fs, io,
     os::unix::io::{IntoRawFd, RawFd},
+    sync::Arc,
 };
 
 use libc::{c_int, c_void, size_t, ssize_t};
@@ -9,6 +10,45 @@ use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
     ErrorKind, Result,
 };
+
+pub struct CancelTx(FileDesc);
+
+impl CancelTx {
+    /// Release the cancellation token.
+    pub fn release(self) -> Result<()> {
+        // DO NOT write more than 1 byte. See try_read & WAKE_TOKEN
+        // handling - it reads just 1 byte. If you write more than
+        // 1 byte, lets say N, then the try_read will be woken up
+        // N times.
+        self.0.write(&[0x57])?;
+        Ok(())
+    }
+}
+
+#[derive(Clone)]
+pub struct CancelRx(pub(crate) Arc<FileDesc>);
+
+/// Construct a cancellation pair.
+pub fn cancellation() -> Result<(CancelTx, CancelRx)> {
+    let (read_fd, write_fd) = pipe()?;
+    Ok((CancelTx(write_fd), CancelRx(Arc::new(read_fd))))
+}
+
+/// Creates a new pipe and returns `(read, write)` file descriptors.
+fn pipe() -> Result<(FileDesc, FileDesc)> {
+    let (read_fd, write_fd) = unsafe {
+        let mut pipe_fds: [libc::c_int; 2] = [0; 2];
+        if libc::pipe(pipe_fds.as_mut_ptr()) == -1 {
+            return Err(io::Error::last_os_error().into());
+        }
+        (pipe_fds[0], pipe_fds[1])
+    };
+
+    let read_fd = FileDesc::new(read_fd, true);
+    let write_fd = FileDesc::new(write_fd, true);
+
+    Ok((read_fd, write_fd))
+}
 
 use super::super::InternalEvent;
 

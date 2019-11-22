@@ -6,6 +6,10 @@ use super::InternalEvent;
 pub mod unix;
 #[cfg(windows)]
 pub mod windows;
+#[cfg(unix)]
+pub use crate::event::sys::unix::{cancellation, CancelRx, CancelTx};
+#[cfg(windows)]
+pub use crate::event::sys::windows::{cancellation, CancelRx, CancelTx};
 
 /// An interface for trying to read an `InternalEvent` within an optional `Duration`.
 pub(crate) trait EventSource: Sync + Send {
@@ -18,8 +22,9 @@ pub(crate) trait EventSource: Sync + Send {
     /// Returns:
     /// `Ok(Some(event))`: in case an event is ready.
     /// `Ok(None)`: in case an event is not ready.
-    fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
-
-    /// Forces the `try_read` method to return `Ok(None)` immediately.
-    fn wake(&self);
+    fn try_read(
+        &mut self,
+        timeout: Option<Duration>,
+        cancel: Option<&CancelRx>,
+    ) -> crate::Result<Option<InternalEvent>>;
 }

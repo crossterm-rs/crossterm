@@ -22,8 +22,8 @@ const HELP: &str = r#"EventStream based on futures::Stream with async-std
  - Use Esc to quit
 "#;
 
-async fn print_events() {
-    let mut reader = EventStream::new();
+async fn print_events() -> Result<()> {
+    let mut reader = EventStream::new()?;
 
     loop {
         let mut delay = Delay::new(Duration::from_millis(1_000)).fuse();
@@ -50,6 +50,8 @@ async fn print_events() {
             }
         };
     }
+
+    Ok(())
 }
 
 fn main() -> Result<()> {
@@ -60,7 +62,7 @@ fn main() -> Result<()> {
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
 
-    async_std::task::block_on(print_events());
+    async_std::task::block_on(print_events())?;
 
     execute!(stdout, DisableMouseCapture)?;
     Ok(())

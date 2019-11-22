@@ -22,8 +22,8 @@ const HELP: &str = r#"EventStream based on futures::Stream with tokio
  - Use Esc to quit
 "#;
 
-async fn print_events() {
-    let mut reader = EventStream::new();
+async fn print_events() -> Result<()> {
+    let mut reader = EventStream::new()?;
 
     loop {
         let mut delay = Delay::new(Duration::from_millis(1_000)).fuse();
@@ -50,6 +50,8 @@ async fn print_events() {
             }
         };
     }
+
+    Ok(())
 }
 
 #[tokio::main]
@@ -61,7 +63,7 @@ async fn main() -> Result<()> {
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
 
-    print_events().await;
+    print_events().await?;
 
     execute!(stdout, DisableMouseCapture)?;
     Ok(())
