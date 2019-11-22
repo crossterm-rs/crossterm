@@ -184,10 +184,9 @@ impl From<Handle> for ScreenBufferCursor {
 #[cfg(test)]
 mod tests {
     use super::{
-        move_down, move_left, move_right, move_to, move_up, position, restore_position,
-        save_position,move_to_column, move_to_next_line, move_to_previous_line
+        move_down, move_left, move_right, move_to, move_to_column, move_to_next_line,
+        move_to_previous_line, move_up, position, restore_position, save_position,
     };
-    use crate::cursor::sys::windows::{};
 
     #[test]
     fn test_move_to_winapi() {
