@@ -7,6 +7,7 @@
     documentation
 * Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
+ - Added `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
  
 # Version 0.13.3
 
