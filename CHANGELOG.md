@@ -7,7 +7,7 @@
     documentation
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
-- Renamed, moved `crossterm::Output` to `crossterm::Print`
+- Rename, move `crossterm::Output` to `crossterm::Print`
  
 # Version 0.13.3
 

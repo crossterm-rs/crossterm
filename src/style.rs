@@ -40,8 +40,8 @@
 //!         SetForegroundColor(Color::Blue),
 //!         // Red background
 //!         SetBackgroundColor(Color::Red),
-//!         // output text
-//!         Print("Styled text here.".to_string()),
+//!         // print text
+//!         Print("Blue text on Red.".to_string()),
 //!         // Reset to default colors
 //!         ResetColor
 //!     )
@@ -77,7 +77,7 @@
 //!         stdout(),
 //!         // Set to bold
 //!         SetAttribute(Attribute::Bold),
-//!         Print("Styled text here.".to_string()),
+//!         Print("Bold text here.".to_string()),
 //!         // Reset all attributes
 //!         SetAttribute(Attribute::Reset)
 //!     )
