@@ -8,14 +8,13 @@
 
 use std::io::{stderr, Write};
 
+use crossterm::event::{Event, KeyCode, KeyEvent};
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
-    event,
-    queue,
+    event, queue,
     screen::{EnterAlternateScreen, LeaveAlternateScreen, RawScreen},
     Output, Result,
 };
-use crossterm::event::{KeyCode, Event, KeyEvent};
 
 const TEXT: &str = r#"
 This screen is ran on stderr.
@@ -66,33 +65,19 @@ where
     queue!(write, Show, LeaveAlternateScreen)?; // restore the cursor and leave the alternate screen
 
     write.flush()?;
-    Ok('f')
+    Ok(user_char)
 }
 
 pub fn read_char() -> Result<char> {
     loop {
-        if let Event::Key(KeyEvent {code: KeyCode::Char(c), .. }) = event::read()?
+        if let Event::Key(KeyEvent {
+            code: KeyCode::Char(c),
+            ..
+        }) = event::read()?
         {
             return Ok(c);
         }
     }
-}
-
-pub fn read_line() -> Result<String> {
-    let mut line = String::new();
-    while let Event::Key(KeyEvent { code: code, .. }) = event::read()? {
-        match code {
-            KeyCode::Enter => {
-                break;
-            },
-            KeyCode::Char(c) => {
-                line.push(c);
-            },
-            _ => {}
-        }
-    }
-
-    return Ok(line);
 }
 
 // cargo run --example stderr
