@@ -3,6 +3,7 @@
 //
 use std::io::{stdout, Write};
 
+use crossterm::event::MouseEvent;
 use crossterm::{
     cursor::position,
     event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -10,7 +11,6 @@ use crossterm::{
     screen::RawScreen,
     Result,
 };
-use crossterm::event::MouseEvent;
 use std::time::Instant;
 
 const HELP: &str = r#"Blocking read()
@@ -20,16 +20,18 @@ const HELP: &str = r#"Blocking read()
 "#;
 
 fn print_events() -> Result<()> {
-
     let mut counter = 0;
     let mut instant = Instant::now();
-
 
     loop {
         // Blocking read
         let event = read()?;
 
-        println!("Event::{:?}, avg: {}\r", event, instant.elapsed().as_secs() / counter);
+        println!(
+            "Event::{:?}, avg: {}\r",
+            event,
+            instant.elapsed().as_secs() / counter
+        );
 
         if let Event::Mouse(m) = event {
             counter += 1;
