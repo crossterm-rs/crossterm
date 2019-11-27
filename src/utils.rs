@@ -7,6 +7,7 @@ pub use self::{
 
 mod command;
 mod error;
+#[cfg(windows)]
 pub(crate) mod functions;
 pub(crate) mod macros;
 pub(crate) mod sys;

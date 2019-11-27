@@ -5,7 +5,7 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-/// Write a string to standard output whereafter the stdout will be flushed.
+/// Writes a string to the given writer.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! write_string {
@@ -21,6 +21,14 @@ macro_rules! write_string {
     }};
 }
 
+/// Handles the given command.
+///
+/// 1. In case of windows
+///     a. check if windows supports ansi codes
+///     b. checks if windows supports the commands ansi code.
+///     c. either write the ansi code or execute the winapi code.
+/// 2. In case of unix
+///     a. write the ansi code.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_command {
@@ -88,7 +96,7 @@ macro_rules! handle_command {
 /// }
 /// ```
 ///
-/// For the full documentation of the command API, please have a look over [here](./#command-api).
+/// For the full documentation checkout at the [Command API](./#command-api).
 ///
 /// # Notes
 ///
@@ -146,7 +154,7 @@ macro_rules! queue {
 ///  }
 /// ```
 ///
-/// For the full documentation of the command API, please have a look over [here](./#command-api).
+/// For the full documentation checkout at the [Command API](./#command-api).
 ///
 /// # Notes
 ///

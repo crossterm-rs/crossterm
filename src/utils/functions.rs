@@ -1,4 +1,3 @@
-#[cfg(windows)]
 use super::sys::winapi::ansi::set_virtual_terminal_processing;
 
 const UNSUPPORTED_WINDOWS_CSI_SEQUENCES: [&str; 2] = [
@@ -6,14 +5,12 @@ const UNSUPPORTED_WINDOWS_CSI_SEQUENCES: [&str; 2] = [
     crate::event::ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE,
 ];
 
-#[cfg(windows)]
 pub fn is_supported_ansi_code(ansi_code: &String) -> bool {
     !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
         .iter()
         .any(|s| *s == ansi_code)
 }
 
-#[cfg(windows)]
 pub fn supports_ansi() -> bool {
     // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.
     // Because of that we should check first if the TERM-variable is set and see if the current terminal is a terminal who does support ANSI.
@@ -30,7 +27,6 @@ pub fn supports_ansi() -> bool {
 
 // checks if the 'TERM' environment variable is set to check if the terminal supports ANSI-codes.
 // I got the list of terminals from here: https://github.com/keqingrong/supports-ansi/blob/master/index.js
-#[cfg(windows)]
 fn is_specific_term() -> bool {
     const TERMS: [&str; 15] = [
         "xterm",  // xterm, PuTTY, Mintty

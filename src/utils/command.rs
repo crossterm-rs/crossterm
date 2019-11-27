@@ -88,7 +88,7 @@ where
     /// }
     /// ```
     ///
-    /// For the full documentation of the command API, please have a look over [here](./#command-api).
+    /// For the full documentation checkout at the [Command API](./#command-api).
     ///
     /// # Notes
     ///
@@ -139,7 +139,7 @@ where
     ///  }
     /// ```
     ///
-    /// For the full documentation of the command API, please have a look over [here](./#command-api).
+    /// For the full documentation checkout at the [Command API](./#command-api).
     ///
     /// # Notes
     ///
