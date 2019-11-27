@@ -32,7 +32,7 @@
 //! ### Raw Mode
 //!
 //! By default, the terminal functions in a certain way.
-//! Like that the cursor will be moved to the beginning of the next line when the input is at the end of a line.
+//! For example, it will move the cursor to the beginning of the next line when the input hits the end of a line.
 //! Or that the backspace is interpreted for character removal.
 //!
 //! Sometimes these default modes are irrelevant,

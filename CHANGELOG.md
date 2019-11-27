@@ -7,6 +7,8 @@
     documentation
 * Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
+ - Rename `screen::Rawscreen::into_raw_mode` to `screen::Rawscreen::enable_raw_mode`
+ - Remove `screen::AlternateScreen`
  
 # Version 0.13.3
 
