@@ -1,6 +1,24 @@
 #[cfg(windows)]
 use super::sys::winapi::ansi::set_virtual_terminal_processing;
 
+const UNSUPPORTED_WINDOWS_CSI_SEQUENCES: [&str; 2] = [
+    crate::event::ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE,
+    crate::event::ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE,
+];
+
+#[cfg(windows)]
+pub fn is_supported_ansi_code(ansi_code: &String) -> bool {
+    println!(
+        "{}",
+        !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
+            .iter()
+            .any(|s| *s == ansi_code)
+    );
+    !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
+        .iter()
+        .any(|s| *s == ansi_code)
+}
+
 #[cfg(windows)]
 pub fn supports_ansi() -> bool {
     // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.

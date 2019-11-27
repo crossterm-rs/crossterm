@@ -24,22 +24,26 @@ macro_rules! write_string {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_command {
-    ($write:expr, $string:expr) => {{
+    ($write:expr, $command:expr) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::{write_string, Command};
 
         #[cfg(windows)]
         {
-            if $crate::supports_ansi() {
-                write_string!($write, $string.ansi_code())
+            // ansi code is not always a string, however it does implement `Display` and `Write`.
+            // In order to check if the code is supported we have to make it a string.
+            let ansi_code = format!("{}", $command.ansi_code());
+
+            if $crate::supports_ansi() && $crate::is_supported_ansi_code(&ansi_code) {
+                write_string!($write, &ansi_code)
             } else {
-                $string.execute_winapi().map_err($crate::ErrorKind::from)
+                $command.execute_winapi().map_err($crate::ErrorKind::from)
             }
         }
         #[cfg(unix)]
         {
-            write_string!($write, $string.ansi_code())
+            write_string!($write, $command.ansi_code())
         }
     }};
 }
