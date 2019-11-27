@@ -45,9 +45,12 @@
 //! - Special keys like backspace and CTL+C will not be processed by terminal driver
 //! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 
-use crate::utils::{Command, Result};
-
 pub use self::raw::{IntoRawMode, RawScreen};
+use crate::utils::Command;
+
+#[cfg(windows)]
+use crate::utils::Result;
+#[cfg(windows)]
 use crossterm_winapi::{Handle, ScreenBuffer};
 
 mod ansi;
@@ -59,7 +62,7 @@ mod sys;
 /// # Notes
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-/// * Use [LeaveAlternateScreen](./EnterAlternateScreen.struct) command to leave the entered alternate screen.
+/// * Use [LeaveAlternateScreen](./struct.LeaveAlternateScreen.html) command to leave the entered alternate screen.
 ///
 /// # Examples
 ///
@@ -97,7 +100,7 @@ impl Command for EnterAlternateScreen {
 /// # Notes
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-/// * Use [EnterAlternateScreen](./EnterAlternateScreen.struct) to enter the alternate screen.
+/// * Use [EnterAlternateScreen](./struct.EnterAlternateScreen.html) to enter the alternate screen.
 ///
 /// # Examples
 ///
