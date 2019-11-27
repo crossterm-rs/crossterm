@@ -1,41 +1,41 @@
 //! # Screen
 //!
-//! The `screen` module provides the functionality to work with the terminal screen.
-//!
-//! This documentation does not contain a lot of examples. The reason is that it's fairly
-//! obvious how to use this crate. Although, we do provide
-//! [examples](https://github.com/crossterm-rs/examples) repository
-//! to demonstrate the capabilities.
+//! The `screen` module provides the functionality to work with terminal modes.
 //!
 //! ## Screen Buffer
 //!
-//! A screen buffer is a two-dimensional array of characters and color data to be output in a console window.
-//! A terminal can have multiple of those screen buffers, and the active screen buffer is the one that is
-//! displayed on the screen.
+//! A screen buffer is a two-dimensional array of character
+//! and color data that is displayed in a terminal window.
 //!
-//! Crossterm allows you to switch between those buffers; the screen you are working in is called the
-//! 'main screen'. We call the other screen the 'alternate screen'. One note to take is that crossterm
-//! does not support the creation and switching between several buffers.
+//! The terminal can have several of these screen buffers and can switch between them.
+//! The default screen in which you work is called the 'main screen'.
+//! The other screens are called the 'alternative screen'.
+//!
+//! It is important to understand that crossterm does not yet support creating
+//! and switching between more than two buffers.
 //!
 //! ### Alternate Screen
 //!
-//! Normally you are working on the main screen but an alternate screen is somewhat different from a
-//! normal screen. For example, it has the exact dimensions of the terminal window, without any
-//! scroll back region. An example of this is vim when it is launched from bash.
+//! By default, you will be working on the main screen, however, the alternative screen is slightly different from the main screen.
+//! An example of this is that it has the exact dimensions of the terminal window, without any scroll-back area.
 //!
-//! Vim uses the entirety of the screen to edit the file, then exits to bash leaving the original buffer unchanged.
+//! Vim is a good example of this. When it is launched from bash, a whole new screen is used to modify a file.
+//! When the modification is finished, it closes again and continues on the main screen.
 //!
-//! Crossterm provides the ability to switch to the alternate screen, make some changes, and then go back
-//! to the main screen. The main screen will still have its original data since we made all the edits on
-//! the alternate screen.
+//! Crossterm offers the possibility to switch to the alternative screen,
+//! make some modifications, and move back to the main screen again.
+//! The main screen will still have the original data as we have performed all
+//! operations on the alternative screen.
 //!
 //! ### Raw Mode
 //!
-//! By default, the terminal behaves in a certain way.
-//! You can think of going to a new line if the input is at the end of the current line, or interpreting backspace
-//! to remove letters. Sometimes it can be useful to disable these modes because this is undesirable.
-//! This may be undesirable if your application wants to read the input without it being shown on the screen.
-//! Raw modes are the modes to create this possibility.
+//! By default, the terminal functions in a certain way.
+//! For example, if the input is at the end of a line,
+//! the cursor is moved to the beginning of the next line or the backspace is interpreted to remove letters.
+//!
+//! Sometimes these default modes are irrelevant,
+//! and in this case, we can turn them off.
+//! This is what happens when you enable raw modes.
 //!
 //! Those modes will be set when enabling raw modes:
 //!
@@ -95,7 +95,7 @@ impl Command for EnterAlternateScreen {
     }
 }
 
-/// A command that switches back to the main alternate screen.
+/// A command that switches back to the main screen.
 ///
 /// # Notes
 ///
