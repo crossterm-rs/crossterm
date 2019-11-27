@@ -8,12 +8,6 @@ const UNSUPPORTED_WINDOWS_CSI_SEQUENCES: [&str; 2] = [
 
 #[cfg(windows)]
 pub fn is_supported_ansi_code(ansi_code: &String) -> bool {
-    println!(
-        "{}",
-        !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
-            .iter()
-            .any(|s| *s == ansi_code)
-    );
     !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
         .iter()
         .any(|s| *s == ansi_code)
