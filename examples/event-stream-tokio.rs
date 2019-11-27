@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
+use tokio::main;
 
 use crossterm::{
     cursor::position,
