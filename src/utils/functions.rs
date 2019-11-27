@@ -5,7 +5,7 @@ const UNSUPPORTED_WINDOWS_CSI_SEQUENCES: [&str; 2] = [
     crate::event::ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE,
 ];
 
-pub fn is_supported_ansi_code(ansi_code: &String) -> bool {
+pub fn is_supported_ansi_code(ansi_code: &str) -> bool {
     !UNSUPPORTED_WINDOWS_CSI_SEQUENCES
         .iter()
         .any(|s| *s == ansi_code)
