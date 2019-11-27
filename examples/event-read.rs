@@ -3,7 +3,6 @@
 //
 use std::io::{stdout, Write};
 
-use crossterm::event::MouseEvent;
 use crossterm::{
     cursor::position,
     event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -11,7 +10,6 @@ use crossterm::{
     screen::RawScreen,
     Result,
 };
-use std::time::Instant;
 
 const HELP: &str = r#"Blocking read()
  - Keyboard, mouse and terminal resize events enabled
@@ -20,22 +18,11 @@ const HELP: &str = r#"Blocking read()
 "#;
 
 fn print_events() -> Result<()> {
-    let mut counter = 0;
-    let mut instant = Instant::now();
-
     loop {
         // Blocking read
         let event = read()?;
 
-        println!(
-            "Event::{:?}, avg: {}\r",
-            event,
-            instant.elapsed().as_secs() / counter
-        );
-
-        if let Event::Mouse(m) = event {
-            counter += 1;
-        }
+        println!("Event::{:?}\r", event);
 
         if event == Event::Key(KeyCode::Char('c').into()) {
             println!("Cursor position: {:?}\r", position());
