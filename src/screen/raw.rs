@@ -18,7 +18,7 @@ use super::sys;
 /// use crossterm::{screen::RawScreen, Result};
 ///
 /// fn main() -> Result<()> {
-///     let _raw = RawScreen::into_raw_mode()?;
+///     let _raw = RawScreen::enable_raw_mode()?;
 ///     // Do something in the raw mode
 ///     Ok(())
 /// } // `_raw` is dropped here <- raw mode is disabled
@@ -30,7 +30,7 @@ use super::sys;
 /// use crossterm::{screen::RawScreen, Result};
 ///
 /// fn main() -> Result<()> {
-///     let mut raw = RawScreen::into_raw_mode()?;
+///     let mut raw = RawScreen::enable_raw_mode()?;
 ///     raw.keep_raw_mode_on_drop();
 ///     // Feel free to leave `raw` on it's own/drop it, the raw
 ///     // mode won't be disabled
@@ -46,9 +46,7 @@ pub struct RawScreen {
 }
 
 impl RawScreen {
-    // TODO enable_raw_mode() to keep it synced with enable/disable?
-    /// Enables raw mode.
-    pub fn into_raw_mode() -> Result<RawScreen> {
+    pub fn enable_raw_mode() -> Result<RawScreen> {
         #[cfg(unix)]
         let mut command = sys::unix::RawModeCommand::new();
         #[cfg(windows)]
@@ -111,7 +109,7 @@ pub trait IntoRawMode: Write + Sized {
 
 impl IntoRawMode for Stdout {
     fn into_raw_mode(self) -> Result<RawScreen> {
-        RawScreen::into_raw_mode()?;
+        RawScreen::enable_raw_mode()?;
         // this make's sure that raw screen will be disabled when it goes out of scope.
         Ok(RawScreen {
             disable_raw_mode_on_drop: true,

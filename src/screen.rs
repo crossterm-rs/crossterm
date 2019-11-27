@@ -45,102 +45,21 @@
 //! - Special keys like backspace and CTL+C will not be processed by terminal driver
 //! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 
-// This brings the trait into scope, so we're able to call enter()/leave(),
-// but it it's false positive for unused_imports check
-#[allow(unused_imports)]
-use alternate::AlternateScreen as _;
-
 use crate::utils::{Command, Result};
 
 pub use self::raw::{IntoRawMode, RawScreen};
+use crossterm_winapi::{Handle, ScreenBuffer};
 
-mod alternate;
+mod ansi;
 mod raw;
 mod sys;
 
-/// An alternate screen.
-///
-/// With this type, you will be able to switch to the alternate screen and then back to
-/// the main screen.
-///
-/// Be aware that you'll be switched back to the main screen when you drop the
-/// `AlternateScreen` value.
-///
-/// It's recommended to use the command API. See the
-/// [`EnterAlternateScreen`](struct.EnterAlternateScreen.html)
-/// and [`LeaveAlternateScreen`](struct.LeaveAlternateScreen.html)
-/// commands documentation for more info.
-///
-/// # Examples
-///
-/// Alternate screen with raw mode enabled:
-///
-/// ```no_run
-/// use crossterm::{screen::{AlternateScreen}, Result};
-///
-/// fn main() -> Result<()> {
-///     let _alternate = AlternateScreen::to_alternate(true)?;
-///
-///     // Do something on the alternate screen in the raw mode
-///
-///     Ok(())
-/// } // `_alternate` dropped here <- raw mode disabled & back to main screen
-/// ```
-pub struct AlternateScreen {
-    #[cfg(windows)]
-    alternate: Box<(dyn alternate::AlternateScreen + Sync + Send)>,
-    #[cfg(unix)]
-    alternate: alternate::AnsiAlternateScreen,
-    raw_screen: Option<RawScreen>,
-}
-
-impl AlternateScreen {
-    /// Switches to the alternate screen.
-    ///
-    /// # Arguments
-    ///
-    /// * `raw_mode` - `true` enables the raw mode as well
-    ///
-    /// # Notes
-    ///
-    /// You'll be automatically switched to the main screen if this function
-    /// fails.
-    #[allow(clippy::wrong_self_convention)]
-    pub fn to_alternate(raw_mode: bool) -> Result<AlternateScreen> {
-        let alternate = alternate::alternate_screen();
-        alternate.enter()?;
-
-        let mut alternate = AlternateScreen {
-            alternate,
-            raw_screen: None,
-        };
-
-        if raw_mode {
-            // If into_raw_mode fails, `alternate` will be dropped and
-            // we'll switch back to the main screen.
-            alternate.raw_screen = Some(RawScreen::into_raw_mode()?);
-        }
-
-        Ok(alternate)
-    }
-
-    /// Switches to the main screen.
-    pub fn to_main(&self) -> Result<()> {
-        self.alternate.leave()
-    }
-}
-
-impl Drop for AlternateScreen {
-    fn drop(&mut self) {
-        let _ = self.to_main();
-    }
-}
-
-/// A command to switch to the alternate screen.
+/// A command that switches to alternate screen.
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [LeaveAlternateScreen](./EnterAlternateScreen.struct) command to leave the entered alternate screen.
 ///
 /// # Examples
 ///
@@ -162,21 +81,23 @@ impl Command for EnterAlternateScreen {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        alternate::ansi::ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE
+        ansi::ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        let alternate = alternate::alternate_screen();
-        alternate.enter()
+        let alternate_screen = ScreenBuffer::create();
+        alternate_screen.show()?;
+        Ok(())
     }
 }
 
-/// A command to switch back to the main screen.
+/// A command that switches back to the main alternate screen.
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [EnterAlternateScreen](./EnterAlternateScreen.struct) to enter the alternate screen.
 ///
 /// # Examples
 ///
@@ -198,12 +119,13 @@ impl Command for LeaveAlternateScreen {
     type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        alternate::ansi::LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE
+        ansi::LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        let alternate = alternate::alternate_screen();
-        alternate.leave()
+        let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
+        screen_buffer.show()?;
+        Ok(())
     }
 }

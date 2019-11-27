@@ -47,7 +47,7 @@ fn print_events() -> Result<()> {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    let _r = RawScreen::into_raw_mode()?;
+    let _r = RawScreen::enable_raw_mode()?;
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
