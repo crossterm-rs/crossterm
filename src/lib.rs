@@ -227,7 +227,6 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-#[cfg(windows)]
 pub use utils::{Command, ErrorKind, ExecutableCommand, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor
