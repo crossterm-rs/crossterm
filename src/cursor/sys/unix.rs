@@ -5,10 +5,8 @@ use std::{
 
 use crate::{
     event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
-    utils::{
-        sys::unix::{disable_raw_mode, enable_raw_mode, is_raw_mode_enabled},
-        Result,
-    },
+    terminal::{disable_raw_mode, enable_raw_mode, sys::is_raw_mode_enabled},
+    utils::Result,
 };
 
 /// Returns the cursor position (column, row).
