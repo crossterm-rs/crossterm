@@ -7,7 +7,6 @@ use crate::{cursor, terminal::ClearType, utils::Result, ErrorKind};
 
 const RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
 
-/// Enables raw mode.
 pub(crate) fn enable_raw_mode() -> Result<()> {
     let console_mode = ConsoleMode::from(Handle::input_handle()?);
 
@@ -20,7 +19,6 @@ pub(crate) fn enable_raw_mode() -> Result<()> {
     Ok(())
 }
 
-/// Disables raw mode.
 pub(crate) fn disable_raw_mode() -> Result<()> {
     let console_mode = ConsoleMode::from(Handle::input_handle()?);
 
