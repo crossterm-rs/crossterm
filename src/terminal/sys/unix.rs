@@ -3,9 +3,8 @@ use std::{mem, process};
 
 use lazy_static::lazy_static;
 use libc::{
-    termios as Termios,
-    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
-    STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, termios as Termios, winsize,
+    STDIN_FILENO, STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
 };
 
 use crate::utils::{sys::unix::wrap_with_result, Result};
