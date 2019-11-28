@@ -1,7 +1,8 @@
+use std::io::{stdout, Write};
+
 use crate::{csi, utils::Result};
 
 use super::AlternateScreen;
-use std::io::{stdout, Write};
 
 pub(crate) const ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE: &str = csi!("?1049h");
 pub(crate) const LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE: &str = csi!("?1049l");

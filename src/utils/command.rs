@@ -30,9 +30,9 @@ pub trait Command {
     fn execute_winapi(&self) -> Result<()>;
 }
 
-/// An interface for commands that can be executed in the near future.
+/// An interface for commands that can be queued for further execution.
 pub trait QueueableCommand<T: Display>: Sized {
-    /// Queues the given command for execution in the near future.
+    /// Queues the given command for further execution.
     fn queue(&mut self, command: impl Command<AnsiType = T>) -> Result<&mut Self>;
 }
 
@@ -52,8 +52,8 @@ where
     /// Queued commands will be executed in the following cases:
     ///
     /// * When `flush` is called manually on the given type implementing `io::Write`.
-    /// * When the buffer is to full, then the terminal will `flush` for you.
-    /// * Each line in case of `stdout`, because it is line buffered.
+    /// * The terminal will `flush` automatically if the buffer is full.
+    /// * Each line is flushed in case of `stdout`, because it is line buffered.
     ///
     /// # Arguments
     ///
@@ -94,10 +94,10 @@ where
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
     /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
-    /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    /// and can therefore not be written to the given `writer`.
-    /// Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    /// and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+    ///     and can therefore not be written to the given `writer`.
+    ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
+    ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
         queue!(self, command)?;
         Ok(self)
@@ -145,6 +145,7 @@ where
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
     /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+    ///
     /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
     /// and can therefore not be written to the given `writer`.
     /// Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)

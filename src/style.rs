@@ -40,7 +40,7 @@
 //!         SetForegroundColor(Color::Blue),
 //!         // Red background
 //!         SetBackgroundColor(Color::Red),
-//!         // print text
+//!         // Print text
 //!         Print("Blue text on Red.".to_string()),
 //!         // Reset to default colors
 //!         ResetColor
@@ -332,9 +332,9 @@ impl Command for ResetColor {
     }
 }
 
-/// When executed, this command will print the given displayable to the buffer.
+/// A command that prints the given displayable type.
 ///
-/// See `crossterm/examples/command.rs` for more information on how to execute commands.
+/// Commands must be executed/queued for execution otherwise they do nothing.
 pub struct Print<T: Display + Clone>(pub T);
 
 impl<T: Display + Clone> Command for Print<T> {

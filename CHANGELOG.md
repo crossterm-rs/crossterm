@@ -7,8 +7,8 @@
     documentation
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
-- Rename, move `crossterm::Output` to `crossterm::Print`
-- Fixed, enable/disable capturing mouse events.
+- Replace `utils::Output` command with `style::Print` command
+- Fix bug enable/disable the capturing of windows mouse events.
  
 # Version 0.13.3
 

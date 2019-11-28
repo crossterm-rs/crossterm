@@ -8,14 +8,14 @@ macro_rules! csi {
 /// Writes a string to the given writer.
 #[doc(hidden)]
 #[macro_export]
-macro_rules! write_string {
-    ($write:expr, $string:expr) => {{
+macro_rules! write_ansi_code {
+    ($writer:expr, $ansi_code:expr) => {{
         use std::{
             error::Error,
             io::{self, ErrorKind},
         };
 
-        write!($write, "{}", $string)
+        write!($writer, "{}", $ansi_code)
             .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
             .map_err($crate::ErrorKind::IoError)
     }};
@@ -32,10 +32,10 @@ macro_rules! write_string {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_command {
-    ($write:expr, $command:expr) => {{
+    ($writer:expr, $command:expr) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
-        use $crate::{write_string, Command};
+        use $crate::{write_ansi_code, Command};
 
         #[cfg(windows)]
         {
@@ -44,14 +44,14 @@ macro_rules! handle_command {
             let ansi_code = format!("{}", $command.ansi_code());
 
             if $crate::supports_ansi() && $crate::is_supported_ansi_code(&ansi_code) {
-                write_string!($write, &ansi_code)
+                write_ansi_code!($writer, &ansi_code)
             } else {
                 $command.execute_winapi().map_err($crate::ErrorKind::from)
             }
         }
         #[cfg(unix)]
         {
-            write_string!($write, $command.ansi_code())
+            write_ansi_code!($writer, $command.ansi_code())
         }
     }};
 }
@@ -61,8 +61,8 @@ macro_rules! handle_command {
 /// Queued commands will be executed in the following cases:
 ///
 /// * When `flush` is called manually on the given type implementing `io::Write`.
-/// * When the buffer is to full, then the terminal will `flush` for you.
-/// * Each line in case of `stdout`, because it is line buffered.
+/// * The terminal will `flush` automatically if the buffer is full.
+/// * Each line is flushed in case of `stdout`, because it is line buffered.
 ///
 /// # Arguments
 ///
@@ -100,14 +100,15 @@ macro_rules! handle_command {
 ///
 /// # Notes
 ///
-/// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+/// In case of Windows versions lower than 10, a direct WinApi call will be made.
 /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
 /// and can therefore not be written to the given `writer`.
 /// Therefore, there is no difference between [execute](macro.execute.html)
 /// and [queue](macro.queue.html) for those old Windows versions.
+///
 #[macro_export]
 macro_rules! queue {
-    ($write:expr, $($command:expr), * $(,)?) => {{
+    ($writer:expr, $($command:expr), * $(,)?) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
         use $crate::{Command, handle_command};
@@ -116,7 +117,7 @@ macro_rules! queue {
         let mut error = Ok(());
 
         $(
-            error = handle_command!($write, $command);
+            error = handle_command!($writer, $command);
         )*
 
         error
@@ -160,6 +161,7 @@ macro_rules! queue {
 ///
 /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
 /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+///
 /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
 /// and can therefore not be written to the given `writer`.
 /// Therefore, there is no difference between [execute](macro.execute.html)
