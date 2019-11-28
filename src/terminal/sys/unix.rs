@@ -1,13 +1,59 @@
 //! UNIX related logic for terminal manipulation.
-use std::process;
+use std::{mem, process};
 
 use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
 
 use crate::utils::{sys::unix::wrap_with_result, Result};
 
-/// Exits the current application.
-pub fn exit() {
+pub(crate) fn exit() {
     ::std::process::exit(0);
+}
+
+pub(crate) fn size() -> Result<(u16, u16)> {
+    // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
+    let mut size = winsize {
+        ws_row: 0,
+        ws_col: 0,
+        ws_xpixel: 0,
+        ws_ypixel: 0,
+    };
+
+    if let Ok(true) = wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &mut size) }) {
+        Ok((size.ws_col, size.ws_row))
+    } else {
+        tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
+    }
+}
+
+pub(crate) fn enable_raw_mode() -> Result<()> {
+    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
+
+    if original_mode.is_some() {
+        return Ok(());
+    }
+
+    let mut ios = get_terminal_attr()?;
+    let original_mode_ios = ios;
+
+    raw_terminal_attr(&mut ios);
+    set_terminal_attr(&ios)?;
+
+    // Keep it last - set the original mode only if we were able to switch to the raw mode
+    *original_mode = Some(original_mode_ios);
+
+    Ok(())
+}
+
+pub(crate) fn disable_raw_mode() -> Result<()> {
+    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
+
+    if let Some(original_mode_ios) = original_mode.as_ref() {
+        set_terminal_attr(original_mode_ios)?;
+        // Keep it last - remove the original mode only if we were able to switch back
+        *original_mode = None;
+    }
+
+    Ok(())
 }
 
 /// execute tput with the given argument and parse
@@ -32,10 +78,10 @@ fn tput_value(arg: &str) -> Option<u16> {
     }
 }
 
-/// return the size of the screen as determined by tput
+/// Returns the size of the screen as determined by tput.
 ///
 /// This alternate way of computing the size is useful
-///  when in a subshell.
+/// when in a subshell.
 fn tput_size() -> Option<(u16, u16)> {
     match (tput_value("cols"), tput_value("lines")) {
         (Some(w), Some(h)) => Some((w, h)),
@@ -43,21 +89,19 @@ fn tput_size() -> Option<(u16, u16)> {
     }
 }
 
-/// Returns the terminal size `(columns, rows)`.
-///
-/// The top left cell is represented `1,1`.
-pub fn size() -> Result<(u16, u16)> {
-    // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
-    let mut size = winsize {
-        ws_row: 0,
-        ws_col: 0,
-        ws_xpixel: 0,
-        ws_ypixel: 0,
-    };
+// Transform the given mode into an raw mode (non-canonical) mode.
+fn raw_terminal_attr(termios: &mut Termios) {
+    unsafe { cfmakeraw(termios) }
+}
 
-    if let Ok(true) = wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ, &mut size) }) {
-        Ok((size.ws_col, size.ws_row))
-    } else {
-        tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
+fn get_terminal_attr() -> Result<Termios> {
+    unsafe {
+        let mut termios = mem::zeroed();
+        wrap_with_result(tcgetattr(STDIN_FILENO, &mut termios))?;
+        Ok(termios)
     }
+}
+
+fn set_terminal_attr(termios: &Termios) -> Result<bool> {
+    wrap_with_result(unsafe { tcsetattr(STDIN_FILENO, TCSANOW, termios) })
 }

@@ -235,8 +235,6 @@ pub use utils::{Command, ErrorKind, ExecutableCommand, Output, QueueableCommand,
 pub mod cursor;
 /// A module to read events.
 pub mod event;
-/// A module to work with the terminal screen and modes.
-pub mod screen;
 /// A module to apply attributes and colors on your text.
 pub mod style;
 /// A module to work with the terminal.

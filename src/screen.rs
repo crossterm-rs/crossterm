@@ -47,13 +47,14 @@
 //! - Special keys like backspace and CTL+C will not be processed by terminal driver
 //! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 
-pub use self::raw::{IntoRawMode, RawScreen};
-use crate::utils::Command;
-
-#[cfg(windows)]
-use crate::utils::Result;
 #[cfg(windows)]
 use crossterm_winapi::{Handle, ScreenBuffer};
+
+use crate::utils::Command;
+#[cfg(windows)]
+use crate::utils::Result;
+
+pub use self::raw::{IntoRawMode, RawScreen};
 
 mod ansi;
 mod raw;

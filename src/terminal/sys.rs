@@ -1,11 +1,11 @@
 //! This module provides platform related functions.
 
 #[cfg(unix)]
-pub use self::unix::{exit, size};
+pub(crate) use self::unix::{disable_raw_mode, enable_raw_mode, exit, size};
 #[cfg(windows)]
-pub(crate) use self::windows::{clear, scroll_down, scroll_up, set_size};
-#[cfg(windows)]
-pub use self::windows::{exit, size};
+pub(crate) use self::windows::{
+    clear, disable_raw_mode, enable_raw_mode, exit, scroll_down, scroll_up, set_size, size,
+};
 
 #[cfg(windows)]
 pub(crate) mod windows;
