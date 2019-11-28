@@ -7,7 +7,7 @@
     documentation
 * Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
- - Merged `screen` module into `terminal`  
+ - Merge `screen` module into `terminal`  
  - Remove `screen::AlternateScreen`
  - Remove `screen::Rawscreen`
     * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`

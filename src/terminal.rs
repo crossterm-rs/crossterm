@@ -7,8 +7,55 @@
 //! [examples](https://github.com/crossterm-rs/examples) repository
 //! to demonstrate the capabilities.
 //!
-//! Terminal actions can be performed with commands.
+//! Most terminal can be performed with commands.
 //! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
+//!
+//! ## Screen Buffer
+//!
+//! A screen buffer is a two-dimensional array of character
+//! and color data which is displayed in a terminal screen.
+//!
+//! The terminal has several of those buffers and is able to switch between them.
+//! The default screen in which you work is called the 'main screen'.
+//! The other screens are called the 'alternative screen'.
+//!
+//! It is important to understand that crossterm does not yet support creating screens,
+//! or switch between more than two buffers, and only offers the ability to change
+//! between the 'alternate' and 'main screen'.
+//!
+//! ### Alternate Screen
+//!
+//! By default, you will be working on the main screen,
+//! the alternative screen is slightly different from the main screen.
+//! An example of this is that it has the exact dimensions of the terminal window,
+//! without any scroll-back area.
+//!
+//! Crossterm offers the possibility to switch to the alternative screen,
+//! make some modifications, and move back to the main screen again.
+//! The main screen will stay intact and will have the original data as we performed all
+//! operations on the alternative screen.
+//!
+//! An good example of this is Vim.
+//! When it is launched from bash, a whole new buffer is used to modify a file.
+//! Then, when the modification is finished, it closes again and continues on the main screen.
+//!
+//! ### Raw Mode
+//!
+//! By default, the terminal functions in a certain way.
+//! For example, it will move the cursor to the beginning of the next line when the input hits the end of a line.
+//! Or that the backspace is interpreted for character removal.
+//!
+//! Sometimes these default modes are irrelevant,
+//! and in this case, we can turn them off.
+//! This is what happens when you enable raw modes.
+//!
+//! Those modes will be set when enabling raw modes:
+//!
+//! - Input will not be forwarded to screen
+//! - Input will not be processed on enter press
+//! - Input will not be line buffered (input sent byte-by-byte to input buffer)
+//! - Special keys like backspace and CTL+C will not be processed by terminal driver
+//! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 //!
 //! ## Examples
 //!
@@ -30,51 +77,6 @@
 //!     Ok(())
 //! }
 //! ```
-//!
-//! ## Screen Buffer
-//!
-//! A screen buffer is a two-dimensional array of character
-//! and color data which is displayed in a terminal screen.
-//!
-//! The terminal has several of those buffers and is able to switch between them.
-//! The default screen in which you work is called the 'main screen'.
-//! The other screens are called the 'alternative screen'.
-//!
-//! It is important to understand that crossterm does not yet support creating screens,
-//! or switch between more than two buffers, and only offers the ability to change
-//! between the alternate and main screens.
-//!
-//! ### Alternate Screen
-//!
-//! By default, you will be working on the main screen, however,
-//! the alternative screen is slightly different from the main screen.
-//! An example of this is that it has the exact dimensions of the terminal window, without any scroll-back area.
-//!
-//! Vim is a good example of this. When it is launched from bash, a whole new screen is used to modify a file.
-//! Then, when the modification is finished, it closes again and continues on the main screen.
-//!
-//! Crossterm offers the possibility to switch to the alternative screen,
-//! make some modifications, and move back to the main screen again.
-//! The main screen will stay intact and will have the original data as we performed all
-//! operations on the alternative screen.
-//!
-//! ### Raw Mode
-//!
-//! By default, the terminal functions in a certain way.
-//! For example, it will move the cursor to the beginning of the next line when the input hits the end of a line.
-//! Or that the backspace is interpreted for character removal.
-//!
-//! Sometimes these default modes are irrelevant,
-//! and in this case, we can turn them off.
-//! This is what happens when you enable raw modes.
-//!
-//! Those modes will be set when enabling raw modes:
-//!
-//! - Input will not be forwarded to screen
-//! - Input will not be processed on enter press
-//! - Input will not be line buffered (input sent byte-by-byte to input buffer)
-//! - Special keys like backspace and CTL+C will not be processed by terminal driver
-//! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 //!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
