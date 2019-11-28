@@ -1,12 +1,12 @@
 //! UNIX related logic for terminal manipulation.
 use std::{mem, process, sync::Mutex};
 
-use lazy_static::lazy_static;
-
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
     STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
 };
+
+use lazy_static::lazy_static;
 
 use crate::utils::{sys::unix::wrap_with_result, Result};
 
