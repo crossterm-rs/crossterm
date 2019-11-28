@@ -141,6 +141,7 @@ pub fn size() -> Result<(u16, u16)> {
 ///     execute!(stdout(), LeaveAlternateScreen)
 /// }
 /// ```
+///
 pub struct EnterAlternateScreen;
 
 impl Command for EnterAlternateScreen {
@@ -179,6 +180,7 @@ impl Command for EnterAlternateScreen {
 ///     execute!(stdout(), LeaveAlternateScreen)
 /// }
 /// ```
+///
 pub struct LeaveAlternateScreen;
 
 impl Command for LeaveAlternateScreen {

@@ -1,8 +1,10 @@
 //
 // cargo run --features event-stream --example event-stream-tokio
 //
-use std::io::{stdout, Write};
-use std::time::Duration;
+use std::{
+    io::{stdout, Write},
+    time::Duration,
+};
 
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;

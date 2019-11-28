@@ -1,7 +1,9 @@
 //! WinApi related logic for terminal manipulation.
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
-use winapi::shared::minwindef::DWORD;
-use winapi::um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT};
+use winapi::{
+    shared::minwindef::DWORD,
+    um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+};
 
 use crate::{cursor, terminal::ClearType, utils::Result, ErrorKind};
 

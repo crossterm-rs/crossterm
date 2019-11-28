@@ -1,26 +1,24 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::io;
-use std::io::ErrorKind;
-use std::sync::Mutex;
-use std::time::Duration;
+use std::{io, io::ErrorKind, sync::Mutex, time::Duration};
 
 use crossterm_winapi::{
     ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
     Semaphore,
 };
-use winapi::shared::winerror::WAIT_TIMEOUT;
-use winapi::um::{
-    synchapi::WaitForMultipleObjects,
-    winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
-};
-use winapi::um::{
-    wincon::{
-        LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
-    },
-    winuser::{
-        VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME,
-        VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
+use winapi::{
+    shared::winerror::WAIT_TIMEOUT,
+    um::{
+        synchapi::WaitForMultipleObjects,
+        winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
+        wincon::{
+            LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED,
+            SHIFT_PRESSED,
+        },
+        winuser::{
+            VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME,
+            VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
+        },
     },
 };
 
