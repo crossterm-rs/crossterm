@@ -7,7 +7,7 @@
 //! [examples](https://github.com/crossterm-rs/examples) repository
 //! to demonstrate the capabilities.
 //!
-//! Most terminal can be performed with commands.
+//! Most terminal actions can be performed with commands.
 //! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
 //!
 //! ## Screen Buffer
@@ -196,7 +196,7 @@ impl Command for LeaveAlternateScreen {
     }
 }
 
-/// Different ways to clear the terminal.
+/// Different ways to clear the terminal buffer.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum ClearType {
