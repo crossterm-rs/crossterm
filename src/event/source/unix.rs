@@ -1,5 +1,4 @@
-use std::io;
-use std::time::Duration;
+use std::{io, time::Duration};
 
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
 use signal_hook::iterator::Signals;

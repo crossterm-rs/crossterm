@@ -85,14 +85,12 @@ use crossterm_winapi::{Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::impl_display;
 #[doc(no_inline)]
 use crate::utils::Command;
-#[cfg(windows)]
-use crate::utils::Result;
+use crate::{impl_display, Result};
 
 mod ansi;
-mod sys;
+pub(crate) mod sys;
 
 /// Enables raw mode.
 ///

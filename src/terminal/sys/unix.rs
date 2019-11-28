@@ -1,9 +1,24 @@
 //! UNIX related logic for terminal manipulation.
 use std::{mem, process};
 
-use libc::{ioctl, winsize, STDOUT_FILENO, TIOCGWINSZ};
+use lazy_static::lazy_static;
+use libc::{
+    termios as Termios,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
+    STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
+};
 
 use crate::utils::{sys::unix::wrap_with_result, Result};
+
+lazy_static! {
+    // Some(Termios) -> we're in the raw mode and this is the previous mode
+    // None -> we're not in the raw mode
+    static ref TERMINAL_MODE_PRIOR_RAW_MODE: Mutex<Option<Termios>> = Mutex::new(None);
+}
+
+pub(crate) fn is_raw_mode_enabled() -> bool {
+    TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
+}
 
 pub(crate) fn exit() {
     ::std::process::exit(0);
