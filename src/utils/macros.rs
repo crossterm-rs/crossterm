@@ -43,7 +43,7 @@ macro_rules! handle_command {
             // In order to check if the code is supported we have to make it a string.
             let ansi_code = format!("{}", $command.ansi_code());
 
-            if $crate::supports_ansi() && $crate::is_supported_ansi_code(&ansi_code) {
+            if $command.is_ansi_code_supported() {
                 write_ansi_code!($writer, &ansi_code)
             } else {
                 $command.execute_winapi().map_err($crate::ErrorKind::from)
@@ -161,11 +161,10 @@ macro_rules! queue {
 ///
 /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
 /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
-///
-/// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-/// and can therefore not be written to the given `writer`.
-/// Therefore, there is no difference between [execute](macro.execute.html)
-/// and [queue](macro.queue.html) for those old Windows versions.
+///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+///     and can therefore not be written to the given `writer`.
+///     Therefore, there is no difference between [execute](macro.execute.html)
+///     and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
     ($write:expr, $($command:expr), * $(,)? ) => {{

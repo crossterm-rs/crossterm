@@ -17,7 +17,7 @@ pub trait Command {
     /// An ANSI code can manipulate the terminal by writing it to the terminal buffer.
     /// However, only Windows 10 and UNIX systems support this.
     ///
-    /// **This method is used internally by crossterm, and should not be called manually!**
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
     fn ansi_code(&self) -> Self::AnsiType;
 
     /// Execute this command.
@@ -25,9 +25,18 @@ pub trait Command {
     /// Windows versions lower than windows 10 do not support ANSI escape codes,
     /// therefore a direct WinAPI call is made.
     ///
-    /// **This method is used internally by crossterm, and should not be called manually!**
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()>;
+
+    /// Returns whether the ansi code representation of this command is supported by windows.
+    ///
+    /// A list of supported ANSI escape codes
+    /// can be found [here](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        super::functions::supports_ansi()
+    }
 }
 
 /// An interface for commands that can be queued for further execution.
@@ -145,11 +154,10 @@ where
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
     /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
-    ///
-    /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    /// and can therefore not be written to the given `writer`.
-    /// Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    /// and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+    ///     and can therefore not be written to the given `writer`.
+    ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
+    ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
         execute!(self, command)?;
         Ok(self)

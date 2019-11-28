@@ -228,7 +228,6 @@
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
 #[cfg(windows)]
-pub use utils::functions::{is_supported_ansi_code, supports_ansi};
 pub use utils::{Command, ErrorKind, ExecutableCommand, QueueableCommand, Result};
 
 /// A module to work with the terminal cursor

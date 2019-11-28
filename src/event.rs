@@ -234,6 +234,11 @@ impl Command for EnableMouseCapture {
     fn execute_winapi(&self) -> Result<()> {
         sys::windows::enable_mouse_capture()
     }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        return false;
+    }
 }
 
 /// A command that disables mouse event capturing.
@@ -251,6 +256,11 @@ impl Command for DisableMouseCapture {
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::windows::disable_mouse_capture()
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        return false;
     }
 }
 
