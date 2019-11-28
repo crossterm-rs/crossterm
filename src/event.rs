@@ -237,7 +237,7 @@ impl Command for EnableMouseCapture {
 
     #[cfg(windows)]
     fn is_ansi_code_supported(&self) -> bool {
-        return false;
+        false
     }
 }
 
@@ -260,7 +260,7 @@ impl Command for DisableMouseCapture {
 
     #[cfg(windows)]
     fn is_ansi_code_supported(&self) -> bool {
-        return false;
+        false
     }
 }
 
