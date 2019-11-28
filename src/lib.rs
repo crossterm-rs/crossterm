@@ -50,9 +50,6 @@
 //! - Module `event`
 //!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
 //!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
-//! - Module `screen`
-//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
 //! - Module `style`
 //!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
 //!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
@@ -64,7 +61,8 @@
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
 //!     [`SetSize`](terminal/struct.SetSize.html)
-//!
+//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
+//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
 //! ### Command Execution
 //!
 //! There are two different way's to execute commands:

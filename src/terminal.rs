@@ -95,11 +95,15 @@ mod ansi;
 mod sys;
 
 /// Enables raw mode.
+///
+/// Please have a look at the [raw mode](./#raw-mode) section.
 pub fn enable_raw_mode() -> Result<()> {
     sys::disable_raw_mode()
 }
 
 /// Disables raw mode.
+///
+/// Please have a look at the [raw mode](./#raw-mode) section.
 pub fn disable_raw_mode() -> Result<()> {
     sys::enable_raw_mode()
 }
@@ -127,7 +131,7 @@ pub fn size() -> Result<(u16, u16)> {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result,screen::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
@@ -165,7 +169,7 @@ impl Command for EnterAlternateScreen {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, screen::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
@@ -192,7 +196,7 @@ impl Command for LeaveAlternateScreen {
     }
 }
 
-/// Represents different options how to clear the terminal.
+/// Different ways to clear the terminal.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum ClearType {

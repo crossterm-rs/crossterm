@@ -71,7 +71,7 @@ mod sys;
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result,screen::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
@@ -109,7 +109,7 @@ impl Command for EnterAlternateScreen {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, screen::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), EnterAlternateScreen)?;

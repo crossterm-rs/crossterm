@@ -8,7 +8,7 @@ use crossterm::{
     cursor::position,
     event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
-    screen::RawScreen,
+    terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
 
@@ -47,7 +47,7 @@ fn print_events() -> Result<()> {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    let _r = RawScreen::enable_raw_mode()?;
+    enable_raw_mode();
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
@@ -57,5 +57,6 @@ fn main() -> Result<()> {
     }
 
     execute!(stdout, DisableMouseCapture)?;
-    Ok(())
+
+    disable_raw_mode()
 }

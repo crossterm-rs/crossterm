@@ -11,7 +11,7 @@ use crossterm::{
     cursor::position,
     event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode},
     execute,
-    screen::RawScreen,
+    terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
 
@@ -55,7 +55,7 @@ async fn print_events() {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    let _r = RawScreen::enable_raw_mode()?;
+    enable_raw_mode()?;
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
@@ -63,5 +63,6 @@ fn main() -> Result<()> {
     async_std::task::block_on(print_events());
 
     execute!(stdout, DisableMouseCapture)?;
-    Ok(())
+
+    disable_raw_mode()
 }
