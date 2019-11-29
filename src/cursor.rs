@@ -72,12 +72,13 @@ impl Command for MoveTo {
     }
 }
 
-/// A command that moves the terminal cursor up the given number of lines, and resets it to the first column at the beginning of the line.
+/// A command that moves the terminal cursor up the given number of lines,
+/// and moves it to the first column.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToNextLine(u16);
+pub struct MoveToNextLine(u16);
 
 impl Command for MoveToNextLine {
     type AnsiType = String;
@@ -92,12 +93,13 @@ impl Command for MoveToNextLine {
     }
 }
 
-/// A command that moves the terminal cursor down the given number of lines, and resets it to the first column at the beginning of the line.
+/// A command that moves the terminal cursor down the given number of lines,
+/// and moves it to the first column.
 ///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToPreviousLine(u16);
+pub struct MoveToPreviousLine(u16);
 
 impl Command for MoveToPreviousLine {
     type AnsiType = String;
@@ -117,7 +119,7 @@ impl Command for MoveToPreviousLine {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-struct MoveToColumn(u16);
+pub struct MoveToColumn(u16);
 
 impl Command for MoveToColumn {
     type AnsiType = String;
