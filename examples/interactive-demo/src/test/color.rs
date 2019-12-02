@@ -1,6 +1,6 @@
 #![allow(clippy::cognitive_complexity)]
 
-use crate::{MoveCursorToNextLine, Result};
+use crate::{Result};
 use crossterm::{cursor, queue, style, style::Color};
 use std::io::Write;
 
@@ -35,7 +35,7 @@ where
     queue!(
         w,
         style::Print("Foreground colors on the black & white background"),
-        MoveCursorToNextLine(2)
+        cursor::MoveToNextLine(2)
     )?;
 
     for color in &COLORS {
@@ -54,7 +54,7 @@ where
                 format!("{:?} ████████████", color),
                 width = 40
             )),
-            MoveCursorToNextLine(1)
+            MoveToNextLine(1)
         )?;
     }
 
@@ -70,7 +70,7 @@ where
     queue!(
         w,
         style::Print("Background colors with black & white foreground"),
-        MoveCursorToNextLine(2)
+        cursor::MoveToNextLine(2)
     )?;
 
     for color in &COLORS {
@@ -89,7 +89,7 @@ where
                 format!("{:?} ▒▒▒▒▒▒▒▒▒▒▒▒", color),
                 width = 40
             )),
-            MoveCursorToNextLine(1)
+            cursor::MoveToNextLine(1)
         )?;
     }
 

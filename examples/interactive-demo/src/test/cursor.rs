@@ -2,8 +2,7 @@
 
 use std::io::Write;
 
-use crate::{MoveCursorToColumn, MoveCursorToNextLine, MoveCursorToPreviousLine, Result};
-use crossterm::cursor::MoveTo;
+use crate::Result;
 use crossterm::{cursor, execute, queue, style, style::Colorize, Command};
 use std::thread;
 use std::time::Duration;
@@ -40,8 +39,8 @@ fn test_move_cursor_to_previous_line<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveCursorToPreviousLine (2)", |_, _| {
-        MoveCursorToPreviousLine(2)
+    draw_cursor_box(w, "MoveToPreviousLine (2)", |_, _| {
+        cursor::MoveToPreviousLine(2)
     })
 }
 
@@ -49,8 +48,8 @@ fn test_move_cursor_to_next_line<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveCursorToNextLine (2)", |_, _| {
-        MoveCursorToNextLine(2)
+    draw_cursor_box(w, "MoveToNextLine (2)", |_, _| {
+        cursor::MoveToNextLine(2)
     })
 }
 
@@ -58,8 +57,8 @@ fn test_move_cursor_to_column<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveCursorToColumn (2)", |center_x, _| {
-        MoveCursorToColumn(center_x + 2)
+    draw_cursor_box(w, "MoveToColumn (2)", |center_x, _| {
+        cursor::MoveToColumn(center_x + 2)
     })
 }
 
@@ -106,7 +105,7 @@ where
     draw_cursor_box(
         w,
         "MoveTo (x: 1, y: 1) removed from center",
-        |center_x, center_y| MoveTo(center_x + 1, center_y + 1),
+        |center_x, center_y| cursor::MoveTo(center_x + 1, center_y + 1),
     )
 }
 
@@ -117,7 +116,7 @@ where
     execute!(w,
         cursor::MoveTo(0, 0),
         style::Print("Save position, print character else were, after three seconds restore to old position."),
-        MoveCursorToNextLine(2),
+        cursor::MoveToNextLine(2),
         style::Print("Save ->[ ]<- Position"),
         cursor::MoveTo(8, 2),
         cursor::SavePosition,

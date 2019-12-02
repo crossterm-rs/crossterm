@@ -10,6 +10,7 @@ use crossterm::{
     screen::RawScreen,
     Result,
 };
+use crossterm::event::KeyEvent;
 
 const HELP: &str = r#"Blocking read()
  - Keyboard, mouse and terminal resize events enabled
@@ -30,6 +31,12 @@ fn print_events() -> Result<()> {
 
         if event == Event::Key(KeyCode::Esc.into()) {
             break;
+        }
+
+        match event {
+            Event::Key(KeyEvent { modifiers: KeyModifiers::CONTROL, code }) => { }
+            Event::Key(KeyEvent { modifiers: KeyModifiers::Shift, code}) => { }
+            Event::Key( KeyEvent { modifiers: KeyModifiers::ALT, code }) => { }
         }
     }
 

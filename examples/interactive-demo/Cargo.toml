@@ -10,5 +10,4 @@ readme = "README.md"
 publish = false
 
 [dependencies]
-crossterm = { git = "../../crossterm" }
-anes = "0.1.4" # needed till `MoveCursorToNextLine`, `MoveCursorToColumn`, `MoveCursorToPreviousLine` are implemented for crossterm.
+crossterm = { path = "../../" }

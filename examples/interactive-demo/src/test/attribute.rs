@@ -1,6 +1,6 @@
 #![allow(clippy::cognitive_complexity)]
 
-use crate::{MoveCursorToNextLine, Result};
+use crate::{Result};
 use crossterm::{queue, style};
 use std::io::Write;
 
@@ -23,7 +23,7 @@ where
     queue!(
         w,
         style::Print("Display attributes"),
-        MoveCursorToNextLine(2)
+        MoveToNextLine(2)
     )?;
 
     for (on, off) in &ATTRIBUTES {
@@ -34,7 +34,7 @@ where
             style::SetAttribute(*off),
             style::Print(format!("{:>width$}", format!("{:?}", off), width = 35)),
             style::ResetColor,
-            MoveCursorToNextLine(1)
+            cursor::MoveToNextLine(1)
         )?;
     }
 

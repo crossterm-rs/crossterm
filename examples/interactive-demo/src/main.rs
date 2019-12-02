@@ -2,7 +2,7 @@
 
 use std::io::{self, Write};
 
-use crate::event::KeyEvent;
+use crossterm::event::KeyEvent;
 use crossterm::event::KeyCode;
 pub use crossterm::{
     cursor,
@@ -15,48 +15,6 @@ pub use crossterm::{
 #[macro_use]
 mod macros;
 mod test;
-
-struct MoveCursorToNextLine(u16);
-
-impl Command for MoveCursorToNextLine {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        format!("{}", anes::MoveCursorToNextLine(self.0))
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        unimplemented!()
-    }
-}
-
-struct MoveCursorToPreviousLine(u16);
-
-impl Command for MoveCursorToPreviousLine {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        format!("{}", anes::MoveCursorToPreviousLine(self.0))
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        unimplemented!()
-    }
-}
-
-struct MoveCursorToColumn(u16);
-
-impl Command for MoveCursorToColumn {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        format!("{}", anes::MoveCursorToColumn(self.0))
-    }
-
-    fn execute_winapi(&self) -> Result<()> {
-        unimplemented!()
-    }
-}
 
 const MENU: &str = r#"Crossterm interactive test
 
@@ -93,7 +51,7 @@ where
         )?;
 
         for line in MENU.split('\n') {
-            queue!(w, style::Print(line), MoveCursorToNextLine(1))?;
+            queue!(w, style::Print(line), cursor::MoveToNextLine(1))?;
         }
 
         w.flush()?;
