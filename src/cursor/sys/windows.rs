@@ -58,6 +58,24 @@ pub(crate) fn move_left(count: u16) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn move_to_column(new_column: u16) -> Result<()> {
+    let (_, row) = position()?;
+    move_to(new_column, row)?;
+    Ok(())
+}
+
+pub(crate) fn move_to_next_line(count: u16) -> Result<()> {
+    let (_, row) = position()?;
+    move_to(0, row + count)?;
+    Ok(())
+}
+
+pub(crate) fn move_to_previous_line(count: u16) -> Result<()> {
+    let (_, row) = position()?;
+    move_to(0, row - count)?;
+    Ok(())
+}
+
 pub(crate) fn save_position() -> Result<()> {
     ScreenBufferCursor::output()?.save_position()?;
     Ok(())
@@ -166,8 +184,8 @@ impl From<Handle> for ScreenBufferCursor {
 #[cfg(test)]
 mod tests {
     use super::{
-        move_down, move_left, move_right, move_to, move_up, position, restore_position,
-        save_position,
+        move_down, move_left, move_right, move_to, move_to_column, move_to_next_line,
+        move_to_previous_line, move_up, position, restore_position, save_position,
     };
 
     #[test]
@@ -204,6 +222,33 @@ mod tests {
         move_up(2).unwrap();
 
         assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_to_next_line_winapi() {
+        move_to(0, 2).unwrap();
+
+        move_to_next_line(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 4));
+    }
+
+    #[test]
+    fn test_move_to_previous_line_winapi() {
+        move_to(0, 2).unwrap();
+
+        move_to_previous_line(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_move_to_column_winapi() {
+        move_to(0, 2).unwrap();
+
+        move_to_column(12).unwrap();
+
+        assert_eq!(position().unwrap(), (12, 2));
     }
 
     #[test]

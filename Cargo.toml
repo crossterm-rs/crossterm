@@ -61,7 +61,7 @@ signal-hook = { version = "0.1.11", features = ["mio-support"] }
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = "0.2.0-alpha.6"
+tokio = { version = "0.2.1", features = ["macros"] }
 futures = "0.3"
 futures-timer = "2"
 async-std = "1"
