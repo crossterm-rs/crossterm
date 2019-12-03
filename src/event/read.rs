@@ -11,6 +11,7 @@ use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
     source: Option<Box<dyn EventSource>>,
+    skipped_events: Vec<InternalEvent>,
 }
 
 impl Default for InternalEventReader {
@@ -24,7 +25,8 @@ impl Default for InternalEventReader {
 
         InternalEventReader {
             source,
-            events: VecDeque::new(),
+            events: VecDeque::with_capacity(32),
+            skipped_events: Vec::with_capacity(32),
         }
     }
 }
@@ -59,7 +61,6 @@ impl InternalEventReader {
         };
 
         let poll_timeout = PollTimeout::new(timeout);
-        let mut skipped_events = VecDeque::new();
 
         loop {
             let maybe_event = match event_source.try_read(timeout)? {
@@ -68,16 +69,14 @@ impl InternalEventReader {
                     if filter.eval(&event) {
                         Some(event)
                     } else {
-                        skipped_events.push_back(event);
+                        self.skipped_events.push(event);
                         None
                     }
                 }
             };
 
             if poll_timeout.elapsed() || maybe_event.is_some() {
-                while let Some(event) = skipped_events.pop_front() {
-                    self.events.push_back(event);
-                }
+                self.events.extend(self.skipped_events.drain(..));
 
                 if let Some(event) = maybe_event {
                     self.events.push_front(event);
@@ -139,6 +138,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert!(reader.poll(None, &InternalEventFilter).is_err());
@@ -155,6 +155,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: vec![InternalEvent::Event(Event::Resize(10, 10))].into(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert!(reader.poll(None, &InternalEventFilter).unwrap());
@@ -170,6 +171,7 @@ mod tests {
             ]
             .into(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert!(reader.poll(None, &CursorPositionFilter).unwrap());
@@ -182,6 +184,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: vec![EVENT].into(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
@@ -195,6 +198,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: vec![InternalEvent::Event(Event::Resize(10, 10)), CURSOR_EVENT].into(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&CursorPositionFilter).unwrap(), CURSOR_EVENT);
@@ -209,6 +213,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: vec![SKIPPED_EVENT, CURSOR_EVENT].into(),
             source: None,
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&CursorPositionFilter).unwrap(), CURSOR_EVENT);
@@ -222,6 +227,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert!(!reader
@@ -236,6 +242,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert!(reader.poll(None, &InternalEventFilter).unwrap());
@@ -253,6 +260,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
@@ -267,6 +275,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
@@ -283,6 +292,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
@@ -300,6 +310,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(
@@ -321,6 +332,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(
@@ -347,6 +359,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
@@ -368,6 +381,7 @@ mod tests {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
             source: Some(Box::new(source)),
+            skipped_events: Vec::with_capacity(32),
         };
 
         assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
