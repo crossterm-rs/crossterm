@@ -7,6 +7,7 @@
     documentation
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
+- Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
 - Replace `utils::Output` command with `style::Print` command
 - Fix bug enable/disable the capturing of windows mouse events.
  
