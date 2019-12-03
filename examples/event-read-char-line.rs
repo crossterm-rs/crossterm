@@ -1,3 +1,6 @@
+//
+// cargo run --example event-read-char-line
+//
 use crossterm::{
     event::{self, Event, KeyCode, KeyEvent},
     Result,

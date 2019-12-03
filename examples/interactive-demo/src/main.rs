@@ -2,11 +2,9 @@
 
 use std::io::{self, Write};
 
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyCode;
 pub use crossterm::{
     cursor,
-    event::Event,
+    event::{self, Event, KeyCode, KeyEvent},
     execute, queue, screen, style,
     terminal::{self, ClearType},
     Command, Result,

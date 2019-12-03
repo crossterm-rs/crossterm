@@ -54,7 +54,7 @@ where
                 format!("{:?} ████████████", color),
                 width = 40
             )),
-            MoveToNextLine(1)
+            cursor::MoveToNextLine(1)
         )?;
     }
 
