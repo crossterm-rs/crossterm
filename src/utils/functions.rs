@@ -5,16 +5,14 @@ lazy_static! {
     static ref SUPPORTS_ANSI_ESCAPE_CODES: bool = {
         // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.
         // Because of that we should check first if the TERM-variable is set and see if the current terminal is a terminal who does support ANSI.
-        let is_supported = if is_specific_term() {
+        if is_specific_term() {
             true
         } else {
             // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
             set_virtual_terminal_processing(true)
                 .map(|_| true)
                 .unwrap_or(false)
-        };
-
-        is_supported
+        }
     };
 }
 
