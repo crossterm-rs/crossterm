@@ -1,7 +1,7 @@
 #![allow(clippy::cognitive_complexity)]
 
-use crate::{Result};
-use crossterm::{queue, cursor, style};
+use crate::Result;
+use crossterm::{cursor, queue, style};
 use std::io::Write;
 
 const ATTRIBUTES: [(style::Attribute, style::Attribute); 6] = [

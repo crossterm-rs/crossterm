@@ -48,9 +48,7 @@ fn test_move_cursor_to_next_line<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveToNextLine (2)", |_, _| {
-        cursor::MoveToNextLine(2)
-    })
+    draw_cursor_box(w, "MoveToNextLine (2)", |_, _| cursor::MoveToNextLine(2))
 }
 
 fn test_move_cursor_to_column<W>(w: &mut W) -> Result<()>

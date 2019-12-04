@@ -5,7 +5,7 @@ use std::io::{self, Write};
 pub use crossterm::{
     cursor,
     event::{self, Event, KeyCode, KeyEvent},
-    execute, queue, screen, style,
+    execute, queue, style,
     terminal::{self, ClearType},
     Command, Result,
 };
@@ -35,9 +35,9 @@ fn run<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    execute!(w, screen::EnterAlternateScreen)?;
+    execute!(w, terminal::EnterAlternateScreen)?;
 
-    let _raw = screen::RawScreen::into_raw_mode()?;
+    terminal::enable_raw_mode()?;
 
     loop {
         queue!(
@@ -68,9 +68,10 @@ where
         w,
         style::ResetColor,
         cursor::Show,
-        screen::LeaveAlternateScreen
+        terminal::LeaveAlternateScreen
     )?;
-    Ok(())
+
+    terminal::disable_raw_mode()
 }
 
 pub fn read_char() -> Result<char> {
