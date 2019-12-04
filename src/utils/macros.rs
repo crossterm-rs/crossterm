@@ -21,14 +21,7 @@ macro_rules! write_ansi_code {
     }};
 }
 
-/// Handles the given command.
-///
-/// 1. In case of windows
-///     a. check if windows supports ansi codes
-///     b. checks if windows supports the commands ansi code.
-///     c. either write the ansi code or execute the winapi code.
-/// 2. In case of unix
-///     a. write the ansi code.
+/// Writes / executes the given command.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_command {
@@ -56,7 +49,7 @@ macro_rules! handle_command {
     }};
 }
 
-/// Queue one or more command(s) for execution in the near future.
+/// Queue one or more command(s) for further execution.
 ///
 /// Queued commands will be executed in the following cases:
 ///
@@ -72,7 +65,7 @@ macro_rules! handle_command {
 ///
 /// - [Command](./trait.Command.html)
 ///
-///     One or more commands that you want to execute
+///     One or more commands
 ///
 /// # Examples
 ///
@@ -96,7 +89,7 @@ macro_rules! handle_command {
 /// }
 /// ```
 ///
-/// For the full documentation checkout at the [Command API](./#command-api).
+/// Have a look over at the [Command API](./#command-api) for more details.
 ///
 /// # Notes
 ///
@@ -134,7 +127,7 @@ macro_rules! queue {
 ///
 /// - [Command](./trait.Command.html)
 ///
-///     One or more commands that you want to execute
+///     One or more commands
 ///
 /// # Examples
 ///
@@ -155,7 +148,7 @@ macro_rules! queue {
 ///  }
 /// ```
 ///
-/// For the full documentation checkout at the [Command API](./#command-api).
+/// Have a look over at the [Command API](./#command-api) for more details.
 ///
 /// # Notes
 ///

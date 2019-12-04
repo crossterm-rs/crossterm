@@ -15,11 +15,11 @@ lazy_static! {
     static ref TERMINAL_MODE_PRIOR_RAW_MODE: Mutex<Option<Termios>> = Mutex::new(None);
 }
 
-pub fn is_raw_mode_enabled() -> bool {
+pub(crate) fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
 }
 
-pub fn wrap_with_result(result: i32) -> Result<bool> {
+pub(crate) fn wrap_with_result(result: i32) -> Result<bool> {
     if result == -1 {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
@@ -28,11 +28,11 @@ pub fn wrap_with_result(result: i32) -> Result<bool> {
 }
 
 /// Transform the given mode into an raw mode (non-canonical) mode.
-pub fn raw_terminal_attr(termios: &mut Termios) {
+pub(crate) fn raw_terminal_attr(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
-pub fn get_terminal_attr() -> Result<Termios> {
+pub(crate) fn get_terminal_attr() -> Result<Termios> {
     unsafe {
         let mut termios = mem::zeroed();
         wrap_with_result(tcgetattr(STDIN_FILENO, &mut termios))?;
@@ -40,11 +40,11 @@ pub fn get_terminal_attr() -> Result<Termios> {
     }
 }
 
-pub fn set_terminal_attr(termios: &Termios) -> Result<bool> {
+pub(crate) fn set_terminal_attr(termios: &Termios) -> Result<bool> {
     wrap_with_result(unsafe { tcsetattr(STDIN_FILENO, TCSANOW, termios) })
 }
 
-pub fn enable_raw_mode() -> Result<()> {
+pub(crate) fn enable_raw_mode() -> Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
 
     if original_mode.is_some() {
@@ -63,7 +63,7 @@ pub fn enable_raw_mode() -> Result<()> {
     Ok(())
 }
 
-pub fn disable_raw_mode() -> Result<()> {
+pub(crate) fn disable_raw_mode() -> Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
 
     if let Some(original_mode_ios) = original_mode.as_ref() {

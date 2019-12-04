@@ -4,7 +4,7 @@ use crate::{execute, queue};
 
 use super::error::Result;
 
-/// An interface for a command that can be executed on the terminal.
+/// An interface for a command that performs an action on the terminal.
 ///
 /// Crossterm provides a set of commands,
 /// and there is no immediate reason to implement a command yourself.
@@ -56,7 +56,7 @@ where
     A: Display,
     T: Write,
 {
-    /// Queues the given command for execution in the near future.
+    /// Queues the given command for further execution.
     ///
     /// Queued commands will be executed in the following cases:
     ///
@@ -97,7 +97,7 @@ where
     /// }
     /// ```
     ///
-    /// For the full documentation checkout at the [Command API](./#command-api).
+    /// Have a look over at the [Command API](./#command-api) for more details.
     ///
     /// # Notes
     ///
@@ -148,7 +148,7 @@ where
     ///  }
     /// ```
     ///
-    /// For the full documentation checkout at the [Command API](./#command-api).
+    /// Have a look over at the [Command API](./#command-api) for more details.
     ///
     /// # Notes
     ///
