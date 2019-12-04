@@ -5,9 +5,7 @@ use std::io::{stdout, Write};
 
 use crossterm::{
     cursor::position,
-    event::{
-        read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyModifiers,
-    },
+    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
     Result,
