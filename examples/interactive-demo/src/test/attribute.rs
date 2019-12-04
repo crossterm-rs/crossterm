@@ -23,7 +23,7 @@ where
     queue!(
         w,
         style::Print("Display attributes"),
-        MoveToNextLine(2)
+        cursor::MoveToNextLine(2)
     )?;
 
     for (on, off) in &ATTRIBUTES {

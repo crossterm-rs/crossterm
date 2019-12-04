@@ -2,7 +2,7 @@
 
 use crossterm::{
     cursor::position,
-    event::{read, KeyEvent, EnableMouseCapture, Event, KeyCode},
+    event::{read, EnableMouseCapture, Event, KeyCode},
     execute, Result,
 };
 use std::io::Write;
