@@ -11,9 +11,10 @@ use std::io::{stderr, Write};
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
-    event, queue,
-    screen::{EnterAlternateScreen, LeaveAlternateScreen, RawScreen},
-    Output, Result,
+    event, execute, queue,
+    style::Print,
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    Result,
 };
 
 const TEXT: &str = r#"
@@ -54,17 +55,18 @@ where
 
     let mut y = 1;
     for line in TEXT.split('\n') {
-        queue!(write, MoveTo(1, y), Output(line.to_string()))?;
+        queue!(write, MoveTo(1, y), Print(line.to_string()))?;
         y += 1;
     }
 
     write.flush()?;
 
-    let _raw = RawScreen::into_raw_mode()?;
+    terminal::enable_raw_mode()?;
     let user_char = read_char()?; // we wait for the user to hit a key
-    queue!(write, Show, LeaveAlternateScreen)?; // restore the cursor and leave the alternate screen
+    execute!(write, Show, LeaveAlternateScreen)?; // restore the cursor and leave the alternate screen
 
-    write.flush()?;
+    terminal::disable_raw_mode()?;
+
     Ok(user_char)
 }
 

@@ -3,10 +3,11 @@
 //
 use std::io::{stdout, Write};
 
-use crossterm::event::KeyEvent;
 use crossterm::{
     cursor::position,
-    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
+    event::{
+        read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyModifiers,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
     Result,
@@ -23,7 +24,7 @@ fn print_events() -> Result<()> {
         // Blocking read
         let event = read()?;
 
-        println!("Event::{:?}\r", event);
+        println!("Event: {:?}\r", event);
 
         if event == Event::Key(KeyCode::Char('c').into()) {
             println!("Cursor position: {:?}\r", position());
