@@ -78,7 +78,7 @@ impl Command for MoveTo {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct MoveToNextLine(u16);
+pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
     type AnsiType = String;
@@ -99,7 +99,7 @@ impl Command for MoveToNextLine {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct MoveToPreviousLine(u16);
+pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
     type AnsiType = String;
@@ -119,7 +119,7 @@ impl Command for MoveToPreviousLine {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-pub struct MoveToColumn(u16);
+pub struct MoveToColumn(pub u16);
 
 impl Command for MoveToColumn {
     type AnsiType = String;
