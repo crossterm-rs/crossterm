@@ -51,9 +51,6 @@
 //! - Module `event`
 //!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
 //!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
-//! - Module `screen`
-//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
 //! - Module `style`
 //!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
 //!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
@@ -65,6 +62,8 @@
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
 //!     [`SetSize`](terminal/struct.SetSize.html)
+//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
+//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
 //!
 //! ### Command Execution
 //!
@@ -234,8 +233,6 @@ pub use utils::{Command, ErrorKind, ExecutableCommand, QueueableCommand, Result}
 pub mod cursor;
 /// A module to read events.
 pub mod event;
-/// A module to work with the terminal screen and modes.
-pub mod screen;
 /// A module to apply attributes and colors on your text.
 pub mod style;
 /// A module to work with the terminal.

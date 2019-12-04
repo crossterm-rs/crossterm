@@ -1,11 +1,10 @@
 use std::{collections::vec_deque::VecDeque, time::Duration};
 
-use super::filter::Filter;
 #[cfg(unix)]
 use super::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
-use super::{source::EventSource, timeout::PollTimeout, InternalEvent, Result};
+use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -121,8 +120,7 @@ impl InternalEventReader {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::VecDeque;
-    use std::time::Duration;
+    use std::{collections::VecDeque, time::Duration};
 
     use crate::ErrorKind;
 
@@ -130,7 +128,7 @@ mod tests {
     use super::super::filter::CursorPositionFilter;
     use super::{
         super::{filter::InternalEventFilter, Event},
-        {EventSource, InternalEvent, InternalEventReader},
+        EventSource, InternalEvent, InternalEventReader,
     };
 
     #[test]

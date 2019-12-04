@@ -1,18 +1,43 @@
 //! WinApi related logic for terminal manipulation.
-
-use crossterm_winapi::{Console, Coord, Handle, ScreenBuffer, Size};
+use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
+use winapi::{
+    shared::minwindef::DWORD,
+    um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+};
 
 use crate::{cursor, terminal::ClearType, utils::Result, ErrorKind};
 
-/// Exits the current application.
-pub fn exit() {
+const RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
+
+pub(crate) fn enable_raw_mode() -> Result<()> {
+    let console_mode = ConsoleMode::from(Handle::input_handle()?);
+
+    let dw_mode = console_mode.mode()?;
+
+    let new_mode = dw_mode & !RAW_MODE_MASK;
+
+    console_mode.set_mode(new_mode)?;
+
+    Ok(())
+}
+
+pub(crate) fn disable_raw_mode() -> Result<()> {
+    let console_mode = ConsoleMode::from(Handle::input_handle()?);
+
+    let dw_mode = console_mode.mode()?;
+
+    let new_mode = dw_mode | RAW_MODE_MASK;
+
+    console_mode.set_mode(new_mode)?;
+
+    Ok(())
+}
+
+pub(crate) fn exit() {
     ::std::process::exit(256);
 }
 
-/// Returns the terminal size `(columns, rows)`.
-///
-/// The top left cell is represented `1,1`.
-pub fn size() -> Result<(u16, u16)> {
+pub(crate) fn size() -> Result<(u16, u16)> {
     let terminal_size = ScreenBuffer::current()?.info()?.terminal_size();
     // windows starts counting at 0, unix at 1, add one to replicated unix behaviour.
     Ok((
@@ -73,7 +98,6 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
     Ok(())
 }
 
-/// Set the current terminal size
 pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     if width <= 1 {
         return Err(ErrorKind::ResizingTerminalFailure(String::from(

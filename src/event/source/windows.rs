@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
 
-use crate::event::sys::windows::WinApiPoll;
-use crate::event::Event;
+use crate::event::{sys::windows::WinApiPoll, Event};
 
 use super::super::{
     source::EventSource,
