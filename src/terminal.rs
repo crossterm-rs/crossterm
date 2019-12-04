@@ -25,13 +25,14 @@
 //!
 //! ### Alternate Screen
 //!
-//! By default, you will be working on the main screen,
-//! the alternative screen is slightly different from the main screen.
-//! An example of this is that it has the exact dimensions of the terminal window,
+//! By default, you will be working on the main screen.
+//! There is also another screen called the 'alternative' screen.
+//! This screen is slightly different from the main screen.
+//! For example, it has the exact dimensions of the terminal window,
 //! without any scroll-back area.
 //!
-//! Crossterm offers the possibility to switch to the alternative screen,
-//! make some modifications, and move back to the main screen again.
+//! Crossterm offers the possibility to switch to the 'alternative' screen,
+//! make some modifications, and move back to the 'main' screen again.
 //! The main screen will stay intact and will have the original data as we performed all
 //! operations on the alternative screen.
 //!
@@ -65,7 +66,7 @@
 //!
 //! fn main() -> Result<()> {
 //!     let (cols, rows) = size()?;
-//!     // Do something with the terminal
+//!     // Resize terminal and scroll up.
 //!     execute!(
 //!         stdout(),
 //!         SetSize(10, 10),

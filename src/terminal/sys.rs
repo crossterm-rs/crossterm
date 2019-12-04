@@ -8,7 +8,7 @@ pub(crate) use self::windows::{
 };
 
 #[cfg(windows)]
-pub(crate) mod windows;
+mod windows;
 
 #[cfg(unix)]
-pub(crate) mod unix;
+mod unix;
