@@ -16,7 +16,7 @@ use crossterm::{
 
 const HELP: &str = r#"Blocking poll() & non-blocking read()
  - Keyboard, mouse and terminal resize events enabled
- - Prints "." every second if there's no event 
+ - Prints "." every second if there's no event
  - Hit "c" to print current cursor position
  - Use Esc to quit
 "#;
