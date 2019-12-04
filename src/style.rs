@@ -30,8 +30,8 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{execute, Result, Output};
-//! use crossterm::style::{SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
+//! use crossterm::{execute, Result};
+//! use crossterm::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
 //!
 //! fn main() -> Result<()> {
 //!     execute!(
@@ -40,8 +40,8 @@
 //!         SetForegroundColor(Color::Blue),
 //!         // Red background
 //!         SetBackgroundColor(Color::Red),
-//!         // output text
-//!         Output("Styled text here.".to_string()),
+//!         // Print text
+//!         Print("Blue text on Red.".to_string()),
 //!         // Reset to default colors
 //!         ResetColor
 //!     )
@@ -69,7 +69,7 @@
 //! ```no_run
 //! use std::io::{stdout, Write};
 //!
-//! use crossterm::{execute, Result, Output};
+//! use crossterm::{execute, Result, style::Print};
 //! use crossterm::style::{SetAttribute, Attribute};
 //!
 //! fn main() -> Result<()> {
@@ -77,7 +77,7 @@
 //!         stdout(),
 //!         // Set to bold
 //!         SetAttribute(Attribute::Bold),
-//!         Output("Styled text here.".to_string()),
+//!         Print("Bold text here.".to_string()),
 //!         // Reset all attributes
 //!         SetAttribute(Attribute::Reset)
 //!     )
@@ -329,6 +329,34 @@ impl Command for ResetColor {
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::windows::reset()
+    }
+}
+
+/// A command that prints the given displayable type.
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+pub struct Print<T: Display + Clone>(pub T);
+
+impl<T: Display + Clone> Command for Print<T> {
+    type AnsiType = T;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        self.0.clone()
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        print!("{}", self.0);
+        Ok(())
+    }
+}
+
+impl<T: Display + Clone> Display for Print<T> {
+    fn fmt(
+        &self,
+        f: &mut ::std::fmt::Formatter<'_>,
+    ) -> ::std::result::Result<(), ::std::fmt::Error> {
+        write!(f, "{}", self.ansi_code())
     }
 }
 

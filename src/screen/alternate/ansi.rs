@@ -1,4 +1,6 @@
-use crate::{csi, utils::Result, write_cout};
+use std::io::{stdout, Write};
+
+use crate::{csi, utils::Result};
 
 use super::AlternateScreen;
 
@@ -9,12 +11,16 @@ pub(crate) struct AnsiAlternateScreen;
 
 impl AlternateScreen for AnsiAlternateScreen {
     fn enter(&self) -> Result<()> {
-        write_cout!(ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE)?;
+        let mut stdout = stdout();
+        write!(stdout, "{}", ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE)?;
+        stdout.flush()?;
         Ok(())
     }
 
     fn leave(&self) -> Result<()> {
-        write_cout!(LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE)?;
+        let mut stdout = stdout();
+        write!(stdout, "{}", LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE)?;
+        stdout.flush()?;
         Ok(())
     }
 }

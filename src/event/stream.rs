@@ -1,7 +1,3 @@
-use futures::{
-    task::{Context, Poll},
-    Stream,
-};
 use std::{
     pin::Pin,
     sync::{
@@ -10,6 +6,11 @@ use std::{
     },
     thread,
     time::Duration,
+};
+
+use futures::{
+    task::{Context, Poll},
+    Stream,
 };
 
 use crate::Result;

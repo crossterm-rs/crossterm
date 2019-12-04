@@ -5,9 +5,11 @@
   - It's **highly recommended** to read the
     [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
     documentation
-* Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
+- Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
- - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
+- Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
+- Replace `utils::Output` command with `style::Print` command
+- Fix enable/disable mouse capture commands on Windows.
  
 # Version 0.13.3
 
