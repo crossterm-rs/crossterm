@@ -9,7 +9,7 @@
   documentation
 - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
 - Replace `utils::Output` command with `style::Print` command
-- Fix bug enable/disable the capturing of windows mouse events.
+- Fix enable/disable mouse capture commands on Windows.
  
 # Version 0.13.3
 

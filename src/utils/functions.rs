@@ -3,8 +3,10 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     static ref SUPPORTS_ANSI_ESCAPE_CODES: bool = {
-        // Some terminals on windows like GitBash can't use WinaApi calls directly so when we try to enable the ANSI-flag for windows this won't work.
-        // Because of that we should check first if the TERM-variable is set and see if the current terminal is a terminal who does support ANSI.
+        // Some terminals on windows like GitBash can't use WinaApi calls directly
+        // so when we try to enable the ANSI-flag for windows this won't work.
+        // Because of that we should check first if the TERM-variable is set
+        // and see if the current terminal is a terminal who does support ANSI.
         if is_specific_term() {
             true
         } else {

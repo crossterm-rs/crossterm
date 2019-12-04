@@ -5,7 +5,7 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-/// Writes a string to the given writer.
+/// Writes an ansi code to the given writer.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! write_ansi_code {
@@ -21,7 +21,7 @@ macro_rules! write_ansi_code {
     }};
 }
 
-/// Writes / executes the given command.
+/// Writes/executes the given command.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_command {
@@ -49,7 +49,7 @@ macro_rules! handle_command {
     }};
 }
 
-/// Queue one or more command(s) for further execution.
+/// Queues one or more command(s) for further execution.
 ///
 /// Queued commands will be executed in the following cases:
 ///
@@ -117,7 +117,7 @@ macro_rules! queue {
     }}
 }
 
-/// Execute one or more command(s).
+/// Executes one or more command(s).
 ///
 /// # Arguments
 ///
