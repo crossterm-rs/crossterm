@@ -12,7 +12,8 @@
  - Remove `screen::Rawscreen`
     * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
  - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
-  
+ - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
+
 # Version 0.13.3
 
 - Remove thread from AsyncReader on Windows.
