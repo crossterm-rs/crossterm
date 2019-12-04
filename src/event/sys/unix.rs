@@ -7,7 +7,6 @@ use libc::{c_int, c_void, size_t, ssize_t};
 
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
-    utils::sys::unix::wrap_with_result,
     ErrorKind, Result,
 };
 
@@ -50,14 +49,20 @@ impl FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
-    /// Reads a single byte from the file descriptor.
-    pub fn read_byte(&self) -> Result<u8> {
-        let mut buf: [u8; 1] = [0];
-        wrap_with_result(unsafe {
-            libc::read(self.fd, buf.as_mut_ptr() as *mut libc::c_void, 1) as c_int
-        })?;
+    pub fn read(&self, buffer: &mut [u8], size: usize) -> Result<usize> {
+        let result = unsafe {
+            libc::read(
+                self.fd,
+                buffer.as_mut_ptr() as *mut libc::c_void,
+                size as size_t,
+            ) as isize
+        };
 
-        Ok(buf[0])
+        if result < 0 {
+            Err(ErrorKind::IoError(io::Error::last_os_error()))
+        } else {
+            Ok(result as usize)
+        }
     }
 
     pub fn write(&self, buf: &[u8]) -> io::Result<usize> {
