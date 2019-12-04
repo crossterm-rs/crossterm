@@ -5,168 +5,178 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-/// Write a string to standard output whereafter the stdout will be flushed.
+/// Writes an ansi code to the given writer.
 #[doc(hidden)]
 #[macro_export]
-macro_rules! write_cout {
-    ($write:expr, $string:expr) => {{
-        use $crate::ErrorKind;
+macro_rules! write_ansi_code {
+    ($writer:expr, $ansi_code:expr) => {{
+        use std::{
+            error::Error,
+            io::{self, ErrorKind},
+        };
 
-        let fmt = format!("{}", $string);
-        let bytes = fmt.as_bytes();
-
-        $write
-            .write_all(bytes)
-            .and_then(|_| $write.flush().map(|_| bytes.len()))
-            .map_err(ErrorKind::IoError)
-    }};
-    ($string:expr) => {{
-        // Bring Write into the scope and ignore unused imports if it's
-        // already imported by the user
-        #[allow(unused_imports)]
-        use std::io::Write;
-        write_cout!(::std::io::stdout(), $string)
+        write!($writer, "{}", $ansi_code)
+            .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
+            .map_err($crate::ErrorKind::IoError)
     }};
 }
 
-/// Queue one or more command(s) for execution in the near future.
-///
-/// Queued commands will be executed in the following cases:
-/// - When you manually call `flush` on the given writer.
-/// - When the buffer is to full, then the terminal will flush for you.
-/// - Incase of `stdout` each line, because `stdout` is line buffered.
-///
-/// # Parameters
-/// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
-///
-///     Crossterm will write the ANSI escape codes to this given writer (No flush will be done).
-/// - [Command](./trait.Command.html)
-///
-///     Give one or more commands that you want to queue for execution
-///
-/// # Example
-/// ```rust
-///
-/// use std::io::{Write, stdout};
-///
-/// use crossterm::{queue, Output};
-///
-/// let mut stdout = stdout();
-///
-/// // will be executed when flush is called
-/// queue!(stdout, Output("foo".to_string()));
-///
-/// // some other code (no execution happening here) ...
-///
-/// // when calling flush on stdout, all commands will be written to the stdout and therefor executed.
-/// stdout.flush();
-/// ```
-///
-/// # Remarks
-/// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
-/// - In case of Windows versions lower than 10, a direct WinApi call will be made.
-/// This is happening because windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
-/// Because of that there is no difference between `execute` and `queue` for those windows versions.
-/// - Queuing might sound that there is some scheduling going on, however, this means that we write to the stdout without flushing which will cause commands to be stored in the buffer without them being written to the terminal.
+/// Writes/executes the given command.
+#[doc(hidden)]
 #[macro_export]
-macro_rules! queue {
-    ($write:expr, $($command:expr), * $(,)? ) => {{
+macro_rules! handle_command {
+    ($writer:expr, $command:expr) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
-        use $crate::Command;
-        let mut error = None;
+        use $crate::{write_ansi_code, Command};
+
+        #[cfg(windows)]
+        {
+            // ansi code is not always a string, however it does implement `Display` and `Write`.
+            // In order to check if the code is supported we have to make it a string.
+            let ansi_code = format!("{}", $command.ansi_code());
+
+            if $command.is_ansi_code_supported() {
+                write_ansi_code!($writer, &ansi_code)
+            } else {
+                $command.execute_winapi().map_err($crate::ErrorKind::from)
+            }
+        }
+        #[cfg(unix)]
+        {
+            write_ansi_code!($writer, $command.ansi_code())
+        }
+    }};
+}
+
+/// Queues one or more command(s) for further execution.
+///
+/// Queued commands will be executed in the following cases:
+///
+/// * When `flush` is called manually on the given type implementing `io::Write`.
+/// * The terminal will `flush` automatically if the buffer is full.
+/// * Each line is flushed in case of `stdout`, because it is line buffered.
+///
+/// # Arguments
+///
+/// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
+///
+///     ANSI escape codes are written on the given 'writer', after which they are flushed.
+///
+/// - [Command](./trait.Command.html)
+///
+///     One or more commands
+///
+/// # Examples
+///
+/// ```rust
+/// use std::io::{Write, stdout};
+/// use crossterm::{queue, style::Print};
+///
+/// fn main() {
+///     let mut stdout = stdout();
+///
+///     // `Print` will executed executed when `flush` is called.
+///     queue!(stdout, Print("foo".to_string()));
+///
+///     // some other code (no execution happening here) ...
+///
+///     // when calling `flush` on `stdout`, all commands will be written to the stdout and therefore executed.
+///     stdout.flush();
+///
+///     // ==== Output ====
+///     // foo
+/// }
+/// ```
+///
+/// Have a look over at the [Command API](./#command-api) for more details.
+///
+/// # Notes
+///
+/// In case of Windows versions lower than 10, a direct WinApi call will be made.
+/// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+/// and can therefore not be written to the given `writer`.
+/// Therefore, there is no difference between [execute](macro.execute.html)
+/// and [queue](macro.queue.html) for those old Windows versions.
+///
+#[macro_export]
+macro_rules! queue {
+    ($writer:expr, $($command:expr), * $(,)?) => {{
+        // Silent warning when the macro is used inside the `command` module
+        #[allow(unused_imports)]
+        use $crate::{Command, handle_command};
+
+        #[allow(unused_assignments)]
+        let mut error = Ok(());
 
         $(
-            #[cfg(windows)]
-            {
-                if $crate::supports_ansi() {
-                    if let Err(e) = write!($write, "{}", $command.ansi_code()) {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    };
-                } else {
-                    if let Err(e) = $command.execute_winapi() {
-                        error = Some(Err($crate::ErrorKind::from(e)));
-                    }
-                };
-            }
-            #[cfg(unix)]
-            {
-                if let Err(e) = write!($write, "{}", $command.ansi_code()) {
-                    error = Some(Err($crate::ErrorKind::from(e)));
-                }
-            }
+            error = handle_command!($writer, $command);
         )*
 
-        if let Some(error) = error {
-            error
-        } else {
-            Ok(())
-        }
+        error
     }}
 }
 
-/// Execute one or more command(s)
+/// Executes one or more command(s).
 ///
-/// # Parameters
+/// # Arguments
+///
 /// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
 ///
-///     Crossterm will write the ANSI escape codes to this given. (A flush will be done)
+///     ANSI escape codes are written on the given 'writer', after which they are flushed.
+///
 /// - [Command](./trait.Command.html)
 ///
-///     Give one or more commands that you want to execute
+///     One or more commands
 ///
-/// # Example
+/// # Examples
+///
 /// ```rust
-/// use std::io::Write;
+/// use std::io::{Write, stdout};
+/// use crossterm::{execute, style::Print};
 ///
-/// use crossterm::{execute, Output};
+///  fn main() {
+///      // will be executed directly
+///      execute!(stdout(), Print("sum:\n".to_string()));
 ///
-/// // will be executed directly
-/// execute!(std::io::stdout(), Output("foo".to_string()));
+///      // will be executed directly
+///      execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
 ///
-/// // will be executed directly
-/// execute!(std::io::stdout(), Output("foo".to_string()), Output("bar".to_string()));
+///      // ==== Output ====
+///      // sum:
+///      // 1 + 1 = 2
+///  }
 /// ```
 ///
-/// # Remarks
-/// - In the case of UNIX and windows 10, ANSI codes are written to the given 'writer'.
-/// - In case of Windows versions lower than 10, a direct WinApi call will be made.
-/// This is happening because Windows versions lower then 10 do not support ANSI codes, and thus they can't be written to the given buffer.
-/// Because of that there is no difference between `execute` and `queue` for those windows versions.
+/// Have a look over at the [Command API](./#command-api) for more details.
+///
+/// # Notes
+///
+/// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
+/// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+///     and can therefore not be written to the given `writer`.
+///     Therefore, there is no difference between [execute](macro.execute.html)
+///     and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
     ($write:expr, $($command:expr), * $(,)? ) => {{
         // Silent warning when the macro is used inside the `command` module
         #[allow(unused_imports)]
-        use $crate::{Command, write_cout};
-        let mut error = None;
+        use $crate::{handle_command, Command};
+
+        #[allow(unused_assignments)]
+        let mut error = Ok(());
 
         $(
-            #[cfg(windows)]
-            {
-                if $crate::supports_ansi() {
-                    if let Err(e) = write_cout!($write, $command.ansi_code()) {
-                        error = Some($crate::ErrorKind::from(e));
-                    };
-                } else {
-                    if let Err(e) = $command.execute_winapi() {
-                        error = Some($crate::ErrorKind::from(e));
-                    };
-                };
-            }
-            #[cfg(unix)]
-            {
-                if let Err(e) = write_cout!($write, $command.ansi_code()) {
-                    error = Some($crate::ErrorKind::from(e));
-                }
+            if let Err(e) = handle_command!($write, $command) {
+                error = Err(e);
+            }else {
+                $write.flush().map_err($crate::ErrorKind::IoError).unwrap();
             }
         )*
 
-        if let Some(error) = error {
-            Err(error)
-        } else {
-            Ok(())
-        }
+        error
     }}
 }
 
@@ -176,8 +186,7 @@ macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
-                use $crate::Command;
-                write!(f, "{}", self.ansi_code())
+                $crate::queue!(f, self).map_err(|_| ::std::fmt::Error)
             }
         })*
     }

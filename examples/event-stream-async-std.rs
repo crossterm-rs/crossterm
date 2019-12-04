@@ -1,8 +1,10 @@
 //
 // cargo run --features event-stream --example event-stream-async-std
 //
-use std::io::{stdout, Write};
-use std::time::Duration;
+use std::{
+    io::{stdout, Write},
+    time::Duration,
+};
 
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
@@ -11,7 +13,7 @@ use crossterm::{
     cursor::position,
     event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode},
     execute,
-    screen::RawScreen,
+    terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
 
@@ -55,7 +57,7 @@ async fn print_events() {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    let _r = RawScreen::into_raw_mode()?;
+    enable_raw_mode()?;
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
@@ -63,5 +65,6 @@ fn main() -> Result<()> {
     async_std::task::block_on(print_events());
 
     execute!(stdout, DisableMouseCapture)?;
-    Ok(())
+
+    disable_raw_mode()
 }

@@ -5,10 +5,17 @@
   - It's **highly recommended** to read the
     [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
     documentation
-* Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
+- Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
- - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
- 
+    - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
+    - Merge `screen` module into `terminal`  
+    - Remove `screen::AlternateScreen`
+    - Remove `screen::Rawscreen`
+     * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
+    - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
+    - Replace `utils::Output` command with `style::Print` command
+    - Fix enable/disable mouse capture commands on Windows.
+
 # Version 0.13.3
 
 - Remove thread from AsyncReader on Windows.

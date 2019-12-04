@@ -1,20 +1,22 @@
 //
 // cargo run --example event-poll-read
 //
-use std::io::{stdout, Write};
-use std::time::Duration;
+use std::{
+    io::{stdout, Write},
+    time::Duration,
+};
 
 use crossterm::{
     cursor::position,
     event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
-    screen::RawScreen,
+    terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
 
 const HELP: &str = r#"Blocking poll() & non-blocking read()
  - Keyboard, mouse and terminal resize events enabled
- - Prints "." every second if there's no event 
+ - Prints "." every second if there's no event
  - Hit "c" to print current cursor position
  - Use Esc to quit
 "#;
@@ -47,7 +49,7 @@ fn print_events() -> Result<()> {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    let _r = RawScreen::into_raw_mode()?;
+    enable_raw_mode();
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
@@ -57,5 +59,6 @@ fn main() -> Result<()> {
     }
 
     execute!(stdout, DisableMouseCapture)?;
-    Ok(())
+
+    disable_raw_mode()
 }
