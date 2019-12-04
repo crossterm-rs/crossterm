@@ -97,14 +97,14 @@ pub(crate) mod sys;
 ///
 /// Please have a look at the [raw mode](./#raw-mode) section.
 pub fn enable_raw_mode() -> Result<()> {
-    sys::disable_raw_mode()
+    sys::enable_raw_mode()
 }
 
 /// Disables raw mode.
 ///
 /// Please have a look at the [raw mode](./#raw-mode) section.
 pub fn disable_raw_mode() -> Result<()> {
-    sys::enable_raw_mode()
+    sys::disable_raw_mode()
 }
 
 /// Exits the current application.
@@ -114,7 +114,7 @@ pub fn exit() {
 
 /// Returns the terminal size `(columns, rows)`.
 ///
-/// The top left cell is represented `1,1`.
+/// The top left cell is represented `(1, 1)`.
 pub fn size() -> Result<(u16, u16)> {
     sys::size()
 }
