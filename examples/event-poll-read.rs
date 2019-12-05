@@ -49,7 +49,7 @@ fn print_events() -> Result<()> {
 fn main() -> Result<()> {
     println!("{}", HELP);
 
-    enable_raw_mode();
+    enable_raw_mode()?;
 
     let mut stdout = stdout();
     execute!(stdout, EnableMouseCapture)?;
