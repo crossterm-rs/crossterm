@@ -285,7 +285,7 @@ impl WinApiPoll {
         let output =
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 
-        let result = match output {
+        match output {
             output if output == WAIT_OBJECT_0 => {
                 // input handle triggered
                 Ok(Some(true))
@@ -293,24 +293,20 @@ impl WinApiPoll {
             #[cfg(feature = "event-stream")]
             output if output == WAIT_OBJECT_0 + 1 => {
                 // semaphore handle triggered
+                let _ = self.waker.reset();
                 Ok(None)
             }
             WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
                 // timeout elapsed
                 Ok(None)
             }
-            WAIT_FAILED => return Err(io::Error::last_os_error().into()),
+            WAIT_FAILED => Err(io::Error::last_os_error().into()),
             _ => Err(io::Error::new(
                 ErrorKind::Other,
                 "WaitForMultipleObjects returned unexpected result.",
             )
             .into()),
-        };
-
-        #[cfg(feature = "event-stream")]
-        let _ = self.waker.reset();
-
-        result
+        }
     }
 
     #[cfg(feature = "event-stream")]
