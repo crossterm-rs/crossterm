@@ -27,13 +27,11 @@ use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
     Result,
 };
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "event-stream")] {
-        pub(crate) use waker::Waker;
-        mod waker;
-    }
-}
+#[cfg(feature = "event-stream")]
+mod waker;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
@@ -252,15 +250,16 @@ pub(crate) struct WinApiPoll {
 }
 
 impl WinApiPoll {
+    #[cfg(not(feature = "event-stream"))]
     pub(crate) fn new() -> Result<WinApiPoll> {
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "event-stream")] {
-                let waker = Waker::new()?;
-                Ok(WinApiPoll { waker })
-            } else {
-                Ok(WinApiPoll {})
-            }
-        }
+        Ok(WinApiPoll {})
+    }
+
+    #[cfg(feature = "event-stream")]
+    pub(crate) fn new() -> Result<WinApiPoll> {
+        Ok(WinApiPoll {
+            waker: Waker::new()?,
+        })
     }
 }
 
