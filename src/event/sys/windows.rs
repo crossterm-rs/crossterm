@@ -4,7 +4,6 @@ use std::{io, io::ErrorKind, sync::Mutex, time::Duration};
 
 use crossterm_winapi::{
     ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
-    Semaphore,
 };
 use winapi::{
     shared::winerror::WAIT_TIMEOUT,
@@ -248,12 +247,20 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
 }
 
 pub(crate) struct WinApiPoll {
-    semaphore: Option<Semaphore>,
+    #[cfg(feature = "event-stream")]
+    waker: Waker,
 }
 
 impl WinApiPoll {
     pub(crate) fn new() -> Result<WinApiPoll> {
-        Ok(WinApiPoll { semaphore: None })
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "event-stream")] {
+                let waker = Waker::new()?;
+                Ok(WinApiPoll { waker })
+            } else {
+                Ok(WinApiPoll {})
+            }
+        }
     }
 }
 
@@ -265,12 +272,16 @@ impl WinApiPoll {
             INFINITE
         };
 
-        let semaphore = Semaphore::new()?;
         let console_handle = Handle::current_in_handle()?;
-        let handles = &[*console_handle]; //, semaphore.handle()];
 
-        self.semaphore = Some(semaphore);
-
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "event-stream")] {
+                let semaphore = self.waker.semaphore();
+                let handles = &[*console_handle, **semaphore.handle()];
+            } else {
+                let handles = &[*console_handle];
+            }
+        }
         let output =
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 
@@ -279,6 +290,7 @@ impl WinApiPoll {
                 // input handle triggered
                 Ok(Some(true))
             }
+            #[cfg(feature = "event-stream")]
             output if output == WAIT_OBJECT_0 + 1 => {
                 // semaphore handle triggered
                 Ok(None)
@@ -295,16 +307,14 @@ impl WinApiPoll {
             .into()),
         };
 
-        self.semaphore = None;
+        #[cfg(feature = "event-stream")]
+        let _ = self.waker.reset();
 
         result
     }
 
-    pub fn cancel(&self) -> Result<()> {
-        if let Some(semaphore) = &self.semaphore {
-            semaphore.release()?
-        }
-
-        Ok(())
+    #[cfg(feature = "event-stream")]
+    pub fn poll_waker(&self) -> Waker {
+        self.waker.clone()
     }
 }
