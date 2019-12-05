@@ -69,12 +69,10 @@ impl UnixInternalEventSource {
         let signals = Signals::new(&[signal_hook::SIGWINCH])?;
         poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
 
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "event-stream")] {
-                let waker = Waker::new()?;
-                poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
-            }
-        }
+        #[cfg(feature = "event-stream")]
+        let waker = Waker::new()?;
+        #[cfg(feature = "event-stream")]
+        poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
 
         Ok(UnixInternalEventSource {
             poll,

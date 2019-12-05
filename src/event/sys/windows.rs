@@ -273,14 +273,13 @@ impl WinApiPoll {
 
         let console_handle = Handle::current_in_handle()?;
 
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "event-stream")] {
-                let semaphore = self.waker.semaphore();
-                let handles = &[*console_handle, **semaphore.handle()];
-            } else {
-                let handles = &[*console_handle];
-            }
-        }
+        #[cfg(feature = "event-stream")]
+        let semaphore = self.waker.semaphore();
+        #[cfg(feature = "event-stream")]
+        let handles = &[*console_handle, **semaphore.handle()];
+        #[cfg(not(feature = "event-stream"))]
+        let handles = &[*console_handle];
+
         let output =
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 

@@ -34,7 +34,6 @@ event-stream = ["futures"]
 #
 [dependencies]
 bitflags = "1.2"
-cfg-if = "0.1"
 futures = { version = "0.3", optional = true }
 lazy_static = "1.4"
 parking_lot = "0.9"

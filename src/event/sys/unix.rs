@@ -12,12 +12,11 @@ use crate::{
 
 use super::super::InternalEvent;
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "event-stream")] {
-        pub(crate) use waker::Waker;
-        mod waker;
-    }
-}
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
+
+#[cfg(feature = "event-stream")]
+mod waker;
 
 /// A file descriptor wrapper.
 ///
