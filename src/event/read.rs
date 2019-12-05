@@ -446,6 +446,9 @@ mod tests {
             Ok(None)
         }
 
-        fn wake(&self) {}
+        #[cfg(feature = "event-stream")]
+        fn try_read_waker(&self) -> super::super::sys::Waker {
+            unimplemented!();
+        }
     }
 }
