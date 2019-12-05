@@ -11,6 +11,13 @@ use super::super::{
     InternalEvent, Result,
 };
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "event-stream")] {
+        use std::sync::Arc;
+        use super::super::sys::Waker;
+    }
+}
+
 pub(crate) struct WindowsEventSource {
     console: Console,
     poll: WinApiPoll,
@@ -64,7 +71,9 @@ impl EventSource for WindowsEventSource {
         }
     }
 
-    fn wake(&self) {
-        let _ = self.poll.cancel();
+    #[cfg(feature = "event-stream")]
+    fn waker(&self) -> Arc<Waker> {
+        // TODO
+        Arc::new(Waker::new())
     }
 }

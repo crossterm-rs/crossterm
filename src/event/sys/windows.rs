@@ -29,6 +29,13 @@ use crate::{
     Result,
 };
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "event-stream")] {
+        pub(crate) use waker::Waker;
+        mod waker;
+    }
+}
+
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
 lazy_static! {
@@ -260,7 +267,7 @@ impl WinApiPoll {
 
         let semaphore = Semaphore::new()?;
         let console_handle = Handle::current_in_handle()?;
-        let handles = &[*console_handle, semaphore.handle()];
+        let handles = &[*console_handle]; //, semaphore.handle()];
 
         self.semaphore = Some(semaphore);
 

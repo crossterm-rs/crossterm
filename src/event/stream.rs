@@ -13,6 +13,8 @@ use futures::{
     Stream,
 };
 
+use super::sys::Waker;
+
 use crate::Result;
 
 use super::{
@@ -30,19 +32,26 @@ use super::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
-#[derive(Default)]
 pub struct EventStream {
-    wake_thread_spawned: Arc<AtomicBool>,
-    wake_thread_should_shutdown: Arc<AtomicBool>,
+    poll_internal_waker: Arc<Waker>,
+    stream_wake_thread_spawned: Arc<AtomicBool>,
+    stream_wake_thread_should_shutdown: Arc<AtomicBool>,
+}
+
+impl Default for EventStream {
+    fn default() -> Self {
+        EventStream {
+            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
+            stream_wake_thread_spawned: Arc::new(AtomicBool::new(false)),
+            stream_wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
+        }
+    }
 }
 
 impl EventStream {
     /// Constructs a new instance of `EventStream`.
     pub fn new() -> EventStream {
-        EventStream {
-            wake_thread_spawned: Arc::new(AtomicBool::new(false)),
-            wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
-        }
+        EventStream::default()
     }
 }
 
@@ -59,14 +68,15 @@ impl Stream for EventStream {
             },
             Ok(false) => {
                 if !self
-                    .wake_thread_spawned
+                    .stream_wake_thread_spawned
                     .compare_and_swap(false, true, Ordering::SeqCst)
                 {
-                    let waker = cx.waker().clone();
-                    let wake_thread_spawned = self.wake_thread_spawned.clone();
-                    let wake_thread_should_shutdown = self.wake_thread_should_shutdown.clone();
+                    let stream_waker = cx.waker().clone();
+                    let stream_wake_thread_spawned = self.stream_wake_thread_spawned.clone();
+                    let stream_wake_thread_should_shutdown =
+                        self.stream_wake_thread_should_shutdown.clone();
 
-                    wake_thread_should_shutdown.store(false, Ordering::SeqCst);
+                    stream_wake_thread_should_shutdown.store(false, Ordering::SeqCst);
 
                     thread::spawn(move || {
                         loop {
@@ -74,12 +84,12 @@ impl Stream for EventStream {
                                 break;
                             }
 
-                            if wake_thread_should_shutdown.load(Ordering::SeqCst) {
+                            if stream_wake_thread_should_shutdown.load(Ordering::SeqCst) {
                                 break;
                             }
                         }
-                        wake_thread_spawned.store(false, Ordering::SeqCst);
-                        waker.wake();
+                        stream_wake_thread_spawned.store(false, Ordering::SeqCst);
+                        stream_waker.wake();
                     });
                 }
                 Poll::Pending
@@ -92,8 +102,8 @@ impl Stream for EventStream {
 
 impl Drop for EventStream {
     fn drop(&mut self) {
-        self.wake_thread_should_shutdown
+        self.stream_wake_thread_should_shutdown
             .store(true, Ordering::SeqCst);
-        INTERNAL_EVENT_READER.read().wake();
+        let _ = self.poll_internal_waker.wake();
     }
 }
