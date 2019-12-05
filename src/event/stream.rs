@@ -33,7 +33,7 @@ use super::{
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
 pub struct EventStream {
-    poll_internal_waker: Arc<Waker>,
+    poll_internal_waker: Waker,
     stream_wake_thread_spawned: Arc<AtomicBool>,
     stream_wake_thread_should_shutdown: Arc<AtomicBool>,
 }
@@ -41,7 +41,7 @@ pub struct EventStream {
 impl Default for EventStream {
     fn default() -> Self {
         EventStream {
-            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
+            poll_internal_waker: INTERNAL_EVENT_READER.write().poll_waker(),
             stream_wake_thread_spawned: Arc::new(AtomicBool::new(false)),
             stream_wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
         }

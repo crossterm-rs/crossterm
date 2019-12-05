@@ -6,12 +6,8 @@ use signal_hook::iterator::Signals;
 
 use crate::Result;
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "event-stream")] {
-        use std::sync::Arc;
-        use super::super::sys::Waker;
-    }
-}
+#[cfg(feature = "event-stream")]
+use super::super::sys::Waker;
 
 use super::super::{
     source::EventSource,
@@ -39,7 +35,7 @@ pub(crate) struct UnixInternalEventSource {
     tty_fd: FileDesc,
     signals: Signals,
     #[cfg(feature = "event-stream")]
-    waker: Arc<Waker>,
+    waker: Waker,
 }
 
 impl UnixInternalEventSource {
@@ -75,7 +71,7 @@ impl UnixInternalEventSource {
 
         cfg_if::cfg_if! {
             if #[cfg(feature = "event-stream")] {
-                let waker = Arc::new(Waker::new());
+                let waker = Waker::new()?;
                 poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
             }
         }
@@ -155,7 +151,7 @@ impl EventSource for UnixInternalEventSource {
                     }
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
-                        let _ = self.waker.clear();
+                        let _ = self.waker.reset();
                         return Ok(None);
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
@@ -170,7 +166,7 @@ impl EventSource for UnixInternalEventSource {
     }
 
     #[cfg(feature = "event-stream")]
-    fn waker(&self) -> Arc<Waker> {
+    fn try_read_waker(&self) -> Waker {
         self.waker.clone()
     }
 }

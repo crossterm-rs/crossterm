@@ -6,12 +6,8 @@ use super::source::unix::UnixInternalEventSource;
 use super::source::windows::WindowsEventSource;
 use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "event-stream")] {
-        use std::sync::Arc;
-        use super::sys::Waker;
-    }
-}
+#[cfg(feature = "event-stream")]
+use super::sys::Waker;
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -39,8 +35,11 @@ impl Default for InternalEventReader {
 
 impl InternalEventReader {
     #[cfg(feature = "event-stream")]
-    pub(crate) fn waker(&self) -> Arc<Waker> {
-        self.source.as_ref().expect("reader source not set").waker()
+    pub(crate) fn poll_waker(&self) -> Waker {
+        self.source
+            .as_ref()
+            .expect("reader source not set")
+            .try_read_waker()
     }
 
     pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> Result<bool>
