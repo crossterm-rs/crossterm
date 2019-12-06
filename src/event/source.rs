@@ -24,5 +24,5 @@ pub(crate) trait EventSource: Sync + Send {
     fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
 
     #[cfg(feature = "event-stream")]
-    fn try_read_waker(&self) -> Waker;
+    fn waker(&self) -> Waker;
 }

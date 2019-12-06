@@ -41,7 +41,7 @@ pub struct EventStream {
 impl Default for EventStream {
     fn default() -> Self {
         EventStream {
-            poll_internal_waker: INTERNAL_EVENT_READER.write().poll_waker(),
+            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
             stream_wake_thread_spawned: Arc::new(AtomicBool::new(false)),
             stream_wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
         }

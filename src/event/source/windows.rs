@@ -68,7 +68,7 @@ impl EventSource for WindowsEventSource {
     }
 
     #[cfg(feature = "event-stream")]
-    fn try_read_waker(&self) -> Waker {
-        self.poll.poll_waker()
+    fn waker(&self) -> Waker {
+        self.poll.waker()
     }
 }

@@ -35,11 +35,8 @@ impl Default for InternalEventReader {
 
 impl InternalEventReader {
     #[cfg(feature = "event-stream")]
-    pub(crate) fn poll_waker(&self) -> Waker {
-        self.source
-            .as_ref()
-            .expect("reader source not set")
-            .try_read_waker()
+    pub(crate) fn waker(&self) -> Waker {
+        self.source.as_ref().expect("reader source not set").waker()
     }
 
     pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> Result<bool>
@@ -447,7 +444,7 @@ mod tests {
         }
 
         #[cfg(feature = "event-stream")]
-        fn try_read_waker(&self) -> super::super::sys::Waker {
+        fn waker(&self) -> super::super::sys::Waker {
             unimplemented!();
         }
     }

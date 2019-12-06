@@ -164,7 +164,7 @@ impl EventSource for UnixInternalEventSource {
     }
 
     #[cfg(feature = "event-stream")]
-    fn try_read_waker(&self) -> Waker {
+    fn waker(&self) -> Waker {
         self.waker.clone()
     }
 }

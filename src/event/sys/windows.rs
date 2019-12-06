@@ -308,7 +308,7 @@ impl WinApiPoll {
     }
 
     #[cfg(feature = "event-stream")]
-    pub fn poll_waker(&self) -> Waker {
+    pub fn waker(&self) -> Waker {
         self.waker.clone()
     }
 }
