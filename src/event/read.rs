@@ -34,6 +34,7 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
+    /// Returns a `Waker` allowing to wake/force the `poll` method to return `Ok(false)`.
     #[cfg(feature = "event-stream")]
     pub(crate) fn waker(&self) -> Waker {
         self.source.as_ref().expect("reader source not set").waker()

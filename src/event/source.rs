@@ -14,15 +14,15 @@ pub(crate) mod windows;
 pub(crate) trait EventSource: Sync + Send {
     /// Tries to read an `InternalEvent` within the given duration.
     ///
-    /// This function takes in an optional duration.
-    /// * `None`: blocks indefinitely until an event is able to be read.
-    /// * `Some(duration)`: blocks for the given duration.
+    /// # Arguments
     ///
-    /// Returns:
-    /// `Ok(Some(event))`: in case an event is ready.
-    /// `Ok(None)`: in case an event is not ready.
+    /// * `timeout` - `None` block indefinitely until an event is available, `Some(duration)` blocks
+    ///               for the given timeout
+    ///
+    /// Returns `Ok(None)` if there's no event available and timeout expires.
     fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
 
+    /// Returns a `Waker` allowing to wake/force the `try_read` method to return `Ok(None)`.
     #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker;
 }

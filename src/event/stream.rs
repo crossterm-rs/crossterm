@@ -55,6 +55,24 @@ impl EventStream {
     }
 }
 
+// Note to future me
+//
+// We need two wakers in order to implement EventStream correctly.
+//
+// 1. futures::Stream waker
+//
+// Stream::poll_next can return Poll::Pending which means that there's no
+// event available. We are going to spawn a thread with the
+// poll_internal(None, &EventFilter) call. This call blocks until an
+// event is available and then we have to wake up the executor with notification
+// that the task can be resumed.
+//
+// 2. poll_internal waker
+//
+// There's no event available, Poll::Pending was returned, stream waker thread
+// is up and sitting in the poll_internal. User wants to drop the EventStream.
+// We have to wake up the poll_internal (force it to return Ok(false)) and quit
+// the thread before we drop.
 impl Stream for EventStream {
     type Item = Result<Event>;
 
