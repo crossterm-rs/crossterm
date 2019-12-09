@@ -421,3 +421,36 @@ pub(crate) enum InternalEvent {
     #[cfg(unix)]
     CursorPosition(u16, u16),
 }
+
+#[cfg(test)]
+mod tests {
+    use std::thread;
+    use crate::event::{poll_internal};
+    use crate::event::filter::EventFilter;
+    use std::time::Duration;
+    use super::INTERNAL_EVENT_READER;
+    use crate::terminal::{enable_raw_mode, disable_raw_mode};
+
+    #[test]
+    pub fn awake_stream() {
+        enable_raw_mode().unwrap();
+
+        let waker = INTERNAL_EVENT_READER.read().waker();
+
+        let handle = thread::spawn(|| {
+           let event = poll_internal(None, &EventFilter);
+
+            println!("result: {:?}", event);
+        });
+
+        println!("waiting ...");
+        thread::sleep(Duration::from_millis(2000));
+        println!("waking up ...");
+//        waker.wake().unwrap();
+        println!("joining ...");
+        handle.join().unwrap();
+
+        disable_raw_mode().unwrap();
+    }
+}
+

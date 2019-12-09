@@ -85,6 +85,9 @@ impl InternalEventReader {
                 }
 
                 return Ok(false);
+            } else if !poll_timeout.elapsed() && maybe_event.is_none() {
+                // if there is no timeout, and we didn't get any event we can assume the poll method was woken by `Waker`.
+                return Ok(false);
             }
         }
     }
