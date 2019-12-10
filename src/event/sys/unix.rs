@@ -3,7 +3,10 @@ use std::{
     os::unix::io::{IntoRawFd, RawFd},
 };
 
-use libc::{c_int, c_void, size_t, ssize_t};
+use libc::size_t;
+
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
 
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
@@ -12,22 +15,8 @@ use crate::{
 
 use super::super::InternalEvent;
 
-// libstd::sys::unix::fd.rs
-fn max_len() -> usize {
-    // The maximum read limit on most posix-like systems is `SSIZE_MAX`,
-    // with the man page quoting that if the count of bytes to read is
-    // greater than `SSIZE_MAX` the result is "unspecified".
-    //
-    // On macOS, however, apparently the 64-bit libc is either buggy or
-    // intentionally showing odd behavior by rejecting any read with a size
-    // larger than or equal to INT_MAX. To handle both of these the read
-    // size is capped on both platforms.
-    if cfg!(target_os = "macos") {
-        <c_int>::max_value() as usize - 1
-    } else {
-        <ssize_t>::max_value() as usize
-    }
-}
+#[cfg(feature = "event-stream")]
+mod waker;
 
 /// A file descriptor wrapper.
 ///
@@ -63,24 +52,6 @@ impl FileDesc {
         } else {
             Ok(result as usize)
         }
-    }
-
-    pub fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        // libstd::sys::unix::fd.rs
-
-        let ret = unsafe {
-            libc::write(
-                self.fd,
-                buf.as_ptr() as *const c_void,
-                std::cmp::min(buf.len(), max_len()) as size_t,
-            ) as c_int
-        };
-
-        if ret == -1 {
-            return Err(io::Error::last_os_error());
-        }
-
-        Ok(ret as usize)
     }
 
     /// Returns the underlying file descriptor.

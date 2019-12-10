@@ -16,7 +16,8 @@ use futures::{
 use crate::Result;
 
 use super::{
-    filter::EventFilter, poll_internal, read_internal, Event, InternalEvent, INTERNAL_EVENT_READER,
+    filter::EventFilter, poll_internal, read_internal, sys::Waker, Event, InternalEvent,
+    INTERNAL_EVENT_READER,
 };
 
 /// A stream of `Result<Event>`.
@@ -30,22 +31,47 @@ use super::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
-#[derive(Default)]
 pub struct EventStream {
-    wake_thread_spawned: Arc<AtomicBool>,
-    wake_thread_should_shutdown: Arc<AtomicBool>,
+    poll_internal_waker: Waker,
+    stream_wake_thread_spawned: Arc<AtomicBool>,
+    stream_wake_thread_should_shutdown: Arc<AtomicBool>,
+}
+
+impl Default for EventStream {
+    fn default() -> Self {
+        EventStream {
+            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
+            stream_wake_thread_spawned: Arc::new(AtomicBool::new(false)),
+            stream_wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
+        }
+    }
 }
 
 impl EventStream {
     /// Constructs a new instance of `EventStream`.
     pub fn new() -> EventStream {
-        EventStream {
-            wake_thread_spawned: Arc::new(AtomicBool::new(false)),
-            wake_thread_should_shutdown: Arc::new(AtomicBool::new(false)),
-        }
+        EventStream::default()
     }
 }
 
+// Note to future me
+//
+// We need two wakers in order to implement EventStream correctly.
+//
+// 1. futures::Stream waker
+//
+// Stream::poll_next can return Poll::Pending which means that there's no
+// event available. We are going to spawn a thread with the
+// poll_internal(None, &EventFilter) call. This call blocks until an
+// event is available and then we have to wake up the executor with notification
+// that the task can be resumed.
+//
+// 2. poll_internal waker
+//
+// There's no event available, Poll::Pending was returned, stream waker thread
+// is up and sitting in the poll_internal. User wants to drop the EventStream.
+// We have to wake up the poll_internal (force it to return Ok(false)) and quit
+// the thread before we drop.
 impl Stream for EventStream {
     type Item = Result<Event>;
 
@@ -59,14 +85,15 @@ impl Stream for EventStream {
             },
             Ok(false) => {
                 if !self
-                    .wake_thread_spawned
+                    .stream_wake_thread_spawned
                     .compare_and_swap(false, true, Ordering::SeqCst)
                 {
-                    let waker = cx.waker().clone();
-                    let wake_thread_spawned = self.wake_thread_spawned.clone();
-                    let wake_thread_should_shutdown = self.wake_thread_should_shutdown.clone();
+                    let stream_waker = cx.waker().clone();
+                    let stream_wake_thread_spawned = self.stream_wake_thread_spawned.clone();
+                    let stream_wake_thread_should_shutdown =
+                        self.stream_wake_thread_should_shutdown.clone();
 
-                    wake_thread_should_shutdown.store(false, Ordering::SeqCst);
+                    stream_wake_thread_should_shutdown.store(false, Ordering::SeqCst);
 
                     thread::spawn(move || {
                         loop {
@@ -74,12 +101,12 @@ impl Stream for EventStream {
                                 break;
                             }
 
-                            if wake_thread_should_shutdown.load(Ordering::SeqCst) {
+                            if stream_wake_thread_should_shutdown.load(Ordering::SeqCst) {
                                 break;
                             }
                         }
-                        wake_thread_spawned.store(false, Ordering::SeqCst);
-                        waker.wake();
+                        stream_wake_thread_spawned.store(false, Ordering::SeqCst);
+                        stream_waker.wake();
                     });
                 }
                 Poll::Pending
@@ -92,8 +119,8 @@ impl Stream for EventStream {
 
 impl Drop for EventStream {
     fn drop(&mut self) {
-        self.wake_thread_should_shutdown
+        self.stream_wake_thread_should_shutdown
             .store(true, Ordering::SeqCst);
-        INTERNAL_EVENT_READER.read().wake();
+        let _ = self.poll_internal_waker.wake();
     }
 }
