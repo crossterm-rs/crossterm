@@ -1,10 +1,9 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::{io, io::ErrorKind, sync::Mutex, time::Duration};
+use std::{io, sync::Mutex, time::Duration};
 
 use crossterm_winapi::{
     ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
-    Semaphore,
 };
 use winapi::{
     shared::winerror::WAIT_TIMEOUT,
@@ -23,11 +22,16 @@ use winapi::{
 };
 
 use lazy_static::lazy_static;
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
 
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
     Result,
 };
+
+#[cfg(feature = "event-stream")]
+mod waker;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
@@ -241,12 +245,21 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
 }
 
 pub(crate) struct WinApiPoll {
-    semaphore: Option<Semaphore>,
+    #[cfg(feature = "event-stream")]
+    waker: Waker,
 }
 
 impl WinApiPoll {
+    #[cfg(not(feature = "event-stream"))]
     pub(crate) fn new() -> Result<WinApiPoll> {
-        Ok(WinApiPoll { semaphore: None })
+        Ok(WinApiPoll {})
+    }
+
+    #[cfg(feature = "event-stream")]
+    pub(crate) fn new() -> Result<WinApiPoll> {
+        Ok(WinApiPoll {
+            waker: Waker::new()?,
+        })
     }
 }
 
@@ -258,46 +271,48 @@ impl WinApiPoll {
             INFINITE
         };
 
-        let semaphore = Semaphore::new()?;
         let console_handle = Handle::current_in_handle()?;
-        let handles = &[*console_handle, semaphore.handle()];
 
-        self.semaphore = Some(semaphore);
+        #[cfg(feature = "event-stream")]
+        let semaphore = self.waker.semaphore();
+        #[cfg(feature = "event-stream")]
+        let handles = &[*console_handle, **semaphore.handle()];
+        #[cfg(not(feature = "event-stream"))]
+        let handles = &[*console_handle];
 
         let output =
             unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
 
-        let result = match output {
+        match output {
             output if output == WAIT_OBJECT_0 => {
                 // input handle triggered
                 Ok(Some(true))
             }
+            #[cfg(feature = "event-stream")]
             output if output == WAIT_OBJECT_0 + 1 => {
                 // semaphore handle triggered
-                Ok(None)
+                let _ = self.waker.reset();
+                Err(io::Error::new(
+                    io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                )
+                .into())
             }
             WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
                 // timeout elapsed
                 Ok(None)
             }
-            WAIT_FAILED => return Err(io::Error::last_os_error().into()),
+            WAIT_FAILED => Err(io::Error::last_os_error().into()),
             _ => Err(io::Error::new(
-                ErrorKind::Other,
+                io::ErrorKind::Other,
                 "WaitForMultipleObjects returned unexpected result.",
             )
             .into()),
-        };
-
-        self.semaphore = None;
-
-        result
+        }
     }
 
-    pub fn cancel(&self) -> Result<()> {
-        if let Some(semaphore) = &self.semaphore {
-            semaphore.release()?
-        }
-
-        Ok(())
+    #[cfg(feature = "event-stream")]
+    pub fn waker(&self) -> Waker {
+        self.waker.clone()
     }
 }

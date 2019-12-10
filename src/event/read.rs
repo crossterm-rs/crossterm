@@ -1,9 +1,13 @@
-use std::{collections::vec_deque::VecDeque, time::Duration};
+use std::{collections::vec_deque::VecDeque, io, time::Duration};
+
+use crate::ErrorKind;
 
 #[cfg(unix)]
 use super::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
+#[cfg(feature = "event-stream")]
+use super::sys::Waker;
 use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
 /// Can be used to read `InternalEvent`s.
@@ -31,11 +35,10 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
+    /// Returns a `Waker` allowing to wake/force the `poll` method to return `Ok(false)`.
     #[cfg(feature = "event-stream")]
-    pub(crate) fn wake(&self) {
-        if let Some(source) = self.source.as_ref() {
-            source.wake();
-        }
+    pub(crate) fn waker(&self) -> Waker {
+        self.source.as_ref().expect("reader source not set").waker()
     }
 
     pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> Result<bool>
@@ -62,9 +65,9 @@ impl InternalEventReader {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            let maybe_event = match event_source.try_read(timeout)? {
-                None => None,
-                Some(event) => {
+            let maybe_event = match event_source.try_read(timeout) {
+                Ok(None) => None,
+                Ok(Some(event)) => {
                     if filter.eval(&event) {
                         Some(event)
                     } else {
@@ -72,6 +75,14 @@ impl InternalEventReader {
                         None
                     }
                 }
+                Err(ErrorKind::IoError(e)) => {
+                    if e.kind() == io::ErrorKind::Interrupted {
+                        return Ok(false);
+                    }
+
+                    return Err(ErrorKind::IoError(e));
+                }
+                Err(e) => return Err(e),
             };
 
             if poll_timeout.elapsed() || maybe_event.is_some() {
@@ -442,6 +453,9 @@ mod tests {
             Ok(None)
         }
 
-        fn wake(&self) {}
+        #[cfg(feature = "event-stream")]
+        fn waker(&self) -> super::super::sys::Waker {
+            unimplemented!();
+        }
     }
 }

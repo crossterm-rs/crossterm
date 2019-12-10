@@ -1,25 +1,27 @@
 use std::time::Duration;
 
+#[cfg(feature = "event-stream")]
+use super::sys::Waker;
 use super::InternalEvent;
 
 #[cfg(unix)]
-pub mod unix;
+pub(crate) mod unix;
 #[cfg(windows)]
-pub mod windows;
+pub(crate) mod windows;
 
 /// An interface for trying to read an `InternalEvent` within an optional `Duration`.
 pub(crate) trait EventSource: Sync + Send {
     /// Tries to read an `InternalEvent` within the given duration.
     ///
-    /// This function takes in an optional duration.
-    /// * `None`: blocks indefinitely until an event is able to be read.
-    /// * `Some(duration)`: blocks for the given duration.
+    /// # Arguments
     ///
-    /// Returns:
-    /// `Ok(Some(event))`: in case an event is ready.
-    /// `Ok(None)`: in case an event is not ready.
+    /// * `timeout` - `None` block indefinitely until an event is available, `Some(duration)` blocks
+    ///               for the given timeout
+    ///
+    /// Returns `Ok(None)` if there's no event available and timeout expires.
     fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
 
-    /// Forces the `try_read` method to return `Ok(None)` immediately.
-    fn wake(&self);
+    /// Returns a `Waker` allowing to wake/force the `try_read` method to return `Ok(None)`.
+    #[cfg(feature = "event-stream")]
+    fn waker(&self) -> Waker;
 }

@@ -4,6 +4,8 @@ use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEve
 
 use crate::event::{sys::windows::WinApiPoll, Event};
 
+#[cfg(feature = "event-stream")]
+use super::super::sys::Waker;
 use super::super::{
     source::EventSource,
     sys::windows::{handle_key_event, handle_mouse_event},
@@ -64,7 +66,8 @@ impl EventSource for WindowsEventSource {
         }
     }
 
-    fn wake(&self) {
-        let _ = self.poll.cancel();
+    #[cfg(feature = "event-stream")]
+    fn waker(&self) -> Waker {
+        self.poll.waker()
     }
 }

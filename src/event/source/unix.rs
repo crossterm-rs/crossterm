@@ -1,11 +1,11 @@
-use std::collections::VecDeque;
-use std::{io, time::Duration};
-
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
 use signal_hook::iterator::Signals;
+use std::{collections::VecDeque, time::Duration};
 
 use crate::Result;
 
+#[cfg(feature = "event-stream")]
+use super::super::sys::Waker;
 use super::super::{
     source::EventSource,
     sys::unix::{parse_event, tty_fd, FileDesc},
@@ -16,28 +16,13 @@ use super::super::{
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
 const SIGNAL_TOKEN: Token = Token(1);
+#[cfg(feature = "event-stream")]
 const WAKE_TOKEN: Token = Token(2);
 
 // I (@zrzka) wasn't able to read more than 1_022 bytes when testing
 // reading on macOS/Linux -> we don't need bigger buffer and 1k of bytes
 // is enough.
 const TTY_BUFFER_SIZE: usize = 1_204;
-
-/// Creates a new pipe and returns `(read, write)` file descriptors.
-fn pipe() -> Result<(FileDesc, FileDesc)> {
-    let (read_fd, write_fd) = unsafe {
-        let mut pipe_fds: [libc::c_int; 2] = [0; 2];
-        if libc::pipe(pipe_fds.as_mut_ptr()) == -1 {
-            return Err(io::Error::last_os_error().into());
-        }
-        (pipe_fds[0], pipe_fds[1])
-    };
-
-    let read_fd = FileDesc::new(read_fd, true);
-    let write_fd = FileDesc::new(write_fd, true);
-
-    Ok((read_fd, write_fd))
-}
 
 pub(crate) struct UnixInternalEventSource {
     poll: Poll,
@@ -46,8 +31,8 @@ pub(crate) struct UnixInternalEventSource {
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_fd: FileDesc,
     signals: Signals,
-    wake_read_fd: FileDesc,
-    wake_write_fd: FileDesc,
+    #[cfg(feature = "event-stream")]
+    waker: Waker,
 }
 
 impl UnixInternalEventSource {
@@ -81,15 +66,10 @@ impl UnixInternalEventSource {
         let signals = Signals::new(&[signal_hook::SIGWINCH])?;
         poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
 
-        let (wake_read_fd, wake_write_fd) = pipe()?;
-        let wake_read_raw_fd = wake_read_fd.raw_fd();
-        let wake_read_ev = EventedFd(&wake_read_raw_fd);
-        poll.register(
-            &wake_read_ev,
-            WAKE_TOKEN,
-            Ready::readable(),
-            PollOpt::level(),
-        )?;
+        #[cfg(feature = "event-stream")]
+        let waker = Waker::new()?;
+        #[cfg(feature = "event-stream")]
+        poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
 
         Ok(UnixInternalEventSource {
             poll,
@@ -98,8 +78,8 @@ impl UnixInternalEventSource {
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_fd: input_fd,
             signals,
-            wake_read_fd,
-            wake_write_fd,
+            #[cfg(feature = "event-stream")]
+            waker,
         })
     }
 }
@@ -164,13 +144,14 @@ impl EventSource for UnixInternalEventSource {
                             };
                         }
                     }
+                    #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
-                        // Something happened on the self pipe. Try to read single byte
-                        // (see wake() fn) and ignore result. If we can't read the byte,
-                        // mio Poll::poll will fire another event with WAKE_TOKEN.
-                        let mut buf = [0u8; 1];
-                        let _ = self.wake_read_fd.read(&mut buf, 1);
-                        return Ok(None);
+                        let _ = self.waker.reset();
+                        return Err(std::io::Error::new(
+                            std::io::ErrorKind::Interrupted,
+                            "Poll operation was woken up by `Waker::wake`",
+                        )
+                        .into());
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
@@ -183,12 +164,9 @@ impl EventSource for UnixInternalEventSource {
         }
     }
 
-    fn wake(&self) {
-        // DO NOT write more than 1 byte. See try_read & WAKE_TOKEN
-        // handling - it reads just 1 byte. If you write more than
-        // 1 byte, lets say N, then the try_read will be woken up
-        // N times.
-        let _ = self.wake_write_fd.write(&[0x57]);
+    #[cfg(feature = "event-stream")]
+    fn waker(&self) -> Waker {
+        self.waker.clone()
     }
 }
 
