@@ -148,8 +148,8 @@ impl EventSource for UnixInternalEventSource {
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
                         let _ = self.waker.reset();
-                        return Err(io::Error::new(
-                            io::ErrorKind::Interrupted,
+                        return Err(std::io::Error::new(
+                            std::io::ErrorKind::Interrupted,
                             "Poll operation was woken up by `Waker::wake`",
                         )
                         .into());
