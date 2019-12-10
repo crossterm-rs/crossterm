@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use std::time::Duration;
-use std::io;
 use mio::{Events, Poll, PollOpt, Ready, Token, unix::EventedFd};
 use signal_hook::iterator::Signals;
 
