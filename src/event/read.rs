@@ -1,13 +1,14 @@
-use std::{collections::vec_deque::VecDeque, time::Duration};
+use std::{collections::vec_deque::VecDeque, io, time::Duration};
+
+use crate::ErrorKind;
 
 #[cfg(unix)]
 use super::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
 use super::source::windows::WindowsEventSource;
-use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
-
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
+use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -64,9 +65,9 @@ impl InternalEventReader {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            let maybe_event = match event_source.try_read(timeout)? {
-                None => None,
-                Some(event) => {
+            let maybe_event = match event_source.try_read(timeout) {
+                Ok(None) => None,
+                Ok(Some(event)) => {
                     if filter.eval(&event) {
                         Some(event)
                     } else {
@@ -74,6 +75,14 @@ impl InternalEventReader {
                         None
                     }
                 }
+                Err(ErrorKind::IoError(e)) => {
+                    if e.kind() == io::ErrorKind::Interrupted {
+                        return Ok(false);
+                    }
+
+                    return Err(ErrorKind::IoError(e));
+                }
+                Err(e) => return Err(e),
             };
 
             if poll_timeout.elapsed() || maybe_event.is_some() {

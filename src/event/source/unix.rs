@@ -1,14 +1,11 @@
-use std::collections::VecDeque;
-use std::time::Duration;
-
 use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
 use signal_hook::iterator::Signals;
+use std::{collections::VecDeque, time::Duration};
 
 use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
-
 use super::super::{
     source::EventSource,
     sys::unix::{parse_event, tty_fd, FileDesc},
@@ -150,7 +147,11 @@ impl EventSource for UnixInternalEventSource {
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
                         let _ = self.waker.reset();
-                        return Ok(None);
+                        return Err(std::io::Error::new(
+                            std::io::ErrorKind::Interrupted,
+                            "Poll operation was woken up by `Waker::wake`",
+                        )
+                        .into());
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }

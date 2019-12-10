@@ -4,15 +4,14 @@ use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEve
 
 use crate::event::{sys::windows::WinApiPoll, Event};
 
+#[cfg(feature = "event-stream")]
+use super::super::sys::Waker;
 use super::super::{
     source::EventSource,
     sys::windows::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,
     InternalEvent, Result,
 };
-
-#[cfg(feature = "event-stream")]
-use super::super::sys::Waker;
 
 pub(crate) struct WindowsEventSource {
     console: Console,

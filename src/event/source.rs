@@ -1,9 +1,8 @@
 use std::time::Duration;
 
-use super::InternalEvent;
-
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
+use super::InternalEvent;
 
 #[cfg(unix)]
 pub(crate) mod unix;

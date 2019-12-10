@@ -13,12 +13,11 @@ use futures::{
     Stream,
 };
 
-use super::sys::Waker;
-
 use crate::Result;
 
 use super::{
-    filter::EventFilter, poll_internal, read_internal, Event, InternalEvent, INTERNAL_EVENT_READER,
+    filter::EventFilter, poll_internal, read_internal, sys::Waker, Event, InternalEvent,
+    INTERNAL_EVENT_READER,
 };
 
 /// A stream of `Result<Event>`.
