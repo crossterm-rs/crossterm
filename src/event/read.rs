@@ -78,7 +78,6 @@ impl InternalEventReader {
                 }
                 Err(ErrorKind::IoError(e)) => {
                     if e.kind() == io::ErrorKind::Interrupted {
-                        println!("interupted");
                         return Ok(false);
                     }
 

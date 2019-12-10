@@ -152,7 +152,11 @@ impl EventSource for UnixInternalEventSource {
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
                         let _ = self.waker.reset();
-                        return Err(io::Error::new(ErrorKind::Interrupted, "Waker is woken.").into());
+                        return Err(io::Error::new(
+                            io::ErrorKind::Interrupted,
+                            "Poll operation was woken up by `Waker::wake`",
+                        )
+                        .into());
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }

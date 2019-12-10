@@ -292,7 +292,11 @@ impl WinApiPoll {
             output if output == WAIT_OBJECT_0 + 1 => {
                 // semaphore handle triggered
                 let _ = self.waker.reset();
-                Err(io::Error::new(io::ErrorKind::Interrupted, "Waker is woken.").into())
+                Err(io::Error::new(
+                    io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                )
+                .into())
             }
             WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
                 // timeout elapsed
