@@ -1,6 +1,7 @@
-//
-// cargo run --example event-poll-read
-//
+//! Demonstrates how to match on modifiers like: Control, alt, shift.
+//!
+//! cargo run --example event-poll-read
+
 use std::{
     io::{stdout, Write},
     time::Duration,

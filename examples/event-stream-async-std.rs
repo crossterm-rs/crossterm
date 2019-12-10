@@ -1,6 +1,7 @@
-//
-// cargo run --features event-stream --example event-stream-async-std
-//
+//! Demonstrates how to read events asynchronously with async-std.
+//!
+//! cargo run --example event-read-char-line
+
 use std::{
     io::{stdout, Write},
     time::Duration,

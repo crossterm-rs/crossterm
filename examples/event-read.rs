@@ -1,6 +1,7 @@
-//
-// cargo run --example event-read
-//
+//! Demonstrates how to block read events.
+//!
+//! cargo run --example event-read
+
 use std::io::{stdout, Write};
 
 use crossterm::{

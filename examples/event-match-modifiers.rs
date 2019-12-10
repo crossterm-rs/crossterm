@@ -1,6 +1,7 @@
-//
-// cargo run --example event-match-modifiers
-//
+//! Demonstrates how to match on modifiers like: Control, alt, shift.
+//!
+//! cargo run --example event-match-modifiers
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
 fn match_event(read_event: Event) {

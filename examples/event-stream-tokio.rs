@@ -1,6 +1,7 @@
-//
-// cargo run --features event-stream --example event-stream-tokio
-//
+//! Demonstrates how to read events asynchronously with tokio.
+//!
+//! cargo run --features event-stream --example event-stream-tokio
+
 use std::{
     io::{stdout, Write},
     time::Duration,
