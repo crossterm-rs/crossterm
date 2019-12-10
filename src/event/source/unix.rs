@@ -15,6 +15,8 @@ use super::super::{
     timeout::PollTimeout,
     Event, InternalEvent,
 };
+use futures::io;
+use futures::io::ErrorKind;
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
@@ -150,7 +152,7 @@ impl EventSource for UnixInternalEventSource {
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
                         let _ = self.waker.reset();
-                        return Ok(None);
+                        Err(io::Error::new(ErrorKind::Interrupted, "Waker is woken.")).into()
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }

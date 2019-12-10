@@ -1,4 +1,4 @@
-use std::{collections::vec_deque::VecDeque, time::Duration};
+use std::{collections::vec_deque::VecDeque, io, time::Duration};
 
 #[cfg(unix)]
 use super::source::unix::UnixInternalEventSource;
@@ -8,6 +8,8 @@ use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalE
 
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
+
+use crate::ErrorKind;
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
@@ -64,9 +66,9 @@ impl InternalEventReader {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            let maybe_event = match event_source.try_read(timeout)? {
-                None => None,
-                Some(event) => {
+            let maybe_event = match event_source.try_read(timeout) {
+                Ok(None) => None,
+                Ok(Some(event)) => {
                     if filter.eval(&event) {
                         Some(event)
                     } else {
@@ -74,6 +76,15 @@ impl InternalEventReader {
                         None
                     }
                 }
+                Err(ErrorKind::IoError(e)) => {
+                    if e.kind() == io::ErrorKind::Interrupted {
+                        println!("interupted");
+                        return Ok(false);
+                    }
+
+                    return Err(ErrorKind::IoError(e));
+                }
+                Err(e) => return Err(e),
             };
 
             if poll_timeout.elapsed() || maybe_event.is_some() {
@@ -84,9 +95,6 @@ impl InternalEventReader {
                     return Ok(true);
                 }
 
-                return Ok(false);
-            } else if !poll_timeout.elapsed() && maybe_event.is_none() {
-                // if there is no timeout, and we didn't get any event we can assume the poll method was woken by `Waker`.
                 return Ok(false);
             }
         }

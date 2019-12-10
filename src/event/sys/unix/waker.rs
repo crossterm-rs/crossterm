@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use mio::{Evented, Poll, PollOpt, Ready, Registration, SetReadiness, Token};
 
 use crate::Result;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 struct WakerInner {
     registration: Registration,

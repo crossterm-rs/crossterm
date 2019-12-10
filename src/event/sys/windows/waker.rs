@@ -31,7 +31,6 @@ impl Waker {
 
     /// Replaces the current semaphore with a new one allowing us to reuse the same `Waker`.
     pub(crate) fn reset(&self) -> Result<()> {
-        *self.inner.lock().unwrap() = Semaphore::new()?;
         Ok(())
     }
 

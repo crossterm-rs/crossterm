@@ -1,6 +1,6 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::{io, io::ErrorKind, sync::Mutex, time::Duration};
+use std::{io, sync::Mutex, time::Duration};
 
 use crossterm_winapi::{
     ConsoleMode, ControlKeyState, EventFlags, Handle, KeyEventRecord, MouseEvent, ScreenBuffer,
@@ -292,7 +292,7 @@ impl WinApiPoll {
             output if output == WAIT_OBJECT_0 + 1 => {
                 // semaphore handle triggered
                 let _ = self.waker.reset();
-                Ok(None)
+                Err(io::Error::new(io::ErrorKind::Interrupted, "Waker is woken.").into())
             }
             WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
                 // timeout elapsed
@@ -300,7 +300,7 @@ impl WinApiPoll {
             }
             WAIT_FAILED => Err(io::Error::last_os_error().into()),
             _ => Err(io::Error::new(
-                ErrorKind::Other,
+                io::ErrorKind::Other,
                 "WaitForMultipleObjects returned unexpected result.",
             )
             .into()),
