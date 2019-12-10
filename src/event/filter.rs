@@ -50,7 +50,7 @@ impl Filter for InternalEventFilter {
 #[cfg(unix)]
 mod tests {
     use super::{
-        CursorPositionFilter, EventFilter, Filter, InternalEvent, InternalEventFilter, super::Event,
+        super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent, InternalEventFilter,
     };
 
     #[test]

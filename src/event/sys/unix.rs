@@ -9,8 +9,8 @@ use libc::size_t;
 pub(crate) use waker::Waker;
 
 use crate::{
-    ErrorKind,
-    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent}, Result,
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
+    ErrorKind, Result,
 };
 
 use super::super::InternalEvent;

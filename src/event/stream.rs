@@ -1,24 +1,24 @@
 use std::{
     pin::Pin,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
     thread,
     time::Duration,
 };
 
 use futures::{
-    Stream,
     task::{Context, Poll},
+    Stream,
 };
 
 use crate::Result;
 
-use super::{
-    Event, filter::EventFilter, INTERNAL_EVENT_READER, InternalEvent, poll_internal, read_internal,
-};
 use super::sys::Waker;
+use super::{
+    filter::EventFilter, poll_internal, read_internal, Event, InternalEvent, INTERNAL_EVENT_READER,
+};
 
 /// A stream of `Result<Event>`.
 ///

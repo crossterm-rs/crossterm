@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    event::{filter::CursorPositionFilter, InternalEvent, poll_internal, read_internal},
+    event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
     terminal::{disable_raw_mode, enable_raw_mode, sys::is_raw_mode_enabled},
     utils::Result,
 };

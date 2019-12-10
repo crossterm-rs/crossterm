@@ -2,16 +2,16 @@ use std::time::Duration;
 
 use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
 
-use crate::event::{Event, sys::windows::WinApiPoll};
+use crate::event::{sys::windows::WinApiPoll, Event};
 
-use super::super::{
-    InternalEvent,
-    Result,
-    source::EventSource,
-    sys::windows::{handle_key_event, handle_mouse_event}, timeout::PollTimeout,
-};
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
+use super::super::{
+    source::EventSource,
+    sys::windows::{handle_key_event, handle_mouse_event},
+    timeout::PollTimeout,
+    InternalEvent, Result,
+};
 
 pub(crate) struct WindowsEventSource {
     console: Console,

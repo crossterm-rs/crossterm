@@ -2,13 +2,13 @@
 use std::{mem, process, sync::Mutex};
 
 use libc::{
-    cfmakeraw, ioctl, STDIN_FILENO, STDOUT_FILENO, tcgetattr, TCSANOW, tcsetattr,
-    termios as Termios, TIOCGWINSZ, winsize,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
+    STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
 };
 
 use lazy_static::lazy_static;
 
-use crate::utils::{Result, sys::unix::wrap_with_result};
+use crate::utils::{sys::unix::wrap_with_result, Result};
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode
