@@ -1,0 +1,13 @@
+[package]
+name = "interactive-demo"
+version = "0.0.1"
+authors = ["T. Post", "Robert Vojta <rvojta@me.com>"]
+edition = "2018"
+description = "Interactive demo for crossterm."
+license = "MIT"
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+publish = false
+
+[dependencies]
+crossterm = { path = "../../" }

@@ -1,6 +1,7 @@
-//
-// cargo run --example event-read
-//
+//! Demonstrates how to block read events.
+//!
+//! cargo run --example event-read
+
 use std::io::{stdout, Write};
 
 use crossterm::{
@@ -22,7 +23,7 @@ fn print_events() -> Result<()> {
         // Blocking read
         let event = read()?;
 
-        println!("Event::{:?}\r", event);
+        println!("Event: {:?}\r", event);
 
         if event == Event::Key(KeyCode::Char('c').into()) {
             println!("Cursor position: {:?}\r", position());
