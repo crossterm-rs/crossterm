@@ -1,5 +1,5 @@
-pub(crate) use self::colored::Colored;
 pub use self::{attribute::Attribute, color::Color};
+pub(crate) use self::colored::Colored;
 
 mod attribute;
 mod color;

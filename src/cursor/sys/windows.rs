@@ -2,10 +2,10 @@
 
 use std::{io, sync::Mutex};
 
-use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
+use crossterm_winapi::{Coord, Handle, HandleType, is_true, ScreenBuffer};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+    um::wincon::{CONSOLE_CURSOR_INFO, COORD, SetConsoleCursorInfo, SetConsoleCursorPosition},
 };
 
 use lazy_static::lazy_static;

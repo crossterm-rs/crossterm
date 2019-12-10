@@ -5,15 +5,15 @@ use std::{
 
 use libc::size_t;
 
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
+
 use crate::{
-    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent},
-    ErrorKind, Result,
+    ErrorKind,
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent}, Result,
 };
 
 use super::super::InternalEvent;
-
-#[cfg(feature = "event-stream")]
-pub(crate) use waker::Waker;
 
 #[cfg(feature = "event-stream")]
 mod waker;

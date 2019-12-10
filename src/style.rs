@@ -112,17 +112,17 @@
 
 use std::{env, fmt::Display};
 
+use crate::{impl_display, utils::Command};
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, utils::Command};
 
-pub(crate) use self::enums::Colored;
 pub use self::{
     content_style::ContentStyle,
     enums::{Attribute, Color},
     styled_content::StyledContent,
     traits::{Colorize, Styler},
 };
+pub(crate) use self::enums::Colored;
 
 #[macro_use]
 mod macros;

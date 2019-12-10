@@ -44,9 +44,9 @@
 
 pub use sys::position;
 
+use crate::{impl_display, utils::Command};
 #[cfg(windows)]
 use crate::utils::Result;
-use crate::{impl_display, utils::Command};
 
 mod ansi;
 pub(crate) mod sys;
@@ -361,7 +361,7 @@ mod tests {
     use crate::execute;
 
     use super::{
-        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+        MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, position, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

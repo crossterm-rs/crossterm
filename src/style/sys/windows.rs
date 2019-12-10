@@ -181,7 +181,7 @@ mod tests {
     use crate::style::sys::windows::set_foreground_color;
 
     use super::{
-        Color, Colored, BG_INTENSITY, BG_RED, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
+        BG_INTENSITY, BG_RED, Color, Colored, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
     };
 
     #[test]

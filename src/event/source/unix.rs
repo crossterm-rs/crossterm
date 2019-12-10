@@ -1,22 +1,19 @@
 use std::collections::VecDeque;
 use std::time::Duration;
-
-use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
+use std::io;
+use mio::{Events, Poll, PollOpt, Ready, Token, unix::EventedFd};
 use signal_hook::iterator::Signals;
 
 use crate::Result;
 
+use super::super::{
+    Event,
+    InternalEvent,
+    source::EventSource,
+    sys::unix::{FileDesc, parse_event, tty_fd}, timeout::PollTimeout,
+};
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
-
-use super::super::{
-    source::EventSource,
-    sys::unix::{parse_event, tty_fd, FileDesc},
-    timeout::PollTimeout,
-    Event, InternalEvent,
-};
-use futures::io;
-use futures::io::ErrorKind;
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);

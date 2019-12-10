@@ -1,5 +1,6 @@
-use super::sys::windows::set_virtual_terminal_processing;
 use lazy_static::lazy_static;
+
+use super::sys::windows::set_virtual_terminal_processing;
 
 lazy_static! {
     static ref SUPPORTS_ANSI_ESCAPE_CODES: bool = {

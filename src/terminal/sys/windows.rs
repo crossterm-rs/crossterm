@@ -5,7 +5,7 @@ use winapi::{
     um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
 };
 
-use crate::{cursor, terminal::ClearType, utils::Result, ErrorKind};
+use crate::{cursor, ErrorKind, terminal::ClearType, utils::Result};
 
 const RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
 

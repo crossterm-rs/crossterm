@@ -86,9 +86,9 @@ use crossterm_winapi::{Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use crate::{impl_display, Result};
 #[doc(no_inline)]
 use crate::utils::Command;
-use crate::{impl_display, Result};
 
 mod ansi;
 pub(crate) mod sys;
@@ -315,7 +315,7 @@ mod tests {
 
     use crate::execute;
 
-    use super::{size, SetSize};
+    use super::{SetSize, size};
 
     // Test is disabled, because it's failing on Travis CI
     #[test]

@@ -22,13 +22,13 @@ use winapi::{
 };
 
 use lazy_static::lazy_static;
+#[cfg(feature = "event-stream")]
+pub(crate) use waker::Waker;
 
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
     Result,
 };
-#[cfg(feature = "event-stream")]
-pub(crate) use waker::Waker;
 
 #[cfg(feature = "event-stream")]
 mod waker;

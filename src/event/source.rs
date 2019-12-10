@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use super::InternalEvent;
-
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
 
