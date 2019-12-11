@@ -1,5 +1,5 @@
 //! UNIX related logic for terminal manipulation.
-use std::{mem, process, sync::Mutex};
+use std::{io, mem, process, sync::Mutex};
 
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
@@ -8,7 +8,7 @@ use libc::{
 
 use lazy_static::lazy_static;
 
-use crate::utils::{sys::unix::wrap_with_result, Result};
+use crate::error::{ErrorKind, Result};
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode
@@ -119,4 +119,12 @@ fn get_terminal_attr() -> Result<Termios> {
 
 fn set_terminal_attr(termios: &Termios) -> Result<bool> {
     wrap_with_result(unsafe { tcsetattr(STDIN_FILENO, TCSANOW, termios) })
+}
+
+pub fn wrap_with_result(result: i32) -> Result<bool> {
+    if result == -1 {
+        Err(ErrorKind::IoError(io::Error::last_os_error()))
+    } else {
+        Ok(true)
+    }
 }

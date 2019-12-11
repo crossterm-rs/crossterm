@@ -5,7 +5,7 @@ use winapi::um::wincon;
 
 use lazy_static::lazy_static;
 
-use crate::utils::Result;
+use crate::Result;
 
 use super::super::{Color, Colored};
 

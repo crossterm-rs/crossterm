@@ -10,7 +10,7 @@ use winapi::{
 
 use lazy_static::lazy_static;
 
-use crate::utils::Result;
+use crate::Result;
 
 lazy_static! {
     static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);

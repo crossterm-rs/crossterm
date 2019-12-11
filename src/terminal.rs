@@ -87,7 +87,7 @@ use crossterm_winapi::{Handle, ScreenBuffer};
 use serde::{Deserialize, Serialize};
 
 #[doc(no_inline)]
-use crate::utils::Command;
+use crate::Command;
 use crate::{impl_display, Result};
 
 mod ansi;
@@ -345,7 +345,7 @@ mod tests {
         #[cfg(windows)]
         {
             if cfg!(target_os = "windows") {
-                use crate::utils::sys::windows::set_virtual_terminal_processing;
+                use crate::ansi_support::set_virtual_terminal_processing;
 
                 // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
                 match set_virtual_terminal_processing(true) {
