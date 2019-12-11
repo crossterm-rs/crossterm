@@ -2,9 +2,9 @@
 
 use std::sync::Mutex;
 
-use lazy_static::lazy_static;
-
 use crossterm_winapi::{ConsoleMode, Handle};
+
+use lazy_static::lazy_static;
 
 use crate::Result;
 

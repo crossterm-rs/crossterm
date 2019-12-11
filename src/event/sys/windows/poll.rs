@@ -1,11 +1,7 @@
-use crate::Result;
-use crossterm_winapi::Handle;
+use std::io;
 use std::time::Duration;
 
-#[cfg(feature = "event-stream")]
-pub(crate) use super::waker::Waker;
-
-use std::io;
+use crossterm_winapi::Handle;
 use winapi::{
     shared::winerror::WAIT_TIMEOUT,
     um::{
@@ -13,6 +9,11 @@ use winapi::{
         winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
     },
 };
+
+use crate::Result;
+
+#[cfg(feature = "event-stream")]
+pub(crate) use super::waker::Waker;
 
 pub(crate) struct WinApiPoll {
     #[cfg(feature = "event-stream")]

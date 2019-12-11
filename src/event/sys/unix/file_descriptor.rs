@@ -3,8 +3,9 @@ use std::{
     os::unix::io::{IntoRawFd, RawFd},
 };
 
-use crate::{ErrorKind, Result};
 use libc::size_t;
+
+use crate::{ErrorKind, Result};
 
 /// A file descriptor wrapper.
 ///

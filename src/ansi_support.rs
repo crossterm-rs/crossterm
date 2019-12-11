@@ -1,7 +1,7 @@
-use lazy_static::lazy_static;
-
 use crossterm_winapi::ConsoleMode;
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+use lazy_static::lazy_static;
 
 use crate::Result;
 
