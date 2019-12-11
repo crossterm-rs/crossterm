@@ -114,7 +114,7 @@ use std::{env, fmt::Display};
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, utils::Command};
+use crate::{impl_display, Command};
 
 pub(crate) use self::enums::Colored;
 pub use self::{

@@ -227,7 +227,10 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use utils::{Command, ErrorKind, ExecutableCommand, QueueableCommand, Result};
+pub use crate::{
+    command::{Command, ExecutableCommand, QueueableCommand},
+    error::{ErrorKind, Result},
+};
 
 /// A module to work with the terminal cursor
 pub mod cursor;
@@ -237,5 +240,9 @@ pub mod event;
 pub mod style;
 /// A module to work with the terminal.
 pub mod terminal;
-/// Shared utilities.
-pub mod utils;
+
+#[cfg(windows)]
+pub(crate) mod ansi_support;
+mod command;
+mod error;
+pub(crate) mod macros;

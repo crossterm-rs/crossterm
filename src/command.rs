@@ -35,7 +35,7 @@ pub trait Command {
     /// can be found [here](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
     #[cfg(windows)]
     fn is_ansi_code_supported(&self) -> bool {
-        super::functions::supports_ansi()
+        super::ansi_support::supports_ansi()
     }
 }
 

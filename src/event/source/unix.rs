@@ -8,7 +8,10 @@ use crate::Result;
 use super::super::sys::Waker;
 use super::super::{
     source::EventSource,
-    sys::unix::{parse_event, tty_fd, FileDesc},
+    sys::unix::{
+        file_descriptor::FileDesc,
+        parse::{parse_event, tty_fd},
+    },
     timeout::PollTimeout,
     Event, InternalEvent,
 };

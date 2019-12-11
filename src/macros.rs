@@ -208,9 +208,9 @@ macro_rules! impl_from {
 mod tests {
     use std::io::{stdout, Write};
 
-    use crate::utils::command::Command;
+    use crate::crate::command::Command;
     #[cfg(windows)]
-    use crate::utils::error::ErrorKind;
+    use crate::crate::error::ErrorKind;
 
     pub struct FakeCommand;
 

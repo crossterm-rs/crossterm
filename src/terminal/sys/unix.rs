@@ -8,7 +8,7 @@ use libc::{
 
 use lazy_static::lazy_static;
 
-use crate::utils::{sys::unix::wrap_with_result, Result};
+use crate::crate::{sys::unix::wrap_with_result, Result};
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode
