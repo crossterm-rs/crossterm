@@ -8,10 +8,11 @@
 
 use std::io::{stderr, Write};
 
-use crossterm::event::{Event, KeyCode, KeyEvent};
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
-    event, execute, queue,
+    event,
+    event::{Event, KeyCode, KeyEvent},
+    execute, queue,
     style::Print,
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
     Result,

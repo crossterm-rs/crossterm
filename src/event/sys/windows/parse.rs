@@ -9,8 +9,10 @@ use winapi::um::{
     },
 };
 
-use crate::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton};
-use crate::Result;
+use crate::{
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton},
+    Result,
+};
 
 pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Result<Option<Event>> {
     if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event) {
