@@ -3,7 +3,7 @@ use crate::{
     ErrorKind, Result,
 };
 
-use super::super::InternalEvent;
+use super::super::super::InternalEvent;
 use std::io;
 
 // Event parsing

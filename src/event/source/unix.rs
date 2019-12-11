@@ -9,8 +9,8 @@ use super::super::sys::Waker;
 use super::super::{
     source::EventSource,
     sys::unix::{
-        file_descriptor::FileDesc,
-        parse::{parse_event, tty_fd},
+        file_descriptor::{tty_fd, FileDesc},
+        parse::parse_event,
     },
     timeout::PollTimeout,
     Event, InternalEvent,

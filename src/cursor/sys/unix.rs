@@ -4,9 +4,9 @@ use std::{
 };
 
 use crate::{
-    crate::Result,
     event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
     terminal::{disable_raw_mode, enable_raw_mode, sys::is_raw_mode_enabled},
+    Result,
 };
 
 /// Returns the cursor position (column, row).
