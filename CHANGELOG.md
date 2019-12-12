@@ -14,11 +14,11 @@
 - Merge `screen` module into `terminal`  
     - Remove `screen::AlternateScreen`
     - Remove `screen::Rawscreen`
-     * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
+      * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
     - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
     - Replace `utils::Output` command with `style::Print` command
-- Fix enable/disable mouse capture commands on Windows.
-- `queue!` & `execute!` macros allow trailing comma
+- Fix enable/disable mouse capture commands on Windows
+- Allow trailing comma `queue!` & `execute!` macros  
 
 # Version 0.13.3
 
