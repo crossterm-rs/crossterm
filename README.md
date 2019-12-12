@@ -49,33 +49,36 @@ repository. Sorry for the inconvenience.
 - Multi-threaded (send, sync)
 - Detailed documentation
 - Few dependencies
-- Full control over output buffer
-- Cursor (feature `cursor`)
+- Full control over writing and flushing output buffer
+- Cursor 
     - Move the cursor N times (up, down, left, right)
+    - Move to previous / next line
+    - Move to column
     - Set/get the cursor position
     - Store the cursor position and restore to it later
     - Hide/show the cursor
     - Enable/disable cursor blinking (not all terminals do support this feature)
-- Styled output (feature `style`)
+- Styled output 
     - Foreground color (16 base colors)
     - Background color (16 base colors)
     - 256 (ANSI) color support (Windows 10 and UNIX only)
     - RGB color support (Windows 10 and UNIX only)
-    - Text attributes like bold, italic, underscore, crossed, etc.
-- Terminal (feature `terminal`)
+    - Text attributes like bold, italic, underscore, crossed, etc
+- Terminal 
     - Clear (all lines, current line, from cursor down and up, until new line)
     - Scroll up, down
     - Set/get the terminal size
     - Exit current process
-- Input (feature `input`)
-    - Read character
-    - Read line
-    - Read key input events (async / sync)
-    - Read mouse input events (press, release, position, button)
-- Screen (feature `screen`)
     - Alternate screen
     - Raw screen   
-
+- Input 
+    - Input Events 
+    - Mouse Events (press, release, position, button, drag)
+    - Terminal Resize Events
+    - Advanced modifier (SHIFT | ALT | CTRL) support for both mouse and key events and
+    - futures Stream  (feature 'event-stream')
+    - Poll/read API
+    
 <!--
 WARNING: Do not change following heading title as it's used in the URL by other crates!
 -->
@@ -141,22 +144,18 @@ Checkout this [list](https://docs.rs/crossterm/0.13.0/crossterm/index.html#suppo
 
 ### Feature Flags
 
-All features are enabled by default. You can disable default features and enable some of them only.
+To optional feature flags.
 
 ```toml
 [dependencies.crossterm]
-version = "0.12"
+version = "0.14"
 default-features = false        # Disable default features
-features = ["cursor", "screen"] # Enable required features only
+features = ["event-stream"] # Enable required features only
 ```
 
 | Feature | Description |
 | :-- | :-- |
-| `input` | Sync/Async input readers |
-| `cursor` | Cursor manipulation |
-| `screen` | Alternate screen & raw mode |
-| `terminal` | Size, clear, scroll |
-| `style` | Colors, text attributes |
+| `event-stream` | `futures::Stream` producing `Result<Event>`.|
 
 ### Other Resources
 
@@ -172,18 +171,12 @@ features = ["cursor", "screen"] # Enable required features only
 
 ## Contributing
   
-I highly appreciate when anyone contributes to this crate. Before you do, please,
+We highly appreciate when anyone contributes to this crate. Before you do, please,
 read the [Contributing](docs/CONTRIBUTING.md) guidelines. 
 
 ## Authors
 
 * **Timon Post** - *Project Owner & creator*
-
-## Support
-
-Would you like Crossterm to be even more gorgeous and beautiful? You can help with this by donating. 
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2)
 
 ## License
 

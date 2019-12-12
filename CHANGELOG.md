@@ -1,20 +1,24 @@
-# Version Master
+# Version 0.14
 
-- `queue!` & `execute!` macros allow trailing comma
 - Replace the `input` module with brand new `event` module
-  - It's **highly recommended** to read the
+    - Terminal Resize Events
+    - Advanced modifier (SHIFT | ALT | CTRL) support for both mouse and key events and
+    - futures Stream  (feature 'event-stream')
+    - Poll/read API
+    - It's **highly recommended** to read the
     [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
-    documentation
+        documentation
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
-    - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
-    - Merge `screen` module into `terminal`  
+- Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
+- Merge `screen` module into `terminal`  
     - Remove `screen::AlternateScreen`
     - Remove `screen::Rawscreen`
      * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
     - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
     - Replace `utils::Output` command with `style::Print` command
-    - Fix enable/disable mouse capture commands on Windows.
+- Fix enable/disable mouse capture commands on Windows.
+- `queue!` & `execute!` macros allow trailing comma
 
 # Version 0.13.3
 
