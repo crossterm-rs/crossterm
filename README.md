@@ -108,7 +108,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.13"
+crossterm = "0.14"
 ```
 
 </details>
@@ -149,8 +149,7 @@ To optional feature flags.
 ```toml
 [dependencies.crossterm]
 version = "0.14"
-default-features = false        # Disable default features
-features = ["event-stream"] # Enable required features only
+features = ["event-stream"] 
 ```
 
 | Feature | Description |
