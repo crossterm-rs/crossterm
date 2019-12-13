@@ -12,10 +12,11 @@ The examples are compatible with the latest release.
 │   └── event-*
 │   └── stderr
 ```
-
-* `examples/interactive-test`, interactive demo
-* `event-*`, event reading demo
-* `stderr` , crossterm over stderr demo
+| File Name | Description | Topics
+| :------- | :------- | :------- |
+| `examples/interactive-test` | interactive, walk trough, demo | cursor, style, event
+| `event-*`| event reading demos | (async) event reading
+| `stderr` | crossterm over stderr demo, | raw mode, alternate screen, custom output
 
 ## Run examples
 

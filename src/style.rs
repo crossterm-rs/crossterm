@@ -4,7 +4,7 @@
 //!
 //! This documentation does not contain a lot of examples. The reason is that it's fairly
 //! obvious how to use this crate. Although, we do provide
-//! [examples](https://github.com/crossterm-rs/examples) repository
+//! [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) repository
 //! to demonstrate the capabilities.
 //!
 //! ## Platform-specific Notes
