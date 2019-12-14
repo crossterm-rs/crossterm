@@ -117,7 +117,11 @@ crossterm = "0.14"
 ```rust
 use std::io::{stdout, Write};
 
-use crossterm::{execute, ExecutableCommand, style::{Attribute, Color, SetForegroundColor, SetBackgroundColor, ResetColor, Print}, Result};
+use crossterm::{
+    execute,
+    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
+    ExecutableCommand, Result,
+};
 
 fn main() -> Result<()> {
     // using the macro
@@ -125,7 +129,7 @@ fn main() -> Result<()> {
         stdout(),
         SetForegroundColor(Color::Blue),
         SetBackgroundColor(Color::Red),
-        Output("Styled text here."),
+        Print("Styled text here."),
         ResetColor
     )?;
 
@@ -133,14 +137,14 @@ fn main() -> Result<()> {
     stdout()
         .execute(SetForegroundColor(Color::Blue))?
         .execute(SetBackgroundColor(Color::Red))?
-        .execute(Output("Styled text here."))?
+        .execute(Print("Styled text here."))?
         .execute(ResetColor)?;
 
     Ok(())
 }
 ```
 
-Checkout this [list](https://docs.rs/crossterm/0.13.0/crossterm/index.html#supported-commands) with all possible commands.
+Checkout this [list](https://docs.rs/crossterm/0.14.0/crossterm/index.html#supported-commands) with all possible commands.
 
 ### Feature Flags
 
