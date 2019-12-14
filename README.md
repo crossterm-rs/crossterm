@@ -144,7 +144,7 @@ fn main() -> Result<()> {
 }
 ```
 
-Checkout this [list](https://docs.rs/crossterm/0.13.0/crossterm/index.html#supported-commands) with all possible commands.
+Checkout this [list](https://docs.rs/crossterm/0.14.0/crossterm/index.html#supported-commands) with all possible commands.
 
 ### Feature Flags
 
