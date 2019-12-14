@@ -117,7 +117,11 @@ crossterm = "0.14"
 ```rust
 use std::io::{stdout, Write};
 
-use crossterm::{execute, ExecutableCommand, style::{Color, SetForegroundColor, SetBackgroundColor, ResetColor, Print}, Result};
+use crossterm::{
+    execute,
+    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
+    ExecutableCommand, Result,
+};
 
 fn main() -> Result<()> {
     // using the macro
