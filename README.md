@@ -125,7 +125,7 @@ fn main() -> Result<()> {
         stdout(),
         SetForegroundColor(Color::Blue),
         SetBackgroundColor(Color::Red),
-        Output("Styled text here."),
+        Print("Styled text here."),
         ResetColor
     )?;
 
@@ -133,7 +133,7 @@ fn main() -> Result<()> {
     stdout()
         .execute(SetForegroundColor(Color::Blue))?
         .execute(SetBackgroundColor(Color::Red))?
-        .execute(Output("Styled text here."))?
+        .execute(Print("Styled text here."))?
         .execute(ResetColor)?;
 
     Ok(())
