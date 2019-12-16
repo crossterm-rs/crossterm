@@ -24,6 +24,8 @@ The examples are compatible with the latest release.
 $ cargo run --example [file name]
 ```
 
+To run the interactive-demo go into the folder `examples/interactive-demo` and run `cargo run`.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.

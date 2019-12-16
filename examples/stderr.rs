@@ -5,6 +5,8 @@
 //!
 //! This particular example is only suited to Unix
 //! for now.
+//!
+//! cargo run --example stderr
 
 use std::io::{stderr, Write};
 
