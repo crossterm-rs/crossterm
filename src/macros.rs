@@ -32,14 +32,14 @@ macro_rules! handle_command {
 
         #[cfg(windows)]
         {
+            let command = $command;
             // ansi code is not always a string, however it does implement `Display` and `Write`.
             // In order to check if the code is supported we have to make it a string.
-            let ansi_code = format!("{}", $command.ansi_code());
-
-            if $command.is_ansi_code_supported() {
+            let ansi_code = format!("{}", command.ansi_code());
+            if command.is_ansi_code_supported() {
                 write_ansi_code!($writer, &ansi_code)
             } else {
-                $command.execute_winapi().map_err($crate::ErrorKind::from)
+                command.execute_winapi().map_err($crate::ErrorKind::from)
             }
         }
         #[cfg(unix)]
