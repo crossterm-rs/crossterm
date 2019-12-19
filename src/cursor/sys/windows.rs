@@ -16,12 +16,32 @@ lazy_static! {
     static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
 }
 
+// The 'y' position of the cursor is not relative to the window but absolute to screen buffer.
+// We can calculate the relative cursor position by subtracting the top position of the terminal window from the y position.
+// This results in an 1-based coord zo subtract 1 to make cursor position 0-based.
+pub fn parse_relative_y(y: i16) -> Result<i16> {
+    let window = ScreenBuffer::current()?.info()?;
+
+    let window_size = window.terminal_window();
+    let screen_size = window.terminal_size();
+
+    if y <= screen_size.height {
+        Ok(y)
+    } else {
+        Ok(y - window_size.top)
+    }
+}
+
 /// Returns the cursor position (column, row).
 ///
 /// The top left cell is represented `0,0`.
 pub fn position() -> Result<(u16, u16)> {
     let cursor = ScreenBufferCursor::output()?;
-    Ok(cursor.position()?.into())
+    let mut position = cursor.position()?;
+    //    if position.y != 0 {
+    position.y = parse_relative_y(position.y)?;
+    //    }
+    Ok(position.into())
 }
 
 pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {

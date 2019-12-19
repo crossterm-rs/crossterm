@@ -1,3 +1,7 @@
+# Version 0.14.1
+- Made windows cursor position relative to the window instead absolute to the screen buffer windows.
+- Fix windows bug with `queue` macro were it consumed a type and required an type to be `Copy`.
+
 # Version 0.14
 
 - Replace the `input` module with brand new `event` module
