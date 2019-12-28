@@ -11,6 +11,7 @@ use crate::impl_from;
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 
 /// Wrapper for all errors that can occur in `crossterm`.
+#[non_exhaustive]
 #[derive(Debug)]
 pub enum ErrorKind {
     IoError(io::Error),
@@ -18,9 +19,6 @@ pub enum ErrorKind {
     Utf8Error(std::string::FromUtf8Error),
     ParseIntError(std::num::ParseIntError),
     ResizingTerminalFailure(String),
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl std::error::Error for ErrorKind {
