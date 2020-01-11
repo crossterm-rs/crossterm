@@ -56,7 +56,6 @@ use super::super::SetAttribute;
 /// println!("{}", "Negative text".negative());
 /// ```
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Attribute {
     /// Resets all the attributes.
@@ -109,6 +108,8 @@ pub enum Attribute {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 impl Display for Attribute {
