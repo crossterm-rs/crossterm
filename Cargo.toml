@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.14.0"
+version = "0.14.2"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -34,9 +34,9 @@ event-stream = ["futures"]
 #
 [dependencies]
 bitflags = "1.2"
-futures = { version = "0.3", optional = true }
 lazy_static = "1.4"
 parking_lot = "0.10"
+futures = { version = "0.3", optional = true }
 serde = { version = "1.0.0", features = ["derive"], optional = true }
 
 #
