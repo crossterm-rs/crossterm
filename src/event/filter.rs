@@ -7,6 +7,7 @@ pub(crate) trait Filter: Send + Sync + 'static {
 }
 
 #[cfg(unix)]
+#[derive(Debug, Clone)]
 pub(crate) struct CursorPositionFilter;
 
 #[cfg(unix)]
@@ -20,6 +21,7 @@ impl Filter for CursorPositionFilter {
     }
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct EventFilter;
 
 impl Filter for EventFilter {
@@ -38,6 +40,7 @@ impl Filter for EventFilter {
     }
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct InternalEventFilter;
 
 impl Filter for InternalEventFilter {

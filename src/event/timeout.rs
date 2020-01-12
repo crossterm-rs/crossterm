@@ -1,6 +1,7 @@
 use std::time::{Duration, Instant};
 
 /// Keeps track of the elapsed time since the moment the polling started.
+#[derive(Debug, Clone)]
 pub struct PollTimeout {
     timeout: Option<Duration>,
     start: Instant,

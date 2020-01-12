@@ -161,7 +161,7 @@ pub fn poll(timeout: Duration) -> Result<bool> {
 ///         // Blocks until an `Event` is available
 ///         println!("{:?}", read()?);
 ///     }
-/// }   
+/// }
 /// ```
 ///
 /// Non-blocking read:
@@ -179,9 +179,9 @@ pub fn poll(timeout: Duration) -> Result<bool> {
 ///             println!("{:?}", read()?);
 ///         } else {
 ///             // Timeout expired, no `Event` is available
-///         }       
+///         }
 ///     }
-/// }   
+/// }
 /// ```
 pub fn read() -> Result<Event> {
     match read_internal(&EventFilter)? {
@@ -221,6 +221,7 @@ where
 /// A command that enables mouse event capturing.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
@@ -244,6 +245,7 @@ impl Command for EnableMouseCapture {
 /// A command that disables mouse event capturing.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
@@ -413,7 +415,7 @@ pub enum KeyCode {
 ///
 /// Encapsulates publicly available `Event` with additional internal
 /// events that shouldn't be publicly available to the crate users.
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone)]
+#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Eq)]
 pub(crate) enum InternalEvent {
     /// An event.
     Event(Event),

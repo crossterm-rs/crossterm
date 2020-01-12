@@ -6,6 +6,7 @@ use mio::{Evented, Poll, PollOpt, Ready, Registration, SetReadiness, Token};
 
 use crate::Result;
 
+#[derive(Debug)]
 struct WakerInner {
     registration: Registration,
     set_readiness: SetReadiness,
@@ -33,7 +34,7 @@ impl WakerInner {
 }
 
 /// Allows to wake up the `mio::Poll::poll()` method.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct Waker {
     inner: Arc<Mutex<WakerInner>>,
 }
