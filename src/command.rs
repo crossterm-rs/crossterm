@@ -39,6 +39,27 @@ pub trait Command {
     }
 }
 
+impl<T: Command> Command for &T {
+    type AnsiType = T::AnsiType;
+
+    #[inline]
+    fn ansi_code(&self) -> Self::AnsiType {
+        T::ansi_code(self)
+    }
+
+    #[inline]
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        T::execute_winapi(self)
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn is_ansi_code_supported(&self) -> bool {
+        T::is_ansi_code_supported(self)
+    }
+}
+
 /// An interface for commands that can be queued for further execution.
 pub trait QueueableCommand<T: Display>: Sized {
     /// Queues the given command for further execution.
