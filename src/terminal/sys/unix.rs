@@ -24,7 +24,7 @@ pub(crate) fn exit() {
     ::std::process::exit(0);
 }
 
-#[allow(identity_conversion)]
+#[allow(clippy::identity_conversion)]
 pub(crate) fn size() -> Result<(u16, u16)> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let mut size = winsize {
