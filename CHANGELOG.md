@@ -1,3 +1,7 @@
+# master
+- Added a generic implementation `Command` for `&T: Command`. This allows
+  commands to be queued by reference, as well as by value.
+
 # Version 0.14.2
 - Fix TIOCGWINSZ for FreeBSD
 
@@ -18,14 +22,14 @@
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
 - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
-- Merge `screen` module into `terminal`  
+- Merge `screen` module into `terminal`
     - Remove `screen::AlternateScreen`
     - Remove `screen::Rawscreen`
       * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
     - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
     - Replace `utils::Output` command with `style::Print` command
 - Fix enable/disable mouse capture commands on Windows
-- Allow trailing comma `queue!` & `execute!` macros  
+- Allow trailing comma `queue!` & `execute!` macros
 
 # Version 0.13.3
 
