@@ -10,13 +10,10 @@ macro_rules! csi {
 #[macro_export]
 macro_rules! write_ansi_code {
     ($writer:expr, $ansi_code:expr) => {{
-        use std::{
-            error::Error,
-            io::{self, ErrorKind},
-        };
+        use std::io::{self, ErrorKind};
 
         write!($writer, "{}", $ansi_code)
-            .map_err(|e| io::Error::new(ErrorKind::Other, e.description()))
+            .map_err(|e| io::Error::new(ErrorKind::Other, e))
             .map_err($crate::ErrorKind::IoError)
     }};
 }
@@ -33,11 +30,8 @@ macro_rules! handle_command {
         #[cfg(windows)]
         {
             let command = $command;
-            // ansi code is not always a string, however it does implement `Display` and `Write`.
-            // In order to check if the code is supported we have to make it a string.
-            let ansi_code = format!("{}", command.ansi_code());
             if command.is_ansi_code_supported() {
-                write_ansi_code!($writer, &ansi_code)
+                write_ansi_code!($writer, command.ansi_code())
             } else {
                 command.execute_winapi().map_err($crate::ErrorKind::from)
             }
@@ -51,7 +45,8 @@ macro_rules! handle_command {
 
 /// Queues one or more command(s) for further execution.
 ///
-/// Queued commands will be executed in the following cases:
+/// Queued commands must be flushed to the underlying device to be executed.
+/// This generally happens in the following cases:
 ///
 /// * When `flush` is called manually on the given type implementing `io::Write`.
 /// * The terminal will `flush` automatically if the buffer is full.
@@ -101,20 +96,11 @@ macro_rules! handle_command {
 ///
 #[macro_export]
 macro_rules! queue {
-    ($writer:expr, $($command:expr), * $(,)?) => {{
-        // Silent warning when the macro is used inside the `command` module
-        #[allow(unused_imports)]
-        use $crate::{Command, handle_command};
-
-        #[allow(unused_assignments)]
-        let mut error = Ok(());
-
-        $(
-            error = handle_command!($writer, $command);
+    ($writer:expr $(, $command:expr)* $(,)?) => {
+        Ok(()) $(
+            .and_then(|()| $crate::handle_command!($writer, $command))
         )*
-
-        error
-    }}
+    }
 }
 
 /// Executes one or more command(s).
@@ -160,24 +146,12 @@ macro_rules! queue {
 ///     and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
-    ($write:expr, $($command:expr), * $(,)? ) => {{
-        // Silent warning when the macro is used inside the `command` module
-        #[allow(unused_imports)]
-        use $crate::{handle_command, Command};
-
-        #[allow(unused_assignments)]
-        let mut error = Ok(());
-
-        $(
-            if let Err(e) = handle_command!($write, $command) {
-                error = Err(e);
-            }else {
-                $write.flush().map_err($crate::ErrorKind::IoError).unwrap();
-            }
-        )*
-
-        error
-    }}
+    ($writer:expr $(, $command:expr)* $(,)? ) => {
+        // Queue each command, then flush
+        $crate::queue!($writer $(, $command)*).and_then(|()| {
+            $writer.flush().map_err($crate::ErrorKind::IoError)
+        })
+    }
 }
 
 #[doc(hidden)]
@@ -206,36 +180,94 @@ macro_rules! impl_from {
 
 #[cfg(test)]
 mod tests {
-    use std::io::{stdout, Write};
+    // TODO: windows tests. This will involve mocking up a struct that
+    // gets modified by our faked execute_winapi function.
 
-    use crate::command::Command;
-    #[cfg(windows)]
-    use crate::error::ErrorKind;
+    #[cfg(not(windows))]
+    mod unix {
+        use std::io::{self, Write};
+        use std::str;
 
-    pub struct FakeCommand;
+        use crate::command::Command;
 
-    impl Command for FakeCommand {
-        type AnsiType = &'static str;
+        pub struct FakeCommand;
 
-        fn ansi_code(&self) -> Self::AnsiType {
-            ""
+        impl Command for FakeCommand {
+            type AnsiType = &'static str;
+
+            fn ansi_code(&self) -> Self::AnsiType {
+                "cmd"
+            }
         }
 
-        #[cfg(windows)]
-        fn execute_winapi(&self) -> Result<(), ErrorKind> {
-            Ok(())
+        // Helper for execute tests to confirm flush
+        #[derive(Default)]
+        pub struct FakeWrite {
+            buffer: String,
+            flushed: bool,
         }
-    }
 
-    #[test]
-    fn test_queue() {
-        assert!(queue!(stdout(), FakeCommand,).is_ok());
-        assert!(queue!(stdout(), FakeCommand).is_ok());
-    }
+        impl io::Write for FakeWrite {
+            fn write(&mut self, content: &[u8]) -> io::Result<usize> {
+                let content = str::from_utf8(content)
+                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+                self.buffer.push_str(content);
+                self.flushed = false;
+                Ok(content.len())
+            }
 
-    #[test]
-    fn test_execute() {
-        assert!(execute!(stdout(), FakeCommand,).is_ok());
-        assert!(execute!(stdout(), FakeCommand).is_ok());
+            fn flush(&mut self) -> io::Result<()> {
+                self.flushed = true;
+                Ok(())
+            }
+        }
+
+        #[test]
+        fn test_queue_one() {
+            let mut result = FakeWrite::default();
+            queue!(&mut result, FakeCommand).unwrap();
+            assert_eq!(&result.buffer, "cmd");
+            assert!(!result.flushed);
+        }
+
+        #[test]
+        fn test_queue_many() {
+            let mut result = FakeWrite::default();
+            queue!(&mut result, FakeCommand, FakeCommand).unwrap();
+            assert_eq!(&result.buffer, "cmdcmd");
+            assert!(!result.flushed);
+        }
+
+        #[test]
+        fn test_queue_trailing_comma() {
+            let mut result = FakeWrite::default();
+            queue!(&mut result, FakeCommand, FakeCommand,).unwrap();
+            assert_eq!(&result.buffer, "cmdcmd");
+            assert!(!result.flushed);
+        }
+
+        #[test]
+        fn test_execute_one() {
+            let mut result = FakeWrite::default();
+            execute!(&mut result, FakeCommand).unwrap();
+            assert_eq!(&result.buffer, "cmd");
+            assert!(result.flushed);
+        }
+
+        #[test]
+        fn test_execute_many() {
+            let mut result = FakeWrite::default();
+            execute!(&mut result, FakeCommand, FakeCommand).unwrap();
+            assert_eq!(&result.buffer, "cmdcmd");
+            assert!(result.flushed);
+        }
+
+        #[test]
+        fn test_execute_trailing_comma() {
+            let mut result = FakeWrite::default();
+            execute!(&mut result, FakeCommand, FakeCommand,).unwrap();
+            assert_eq!(&result.buffer, "cmdcmd");
+            assert!(result.flushed);
+        }
     }
 }

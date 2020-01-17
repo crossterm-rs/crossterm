@@ -1,6 +1,11 @@
 # master
-- Added a generic implementation `Command` for `&T: Command`. This allows
-  commands to be queued by reference, as well as by value.
+- Added a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
+- Removed unnecessary trait bounds from StyledContent.
+- Added `StyledContent::style_mut`.
+- `execute!` and `queue!` now correctly handle errors during writing.
+- Fixed minor syntax bug in `execute!` and `queue!`.
+- Cleaned up implementation of `execute!` and `queue!`.
+- **breaking change** Changed `ContentStyle::apply` to take self by value instead of reference, to prevent an unnecessary extra clone.
 
 # Version 0.14.2
 - Fix TIOCGWINSZ for FreeBSD
