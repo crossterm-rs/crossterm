@@ -352,9 +352,9 @@ mod tests {
                 // Both are populated
                 (false, false) => panic!(
                     "Both the writer and the event stream were written to.\n\
-                    Only one should be used, based on is_ansi_code_supported.\n\
-                      stream: {stream:?}\n\
-                      writer: {writer:?}",
+                     Only one should be used, based on is_ansi_code_supported.\n\
+                     stream: {stream:?}\n\
+                     writer: {writer:?}",
                     stream = stream,
                     writer = writer,
                 ),
