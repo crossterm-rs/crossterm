@@ -180,14 +180,35 @@ macro_rules! impl_from {
 
 #[cfg(test)]
 mod tests {
-    // TODO: windows tests. This will involve mocking up a struct that
-    // gets modified by our faked execute_winapi function.
+    use std::io;
+    use std::str;
+    // Helper for execute tests to confirm flush
+    #[derive(Default, Debug, Clone)]
+    pub(self) struct FakeWrite {
+        buffer: String,
+        flushed: bool,
+    }
+
+    impl io::Write for FakeWrite {
+        fn write(&mut self, content: &[u8]) -> io::Result<usize> {
+            let content = str::from_utf8(content)
+                .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+            self.buffer.push_str(content);
+            self.flushed = false;
+            Ok(content.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            self.flushed = true;
+            Ok(())
+        }
+    }
 
     #[cfg(not(windows))]
     mod unix {
-        use std::io::{self, Write};
-        use std::str;
+        use std::io::Write;
 
+        use super::FakeWrite;
         use crate::command::Command;
 
         pub struct FakeCommand;
@@ -197,28 +218,6 @@ mod tests {
 
             fn ansi_code(&self) -> Self::AnsiType {
                 "cmd"
-            }
-        }
-
-        // Helper for execute tests to confirm flush
-        #[derive(Default)]
-        pub struct FakeWrite {
-            buffer: String,
-            flushed: bool,
-        }
-
-        impl io::Write for FakeWrite {
-            fn write(&mut self, content: &[u8]) -> io::Result<usize> {
-                let content = str::from_utf8(content)
-                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-                self.buffer.push_str(content);
-                self.flushed = false;
-                Ok(content.len())
-            }
-
-            fn flush(&mut self) -> io::Result<()> {
-                self.flushed = true;
-                Ok(())
             }
         }
 
@@ -268,6 +267,157 @@ mod tests {
             execute!(&mut result, FakeCommand, FakeCommand,).unwrap();
             assert_eq!(&result.buffer, "cmdcmd");
             assert!(result.flushed);
+        }
+    }
+
+    #[cfg(windows)]
+    mod windows {
+        use std::io;
+
+        use super::FakeWrite;
+        use crate::command::Command;
+
+        // We need to test two different APIs: winapi and the write api. We
+        // don't know until runtime which we're supporting (via
+        // Command::is_ansi_code_supported), so we have to test them both. The
+        // CI environment hopefully includes both versions of windows.
+
+        // WindowsEventStream is a place for execute_winapi to push strings,
+        // when called.
+        type WindowsEventStream = Vec<&'static str>;
+
+        struct FakeCommand<'a> {
+            stream: &'a mut WindowsEventStream,
+            value: &'static str,
+        }
+
+        impl<'a> Command for FakeCommand<'a> {
+            type AnsiType = &'static str;
+
+            fn ansi_code(&self) -> Self::AnsiType {
+                self.value
+            }
+
+            fn execute_winapi(&self) -> Result<()> {
+                self.stream.push(self.value);
+                Ok(())
+            }
+        }
+
+        // Helper function for running tests against either winapi or an
+        // io::Write.
+        //
+        // This function will execute the `test` function, which should
+        // queue some commands against the given FakeWrite and
+        // WindowsEventStream. It will then test that the correct data sink
+        // was populated. It does not currently check is_ansi_code_supported;
+        // for now it simply checks that one of the two streams was correctly
+        // populated.
+        //
+        // If the stream was populated, it tests that the two arrays are equal.
+        // If the writer was populated, it tests that the contents of the
+        // write buffer are equal to the concatenation of `stream_result`.
+        fn test_harness(
+            stream_result: &[&'static str],
+            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream),
+        ) {
+            let stream = WindowsEventStream::default();
+            let writer = FakeWrite::default();
+
+            test(&mut writer, &mut stream);
+
+            // TODO: confirm that the correct sink was used, based on
+            // is_ansi_code_supported
+            match (writer.buffer.is_empty(), stream.is_empty()) {
+                (true, true) if stream_result == &[] => {}
+                (true, true) => panic!(
+                    "Neither the event stream nor the writer were populated. Expected {:?}",
+                    stream_result
+                ),
+
+                // writer is populated
+                (false, true) => {
+                    // Concat the stream result to find the string result
+                    let result: String = stream_result.iter().collect();
+                    assert_eq!(result, writer.result);
+                    assert_eq!(&stream, &[]);
+                }
+
+                // stream is populated
+                (true, false) => {
+                    assert_eq!(&stream, stream_result);
+                    assert_eq!(writer.buffer, "");
+                }
+
+                // Both are populated
+                (false, false) => panic!(
+                    "Both the writer and the event stream were written to.\n\
+                    Only one should be used, based on is_ansi_code_supported.\n\
+                      stream: {stream:?}\n\
+                      writer: {writer:?}",
+                    stream = stream,
+                    writer = writer,
+                ),
+            }
+        }
+
+        #[test]
+        fn test_queue_one() {
+            test_harness(&["cmd1"], |writer, stream| {
+                queue!(
+                    writer,
+                    FakeCommand {
+                        stream,
+                        value: "cmd1"
+                    }
+                );
+            })
+        }
+
+        #[test]
+        fn test_queue_some() {
+            test_harness(&["cmd1", "cmd2"], |writer, stream| {
+                queue!(
+                    writer,
+                    FakeCommand {
+                        stream,
+                        value: "cmd1",
+                    },
+                    FakeCommand {
+                        stream,
+                        value: "cmd2",
+                    }
+                );
+            })
+        }
+
+        #[test]
+        fn test_many_queues() {
+            test_harness(&["cmd1", "cmd2", "cmd3"], |writer, stream| {
+                queue!(
+                    writer,
+                    FakeCommand {
+                        stream,
+                        value: "cmd1"
+                    }
+                );
+
+                queue!(
+                    writer,
+                    FakeCommand {
+                        stream,
+                        value: "cmd2"
+                    }
+                );
+
+                queue!(
+                    writer,
+                    FakeCommand {
+                        stream,
+                        value: "cmd3"
+                    }
+                );
+            })
         }
     }
 }
