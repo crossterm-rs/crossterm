@@ -272,10 +272,13 @@ mod tests {
 
     #[cfg(windows)]
     mod windows {
-        use std::io;
+        use std::cell::RefCell;
+        use std::fmt::Debug;
+        use std::io::Write;
 
         use super::FakeWrite;
         use crate::command::Command;
+        use crate::error::Result as CrosstermResult;
 
         // We need to test two different APIs: winapi and the write api. We
         // don't know until runtime which we're supporting (via
@@ -287,8 +290,19 @@ mod tests {
         type WindowsEventStream = Vec<&'static str>;
 
         struct FakeCommand<'a> {
-            stream: &'a mut WindowsEventStream,
+            // Need to use a refcell because we want execute_winapi to be able
+            // push to the vector, but execute_winapi take &self.
+            stream: RefCell<&'a mut WindowsEventStream>,
             value: &'static str,
+        }
+
+        impl<'a> FakeCommand<'a> {
+            fn new(stream: &'a mut WindowsEventStream, value: &'static str) -> Self {
+                Self {
+                    value,
+                    stream: RefCell::new(stream),
+                }
+            }
         }
 
         impl<'a> Command for FakeCommand<'a> {
@@ -298,8 +312,8 @@ mod tests {
                 self.value
             }
 
-            fn execute_winapi(&self) -> Result<()> {
-                self.stream.push(self.value);
+            fn execute_winapi(&self) -> CrosstermResult<()> {
+                self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
         }
@@ -317,19 +331,24 @@ mod tests {
         // If the stream was populated, it tests that the two arrays are equal.
         // If the writer was populated, it tests that the contents of the
         // write buffer are equal to the concatenation of `stream_result`.
-        fn test_harness(
+        fn test_harness<E: Debug>(
             stream_result: &[&'static str],
-            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream),
+            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> Result<(), E>,
         ) {
-            let stream = WindowsEventStream::default();
-            let writer = FakeWrite::default();
+            let mut stream = WindowsEventStream::default();
+            let mut writer = FakeWrite::default();
 
-            test(&mut writer, &mut stream);
+            if let Err(err) = test(&mut writer, &mut stream) {
+                panic!("Error returned from test function: {:?}", err);
+            }
+
+            // We need this for type inference, for whatever reason.
+            const EMPTY_RESULT: [&'static str; 0] = [];
 
             // TODO: confirm that the correct sink was used, based on
             // is_ansi_code_supported
             match (writer.buffer.is_empty(), stream.is_empty()) {
-                (true, true) if stream_result == &[] => {}
+                (true, true) if stream_result == &EMPTY_RESULT => {}
                 (true, true) => panic!(
                     "Neither the event stream nor the writer were populated. Expected {:?}",
                     stream_result
@@ -338,14 +357,14 @@ mod tests {
                 // writer is populated
                 (false, true) => {
                     // Concat the stream result to find the string result
-                    let result: String = stream_result.iter().collect();
-                    assert_eq!(result, writer.result);
-                    assert_eq!(&stream, &[]);
+                    let result: String = stream_result.iter().copied().collect();
+                    assert_eq!(result, writer.buffer);
+                    assert_eq!(&stream, &EMPTY_RESULT);
                 }
 
                 // stream is populated
                 (true, false) => {
-                    assert_eq!(&stream, stream_result);
+                    assert_eq!(stream, stream_result);
                     assert_eq!(writer.buffer, "");
                 }
 
@@ -364,13 +383,7 @@ mod tests {
         #[test]
         fn test_queue_one() {
             test_harness(&["cmd1"], |writer, stream| {
-                queue!(
-                    writer,
-                    FakeCommand {
-                        stream,
-                        value: "cmd1"
-                    }
-                );
+                queue!(writer, FakeCommand::new(stream, "cmd1"))
             })
         }
 
@@ -379,44 +392,18 @@ mod tests {
             test_harness(&["cmd1", "cmd2"], |writer, stream| {
                 queue!(
                     writer,
-                    FakeCommand {
-                        stream,
-                        value: "cmd1",
-                    },
-                    FakeCommand {
-                        stream,
-                        value: "cmd2",
-                    }
-                );
+                    FakeCommand::new(stream, "cmd1"),
+                    FakeCommand::new(stream, "cmd2"),
+                )
             })
         }
 
         #[test]
         fn test_many_queues() {
             test_harness(&["cmd1", "cmd2", "cmd3"], |writer, stream| {
-                queue!(
-                    writer,
-                    FakeCommand {
-                        stream,
-                        value: "cmd1"
-                    }
-                );
-
-                queue!(
-                    writer,
-                    FakeCommand {
-                        stream,
-                        value: "cmd2"
-                    }
-                );
-
-                queue!(
-                    writer,
-                    FakeCommand {
-                        stream,
-                        value: "cmd3"
-                    }
-                );
+                queue!(writer, FakeCommand::new(stream, "cmd1"))?;
+                queue!(writer, FakeCommand::new(stream, "cmd2"))?;
+                queue!(writer, FakeCommand::new(stream, "cmd3"))
             })
         }
     }
