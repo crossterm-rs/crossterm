@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crossterm_winapi::{Console, Handle, InputEventType, KeyEventRecord, MouseEvent};
+use crossterm_winapi::{Console, Handle, InputEvent, KeyEventRecord, MouseEvent};
 
 use crate::event::{sys::windows::poll::WinApiPoll, Event};
 
@@ -33,31 +33,21 @@ impl EventSource for WindowsEventSource {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            if let Some(event_ready) = self.poll.poll(timeout)? {
+            if let Some(event_ready) = self.poll.poll(poll_timeout.leftover())? {
                 if event_ready && self.console.number_of_console_input_events()? != 0 {
-                    let input = self.console.read_single_input_event()?;
-
-                    let event = match input.event_type {
-                        InputEventType::KeyEvent => handle_key_event(unsafe {
-                            KeyEventRecord::from(*input.event.KeyEvent())
-                        })?,
-                        InputEventType::MouseEvent => handle_mouse_event(unsafe {
-                            MouseEvent::from(*input.event.MouseEvent())
-                        })?,
-                        InputEventType::WindowBufferSizeEvent => {
-                            let new_size = crate::terminal::size()?;
-                            Some(Event::Resize(new_size.0, new_size.1))
+                    let event = match self.console.read_single_input_event()? {
+                        InputEvent::KeyEvent(record) => handle_key_event(record)?,
+                        InputEvent::MouseEvent(record) => handle_mouse_event(record)?,
+                        InputEvent::WindowBufferSizeEvent(record) => {
+                            Some(Event::Resize(record.size.x, record.size.y))
                         }
-                        InputEventType::FocusEvent | InputEventType::MenuEvent => None,
+                        _ => None,
                     };
 
-                    return Ok(match event {
-                        None => None,
-                        Some(event) => Some(InternalEvent::Event(event)),
-                    });
+                    if let Some(event) = event {
+                        return Ok(Some(InternalEvent::Event(event)));
+                    }
                 }
-            } else {
-                return Ok(None);
             }
 
             if poll_timeout.elapsed() {
