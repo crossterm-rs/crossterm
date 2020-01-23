@@ -168,7 +168,7 @@ read the [Contributing](docs/CONTRIBUTING.md) guidelines.
 
 ## License
 
-This project, `crossterm` and all it's sub-crates: `crossterm_screen`, `crossterm_cursor`, `crossterm_style`,
+This project, `crossterm` and all its sub-crates: `crossterm_screen`, `crossterm_cursor`, `crossterm_style`,
 `crossterm_input`, `crossterm_terminal`, `crossterm_winapi`, `crossterm_utils` are licensed under the MIT
 License - see the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/master/LICENSE) file for details.
 
