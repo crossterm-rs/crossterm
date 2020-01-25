@@ -66,7 +66,14 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
                 }
             }
         }
-        b'\r' | b'\n' => Ok(Some(InternalEvent::Event(Event::Key(
+        b'\r' => Ok(Some(InternalEvent::Event(Event::Key(
+            KeyCode::Enter.into(),
+        )))),
+        // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
+        // newlines as input is because the terminal converts \r into \n for us. When we
+        // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
+        // use Ctrl+J. Waiting to handle it here means it gets picked up later
+        b'\n' if !crate::terminal::sys::is_raw_mode_enabled() => Ok(Some(InternalEvent::Event(Event::Key(
             KeyCode::Enter.into(),
         )))),
         b'\t' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into())))),
