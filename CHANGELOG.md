@@ -1,4 +1,5 @@
 # Version 0.15.0
+- Fix CTRL + J key combination. This used to return an ENTER event. 
 - Add a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
 - Remove unnecessary `Clone` trait bounds from `StyledContent`.
 - Add `StyledContent::style_mut`.
