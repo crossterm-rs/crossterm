@@ -47,7 +47,7 @@ version = "0.3.8"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = {version = "0.6.0", git="https://github.com/crossterm-rs/crossterm-winapi", branch = "sharable_sempaphore" }
+crossterm_winapi = { git="https://github.com/crossterm-rs/crossterm-winapi", branch = "sharable_sempaphore" }
 
 #
 # UNIX dependencies

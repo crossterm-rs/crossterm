@@ -36,9 +36,9 @@ impl EventSource for WindowsEventSource {
             if let Some(event_ready) = self.poll.poll(poll_timeout.leftover())? {
                 if event_ready && self.console.number_of_console_input_events()? != 0 {
                     let event = match self.console.read_single_input_event()? {
-                        InputEvent::KeyEvent(record) => handle_key_event(record)?,
-                        InputEvent::MouseEvent(record) => handle_mouse_event(record)?,
-                        InputEvent::WindowBufferSizeEvent(record) => {
+                        InputRecord::KeyEvent(record) => handle_key_event(record)?,
+                        InputRecord::MouseEvent(record) => handle_mouse_event(record)?,
+                        InputRecord::WindowBufferSizeEvent(record) => {
                             Some(Event::Resize(record.size.x, record.size.y))
                         }
                         _ => None,
