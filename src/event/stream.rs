@@ -31,6 +31,7 @@ use super::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
+#[derive(Debug)]
 pub struct EventStream {
     poll_internal_waker: Waker,
     stream_wake_thread_spawned: Arc<AtomicBool>,

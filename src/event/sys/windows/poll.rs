@@ -15,6 +15,7 @@ use crate::Result;
 #[cfg(feature = "event-stream")]
 pub(crate) use super::waker::Waker;
 
+#[derive(Debug)]
 pub(crate) struct WinApiPoll {
     #[cfg(feature = "event-stream")]
     waker: Waker,

@@ -5,7 +5,7 @@ use crossterm_winapi::Semaphore;
 use crate::Result;
 
 /// Allows to wake up the `WinApiPoll::poll()` method.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct Waker {
     inner: Arc<Mutex<Semaphore>>,
 }

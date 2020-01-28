@@ -57,6 +57,7 @@ pub(crate) mod sys;
 ///
 /// * Top left cell is represented as `0,0`.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveTo(pub u16, pub u16);
 
 impl Command for MoveTo {
@@ -78,6 +79,7 @@ impl Command for MoveTo {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
@@ -99,6 +101,7 @@ impl Command for MoveToNextLine {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
@@ -119,6 +122,7 @@ impl Command for MoveToPreviousLine {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToColumn(pub u16);
 
 impl Command for MoveToColumn {
@@ -139,6 +143,7 @@ impl Command for MoveToColumn {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveUp(pub u16);
 
 impl Command for MoveUp {
@@ -159,6 +164,7 @@ impl Command for MoveUp {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveRight(pub u16);
 
 impl Command for MoveRight {
@@ -179,6 +185,7 @@ impl Command for MoveRight {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveDown(pub u16);
 
 impl Command for MoveDown {
@@ -199,6 +206,7 @@ impl Command for MoveDown {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveLeft(pub u16);
 
 impl Command for MoveLeft {
@@ -222,6 +230,7 @@ impl Command for MoveLeft {
 ///
 /// - The cursor position is stored globally.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SavePosition;
 
 impl Command for SavePosition {
@@ -245,6 +254,7 @@ impl Command for SavePosition {
 ///
 /// - The cursor position is stored globally.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RestorePosition;
 
 impl Command for RestorePosition {
@@ -265,6 +275,7 @@ impl Command for RestorePosition {
 /// # Notes
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Hide;
 
 impl Command for Hide {
@@ -285,6 +296,7 @@ impl Command for Hide {
 /// # Notes
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Show;
 
 impl Command for Show {
@@ -306,6 +318,7 @@ impl Command for Show {
 ///
 /// - Windows versions lower than Windows 10 do not support this functionality.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
 
 impl Command for EnableBlinking {
@@ -327,6 +340,7 @@ impl Command for EnableBlinking {
 ///
 /// - Windows versions lower than Windows 10 do not support this functionality.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
 
 impl Command for DisableBlinking {

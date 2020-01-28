@@ -6,6 +6,8 @@
 - Fixed minor syntax bug in `execute!` and `queue!`.
 - Cleaned up implementation of `execute!` and `queue!`.
 - **breaking change** Changed `ContentStyle::apply` to take self by value instead of reference, to prevent an unnecessary extra clone.
+- Added basic trait implementations (`Debug`, `Clone`, `Copy`, etc) to all of the command structs
+- `ResetColor` uses `&'static str` instead of `String`
 
 # Version 0.14.2
 - Fix TIOCGWINSZ for FreeBSD

@@ -141,6 +141,7 @@ pub fn size() -> Result<(u16, u16)> {
 /// }
 /// ```
 ///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnterAlternateScreen;
 
 impl Command for EnterAlternateScreen {
@@ -180,6 +181,7 @@ impl Command for EnterAlternateScreen {
 /// }
 /// ```
 ///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LeaveAlternateScreen;
 
 impl Command for LeaveAlternateScreen {
@@ -218,6 +220,7 @@ pub enum ClearType {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScrollUp(pub u16);
 
 impl Command for ScrollUp {
@@ -238,6 +241,7 @@ impl Command for ScrollUp {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScrollDown(pub u16);
 
 impl Command for ScrollDown {
@@ -260,6 +264,7 @@ impl Command for ScrollDown {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Clear(pub ClearType);
 
 impl Command for Clear {
@@ -286,6 +291,7 @@ impl Command for Clear {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetSize(pub u16, pub u16);
 
 impl Command for SetSize {
