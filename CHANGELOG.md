@@ -1,11 +1,10 @@
-# master
-- Added a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
-- Removed unnecessary trait bounds from StyledContent.
-- Added `StyledContent::style_mut`.
-- `execute!` and `queue!` now correctly handle errors during writing.
-- Fixed minor syntax bug in `execute!` and `queue!`.
-- Cleaned up implementation of `execute!` and `queue!`.
-- **breaking change** Changed `ContentStyle::apply` to take self by value instead of reference, to prevent an unnecessary extra clone.
+# Version 0.15.0
+- Add a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
+- Remove unnecessary `Clone` trait bounds from `StyledContent`.
+- Add `StyledContent::style_mut`.
+- Handle error correctly for `execute!` and `queue!`.
+- Fix minor syntax bug in `execute!` and `queue!`.
+- Change `ContentStyle::apply` to take self by value instead of reference, to prevent an unnecessary extra clone.
 - Added basic trait implementations (`Debug`, `Clone`, `Copy`, etc) to all of the command structs
 - `ResetColor` uses `&'static str` instead of `String`
 
