@@ -55,13 +55,13 @@ crossterm_winapi = "0.6.1"
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 mio = "0.6.21"
-signal-hook = { version = "0.1.12", features = ["mio-support"] }
+signal-hook = { version = "0.1.13", features = ["mio-support"] }
 
 #
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "0.2.9", features = ["full"] }
+tokio = { version = "0.2.11", features = ["full"] }
 futures = "0.3"
-futures-timer = "2"
-async-std = "1"
+futures-timer = "3.0"
+async-std = "1.4"
