@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crossterm_winapi::{Console, Handle, InputEvent, KeyEventRecord, MouseEvent};
+use crossterm_winapi::{Console, Handle, InputRecord};
 
 use crate::event::{sys::windows::poll::WinApiPoll, Event};
 
@@ -36,10 +36,10 @@ impl EventSource for WindowsEventSource {
             if let Some(event_ready) = self.poll.poll(poll_timeout.leftover())? {
                 if event_ready && self.console.number_of_console_input_events()? != 0 {
                     let event = match self.console.read_single_input_event()? {
-                        InputEvent::KeyEvent(record) => handle_key_event(record)?,
-                        InputEvent::MouseEvent(record) => handle_mouse_event(record)?,
-                        InputEvent::WindowBufferSizeEvent(record) => {
-                            Some(Event::Resize(record.size.x, record.size.y))
+                        InputRecord::KeyEvent(record) => handle_key_event(record)?,
+                        InputRecord::MouseEvent(record) => handle_mouse_event(record)?,
+                        InputRecord::WindowBufferSizeEvent(record) => {
+                            Some(Event::Resize(record.size.x as u16, record.size.y as u16))
                         }
                         _ => None,
                     };

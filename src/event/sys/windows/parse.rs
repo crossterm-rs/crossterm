@@ -76,7 +76,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_INSERT => Some(KeyCode::Insert),
         _ => {
             // Modifier Keys (Ctrl, Alt, Shift) Support
-            let character_raw = { (unsafe { *key_event.u_char.UnicodeChar() } as u16) };
+            let character_raw = key_event.u_char;
 
             if character_raw < 255 {
                 let mut character = character_raw as u8 as char;
