@@ -108,7 +108,6 @@ pub enum Attribute {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
-
     #[doc(hidden)]
     __Nonexhaustive,
 }

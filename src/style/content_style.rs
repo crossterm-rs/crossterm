@@ -17,30 +17,39 @@ pub struct ContentStyle {
 
 impl ContentStyle {
     /// Creates a `StyledContent` by applying the style to the given `val`.
-    pub fn apply<D: Display + Clone>(&self, val: D) -> StyledContent<D> {
-        StyledContent::new(self.clone(), val)
+    #[inline]
+    pub fn apply<D: Display>(self, val: D) -> StyledContent<D> {
+        StyledContent::new(self, val)
     }
 
     /// Creates a new `ContentStyle`.
+    #[inline]
     pub fn new() -> ContentStyle {
         ContentStyle::default()
     }
 
     /// Sets the background color.
-    pub fn background(mut self, color: Color) -> ContentStyle {
-        self.background_color = Some(color);
-        self
+    #[inline]
+    pub fn background(self, color: Color) -> ContentStyle {
+        Self {
+            background_color: Some(color),
+            ..self
+        }
     }
 
     /// Sets the foreground color.
-    pub fn foreground(mut self, color: Color) -> ContentStyle {
-        self.foreground_color = Some(color);
-        self
+    #[inline]
+    pub fn foreground(self, color: Color) -> ContentStyle {
+        Self {
+            foreground_color: Some(color),
+            ..self
+        }
     }
 
     /// Adds the attribute.
     ///
     /// You can add more attributes by calling this method multiple times.
+    #[inline]
     pub fn attribute(mut self, attr: Attribute) -> ContentStyle {
         self.attributes.push(attr);
         self

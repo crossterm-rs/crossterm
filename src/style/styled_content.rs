@@ -27,52 +27,71 @@ use crate::{
 ///
 /// println!("{}", styled);
 /// ```
-#[derive(Clone)]
-pub struct StyledContent<D: Display + Clone> {
+#[derive(Clone, Debug)]
+pub struct StyledContent<D: Display> {
     /// The style (colors, content attributes).
     style: ContentStyle,
     /// A content to apply the style on.
     content: D,
 }
 
-impl<'a, D: Display + 'a + Clone> StyledContent<D> {
+impl<D: Display> StyledContent<D> {
     /// Creates a new `StyledContent`.
+    #[inline]
     pub fn new(style: ContentStyle, content: D) -> StyledContent<D> {
         StyledContent { style, content }
     }
 
     /// Sets the foreground color.
-    pub fn with(mut self, foreground_color: Color) -> StyledContent<D> {
-        self.style = self.style.foreground(foreground_color);
-        self
+    #[inline]
+    pub fn with(self, foreground_color: Color) -> StyledContent<D> {
+        Self {
+            style: self.style.foreground(foreground_color),
+            ..self
+        }
     }
 
     /// Sets the background color.
-    pub fn on(mut self, background_color: Color) -> StyledContent<D> {
-        self.style = self.style.background(background_color);
-        self
+    #[inline]
+    pub fn on(self, background_color: Color) -> StyledContent<D> {
+        Self {
+            style: self.style.background(background_color),
+            ..self
+        }
     }
 
     /// Adds the attribute.
     ///
     /// You can add more attributes by calling this method multiple times.
-    pub fn attribute(mut self, attr: Attribute) -> StyledContent<D> {
-        self.style = self.style.attribute(attr);
-        self
+    #[inline]
+    pub fn attribute(self, attr: Attribute) -> StyledContent<D> {
+        Self {
+            style: self.style.attribute(attr),
+            ..self
+        }
     }
 
     /// Returns the content.
+    #[inline]
     pub fn content(&self) -> &D {
         &self.content
     }
 
     /// Returns the style.
+    #[inline]
     pub fn style(&self) -> &ContentStyle {
         &self.style
     }
+
+    /// Returns a mutable reference to the style, so that it can be futher
+    /// manipulated
+    #[inline]
+    pub fn style_mut(&mut self) -> &mut ContentStyle {
+        &mut self.style
+    }
 }
 
-impl<D: Display + Clone> Display for StyledContent<D> {
+impl<D: Display> Display for StyledContent<D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> result::Result<(), fmt::Error> {
         let mut reset = false;
 
@@ -85,13 +104,16 @@ impl<D: Display + Clone> Display for StyledContent<D> {
             reset = true;
         }
 
-        for attr in self.style.attributes.iter() {
+        for attr in &self.style.attributes {
             queue!(f, SetAttribute(*attr)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
-        fmt::Display::fmt(&self.content, f)?;
+        self.content.fmt(f)?;
 
+        // TODO: There are specific command sequences for "reset forground
+        // color (39m)" and "reset background color (49m)"; consider using
+        // these.
         if reset {
             queue!(f, ResetColor).map_err(|_| fmt::Error)?;
         }

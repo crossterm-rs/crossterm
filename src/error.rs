@@ -18,7 +18,6 @@ pub enum ErrorKind {
     Utf8Error(std::string::FromUtf8Error),
     ParseIntError(std::num::ParseIntError),
     ResizingTerminalFailure(String),
-
     #[doc(hidden)]
     __Nonexhaustive,
 }

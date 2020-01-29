@@ -1,3 +1,17 @@
+# Version 0.15.0
+- Fix CTRL + J key combination. This used to return an ENTER event. 
+- Add a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
+- Remove unnecessary `Clone` trait bounds from `StyledContent`.
+- Add `StyledContent::style_mut`.
+- Handle error correctly for `execute!` and `queue!`.
+- Fix minor syntax bug in `execute!` and `queue!`.
+- Change `ContentStyle::apply` to take self by value instead of reference, to prevent an unnecessary extra clone.
+- Added basic trait implementations (`Debug`, `Clone`, `Copy`, etc) to all of the command structs
+- `ResetColor` uses `&'static str` instead of `String`
+
+# Version 0.14.2
+- Fix TIOCGWINSZ for FreeBSD
+
 # Version 0.14.1
 - Made windows cursor position relative to the window instead absolute to the screen buffer windows.
 - Fix windows bug with `queue` macro were it consumed a type and required an type to be `Copy`.
@@ -15,14 +29,14 @@
 - Replace `docs/UPGRADE.md` with the [Upgrade Paths](https://github.com/crossterm-rs/crossterm/wiki#upgrade-paths)
   documentation
 - Add `MoveToColumn`, `MoveToPreviousLine`, `MoveToNextLine` commands
-- Merge `screen` module into `terminal`  
+- Merge `screen` module into `terminal`
     - Remove `screen::AlternateScreen`
     - Remove `screen::Rawscreen`
       * Move and rename `Rawscreen::into_raw_mode` and `Rawscreen::disable_raw_mode` to `terminal::enable_raw_mode` and `terminal::disable_raw_mode`
     - Move `screen::EnterAlternateScreen` and `screen::LeaveAlternateScreen` to `terminal::EnterAlternateScreen` and `terminal::LeaveAlternateScreen`
     - Replace `utils::Output` command with `style::Print` command
 - Fix enable/disable mouse capture commands on Windows
-- Allow trailing comma `queue!` & `execute!` macros  
+- Allow trailing comma `queue!` & `execute!` macros
 
 # Version 0.13.3
 

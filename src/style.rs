@@ -227,6 +227,7 @@ pub fn available_color_count() -> u16 {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetForegroundColor(pub Color);
 
 impl Command for SetForegroundColor {
@@ -249,6 +250,7 @@ impl Command for SetForegroundColor {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetBackgroundColor(pub Color);
 
 impl Command for SetBackgroundColor {
@@ -271,6 +273,7 @@ impl Command for SetBackgroundColor {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttribute(pub Attribute);
 
 impl Command for SetAttribute {
@@ -294,6 +297,7 @@ impl Command for SetAttribute {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone)]
 pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
 
 impl<D> Command for PrintStyledContent<D>
@@ -317,13 +321,14 @@ where
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResetColor;
 
 impl Command for ResetColor {
-    type AnsiType = String;
+    type AnsiType = &'static str;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::RESET_CSI_SEQUENCE.to_string()
+        ansi::RESET_CSI_SEQUENCE
     }
 
     #[cfg(windows)]
@@ -335,6 +340,7 @@ impl Command for ResetColor {
 /// A command that prints the given displayable type.
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Print<T: Display + Clone>(pub T);
 
 impl<T: Display + Clone> Command for Print<T> {

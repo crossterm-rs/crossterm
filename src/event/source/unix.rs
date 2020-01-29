@@ -179,6 +179,7 @@ impl EventSource for UnixInternalEventSource {
 //  * mimick anes Parser interface
 //  * move the advancing, parsing, ... stuff out of the `try_read` method
 //
+#[derive(Debug)]
 struct Parser {
     buffer: Vec<u8>,
     internal_events: VecDeque<InternalEvent>,

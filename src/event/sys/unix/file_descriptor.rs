@@ -11,6 +11,7 @@ use crate::{ErrorKind, Result};
 ///
 /// It allows to retrieve raw file descriptor, write to the file descriptor and
 /// mainly it closes the file descriptor once dropped.
+#[derive(Debug)]
 pub struct FileDesc {
     fd: RawFd,
     close_on_drop: bool,

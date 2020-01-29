@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.14.0"
+version = "0.15.0"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -34,9 +34,9 @@ event-stream = ["futures"]
 #
 [dependencies]
 bitflags = "1.2"
-futures = { version = "0.3", optional = true }
 lazy_static = "1.4"
 parking_lot = "0.10"
+futures = { version = "0.3", optional = true }
 serde = { version = "1.0.0", features = ["derive"], optional = true }
 
 #
@@ -47,21 +47,21 @@ version = "0.3.8"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.5.1"
+crossterm_winapi = "0.6.1"
 
 #
 # UNIX dependencies
 #
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.51"
-mio = "0.6.19"
-signal-hook = { version = "0.1.12", features = ["mio-support"] }
+libc = "0.2"
+mio = "0.6.21"
+signal-hook = { version = "0.1.13", features = ["mio-support"] }
 
 #
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "0.2.1", features = ["macros"] }
+tokio = { version = "0.2.11", features = ["full"] }
 futures = "0.3"
-futures-timer = "2"
-async-std = "1"
+futures-timer = "3.0"
+async-std = "1.4"
