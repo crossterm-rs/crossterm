@@ -28,7 +28,7 @@ pub(crate) fn set_attrs_csi_sequence(attributes: Attributes) -> String {
     let mut ansi = String::new();
     for attr in Attribute::iterator() {
         if attributes.has(attr) {
-            ansi.push_str(&format!("\x1B[{}m", attr as u64));
+            ansi.push_str(&format!(csi!("{}m"), attr as u64));
         }
     }
     ansi

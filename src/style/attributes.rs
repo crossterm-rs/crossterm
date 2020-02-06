@@ -61,26 +61,34 @@ impl BitXor for Attributes {
 }
 
 impl Attributes {
+    /// Sets the attribute.
+    /// If it's already set this does nothing.
     #[inline(always)]
     pub fn set(&mut self, attribute: Attribute) {
         self.0 |= attribute.bytes();
     }
 
+    /// Unsets the attribute.
+    /// If it's not set, this changes nothing.
     #[inline(always)]
     pub fn unset(&mut self, attribute: Attribute) {
         self.0 &= !attribute.bytes();
     }
 
+    /// Sets the attribute if it's unset, unset it
+    /// if it is set.
     #[inline(always)]
     pub fn toggle(&mut self, attribute: Attribute) {
         self.0 ^= attribute.bytes();
     }
 
+    /// Returns whether the attribute is set.
     #[inline(always)]
     pub fn has(&self, attribute: Attribute) -> bool {
         self.0 & attribute.bytes() != 0
     }
 
+    /// Sets all the passed attributes. Removes none.
     #[inline(always)]
     pub fn extend(&mut self, attributes: &Attributes) {
         self.0 = self.0 | attributes.0;
