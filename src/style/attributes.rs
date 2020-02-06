@@ -1,7 +1,7 @@
 use crate::style::Attribute;
 use std::ops::{BitAnd, BitOr, BitXor};
 
-/// a bitset for all possible attributes
+/// A bitset for all possible attributes.
 ///
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Attributes(u64);
