@@ -15,7 +15,7 @@ impl From<&[Attribute]> for Attributes {
     fn from(arr: &[Attribute]) -> Self {
         let mut attributes = Attributes::default();
         for &attr in arr {
-            attributes.push(attr);
+            attributes.set(attr);
         }
         attributes
     }
@@ -62,12 +62,12 @@ impl BitXor for Attributes {
 
 impl Attributes {
     #[inline(always)]
-    pub fn push(&mut self, attribute: Attribute) {
+    pub fn set(&mut self, attribute: Attribute) {
         self.0 |= attribute.bytes();
     }
 
     #[inline(always)]
-    pub fn remove(&mut self, attribute: Attribute) {
+    pub fn unset(&mut self, attribute: Attribute) {
         self.0 &= !attribute.bytes();
     }
 
@@ -86,8 +86,7 @@ impl Attributes {
         self.0 = self.0 | attributes.0;
     }
 
-    /// tells whether there's absolutely no attribute
-    /// (not even a Reset) in the set
+    /// Returns whether there is no attribute set.
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.0 == 0
@@ -102,9 +101,9 @@ mod tests {
     fn test_attributes() {
         let mut attributes: Attributes = Attribute::Bold.into();
         assert!(attributes.has(Attribute::Bold));
-        attributes.push(Attribute::Italic);
+        attributes.set(Attribute::Italic);
         assert!(attributes.has(Attribute::Italic));
-        attributes.remove(Attribute::Italic);
+        attributes.unset(Attribute::Italic);
         assert!(!attributes.has(Attribute::Italic));
         attributes.toggle(Attribute::Bold);
         assert!(attributes.is_empty());

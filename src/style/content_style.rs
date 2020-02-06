@@ -51,7 +51,7 @@ impl ContentStyle {
     /// You can add more attributes by calling this method multiple times.
     #[inline]
     pub fn attribute(mut self, attr: Attribute) -> ContentStyle {
-        self.attributes.push(attr);
+        self.attributes.set(attr);
         self
     }
 }
