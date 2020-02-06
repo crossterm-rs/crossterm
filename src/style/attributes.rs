@@ -2,7 +2,6 @@ use crate::style::Attribute;
 use std::ops::{BitAnd, BitOr, BitXor};
 
 /// a bitset for all possible attributes
-///
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Attributes(u64);
 
@@ -66,22 +65,27 @@ impl Attributes {
     pub fn push(&mut self, attribute: Attribute) {
         self.0 |= attribute.bytes();
     }
+
     #[inline(always)]
     pub fn remove(&mut self, attribute: Attribute) {
         self.0 &= !attribute.bytes();
     }
+
     #[inline(always)]
     pub fn toggle(&mut self, attribute: Attribute) {
         self.0 ^= attribute.bytes();
     }
+
     #[inline(always)]
     pub fn has(&self, attribute: Attribute) -> bool {
         self.0 & attribute.bytes() != 0
     }
+
     #[inline(always)]
     pub fn extend(&mut self, attributes: &Attributes) {
         self.0 = self.0 | attributes.0;
     }
+
     /// tells whether there's absolutely no attribute
     /// (not even a Reset) in the set
     #[inline(always)]

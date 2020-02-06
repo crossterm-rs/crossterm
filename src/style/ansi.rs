@@ -25,13 +25,13 @@ pub(crate) fn set_attr_csi_sequence(attribute: Attribute) -> String {
 }
 
 pub(crate) fn set_attrs_csi_sequence(attributes: Attributes) -> String {
-    let mut s = String::new();
+    let mut ansi = String::new();
     for attr in Attribute::iterator() {
         if attributes.has(attr) {
-            s.push_str(&format!("\x1B[{}m", attr as u64));
+            ansi.push_str(&format!("\x1B[{}m", attr as u64));
         }
     }
-    s
+    ansi
 }
 
 pub(crate) const RESET_CSI_SEQUENCE: &str = csi!("0m");
