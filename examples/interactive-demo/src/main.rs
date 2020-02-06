@@ -21,7 +21,7 @@ Controls:
  - 'q' - quit interactive test (or return to this menu)
  - any other key - continue with next step
 
-Available tests: 
+Available tests:
 
 1. cursor
 2. color (foreground, background)
