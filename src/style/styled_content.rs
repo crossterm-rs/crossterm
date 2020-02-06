@@ -8,7 +8,7 @@ use std::{
 use crate::{
     queue,
     style::{
-        Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttribute, SetBackgroundColor,
+        Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttributes, SetBackgroundColor,
         SetForegroundColor, Styler,
     },
 };
@@ -104,8 +104,8 @@ impl<D: Display> Display for StyledContent<D> {
             reset = true;
         }
 
-        for attr in &self.style.attributes {
-            queue!(f, SetAttribute(*attr)).map_err(|_| fmt::Error)?;
+        if !self.style.attributes.is_empty() {
+            queue!(f, SetAttributes(self.style.attributes)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
@@ -183,7 +183,7 @@ mod tests {
         let style = ContentStyle::new()
             .foreground(Color::Blue)
             .background(Color::Red)
-            .attribute(Attribute::Reset);
+            .attribute(Attribute::Bold);
 
         let mut styled_content = style.apply("test");
 
@@ -194,8 +194,7 @@ mod tests {
 
         assert_eq!(styled_content.style.foreground_color, Some(Color::Green));
         assert_eq!(styled_content.style.background_color, Some(Color::Magenta));
-        assert_eq!(styled_content.style.attributes.len(), 2);
-        assert_eq!(styled_content.style.attributes[0], Attribute::Reset);
-        assert_eq!(styled_content.style.attributes[1], Attribute::NoItalic);
+        assert!(styled_content.style.attributes.has(Attribute::Bold));
+        assert!(styled_content.style.attributes.has(Attribute::NoItalic));
     }
 }

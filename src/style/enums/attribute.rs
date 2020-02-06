@@ -56,6 +56,7 @@ use super::super::SetAttribute;
 /// println!("{}", "Negative text".negative());
 /// ```
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Attribute {
     /// Resets all the attributes.
@@ -82,7 +83,7 @@ pub enum Attribute {
     ///
     /// Mostly used for [mathematical alphanumeric symbols](https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols).
     Fraktur = 20,
-    /// Turns off the `Bold` attribute.
+    /// Turns off the `Bold` attribute. - Inconsistent - Prefer to use NormalIntensity
     NoBold = 21,
     /// Switches the text back to normal intensity (no bold, italic).
     NormalIntensity = 22,
@@ -108,13 +109,55 @@ pub enum Attribute {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl Display for Attribute {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         write!(f, "{}", SetAttribute(*self))?;
         Ok(())
+    }
+}
+
+impl Attribute {
+    pub fn iterator() -> impl Iterator<Item = Attribute> {
+        // todo prefer a macro over vim-fu to generate this
+        [
+            Attribute::Reset,
+            Attribute::Bold,
+            Attribute::Dim,
+            Attribute::Italic,
+            Attribute::Underlined,
+            Attribute::SlowBlink,
+            Attribute::RapidBlink,
+            Attribute::Reverse,
+            Attribute::Hidden,
+            Attribute::CrossedOut,
+            Attribute::Fraktur,
+            Attribute::NoBold,
+            Attribute::NormalIntensity,
+            Attribute::NoItalic,
+            Attribute::NoUnderline,
+            Attribute::NoBlink,
+            Attribute::NoReverse,
+            Attribute::NoHidden,
+            Attribute::NotCrossedOut,
+            Attribute::Framed,
+            Attribute::Encircled,
+            Attribute::OverLined,
+            Attribute::NotFramedOrEncircled,
+            Attribute::NotOverLined,
+        ]
+        .iter()
+        .copied()
+    }
+    /// return a u64 with one bit set, which is the
+    /// signature of this attribute in the Attributes
+    /// bitset.
+    ///
+    /// The +1 enables storing Reset (whose index is 0)
+    ///  in the bitset Attributes.
+    #[inline(always)]
+    pub const fn bytes(self) -> u64 {
+        1 << ((self as u64) + 1)
     }
 }

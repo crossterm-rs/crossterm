@@ -3,7 +3,7 @@
 
 use crate::{
     csi,
-    style::{Attribute, Color, Colored},
+    style::{Attribute, Attributes, Color, Colored},
 };
 
 pub(crate) fn set_fg_csi_sequence(fg_color: Color) -> String {
@@ -21,7 +21,17 @@ pub(crate) fn set_bg_csi_sequence(bg_color: Color) -> String {
 }
 
 pub(crate) fn set_attr_csi_sequence(attribute: Attribute) -> String {
-    format!(csi!("{}m"), attribute as i16)
+    format!(csi!("{}m"), attribute as u64)
+}
+
+pub(crate) fn set_attrs_csi_sequence(attributes: Attributes) -> String {
+    let mut s = String::new();
+    for attr in Attribute::iterator() {
+        if attributes.has(attr) {
+            s.push_str(&format!("\x1B[{}m", attr as u64));
+        }
+    }
+    s
 }
 
 pub(crate) const RESET_CSI_SEQUENCE: &str = csi!("0m");

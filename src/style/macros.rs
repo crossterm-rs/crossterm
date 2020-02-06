@@ -39,7 +39,7 @@ macro_rules! def_str_attr {
         fn $name(self) -> StyledContent<&'static str> {
             StyledContent::new(
                 ContentStyle {
-                    attributes: vec![ $attr ],
+                    attributes: $attr.into(),
                     ..Default::default()
                 },
                 self
