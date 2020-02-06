@@ -82,7 +82,7 @@ impl Attributes {
     pub fn extend(&mut self, attributes: &Attributes) {
         self.0 = self.0 | attributes.0;
     }
-    /// tells whether there's absolutely no attribute
+    /// Returns whether there is no attribute set.
     /// (not even a Reset) in the set
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
