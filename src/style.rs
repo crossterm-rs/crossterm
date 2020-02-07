@@ -118,6 +118,7 @@ use crate::{impl_display, Command};
 
 pub(crate) use self::enums::Colored;
 pub use self::{
+    attributes::Attributes,
     content_style::ContentStyle,
     enums::{Attribute, Color},
     styled_content::StyledContent,
@@ -127,6 +128,7 @@ pub use self::{
 #[macro_use]
 mod macros;
 mod ansi;
+mod attributes;
 mod content_style;
 mod enums;
 mod styled_content;
@@ -281,6 +283,30 @@ impl Command for SetAttribute {
 
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::set_attr_csi_sequence(self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        // attributes are not supported by WinAPI.
+        Ok(())
+    }
+}
+
+/// A command that sets several attributes.
+///
+/// See [`Attributes`](struct.Attributes.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetAttributes(pub Attributes);
+
+impl Command for SetAttributes {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::set_attrs_csi_sequence(self.0)
     }
 
     #[cfg(windows)]

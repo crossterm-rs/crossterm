@@ -5,7 +5,7 @@ use crossterm::{cursor, queue, style};
 use std::io::Write;
 
 const ATTRIBUTES: [(style::Attribute, style::Attribute); 6] = [
-    (style::Attribute::Bold, style::Attribute::NoBold),
+    (style::Attribute::Bold, style::Attribute::NormalIntensity),
     (style::Attribute::Italic, style::Attribute::NoItalic),
     (style::Attribute::Underlined, style::Attribute::NoUnderline),
     (style::Attribute::Reverse, style::Attribute::NoReverse),

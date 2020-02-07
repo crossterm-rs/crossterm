@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use crate::style::{Attribute, Color, StyledContent};
+use crate::style::{Attribute, Attributes, Color, StyledContent};
 
 /// The style that can be put on content.
 #[derive(Debug, Clone, Default)]
@@ -12,7 +12,7 @@ pub struct ContentStyle {
     /// The background color.
     pub background_color: Option<Color>,
     /// List of attributes.
-    pub attributes: Vec<Attribute>,
+    pub attributes: Attributes,
 }
 
 impl ContentStyle {
@@ -51,7 +51,7 @@ impl ContentStyle {
     /// You can add more attributes by calling this method multiple times.
     #[inline]
     pub fn attribute(mut self, attr: Attribute) -> ContentStyle {
-        self.attributes.push(attr);
+        self.attributes.set(attr);
         self
     }
 }
@@ -65,11 +65,11 @@ mod tests {
         let content_style = ContentStyle::new()
             .foreground(Color::Blue)
             .background(Color::Red)
-            .attribute(Attribute::Reset);
+            .attribute(Attribute::Bold);
 
         assert_eq!(content_style.foreground_color, Some(Color::Blue));
         assert_eq!(content_style.background_color, Some(Color::Red));
-        assert_eq!(content_style.attributes[0], Attribute::Reset);
+        assert!(content_style.attributes.has(Attribute::Bold));
     }
 
     #[test]
@@ -83,6 +83,6 @@ mod tests {
 
         assert_eq!(styled_content.style().foreground_color, Some(Color::Blue));
         assert_eq!(styled_content.style().background_color, Some(Color::Red));
-        assert_eq!(styled_content.style().attributes[0], Attribute::Reset);
+        assert!(styled_content.style().attributes.has(Attribute::Reset));
     }
 }
