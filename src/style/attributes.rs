@@ -62,7 +62,7 @@ impl BitXor for Attributes {
 
 impl Attributes {
     /// Sets the attribute.
-    /// If it's already set this does nothing.
+    /// If it's already set, this does nothing.
     #[inline(always)]
     pub fn set(&mut self, attribute: Attribute) {
         self.0 |= attribute.bytes();
