@@ -5,60 +5,89 @@ use serde::{Deserialize, Serialize};
 
 use super::super::SetAttribute;
 
-/// Represents an attribute.
-///
-/// # Platform-specific Notes
-///
-/// * Only UNIX and Windows 10 terminals do support text attributes.
-/// * Keep in mind that not all terminals support all attributes.
-/// * Crossterm implements almost all attributes listed in the
-///   [SGR parameters](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters).
-///
-/// | Attribute | Windows | UNIX | Notes |
-/// | :-- | :--: | :--: | :-- |
-/// | `Reset` | ✓ | ✓ | |
-/// | `Bold` | ✓ | ✓ | |
-/// | `Dim` | ✓ | ✓ | |
-/// | `Italic` | ? | ? | Not widely supported, sometimes treated as inverse. |
-/// | `Underlined` | ✓ | ✓ | |
-/// | `SlowBlink` | ? | ? | Not widely supported, sometimes treated as inverse. |
-/// | `RapidBlink` | ? | ? | Not widely supported. MS-DOS ANSI.SYS; 150+ per minute. |
-/// | `Reverse` | ✓ | ✓ | |
-/// | `Hidden` | ✓ | ✓ | Also known as Conceal. |
-/// | `Fraktur` | ✗ | ✓ | Legible characters, but marked for deletion. |
-/// | `DefaultForegroundColor` | ? | ? | Implementation specific (according to standard). |
-/// | `DefaultBackgroundColor` | ? | ? | Implementation specific (according to standard). |
-/// | `Framed` | ? | ? | Not widely supported. |
-/// | `Encircled` | ? | ? | This should turn on the encircled attribute. |
-/// | `OverLined` | ? | ? | This should draw a line at the top of the text. |
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```no_run
-/// use crossterm::style::Attribute;
-///
-/// println!(
-///     "{} Underlined {} No Underline",
-///     Attribute::Underlined,
-///     Attribute::NoUnderline
-/// );
-/// ```
-///
-/// Style existing text:
-///
-/// ```no_run
-/// use crossterm::style::Styler;
-///
-/// println!("{}", "Bold text".bold());
-/// println!("{}", "Underlined text".underlined());
-/// println!("{}", "Negative text".negative());
-/// ```
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[non_exhaustive]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
-pub enum Attribute {
+// This macro generates the Attribute enum, its iterator
+// function, and the static array containing the sgr code
+// of each attribute
+macro_rules! Attribute {
+    (
+        $(
+            $(#[$inner:ident $($args:tt)*])*
+            $name:ident = $sgr:expr,
+        )*
+    ) => {
+        /// Represents an attribute.
+        ///
+        /// # Platform-specific Notes
+        ///
+        /// * Only UNIX and Windows 10 terminals do support text attributes.
+        /// * Keep in mind that not all terminals support all attributes.
+        /// * Crossterm implements almost all attributes listed in the
+        ///   [SGR parameters](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters).
+        ///
+        /// | Attribute | Windows | UNIX | Notes |
+        /// | :-- | :--: | :--: | :-- |
+        /// | `Reset` | ✓ | ✓ | |
+        /// | `Bold` | ✓ | ✓ | |
+        /// | `Dim` | ✓ | ✓ | |
+        /// | `Italic` | ? | ? | Not widely supported, sometimes treated as inverse. |
+        /// | `Underlined` | ✓ | ✓ | |
+        /// | `SlowBlink` | ? | ? | Not widely supported, sometimes treated as inverse. |
+        /// | `RapidBlink` | ? | ? | Not widely supported. MS-DOS ANSI.SYS; 150+ per minute. |
+        /// | `Reverse` | ✓ | ✓ | |
+        /// | `Hidden` | ✓ | ✓ | Also known as Conceal. |
+        /// | `Fraktur` | ✗ | ✓ | Legible characters, but marked for deletion. |
+        /// | `DefaultForegroundColor` | ? | ? | Implementation specific (according to standard). |
+        /// | `DefaultBackgroundColor` | ? | ? | Implementation specific (according to standard). |
+        /// | `Framed` | ? | ? | Not widely supported. |
+        /// | `Encircled` | ? | ? | This should turn on the encircled attribute. |
+        /// | `OverLined` | ? | ? | This should draw a line at the top of the text. |
+        ///
+        /// # Examples
+        ///
+        /// Basic usage:
+        ///
+        /// ```no_run
+        /// use crossterm::style::Attribute;
+        ///
+        /// println!(
+        ///     "{} Underlined {} No Underline",
+        ///     Attribute::Underlined,
+        ///     Attribute::NoUnderline
+        /// );
+        /// ```
+        ///
+        /// Style existing text:
+        ///
+        /// ```no_run
+        /// use crossterm::style::Styler;
+        ///
+        /// println!("{}", "Bold text".bold());
+        /// println!("{}", "Underlined text".underlined());
+        /// println!("{}", "Negative text".negative());
+        /// ```
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+        #[non_exhaustive]
+        #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+        pub enum Attribute {
+            $(
+                $(#[$inner $($args)*])*
+                $name,
+            )*
+        }
+        pub static SGR: &'static[i16] = &[
+            $($sgr,)*
+        ];
+        impl Attribute {
+            /// Iterates over all the variants of the Attribute enum.
+            pub fn iterator() -> impl Iterator<Item = Attribute> {
+                use self::Attribute::*;
+                [ $($name,)* ].iter().copied()
+            }
+        }
+    }
+}
+
+Attribute! {
     /// Resets all the attributes.
     Reset = 0,
     /// Increases the text intensity.
@@ -119,45 +148,20 @@ impl Display for Attribute {
 }
 
 impl Attribute {
-    pub fn iterator() -> impl Iterator<Item = Attribute> {
-        // todo prefer a macro over vim-fu to generate this
-        [
-            Attribute::Reset,
-            Attribute::Bold,
-            Attribute::Dim,
-            Attribute::Italic,
-            Attribute::Underlined,
-            Attribute::SlowBlink,
-            Attribute::RapidBlink,
-            Attribute::Reverse,
-            Attribute::Hidden,
-            Attribute::CrossedOut,
-            Attribute::Fraktur,
-            Attribute::NoBold,
-            Attribute::NormalIntensity,
-            Attribute::NoItalic,
-            Attribute::NoUnderline,
-            Attribute::NoBlink,
-            Attribute::NoReverse,
-            Attribute::NoHidden,
-            Attribute::NotCrossedOut,
-            Attribute::Framed,
-            Attribute::Encircled,
-            Attribute::OverLined,
-            Attribute::NotFramedOrEncircled,
-            Attribute::NotOverLined,
-        ]
-        .iter()
-        .copied()
-    }
-    /// return a u64 with one bit set, which is the
+    /// Returns a u32 with one bit set, which is the
     /// signature of this attribute in the Attributes
     /// bitset.
     ///
     /// The +1 enables storing Reset (whose index is 0)
     ///  in the bitset Attributes.
     #[inline(always)]
-    pub const fn bytes(self) -> u64 {
-        1 << ((self as u64) + 1)
+    pub const fn bytes(self) -> u32 {
+        1 << ((self as u32) + 1)
+    }
+    /// Returns the SGR attribute value.
+    ///
+    /// See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
+    pub fn sgr(self) -> i16 {
+        SGR[self as usize]
     }
 }
