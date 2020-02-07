@@ -84,19 +84,19 @@ impl Attributes {
 
     /// Returns whether the attribute is set.
     #[inline(always)]
-    pub fn has(&self, attribute: Attribute) -> bool {
+    pub fn has(self, attribute: Attribute) -> bool {
         self.0 & attribute.bytes() != 0
     }
 
     /// Sets all the passed attributes. Removes none.
     #[inline(always)]
-    pub fn extend(&mut self, attributes: &Attributes) {
-        self.0 = self.0 | attributes.0;
+    pub fn extend(&mut self, attributes: Attributes) {
+        self.0 |= attributes.0;
     }
 
     /// Returns whether there is no attribute set.
     #[inline(always)]
-    pub fn is_empty(&self) -> bool {
+    pub fn is_empty(self) -> bool {
         self.0 == 0
     }
 }
