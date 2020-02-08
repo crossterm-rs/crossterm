@@ -1,4 +1,4 @@
-# Version 0.15.1
+# Version 0.16.0
 - Make terminal size function work on `/dev/tty` instead of `STDOUT_FILENO`.
 - Change attribute vector in `ContentStyle` to bitmask.
 - Add `SetAttributes` command.
