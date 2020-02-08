@@ -66,7 +66,6 @@ macro_rules! Attribute {
         /// println!("{}", "Negative text".negative());
         /// ```
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-//        #[non_exhaustive]
         #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
         pub enum Attribute {
             $(
