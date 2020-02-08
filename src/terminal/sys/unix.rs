@@ -22,10 +22,6 @@ pub(crate) fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
 }
 
-pub(crate) fn exit() {
-    ::std::process::exit(0);
-}
-
 #[allow(clippy::identity_conversion)]
 pub(crate) fn size() -> Result<(u16, u16)> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
