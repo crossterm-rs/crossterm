@@ -107,11 +107,6 @@ pub fn disable_raw_mode() -> Result<()> {
     sys::disable_raw_mode()
 }
 
-/// Exits the current application.
-pub fn exit() {
-    sys::exit();
-}
-
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.

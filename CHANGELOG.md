@@ -1,3 +1,10 @@
+# Version 0.16.0
+- Make terminal size function work on `/dev/tty` instead of `STDOUT_FILENO`.
+- Change attribute vector in `ContentStyle` to bitmask.
+- Add `SetAttributes` command.
+- Add `Attributes` type, which is a bitfield of enabled attributes. 
+- Remove `exit()`, was useless.
+
 # Version 0.15.0
 - Fix CTRL + J key combination. This used to return an ENTER event. 
 - Add a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.

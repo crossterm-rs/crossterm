@@ -66,7 +66,6 @@ macro_rules! Attribute {
         /// println!("{}", "Negative text".negative());
         /// ```
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-        #[non_exhaustive]
         #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
         pub enum Attribute {
             $(
@@ -74,9 +73,11 @@ macro_rules! Attribute {
                 $name,
             )*
         }
+
         pub static SGR: &'static[i16] = &[
             $($sgr,)*
         ];
+
         impl Attribute {
             /// Iterates over all the variants of the Attribute enum.
             pub fn iterator() -> impl Iterator<Item = Attribute> {
@@ -138,6 +139,8 @@ Attribute! {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
+    #[doc(hidden)]
+    __Nonexhaustive = 255,
 }
 
 impl Display for Attribute {
