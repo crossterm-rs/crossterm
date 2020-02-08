@@ -3,12 +3,14 @@ use std::{io, mem, process, sync::Mutex};
 
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
-    STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
+    TCSANOW, TIOCGWINSZ,
 };
 
 use lazy_static::lazy_static;
 
 use crate::error::{ErrorKind, Result};
+use std::fs::File;
+use std::os::unix::io::IntoRawFd;
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode
@@ -34,8 +36,10 @@ pub(crate) fn size() -> Result<(u16, u16)> {
         ws_ypixel: 0,
     };
 
+    let file = File::open("/dev/tty").unwrap();
+
     if let Ok(true) =
-        wrap_with_result(unsafe { ioctl(STDOUT_FILENO, TIOCGWINSZ.into(), &mut size) })
+        wrap_with_result(unsafe { ioctl(file.into_raw_fd(), TIOCGWINSZ.into(), &mut size) })
     {
         Ok((size.ws_col, size.ws_row))
     } else {

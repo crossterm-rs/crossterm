@@ -54,6 +54,9 @@ impl From<ControlKeyState> for KeyModifiers {
 }
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
+
+    println!("{:?}", key_event);
+
     let modifiers = KeyModifiers::from(key_event.control_key_state);
 
     let key_code = key_event.virtual_key_code as i32;
