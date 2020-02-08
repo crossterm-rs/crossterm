@@ -2,8 +2,8 @@
 use std::{io, mem, process, sync::Mutex};
 
 use libc::{
-    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
-    TCSANOW, TIOCGWINSZ,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO, TCSANOW,
+    TIOCGWINSZ,
 };
 
 use lazy_static::lazy_static;

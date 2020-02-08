@@ -1,7 +1,6 @@
-use crossterm::terminal;
 use crossterm::style::Attribute;
+use crossterm::terminal;
 
-fn main () {
+fn main() {
     println!("{:?}", terminal::size());
-
 }

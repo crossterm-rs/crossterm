@@ -3,6 +3,7 @@
 - Change attribute vector in `ContentStyle` to bitmask.
 - Add `SetAttributes` command.
 - Add `Attributes` type, which is a bitfield of enabled attributes. 
+- Remove `exit()`, was useless.
 
 # Version 0.15.0
 - Fix CTRL + J key combination. This used to return an ENTER event. 
