@@ -91,7 +91,7 @@ mod read;
 mod source;
 #[cfg(feature = "event-stream")]
 mod stream;
-mod sys;
+pub(crate) mod sys;
 mod timeout;
 
 lazy_static! {
