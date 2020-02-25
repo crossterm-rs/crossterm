@@ -199,40 +199,40 @@ impl Colorize<&'static str> for &'static str {
 
 impl Colorize<&'static char> for &'static char {
     // foreground colors
-    def_str_color!(foreground_color: black => Color::Black);
-    def_str_color!(foreground_color: dark_grey => Color::DarkGrey);
-    def_str_color!(foreground_color: red => Color::Red);
-    def_str_color!(foreground_color: dark_red => Color::DarkRed);
-    def_str_color!(foreground_color: green => Color::Green);
-    def_str_color!(foreground_color: dark_green => Color::DarkGreen);
-    def_str_color!(foreground_color: yellow => Color::Yellow);
-    def_str_color!(foreground_color: dark_yellow => Color::DarkYellow);
-    def_str_color!(foreground_color: blue => Color::Blue);
-    def_str_color!(foreground_color: dark_blue => Color::DarkBlue);
-    def_str_color!(foreground_color: magenta => Color::Magenta);
-    def_str_color!(foreground_color: dark_magenta => Color::DarkMagenta);
-    def_str_color!(foreground_color: cyan => Color::Cyan);
-    def_str_color!(foreground_color: dark_cyan => Color::DarkCyan);
-    def_str_color!(foreground_color: white => Color::White);
-    def_str_color!(foreground_color: grey => Color::Grey);
+    def_char_color!(foreground_color: black => Color::Black);
+    def_char_color!(foreground_color: dark_grey => Color::DarkGrey);
+    def_char_color!(foreground_color: red => Color::Red);
+    def_char_color!(foreground_color: dark_red => Color::DarkRed);
+    def_char_color!(foreground_color: green => Color::Green);
+    def_char_color!(foreground_color: dark_green => Color::DarkGreen);
+    def_char_color!(foreground_color: yellow => Color::Yellow);
+    def_char_color!(foreground_color: dark_yellow => Color::DarkYellow);
+    def_char_color!(foreground_color: blue => Color::Blue);
+    def_char_color!(foreground_color: dark_blue => Color::DarkBlue);
+    def_char_color!(foreground_color: magenta => Color::Magenta);
+    def_char_color!(foreground_color: dark_magenta => Color::DarkMagenta);
+    def_char_color!(foreground_color: cyan => Color::Cyan);
+    def_char_color!(foreground_color: dark_cyan => Color::DarkCyan);
+    def_char_color!(foreground_color: white => Color::White);
+    def_char_color!(foreground_color: grey => Color::Grey);
 
     // background colors
-    def_str_color!(background_color: on_black => Color::Black);
-    def_str_color!(background_color: on_dark_grey => Color::DarkGrey);
-    def_str_color!(background_color: on_red => Color::Red);
-    def_str_color!(background_color: on_dark_red => Color::DarkRed);
-    def_str_color!(background_color: on_green => Color::Green);
-    def_str_color!(background_color: on_dark_green => Color::DarkGreen);
-    def_str_color!(background_color: on_yellow => Color::Yellow);
-    def_str_color!(background_color: on_dark_yellow => Color::DarkYellow);
-    def_str_color!(background_color: on_blue => Color::Blue);
-    def_str_color!(background_color: on_dark_blue => Color::DarkBlue);
-    def_str_color!(background_color: on_magenta => Color::Magenta);
-    def_str_color!(background_color: on_dark_magenta => Color::DarkMagenta);
-    def_str_color!(background_color: on_cyan => Color::Cyan);
-    def_str_color!(background_color: on_dark_cyan => Color::DarkCyan);
-    def_str_color!(background_color: on_white => Color::White);
-    def_str_color!(background_color: on_grey => Color::Grey);
+    def_char_color!(background_color: on_black => Color::Black);
+    def_char_color!(background_color: on_dark_grey => Color::DarkGrey);
+    def_char_color!(background_color: on_red => Color::Red);
+    def_char_color!(background_color: on_dark_red => Color::DarkRed);
+    def_char_color!(background_color: on_green => Color::Green);
+    def_char_color!(background_color: on_dark_green => Color::DarkGreen);
+    def_char_color!(background_color: on_yellow => Color::Yellow);
+    def_char_color!(background_color: on_dark_yellow => Color::DarkYellow);
+    def_char_color!(background_color: on_blue => Color::Blue);
+    def_char_color!(background_color: on_dark_blue => Color::DarkBlue);
+    def_char_color!(background_color: on_magenta => Color::Magenta);
+    def_char_color!(background_color: on_dark_magenta => Color::DarkMagenta);
+    def_char_color!(background_color: on_cyan => Color::Cyan);
+    def_char_color!(background_color: on_dark_cyan => Color::DarkCyan);
+    def_char_color!(background_color: on_white => Color::White);
+    def_char_color!(background_color: on_grey => Color::Grey);
 }
 
 impl Styler<&'static str> for &'static str {
