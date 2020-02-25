@@ -249,20 +249,20 @@ impl Styler<&'static str> for &'static str {
     def_str_attr!(crossed_out => Attribute::CrossedOut);
 }
 
-/*
-impl Styler<&'static char> for &'static char {
-    def_str_attr!(reset => Attribute::Reset);
-    def_str_attr!(bold => Attribute::Bold);
-    def_str_attr!(underlined => Attribute::Underlined);
-    def_str_attr!(reverse => Attribute::Reverse);
-    def_str_attr!(dim => Attribute::Dim);
-    def_str_attr!(italic => Attribute::Italic);
-    def_str_attr!(negative => Attribute::Reverse);
-    def_str_attr!(slow_blink => Attribute::SlowBlink);
-    def_str_attr!(rapid_blink => Attribute::RapidBlink);
-    def_str_attr!(hidden => Attribute::Hidden);
-    def_str_attr!(crossed_out => Attribute::CrossedOut);
-}*/
+
+impl Styler<char> for char {
+    def_char_attr!(reset => Attribute::Reset);
+    def_char_attr!(bold => Attribute::Bold);
+    def_char_attr!(underlined => Attribute::Underlined);
+    def_char_attr!(reverse => Attribute::Reverse);
+    def_char_attr!(dim => Attribute::Dim);
+    def_char_attr!(italic => Attribute::Italic);
+    def_char_attr!(negative => Attribute::Reverse);
+    def_char_attr!(slow_blink => Attribute::SlowBlink);
+    def_char_attr!(rapid_blink => Attribute::RapidBlink);
+    def_char_attr!(hidden => Attribute::Hidden);
+    def_char_attr!(crossed_out => Attribute::CrossedOut);
+}
 
 /// Returns available color count.
 ///
