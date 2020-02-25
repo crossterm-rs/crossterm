@@ -197,7 +197,7 @@ impl Colorize<&'static str> for &'static str {
     def_str_color!(background_color: on_grey => Color::Grey);
 }
 
-impl Colorize<&'static char> for &'static char {
+impl Colorize<char> for char {
     // foreground colors
     def_char_color!(foreground_color: black => Color::Black);
     def_char_color!(foreground_color: dark_grey => Color::DarkGrey);
