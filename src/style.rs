@@ -249,7 +249,6 @@ impl Styler<&'static str> for &'static str {
     def_str_attr!(crossed_out => Attribute::CrossedOut);
 }
 
-
 impl Styler<char> for char {
     def_char_attr!(reset => Attribute::Reset);
     def_char_attr!(bold => Attribute::Bold);
