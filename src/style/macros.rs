@@ -34,9 +34,37 @@ macro_rules! def_str_color {
     };
 }
 
+macro_rules! def_char_color {
+    ($side:ident: $name:ident => $color:path) => {
+        fn $name(self) -> StyledContent<char> {
+            StyledContent::new(
+                ContentStyle {
+                    $side: Some($color),
+                    ..Default::default()
+                },
+                self
+            )
+        }
+    };
+}
+
 macro_rules! def_str_attr {
     ($name:ident => $attr:path) => {
         fn $name(self) -> StyledContent<&'static str> {
+            StyledContent::new(
+                ContentStyle {
+                    attributes: $attr.into(),
+                    ..Default::default()
+                },
+                self
+            )
+        }
+    }
+}
+
+macro_rules! def_char_attr {
+    ($name:ident => $attr:path) => {
+        fn $name(self) -> StyledContent<char> {
             StyledContent::new(
                 ContentStyle {
                     attributes: $attr.into(),

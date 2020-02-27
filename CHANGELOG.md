@@ -1,3 +1,6 @@
+# Version 0.16.1
+- Add support for converting chars to StylizedContent
+
 # Version 0.16.0
 - Make terminal size function work on `/dev/tty` instead of `STDOUT_FILENO`.
 - Change attribute vector in `ContentStyle` to bitmask.

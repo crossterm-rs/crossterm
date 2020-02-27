@@ -197,6 +197,44 @@ impl Colorize<&'static str> for &'static str {
     def_str_color!(background_color: on_grey => Color::Grey);
 }
 
+impl Colorize<char> for char {
+    // foreground colors
+    def_char_color!(foreground_color: black => Color::Black);
+    def_char_color!(foreground_color: dark_grey => Color::DarkGrey);
+    def_char_color!(foreground_color: red => Color::Red);
+    def_char_color!(foreground_color: dark_red => Color::DarkRed);
+    def_char_color!(foreground_color: green => Color::Green);
+    def_char_color!(foreground_color: dark_green => Color::DarkGreen);
+    def_char_color!(foreground_color: yellow => Color::Yellow);
+    def_char_color!(foreground_color: dark_yellow => Color::DarkYellow);
+    def_char_color!(foreground_color: blue => Color::Blue);
+    def_char_color!(foreground_color: dark_blue => Color::DarkBlue);
+    def_char_color!(foreground_color: magenta => Color::Magenta);
+    def_char_color!(foreground_color: dark_magenta => Color::DarkMagenta);
+    def_char_color!(foreground_color: cyan => Color::Cyan);
+    def_char_color!(foreground_color: dark_cyan => Color::DarkCyan);
+    def_char_color!(foreground_color: white => Color::White);
+    def_char_color!(foreground_color: grey => Color::Grey);
+
+    // background colors
+    def_char_color!(background_color: on_black => Color::Black);
+    def_char_color!(background_color: on_dark_grey => Color::DarkGrey);
+    def_char_color!(background_color: on_red => Color::Red);
+    def_char_color!(background_color: on_dark_red => Color::DarkRed);
+    def_char_color!(background_color: on_green => Color::Green);
+    def_char_color!(background_color: on_dark_green => Color::DarkGreen);
+    def_char_color!(background_color: on_yellow => Color::Yellow);
+    def_char_color!(background_color: on_dark_yellow => Color::DarkYellow);
+    def_char_color!(background_color: on_blue => Color::Blue);
+    def_char_color!(background_color: on_dark_blue => Color::DarkBlue);
+    def_char_color!(background_color: on_magenta => Color::Magenta);
+    def_char_color!(background_color: on_dark_magenta => Color::DarkMagenta);
+    def_char_color!(background_color: on_cyan => Color::Cyan);
+    def_char_color!(background_color: on_dark_cyan => Color::DarkCyan);
+    def_char_color!(background_color: on_white => Color::White);
+    def_char_color!(background_color: on_grey => Color::Grey);
+}
+
 impl Styler<&'static str> for &'static str {
     def_str_attr!(reset => Attribute::Reset);
     def_str_attr!(bold => Attribute::Bold);
@@ -209,6 +247,20 @@ impl Styler<&'static str> for &'static str {
     def_str_attr!(rapid_blink => Attribute::RapidBlink);
     def_str_attr!(hidden => Attribute::Hidden);
     def_str_attr!(crossed_out => Attribute::CrossedOut);
+}
+
+impl Styler<char> for char {
+    def_char_attr!(reset => Attribute::Reset);
+    def_char_attr!(bold => Attribute::Bold);
+    def_char_attr!(underlined => Attribute::Underlined);
+    def_char_attr!(reverse => Attribute::Reverse);
+    def_char_attr!(dim => Attribute::Dim);
+    def_char_attr!(italic => Attribute::Italic);
+    def_char_attr!(negative => Attribute::Reverse);
+    def_char_attr!(slow_blink => Attribute::SlowBlink);
+    def_char_attr!(rapid_blink => Attribute::RapidBlink);
+    def_char_attr!(hidden => Attribute::Hidden);
+    def_char_attr!(crossed_out => Attribute::CrossedOut);
 }
 
 /// Returns available color count.
