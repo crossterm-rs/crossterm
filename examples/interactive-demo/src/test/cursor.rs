@@ -132,7 +132,7 @@ fn draw_cursor_box<W, F, T>(w: &mut W, description: &str, cursor_command: F) -> 
 where
     W: Write,
     F: Fn(u16, u16) -> T,
-    T: Command<AnsiType = String>,
+    T: Command,
 {
     execute!(
         w,
