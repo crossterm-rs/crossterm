@@ -14,7 +14,7 @@ macro_rules! def_color {
                     $side: Some($color),
                     ..self.style
                 },
-                self.content
+                self.content,
             )
         }
     };
@@ -22,13 +22,13 @@ macro_rules! def_color {
 
 macro_rules! def_str_color {
     ($side:ident: $name:ident => $color:path) => {
-        fn $name(self) -> StyledContent< &'static str> {
+        fn $name(self) -> StyledContent<&'static str> {
             StyledContent::new(
                 ContentStyle {
                     $side: Some($color),
                     ..Default::default()
                 },
-                self
+                self,
             )
         }
     };
@@ -42,7 +42,7 @@ macro_rules! def_char_color {
                     $side: Some($color),
                     ..Default::default()
                 },
-                self
+                self,
             )
         }
     };
@@ -56,10 +56,10 @@ macro_rules! def_str_attr {
                     attributes: $attr.into(),
                     ..Default::default()
                 },
-                self
+                self,
             )
         }
-    }
+    };
 }
 
 macro_rules! def_char_attr {
@@ -70,8 +70,8 @@ macro_rules! def_char_attr {
                     attributes: $attr.into(),
                     ..Default::default()
                 },
-                self
+                self,
             )
         }
-    }
+    };
 }

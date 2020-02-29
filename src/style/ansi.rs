@@ -6,93 +6,89 @@ use crate::{
     style::{Attribute, Attributes, Color, Colored},
 };
 
-pub(crate) fn set_fg_csi_sequence(fg_color: Color) -> String {
-    format!(
+use std::fmt::{self, Formatter};
+
+pub(crate) fn set_fg_csi_sequence(f: &mut Formatter, fg_color: Color) -> fmt::Result {
+    write!(
+        f,
         csi!("{}m"),
         Into::<String>::into(Colored::ForegroundColor(fg_color))
     )
 }
 
-pub(crate) fn set_bg_csi_sequence(bg_color: Color) -> String {
-    format!(
+pub(crate) fn set_bg_csi_sequence(f: &mut Formatter, bg_color: Color) -> fmt::Result {
+    write!(
+        f,
         csi!("{}m"),
         Into::<String>::into(Colored::BackgroundColor(bg_color))
     )
 }
 
-pub(crate) fn set_attr_csi_sequence(attribute: Attribute) -> String {
-    format!(csi!("{}m"), attribute.sgr())
+pub(crate) fn set_attr_csi_sequence(f: &mut Formatter, attribute: Attribute) -> fmt::Result {
+    write!(f, csi!("{}m"), attribute.sgr())
 }
 
-pub(crate) fn set_attrs_csi_sequence(attributes: Attributes) -> String {
-    let mut ansi = String::new();
+pub(crate) fn set_attrs_csi_sequence(f: &mut Formatter, attributes: Attributes) -> fmt::Result {
     for attr in Attribute::iterator() {
         if attributes.has(attr) {
-            ansi.push_str(&format!(csi!("{}m"), attr.sgr()));
+            write!(f, csi!("{}m"), attr.sgr())?;
         }
     }
-    ansi
+    Ok(())
 }
 
 pub(crate) const RESET_CSI_SEQUENCE: &str = csi!("0m");
 
-impl From<Colored> for String {
-    fn from(colored: Colored) -> Self {
-        let mut ansi_value = String::new();
-
+impl fmt::Display for Colored {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let color;
 
-        match colored {
+        match *self {
             Colored::ForegroundColor(new_color) => {
                 if new_color == Color::Reset {
-                    ansi_value.push_str("39");
-                    return ansi_value;
+                    return f.write_str("39");
                 } else {
-                    ansi_value.push_str("38;");
+                    f.write_str("38;")?;
                     color = new_color;
                 }
             }
             Colored::BackgroundColor(new_color) => {
                 if new_color == Color::Reset {
-                    ansi_value.push_str("49");
-                    return ansi_value;
+                    return f.write_str("49");
                 } else {
-                    ansi_value.push_str("48;");
+                    f.write_str("48;")?;
                     color = new_color;
                 }
             }
         }
 
-        let color_val = match color {
-            Color::Black => "5;0",
-            Color::DarkGrey => "5;8",
-            Color::Red => "5;9",
-            Color::DarkRed => "5;1",
-            Color::Green => "5;10",
-            Color::DarkGreen => "5;2",
-            Color::Yellow => "5;11",
-            Color::DarkYellow => "5;3",
-            Color::Blue => "5;12",
-            Color::DarkBlue => "5;4",
-            Color::Magenta => "5;13",
-            Color::DarkMagenta => "5;5",
-            Color::Cyan => "5;14",
-            Color::DarkCyan => "5;6",
-            Color::White => "5;15",
-            Color::Grey => "5;7",
-            Color::Rgb { r, g, b } => {
-                ansi_value.push_str(format!("2;{};{};{}", r, g, b).as_str());
-                ""
-            }
-            Color::AnsiValue(val) => {
-                ansi_value.push_str(format!("5;{}", val).as_str());
-                ""
-            }
-            _ => "",
-        };
+        match color {
+            Color::Black => f.write_str("5;0"),
+            Color::DarkGrey => f.write_str("5;8"),
+            Color::Red => f.write_str("5;9"),
+            Color::DarkRed => f.write_str("5;1"),
+            Color::Green => f.write_str("5;10"),
+            Color::DarkGreen => f.write_str("5;2"),
+            Color::Yellow => f.write_str("5;11"),
+            Color::DarkYellow => f.write_str("5;3"),
+            Color::Blue => f.write_str("5;12"),
+            Color::DarkBlue => f.write_str("5;4"),
+            Color::Magenta => f.write_str("5;13"),
+            Color::DarkMagenta => f.write_str("5;5"),
+            Color::Cyan => f.write_str("5;14"),
+            Color::DarkCyan => f.write_str("5;6"),
+            Color::White => f.write_str("5;15"),
+            Color::Grey => f.write_str("5;7"),
+            Color::Rgb { r, g, b } => write!(f, "2;{};{};{}", r, g, b),
+            Color::AnsiValue(val) => write!(f, "5;{}", val),
+            _ => Ok(()),
+        }
+    }
+}
 
-        ansi_value.push_str(color_val);
-        ansi_value
+impl From<Colored> for String {
+    fn from(colored: Colored) -> Self {
+        colored.to_string()
     }
 }
 
