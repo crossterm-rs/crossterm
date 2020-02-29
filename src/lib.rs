@@ -62,8 +62,8 @@
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
 //!     [`SetSize`](terminal/struct.SetSize.html)
-//!   - Alternate screen - [`EnterAlternateScreen`](screen/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](screen/struct.LeaveAlternateScreen.html)
+//!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
+//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
 //!
 //! ### Command Execution
 //!
