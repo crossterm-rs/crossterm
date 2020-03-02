@@ -9,19 +9,11 @@ use crate::{
 use std::fmt::{self, Formatter};
 
 pub(crate) fn set_fg_csi_sequence(f: &mut Formatter, fg_color: Color) -> fmt::Result {
-    write!(
-        f,
-        csi!("{}m"),
-        Into::<String>::into(Colored::ForegroundColor(fg_color))
-    )
+    write!(f, csi!("{}m"), Colored::ForegroundColor(fg_color))
 }
 
 pub(crate) fn set_bg_csi_sequence(f: &mut Formatter, bg_color: Color) -> fmt::Result {
-    write!(
-        f,
-        csi!("{}m"),
-        Into::<String>::into(Colored::BackgroundColor(bg_color))
-    )
+    write!(f, csi!("{}m"), Colored::BackgroundColor(bg_color))
 }
 
 pub(crate) fn set_attr_csi_sequence(f: &mut Formatter, attribute: Attribute) -> fmt::Result {
@@ -86,12 +78,6 @@ impl fmt::Display for Colored {
     }
 }
 
-impl From<Colored> for String {
-    fn from(colored: Colored) -> Self {
-        colored.to_string()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::style::{Color, Colored};
@@ -99,36 +85,36 @@ mod tests {
     #[test]
     fn test_parse_fg_color() {
         let colored = Colored::ForegroundColor(Color::Red);
-        assert_eq!(Into::<String>::into(colored), "38;5;9");
+        assert_eq!(colored.to_string(), "38;5;9");
     }
 
     #[test]
     fn test_parse_bg_color() {
         let colored = Colored::BackgroundColor(Color::Red);
-        assert_eq!(Into::<String>::into(colored), "48;5;9");
+        assert_eq!(colored.to_string(), "48;5;9");
     }
 
     #[test]
     fn test_parse_reset_fg_color() {
         let colored = Colored::ForegroundColor(Color::Reset);
-        assert_eq!(Into::<String>::into(colored), "39");
+        assert_eq!(colored.to_string(), "39");
     }
 
     #[test]
     fn test_parse_reset_bg_color() {
         let colored = Colored::BackgroundColor(Color::Reset);
-        assert_eq!(Into::<String>::into(colored), "49");
+        assert_eq!(colored.to_string(), "49");
     }
 
     #[test]
     fn test_parse_fg_rgb_color() {
         let colored = Colored::BackgroundColor(Color::Rgb { r: 1, g: 2, b: 3 });
-        assert_eq!(Into::<String>::into(colored), "48;2;1;2;3");
+        assert_eq!(colored.to_string(), "48;2;1;2;3");
     }
 
     #[test]
     fn test_parse_fg_ansi_color() {
         let colored = Colored::ForegroundColor(Color::AnsiValue(255));
-        assert_eq!(Into::<String>::into(colored), "38;5;255");
+        assert_eq!(colored.to_string(), "38;5;255");
     }
 }

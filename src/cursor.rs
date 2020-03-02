@@ -46,7 +46,7 @@ pub use sys::position;
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Command};
+use crate::{impl_display, Ansi, Command};
 use std::fmt;
 
 mod ansi;
@@ -61,18 +61,18 @@ pub(crate) mod sys;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveTo(pub u16, pub u16);
 
-impl fmt::Display for MoveTo {
+impl fmt::Display for Ansi<MoveTo> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_to_csi_sequence(f, self.0, self.1)
+        ansi::move_to_csi_sequence(f, (self.0).0, (self.0).1)
     }
 }
 
 impl Command for MoveTo {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -90,18 +90,18 @@ impl Command for MoveTo {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToNextLine(pub u16);
 
-impl fmt::Display for MoveToNextLine {
+impl fmt::Display for Ansi<MoveToNextLine> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_to_next_line_csi_sequence(f, self.0)
+        ansi::move_to_next_line_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveToNextLine {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -119,18 +119,18 @@ impl Command for MoveToNextLine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToPreviousLine(pub u16);
 
-impl fmt::Display for MoveToPreviousLine {
+impl fmt::Display for Ansi<MoveToPreviousLine> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_to_previous_line_csi_sequence(f, self.0)
+        ansi::move_to_previous_line_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveToPreviousLine {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -147,18 +147,18 @@ impl Command for MoveToPreviousLine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToColumn(pub u16);
 
-impl fmt::Display for MoveToColumn {
+impl fmt::Display for Ansi<MoveToColumn> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_to_column_csi_sequence(f, self.0)
+        ansi::move_to_column_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveToColumn {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -175,18 +175,18 @@ impl Command for MoveToColumn {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveUp(pub u16);
 
-impl fmt::Display for MoveUp {
+impl fmt::Display for Ansi<MoveUp> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_up_csi_sequence(f, self.0)
+        ansi::move_up_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveUp {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -203,18 +203,18 @@ impl Command for MoveUp {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveRight(pub u16);
 
-impl fmt::Display for MoveRight {
+impl fmt::Display for Ansi<MoveRight> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_right_csi_sequence(f, self.0)
+        ansi::move_right_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveRight {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -231,18 +231,18 @@ impl Command for MoveRight {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveDown(pub u16);
 
-impl fmt::Display for MoveDown {
+impl fmt::Display for Ansi<MoveDown> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_down_csi_sequence(f, self.0)
+        ansi::move_down_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveDown {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -259,18 +259,18 @@ impl Command for MoveDown {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveLeft(pub u16);
 
-impl fmt::Display for MoveLeft {
+impl fmt::Display for Ansi<MoveLeft> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::move_left_csi_sequence(f, self.0)
+        ansi::move_left_csi_sequence(f, (self.0).0)
     }
 }
 
 impl Command for MoveLeft {
-    type AnsiType = Self;
+    type AnsiType = Ansi<Self>;
 
     #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        *self
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -419,6 +419,11 @@ impl Command for DisableBlinking {
     }
 }
 
+impl_display!(for MoveTo);
+impl_display!(for MoveUp);
+impl_display!(for MoveDown);
+impl_display!(for MoveLeft);
+impl_display!(for MoveRight);
 impl_display!(for SavePosition);
 impl_display!(for RestorePosition);
 impl_display!(for Hide);
