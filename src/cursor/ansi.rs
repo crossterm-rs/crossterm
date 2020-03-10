@@ -1,37 +1,38 @@
 //! This module provides cursor related ANSI escape codes.
 
 use crate::csi;
+use std::fmt::{self, Formatter};
 
-pub(crate) fn move_to_csi_sequence(x: u16, y: u16) -> String {
-    format!(csi!("{};{}H"), y + 1, x + 1)
+pub(crate) fn move_to_csi_sequence(f: &mut Formatter, x: u16, y: u16) -> fmt::Result {
+    write!(f, csi!("{};{}H"), y + 1, x + 1)
 }
 
-pub(crate) fn move_up_csi_sequence(count: u16) -> String {
-    format!(csi!("{}A"), count)
+pub(crate) fn move_up_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}A"), count)
 }
 
-pub(crate) fn move_right_csi_sequence(count: u16) -> String {
-    format!(csi!("{}C"), count)
+pub(crate) fn move_right_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}C"), count)
 }
 
-pub(crate) fn move_down_csi_sequence(count: u16) -> String {
-    format!(csi!("{}B"), count)
+pub(crate) fn move_down_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}B"), count)
 }
 
-pub(crate) fn move_left_csi_sequence(count: u16) -> String {
-    format!(csi!("{}D"), count)
+pub(crate) fn move_left_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}D"), count)
 }
 
-pub(crate) fn move_to_column_csi_sequence(count: u16) -> String {
-    format!(csi!("{}G"), count)
+pub(crate) fn move_to_column_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}G"), count)
 }
 
-pub(crate) fn move_to_previous_line_csi_sequence(count: u16) -> String {
-    format!(csi!("{}F"), count)
+pub(crate) fn move_to_previous_line_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}F"), count)
 }
 
-pub(crate) fn move_to_next_line_csi_sequence(count: u16) -> String {
-    format!(csi!("{}E"), count)
+pub(crate) fn move_to_next_line_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
+    write!(f, csi!("{}E"), count)
 }
 
 pub(crate) const SAVE_POSITION_CSI_SEQUENCE: &str = "\x1B7";

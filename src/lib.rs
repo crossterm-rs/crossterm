@@ -228,6 +228,7 @@
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
 pub use crate::{
+    ansi::Ansi,
     command::{Command, ExecutableCommand, QueueableCommand},
     error::{ErrorKind, Result},
 };
@@ -241,6 +242,7 @@ pub mod style;
 /// A module to work with the terminal.
 pub mod terminal;
 
+mod ansi;
 #[cfg(windows)]
 pub(crate) mod ansi_support;
 mod command;

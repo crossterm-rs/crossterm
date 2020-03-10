@@ -46,7 +46,8 @@ pub use sys::position;
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Command};
+use crate::{impl_display, Ansi, Command};
+use std::fmt;
 
 mod ansi;
 pub(crate) mod sys;
@@ -60,11 +61,18 @@ pub(crate) mod sys;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveTo(pub u16, pub u16);
 
-impl Command for MoveTo {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveTo> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_to_csi_sequence(f, (self.0).0, (self.0).1)
+    }
+}
 
+impl Command for MoveTo {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_csi_sequence(self.0, self.1)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -82,11 +90,18 @@ impl Command for MoveTo {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToNextLine(pub u16);
 
-impl Command for MoveToNextLine {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveToNextLine> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_to_next_line_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveToNextLine {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_next_line_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -104,11 +119,18 @@ impl Command for MoveToNextLine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToPreviousLine(pub u16);
 
-impl Command for MoveToPreviousLine {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveToPreviousLine> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_to_previous_line_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveToPreviousLine {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_previous_line_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -125,11 +147,18 @@ impl Command for MoveToPreviousLine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToColumn(pub u16);
 
-impl Command for MoveToColumn {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveToColumn> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_to_column_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveToColumn {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_to_column_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -146,11 +175,18 @@ impl Command for MoveToColumn {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveUp(pub u16);
 
-impl Command for MoveUp {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveUp> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_up_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveUp {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_up_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -167,11 +203,18 @@ impl Command for MoveUp {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveRight(pub u16);
 
-impl Command for MoveRight {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveRight> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_right_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveRight {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_right_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -188,11 +231,18 @@ impl Command for MoveRight {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveDown(pub u16);
 
-impl Command for MoveDown {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveDown> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_down_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveDown {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_down_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -209,11 +259,18 @@ impl Command for MoveDown {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveLeft(pub u16);
 
-impl Command for MoveLeft {
-    type AnsiType = String;
+impl fmt::Display for Ansi<MoveLeft> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::move_left_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for MoveLeft {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::move_left_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -236,6 +293,7 @@ pub struct SavePosition;
 impl Command for SavePosition {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::SAVE_POSITION_CSI_SEQUENCE
     }
@@ -260,6 +318,7 @@ pub struct RestorePosition;
 impl Command for RestorePosition {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::RESTORE_POSITION_CSI_SEQUENCE
     }
@@ -281,6 +340,7 @@ pub struct Hide;
 impl Command for Hide {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::HIDE_CSI_SEQUENCE
     }
@@ -302,6 +362,7 @@ pub struct Show;
 impl Command for Show {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::SHOW_CSI_SEQUENCE
     }
@@ -324,6 +385,7 @@ pub struct EnableBlinking;
 impl Command for EnableBlinking {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::ENABLE_BLINKING_CSI_SEQUENCE
     }
@@ -346,6 +408,7 @@ pub struct DisableBlinking;
 impl Command for DisableBlinking {
     type AnsiType = &'static str;
 
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
         ansi::DISABLE_BLINKING_CSI_SEQUENCE
     }

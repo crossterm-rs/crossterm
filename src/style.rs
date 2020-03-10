@@ -114,7 +114,8 @@ use std::{env, fmt::Display};
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Command};
+use crate::{impl_display, Ansi, Command};
+use std::fmt;
 
 pub(crate) use self::enums::Colored;
 pub use self::{
@@ -284,11 +285,18 @@ pub fn available_color_count() -> u16 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetForegroundColor(pub Color);
 
-impl Command for SetForegroundColor {
-    type AnsiType = String;
+impl fmt::Display for Ansi<SetForegroundColor> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::set_fg_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for SetForegroundColor {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_fg_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -307,11 +315,18 @@ impl Command for SetForegroundColor {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetBackgroundColor(pub Color);
 
-impl Command for SetBackgroundColor {
-    type AnsiType = String;
+impl fmt::Display for Ansi<SetBackgroundColor> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::set_bg_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for SetBackgroundColor {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_bg_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -330,11 +345,18 @@ impl Command for SetBackgroundColor {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttribute(pub Attribute);
 
-impl Command for SetAttribute {
-    type AnsiType = String;
+impl fmt::Display for Ansi<SetAttribute> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::set_attr_csi_sequence(f, (self.0).0)
+    }
+}
 
+impl Command for SetAttribute {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_attr_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -354,11 +376,17 @@ impl Command for SetAttribute {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttributes(pub Attributes);
 
+impl fmt::Display for Ansi<SetAttributes> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        ansi::set_attrs_csi_sequence(f, (self.0).0)
+    }
+}
+
 impl Command for SetAttributes {
-    type AnsiType = String;
+    type AnsiType = Ansi<Self>;
 
     fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_attrs_csi_sequence(self.0)
+        Ansi(*self)
     }
 
     #[cfg(windows)]
