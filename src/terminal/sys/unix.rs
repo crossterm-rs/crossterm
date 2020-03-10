@@ -4,8 +4,8 @@ use std::{io, mem, process, sync::Mutex};
 use crate::event::sys::unix::file_descriptor::FileDesc;
 use lazy_static::lazy_static;
 use libc::{
-    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO, TCSANOW,
-    TIOCGWINSZ,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDIN_FILENO,
+    STDOUT_FILENO, TCSANOW, TIOCGWINSZ,
 };
 
 use crate::error::{ErrorKind, Result};
@@ -32,11 +32,14 @@ pub(crate) fn size() -> Result<(u16, u16)> {
         ws_ypixel: 0,
     };
 
-    let file = File::open("/dev/tty")?;
+    let fd = if let Ok(file) = File::open("/dev/tty") {
+        FileDesc::new(file.into_raw_fd(), true).raw_fd()
+    } else {
+        // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
+        STDOUT_FILENO
+    };
 
-    let fd = FileDesc::new(file.into_raw_fd(), true);
-    if let Ok(true) = wrap_with_result(unsafe { ioctl(fd.raw_fd(), TIOCGWINSZ.into(), &mut size) })
-    {
+    if let Ok(true) = wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }) {
         Ok((size.ws_col, size.ws_row))
     } else {
         tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
