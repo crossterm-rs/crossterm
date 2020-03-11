@@ -1,5 +1,6 @@
 # Version 0.16.1
 - Add support for converting chars to StylizedContent
+- Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.
 
 # Version 0.16.0
 - Make terminal size function work on `/dev/tty` instead of `STDOUT_FILENO`.
