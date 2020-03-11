@@ -420,6 +420,9 @@ impl Command for DisableBlinking {
 }
 
 impl_display!(for MoveTo);
+impl_display!(for MoveToColumn);
+impl_display!(for MoveToNextLine);
+impl_display!(for MoveToPreviousLine);
 impl_display!(for MoveUp);
 impl_display!(for MoveDown);
 impl_display!(for MoveLeft);
