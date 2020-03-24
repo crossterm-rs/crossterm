@@ -12,6 +12,7 @@ use super::super::{
     timeout::PollTimeout,
     Event, InternalEvent,
 };
+use anes::parser;
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
@@ -35,7 +36,7 @@ fn pipe() -> Result<(FileDesc, FileDesc)> {
 }
 
 pub(crate) struct UnixInternalEventSource {
-    parser: anes::Parser,
+    parser: parser::Parser,
     poll: Poll,
     events: Events,
     tty_fd: FileDesc,
@@ -86,7 +87,7 @@ impl UnixInternalEventSource {
         )?;
 
         Ok(UnixInternalEventSource {
-            parser: anes::Parser::default(),
+            parser: anes::parser::Parser::default(),
             poll,
             events: Events::with_capacity(3),
             tty_fd: input_fd,
@@ -122,7 +123,7 @@ impl EventSource for UnixInternalEventSource {
                                     .poll(&mut self.events, Some(Duration::from_secs(0)))
                                     .map(|x| x > 0)?;
 
-                                self.parser.advance(byte, input_available);
+                                self.parser.advance(&[byte], input_available);
 
                                 if let Some(event) = self.parser.next() {
                                     return Ok(Some(event.into()));

@@ -1,20 +1,21 @@
 use anes;
 
 use super::{Event, InternalEvent, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent};
+use anes::parser;
 
-impl From<anes::KeyModifiers> for KeyModifiers {
-    fn from(akm: anes::KeyModifiers) -> Self {
+impl From<parser::KeyModifiers> for KeyModifiers {
+    fn from(akm: parser::KeyModifiers) -> Self {
         let mut modifiers = KeyModifiers::empty();
 
-        if akm.contains(anes::KeyModifiers::SHIFT) {
+        if akm.contains(parser::KeyModifiers::SHIFT) {
             modifiers |= KeyModifiers::SHIFT;
         }
 
-        if akm.contains(anes::KeyModifiers::ALT) {
+        if akm.contains(parser::KeyModifiers::ALT) {
             modifiers |= KeyModifiers::ALT;
         }
 
-        if akm.contains(anes::KeyModifiers::CONTROL) {
+        if akm.contains(parser::KeyModifiers::CONTROL) {
             modifiers |= KeyModifiers::CONTROL;
         }
 
@@ -24,64 +25,65 @@ impl From<anes::KeyModifiers> for KeyModifiers {
     }
 }
 
-impl From<anes::KeyCode> for KeyCode {
-    fn from(akc: anes::KeyCode) -> Self {
+impl From<parser::KeyCode> for KeyCode {
+    fn from(akc: parser::KeyCode) -> Self {
         match akc {
-            anes::KeyCode::Up => KeyCode::Up,
-            anes::KeyCode::Down => KeyCode::Down,
-            anes::KeyCode::Left => KeyCode::Left,
-            anes::KeyCode::Right => KeyCode::Right,
-            anes::KeyCode::Backspace => KeyCode::Backspace,
-            anes::KeyCode::Enter => KeyCode::Enter,
-            anes::KeyCode::Home => KeyCode::Home,
-            anes::KeyCode::End => KeyCode::End,
-            anes::KeyCode::PageUp => KeyCode::PageUp,
-            anes::KeyCode::PageDown => KeyCode::PageDown,
-            anes::KeyCode::Tab => KeyCode::Tab,
-            anes::KeyCode::BackTab => KeyCode::BackTab,
-            anes::KeyCode::Delete => KeyCode::Delete,
-            anes::KeyCode::Insert => KeyCode::Insert,
-            anes::KeyCode::F(x) => KeyCode::F(x),
-            anes::KeyCode::Char(ch) => KeyCode::Char(ch),
-            anes::KeyCode::Null => KeyCode::Null,
-            anes::KeyCode::Esc => KeyCode::Esc,
+            parser::KeyCode::Up => KeyCode::Up,
+            parser::KeyCode::Down => KeyCode::Down,
+            parser::KeyCode::Left => KeyCode::Left,
+            parser::KeyCode::Right => KeyCode::Right,
+            parser::KeyCode::Backspace => KeyCode::Backspace,
+            parser::KeyCode::Enter => KeyCode::Enter,
+            parser::KeyCode::Home => KeyCode::Home,
+            parser::KeyCode::End => KeyCode::End,
+            parser::KeyCode::PageUp => KeyCode::PageUp,
+            parser::KeyCode::PageDown => KeyCode::PageDown,
+            parser::KeyCode::Tab => KeyCode::Tab,
+            parser::KeyCode::BackTab => KeyCode::BackTab,
+            parser::KeyCode::Delete => KeyCode::Delete,
+            parser::KeyCode::Insert => KeyCode::Insert,
+            parser::KeyCode::F(x) => KeyCode::F(x),
+            parser::KeyCode::Char(ch) => KeyCode::Char(ch),
+            parser::KeyCode::Null => KeyCode::Null,
+            parser::KeyCode::Esc => KeyCode::Esc,
         }
     }
 }
 
-impl From<anes::MouseButton> for MouseButton {
-    fn from(amb: anes::MouseButton) -> Self {
+impl From<parser::MouseButton> for MouseButton {
+    fn from(amb: parser::MouseButton) -> Self {
         match amb {
-            anes::MouseButton::Left => MouseButton::Left,
-            anes::MouseButton::Middle => MouseButton::Middle,
-            anes::MouseButton::Right => MouseButton::Right,
+            parser::MouseButton::Left => MouseButton::Left,
+            parser::MouseButton::Middle => MouseButton::Middle,
+            parser::MouseButton::Right => MouseButton::Right,
+            parser::MouseButton::Any => MouseButton::Middle
         }
     }
 }
 
-impl From<anes::Sequence> for InternalEvent {
-    fn from(seq: anes::Sequence) -> Self {
+impl From<parser::Sequence> for InternalEvent {
+    fn from(seq: parser::Sequence) -> Self {
         match seq {
-            anes::Sequence::CursorPosition(x, y) => InternalEvent::CursorPosition(x - 1, y - 1),
-            anes::Sequence::Key(code, modifiers) => InternalEvent::Event(Event::Key(KeyEvent {
+            parser::Sequence::CursorPosition(x, y) => InternalEvent::CursorPosition(x - 1, y - 1),
+            parser::Sequence::Key(code, modifiers) => InternalEvent::Event(Event::Key(KeyEvent {
                 code: code.into(),
                 modifiers: modifiers.into(),
             })),
-            anes::Sequence::Mouse(mouse) => {
+            parser::Sequence::Mouse(mouse, modifiers) => {
                 let mouse = match mouse {
-                    anes::Mouse::Down(button, x, y, modifiers) => {
+                    parser::Mouse::Down(button, x, y) => {
                         MouseEvent::Down(button.into(), x - 1, y - 1, modifiers.into())
                     }
-                    anes::Mouse::Up(button, x, y, modifiers) => {
+                    parser::Mouse::Up(button, x, y) => {
                         MouseEvent::Up(button.into(), x - 1, y - 1, modifiers.into())
                     }
-                    anes::Mouse::Drag(button, x, y, modifiers) => {
+                    parser::Mouse::Drag(button, x, y) => {
                         MouseEvent::Drag(button.into(), x - 1, y - 1, modifiers.into())
                     }
-                    anes::Mouse::ScrollUp(x, y, modifiers) => {
+                    parser::Mouse::ScrollUp(x, y) => {
                         MouseEvent::ScrollUp(x - 1, y - 1, modifiers.into())
                     }
-                    anes::Mouse::ScrollDown(x, y, modifiers) => {
+                    parser::Mouse::ScrollDown(x, y) => {
                         MouseEvent::ScrollDown(x - 1, y - 1, modifiers.into())
                     }
                 };
