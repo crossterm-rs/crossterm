@@ -1,9 +1,12 @@
-# Version 0.16.1
+# Version 0.17
+- Impl Display for MoveToColumn, MoveToNextLine, MoveToPreviousLine
+- Make unix event reader always use `/dev/tty`.
+- Direct write command ansi_codes into formatter instead of double allocation.
+- Add NONE flag to KeyModifiers 
 - Add support for converting chars to StylizedContent
 - Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.
 
 # Version 0.16.0
-- Make terminal size function work on `/dev/tty` instead of `STDOUT_FILENO`.
 - Change attribute vector in `ContentStyle` to bitmask.
 - Add `SetAttributes` command.
 - Add `Attributes` type, which is a bitfield of enabled attributes. 
