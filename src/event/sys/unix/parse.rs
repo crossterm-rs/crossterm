@@ -88,7 +88,10 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
             KeyCode::Char((c as u8 - 0x1C + b'4') as char),
             KeyModifiers::CONTROL,
         ))))),
-        b'\0' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Null.into())))),
+        b'\0' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+            KeyCode::Char(' '),
+            KeyModifiers::CONTROL,
+        ))))),
         _ => parse_utf8_char(buffer).map(|maybe_char| {
             maybe_char
                 .map(KeyCode::Char)
@@ -193,6 +196,7 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
         (53, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::CONTROL)),
         (53, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::CONTROL)),
         (53, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::CONTROL)),
+
         (50, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::SHIFT)),
         (50, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::SHIFT)),
         (50, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::SHIFT)),

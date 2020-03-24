@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.16.0"
+version = "0.17.0"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -37,7 +37,7 @@ bitflags = "1.2"
 lazy_static = "1.4"
 parking_lot = "0.10"
 futures = { version = "0.3", optional = true }
-serde = { version = "1.0.0", features = ["derive"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 #
 # Windows dependencies
@@ -54,7 +54,7 @@ crossterm_winapi = "0.6.1"
 #
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-mio = "0.6.21"
+mio = "0.6"
 signal-hook = { version = "0.1.13", features = ["mio-support"] }
 
 #

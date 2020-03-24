@@ -10,7 +10,7 @@
 //! have to worry about the platform you are working with.
 //!
 //! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
-//! see [Tested Terminals](https://github.com/crossterm-rs/crossterm/tree/zrzka/docs-update#tested-terminals)
+//! see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
 //! for more info).
 //!
 //! ## Command API

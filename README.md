@@ -93,7 +93,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.14"
+crossterm = "0.17"
 ```
 
 </details>
@@ -176,7 +176,7 @@ License - see the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/maste
 [l1]: https://crates.io/crates/crossterm
 
 [s2]: https://img.shields.io/badge/license-MIT-blue.svg
-[l2]: crossterm/LICENSE
+[l2]: ./LICENSE
 
 [s3]: https://docs.rs/crossterm/badge.svg
 [l3]: https://docs.rs/crossterm/
