@@ -1,5 +1,5 @@
-use std::io::stdin;
 use crossterm::tty::IsTty;
+use std::io::stdin;
 
 pub fn main() {
     if stdin().is_tty() {
