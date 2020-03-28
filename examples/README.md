@@ -16,7 +16,8 @@ The examples are compatible with the latest release.
 | :------- | :------- | :------- |
 | `examples/interactive-test` | interactive, walk trough, demo | cursor, style, event
 | `event-*`| event reading demos | (async) event reading
-| `stderr` | crossterm over stderr demo, | raw mode, alternate screen, custom output
+| `stderr` | crossterm over stderr demo | raw mode, alternate screen, custom output
+| `is_tty` | Is this instance a tty ? | tty |
 
 ## Run examples
 

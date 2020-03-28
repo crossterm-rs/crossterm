@@ -35,6 +35,7 @@ see [Tested Terminals](#tested-terminals) for more info).
 - Detailed documentation
 - Few dependencies
 - Full control over writing and flushing output buffer
+- Is tty
 - Cursor 
     - Move the cursor N times (up, down, left, right)
     - Move to previous / next line
@@ -139,7 +140,7 @@ To optional feature flags.
 
 ```toml
 [dependencies.crossterm]
-version = "0.14"
+version = "0.17"
 features = ["event-stream"] 
 ```
 

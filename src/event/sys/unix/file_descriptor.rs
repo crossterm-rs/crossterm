@@ -65,14 +65,18 @@ impl Drop for FileDesc {
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
 pub fn tty_fd() -> Result<FileDesc> {
-    let (fd, close_on_drop) = (
-        fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open("/dev/tty")?
-            .into_raw_fd(),
-        true,
-    );
+    let (fd, close_on_drop) = if unsafe { libc::isatty(libc::STDIN_FILENO) == 1 } {
+        (libc::STDIN_FILENO, false)
+    } else {
+        (
+            fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open("/dev/tty")?
+                .into_raw_fd(),
+            true,
+        )
+    };
 
     Ok(FileDesc::new(fd, close_on_drop))
 }
