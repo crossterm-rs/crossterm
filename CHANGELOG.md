@@ -1,3 +1,6 @@
+# Version 0.17.1
+- Reverted bug in 0.17.0: "Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.".
+
 # Version 0.17
 - Impl Display for MoveToColumn, MoveToNextLine, MoveToPreviousLine
 - Make unix event reader always use `/dev/tty`.
