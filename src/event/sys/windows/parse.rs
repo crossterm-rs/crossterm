@@ -108,7 +108,10 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     Some(KeyCode::Char(character))
                 }
             } else {
-                None
+                match std::char::from_u32(character_raw as u32) {
+			        Some(ch) => Some(KeyCode::Char(ch)),
+			        None => None
+                }
             }
         }
     };
