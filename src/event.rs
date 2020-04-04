@@ -97,7 +97,7 @@ mod timeout;
 lazy_static! {
     /// Static instance of `InternalEventReader`.
     /// This needs to be static because there can be one event reader.
-    static ref INTERNAL_EVENT_READER: RwLock<read::InternalEventReader> = { RwLock::new(read::InternalEventReader::default()) };
+    static ref INTERNAL_EVENT_READER: RwLock<read::InternalEventReader> = RwLock::new(read::InternalEventReader::default());
 }
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
