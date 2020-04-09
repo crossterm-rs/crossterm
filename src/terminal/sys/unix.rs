@@ -32,13 +32,8 @@ pub(crate) fn size() -> Result<(u16, u16)> {
         ws_ypixel: 0,
     };
 
-    let file = if let Ok(file) = File::open("/dev/tty") {
-        Some(FileDesc::new(file.into_raw_fd(), true))
-    } else {
-        None
-    };
-
-    let fd = if let Some(file) = file {
+    let file = File::open("/dev/tty").map(|file| (FileDesc::new(file.into_raw_fd(), true)));
+    let fd = if let Ok(file) = &file {
         file.raw_fd()
     } else {
         // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
