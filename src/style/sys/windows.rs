@@ -133,7 +133,8 @@ impl From<Colored> for u16 {
 
                         const REMOVE_BG_MASK: u16 = BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE;
                         // remove all background values from the original color, we don't want to reset those.
-                        (original_color & !(REMOVE_BG_MASK))
+
+                        original_color & !REMOVE_BG_MASK
                     }
 
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
@@ -165,7 +166,8 @@ impl From<Colored> for u16 {
 
                         const REMOVE_FG_MASK: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
                         // remove all foreground values from the original color, we don't want to reset those.
-                        (original_color & !(REMOVE_FG_MASK))
+
+                        original_color & !REMOVE_FG_MASK
                     }
                     /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { .. } => 0,

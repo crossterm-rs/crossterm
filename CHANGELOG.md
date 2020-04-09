@@ -1,3 +1,6 @@
+# Version 0.17.2
+- Windows unicode support 
+
 # Version 0.17.1
 - Reverted bug in 0.17.0: "Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.".
 - Support for querying whether the current instance is a TTY.
