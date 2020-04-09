@@ -1,3 +1,6 @@
+# Version 0.17.3
+- Fix get terminal size mac os, this did not report the correct size.
+
 # Version 0.17.2
 - Windows unicode support 
 
