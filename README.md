@@ -4,19 +4,12 @@
 
 # Cross-platform Terminal Manipulation Library 
 
-Have you ever been disappointed when a terminal library for the Rust language was only written for UNIX systems? 
-Crossterm provides clearing, input handling, styling, cursor movement and terminal actions for both
-Windows and UNIX systems.
-
-Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not have to
-worry about the platform you are working with.
-
-This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
+Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces (see [features](#features)). It supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
 see [Tested Terminals](#tested-terminals) for more info).
 
-> It's highly recommended to read the
+> It's recommended to read the
 > [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
-> documentation, which explains everything you need to know.
+> documentation, which explains everything you need to know about .
 
 ## Table of Contents
 
