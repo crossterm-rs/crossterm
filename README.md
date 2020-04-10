@@ -86,7 +86,7 @@ terminals have been tested. If you have used this library for a terminal other t
 issues, then feel free to add it to the above list - I really would appreciate it!
 
 ## Getting Started
-_see the /examples and documentation for more advanced examples._
+_see the [examples directory](examples/) and [documentation](https://docs.rs/crossterm/) for more advanced examples._
 
 <details>
 <summary>
