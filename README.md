@@ -140,7 +140,7 @@ features = ["event-stream"]
 ### Other Resources
 
 - [API documentation](https://docs.rs/crossterm/)
-- [Examples repository](https://github.com/crossterm-rs/examples)
+- [Deprecated examples repository](https://github.com/crossterm-rs/examples)
 
 ## Used By
 
