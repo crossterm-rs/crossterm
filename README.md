@@ -7,10 +7,6 @@
 Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces (see [features](#features)). It supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
 see [Tested Terminals](#tested-terminals) for more info).
 
-> It's recommended to read the
-> [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
-> documentation, which explains everything you need to know about .
-
 ## Table of Contents
 
 * [Features](#features)
@@ -50,7 +46,7 @@ see [Tested Terminals](#tested-terminals) for more info).
     - Exit current process
     - Alternate screen
     - Raw screen   
-- Input 
+- Event 
     - Input Events 
     - Mouse Events (press, release, position, button, drag)
     - Terminal Resize Events
