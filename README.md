@@ -68,6 +68,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
 - (Arch, Manjaro) KDE Konsole
+- (Arch) Kitty
 - Linux Mint
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
