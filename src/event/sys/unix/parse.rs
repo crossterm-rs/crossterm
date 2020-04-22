@@ -95,11 +95,20 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
         _ => parse_utf8_char(buffer).map(|maybe_char| {
             maybe_char
                 .map(KeyCode::Char)
-                .map(Into::into)
+                .map(char_code_to_event)
                 .map(Event::Key)
                 .map(InternalEvent::Event)
         }),
     }
+}
+
+// converts KeyCode to KeyEvent (adds shift modifier in case of uppercase characters)
+fn char_code_to_event(code: KeyCode) -> KeyEvent {
+    let modifiers = match code {
+        KeyCode::Char(c) if c.is_uppercase() => KeyModifiers::SHIFT,
+        _ => KeyModifiers::empty(),
+    };
+    KeyEvent::new(code, modifiers)
 }
 
 pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
@@ -553,7 +562,10 @@ mod tests {
         // parse_utf8_char
         assert_eq!(
             parse_event("Ž".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyCode::Char('Ž').into()))),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('Ž'),
+                KeyModifiers::SHIFT
+            )))),
         );
     }
 
@@ -713,5 +725,27 @@ mod tests {
 
         // 'Invalid 4 Octet Sequence (in 4th Octet)' => "\xf0\x28\x8c\x28",
         assert!(parse_utf8_char(&[0xF0, 0x28, 0x8C, 0x28]).is_err());
+    }
+
+    #[test]
+    fn test_parse_char_event_lowercase() {
+        assert_eq!(
+            parse_event("c".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('c'),
+                KeyModifiers::empty()
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_char_event_uppercase() {
+        assert_eq!(
+            parse_event("C".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('C'),
+                KeyModifiers::SHIFT
+            )))),
+        );
     }
 }
