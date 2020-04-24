@@ -123,55 +123,11 @@ impl<D: Display> Display for StyledContent<D> {
 }
 
 impl<D: Display + Clone> Colorize<D> for StyledContent<D> {
-    // foreground colors
-    def_color!(foreground_color: black => Color::Black);
-    def_color!(foreground_color: dark_grey => Color::DarkGrey);
-    def_color!(foreground_color: red => Color::Red);
-    def_color!(foreground_color: dark_red => Color::DarkRed);
-    def_color!(foreground_color: green => Color::Green);
-    def_color!(foreground_color: dark_green => Color::DarkGreen);
-    def_color!(foreground_color: yellow => Color::Yellow);
-    def_color!(foreground_color: dark_yellow => Color::DarkYellow);
-    def_color!(foreground_color: blue => Color::Blue);
-    def_color!(foreground_color: dark_blue => Color::DarkBlue);
-    def_color!(foreground_color: magenta => Color::Magenta);
-    def_color!(foreground_color: dark_magenta => Color::DarkMagenta);
-    def_color!(foreground_color: cyan => Color::Cyan);
-    def_color!(foreground_color: dark_cyan => Color::DarkCyan);
-    def_color!(foreground_color: white => Color::White);
-    def_color!(foreground_color: grey => Color::Grey);
-
-    // background colors
-    def_color!(background_color: on_black => Color::Black);
-    def_color!(background_color: on_dark_grey => Color::DarkGrey);
-    def_color!(background_color: on_red => Color::Red);
-    def_color!(background_color: on_dark_red => Color::DarkRed);
-    def_color!(background_color: on_green => Color::Green);
-    def_color!(background_color: on_dark_green => Color::DarkGreen);
-    def_color!(background_color: on_yellow => Color::Yellow);
-    def_color!(background_color: on_dark_yellow => Color::DarkYellow);
-    def_color!(background_color: on_blue => Color::Blue);
-    def_color!(background_color: on_dark_blue => Color::DarkBlue);
-    def_color!(background_color: on_magenta => Color::Magenta);
-    def_color!(background_color: on_dark_magenta => Color::DarkMagenta);
-    def_color!(background_color: on_cyan => Color::Cyan);
-    def_color!(background_color: on_dark_cyan => Color::DarkCyan);
-    def_color!(background_color: on_white => Color::White);
-    def_color!(background_color: on_grey => Color::Grey);
+    impl_colorize_callback!(def_color_generic!(()));
 }
 
 impl<D: Display + Clone> Styler<D> for StyledContent<D> {
-    def_attr!(reset => Attribute::Reset);
-    def_attr!(bold => Attribute::Bold);
-    def_attr!(underlined => Attribute::Underlined);
-    def_attr!(reverse => Attribute::Reverse);
-    def_attr!(dim => Attribute::Dim);
-    def_attr!(italic => Attribute::Italic);
-    def_attr!(negative => Attribute::Reverse);
-    def_attr!(slow_blink => Attribute::SlowBlink);
-    def_attr!(rapid_blink => Attribute::RapidBlink);
-    def_attr!(hidden => Attribute::Hidden);
-    def_attr!(crossed_out => Attribute::CrossedOut);
+    impl_styler_callback!(def_attr_generic!(()));
 }
 
 #[cfg(test)]
