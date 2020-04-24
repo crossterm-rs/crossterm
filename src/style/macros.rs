@@ -27,11 +27,9 @@
 // 'def_attr_base' is used to provide the method bodies for base types, and 'def_attr_generic'
 // provides the method bodies for 'StyledContent<D>'.
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // `Styler` macros                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-
 
 // Produces a single method for a "base" Styler implementation
 //
@@ -48,7 +46,7 @@ macro_rules! def_attr_base {
                 self,
             )
         }
-    }
+    };
 }
 
 // Produces a single method within an implementation of Styler for 'StyledContent<D>'
@@ -95,7 +93,6 @@ macro_rules! impl_styler {
     };
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // `Colorize` macros                                                          //
 //                                                                            //
@@ -104,7 +101,6 @@ macro_rules! impl_styler {
 // is 'def_color_*' here, and 'impl_colorize' takes the place of              //
 // 'impl_styler'.                                                             //
 ////////////////////////////////////////////////////////////////////////////////
-
 
 macro_rules! def_color_base {
     ($color_ty:ty, $side:ident: $name:ident => $color:path) => {
