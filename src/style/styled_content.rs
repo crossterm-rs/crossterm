@@ -123,11 +123,11 @@ impl<D: Display> Display for StyledContent<D> {
 }
 
 impl<D: Display + Clone> Colorize<D> for StyledContent<D> {
-    impl_colorize_callback!(def_color!(()));
+    impl_colorize_callback!(def_color_generic!(()));
 }
 
 impl<D: Display + Clone> Styler<D> for StyledContent<D> {
-    impl_styler_callback!(def_attr!(()));
+    impl_styler_callback!(def_attr_generic!(()));
 }
 
 #[cfg(test)]
