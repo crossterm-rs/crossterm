@@ -1,3 +1,7 @@
+# Version 0.17.4
+- Add macros for `Colorize` and `Styler` impls, add an impl for `String` 
+- Add shift modifier to uppercase char events on unix 
+
 # Version 0.17.3
 - Fix get terminal size mac os, this did not report the correct size.
 
