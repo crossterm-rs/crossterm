@@ -107,6 +107,40 @@ pub fn disable_raw_mode() -> Result<()> {
     sys::disable_raw_mode()
 }
 
+/// A guard which automatically enters raw mode when created and automatically exits it when
+/// destroyed.
+///
+/// Please have a look at the [raw mode](../#raw-mode) section.
+///
+/// # Example
+///
+/// ```
+/// use crossterm::terminal::RawModeGuard;
+///
+/// {
+///     let _raw = RawModeGuard::new();
+///     // In raw mode
+/// }
+/// // No longer in raw mode
+/// ```
+#[non_exhaustive]
+#[derive(Debug)]
+pub struct RawModeGuard {}
+
+impl RawModeGuard {
+    /// Creates a new RawModeGuard and enters raw mode.
+    pub fn new() -> Result<Self> {
+        sys::enable_raw_mode()?;
+        Ok(Self {})
+    }
+}
+
+impl Drop for RawModeGuard {
+    fn drop(&mut self) {
+        let _ = sys::disable_raw_mode();
+    }
+}
+
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
