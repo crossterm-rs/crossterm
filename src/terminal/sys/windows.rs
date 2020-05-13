@@ -293,10 +293,11 @@ fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u
 
 #[cfg(test)]
 mod tests {
-    use crossterm_winapi::ScreenBuffer;
-    use std::ffi::OsString;
-    use std::os::windows::ffi::OsStringExt;
+    use std::{ffi::OsString, os::windows::ffi::OsStringExt};
+
     use winapi::um::wincon::GetConsoleTitleW;
+
+    use crossterm_winapi::ScreenBuffer;
 
     use super::{scroll_down, scroll_up, set_size, set_window_title, size};
 
