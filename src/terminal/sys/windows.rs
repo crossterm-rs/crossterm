@@ -191,7 +191,8 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
 }
 
 pub(crate) fn set_window_title(title: &str) -> Result<()> {
-    let title: Vec<_> = title.encode_utf16().collect();
+    let mut title: Vec<_> = title.encode_utf16().collect();
+    title.push(0);
     let result = unsafe { SetConsoleTitleW(title.as_ptr()) };
     if result != 0 {
         Ok(())
@@ -368,6 +369,6 @@ mod tests {
         assert_ne!(0, length);
 
         let console_title = OsString::from_wide(&raw[..length]).into_string().unwrap();
-        assert_eq!(test_title, console_title);
+        assert_eq!(test_title, &console_title[..]);
     }
 }
