@@ -303,7 +303,7 @@ impl Command for SetSize {
 }
 
 /// A command that sets the terminal title
-/// 
+///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
