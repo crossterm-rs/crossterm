@@ -302,6 +302,26 @@ impl Command for SetSize {
     }
 }
 
+/// A command that sets the terminal title
+/// 
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetTitle<'a>(pub &'a str);
+
+impl<'a> Command for SetTitle<'a> {
+    type AnsiType = String;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::set_title_ansi_sequence(self.0)
+    }
+
+    fn execute_winapi(&self) -> Result<()> {
+        sys::set_window_title(self.0)
+    }
+}
+
 impl_display!(for ScrollUp);
 impl_display!(for ScrollDown);
 impl_display!(for SetSize);

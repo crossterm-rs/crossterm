@@ -2,7 +2,7 @@
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
     shared::minwindef::DWORD,
-    um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+    um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
 };
 
 use crate::{cursor, terminal::ClearType, ErrorKind, Result};
@@ -190,6 +190,16 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn set_window_title(title: &str) -> Result<()> {
+    let title: Vec<_> = title.encode_utf16().collect();
+    let result = unsafe { SetConsoleTitleW(title.as_ptr()) };
+    if result != 0 {
+        Ok(())
+    } else {
+        Err(ErrorKind::SettingTerminalTitleFailure)
+    }
+}
+
 fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
     let (mut x, mut y) = (location.x, location.y);
 
@@ -283,8 +293,11 @@ fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u
 #[cfg(test)]
 mod tests {
     use crossterm_winapi::ScreenBuffer;
+    use std::ffi::OsString;
+    use std::os::windows::ffi::OsStringExt;
+    use winapi::um::wincon::GetConsoleTitleW;
 
-    use super::{scroll_down, scroll_up, set_size, size};
+    use super::{scroll_down, scroll_up, set_size, set_window_title, size};
 
     #[test]
     fn test_resize_winapi() {
@@ -343,5 +356,18 @@ mod tests {
 
         assert_eq!(new_window.top, current_window.top - 2);
         assert_eq!(new_window.bottom, current_window.bottom - 2);
+    }
+
+    #[test]
+    fn test_set_title_winapi() {
+        let test_title = "this is a crossterm test title";
+        set_window_title(test_title).unwrap();
+
+        let mut raw = [0 as u16; 128];
+        let length = unsafe { GetConsoleTitleW(raw.as_mut_ptr(), raw.len() as u32) } as usize;
+        assert_ne!(0, length);
+
+        let console_title = OsString::from_wide(&raw[..length]).into_string().unwrap();
+        assert_eq!(test_title, console_title);
     }
 }
