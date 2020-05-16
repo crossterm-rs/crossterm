@@ -21,3 +21,7 @@ pub(crate) fn scroll_down_csi_sequence(count: u16) -> String {
 pub(crate) fn set_size_csi_sequence(width: u16, height: u16) -> String {
     format!(csi!("8;{};{}t"), height, width)
 }
+
+pub(crate) fn set_title_ansi_sequence(title: &str) -> String {
+    format!("\x1B]0;{}\x07", title)
+}
