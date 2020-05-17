@@ -142,7 +142,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 if last_byte < 64 || last_byte > 126 {
                     None
                 } else {
-                    match buffer[buffer.len() - 1] {
+                    match last_byte {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
@@ -201,6 +201,12 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
         (50, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::SHIFT)),
         (50, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::SHIFT)),
         (50, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::SHIFT)),
+
+        (51, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::ALT)),
+        (51, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::ALT)),
+        (51, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::ALT)),
+        (51, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::ALT)),
+
         _ => return Err(could_not_parse_event_error()),
     };
 
