@@ -1,12 +1,12 @@
 [package]
 name = "crossterm"
-version = "0.17.3"
+version = "0.17.4"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
 documentation = "https://docs.rs/crossterm/"
 license = "MIT"
-keywords = ["event", "color", "cursor", "input", "terminal"]
+keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
