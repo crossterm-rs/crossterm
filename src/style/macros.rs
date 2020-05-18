@@ -7,7 +7,7 @@
 // There are four macros in each group. For `Styler`, they are:
 //  * def_attr_base,
 //  * def_attr_generic,
-//  * impl_styler_callback, 
+//  * impl_styler_callback,
 //  * impl_styler
 //
 // Fundamentally, any implementation works in a similar fashion; many methods with near-identical
