@@ -317,6 +317,7 @@ impl<'a> Command for SetTitle<'a> {
         ansi::set_title_ansi_sequence(self.0)
     }
 
+    #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::set_window_title(self.0)
     }
