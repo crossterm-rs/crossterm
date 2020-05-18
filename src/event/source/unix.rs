@@ -1,4 +1,4 @@
-use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
+use mio::{unix::SourceFd, Events, Poll, Token, Interest};
 use signal_hook::iterator::Signals;
 use std::{collections::VecDeque, time::Duration};
 
@@ -45,6 +45,7 @@ impl UnixInternalEventSource {
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
         let poll = Poll::new()?;
+        let mut registry = poll.registry();
 
         // PollOpt::level vs PollOpt::edge mio documentation:
         //
@@ -63,16 +64,14 @@ impl UnixInternalEventSource {
         // enough, because `Poll::poll` wont fire again until additional `Evented` event happens and
         // we can still have a buffer filled with InternalEvent events.
         let tty_raw_fd = input_fd.raw_fd();
-        let tty_ev = EventedFd(&tty_raw_fd);
-        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
+        let mut tty_ev = SourceFd(&tty_raw_fd);
+        registry.register(&mut tty_ev, TTY_TOKEN, Interest::READABLE)?;
 
-        let signals = Signals::new(&[signal_hook::SIGWINCH])?;
-        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
+        let mut signals = Signals::new(&[signal_hook::SIGWINCH])?;
+        registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
-        let waker = Waker::new()?;
-        #[cfg(feature = "event-stream")]
-        poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
+        let mut waker = Waker::new(registry, WAKE_TOKEN)?;
 
         Ok(UnixInternalEventSource {
             poll,
