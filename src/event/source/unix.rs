@@ -1,4 +1,4 @@
-use mio::{unix::SourceFd, Events, Poll, Token, Interest};
+use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
 use std::{collections::VecDeque, time::Duration};
 
@@ -47,22 +47,6 @@ impl UnixInternalEventSource {
         let poll = Poll::new()?;
         let mut registry = poll.registry();
 
-        // PollOpt::level vs PollOpt::edge mio documentation:
-        //
-        // > With edge-triggered events, operations must be performed on the Evented type until
-        // > WouldBlock is returned.
-        //
-        // TL;DR - DO NOT use PollOpt::edge.
-        //
-        // Because of the `try_read` nature (loop with returns) we can't use `PollOpt::edge`. All
-        // `Evented` handles MUST be registered with the `PollOpt::level`.
-        //
-        // If you have to use `PollOpt::edge` and there's no way how to do it with the `PollOpt::level`,
-        // be aware that the whole `TtyInternalEventSource` have to be rewritten
-        // (read everything from each `Evented`, process without returns, store all InternalEvent events
-        // into a buffer and then return first InternalEvent, etc.). Even these changes wont be
-        // enough, because `Poll::poll` wont fire again until additional `Evented` event happens and
-        // we can still have a buffer filled with InternalEvent events.
         let tty_raw_fd = input_fd.raw_fd();
         let mut tty_ev = SourceFd(&tty_raw_fd);
         registry.register(&mut tty_ev, TTY_TOKEN, Interest::READABLE)?;
@@ -148,7 +132,7 @@ impl EventSource for UnixInternalEventSource {
                     }
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
-                        let _ = self.waker.reset();
+                        println!("WAKE TOKEN");
                         return Err(std::io::Error::new(
                             std::io::ErrorKind::Interrupted,
                             "Poll operation was woken up by `Waker::wake`",
