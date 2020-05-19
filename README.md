@@ -60,9 +60,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 
 ### Tested Terminals
 
-- Windows Powershell
-    - Windows 10 (Pro)
-- Windows CMD
+- Console Host
     - Windows 10 (Pro)
     - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
