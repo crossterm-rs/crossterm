@@ -1,3 +1,7 @@
+# Version 0.17.5
+- Improved support of keymodifier for linux, arrow keys, function keys, home keys etc.
+- Add `SetTitle` command to change the terminal title.
+
 # Version 0.17.4
 - Add macros for `Colorize` and `Styler` impls, add an impl for `String` 
 - Add shift modifier to uppercase char events on unix 
