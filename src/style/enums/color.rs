@@ -1,4 +1,4 @@
-use std::{convert::AsRef, str::FromStr};
+use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -90,16 +90,11 @@ pub enum Color {
     AnsiValue(u8),
 }
 
-impl FromStr for Color {
-    type Err = ();
+impl TryFrom<&str> for Color {
+    type Error = ();
 
-    /// Creates a `Color` from the string representation.
-    ///
-    /// # Notes
-    ///
-    /// * Returns `Color::White` in case of an unknown color.
-    /// * Does not return `Err` and you can safely unwrap.
-    fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
+    /// Try to create a `Color` from the string representation. This returns an error if the string does not match.
+    fn try_from(src: &str) -> Result<Self, Self::Error> {
         let src = src.to_lowercase();
 
         match src.as_ref() {
@@ -119,8 +114,22 @@ impl FromStr for Color {
             "dark_cyan" => Ok(Color::DarkCyan),
             "white" => Ok(Color::White),
             "grey" => Ok(Color::Grey),
-            _ => Ok(Color::White),
+            _ => Err(()),
         }
+    }
+}
+
+impl FromStr for Color {
+    type Err = ();
+
+    /// Creates a `Color` from the string representation.
+    ///
+    /// # Notes
+    ///
+    /// * Returns `Color::White` in case of an unknown color.
+    /// * Does not return `Err` and you can safely unwrap.
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        Ok(Color::try_from(src).unwrap_or(Color::White))
     }
 }
 
