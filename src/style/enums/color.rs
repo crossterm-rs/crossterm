@@ -133,6 +133,14 @@ impl FromStr for Color {
     }
 }
 
+impl From<(u8, u8, u8)> for Color {
+    /// Creates a 'Color' from the tuple representation.
+    fn from(val: (u8, u8, u8)) -> Self {
+        let (r, g, b) = val;
+        Self::Rgb{r, g, b}
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Color;
@@ -160,5 +168,11 @@ mod tests {
     #[test]
     fn test_unknown_color_conversion_yields_white() {
         assert_eq!("foo".parse(), Ok(Color::White));
+    }
+
+    #[test]
+    fn test_know_rgb_color_conversion() {
+        assert_eq!(Color::from((0, 0, 0)), Color::Rgb{r: 0, g: 0, b: 0});
+        assert_eq!(Color::from((255, 255, 255)), Color::Rgb{r: 255, g: 255, b: 255});
     }
 }
