@@ -1,8 +1,8 @@
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
-use std::{collections::VecDeque, time::Duration};
+use std::{collections::VecDeque, time::Duration, io};
 
-use crate::Result;
+use crate::{Result, ErrorKind};
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
@@ -90,20 +90,27 @@ impl EventSource for UnixInternalEventSource {
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
-                        let read_count = self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE)?;
+                        loop {
+                            match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                                Ok(read_count) => {
+                                    if read_count > 0 {
+                                        self.poll
+                                            .poll(&mut additional_input_events, Some(Duration::from_secs(0)))?;
 
-                        if read_count > 0 {
-                            self.poll
-                                .poll(&mut additional_input_events, Some(Duration::from_secs(0)))?;
-
-                            let additional_input_available = additional_input_events
-                                .iter()
-                                .any(|event| event.token() == TTY_TOKEN);
-
-                            self.parser.advance(
-                                &self.tty_buffer[..read_count],
-                                additional_input_available,
-                            );
+                                        self.parser.advance(
+                                            &self.tty_buffer[..read_count],
+                                            false,
+                                        );
+                                    }
+                                },
+                                Err(ErrorKind::IoError(e)) => {
+                                    // No more data to read at the moment. We will receive another event
+                                    if e.kind() == io::ErrorKind::WouldBlock { break }
+                                    // once more data is available to read.
+                                    else if e.kind() == io::ErrorKind::Interrupted {continue}
+                                }
+                                Err(e) => return Err(e),
+                            };
 
                             if let Some(event) = self.parser.next() {
                                 return Ok(Some(event));

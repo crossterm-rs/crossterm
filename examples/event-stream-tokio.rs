@@ -43,7 +43,7 @@ async fn print_events() {
                             println!("Cursor position: {:?}\r", position());
                         }
 
-                        if event == Event::Key(KeyCode::Esc.into()) {
+                        if event == Event::Key(KeyCode::Up.into()) {
                             break;
                         }
                     }
