@@ -163,7 +163,7 @@ impl<'a> Color {
                     White,       // 15
                 ]
                 .get(n as usize)
-                .map(|color| *color)
+                .copied()
                 .unwrap_or(Color::AnsiValue(n))
             }
 
