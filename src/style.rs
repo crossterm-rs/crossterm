@@ -117,11 +117,10 @@ use crate::Result;
 use crate::{impl_display, Ansi, Command};
 use std::fmt;
 
-pub(crate) use self::enums::Colored;
 pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
-    enums::{Attribute, Color},
+    enums::{Attribute, Color, Colored},
     styled_content::StyledContent,
     traits::{Colorize, Styler},
 };
