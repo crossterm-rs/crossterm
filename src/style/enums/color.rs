@@ -1,8 +1,9 @@
-use super::parse_next_u8;
 use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use super::parse_next_u8;
 
 /// Represents a color.
 ///

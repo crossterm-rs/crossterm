@@ -1,8 +1,9 @@
-use super::parse_next_u8;
 use crate::style::Color;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use super::parse_next_u8;
 
 /// Represents a foreground or a background color.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
