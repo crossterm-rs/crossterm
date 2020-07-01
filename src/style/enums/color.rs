@@ -3,8 +3,6 @@ use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use super::parse_next_u8;
-
 /// Represents a color.
 ///
 /// # Platform-specific Notes
@@ -90,66 +88,6 @@ pub enum Color {
     /// Most UNIX terminals and Windows 10 supported only.
     /// See [Platform-specific notes](enum.Color.html#platform-specific-notes) for more info.
     AnsiValue(u8),
-}
-
-impl<'a> Color {
-    /// Parses an ANSI color sequence.
-    /// For example: `5;0 -> Black`, `5;26 -> AnsiValue(26)`, `2;50;60;70 -> Rgb(50, 60, 70)`.
-    /// Invalid sequences map to None.
-    ///
-    /// Currently, 3/4 bit color values aren't supported so return None.
-    pub fn parse_ansi(ansi: &str) -> Option<Self> {
-        Self::parse_ansi_iter(&mut ansi.split(';'))
-    }
-    /// The logic for parse_ansi, takes an iterator of the sequences terms (the numbers between the
-    /// ';'). It's a separate function so it can be used by both Color::parse_ansi and
-    /// colored::parse_ansi.
-    /// Tested in Colored tests.
-    pub(crate) fn parse_ansi_iter(values: &mut impl Iterator<Item = &'a str>) -> Option<Self> {
-        let color = match parse_next_u8(values)? {
-            // 8 bit colors: `5;<n>`
-            5 => {
-                let n = parse_next_u8(values)?;
-
-                use Color::*;
-                [
-                    Black,       // 0
-                    DarkRed,     // 1
-                    DarkGreen,   // 2
-                    DarkYellow,  // 3
-                    DarkBlue,    // 4
-                    DarkMagenta, // 5
-                    DarkCyan,    // 6
-                    Grey,        // 7
-                    DarkGrey,    // 8
-                    Red,         // 9
-                    Green,       // 10
-                    Yellow,      // 11
-                    Blue,        // 12
-                    Magenta,     // 13
-                    Cyan,        // 14
-                    White,       // 15
-                ]
-                .get(n as usize)
-                .map(|color| *color)
-                .unwrap_or(Color::AnsiValue(n))
-            }
-
-            // 24 bit colors: `2;<r>;<g>;<b>`
-            2 => Color::Rgb {
-                r: parse_next_u8(values)?,
-                g: parse_next_u8(values)?,
-                b: parse_next_u8(values)?,
-            },
-
-            _ => return None,
-        };
-        // If there's another value, it's unexpected so return None.
-        if values.next().is_some() {
-            return None;
-        }
-        Some(color)
-    }
 }
 
 impl TryFrom<&str> for Color {
