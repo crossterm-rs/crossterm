@@ -94,9 +94,6 @@ impl EventSource for UnixInternalEventSource {
                             match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
                                 Ok(read_count) => {
                                     if read_count > 0 {
-                                        self.poll
-                                            .poll(&mut additional_input_events, Some(Duration::from_secs(0)))?;
-
                                         self.parser.advance(
                                             &self.tty_buffer[..read_count],
                                             false,
