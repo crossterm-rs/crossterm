@@ -96,7 +96,7 @@ impl EventSource for UnixInternalEventSource {
                                     if read_count > 0 {
                                         self.parser.advance(
                                             &self.tty_buffer[..read_count],
-                                            false,
+                                            read_count == TTY_BUFFER_SIZE,
                                         );
                                     }
                                 },
