@@ -272,7 +272,7 @@ impl Command for DisableMouseCapture {
 pub enum Event {
     /// A single key event with additional pressed modifiers.
     Key(KeyEvent),
-    /// A singe mouse event with additional pressed modifiers.
+    /// A single mouse event with additional pressed modifiers.
     Mouse(MouseEvent),
     /// An resize event with new dimensions after resize (columns, rows).
     Resize(u16, u16),

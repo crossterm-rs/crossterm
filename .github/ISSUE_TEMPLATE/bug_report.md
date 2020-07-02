@@ -23,5 +23,5 @@ A clear and concise description of what you expected to happen.
 **OS**
  - e.g. MacOs, Windows, Linux, (version) etc...
 
-**Terminal/Shell**
- - e.g. CMD/Powershell/ etc.
+**Terminal/Console**
+ - e.g. ConHost/xterm/iterm2/Windows Terminal etc.

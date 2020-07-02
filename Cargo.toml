@@ -1,12 +1,12 @@
 [package]
 name = "crossterm"
-version = "0.17.2"
+version = "0.17.5"
 authors = ["T. Post"]
 description = "An crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
 documentation = "https://docs.rs/crossterm/"
 license = "MIT"
-keywords = ["event", "color", "cursor", "input", "terminal"]
+keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2018"
@@ -55,7 +55,7 @@ crossterm_winapi = "0.6.1"
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 mio = "0.6"
-signal-hook = { version = "0.1.13", features = ["mio-support"] }
+signal-hook = { version = "0.1.15", features = ["mio-support"] }
 
 #
 # Dev dependencies (examples, ...)

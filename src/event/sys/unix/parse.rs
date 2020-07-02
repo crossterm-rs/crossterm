@@ -95,11 +95,20 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
         _ => parse_utf8_char(buffer).map(|maybe_char| {
             maybe_char
                 .map(KeyCode::Char)
-                .map(Into::into)
+                .map(char_code_to_event)
                 .map(Event::Key)
                 .map(InternalEvent::Event)
         }),
     }
+}
+
+// converts KeyCode to KeyEvent (adds shift modifier in case of uppercase characters)
+fn char_code_to_event(code: KeyCode) -> KeyEvent {
+    let modifiers = match code {
+        KeyCode::Char(c) if c.is_uppercase() => KeyModifiers::SHIFT,
+        _ => KeyModifiers::empty(),
+    };
+    KeyEvent::new(code, modifiers)
 }
 
 pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
@@ -185,24 +194,44 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> Result<Option<Internal
     Ok(Some(InternalEvent::CursorPosition(x, y)))
 }
 
+fn parse_modifiers(mask: u8) -> KeyModifiers {
+    let modifier_mask = mask.saturating_sub(1);
+    let mut modifiers = KeyModifiers::empty();
+    if modifier_mask & 1 != 0 {
+        modifiers |= KeyModifiers::SHIFT;
+    }
+    if modifier_mask & 2 != 0 {
+        modifiers |= KeyModifiers::ALT;
+    }
+    if modifier_mask & 4 != 0 {
+        modifiers |= KeyModifiers::CONTROL;
+    }
+    modifiers
+}
+
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
 
-    let modifier = buffer[buffer.len() - 2];
+    let modifier_mask = buffer[buffer.len() - 2];
     let key = buffer[buffer.len() - 1];
 
-    let input_event = match (modifier, key) {
-        (53, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::CONTROL)),
-        (53, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::CONTROL)),
-        (53, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::CONTROL)),
-        (53, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::CONTROL)),
+    let modifiers = parse_modifiers(modifier_mask);
 
-        (50, 65) => Event::Key(KeyEvent::new(KeyCode::Up, KeyModifiers::SHIFT)),
-        (50, 66) => Event::Key(KeyEvent::new(KeyCode::Down, KeyModifiers::SHIFT)),
-        (50, 67) => Event::Key(KeyEvent::new(KeyCode::Right, KeyModifiers::SHIFT)),
-        (50, 68) => Event::Key(KeyEvent::new(KeyCode::Left, KeyModifiers::SHIFT)),
+    let keycode = match key {
+        b'A' => KeyCode::Up,
+        b'B' => KeyCode::Down,
+        b'C' => KeyCode::Right,
+        b'D' => KeyCode::Left,
+        b'F' => KeyCode::End,
+        b'H' => KeyCode::Home,
+        b'P' => KeyCode::F(1),
+        b'Q' => KeyCode::F(2),
+        b'R' => KeyCode::F(3),
+        b'S' => KeyCode::F(4),
         _ => return Err(could_not_parse_event_error()),
     };
+
+    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -218,23 +247,26 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<Interna
     // This CSI sequence can be a list of semicolon-separated numbers.
     let first = next_parsed::<u8>(&mut split)?;
 
-    if next_parsed::<u8>(&mut split).is_ok() {
-        // TODO: handle multiple values for key modifiers (ex: values [3, 2] means Shift+Delete)
-        return Err(could_not_parse_event_error());
-    }
+    let modifiers = if let Ok(modifier_mask) = next_parsed::<u8>(&mut split) {
+        parse_modifiers(modifier_mask)
+    } else {
+        KeyModifiers::NONE
+    };
 
-    let input_event = match first {
-        1 | 7 => Event::Key(KeyCode::Home.into()),
-        2 => Event::Key(KeyCode::Insert.into()),
-        3 => Event::Key(KeyCode::Delete.into()),
-        4 | 8 => Event::Key(KeyCode::End.into()),
-        5 => Event::Key(KeyCode::PageUp.into()),
-        6 => Event::Key(KeyCode::PageDown.into()),
-        v @ 11..=15 => Event::Key(KeyCode::F(v - 10).into()),
-        v @ 17..=21 => Event::Key(KeyCode::F(v - 11).into()),
-        v @ 23..=24 => Event::Key(KeyCode::F(v - 12).into()),
+    let keycode = match first {
+        1 | 7 => KeyCode::Home,
+        2 => KeyCode::Insert,
+        3 => KeyCode::Delete,
+        4 | 8 => KeyCode::End,
+        5 => KeyCode::PageUp,
+        6 => KeyCode::PageDown,
+        v @ 11..=15 => KeyCode::F(v - 10),
+        v @ 17..=21 => KeyCode::F(v - 11),
+        v @ 23..=24 => KeyCode::F(v - 12),
         _ => return Err(could_not_parse_event_error()),
     };
+
+    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -553,7 +585,10 @@ mod tests {
         // parse_utf8_char
         assert_eq!(
             parse_event("Ž".as_bytes(), false).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyCode::Char('Ž').into()))),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('Ž'),
+                KeyModifiers::SHIFT
+            )))),
         );
     }
 
@@ -602,7 +637,13 @@ mod tests {
 
     #[test]
     fn test_parse_csi_special_key_code_multiple_values_not_supported() {
-        assert!(parse_csi_special_key_code("\x1B[3;2~".as_bytes()).is_err());
+        assert_eq!(
+            parse_csi_special_key_code("\x1B[3;2~".as_bytes()).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Delete,
+                KeyModifiers::SHIFT
+            )))),
+        );
     }
 
     #[test]
@@ -713,5 +754,27 @@ mod tests {
 
         // 'Invalid 4 Octet Sequence (in 4th Octet)' => "\xf0\x28\x8c\x28",
         assert!(parse_utf8_char(&[0xF0, 0x28, 0x8C, 0x28]).is_err());
+    }
+
+    #[test]
+    fn test_parse_char_event_lowercase() {
+        assert_eq!(
+            parse_event("c".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('c'),
+                KeyModifiers::empty()
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_char_event_uppercase() {
+        assert_eq!(
+            parse_event("C".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('C'),
+                KeyModifiers::SHIFT
+            )))),
+        );
     }
 }

@@ -4,19 +4,8 @@
 
 # Cross-platform Terminal Manipulation Library 
 
-Have you ever been disappointed when a terminal library for the Rust language was only written for UNIX systems? 
-Crossterm provides clearing, input handling, styling, cursor movement and terminal actions for both
-Windows and UNIX systems.
-
-Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not have to
-worry about the platform you are working with.
-
-This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
+Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces (see [features](#features)). It supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
 see [Tested Terminals](#tested-terminals) for more info).
-
-> It's highly recommended to read the
-> [Upgrade from 0.13 to 0.14](https://github.com/crossterm-rs/crossterm/wiki/Upgrade-from-0.13-to-0.14)
-> documentation, which explains everything you need to know.
 
 ## Table of Contents
 
@@ -57,7 +46,8 @@ see [Tested Terminals](#tested-terminals) for more info).
     - Exit current process
     - Alternate screen
     - Raw screen   
-- Input 
+    - Set terminal title
+- Event 
     - Input Events 
     - Mouse Events (press, release, position, button, drag)
     - Terminal Resize Events
@@ -71,14 +61,13 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 
 ### Tested Terminals
 
-- Windows Powershell
-    - Windows 10 (Pro)
-- Windows CMD
+- Console Host
     - Windows 10 (Pro)
     - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
 - (Arch, Manjaro) KDE Konsole
+- (Arch) Kitty
 - Linux Mint
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
@@ -86,7 +75,7 @@ terminals have been tested. If you have used this library for a terminal other t
 issues, then feel free to add it to the above list - I really would appreciate it!
 
 ## Getting Started
-_see the /examples and documentation for more advanced examples._
+_see the [examples directory](examples/) and [documentation](https://docs.rs/crossterm/) for more advanced examples._
 
 <details>
 <summary>
@@ -145,13 +134,28 @@ features = ["event-stream"]
 ```
 
 | Feature | Description |
-| :-- | :-- |
+| :----- | :----- |
 | `event-stream` | `futures::Stream` producing `Result<Event>`.|
+
+### Dependency Justification
+
+| Dependency | Used for | Included |
+| :----- | :----- | :-----
+| `bitflags` | `KeyModifiers`, those are differ based on input.| always
+| `lazy_static` | original console color, original terminal mode, saved cursor position, supports ANSI on windows, single event reader per application.| always
+| `parking_lot` | used for an RW LOCK. | always 
+| `libc` | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only
+| `Mio` | event readiness polling, waking up poller | UNIX only
+| `signal-hook`| signalhook is used to handle terminal resize SIGNAL with Mio. | UNIX only
+| `winapi`| Used for low-level windows system calls which ANSI codes can't replace| windows only
+| `futures`| Can be used to for async stream of events | only with a feature flag
+| `serde`| Se/dese/realizing of events | only with a feature flag
+ 
 
 ### Other Resources
 
 - [API documentation](https://docs.rs/crossterm/)
-- [Examples repository](https://github.com/crossterm-rs/examples)
+- [Deprecated examples repository](https://github.com/crossterm-rs/examples)
 
 ## Used By
 

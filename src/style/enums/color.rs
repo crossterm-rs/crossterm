@@ -1,4 +1,4 @@
-use std::{convert::AsRef, str::FromStr};
+use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -90,16 +90,11 @@ pub enum Color {
     AnsiValue(u8),
 }
 
-impl FromStr for Color {
-    type Err = ();
+impl TryFrom<&str> for Color {
+    type Error = ();
 
-    /// Creates a `Color` from the string representation.
-    ///
-    /// # Notes
-    ///
-    /// * Returns `Color::White` in case of an unknown color.
-    /// * Does not return `Err` and you can safely unwrap.
-    fn from_str(src: &str) -> ::std::result::Result<Self, Self::Err> {
+    /// Try to create a `Color` from the string representation. This returns an error if the string does not match.
+    fn try_from(src: &str) -> Result<Self, Self::Error> {
         let src = src.to_lowercase();
 
         match src.as_ref() {
@@ -119,8 +114,30 @@ impl FromStr for Color {
             "dark_cyan" => Ok(Color::DarkCyan),
             "white" => Ok(Color::White),
             "grey" => Ok(Color::Grey),
-            _ => Ok(Color::White),
+            _ => Err(()),
         }
+    }
+}
+
+impl FromStr for Color {
+    type Err = ();
+
+    /// Creates a `Color` from the string representation.
+    ///
+    /// # Notes
+    ///
+    /// * Returns `Color::White` in case of an unknown color.
+    /// * Does not return `Err` and you can safely unwrap.
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        Ok(Color::try_from(src).unwrap_or(Color::White))
+    }
+}
+
+impl From<(u8, u8, u8)> for Color {
+    /// Creates a 'Color' from the tuple representation.
+    fn from(val: (u8, u8, u8)) -> Self {
+        let (r, g, b) = val;
+        Self::Rgb { r, g, b }
     }
 }
 
@@ -151,5 +168,18 @@ mod tests {
     #[test]
     fn test_unknown_color_conversion_yields_white() {
         assert_eq!("foo".parse(), Ok(Color::White));
+    }
+
+    #[test]
+    fn test_know_rgb_color_conversion() {
+        assert_eq!(Color::from((0, 0, 0)), Color::Rgb { r: 0, g: 0, b: 0 });
+        assert_eq!(
+            Color::from((255, 255, 255)),
+            Color::Rgb {
+                r: 255,
+                g: 255,
+                b: 255
+            }
+        );
     }
 }
