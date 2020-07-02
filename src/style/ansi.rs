@@ -100,16 +100,16 @@ impl Colored {
     ///
     /// See also: [Color::parse_ansi](enum.Color.html#method.parse_ansi)
     pub fn parse_ansi(ansi: &str) -> Option<Self> {
-        use Colored::{BackgroundColor as BG, ForegroundColor as FG};
+        use Colored::{BackgroundColor, ForegroundColor};
 
         let values = &mut ansi.split(';');
 
         let output = match parse_next_u8(values)? {
-            38 => return Color::parse_ansi_iter(values).map(FG),
-            48 => return Color::parse_ansi_iter(values).map(BG),
+            38 => return Color::parse_ansi_iter(values).map(ForegroundColor),
+            48 => return Color::parse_ansi_iter(values).map(BackgroundColor),
 
-            39 => FG(Color::Reset),
-            49 => BG(Color::Reset),
+            39 => ForegroundColor(Color::Reset),
+            49 => BackgroundColor(Color::Reset),
 
             _ => return None,
         };
@@ -133,6 +133,7 @@ impl<'a> Color {
     pub fn parse_ansi(ansi: &str) -> Option<Self> {
         Self::parse_ansi_iter(&mut ansi.split(';'))
     }
+
     /// The logic for parse_ansi, takes an iterator of the sequences terms (the numbers between the
     /// ';'). It's a separate function so it can be used by both Color::parse_ansi and
     /// colored::parse_ansi.
