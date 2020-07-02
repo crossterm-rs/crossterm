@@ -54,8 +54,8 @@ crossterm_winapi = "0.6.1"
 #
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-mio = "0.6"
-signal-hook = { version = "0.1.15", features = ["mio-support"] }
+mio = {version="0.7", features=["os-poll"]}
+signal-hook = { version = "0.1.15", features = ["mio-0_7-support"] }
 
 #
 # Dev dependencies (examples, ...)
