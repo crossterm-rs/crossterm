@@ -6,6 +6,8 @@ use std::{
 use libc::size_t;
 
 use crate::{ErrorKind, Result};
+use futures::io::Error;
+use std::io::stdin;
 
 /// A file descriptor wrapper.
 ///
@@ -65,14 +67,20 @@ impl Drop for FileDesc {
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
 pub fn tty_fd() -> Result<FileDesc> {
-    let (fd, close_on_drop) = (
-        fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open("/dev/tty")?
-            .into_raw_fd(),
-        true,
-    );
+    use crate::tty::IsTty;
+
+    if let Ok(tty) = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open("/dev/tty")?
+        .into_raw_fd() {
+    }  else {
+        if stdin().is_atty() {
+            (libc::STDIN_FILENO, true)
+        } else {
+            return Err(ErrorKind::IoError(Error::new(io::ErrorKind::Other, "Failed to initialize input source. Crossterm first tried to open `/dev/tty` wereafter `libc::STDIN_FILENO`, but both could not be used.")))
+        }
+    }
 
     Ok(FileDesc::new(fd, close_on_drop))
 }
