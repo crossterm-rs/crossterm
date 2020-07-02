@@ -1,8 +1,8 @@
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
-use std::{collections::VecDeque, time::Duration, io};
+use std::{collections::VecDeque, io, time::Duration};
 
-use crate::{Result, ErrorKind};
+use crate::{ErrorKind, Result};
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
@@ -99,12 +99,16 @@ impl EventSource for UnixInternalEventSource {
                                             read_count == TTY_BUFFER_SIZE,
                                         );
                                     }
-                                },
+                                }
                                 Err(ErrorKind::IoError(e)) => {
                                     // No more data to read at the moment. We will receive another event
-                                    if e.kind() == io::ErrorKind::WouldBlock { break }
+                                    if e.kind() == io::ErrorKind::WouldBlock {
+                                        break;
+                                    }
                                     // once more data is available to read.
-                                    else if e.kind() == io::ErrorKind::Interrupted {continue}
+                                    else if e.kind() == io::ErrorKind::Interrupted {
+                                        continue;
+                                    }
                                 }
                                 Err(e) => return Err(e),
                             };
