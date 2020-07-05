@@ -120,9 +120,9 @@ use std::fmt;
 pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
-    enums::{Attribute, Color, Colored},
     styled_content::StyledContent,
     traits::{Colorize, Styler},
+    types::{Attribute, Color, Colored, Colors},
 };
 
 #[macro_use]
@@ -130,10 +130,10 @@ mod macros;
 mod ansi;
 mod attributes;
 mod content_style;
-mod enums;
 mod styled_content;
 mod sys;
 mod traits;
+mod types;
 
 /// Creates a `StyledContent`.
 ///
@@ -182,6 +182,9 @@ pub fn available_color_count() -> u16 {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with 1 command.
+///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
@@ -212,6 +215,9 @@ impl Command for SetForegroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with 1 command.
+///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
@@ -235,6 +241,61 @@ impl Command for SetBackgroundColor {
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         sys::windows::set_background_color(self.0)
+    }
+}
+
+/// A command that optionally sets the foreground and/or background color.
+///
+/// For example:
+/// ```
+/// use std::io::{stdout, Write};
+/// use crossterm::execute;
+/// use crossterm::style::{Color::{Green, Black}, Print, SetColors};
+///
+/// execute!(
+///     stdout(),
+///     SetColors((Green, Black).into()),
+///     Print("Hello, world!".to_string()),
+/// ).unwrap();
+/// ```
+///
+/// See [`Colors`](struct.Colors.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetColors(pub Colors);
+
+impl fmt::Display for Ansi<SetColors> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(color) = (self.0).0.foreground {
+            ansi::set_fg_csi_sequence(f, color)?;
+        }
+        if let Some(color) = (self.0).0.background {
+            ansi::set_bg_csi_sequence(f, color)?;
+        }
+        Ok(())
+    }
+}
+
+impl Command for SetColors {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
+    fn ansi_code(&self) -> Self::AnsiType {
+        Ansi(*self)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        if let Some(color) = self.0.foreground {
+            sys::windows::set_foreground_color(color)?;
+        }
+        if let Some(color) = self.0.background {
+            sys::windows::set_background_color(color)?;
+        }
+        Ok(())
     }
 }
 
@@ -377,6 +438,7 @@ impl<T: Display + Clone> Display for Print<T> {
 
 impl_display!(for SetForegroundColor);
 impl_display!(for SetBackgroundColor);
+impl_display!(for SetColors);
 impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
