@@ -45,7 +45,7 @@ impl UnixInternalEventSource {
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
         let poll = Poll::new()?;
-        let mut registry = poll.registry();
+        let registry = poll.registry();
 
         let tty_raw_fd = input_fd.raw_fd();
         let mut tty_ev = SourceFd(&tty_raw_fd);
@@ -55,7 +55,7 @@ impl UnixInternalEventSource {
         registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
-        let mut waker = Waker::new(registry, WAKE_TOKEN)?;
+        let waker = Waker::new(registry, WAKE_TOKEN)?;
 
         Ok(UnixInternalEventSource {
             poll,
@@ -77,7 +77,6 @@ impl EventSource for UnixInternalEventSource {
         }
 
         let timeout = PollTimeout::new(timeout);
-        let mut additional_input_events = Events::with_capacity(3);
 
         loop {
             self.poll.poll(&mut self.events, timeout.leftover())?;
