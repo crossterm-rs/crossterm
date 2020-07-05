@@ -7,8 +7,8 @@ use std::{
     time::Duration,
 };
 
-use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
+use futures_util::{future::FutureExt, select, StreamExt};
 
 use crossterm::{
     cursor::position,
@@ -18,7 +18,7 @@ use crossterm::{
     Result,
 };
 
-const HELP: &str = r#"EventStream based on futures::Stream with async-std
+const HELP: &str = r#"EventStream based on futures_util::stream::Stream with async-std
  - Keyboard, mouse and terminal resize events enabled
  - Prints "." every second if there's no event
  - Hit "c" to print current cursor position
