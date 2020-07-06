@@ -10,7 +10,7 @@ use crate::style::{Color, Colored};
 /// The [then](#method.then) method can be used to combine `Colors` values.
 ///
 /// For example:
-/// ```
+/// ```no_run
 /// use crossterm::style::{Color, Colors, Colored};
 ///
 /// // An example color, loaded from a config, file in ANSI format.
