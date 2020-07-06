@@ -183,7 +183,7 @@ pub fn available_color_count() -> u16 {
 /// See [`Color`](enum.Color.html) for more info.
 ///
 /// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
-/// color with 1 command.
+/// color in one command.
 ///
 /// # Notes
 ///
