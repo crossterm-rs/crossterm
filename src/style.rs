@@ -250,11 +250,11 @@ impl Command for SetBackgroundColor {
 /// ```no_run
 /// use std::io::{stdout, Write};
 /// use crossterm::execute;
-/// use crossterm::style::{Color::{Green, Black}, Print, SetColors};
+/// use crossterm::style::{Color::{Green, Black}, Colors, Print, SetColors};
 ///
 /// execute!(
 ///     stdout(),
-///     SetColors((Green, Black).into()),
+///     SetColors(Colors::new(Green, Black)),
 ///     Print("Hello, world!".to_string()),
 /// ).unwrap();
 /// ```
