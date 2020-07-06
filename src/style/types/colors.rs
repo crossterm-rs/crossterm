@@ -17,7 +17,7 @@ use crate::style::{Color, Colored};
 /// let config_color = "38;2;23;147;209";
 ///
 /// // Default to green text on a black background.
-/// let default_colors = Colors::from((Color::Green, Color::Black));
+/// let default_colors = Colors::new(Color::Green, Color::Black);
 /// // Load a colored value from a config and override the default colors
 /// let colors = match Colored::parse_ansi(config_color) {
 ///     Some(colored) => default_colors.then(&colored.into()),
@@ -43,6 +43,15 @@ impl Colors {
     }
 }
 
+impl Colors {
+    pub fn new(foreground: Color, background: Color) -> Colors {
+        Colors {
+            foreground: Some(foreground),
+            background: Some(background),
+        }
+    }
+}
+
 impl From<Colored> for Colors {
     fn from(colored: Colored) -> Colors {
         match colored {
@@ -54,15 +63,6 @@ impl From<Colored> for Colors {
                 foreground: None,
                 background: Some(color),
             },
-        }
-    }
-}
-
-impl From<(Color, Color)> for Colors {
-    fn from(fg_bg: (Color, Color)) -> Colors {
-        Colors {
-            foreground: Some(fg_bg.0),
-            background: Some(fg_bg.1),
         }
     }
 }
@@ -125,44 +125,32 @@ mod tests {
                 foreground: None,
                 background: None,
             }
-            .then(&Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }),
-            Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }
+            .then(&Colors::new(White, Grey)),
+            Colors::new(White, Grey),
         );
 
         assert_eq!(
             Colors {
                 foreground: None,
-                background: None,
+                background: Some(Blue),
             }
-            .then(&Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }),
-            Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }
+            .then(&Colors::new(White, Grey)),
+            Colors::new(White, Grey),
         );
 
         assert_eq!(
             Colors {
                 foreground: Some(Blue),
-                background: Some(Green),
+                background: None,
             }
-            .then(&Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }),
-            Colors {
-                foreground: Some(White),
-                background: Some(Grey),
-            }
+            .then(&Colors::new(White, Grey)),
+            Colors::new(White, Grey),
+        );
+
+        assert_eq!(
+            Colors::new(Blue, Green)
+            .then(&Colors::new(White, Grey)),
+            Colors::new(White, Grey),
         );
 
         assert_eq!(
