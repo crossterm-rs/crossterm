@@ -216,7 +216,7 @@ impl Command for SetForegroundColor {
 /// See [`Color`](enum.Color.html) for more info.
 ///
 /// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
-/// color with 1 command.
+/// color with one command.
 ///
 /// # Notes
 ///

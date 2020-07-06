@@ -148,8 +148,7 @@ mod tests {
         );
 
         assert_eq!(
-            Colors::new(Blue, Green)
-            .then(&Colors::new(White, Grey)),
+            Colors::new(Blue, Green).then(&Colors::new(White, Grey)),
             Colors::new(White, Grey),
         );
 
