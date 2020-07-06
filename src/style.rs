@@ -160,12 +160,22 @@ where
 }
 
 impl_colorize!(String);
-impl_colorize!(&'static str);
 impl_colorize!(char);
 
+// We do actually need the parentheses here because the macro doesn't work without them otherwise
+// This is probably a bug somewhere in the compiler, but it isn't that big a deal.
+#[allow(unused_parens)]
+impl<'a> Colorize<&'a str> for &'a str {
+    impl_colorize_callback!(def_color_base!((&'a str)));
+}
+
 impl_styler!(String);
-impl_styler!(&'static str);
 impl_styler!(char);
+
+#[allow(unused_parens)]
+impl<'a> Styler<&'a str> for &'a str {
+    impl_styler_callback!(def_attr_base!((&'a str)));
+}
 
 /// Returns available color count.
 ///
