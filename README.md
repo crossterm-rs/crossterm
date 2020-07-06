@@ -162,7 +162,7 @@ features = ["event-stream"]
 - [Broot](https://dystroy.org/broot/)
 - [Cursive](https://github.com/gyscos/Cursive)
 - [TUI](https://github.com/fdehau/tui-rs)
-- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
+- [Rust-sloth](https://github.com/ecumene/rust-sloth)
 
 ## Contributing
   
