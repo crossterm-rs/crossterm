@@ -1,3 +1,12 @@
+# Version 0.17.6
+- Add functionality to retrieve color based on passed ansi code. 
+- Switch from 'futures' to 'futures-util' crate to reduce dependency count
+- Mio 0.7 update
+- signal-hook update
+- Make windows raw_mode act on CONIN$
+- Added From<(u8, u8, u8)> Trait to Color::Rgb Enum
+- Implement Color::try_from() 
+
 # Version 0.17.5
 - Improved support of keymodifier for linux, arrow keys, function keys, home keys etc.
 - Add `SetTitle` command to change the terminal title.
