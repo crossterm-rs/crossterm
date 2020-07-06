@@ -6,6 +6,7 @@
 - Make windows raw_mode act on CONIN$
 - Added From<(u8, u8, u8)> Trait to Color::Rgb Enum
 - Implement Color::try_from() 
+- Implement styler traits for `&'a str`
 
 # Version 0.17.5
 - Improved support of keymodifier for linux, arrow keys, function keys, home keys etc.
