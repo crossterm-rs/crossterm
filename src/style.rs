@@ -247,7 +247,7 @@ impl Command for SetBackgroundColor {
 /// A command that optionally sets the foreground and/or background color.
 ///
 /// For example:
-/// ```
+/// ```no_run
 /// use std::io::{stdout, Write};
 /// use crossterm::execute;
 /// use crossterm::style::{Color::{Green, Black}, Print, SetColors};
