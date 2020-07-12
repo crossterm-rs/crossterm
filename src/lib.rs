@@ -68,7 +68,7 @@
 //!
 //! ### Command Execution
 //!
-//! There are two different way's to execute commands:
+//! There are two different ways to execute commands:
 //!
 //! * [Lazy Execution](#lazy-execution)
 //! * [Direct Execution](#direct-execution)
