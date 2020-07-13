@@ -1,3 +1,6 @@
+# Version 0.17.7
+- Fix cursor position retrieval bug linux.
+
 # Version 0.17.6
 - Add functionality to retrieve color based on passed ansi code. 
 - Switch from 'futures' to 'futures-util' crate to reduce dependency count

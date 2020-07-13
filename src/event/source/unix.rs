@@ -79,7 +79,16 @@ impl EventSource for UnixInternalEventSource {
         let timeout = PollTimeout::new(timeout);
 
         loop {
-            self.poll.poll(&mut self.events, timeout.leftover())?;
+            if let Err(e) = self.poll.poll(&mut self.events, timeout.leftover()) {
+                // Mio will throw an interrupted error in case of cursor position retrieval. We need to retry until it succeeds.
+                // Previous versions of Mio (< 0.7) would automatically retry the poll call if it was interrupted (if EINTR was returned).
+                // https://docs.rs/mio/0.7.0/mio/struct.Poll.html#notes
+                if e.kind() == io::ErrorKind::Interrupted {
+                    continue;
+                } else {
+                    return Err(ErrorKind::IoError(e));
+                }
+            };
 
             if self.events.is_empty() {
                 // No readiness events = timeout
