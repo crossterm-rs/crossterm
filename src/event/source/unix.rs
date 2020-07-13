@@ -79,7 +79,10 @@ impl EventSource for UnixInternalEventSource {
         let timeout = PollTimeout::new(timeout);
 
         loop {
-            self.poll.poll(&mut self.events, timeout.leftover())?;
+            match self.poll.poll(&mut self.events, timeout.leftover()) {
+                Ok(_) => {}
+                Err(e) => if e.kind() == io::ErrorKind::Interrupted {continue} else { return Err(ErrorKind::IoError(e)) }
+            };
 
             if self.events.is_empty() {
                 // No readiness events = timeout
