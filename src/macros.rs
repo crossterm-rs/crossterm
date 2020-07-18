@@ -33,7 +33,40 @@ macro_rules! handle_command {
             if command.is_ansi_code_supported() {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
-                command.execute_winapi().map_err($crate::ErrorKind::from)
+                command
+                    .execute_winapi(|| {
+                        write!($writer, "{}", command.ansi_code())?;
+                        // winapi doesn't support queuing
+                        $writer.flush()?;
+                        Ok(())
+                    })
+                    .map_err($crate::ErrorKind::from)
+            }
+        }
+        #[cfg(unix)]
+        {
+            write_ansi_code!($writer, $command.ansi_code())
+        }
+    }};
+}
+
+// Offer the same functionality as queue! macro, but is used only internally and with std::fmt::Write as $writer
+// The difference is in case of winapi we ignore the $writer and use a fake one
+#[doc(hidden)]
+#[macro_export]
+macro_rules! handle_fmt_command {
+    ($writer:expr, $command:expr) => {{
+        use $crate::{write_ansi_code, Command};
+
+        #[cfg(windows)]
+        {
+            let command = $command;
+            if command.is_ansi_code_supported() {
+                write_ansi_code!($writer, command.ansi_code())
+            } else {
+                command
+                    .execute_winapi(|| Ok(()))
+                    .map_err($crate::ErrorKind::from)
             }
         }
         #[cfg(unix)]
@@ -160,7 +193,7 @@ macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
-                $crate::queue!(f, self).map_err(|_| ::std::fmt::Error)
+                $crate::handle_fmt_command!(f, self).map_err(|_| ::std::fmt::Error)
             }
         })*
     }
@@ -312,7 +345,10 @@ mod tests {
                 self.value
             }
 
-            fn execute_winapi(&self) -> CrosstermResult<()> {
+            fn execute_winapi(
+                &self,
+                _writer: impl FnMut() -> CrosstermResult<()>,
+            ) -> CrosstermResult<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
