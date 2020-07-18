@@ -76,7 +76,7 @@ macro_rules! handle_fmt_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    .execute_winapi(&mut FakeWriter{})
+                    .execute_winapi(&mut FakeWriter {})
                     .map_err($crate::ErrorKind::from)
             }
         }
