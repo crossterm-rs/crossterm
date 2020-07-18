@@ -45,6 +45,24 @@ macro_rules! handle_command {
     }};
 }
 
+// This is a fake writer
+// It's used in execute_winapi when called from handle_fmt_command! macro
+// In that case execute_winapi doesn't care about the $writer and we only use it to fulfill type requirement
+// The unimplemented! macro asserts that $writer is indeed not used
+struct FakeWriter;
+
+impl std::io::Write for FakeWriter {
+    fn write(&mut self, _buf: &[u8]) -> std::io::Result<usize> {
+        unimplemented!("This is a fake writer and is not used anywhere")
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        unimplemented!("This is a fake writer and is not used anywhere")
+    }
+}
+
+// Offer the same functionality as queue! macro, but is used only internally and with std::fmt::Write as $writer
+// The difference is in case of winapi we ignore the $writer and use a fake one
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_fmt_command {
@@ -60,7 +78,7 @@ macro_rules! handle_fmt_command {
                 command
                     // $writer is not used in execute_winapi when called from handle_fmt_command macro
                     // we give it stdout() as place holder to satisfy the type requirement
-                    .execute_winapi(&mut std::io::stdout())
+                    .execute_winapi(&mut FakeWriter{})
                     .map_err($crate::ErrorKind::from)
             }
         }
