@@ -62,7 +62,7 @@ impl std::io::Write for FakeWriter {
 }
 
 // Offer the same functionality as `queue!` macro, but is used only internally and with `std::fmt::Write` as `$writer`
-// The difference is in case of winapi we ignore the $writer and use a fake one
+// The difference is in case of winapi we ignore the `$writer` and use a fake one.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! handle_fmt_command {
