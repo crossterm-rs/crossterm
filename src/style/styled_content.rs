@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    queue,
+    handle_fmt_command,
     style::{
         Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttributes, SetBackgroundColor,
         SetForegroundColor, Styler,
@@ -96,16 +96,16 @@ impl<D: Display> Display for StyledContent<D> {
         let mut reset = false;
 
         if let Some(bg) = self.style.background_color {
-            queue!(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+            handle_fmt_command!(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
         if let Some(fg) = self.style.foreground_color {
-            queue!(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            handle_fmt_command!(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
         if !self.style.attributes.is_empty() {
-            queue!(f, SetAttributes(self.style.attributes)).map_err(|_| fmt::Error)?;
+            handle_fmt_command!(f, SetAttributes(self.style.attributes)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
@@ -115,7 +115,7 @@ impl<D: Display> Display for StyledContent<D> {
         // color (39m)" and "reset background color (49m)"; consider using
         // these.
         if reset {
-            queue!(f, ResetColor).map_err(|_| fmt::Error)?;
+            handle_fmt_command!(f, ResetColor).map_err(|_| fmt::Error)?;
         }
 
         Ok(())

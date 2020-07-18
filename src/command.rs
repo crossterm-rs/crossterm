@@ -27,7 +27,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()>;
+    fn execute_winapi(&self, writer: &mut dyn std::io::Write) -> Result<()>;
 
     /// Returns whether the ansi code representation of this command is supported by windows.
     ///
@@ -49,8 +49,8 @@ impl<T: Command> Command for &T {
 
     #[inline]
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        T::execute_winapi(self)
+    fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> Result<()> {
+        T::execute_winapi(self, _writer)
     }
 
     #[cfg(windows)]
@@ -129,7 +129,7 @@ where
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        queue!(self, command)?;
+        queue!(&mut *self, command)?;
         Ok(self)
     }
 }
@@ -180,7 +180,7 @@ where
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn execute(&mut self, command: impl Command<AnsiType = A>) -> Result<&mut Self> {
-        execute!(self, command)?;
+        execute!(&mut *self, command)?;
         Ok(self)
     }
 }

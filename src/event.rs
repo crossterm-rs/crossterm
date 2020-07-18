@@ -232,7 +232,7 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
@@ -256,7 +256,7 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: &mut dyn std::io::Write) -> Result<()> {
         sys::windows::disable_mouse_capture()
     }
 
