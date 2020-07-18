@@ -48,7 +48,7 @@ macro_rules! handle_command {
 // This is a fake writer
 // It's used in `execute_winapi`when called from `handle_fmt_command!` macro.
 // In that case, `execute_winapi` doesn't care about the `$writer` and we only use it to fulfill type requirement.
-// The unimplemented! macro asserts that $writer is indeed not used
+// The `unimplemented!` macro asserts that `$writer` is indeed not used.
 pub(crate) struct FakeWriter;
 
 impl std::io::Write for FakeWriter {
