@@ -49,7 +49,7 @@ macro_rules! handle_command {
 // It's used in execute_winapi when called from handle_fmt_command! macro
 // In that case execute_winapi doesn't care about the $writer and we only use it to fulfill type requirement
 // The unimplemented! macro asserts that $writer is indeed not used
-struct FakeWriter;
+pub(crate) struct FakeWriter;
 
 impl std::io::Write for FakeWriter {
     fn write(&mut self, _buf: &[u8]) -> std::io::Result<usize> {
@@ -76,7 +76,7 @@ macro_rules! handle_fmt_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    .execute_winapi(&mut FakeWriter {})
+                    .execute_winapi(&mut $crate::macros::FakeWriter {})
                     .map_err($crate::ErrorKind::from)
             }
         }
