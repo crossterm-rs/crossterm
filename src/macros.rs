@@ -76,8 +76,6 @@ macro_rules! handle_fmt_command {
                 write_ansi_code!($writer, command.ansi_code())
             } else {
                 command
-                    // $writer is not used in execute_winapi when called from handle_fmt_command macro
-                    // we give it stdout() as place holder to satisfy the type requirement
                     .execute_winapi(&mut FakeWriter{})
                     .map_err($crate::ErrorKind::from)
             }
