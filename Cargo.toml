@@ -54,7 +54,7 @@ crossterm_winapi = "0.6.1"
 #
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-mio = {version="0.7", features=["os-poll"]}
+mio = { version="0.7", features=["os-poll"] }
 signal-hook = { version = "0.1.15", features = ["mio-0_7-support"] }
 
 #
@@ -65,3 +65,14 @@ tokio = { version = "0.2.11", features = ["full"] }
 futures = "0.3"
 futures-timer = "3.0"
 async-std = "1.4"
+
+#
+# Examples
+#
+[[example]]
+name = "event-stream-async-std"
+required-features = ["event-stream"]
+
+[[example]]
+name = "event-stream-tokio"
+required-features = ["event-stream"]
