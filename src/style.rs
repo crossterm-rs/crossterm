@@ -377,7 +377,7 @@ impl Command for SetAttributes {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
 
 impl<D> Command for PrintStyledContent<D>
