@@ -4,14 +4,12 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
+    task::{Context, Poll},
     thread,
     time::Duration,
 };
 
-use futures_util::{
-    stream::Stream,
-    task::{Context, Poll},
-};
+use futures_lite::stream::Stream;
 
 use crate::Result;
 
