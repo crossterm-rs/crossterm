@@ -34,7 +34,7 @@
 // Produces a single method for a "base" Styler implementation
 //
 // The first argument is the type for which Styler is being implemented. Because this is the same
-// for all "base" types, we can collase them into a single macro.
+// for all "base" types, we can collapse them into a single macro.
 macro_rules! def_attr_base {
     ($impl_ty:ty, $name:ident => $attr:path) => {
         fn $name(self) -> StyledContent<$impl_ty> {

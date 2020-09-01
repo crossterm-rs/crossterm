@@ -83,7 +83,7 @@ impl<D: Display> StyledContent<D> {
         &self.style
     }
 
-    /// Returns a mutable reference to the style, so that it can be futher
+    /// Returns a mutable reference to the style, so that it can be further
     /// manipulated
     #[inline]
     pub fn style_mut(&mut self) -> &mut ContentStyle {
@@ -111,7 +111,7 @@ impl<D: Display> Display for StyledContent<D> {
 
         self.content.fmt(f)?;
 
-        // TODO: There are specific command sequences for "reset forground
+        // TODO: There are specific command sequences for "reset foreground
         // color (39m)" and "reset background color (49m)"; consider using
         // these.
         if reset {

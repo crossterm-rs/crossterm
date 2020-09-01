@@ -8,7 +8,7 @@
 //! to demonstrate the capabilities.
 //!
 //! Most terminal actions can be performed with commands.
-//! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
+//! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
 //!
 //! ## Screen Buffer
 //!
