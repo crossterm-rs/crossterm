@@ -8,19 +8,35 @@ pub(crate) fn move_to_csi_sequence(f: &mut Formatter, x: u16, y: u16) -> fmt::Re
 }
 
 pub(crate) fn move_up_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
-    write!(f, csi!("{}A"), count)
+    if count != 0 {
+        write!(f, csi!("{}A"), count)
+    } else {
+        Ok(())
+    }
 }
 
 pub(crate) fn move_right_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
-    write!(f, csi!("{}C"), count)
+    if count != 0 {
+        write!(f, csi!("{}C"), count)
+    } else {
+        Ok(())
+    }
 }
 
 pub(crate) fn move_down_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
-    write!(f, csi!("{}B"), count)
+    if count != 0 {
+        write!(f, csi!("{}B"), count)
+    } else {
+        Ok(())
+    }
 }
 
 pub(crate) fn move_left_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
-    write!(f, csi!("{}D"), count)
+    if count != 0 {
+        write!(f, csi!("{}D"), count)
+    } else {
+        Ok(())
+    }
 }
 
 pub(crate) fn move_to_column_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
