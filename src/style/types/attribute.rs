@@ -88,6 +88,7 @@ macro_rules! Attribute {
     }
 }
 
+#[non_exhaustive]
 Attribute! {
     /// Resets all the attributes.
     Reset = 0,
@@ -139,8 +140,6 @@ Attribute! {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
-    #[doc(hidden)]
-    __Nonexhaustive = 255,
 }
 
 impl Display for Attribute {
