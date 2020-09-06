@@ -17,7 +17,7 @@ pub(crate) fn move_up_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result
 
 pub(crate) fn move_right_csi_sequence(f: &mut Formatter, count: u16) -> fmt::Result {
     if count != 0 {
-       write!(f, csi!("{}C"), count)
+        write!(f, csi!("{}C"), count)
     } else {
         Ok(())
     }
