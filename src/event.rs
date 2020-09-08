@@ -191,7 +191,7 @@ pub fn read() -> Result<Event> {
     }
 }
 
-/// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
+/// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
 pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool>
 where
     F: Filter,
