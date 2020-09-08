@@ -27,7 +27,7 @@ all-features = true
 #
 [features]
 default = []
-event-stream = ["futures-util"]
+event-stream = ["futures-core"]
 
 #
 # Shared dependencies
@@ -36,7 +36,7 @@ event-stream = ["futures-util"]
 bitflags = "1.2"
 lazy_static = "1.4"
 parking_lot = "0.10"
-futures-util = { version = "0.3", optional = true, default-features = false }
+futures-core = { version = "0.3", optional = true, default-features = false }
 serde = { version = "1.0", features = ["derive"], optional = true }
 
 #
