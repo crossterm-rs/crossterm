@@ -93,15 +93,17 @@ impl<D: Display> StyledContent<D> {
 
 impl<D: Display> Display for StyledContent<D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> result::Result<(), fmt::Error> {
+        let mut reset_background = false;
+        let mut reset_foreground = false;
         let mut reset = false;
 
         if let Some(bg) = self.style.background_color {
             handle_fmt_command!(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
-            reset = true;
+            reset_background = true;
         }
         if let Some(fg) = self.style.foreground_color {
             handle_fmt_command!(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
-            reset = true;
+            reset_foreground = true;
         }
 
         if !self.style.attributes.is_empty() {
@@ -111,11 +113,19 @@ impl<D: Display> Display for StyledContent<D> {
 
         self.content.fmt(f)?;
 
-        // TODO: There are specific command sequences for "reset foreground
-        // color (39m)" and "reset background color (49m)"; consider using
-        // these.
         if reset {
+            // NOTE: This will reset colors even though self has no colors, hence produce unexpected
+            // resets.
+            // TODO: reset the set attributes only.
             handle_fmt_command!(f, ResetColor).map_err(|_| fmt::Error)?;
+        } else {
+            // NOTE: Since the above bug, we do not need to reset colors when we reset attributes.
+            if reset_background {
+                handle_fmt_command!(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+            if reset_foreground {
+                handle_fmt_command!(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
         }
 
         Ok(())
