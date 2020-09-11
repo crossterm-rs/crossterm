@@ -47,6 +47,7 @@ see [Tested Terminals](#tested-terminals) for more info).
     - Alternate screen
     - Raw screen   
     - Set terminal title
+    - Enable/disable line wrapping
 - Event 
     - Input Events 
     - Mouse Events (press, release, position, button, drag)

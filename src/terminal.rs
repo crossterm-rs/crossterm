@@ -82,9 +82,11 @@
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
 #[cfg(windows)]
-use crossterm_winapi::{Handle, ScreenBuffer};
+use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
+use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
@@ -112,6 +114,48 @@ pub fn disable_raw_mode() -> Result<()> {
 /// The top left cell is represented `(1, 1)`.
 pub fn size() -> Result<(u16, u16)> {
     sys::size()
+}
+
+/// Disables line wrapping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableLineWrap;
+
+impl Command for DisableLineWrap {
+    type AnsiType = &'static str;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::DISABLE_LINE_WRAP_CSI_SEQUENCE
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        let screen_buffer = ScreenBuffer::current()?;
+        let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
+        let new_mode = console_mode.mode()? & !ENABLE_WRAP_AT_EOL_OUTPUT;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
+    }
+}
+
+/// Enable line wrapping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableLineWrap;
+
+impl Command for EnableLineWrap {
+    type AnsiType = &'static str;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::ENABLE_LINE_WRAP_CSI_SEQUENCE
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        let screen_buffer = ScreenBuffer::current()?;
+        let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
+        let new_mode = console_mode.mode()? | ENABLE_WRAP_AT_EOL_OUTPUT;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
+    }
 }
 
 /// A command that switches to alternate screen.
