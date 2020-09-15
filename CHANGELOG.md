@@ -1,8 +1,9 @@
-# Version 0.17.8
+# Version 0.18.0
 - Fix get position bug 
 - Fix windows 8 or lower write to user-given stdout instead of stdout.
 - Make MoveCursor(Left/Right/Up/Dow) command with input 0 not move.
 - Switch to futures-core to reduce dependencies.
+- Command API restricts to only accept `std::io::Write`
 
 # Version 0.17.7
 - Fix cursor position retrieval bug linux.
