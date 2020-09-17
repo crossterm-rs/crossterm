@@ -250,7 +250,8 @@ pub mod tty;
 
 mod ansi;
 #[cfg(windows)]
-pub(crate) mod ansi_support;
+/// A module that exposes one function to check if the current terminal supports ansi sequences.
+pub mod ansi_support;
 mod command;
 mod error;
 pub(crate) mod macros;
