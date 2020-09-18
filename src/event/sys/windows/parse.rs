@@ -79,19 +79,16 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
             let character_raw = key_event.u_char;
 
             if character_raw < 255 {
+                // Invalid character
+                if character_raw == 0 {
+                    return None;
+                }
+
                 let mut character = character_raw as u8 as char;
 
-                if modifiers.contains(KeyModifiers::ALT) {
-                    // If the ALT key is held down, pressing the A key produces ALT+A, which the system does not treat as a character at all, but rather as a system command.
-                    // The pressed command is stored in `virtual_key_code`.
-                    let command = key_event.virtual_key_code as u8 as char;
-
-                    if command.is_alphabetic() {
-                        character = command;
-                    } else {
-                        return None;
-                    }
-                } else if modifiers.contains(KeyModifiers::CONTROL) {
+                if modifiers.contains(KeyModifiers::CONTROL)
+                    && !modifiers.contains(KeyModifiers::ALT)
+                {
                     // we need to do some parsing
                     character = match character_raw as u8 {
                         c @ b'\x01'..=b'\x1A' => (c as u8 - 0x1 + b'a') as char,
