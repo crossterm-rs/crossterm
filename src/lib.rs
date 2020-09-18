@@ -63,6 +63,8 @@
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
 //!     [`SetSize`](terminal/struct.SetSize.html)
 //!     [`SetTitle`](terminal/struct.SetTitle.html)
+//!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html)
+//!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
 //!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
 //!
@@ -248,7 +250,8 @@ pub mod tty;
 
 mod ansi;
 #[cfg(windows)]
-pub(crate) mod ansi_support;
+/// A module that exposes one function to check if the current terminal supports ansi sequences.
+pub mod ansi_support;
 mod command;
 mod error;
 pub(crate) mod macros;

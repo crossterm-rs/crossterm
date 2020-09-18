@@ -50,6 +50,7 @@ lazy_static! {
     };
 }
 
+/// Checks if the current terminal supports ansi escape sequences
 pub fn supports_ansi() -> bool {
     *SUPPORTS_ANSI_ESCAPE_CODES
 }
