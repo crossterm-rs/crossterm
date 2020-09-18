@@ -4,6 +4,8 @@
 - Make MoveCursor(Left/Right/Up/Dow) command with input 0 not move.
 - Switch to futures-core to reduce dependencies.
 - Command API restricts to only accept `std::io::Write`
+- Make `supports_ansi` public
+- Implement ALT + numbers windows systems.
 
 # Version 0.17.7
 - Fix cursor position retrieval bug linux.
