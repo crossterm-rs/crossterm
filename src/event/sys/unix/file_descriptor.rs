@@ -86,12 +86,12 @@ pub fn tty_fd() -> Result<FileDesc> {
     let (fd, close_on_drop) = if let Ok(tty) = fs::OpenOptions::new()
         .read(true)
         .write(true)
-        .open("/dev/tty")?
-        .into_raw_fd() {
-        (tty, true)
+        .open("/dev/tty")
+    {
+        (tty.into_raw_fd(), false)
     }  else {
         if stdin().is_tty() {
-            (libc::STDIN_FILENO, true)
+            (libc::STDIN_FILENO, false)
         } else {
             return Err(ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Failed to initialize input source. Crossterm first tried to open `/dev/tty` wereafter `libc::STDIN_FILENO`, but both could not be used.")));
         }
