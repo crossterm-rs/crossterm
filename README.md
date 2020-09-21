@@ -47,6 +47,7 @@ see [Tested Terminals](#tested-terminals) for more info).
     - Alternate screen
     - Raw screen   
     - Set terminal title
+    - Enable/disable line wrapping
 - Event 
     - Input Events 
     - Mouse Events (press, release, position, button, drag)
@@ -84,7 +85,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.17"
+crossterm = "0.18"
 ```
 
 </details>
@@ -162,7 +163,7 @@ features = ["event-stream"]
 - [Broot](https://dystroy.org/broot/)
 - [Cursive](https://github.com/gyscos/Cursive)
 - [TUI](https://github.com/fdehau/tui-rs)
-- [Rust-sloth](https://github.com/jonathandturner/rust-sloth/tree/crossterm-port)
+- [Rust-sloth](https://github.com/ecumene/rust-sloth)
 
 ## Contributing
   

@@ -18,7 +18,7 @@ use crossterm::{
     Result,
 };
 
-const HELP: &str = r#"EventStream based on futures::Stream with async-std
+const HELP: &str = r#"EventStream based on futures_util::stream::Stream with async-std
  - Keyboard, mouse and terminal resize events enabled
  - Prints "." every second if there's no event
  - Hit "c" to print current cursor position

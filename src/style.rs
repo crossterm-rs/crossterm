@@ -117,13 +117,12 @@ use crate::Result;
 use crate::{impl_display, Ansi, Command};
 use std::fmt;
 
-pub(crate) use self::enums::Colored;
 pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
-    enums::{Attribute, Color},
     styled_content::StyledContent,
     traits::{Colorize, Styler},
+    types::{Attribute, Color, Colored, Colors},
 };
 
 #[macro_use]
@@ -131,10 +130,10 @@ mod macros;
 mod ansi;
 mod attributes;
 mod content_style;
-mod enums;
 mod styled_content;
 mod sys;
 mod traits;
+mod types;
 
 /// Creates a `StyledContent`.
 ///
@@ -161,12 +160,22 @@ where
 }
 
 impl_colorize!(String);
-impl_colorize!(&'static str);
 impl_colorize!(char);
 
+// We do actually need the parentheses here because the macro doesn't work without them otherwise
+// This is probably a bug somewhere in the compiler, but it isn't that big a deal.
+#[allow(unused_parens)]
+impl<'a> Colorize<&'a str> for &'a str {
+    impl_colorize_callback!(def_color_base!((&'a str)));
+}
+
 impl_styler!(String);
-impl_styler!(&'static str);
 impl_styler!(char);
+
+#[allow(unused_parens)]
+impl<'a> Styler<&'a str> for &'a str {
+    impl_styler_callback!(def_attr_base!((&'a str)));
+}
 
 /// Returns available color count.
 ///
@@ -182,6 +191,9 @@ pub fn available_color_count() -> u16 {
 /// A command that sets the the foreground color.
 ///
 /// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color in one command.
 ///
 /// # Notes
 ///
@@ -204,7 +216,7 @@ impl Command for SetForegroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::set_foreground_color(self.0)
     }
 }
@@ -212,6 +224,9 @@ impl Command for SetForegroundColor {
 /// A command that sets the the background color.
 ///
 /// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with one command.
 ///
 /// # Notes
 ///
@@ -234,8 +249,63 @@ impl Command for SetBackgroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::set_background_color(self.0)
+    }
+}
+
+/// A command that optionally sets the foreground and/or background color.
+///
+/// For example:
+/// ```no_run
+/// use std::io::{stdout, Write};
+/// use crossterm::execute;
+/// use crossterm::style::{Color::{Green, Black}, Colors, Print, SetColors};
+///
+/// execute!(
+///     stdout(),
+///     SetColors(Colors::new(Green, Black)),
+///     Print("Hello, world!".to_string()),
+/// ).unwrap();
+/// ```
+///
+/// See [`Colors`](struct.Colors.html) for more info.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetColors(pub Colors);
+
+impl fmt::Display for Ansi<SetColors> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(color) = (self.0).0.foreground {
+            ansi::set_fg_csi_sequence(f, color)?;
+        }
+        if let Some(color) = (self.0).0.background {
+            ansi::set_bg_csi_sequence(f, color)?;
+        }
+        Ok(())
+    }
+}
+
+impl Command for SetColors {
+    type AnsiType = Ansi<Self>;
+
+    #[inline]
+    fn ansi_code(&self) -> Self::AnsiType {
+        Ansi(*self)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        if let Some(color) = self.0.foreground {
+            sys::windows::set_foreground_color(color)?;
+        }
+        if let Some(color) = self.0.background {
+            sys::windows::set_background_color(color)?;
+        }
+        Ok(())
     }
 }
 
@@ -264,7 +334,7 @@ impl Command for SetAttribute {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -294,7 +364,7 @@ impl Command for SetAttributes {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -307,7 +377,7 @@ impl Command for SetAttributes {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
 
 impl<D> Command for PrintStyledContent<D>
@@ -321,7 +391,7 @@ where
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         Ok(())
     }
 }
@@ -342,7 +412,7 @@ impl Command for ResetColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::reset()
     }
 }
@@ -361,8 +431,8 @@ impl<T: Display + Clone> Command for Print<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        print!("{}", self.0);
+    fn execute_winapi(&self, mut writer: impl FnMut() -> Result<()>) -> Result<()> {
+        writer()?;
         Ok(())
     }
 }
@@ -378,6 +448,7 @@ impl<T: Display + Clone> Display for Print<T> {
 
 impl_display!(for SetForegroundColor);
 impl_display!(for SetBackgroundColor);
+impl_display!(for SetColors);
 impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);

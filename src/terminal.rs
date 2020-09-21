@@ -8,7 +8,7 @@
 //! to demonstrate the capabilities.
 //!
 //! Most terminal actions can be performed with commands.
-//! Please have a look at [command documention](../index.html#command-api) for a more detailed documentation.
+//! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
 //!
 //! ## Screen Buffer
 //!
@@ -82,9 +82,11 @@
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
 #[cfg(windows)]
-use crossterm_winapi::{Handle, ScreenBuffer};
+use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
+use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
@@ -112,6 +114,48 @@ pub fn disable_raw_mode() -> Result<()> {
 /// The top left cell is represented `(1, 1)`.
 pub fn size() -> Result<(u16, u16)> {
     sys::size()
+}
+
+/// Disables line wrapping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableLineWrap;
+
+impl Command for DisableLineWrap {
+    type AnsiType = &'static str;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::DISABLE_LINE_WRAP_CSI_SEQUENCE
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        let screen_buffer = ScreenBuffer::current()?;
+        let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
+        let new_mode = console_mode.mode()? & !ENABLE_WRAP_AT_EOL_OUTPUT;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
+    }
+}
+
+/// Enable line wrapping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableLineWrap;
+
+impl Command for EnableLineWrap {
+    type AnsiType = &'static str;
+
+    fn ansi_code(&self) -> Self::AnsiType {
+        ansi::ENABLE_LINE_WRAP_CSI_SEQUENCE
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        let screen_buffer = ScreenBuffer::current()?;
+        let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
+        let new_mode = console_mode.mode()? | ENABLE_WRAP_AT_EOL_OUTPUT;
+        console_mode.set_mode(new_mode)?;
+        Ok(())
+    }
 }
 
 /// A command that switches to alternate screen.
@@ -147,7 +191,7 @@ impl Command for EnterAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         let alternate_screen = ScreenBuffer::create();
         alternate_screen.show()?;
         Ok(())
@@ -187,7 +231,7 @@ impl Command for LeaveAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
         Ok(())
@@ -226,7 +270,7 @@ impl Command for ScrollUp {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::scroll_up(self.0)
     }
 }
@@ -247,7 +291,7 @@ impl Command for ScrollDown {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::scroll_down(self.0)
     }
 }
@@ -276,7 +320,7 @@ impl Command for Clear {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::clear(self.0)
     }
 }
@@ -297,7 +341,7 @@ impl Command for SetSize {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::set_size(self.0, self.1)
     }
 }
@@ -318,7 +362,7 @@ impl<'a> Command for SetTitle<'a> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::set_window_title(self.0)
     }
 }

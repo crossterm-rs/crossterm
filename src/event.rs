@@ -191,7 +191,7 @@ pub fn read() -> Result<Event> {
     }
 }
 
-/// Polls to check if there are any `InternalEvent`s that can be read withing the given duration.
+/// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
 pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool>
 where
     F: Filter,
@@ -232,7 +232,7 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
@@ -256,7 +256,7 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
         sys::windows::disable_mouse_capture()
     }
 

@@ -12,6 +12,7 @@ pub type Result<T> = std::result::Result<T, ErrorKind>;
 
 /// Wrapper for all errors that can occur in `crossterm`.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum ErrorKind {
     IoError(io::Error),
     FmtError(fmt::Error),
@@ -19,8 +20,6 @@ pub enum ErrorKind {
     ParseIntError(std::num::ParseIntError),
     ResizingTerminalFailure(String),
     SettingTerminalTitleFailure,
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl std::error::Error for ErrorKind {

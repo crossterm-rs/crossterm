@@ -27,7 +27,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()>;
+    fn execute_winapi(&self, writer: impl FnMut() -> Result<()>) -> Result<()>;
 
     /// Returns whether the ansi code representation of this command is supported by windows.
     ///
@@ -49,8 +49,8 @@ impl<T: Command> Command for &T {
 
     #[inline]
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        T::execute_winapi(self)
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        T::execute_winapi(self, _writer)
     }
 
     #[cfg(windows)]

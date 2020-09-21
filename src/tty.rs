@@ -11,6 +11,13 @@ use std::os::windows::io::AsRawHandle;
 use winapi::um::consoleapi::GetConsoleMode;
 
 /// Adds the `is_tty` method to types that might represent a terminal
+///
+/// ```rust
+/// use std::io::stdout;
+/// use crossterm::tty::IsTty;
+///
+/// let is_tty: bool = stdout().is_tty();
+/// ```
 pub trait IsTty {
     /// Returns true when an instance is a terminal teletype, otherwise false.
     fn is_tty(&self) -> bool;

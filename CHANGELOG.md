@@ -1,6 +1,29 @@
+# Version 0.18.0
+- Fix get position bug 
+- Fix windows 8 or lower write to user-given stdout instead of stdout.
+- Make MoveCursor(Left/Right/Up/Dow) command with input 0 not move.
+- Switch to futures-core to reduce dependencies.
+- Command API restricts to only accept `std::io::Write`
+- Make `supports_ansi` public
+- Implement ALT + numbers windows systems.
+
+# Version 0.17.7
+- Fix cursor position retrieval bug linux.
+
+# Version 0.17.6
+- Add functionality to retrieve color based on passed ansi code. 
+- Switch from 'futures' to 'futures-util' crate to reduce dependency count
+- Mio 0.7 update
+- signal-hook update
+- Make windows raw_mode act on CONIN$
+- Added From<(u8, u8, u8)> Trait to Color::Rgb Enum
+- Implement Color::try_from() 
+- Implement styler traits for `&'a str`
+
 # Version 0.17.5
 - Improved support of keymodifier for linux, arrow keys, function keys, home keys etc.
 - Add `SetTitle` command to change the terminal title.
+- Mio 0.7 update
 
 # Version 0.17.4
 - Add macros for `Colorize` and `Styler` impls, add an impl for `String` 

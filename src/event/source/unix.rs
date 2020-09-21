@@ -1,8 +1,8 @@
-use mio::{unix::EventedFd, Events, Poll, PollOpt, Ready, Token};
+use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
-use std::{collections::VecDeque, time::Duration};
+use std::{collections::VecDeque, io, time::Duration};
 
-use crate::Result;
+use crate::{ErrorKind, Result};
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
@@ -45,34 +45,17 @@ impl UnixInternalEventSource {
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
         let poll = Poll::new()?;
+        let registry = poll.registry();
 
-        // PollOpt::level vs PollOpt::edge mio documentation:
-        //
-        // > With edge-triggered events, operations must be performed on the Evented type until
-        // > WouldBlock is returned.
-        //
-        // TL;DR - DO NOT use PollOpt::edge.
-        //
-        // Because of the `try_read` nature (loop with returns) we can't use `PollOpt::edge`. All
-        // `Evented` handles MUST be registered with the `PollOpt::level`.
-        //
-        // If you have to use `PollOpt::edge` and there's no way how to do it with the `PollOpt::level`,
-        // be aware that the whole `TtyInternalEventSource` have to be rewritten
-        // (read everything from each `Evented`, process without returns, store all InternalEvent events
-        // into a buffer and then return first InternalEvent, etc.). Even these changes wont be
-        // enough, because `Poll::poll` wont fire again until additional `Evented` event happens and
-        // we can still have a buffer filled with InternalEvent events.
         let tty_raw_fd = input_fd.raw_fd();
-        let tty_ev = EventedFd(&tty_raw_fd);
-        poll.register(&tty_ev, TTY_TOKEN, Ready::readable(), PollOpt::level())?;
+        let mut tty_ev = SourceFd(&tty_raw_fd);
+        registry.register(&mut tty_ev, TTY_TOKEN, Interest::READABLE)?;
 
-        let signals = Signals::new(&[signal_hook::SIGWINCH])?;
-        poll.register(&signals, SIGNAL_TOKEN, Ready::readable(), PollOpt::level())?;
+        let mut signals = Signals::new(&[signal_hook::SIGWINCH])?;
+        registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
-        let waker = Waker::new()?;
-        #[cfg(feature = "event-stream")]
-        poll.register(&waker, WAKE_TOKEN, Ready::readable(), PollOpt::level())?;
+        let waker = Waker::new(registry, WAKE_TOKEN)?;
 
         Ok(UnixInternalEventSource {
             poll,
@@ -94,10 +77,18 @@ impl EventSource for UnixInternalEventSource {
         }
 
         let timeout = PollTimeout::new(timeout);
-        let mut additional_input_events = Events::with_capacity(3);
 
         loop {
-            self.poll.poll(&mut self.events, timeout.leftover())?;
+            if let Err(e) = self.poll.poll(&mut self.events, timeout.leftover()) {
+                // Mio will throw an interrupted error in case of cursor position retrieval. We need to retry until it succeeds.
+                // Previous versions of Mio (< 0.7) would automatically retry the poll call if it was interrupted (if EINTR was returned).
+                // https://docs.rs/mio/0.7.0/mio/struct.Poll.html#notes
+                if e.kind() == io::ErrorKind::Interrupted {
+                    continue;
+                } else {
+                    return Err(ErrorKind::IoError(e));
+                }
+            };
 
             if self.events.is_empty() {
                 // No readiness events = timeout
@@ -107,20 +98,28 @@ impl EventSource for UnixInternalEventSource {
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
-                        let read_count = self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE)?;
-
-                        if read_count > 0 {
-                            self.poll
-                                .poll(&mut additional_input_events, Some(Duration::from_secs(0)))?;
-
-                            let additional_input_available = additional_input_events
-                                .iter()
-                                .any(|event| event.token() == TTY_TOKEN);
-
-                            self.parser.advance(
-                                &self.tty_buffer[..read_count],
-                                additional_input_available,
-                            );
+                        loop {
+                            match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                                Ok(read_count) => {
+                                    if read_count > 0 {
+                                        self.parser.advance(
+                                            &self.tty_buffer[..read_count],
+                                            read_count == TTY_BUFFER_SIZE,
+                                        );
+                                    }
+                                }
+                                Err(ErrorKind::IoError(e)) => {
+                                    // No more data to read at the moment. We will receive another event
+                                    if e.kind() == io::ErrorKind::WouldBlock {
+                                        break;
+                                    }
+                                    // once more data is available to read.
+                                    else if e.kind() == io::ErrorKind::Interrupted {
+                                        continue;
+                                    }
+                                }
+                                Err(e) => return Err(e),
+                            };
 
                             if let Some(event) = self.parser.next() {
                                 return Ok(Some(event));
@@ -149,7 +148,6 @@ impl EventSource for UnixInternalEventSource {
                     }
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
-                        let _ = self.waker.reset();
                         return Err(std::io::Error::new(
                             std::io::ErrorKind::Interrupted,
                             "Poll operation was woken up by `Waker::wake`",
