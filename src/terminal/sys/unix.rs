@@ -117,7 +117,7 @@ fn raw_terminal_attr(termios: &mut Termios) {
 }
 
 fn get_terminal_attr() -> Result<Termios> {
-    let fd = tty_fd()?;
+    let fd = tty_fd(true)?;
 
     unsafe {
         let mut termios = mem::zeroed();
@@ -127,7 +127,7 @@ fn get_terminal_attr() -> Result<Termios> {
 }
 
 fn set_terminal_attr(termios: &Termios) -> Result<bool> {
-    let fd = tty_fd()?;
+    let fd = tty_fd(true)?;
     wrap_with_result(unsafe { tcsetattr(fd.raw_fd(), TCSANOW, termios) })
 }
 
