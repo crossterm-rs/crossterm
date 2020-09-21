@@ -68,8 +68,6 @@ impl Drop for FileDesc {
 pub fn tty_fd() -> Result<FileDesc> {
     use crate::tty::IsTty;
 
-    println!("{:?}", stdin().is_tty());
-
 //    let (fd, close_on_drop) = if stdin().is_tty() {
 //        (libc::STDIN_FILENO, false)
 //    } else {
@@ -83,17 +81,21 @@ pub fn tty_fd() -> Result<FileDesc> {
 //        )
 //    };
 
-    let (fd, close_on_drop) = if let Ok(tty) = fs::OpenOptions::new()
+    let (fd, close_on_drop) = match fs::OpenOptions::new()
         .read(true)
         .write(true)
-        .open("/dev/tty")
-    {
-        (tty.into_raw_fd(), false)
-    }  else {
-        if stdin().is_tty() {
-            (libc::STDIN_FILENO, false)
-        } else {
-            return Err(ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Failed to initialize input source. Crossterm first tried to open `/dev/tty` wereafter `libc::STDIN_FILENO`, but both could not be used.")));
+        .open("/dev/tty") {
+        Ok(tty) => {
+            println!("Can open");
+            (tty.into_raw_fd(), false)
+        }
+        Err(e) => {
+            println!("Can not open");
+            if stdin().is_tty() {
+                (libc::STDIN_FILENO, false)
+            } else {
+                return Err(ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Failed to initialize input source. Crossterm first tried to open `/dev/tty` wereafter `libc::STDIN_FILENO`, but both could not be used.")));
+            }
         }
     };
 
