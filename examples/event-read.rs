@@ -54,5 +54,6 @@ fn main() -> Result<()> {
     execute!(stdout, DisableMouseCapture)?;
     });
 
+    println!("{:?}", result);
     disable_raw_mode()
 }
