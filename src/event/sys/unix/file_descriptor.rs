@@ -6,7 +6,6 @@ use std::{
 use libc::size_t;
 
 use crate::{ErrorKind, Result};
-use futures::io::Error;
 use std::io::stdin;
 
 /// A file descriptor wrapper.
