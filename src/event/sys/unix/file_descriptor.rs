@@ -68,6 +68,8 @@ impl Drop for FileDesc {
 pub fn tty_fd() -> Result<FileDesc> {
     use crate::tty::IsTty;
 
+    println!("{:?}", stdin().is_tty());
+
     let (fd, close_on_drop) = if stdin().is_tty() {
         (libc::STDIN_FILENO, false)
     } else {
