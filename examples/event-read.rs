@@ -38,6 +38,10 @@ fn print_events() -> Result<()> {
 }
 
 fn main() -> Result<()> {
+    let result = std::panic::catch_unwind(|| {
+       disable_raw_mode();
+    });
+
     println!("{}", HELP);
 
     enable_raw_mode()?;
