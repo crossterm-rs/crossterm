@@ -55,5 +55,5 @@ fn main() -> Result<()> {
     });
 
     println!("{:?}", result);
-    disable_raw_mode();
+    disable_raw_mode()
 }
