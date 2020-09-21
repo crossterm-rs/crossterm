@@ -83,7 +83,7 @@ pub fn tty_fd() -> Result<FileDesc> {
 //        )
 //    };
 
-    let fd = if let Ok(tty) = fs::OpenOptions::new()
+    let (fd, close_on_drop) = if let Ok(tty) = fs::OpenOptions::new()
         .read(true)
         .write(true)
         .open("/dev/tty")?
