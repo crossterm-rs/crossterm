@@ -55,5 +55,6 @@ fn main() -> Result<()> {
     });
 
     println!("result: {:?}", result);
-    disable_raw_mode()
+    disable_raw_mode().expect("Can not disable raw mode");
+    Ok(())
 }
