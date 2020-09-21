@@ -39,8 +39,6 @@ fn print_events() -> Result<()> {
 
 fn main() -> Result<()> {
     let result = std::panic::catch_unwind(|| {
-       disable_raw_mode();
-    });
 
     println!("{}", HELP);
 
@@ -54,6 +52,7 @@ fn main() -> Result<()> {
     }
 
     execute!(stdout, DisableMouseCapture)?;
+    });
 
     disable_raw_mode()
 }
