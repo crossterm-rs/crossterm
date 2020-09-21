@@ -54,6 +54,6 @@ fn main() -> Result<()> {
     execute!(stdout, DisableMouseCapture).expect("Can not disable mouse");
     });
 
-    println!("{:?}", result);
+    println!("result: {:?}", result);
     disable_raw_mode()
 }
