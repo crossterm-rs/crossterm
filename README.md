@@ -67,6 +67,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
     - Windows 8.1 (N)
 - Ubuntu Desktop Terminal
     - Ubuntu 17.10
+    - Pop!_OS ( Ubuntu ) 20.04
 - (Arch, Manjaro) KDE Konsole
 - (Arch) Kitty
 - Linux Mint
