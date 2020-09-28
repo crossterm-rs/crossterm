@@ -137,7 +137,10 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'B' => Some(Event::Key(KeyCode::Down.into())),
         b'H' => Some(Event::Key(KeyCode::Home.into())),
         b'F' => Some(Event::Key(KeyCode::End.into())),
-        b'Z' => Some(Event::Key(KeyEvent {code: KeyCode::BackTab, modifiers: KeyModifiers::SHIFT})),
+        b'Z' => Some(Event::Key(KeyEvent {
+            code: KeyCode::BackTab,
+            modifiers: KeyModifiers::SHIFT,
+        })),
         b'M' => return parse_csi_x10_mouse(buffer),
         b'<' => return parse_csi_xterm_mouse(buffer),
         b'0'..=b'9' => {
