@@ -1,3 +1,7 @@
+# Version 0.18.1
+- Fix enabling ANSI support when stdout is redirected
+- Update crossterm-winapi to 0.6.2
+
 # Version 0.18.0
 - Fix get position bug 
 - Fix windows 8 or lower write to user-given stdout instead of stdout.
