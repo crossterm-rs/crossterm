@@ -37,7 +37,7 @@ pub struct EventStream {
     poll_internal_waker: Waker,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
-    task_sender: SyncSender<Task>
+    task_sender: SyncSender<Task>,
 }
 
 impl Default for EventStream {
@@ -55,7 +55,8 @@ impl Default for EventStream {
                         break;
                     }
                 }
-                task.stream_wake_task_executed.store(false, Ordering::SeqCst);
+                task.stream_wake_task_executed
+                    .store(false, Ordering::SeqCst);
                 task.stream_waker.wake();
             }
         });
@@ -64,7 +65,7 @@ impl Default for EventStream {
             poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
             stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
             stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
-            task_sender
+            task_sender,
         }
     }
 }
@@ -126,7 +127,7 @@ impl Stream for EventStream {
                     let _ = self.task_sender.send(Task {
                         stream_waker,
                         stream_wake_task_executed,
-                        stream_wake_task_should_shutdown
+                        stream_wake_task_should_shutdown,
                     });
                 }
                 Poll::Pending
