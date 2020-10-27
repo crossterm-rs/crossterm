@@ -14,8 +14,6 @@ use futures_core::{
     task::{Context, Poll},
 };
 
-use lazy_static::lazy_static;
-
 use crate::Result;
 
 use super::{
@@ -39,28 +37,12 @@ pub struct EventStream {
     poll_internal_waker: Waker,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
+    task_sender: SyncSender<Task>
 }
 
 impl Default for EventStream {
     fn default() -> Self {
-        EventStream {
-            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
-            stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
-            stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
-        }
-    }
-}
-
-impl EventStream {
-    /// Constructs a new instance of `EventStream`.
-    pub fn new() -> EventStream {
-        EventStream::default()
-    }
-}
-
-lazy_static!{
-    static ref TERM_EVENT_THREAD: SyncSender<Task> = {
-        let (sender, receiver) = mpsc::sync_channel::<Task>(3);
+        let (task_sender, receiver) = mpsc::sync_channel::<Task>(1);
 
         thread::spawn(move || {
             while let Ok(task) = receiver.recv() {
@@ -78,8 +60,20 @@ lazy_static!{
             }
         });
 
-        sender
-    };
+        EventStream {
+            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
+            stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
+            stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
+            task_sender
+        }
+    }
+}
+
+impl EventStream {
+    /// Constructs a new instance of `EventStream`.
+    pub fn new() -> EventStream {
+        EventStream::default()
+    }
 }
 
 struct Task {
@@ -129,7 +123,7 @@ impl Stream for EventStream {
 
                     stream_wake_task_should_shutdown.store(false, Ordering::SeqCst);
 
-                    let _ = TERM_EVENT_THREAD.send(Task {
+                    let _ = self.task_sender.send(Task {
                         stream_waker,
                         stream_wake_task_executed,
                         stream_wake_task_should_shutdown
