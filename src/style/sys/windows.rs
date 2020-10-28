@@ -70,10 +70,10 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
 }
 
 pub(crate) fn reset() -> Result<()> {
-    let original_color = original_console_color();
-
-    Console::from(Handle::new(HandleType::CurrentOutputHandle)?)
-        .set_text_attribute(original_color)?;
+    if let Some(original_color) = *ORIGINAL_CONSOLE_COLOR.lock().unwrap() {
+        Console::from(Handle::new(HandleType::CurrentOutputHandle)?)
+            .set_text_attribute(original_color)?;
+    }
 
     Ok(())
 }
