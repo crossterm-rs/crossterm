@@ -90,13 +90,14 @@ impl Colored {
     /// This is the string that would appear within an `ESC [ <str> m` escape sequence, as found in
     /// various configuration files.
     ///
-    /// For example: `38;5;0 -> ForegroundColor(Black)`,
-    ///              `38;5;26 -> ForegroundColor(AnsiValue(26))`
-    ///              `48;2;50;60;70 -> BackgroundColor(Rgb(50, 60, 70))`
-    ///              `49 -> BackgroundColor(Reset)`
-    /// Invalid sequences map to None.
+    /// For example:
+    /// * `38;5;0 -> ForegroundColor(Black)`,
+    /// * `38;5;26 -> ForegroundColor(AnsiValue(26))`
+    /// * `48;2;50;60;70 -> BackgroundColor(Rgb(50, 60, 70))`
+    /// * `49 -> BackgroundColor(Reset)`
+    /// Invalid sequences map to `None`.
     ///
-    /// Currently, 3/4 bit color values aren't supported so return None.
+    /// Currently, 3/4 bit color values aren't supported so return `None`.
     ///
     /// See also: [Color::parse_ansi](enum.Color.html#method.parse_ansi)
     pub fn parse_ansi(ansi: &str) -> Option<Self> {
@@ -124,10 +125,13 @@ impl Colored {
 
 impl<'a> Color {
     /// Parses an ANSI color sequence.
-    /// For example: `5;0 -> Black`, `5;26 -> AnsiValue(26)`, `2;50;60;70 -> Rgb(50, 60, 70)`.
-    /// Invalid sequences map to None.
+    /// For example:
+    /// * `5;0 -> Black`,
+    /// * `5;26 -> AnsiValue(26)`,
+    /// * `2;50;60;70 -> Rgb(50, 60, 70)`.
+    /// Invalid sequences map to `None`.
     ///
-    /// Currently, 3/4 bit color values aren't supported so return None.
+    /// Currently, 3/4 bit color values aren't supported so return `None`.
     ///
     /// See also: [Colored::parse_ansi](enum.Colored.html#method.parse_ansi)
     pub fn parse_ansi(ansi: &str) -> Option<Self> {

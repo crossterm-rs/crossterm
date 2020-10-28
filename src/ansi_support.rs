@@ -1,4 +1,4 @@
-use crossterm_winapi::ConsoleMode;
+use crossterm_winapi::{ConsoleMode, Handle};
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 use lazy_static::lazy_static;
@@ -17,7 +17,7 @@ use crate::Result;
 pub(crate) fn set_virtual_terminal_processing(yes: bool) -> Result<()> {
     let mask = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-    let console_mode = ConsoleMode::new()?;
+    let console_mode = ConsoleMode::from(Handle::current_out_handle()?);
     let old_mode = console_mode.mode()?;
 
     let new_mode = if yes {
