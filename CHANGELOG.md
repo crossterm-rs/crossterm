@@ -1,3 +1,7 @@
+# Version 0.18.2
+- Fix panic when only setting bold and redirecting stdout.
+- Use `tty_fd` for set/get terminal attributes
+ 
 # Version 0.18.1
 - Fix enabling ANSI support when stdout is redirected
 - Update crossterm-winapi to 0.6.2
