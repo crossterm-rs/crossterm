@@ -25,7 +25,7 @@ impl WinApiPoll {
     pub(crate) fn new() -> Result<WinApiPoll> {
         Ok(WinApiPoll {
             #[cfg(feature = "event-stream")]
-            waker: Waker::new()?
+            waker: Waker::new()?,
         })
     }
 }
