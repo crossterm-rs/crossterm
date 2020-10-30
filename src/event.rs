@@ -306,7 +306,7 @@ pub struct MouseEvent {
     pub modifiers: KeyModifiers,
 }
 
-/// A kind of mouse event.
+/// A mouse event kind.
 ///
 /// # Platform-specific Notes
 ///
@@ -322,10 +322,9 @@ pub enum MouseEventKind {
     Down(MouseButton),
     /// Released mouse button. Contains the button that was released.
     Up(MouseButton),
-    /// Moved mouse pointer while pressing a mouse button. Contains that button that was held while
-    /// the mouse was being moved.
+    /// Moved the mouse cursor while pressing the contained mouse button.
     Drag(MouseButton),
-    /// Moved mouse pointer while not pressing a mouse button.
+    /// Moved the mouse cursor while not pressing a mouse button.
     Moved,
     /// Scrolled mouse wheel downwards (towards the user).
     ScrollDown,
