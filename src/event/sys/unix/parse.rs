@@ -85,18 +85,8 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
             KeyCode::Backspace,
             KeyModifiers::NONE,
         ))))),
-        // Tab control code
-        b'\x09' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-            KeyCode::Tab,
-            KeyModifiers::NONE,
-        ))))),
         // Linefeed control code
         b'\x0a' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-            KeyCode::Enter,
-            KeyModifiers::NONE,
-        ))))),
-        // Return control code
-        b'\x0d' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
             KeyCode::Enter,
             KeyModifiers::NONE,
         ))))),
