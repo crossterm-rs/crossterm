@@ -65,7 +65,7 @@ impl InternalEventReader {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {
-            let maybe_event = match event_source.try_read(timeout) {
+            let maybe_event = match event_source.try_read(poll_timeout.leftover()) {
                 Ok(None) => None,
                 Ok(Some(event)) => {
                     if filter.eval(&event) {
