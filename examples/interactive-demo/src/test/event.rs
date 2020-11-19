@@ -2,7 +2,7 @@
 
 use crossterm::{
     cursor::position,
-    event::{read, EnableMouseCapture, Event, KeyCode},
+    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute, Result,
 };
 use std::io::Write;
@@ -27,6 +27,8 @@ where
             break;
         }
     }
+
+    execute!(w, DisableMouseCapture)?;
 
     Ok(())
 }
