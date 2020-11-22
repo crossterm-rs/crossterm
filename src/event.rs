@@ -285,7 +285,7 @@ pub enum Event {
 /// ## Mouse Buttons
 ///
 /// Some platforms/terminals do not report mouse button for the
-/// `MouseEvent::Up` and `MouseEvent::Drag` events. `MouseButton::Left`
+/// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
 ///
 /// ## Key Modifiers
@@ -295,27 +295,41 @@ pub enum Event {
 /// `Ctrl` + left mouse button click as a right mouse button click.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-pub enum MouseEvent {
-    /// Pressed mouse button.
-    ///
-    /// Contains mouse button, pressed pointer location (column, row), and additional key modifiers.
-    Down(MouseButton, u16, u16, KeyModifiers),
-    /// Released mouse button.
-    ///
-    /// Contains mouse button, released pointer location (column, row), and additional key modifiers.
-    Up(MouseButton, u16, u16, KeyModifiers),
-    /// Moved mouse pointer while pressing a mouse button.
-    ///
-    /// Contains the pressed mouse button, released pointer location (column, row), and additional key modifiers.
-    Drag(MouseButton, u16, u16, KeyModifiers),
+pub struct MouseEvent {
+    /// The kind of mouse event that was caused.
+    pub kind: MouseEventKind,
+    /// The column that the event occurred on.
+    pub column: u16,
+    /// The row that the event occurred on.
+    pub row: u16,
+    /// The key modifiers active when the event occurred.
+    pub modifiers: KeyModifiers,
+}
+
+/// A mouse event kind.
+///
+/// # Platform-specific Notes
+///
+/// ## Mouse Buttons
+///
+/// Some platforms/terminals do not report mouse button for the
+/// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
+/// is returned if we don't know which button was used.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+pub enum MouseEventKind {
+    /// Pressed mouse button. Contains the button that was pressed.
+    Down(MouseButton),
+    /// Released mouse button. Contains the button that was released.
+    Up(MouseButton),
+    /// Moved the mouse cursor while pressing the contained mouse button.
+    Drag(MouseButton),
+    /// Moved the mouse cursor while not pressing a mouse button.
+    Moved,
     /// Scrolled mouse wheel downwards (towards the user).
-    ///
-    /// Contains the scroll location (column, row), and additional key modifiers.
-    ScrollDown(u16, u16, KeyModifiers),
+    ScrollDown,
     /// Scrolled mouse wheel upwards (away from the user).
-    ///
-    /// Contains the scroll location (column, row), and additional key modifiers.
-    ScrollUp(u16, u16, KeyModifiers),
+    ScrollUp,
 }
 
 /// Represents a mouse button.
