@@ -499,7 +499,6 @@ mod tests {
         assert_eq!(
             parse_event(b"\x1BH", false).unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-                //
                 KeyCode::Char('H'),
                 KeyModifiers::ALT | KeyModifiers::SHIFT
             )))),
