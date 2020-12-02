@@ -56,12 +56,16 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
                     }
                     b'[' => parse_csi(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
-                    _ => parse_utf8_char(&buffer[1..]).map(|maybe_char| {
-                        maybe_char
-                            .map(KeyCode::Char)
-                            .map(|code| KeyEvent::new(code, KeyModifiers::ALT))
-                            .map(Event::Key)
-                            .map(InternalEvent::Event)
+                    _ => parse_event(&buffer[1..], input_available).map(|event_option| {
+                        event_option.map(|event| {
+                            if let InternalEvent::Event(Event::Key(key_event)) = event {
+                                let mut alt_key_event = key_event;
+                                alt_key_event.modifiers |= KeyModifiers::ALT;
+                                InternalEvent::Event(Event::Key(alt_key_event))
+                            } else {
+                                event
+                            }
+                        })
                     }),
                 }
             }
@@ -486,6 +490,29 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new(
                 KeyCode::Char('c'),
                 KeyModifiers::ALT
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_alt_shift() {
+        assert_eq!(
+            parse_event(b"\x1BH", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                //
+                KeyCode::Char('H'),
+                KeyModifiers::ALT | KeyModifiers::SHIFT
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_alt_ctrl() {
+        assert_eq!(
+            parse_event(b"\x1B\x14", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('t'),
+                KeyModifiers::ALT | KeyModifiers::CONTROL
             )))),
         );
     }
