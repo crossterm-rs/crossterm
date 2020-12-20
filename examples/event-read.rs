@@ -2,7 +2,7 @@
 //!
 //! cargo run --example event-read
 
-use std::io::{stdout, Write};
+use std::io::stdout;
 
 use crossterm::{
     cursor::position,

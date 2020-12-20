@@ -81,6 +81,8 @@
 //!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
+use std::fmt;
+
 #[cfg(windows)]
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
@@ -121,10 +123,8 @@ pub fn size() -> Result<(u16, u16)> {
 pub struct DisableLineWrap;
 
 impl Command for DisableLineWrap {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::DISABLE_LINE_WRAP_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::DISABLE_LINE_WRAP_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -142,10 +142,8 @@ impl Command for DisableLineWrap {
 pub struct EnableLineWrap;
 
 impl Command for EnableLineWrap {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::ENABLE_LINE_WRAP_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::ENABLE_LINE_WRAP_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -184,10 +182,8 @@ impl Command for EnableLineWrap {
 pub struct EnterAlternateScreen;
 
 impl Command for EnterAlternateScreen {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -224,10 +220,8 @@ impl Command for EnterAlternateScreen {
 pub struct LeaveAlternateScreen;
 
 impl Command for LeaveAlternateScreen {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -263,10 +257,8 @@ pub enum ClearType {
 pub struct ScrollUp(pub u16);
 
 impl Command for ScrollUp {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::scroll_up_csi_sequence(self.0)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::scroll_up_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -284,10 +276,8 @@ impl Command for ScrollUp {
 pub struct ScrollDown(pub u16);
 
 impl Command for ScrollDown {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::scroll_down_csi_sequence(self.0)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::scroll_down_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -307,16 +297,14 @@ impl Command for ScrollDown {
 pub struct Clear(pub ClearType);
 
 impl Command for Clear {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        match self.0 {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(match self.0 {
             ClearType::All => ansi::CLEAR_ALL_CSI_SEQUENCE,
             ClearType::FromCursorDown => ansi::CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE,
             ClearType::FromCursorUp => ansi::CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE,
             ClearType::CurrentLine => ansi::CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE,
             ClearType::UntilNewLine => ansi::CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE,
-        }
+        })
     }
 
     #[cfg(windows)]
@@ -334,10 +322,8 @@ impl Command for Clear {
 pub struct SetSize(pub u16, pub u16);
 
 impl Command for SetSize {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_size_csi_sequence(self.0, self.1)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_size_csi_sequence(f, self.0, self.1)
     }
 
     #[cfg(windows)]
@@ -355,10 +341,8 @@ impl Command for SetSize {
 pub struct SetTitle<'a>(pub &'a str);
 
 impl<'a> Command for SetTitle<'a> {
-    type AnsiType = String;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::set_title_ansi_sequence(self.0)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_title_ansi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -374,10 +358,7 @@ impl_display!(for Clear);
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        io::{stdout, Write},
-        thread, time,
-    };
+    use std::{io::stdout, thread, time};
 
     use crate::execute;
 

@@ -2,10 +2,7 @@
 //!
 //! cargo run --example event-poll-read
 
-use std::{
-    io::{stdout, Write},
-    time::Duration,
-};
+use std::{io::stdout, time::Duration};
 
 use crossterm::{
     cursor::position,

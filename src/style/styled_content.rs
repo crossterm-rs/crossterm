@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    handle_fmt_command,
+    command::execute_fmt,
     style::{
         Attribute, Color, Colorize, ContentStyle, ResetColor, SetAttributes, SetBackgroundColor,
         SetForegroundColor, Styler,
@@ -98,16 +98,16 @@ impl<D: Display> Display for StyledContent<D> {
         let mut reset = false;
 
         if let Some(bg) = self.style.background_color {
-            handle_fmt_command!(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
             reset_background = true;
         }
         if let Some(fg) = self.style.foreground_color {
-            handle_fmt_command!(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
             reset_foreground = true;
         }
 
         if !self.style.attributes.is_empty() {
-            handle_fmt_command!(f, SetAttributes(self.style.attributes)).map_err(|_| fmt::Error)?;
+            execute_fmt(f, SetAttributes(self.style.attributes)).map_err(|_| fmt::Error)?;
             reset = true;
         }
 
@@ -117,14 +117,14 @@ impl<D: Display> Display for StyledContent<D> {
             // NOTE: This will reset colors even though self has no colors, hence produce unexpected
             // resets.
             // TODO: reset the set attributes only.
-            handle_fmt_command!(f, ResetColor).map_err(|_| fmt::Error)?;
+            execute_fmt(f, ResetColor).map_err(|_| fmt::Error)?;
         } else {
             // NOTE: Since the above bug, we do not need to reset colors when we reset attributes.
             if reset_background {
-                handle_fmt_command!(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+                execute_fmt(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
             }
             if reset_foreground {
-                handle_fmt_command!(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+                execute_fmt(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
             }
         }
 

@@ -34,7 +34,7 @@ pub fn read_line() -> Result<String> {
         }
     }
 
-    return Ok(line);
+    Ok(line)
 }
 
 fn main() {

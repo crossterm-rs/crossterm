@@ -5,77 +5,6 @@ macro_rules! csi {
     ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
-/// Writes an ansi code to the given writer.
-#[doc(hidden)]
-#[macro_export]
-macro_rules! write_ansi_code {
-    ($writer:expr, $ansi_code:expr) => {{
-        use std::io::{self, ErrorKind};
-
-        write!($writer, "{}", $ansi_code)
-            .map_err(|e| io::Error::new(ErrorKind::Other, e))
-            .map_err($crate::ErrorKind::IoError)
-    }};
-}
-
-/// Writes/executes the given command.
-#[doc(hidden)]
-#[macro_export]
-macro_rules! handle_command {
-    ($writer:expr, $command:expr) => {{
-        // Silent warning when the macro is used inside the `command` module
-        #[allow(unused_imports)]
-        use $crate::{write_ansi_code, Command};
-
-        #[cfg(windows)]
-        {
-            let command = $command;
-            if command.is_ansi_code_supported() {
-                write_ansi_code!($writer, command.ansi_code())
-            } else {
-                command
-                    .execute_winapi(|| {
-                        write!($writer, "{}", command.ansi_code())?;
-                        // winapi doesn't support queuing
-                        $writer.flush()?;
-                        Ok(())
-                    })
-                    .map_err($crate::ErrorKind::from)
-            }
-        }
-        #[cfg(unix)]
-        {
-            write_ansi_code!($writer, $command.ansi_code())
-        }
-    }};
-}
-
-// Offer the same functionality as queue! macro, but is used only internally and with std::fmt::Write as $writer
-// The difference is in case of winapi we ignore the $writer and use a fake one
-#[doc(hidden)]
-#[macro_export]
-macro_rules! handle_fmt_command {
-    ($writer:expr, $command:expr) => {{
-        use $crate::{write_ansi_code, Command};
-
-        #[cfg(windows)]
-        {
-            let command = $command;
-            if command.is_ansi_code_supported() {
-                write_ansi_code!($writer, command.ansi_code())
-            } else {
-                command
-                    .execute_winapi(|| panic!("this writer should not be possible to use here"))
-                    .map_err($crate::ErrorKind::from)
-            }
-        }
-        #[cfg(unix)]
-        {
-            write_ansi_code!($writer, $command.ansi_code())
-        }
-    }};
-}
-
 /// Queues one or more command(s) for further execution.
 ///
 /// Queued commands must be flushed to the underlying device to be executed.
@@ -129,11 +58,14 @@ macro_rules! handle_fmt_command {
 ///
 #[macro_export]
 macro_rules! queue {
-    ($writer:expr $(, $command:expr)* $(,)?) => {
-        Ok(()) $(
-            .and_then(|()| $crate::handle_command!($writer, $command))
-        )*
-    }
+    ($writer:expr $(, $command:expr)* $(,)?) => {{
+        use ::std::io::Write;
+
+        // This allows the macro to take both mut impl Write and &mut impl Write.
+        Ok($writer.by_ref())
+            $(.and_then(|writer| $crate::QueueableCommand::queue(writer, $command)))*
+            .map(|_| ())
+    }}
 }
 
 /// Executes one or more command(s).
@@ -179,12 +111,15 @@ macro_rules! queue {
 ///     and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
-    ($writer:expr $(, $command:expr)* $(,)? ) => {
+    ($writer:expr $(, $command:expr)* $(,)? ) => {{
+        use ::std::io::Write;
+
         // Queue each command, then flush
-        $crate::queue!($writer $(, $command)*).and_then(|()| {
-            $writer.flush().map_err($crate::ErrorKind::IoError)
-        })
-    }
+        $crate::queue!($writer $(, $command)*)
+            .and_then(|()| {
+                ::std::io::Write::flush($writer.by_ref()).map_err($crate::ErrorKind::IoError)
+            })
+    }}
 }
 
 #[doc(hidden)]
@@ -192,8 +127,8 @@ macro_rules! execute {
 macro_rules! impl_display {
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::result::Result<(), ::std::fmt::Error> {
-                $crate::handle_fmt_command!(f, self).map_err(|_| ::std::fmt::Error)
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                $crate::command::execute_fmt(f, self)
             }
         })*
     }
@@ -239,7 +174,7 @@ mod tests {
 
     #[cfg(not(windows))]
     mod unix {
-        use std::io::Write;
+        use std::fmt;
 
         use super::FakeWrite;
         use crate::command::Command;
@@ -247,10 +182,8 @@ mod tests {
         pub struct FakeCommand;
 
         impl Command for FakeCommand {
-            type AnsiType = &'static str;
-
-            fn ansi_code(&self) -> Self::AnsiType {
-                "cmd"
+            fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+                f.write_str("cmd")
             }
         }
 
