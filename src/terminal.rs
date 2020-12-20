@@ -413,7 +413,7 @@ mod tests {
             if cfg!(target_os = "windows") {
                 use crate::ansi_support::set_virtual_terminal_processing;
 
-                // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
+                // if it is not listed we should try with WinAPI to check if we do support ANSI-codes.
                 match set_virtual_terminal_processing(true) {
                     Ok(_) => return true,
                     Err(_) => return false,

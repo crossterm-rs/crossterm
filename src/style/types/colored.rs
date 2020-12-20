@@ -1,7 +1,7 @@
-use crate::style::Color;
-
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use crate::style::Color;
 
 /// Represents a foreground or background color.
 ///

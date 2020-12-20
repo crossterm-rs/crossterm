@@ -1,4 +1,4 @@
-//! WinApi related logic to cursor manipulation.
+//! WinAPI related logic to cursor manipulation.
 
 use std::{io, sync::Mutex};
 
@@ -106,7 +106,7 @@ pub(crate) fn restore_position() -> Result<()> {
     Ok(())
 }
 
-/// WinApi wrapper over terminal cursor behaviour.
+/// WinAPI wrapper over terminal cursor behaviour.
 struct ScreenBufferCursor {
     screen_buffer: ScreenBuffer,
 }

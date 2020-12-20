@@ -5,14 +5,12 @@ use std::{
         mpsc::{self, SyncSender},
         Arc,
     },
+    task::{Context, Poll},
     thread,
     time::Duration,
 };
 
-use futures_core::{
-    stream::Stream,
-    task::{Context, Poll},
-};
+use futures_core::stream::Stream;
 
 use crate::Result;
 

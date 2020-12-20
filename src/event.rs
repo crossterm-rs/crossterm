@@ -77,13 +77,14 @@ use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 
 use bitflags::bitflags;
-use filter::{EventFilter, Filter};
 use lazy_static::lazy_static;
+
+use crate::{Command, Result};
+
+use filter::{EventFilter, Filter};
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 use timeout::PollTimeout;
-
-use crate::{Command, Result};
 
 mod ansi;
 pub(crate) mod filter;

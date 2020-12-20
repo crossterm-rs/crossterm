@@ -105,7 +105,7 @@ lazy_static! {
 }
 
 impl From<Colored> for u16 {
-    /// Returns the WinApi color value (u16) from the `Colored` struct.
+    /// Returns the WinAPI color value (u16) from the `Colored` struct.
     fn from(colored: Colored) -> Self {
         match colored {
             Colored::ForegroundColor(color) => {
@@ -137,7 +137,7 @@ impl From<Colored> for u16 {
                         original_color & !REMOVE_BG_MASK
                     }
 
-                    /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
+                    /* WinAPI will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
@@ -169,7 +169,7 @@ impl From<Colored> for u16 {
 
                         original_color & !REMOVE_FG_MASK
                     }
-                    /* WinApi will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
+                    /* WinAPI will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
                     Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }

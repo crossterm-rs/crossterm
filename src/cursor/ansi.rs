@@ -1,7 +1,8 @@
 //! This module provides cursor related ANSI escape codes.
 
-use crate::csi;
 use std::fmt::{self, Formatter};
+
+use crate::csi;
 
 pub(crate) fn move_to_csi_sequence(f: &mut Formatter, x: u16, y: u16) -> fmt::Result {
     write!(f, csi!("{};{}H"), y + 1, x + 1)
