@@ -122,7 +122,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
         #[cfg(windows)]
         if !command.is_ansi_code_supported() {
             command.execute_winapi(|| {
-                write_command_ansi(self, command)?;
+                write_command_ansi(self, &command)?;
                 // winapi doesn't support queuing
                 self.flush()?;
                 Ok(())

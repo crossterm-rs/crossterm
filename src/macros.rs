@@ -150,6 +150,7 @@ macro_rules! impl_from {
 mod tests {
     use std::io;
     use std::str;
+
     // Helper for execute tests to confirm flush
     #[derive(Default, Debug, Clone)]
     pub(self) struct FakeWrite {
@@ -238,9 +239,10 @@ mod tests {
 
     #[cfg(windows)]
     mod windows {
+        use std::fmt;
+
         use std::cell::RefCell;
         use std::fmt::Debug;
-        use std::io::Write;
 
         use super::FakeWrite;
         use crate::command::Command;
@@ -272,10 +274,8 @@ mod tests {
         }
 
         impl<'a> Command for FakeCommand<'a> {
-            type AnsiType = &'static str;
-
-            fn ansi_code(&self) -> Self::AnsiType {
-                self.value
+            fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+                f.write_str(self.value)
             }
 
             fn execute_winapi(
@@ -312,12 +312,12 @@ mod tests {
             }
 
             // We need this for type inference, for whatever reason.
-            const EMPTY_RESULT: [&'static str; 0] = [];
+            const EMPTY_RESULT: [&str; 0] = [];
 
             // TODO: confirm that the correct sink was used, based on
             // is_ansi_code_supported
             match (writer.buffer.is_empty(), stream.is_empty()) {
-                (true, true) if stream_result == &EMPTY_RESULT => {}
+                (true, true) if stream_result == EMPTY_RESULT => {}
                 (true, true) => panic!(
                     "Neither the event stream nor the writer were populated. Expected {:?}",
                     stream_result
