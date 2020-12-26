@@ -387,8 +387,6 @@ mod tests {
     #[test]
     #[ignore]
     fn test_resize_ansi() {
-        try_enable_ansi();
-
         let (width, height) = size().unwrap();
 
         execute!(stdout(), SetSize(35, 35)).unwrap();
@@ -405,22 +403,5 @@ mod tests {
         thread::sleep(time::Duration::from_millis(30));
 
         assert_eq!((width, height), size().unwrap());
-    }
-
-    fn try_enable_ansi() -> bool {
-        #[cfg(windows)]
-        {
-            if cfg!(target_os = "windows") {
-                use crate::ansi_support::set_virtual_terminal_processing;
-
-                // if it is not listed we should try with WinApi to check if we do support ANSI-codes.
-                match set_virtual_terminal_processing(true) {
-                    Ok(_) => return true,
-                    Err(_) => return false,
-                }
-            }
-        }
-
-        true
     }
 }
