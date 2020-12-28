@@ -47,7 +47,7 @@ version = "0.3.8"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.6.2"
+crossterm_winapi = "0.7.0"
 
 #
 # UNIX dependencies

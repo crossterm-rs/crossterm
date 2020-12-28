@@ -15,6 +15,8 @@
 //! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
 //! * or the [`EventStream`](struct.EventStream.html).
 //!
+//! **Make sure to enable raw mode in order for keyboard events to work properly**
+//!
 //! ## Mouse Events
 //!
 //! Mouse events are not enabled by default. You have to enable them with the
@@ -273,6 +275,7 @@ pub enum Event {
     /// A single mouse event with additional pressed modifiers.
     Mouse(MouseEvent),
     /// An resize event with new dimensions after resize (columns, rows).
+    /// **Note** that resize events can be occur in batches.
     Resize(u16, u16),
 }
 
