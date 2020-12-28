@@ -8,19 +8,22 @@ use crate::{
     style::{Attribute, Attributes, Color, Colored},
 };
 
-pub(crate) fn set_fg_csi_sequence(f: &mut Formatter, fg_color: Color) -> fmt::Result {
+pub(crate) fn set_fg_csi_sequence(f: &mut impl fmt::Write, fg_color: Color) -> fmt::Result {
     write!(f, csi!("{}m"), Colored::ForegroundColor(fg_color))
 }
 
-pub(crate) fn set_bg_csi_sequence(f: &mut Formatter, bg_color: Color) -> fmt::Result {
+pub(crate) fn set_bg_csi_sequence(f: &mut impl fmt::Write, bg_color: Color) -> fmt::Result {
     write!(f, csi!("{}m"), Colored::BackgroundColor(bg_color))
 }
 
-pub(crate) fn set_attr_csi_sequence(f: &mut Formatter, attribute: Attribute) -> fmt::Result {
+pub(crate) fn set_attr_csi_sequence(f: &mut impl fmt::Write, attribute: Attribute) -> fmt::Result {
     write!(f, csi!("{}m"), attribute.sgr())
 }
 
-pub(crate) fn set_attrs_csi_sequence(f: &mut Formatter, attributes: Attributes) -> fmt::Result {
+pub(crate) fn set_attrs_csi_sequence(
+    f: &mut impl fmt::Write,
+    attributes: Attributes,
+) -> fmt::Result {
     for attr in Attribute::iterator() {
         if attributes.has(attr) {
             write!(f, csi!("{}m"), attr.sgr())?;
@@ -32,7 +35,7 @@ pub(crate) fn set_attrs_csi_sequence(f: &mut Formatter, attributes: Attributes) 
 pub(crate) const RESET_CSI_SEQUENCE: &str = csi!("0m");
 
 impl fmt::Display for Colored {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let color;
 
         match *self {
