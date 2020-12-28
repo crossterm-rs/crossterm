@@ -46,7 +46,7 @@ use std::fmt;
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Ansi, Command};
+use crate::{impl_display, Command};
 
 pub use sys::position;
 
