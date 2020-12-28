@@ -70,6 +70,7 @@
 //! Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder for more of
 //! them (`event-*`).
 
+use std::fmt;
 use std::time::Duration;
 
 use parking_lot::RwLock;
@@ -226,10 +227,8 @@ where
 pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -250,10 +249,8 @@ impl Command for EnableMouseCapture {
 pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]

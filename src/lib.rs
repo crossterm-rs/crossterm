@@ -231,7 +231,6 @@
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
 pub use crate::{
-    ansi::Ansi,
     command::{Command, ExecutableCommand, QueueableCommand},
     error::{ErrorKind, Result},
 };
@@ -248,7 +247,6 @@ pub mod terminal;
 /// A module to query if the current instance is a tty.
 pub mod tty;
 
-mod ansi;
 #[cfg(windows)]
 /// A module that exposes one function to check if the current terminal supports ansi sequences.
 pub mod ansi_support;

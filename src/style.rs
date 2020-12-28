@@ -110,12 +110,14 @@
 //! );
 //! ```
 
-use std::{env, fmt::Display};
+use std::{
+    env,
+    fmt::{self, Display},
+};
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Ansi, Command};
-use std::fmt;
+use crate::{impl_display, Command};
 
 pub use self::{
     attributes::Attributes,
@@ -201,18 +203,9 @@ pub fn available_color_count() -> u16 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetForegroundColor(pub Color);
 
-impl fmt::Display for Ansi<SetForegroundColor> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::set_fg_csi_sequence(f, (self.0).0)
-    }
-}
-
 impl Command for SetForegroundColor {
-    type AnsiType = Ansi<Self>;
-
-    #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_fg_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -234,18 +227,9 @@ impl Command for SetForegroundColor {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetBackgroundColor(pub Color);
 
-impl fmt::Display for Ansi<SetBackgroundColor> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::set_bg_csi_sequence(f, (self.0).0)
-    }
-}
-
 impl Command for SetBackgroundColor {
-    type AnsiType = Ansi<Self>;
-
-    #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_bg_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -278,24 +262,15 @@ impl Command for SetBackgroundColor {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetColors(pub Colors);
 
-impl fmt::Display for Ansi<SetColors> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(color) = (self.0).0.foreground {
+impl Command for SetColors {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if let Some(color) = self.0.foreground {
             ansi::set_fg_csi_sequence(f, color)?;
         }
-        if let Some(color) = (self.0).0.background {
+        if let Some(color) = self.0.background {
             ansi::set_bg_csi_sequence(f, color)?;
         }
         Ok(())
-    }
-}
-
-impl Command for SetColors {
-    type AnsiType = Ansi<Self>;
-
-    #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
     }
 
     #[cfg(windows)]
@@ -320,18 +295,9 @@ impl Command for SetColors {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttribute(pub Attribute);
 
-impl fmt::Display for Ansi<SetAttribute> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::set_attr_csi_sequence(f, (self.0).0)
-    }
-}
-
 impl Command for SetAttribute {
-    type AnsiType = Ansi<Self>;
-
-    #[inline]
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_attr_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -351,17 +317,9 @@ impl Command for SetAttribute {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SetAttributes(pub Attributes);
 
-impl fmt::Display for Ansi<SetAttributes> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ansi::set_attrs_csi_sequence(f, (self.0).0)
-    }
-}
-
 impl Command for SetAttributes {
-    type AnsiType = Ansi<Self>;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        Ansi(*self)
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        ansi::set_attrs_csi_sequence(f, self.0)
     }
 
     #[cfg(windows)]
@@ -379,16 +337,11 @@ impl Command for SetAttributes {
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Copy, Clone)]
-pub struct PrintStyledContent<D: Display + Clone>(pub StyledContent<D>);
+pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
-impl<D> Command for PrintStyledContent<D>
-where
-    D: Display + Clone,
-{
-    type AnsiType = StyledContent<D>;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        self.0.clone()
+impl<D: Display> Command for PrintStyledContent<D> {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 
     #[cfg(windows)]
@@ -406,10 +359,8 @@ where
 pub struct ResetColor;
 
 impl Command for ResetColor {
-    type AnsiType = &'static str;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        ansi::RESET_CSI_SEQUENCE
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(ansi::RESET_CSI_SEQUENCE)
     }
 
     #[cfg(windows)]
@@ -422,28 +373,22 @@ impl Command for ResetColor {
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Print<T: Display + Clone>(pub T);
+pub struct Print<T: Display>(pub T);
 
-impl<T: Display + Clone> Command for Print<T> {
-    type AnsiType = T;
-
-    fn ansi_code(&self) -> Self::AnsiType {
-        self.0.clone()
+impl<T: Display> Command for Print<T> {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self, mut writer: impl FnMut() -> Result<()>) -> Result<()> {
-        writer()?;
-        Ok(())
+        writer()
     }
 }
 
-impl<T: Display + Clone> Display for Print<T> {
-    fn fmt(
-        &self,
-        f: &mut ::std::fmt::Formatter<'_>,
-    ) -> ::std::result::Result<(), ::std::fmt::Error> {
-        write!(f, "{}", self.ansi_code())
+impl<T: Display> Display for Print<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
 
