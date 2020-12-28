@@ -36,6 +36,8 @@ event-stream = ["futures-core"]
 bitflags = "1.2"
 lazy_static = "1.4"
 parking_lot = "0.11"
+
+# optional deps only added when requested
 futures-core = { version = "0.3", optional = true, default-features = false }
 serde = { version = "1.0", features = ["derive"], optional = true }
 
@@ -43,7 +45,7 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 # Windows dependencies
 #
 [target.'cfg(windows)'.dependencies.winapi]
-version = "0.3.8"
+version = "0.3.9"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
@@ -61,7 +63,7 @@ signal-hook = { version = "0.1.15", features = ["mio-0_7-support"] }
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "0.2.11", features = ["full"] }
+tokio = { version = "1.0", features = ["full"] }
 futures = "0.3"
 futures-timer = "3.0"
 async-std = "1.4"
