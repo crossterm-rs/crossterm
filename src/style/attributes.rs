@@ -1,5 +1,6 @@
-use crate::style::Attribute;
 use std::ops::{BitAnd, BitOr, BitXor};
+
+use crate::style::Attribute;
 
 /// a bitset for all possible attributes
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]

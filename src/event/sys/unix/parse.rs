@@ -1,10 +1,11 @@
+use std::io;
+
 use crate::{
     event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind},
     ErrorKind, Result,
 };
 
 use super::super::super::InternalEvent;
-use std::io;
 
 // Event parsing
 //

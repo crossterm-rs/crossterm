@@ -50,7 +50,7 @@ macro_rules! csi {
 ///
 /// # Notes
 ///
-/// In case of Windows versions lower than 10, a direct WinApi call will be made.
+/// In case of Windows versions lower than 10, a direct WinAPI call will be made.
 /// The reason for this is that Windows versions lower than 10 do not support ANSI codes,
 /// and can therefore not be written to the given `writer`.
 /// Therefore, there is no difference between [execute](macro.execute.html)
@@ -104,7 +104,7 @@ macro_rules! queue {
 /// # Notes
 ///
 /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-/// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+/// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
 ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
 ///     and can therefore not be written to the given `writer`.
 ///     Therefore, there is no difference between [execute](macro.execute.html)
@@ -248,7 +248,7 @@ mod tests {
         use crate::command::Command;
         use crate::error::Result as CrosstermResult;
 
-        // We need to test two different APIs: winapi and the write api. We
+        // We need to test two different APIs: WinAPI and the write api. We
         // don't know until runtime which we're supporting (via
         // Command::is_ansi_code_supported), so we have to test them both. The
         // CI environment hopefully includes both versions of windows.
@@ -287,7 +287,7 @@ mod tests {
             }
         }
 
-        // Helper function for running tests against either winapi or an
+        // Helper function for running tests against either WinAPI or an
         // io::Write.
         //
         // This function will execute the `test` function, which should

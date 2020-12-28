@@ -243,6 +243,7 @@ impl Command for SetBackgroundColor {
 /// For example:
 /// ```no_run
 /// use std::io::{stdout, Write};
+///
 /// use crossterm::execute;
 /// use crossterm::style::{Color::{Green, Black}, Colors, Print, SetColors};
 ///

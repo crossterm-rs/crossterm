@@ -85,6 +85,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///
     /// ```rust
     /// use std::io::{Write, stdout};
+    ///
     /// use crossterm::{Result, QueueableCommand, style::Print};
     ///
     ///  fn main() -> Result<()> {
@@ -113,7 +114,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     /// # Notes
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-    /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
     ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
@@ -150,6 +151,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///
     /// ```rust
     /// use std::io::{Write, stdout};
+    ///
     /// use crossterm::{Result, ExecutableCommand, style::Print};
     ///
     ///  fn main() -> Result<()> {
@@ -171,7 +173,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     /// # Notes
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-    /// * In case of Windows versions lower than 10, a direct WinApi call will be made.
+    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
     ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)

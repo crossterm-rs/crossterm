@@ -34,7 +34,7 @@
 //!
 //! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or rather a
 //! byte sequence. When we `write` and `flush` those to the terminal we can perform some action.
-//! For older windows systems a WinApi call is made.
+//! For older windows systems a WinAPI call is made.
 //!
 //! ### Supported Commands
 //!

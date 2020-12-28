@@ -1,7 +1,9 @@
 //! UNIX related logic for terminal manipulation.
+
+use std::fs::File;
+use std::os::unix::io::{IntoRawFd, RawFd};
 use std::{io, mem, process, sync::Mutex};
 
-use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
 use lazy_static::lazy_static;
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
@@ -9,8 +11,7 @@ use libc::{
 };
 
 use crate::error::{ErrorKind, Result};
-use std::fs::File;
-use std::os::unix::io::{IntoRawFd, RawFd};
+use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
 
 lazy_static! {
     // Some(Termios) -> we're in the raw mode and this is the previous mode
@@ -40,7 +41,7 @@ pub(crate) fn size() -> Result<(u16, u16)> {
         STDOUT_FILENO
     };
 
-    if let Ok(true) = wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }) {
+    if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
         Ok((size.ws_col, size.ws_row))
     } else {
         tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
@@ -127,14 +128,14 @@ fn get_terminal_attr(fd: RawFd) -> Result<Termios> {
     }
 }
 
-fn set_terminal_attr(fd: RawFd, termios: &Termios) -> Result<bool> {
+fn set_terminal_attr(fd: RawFd, termios: &Termios) -> Result<()> {
     wrap_with_result(unsafe { tcsetattr(fd, TCSANOW, termios) })
 }
 
-pub fn wrap_with_result(result: i32) -> Result<bool> {
+fn wrap_with_result(result: i32) -> Result<()> {
     if result == -1 {
         Err(ErrorKind::IoError(io::Error::last_os_error()))
     } else {
-        Ok(true)
+        Ok(())
     }
 }

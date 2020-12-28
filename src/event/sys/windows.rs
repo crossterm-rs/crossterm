@@ -3,7 +3,6 @@
 use std::sync::Mutex;
 
 use crossterm_winapi::{ConsoleMode, Handle};
-
 use lazy_static::lazy_static;
 
 use crate::Result;

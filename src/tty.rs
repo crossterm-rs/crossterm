@@ -7,6 +7,7 @@
 use std::os::unix::io::AsRawFd;
 #[cfg(windows)]
 use std::os::windows::io::AsRawHandle;
+
 #[cfg(windows)]
 use winapi::um::consoleapi::GetConsoleMode;
 

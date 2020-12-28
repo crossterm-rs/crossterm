@@ -1,6 +1,7 @@
+use std::{collections::VecDeque, io, time::Duration};
+
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
-use std::{collections::VecDeque, io, time::Duration};
 
 use crate::{ErrorKind, Result};
 

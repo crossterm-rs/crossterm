@@ -42,12 +42,13 @@
 //!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
-pub use sys::position;
+use std::fmt;
 
 #[cfg(windows)]
 use crate::Result;
 use crate::{impl_display, Command};
-use std::fmt;
+
+pub use sys::position;
 
 mod ansi;
 pub(crate) mod sys;

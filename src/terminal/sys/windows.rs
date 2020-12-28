@@ -1,4 +1,4 @@
-//! WinApi related logic for terminal manipulation.
+//! WinAPI related logic for terminal manipulation.
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
     shared::minwindef::DWORD,
@@ -295,9 +295,8 @@ fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u
 mod tests {
     use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
-    use winapi::um::wincon::GetConsoleTitleW;
-
     use crossterm_winapi::ScreenBuffer;
+    use winapi::um::wincon::GetConsoleTitleW;
 
     use super::{scroll_down, scroll_up, set_size, set_window_title, size};
 
