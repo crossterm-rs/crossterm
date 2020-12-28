@@ -1,3 +1,11 @@
+# Version 0.19
+- Use single thread for async event reader. 
+- Patch timeout handling for event polling this was not working correctly.
+- Add unix support for more key combinations mainly complex ones with ALT/SHIFT/CTRL.
+- Derive `PartialEq` and `Eq` for ContentStyle
+- Fix windows resize event size, this used to be the buffer size but is screen size now.
+- Change `Command::ansi_code` to `Command::write_ansi`, this way the ansi code will be written to given formatter.
+
 # Version 0.18.2
 - Fix panic when only setting bold and redirecting stdout.
 - Use `tty_fd` for set/get terminal attributes
