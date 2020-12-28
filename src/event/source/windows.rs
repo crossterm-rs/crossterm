@@ -35,7 +35,7 @@ impl EventSource for WindowsEventSource {
         loop {
             if let Some(event_ready) = self.poll.poll(poll_timeout.leftover())? {
                 let number = self.console.number_of_console_input_events()?;
-                if event_ready &&  number != 0 {
+                if event_ready && number != 0 {
                     let event = match self.console.read_single_input_event()? {
                         InputRecord::KeyEvent(record) => handle_key_event(record)?,
                         InputRecord::MouseEvent(record) => handle_mouse_event(record)?,
