@@ -82,14 +82,13 @@ use serde::{Deserialize, Serialize};
 use bitflags::bitflags;
 use lazy_static::lazy_static;
 
-use crate::{Command, Result};
+use crate::{csi, Command, Result};
 
 use filter::{EventFilter, Filter};
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 use timeout::PollTimeout;
 
-mod ansi;
 pub(crate) mod filter;
 mod read;
 mod source;
@@ -230,7 +229,18 @@ pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE)
+        f.write_str(concat!(
+            // Normal tracking: Send mouse X & Y on button press and release
+            csi!("?1000h"),
+            // Button-event tracking: Report button motion events (dragging)
+            csi!("?1002h"),
+            // Any-event tracking: Report all motion events
+            csi!("?1003h"),
+            // RXVT mouse mode: Allows mouse coordinates of >223
+            csi!("?1015h"),
+            // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
+            csi!("?1006h"),
+        ))
     }
 
     #[cfg(windows)]
@@ -252,7 +262,14 @@ pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE)
+        f.write_str(concat!(
+            // The inverse commands of EnableMouseCapture, in reverse order.
+            csi!("?1006l"),
+            csi!("?1015l"),
+            csi!("?1003l"),
+            csi!("?1002l"),
+            csi!("?1000l"),
+        ))
     }
 
     #[cfg(windows)]

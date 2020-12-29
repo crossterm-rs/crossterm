@@ -46,11 +46,10 @@ use std::fmt;
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Command};
+use crate::{csi, impl_display, Command};
 
 pub use sys::position;
 
-mod ansi;
 pub(crate) mod sys;
 
 /// A command that moves the terminal cursor to the given position (column, row).
@@ -64,7 +63,7 @@ pub struct MoveTo(pub u16, pub u16);
 
 impl Command for MoveTo {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_to_csi_sequence(f, self.0, self.1)
+        write!(f, csi!("{};{}H"), self.0 + 1, self.1 + 1)
     }
 
     #[cfg(windows)]
@@ -84,7 +83,7 @@ pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_to_next_line_csi_sequence(f, self.0)
+        write!(f, csi!("{}E"), self.0)
     }
 
     #[cfg(windows)]
@@ -104,7 +103,7 @@ pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_to_previous_line_csi_sequence(f, self.0)
+        write!(f, csi!("{}F"), self.0)
     }
 
     #[cfg(windows)]
@@ -123,7 +122,7 @@ pub struct MoveToColumn(pub u16);
 
 impl Command for MoveToColumn {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_to_column_csi_sequence(f, self.0)
+        write!(f, csi!("{}G"), self.0)
     }
 
     #[cfg(windows)]
@@ -142,7 +141,10 @@ pub struct MoveUp(pub u16);
 
 impl Command for MoveUp {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_up_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}A"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -161,7 +163,10 @@ pub struct MoveRight(pub u16);
 
 impl Command for MoveRight {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_right_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}C"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -180,7 +185,10 @@ pub struct MoveDown(pub u16);
 
 impl Command for MoveDown {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_down_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}B"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -199,7 +207,10 @@ pub struct MoveLeft(pub u16);
 
 impl Command for MoveLeft {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::move_left_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}D"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -221,7 +232,7 @@ pub struct SavePosition;
 
 impl Command for SavePosition {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::SAVE_POSITION_CSI_SEQUENCE)
+        f.write_str("\x1B7")
     }
 
     #[cfg(windows)]
@@ -243,7 +254,7 @@ pub struct RestorePosition;
 
 impl Command for RestorePosition {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::RESTORE_POSITION_CSI_SEQUENCE)
+        f.write_str("\x1B8")
     }
 
     #[cfg(windows)]
@@ -262,7 +273,7 @@ pub struct Hide;
 
 impl Command for Hide {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::HIDE_CSI_SEQUENCE)
+        f.write_str(csi!("?25l"))
     }
 
     #[cfg(windows)]
@@ -281,7 +292,7 @@ pub struct Show;
 
 impl Command for Show {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::SHOW_CSI_SEQUENCE)
+        f.write_str(csi!("?25h"))
     }
 
     #[cfg(windows)]
@@ -301,7 +312,7 @@ pub struct EnableBlinking;
 
 impl Command for EnableBlinking {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::ENABLE_BLINKING_CSI_SEQUENCE)
+        f.write_str(csi!("?12h"))
     }
 
     #[cfg(windows)]
@@ -321,7 +332,7 @@ pub struct DisableBlinking;
 
 impl Command for DisableBlinking {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::DISABLE_BLINKING_CSI_SEQUENCE)
+        f.write_str(csi!("?12l"))
     }
 
     #[cfg(windows)]
