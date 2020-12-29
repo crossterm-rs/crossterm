@@ -1,9 +1,9 @@
 //! This is a WINDOWS specific implementation for input related action.
 
-use std::sync::Mutex;
+use std::convert::TryFrom;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use crossterm_winapi::{ConsoleMode, Handle};
-use lazy_static::lazy_static;
 
 use crate::Result;
 
@@ -15,25 +15,24 @@ pub(crate) mod poll;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 
-lazy_static! {
-    static ref ORIGINAL_CONSOLE_MODE: Mutex<Option<u32>> = Mutex::new(None);
-}
+/// This is a either `u64::MAX` if it's uninitialized or a valid `u32` that stores the original
+/// console mode if it's initialized.
+static ORIGINAL_CONSOLE_MODE: AtomicU64 = AtomicU64::new(u64::MAX);
 
 /// Initializes the default console color. It will will be skipped if it has already been initialized.
 fn init_original_console_mode(original_mode: u32) {
-    let mut lock = ORIGINAL_CONSOLE_MODE.lock().unwrap();
-
-    if lock.is_none() {
-        *lock = Some(original_mode);
-    }
+    let _ = ORIGINAL_CONSOLE_MODE.compare_exchange(
+        u64::MAX,
+        u64::from(original_mode),
+        Ordering::Relaxed,
+        Ordering::Relaxed,
+    );
 }
 
 /// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
 fn original_console_mode() -> u32 {
-    // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
-    ORIGINAL_CONSOLE_MODE
-        .lock()
-        .unwrap()
+    u32::try_from(ORIGINAL_CONSOLE_MODE.load(Ordering::Relaxed))
+        // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
         .expect("Original console mode not set")
 }
 

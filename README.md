@@ -144,8 +144,7 @@ features = ["event-stream"]
 | Dependency | Used for | Included |
 | :----- | :----- | :-----
 | `bitflags` | `KeyModifiers`, those are differ based on input.| always
-| `lazy_static` | original console color, original terminal mode, saved cursor position, supports ANSI on windows, single event reader per application.| always
-| `parking_lot` | used for an RW LOCK. | always 
+| `parking_lot` | locking `RwLock`s with a timeout, const mutexes. | always
 | `libc` | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only
 | `Mio` | event readiness polling, waking up poller | UNIX only
 | `signal-hook`| signalhook is used to handle terminal resize SIGNAL with Mio. | UNIX only

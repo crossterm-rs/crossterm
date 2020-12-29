@@ -1,6 +1,8 @@
 //! WinAPI related logic to cursor manipulation.
 
-use std::{io, sync::Mutex};
+use std::convert::TryFrom;
+use std::io;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
@@ -8,13 +10,13 @@ use winapi::{
     um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
 };
 
-use lazy_static::lazy_static;
-
 use crate::Result;
 
-lazy_static! {
-    static ref SAVED_CURSOR_POS: Mutex<Option<(i16, i16)>> = Mutex::new(None);
-}
+/// The position of the cursor, written when you save the cursor's position.
+///
+/// This is `u64::MAX` initially. Otherwise, it stores the cursor's x position bit-shifted left 16
+/// times or-ed with the cursor's y position, where both are `i16`s.
+static SAVED_CURSOR_POS: AtomicU64 = AtomicU64::new(u64::MAX);
 
 // The 'y' position of the cursor is not relative to the window but absolute to screen buffer.
 // We can calculate the relative cursor position by subtracting the top position of the terminal window from the y position.
@@ -176,7 +178,9 @@ impl ScreenBufferCursor {
     }
 
     fn restore_position(&self) -> Result<()> {
-        if let Some((x, y)) = *SAVED_CURSOR_POS.lock().unwrap() {
+        if let Ok(val) = u32::try_from(SAVED_CURSOR_POS.load(Ordering::Relaxed)) {
+            let x = (val >> 16) as i16;
+            let y = val as i16;
             self.move_to(x, y)?;
         }
 
@@ -186,8 +190,8 @@ impl ScreenBufferCursor {
     fn save_position(&self) -> Result<()> {
         let position = self.position()?;
 
-        let mut locked_pos = SAVED_CURSOR_POS.lock().unwrap();
-        *locked_pos = Some((position.x, position.y));
+        let bits = u64::from(u32::from(position.x as u16) << 16 | u32::from(position.y as u16));
+        SAVED_CURSOR_POS.store(bits, Ordering::Relaxed);
 
         Ok(())
     }

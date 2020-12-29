@@ -1,7 +1,8 @@
-use crossterm_winapi::{ConsoleMode, Handle};
-use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use lazy_static::lazy_static;
+use crossterm_winapi::{ConsoleMode, Handle};
+use parking_lot::Once;
+use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 use crate::Result;
 
@@ -27,17 +28,21 @@ fn enable_vt_processing() -> Result<()> {
     Ok(())
 }
 
-lazy_static! {
-    static ref SUPPORTS_ANSI_ESCAPE_CODES: bool = {
+static SUPPORTS_ANSI_ESCAPE_CODES: AtomicBool = AtomicBool::new(false);
+static INITIALIZER: Once = Once::new();
+
+/// Checks if the current terminal supports ansi escape sequences
+pub fn supports_ansi() -> bool {
+    INITIALIZER.call_once(|| {
         // Some terminals on Windows like GitBash can't use WinAPI calls directly
         // so when we try to enable the ANSI-flag for Windows this won't work.
         // Because of that we should check first if the TERM-variable is set
         // and see if the current terminal is a terminal who does support ANSI.
-        std::env::var("TERM").map_or(false, |term| term != "dumb") || enable_vt_processing().is_ok()
-    };
-}
+        let supported = std::env::var("TERM").map_or(false, |term| term != "dumb")
+            || enable_vt_processing().is_ok();
 
-/// Checks if the current terminal supports ansi escape sequences
-pub fn supports_ansi() -> bool {
-    *SUPPORTS_ANSI_ESCAPE_CODES
+        SUPPORTS_ANSI_ESCAPE_CODES.store(supported, Ordering::SeqCst);
+    });
+
+    SUPPORTS_ANSI_ESCAPE_CODES.load(Ordering::SeqCst)
 }
