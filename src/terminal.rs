@@ -338,16 +338,16 @@ impl Command for SetSize {
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SetTitle<'a>(pub &'a str);
+pub struct SetTitle<T>(pub T);
 
-impl<'a> Command for SetTitle<'a> {
+impl<T: fmt::Display> Command for SetTitle<T> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_title_ansi_sequence(f, self.0)
+        ansi::set_title_ansi_sequence(f, &self.0)
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
-        sys::set_window_title(self.0)
+        sys::set_window_title(&self.0)
     }
 }
 

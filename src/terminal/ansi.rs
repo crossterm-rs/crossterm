@@ -30,6 +30,9 @@ pub(crate) fn set_size_csi_sequence(
     write!(f, csi!("8;{};{}t"), height, width)
 }
 
-pub(crate) fn set_title_ansi_sequence(f: &mut impl fmt::Write, title: &str) -> fmt::Result {
+pub(crate) fn set_title_ansi_sequence(
+    f: &mut impl fmt::Write,
+    title: impl fmt::Display,
+) -> fmt::Result {
     write!(f, "\x1B]0;{}\x07", title)
 }
