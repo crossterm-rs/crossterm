@@ -87,20 +87,17 @@ pub(crate) fn disable_raw_mode() -> Result<()> {
 ///
 /// The arg should be "cols" or "lines"
 fn tput_value(arg: &str) -> Option<u16> {
-    match process::Command::new("tput").arg(arg).output() {
-        Ok(process::Output { stdout, .. }) => {
-            let value = stdout
-                .iter()
-                .map(|&b| b as u16)
-                .take_while(|&b| b >= 48 && b <= 58)
-                .fold(0, |v, b| v * 10 + (b - 48));
-            if value > 0 {
-                Some(value)
-            } else {
-                None
-            }
-        }
-        _ => None,
+    let output = process::Command::new("tput").arg(arg).output().ok()?;
+    let value = output
+        .stdout
+        .into_iter()
+        .filter_map(|b| char::from(b).to_digit(10))
+        .fold(0, |v, n| v * 10 + n as u16);
+
+    if value > 0 {
+        Some(value)
+    } else {
+        None
     }
 }
 
