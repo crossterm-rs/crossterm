@@ -73,7 +73,7 @@ impl Command for MoveTo {
     }
 }
 
-/// A command that moves the terminal cursor up the given number of lines,
+/// A command that moves the terminal cursor down the given number of lines,
 /// and moves it to the first column.
 ///
 /// # Notes
@@ -93,7 +93,7 @@ impl Command for MoveToNextLine {
     }
 }
 
-/// A command that moves the terminal cursor down the given number of lines,
+/// A command that moves the terminal cursor up the given number of lines,
 /// and moves it to the first column.
 ///
 /// # Notes
