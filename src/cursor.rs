@@ -63,7 +63,7 @@ pub struct MoveTo(pub u16, pub u16);
 
 impl Command for MoveTo {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{};{}H"), self.0 + 1, self.1 + 1)
+        write!(f, csi!("{};{}H"), self.1 + 1, self.0 + 1)
     }
 
     #[cfg(windows)]
