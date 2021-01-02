@@ -50,13 +50,9 @@ fn print_events() -> Result<()> {
 fn flush_resize_events(event: Event) -> ((u16, u16), (u16, u16)) {
     if let Event::Resize(x, y) = event {
         let mut last_resize = (x, y);
-        loop {
-            if let Ok(true) = poll(Duration::from_millis(50)) {
-                if let Ok(Event::Resize(x, y)) = read() {
-                    last_resize = (x, y);
-                }
-            } else {
-                break;
+        while let Ok(true) = poll(Duration::from_millis(50)) {
+            if let Ok(Event::Resize(x, y)) = read() {
+                last_resize = (x, y);
             }
         }
 
