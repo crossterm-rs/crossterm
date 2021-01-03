@@ -156,7 +156,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                 // The final byte of a CSI sequence can be in the range 64-126, so
                 // let's keep reading anything else.
                 let last_byte = *buffer.last().unwrap();
-                if last_byte < 64 || last_byte > 126 {
+                if !(64..=126).contains(&last_byte) {
                     None
                 } else {
                     match buffer[buffer.len() - 1] {
