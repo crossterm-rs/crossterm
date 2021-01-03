@@ -75,21 +75,21 @@
 use std::fmt;
 use std::time::Duration;
 
-use parking_lot::RwLock;
+use bitflags::bitflags;
+use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use crate::{Command, Result};
 use bitflags::bitflags;
 use lazy_static::lazy_static;
 
-use crate::{Command, Result};
-
 use filter::{EventFilter, Filter};
+use read::InternalEventReader;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 use timeout::PollTimeout;
 
-mod ansi;
 pub(crate) mod filter;
 mod read;
 mod source;
@@ -98,10 +98,22 @@ mod stream;
 pub(crate) mod sys;
 mod timeout;
 
-lazy_static! {
-    /// Static instance of `InternalEventReader`.
-    /// This needs to be static because there can be one event reader.
-    static ref INTERNAL_EVENT_READER: RwLock<read::InternalEventReader> = RwLock::new(read::InternalEventReader::default());
+/// Static instance of `InternalEventReader`.
+/// This needs to be static because there can be one event reader.
+static INTERNAL_EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
+
+fn lock_internal_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
+    MutexGuard::map(INTERNAL_EVENT_READER.lock(), |reader| {
+        reader.get_or_insert_with(InternalEventReader::default)
+    })
+}
+fn try_lock_internal_event_reader_for(
+    duration: Duration,
+) -> Option<MappedMutexGuard<'static, InternalEventReader>> {
+    Some(MutexGuard::map(
+        INTERNAL_EVENT_READER.try_lock_for(duration)?,
+        |reader| reader.get_or_insert_with(InternalEventReader::default),
+    ))
 }
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
@@ -202,13 +214,13 @@ where
 {
     let (mut reader, timeout) = if let Some(timeout) = timeout {
         let poll_timeout = PollTimeout::new(Some(timeout));
-        if let Some(reader) = INTERNAL_EVENT_READER.try_write_for(timeout) {
+        if let Some(reader) = try_lock_internal_event_reader_for(timeout) {
             (reader, poll_timeout.leftover())
         } else {
             return Ok(false);
         }
     } else {
-        (INTERNAL_EVENT_READER.write(), None)
+        (lock_internal_event_reader(), None)
     };
     reader.poll(timeout, filter)
 }
@@ -218,7 +230,7 @@ pub(crate) fn read_internal<F>(filter: &F) -> Result<InternalEvent>
 where
     F: Filter,
 {
-    let mut reader = INTERNAL_EVENT_READER.write();
+    let mut reader = lock_internal_event_reader();
     reader.read(filter)
 }
 
@@ -230,7 +242,18 @@ pub struct EnableMouseCapture;
 
 impl Command for EnableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::ENABLE_MOUSE_MODE_CSI_SEQUENCE)
+        f.write_str(concat!(
+            // Normal tracking: Send mouse X & Y on button press and release
+            csi!("?1000h"),
+            // Button-event tracking: Report button motion events (dragging)
+            csi!("?1002h"),
+            // Any-event tracking: Report all motion events
+            csi!("?1003h"),
+            // RXVT mouse mode: Allows mouse coordinates of >223
+            csi!("?1015h"),
+            // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
+            csi!("?1006h"),
+        ))
     }
 
     #[cfg(windows)]
@@ -252,7 +275,14 @@ pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::DISABLE_MOUSE_MODE_CSI_SEQUENCE)
+        f.write_str(concat!(
+            // The inverse commands of EnableMouseCapture, in reverse order.
+            csi!("?1006l"),
+            csi!("?1015l"),
+            csi!("?1003l"),
+            csi!("?1002l"),
+            csi!("?1000l"),
+        ))
     }
 
     #[cfg(windows)]

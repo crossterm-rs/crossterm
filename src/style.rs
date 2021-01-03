@@ -117,7 +117,7 @@ use std::{
 
 #[cfg(windows)]
 use crate::Result;
-use crate::{impl_display, Command};
+use crate::{csi, impl_display, Command};
 
 pub use self::{
     attributes::Attributes,
@@ -129,7 +129,6 @@ pub use self::{
 
 #[macro_use]
 mod macros;
-mod ansi;
 mod attributes;
 mod content_style;
 mod styled_content;
@@ -205,7 +204,7 @@ pub struct SetForegroundColor(pub Color);
 
 impl Command for SetForegroundColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_fg_csi_sequence(f, self.0)
+        write!(f, csi!("{}m"), Colored::ForegroundColor(self.0))
     }
 
     #[cfg(windows)]
@@ -229,7 +228,7 @@ pub struct SetBackgroundColor(pub Color);
 
 impl Command for SetBackgroundColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_bg_csi_sequence(f, self.0)
+        write!(f, csi!("{}m"), Colored::BackgroundColor(self.0))
     }
 
     #[cfg(windows)]
@@ -265,10 +264,10 @@ pub struct SetColors(pub Colors);
 impl Command for SetColors {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         if let Some(color) = self.0.foreground {
-            ansi::set_fg_csi_sequence(f, color)?;
+            SetForegroundColor(color).write_ansi(f)?;
         }
         if let Some(color) = self.0.background {
-            ansi::set_bg_csi_sequence(f, color)?;
+            SetBackgroundColor(color).write_ansi(f)?;
         }
         Ok(())
     }
@@ -297,7 +296,7 @@ pub struct SetAttribute(pub Attribute);
 
 impl Command for SetAttribute {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_attr_csi_sequence(f, self.0)
+        write!(f, csi!("{}m"), self.0.sgr())
     }
 
     #[cfg(windows)]
@@ -319,7 +318,12 @@ pub struct SetAttributes(pub Attributes);
 
 impl Command for SetAttributes {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_attrs_csi_sequence(f, self.0)
+        for attr in Attribute::iterator() {
+            if self.0.has(attr) {
+                SetAttribute(attr).write_ansi(f)?;
+            }
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -360,7 +364,7 @@ pub struct ResetColor;
 
 impl Command for ResetColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::RESET_CSI_SEQUENCE)
+        f.write_str(csi!("0m"))
     }
 
     #[cfg(windows)]
@@ -399,3 +403,9 @@ impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);
+
+/// Utility function for ANSI parsing in Color and Colored.
+/// Gets the next element of `iter` and tries to parse it as a u8.
+fn parse_next_u8<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Option<u8> {
+    iter.next().and_then(|s| u8::from_str_radix(s, 10).ok())
+}

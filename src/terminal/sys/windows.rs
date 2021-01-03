@@ -1,4 +1,7 @@
 //! WinAPI related logic for terminal manipulation.
+
+use std::fmt::{self, Write};
+
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
     shared::minwindef::DWORD,
@@ -190,9 +193,20 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn set_window_title(title: &str) -> Result<()> {
-    let mut title: Vec<_> = title.encode_utf16().collect();
-    title.push(0);
+pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
+    struct Utf16Encoder(Vec<u16>);
+    impl Write for Utf16Encoder {
+        fn write_str(&mut self, s: &str) -> fmt::Result {
+            self.0.extend(s.encode_utf16());
+            Ok(())
+        }
+    }
+
+    let mut title_utf16 = Utf16Encoder(Vec::new());
+    write!(title_utf16, "{}", title).expect("formatting failed");
+    title_utf16.0.push(0);
+    let title = title_utf16.0;
+
     let result = unsafe { SetConsoleTitleW(title.as_ptr()) };
     if result != 0 {
         Ok(())
