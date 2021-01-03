@@ -131,6 +131,25 @@ impl Command for MoveToColumn {
     }
 }
 
+/// A command that moves the terminal cursor to the given row on the current column.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct MoveToRow(pub u16);
+
+impl Command for MoveToRow {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}d"), self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        sys::move_to_row(self.0)
+    }
+}
+
 /// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
@@ -343,6 +362,7 @@ impl Command for DisableBlinking {
 
 impl_display!(for MoveTo);
 impl_display!(for MoveToColumn);
+impl_display!(for MoveToRow);
 impl_display!(for MoveToNextLine);
 impl_display!(for MoveToPreviousLine);
 impl_display!(for MoveUp);

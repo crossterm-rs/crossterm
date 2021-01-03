@@ -84,6 +84,12 @@ pub(crate) fn move_to_column(new_column: u16) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn move_to_row(new_row: u16) -> Result<()> {
+    let (col, _) = position()?;
+    move_to(col, new_row)?;
+    Ok(())
+}
+
 pub(crate) fn move_to_next_line(count: u16) -> Result<()> {
     let (_, row) = position()?;
     move_to(0, row + count)?;
@@ -205,7 +211,7 @@ impl From<Handle> for ScreenBufferCursor {
 mod tests {
     use super::{
         move_down, move_left, move_right, move_to, move_to_column, move_to_next_line,
-        move_to_previous_line, move_up, position, restore_position, save_position,
+        move_to_previous_line, move_to_row, move_up, position, restore_position, save_position,
     };
 
     #[test]
@@ -269,6 +275,15 @@ mod tests {
         move_to_column(12).unwrap();
 
         assert_eq!(position().unwrap(), (12, 2));
+    }
+
+    #[test]
+    fn test_move_to_row_winapi() {
+        move_to(0, 2).unwrap();
+
+        move_to_row(5).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 5));
     }
 
     #[test]
