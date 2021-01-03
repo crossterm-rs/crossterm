@@ -15,8 +15,8 @@ use futures_core::stream::Stream;
 use crate::Result;
 
 use super::{
-    filter::EventFilter, poll_internal, read_internal, sys::Waker, Event, InternalEvent,
-    INTERNAL_EVENT_READER,
+    filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
+    Event, InternalEvent,
 };
 
 /// A stream of `Result<Event>`.
@@ -60,7 +60,7 @@ impl Default for EventStream {
         });
 
         EventStream {
-            poll_internal_waker: INTERNAL_EVENT_READER.write().waker(),
+            poll_internal_waker: lock_internal_event_reader().waker(),
             stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
             stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
             task_sender,

@@ -34,7 +34,6 @@ event-stream = ["futures-core"]
 #
 [dependencies]
 bitflags = "1.2"
-lazy_static = "1.4"
 parking_lot = "0.11"
 
 # optional deps only added when requested

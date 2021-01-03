@@ -2,25 +2,23 @@
 
 use std::fs::File;
 use std::os::unix::io::{IntoRawFd, RawFd};
-use std::{io, mem, process, sync::Mutex};
+use std::{io, mem, process};
 
-use lazy_static::lazy_static;
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
     TIOCGWINSZ,
 };
+use parking_lot::Mutex;
 
 use crate::error::{ErrorKind, Result};
 use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
 
-lazy_static! {
-    // Some(Termios) -> we're in the raw mode and this is the previous mode
-    // None -> we're not in the raw mode
-    static ref TERMINAL_MODE_PRIOR_RAW_MODE: Mutex<Option<Termios>> = Mutex::new(None);
-}
+// Some(Termios) -> we're in the raw mode and this is the previous mode
+// None -> we're not in the raw mode
+static TERMINAL_MODE_PRIOR_RAW_MODE: Mutex<Option<Termios>> = parking_lot::const_mutex(None);
 
 pub(crate) fn is_raw_mode_enabled() -> bool {
-    TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap().is_some()
+    TERMINAL_MODE_PRIOR_RAW_MODE.lock().is_some()
 }
 
 #[allow(clippy::useless_conversion)]
@@ -49,7 +47,7 @@ pub(crate) fn size() -> Result<(u16, u16)> {
 }
 
 pub(crate) fn enable_raw_mode() -> Result<()> {
-    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
+    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
 
     if original_mode.is_some() {
         return Ok(());
@@ -70,7 +68,7 @@ pub(crate) fn enable_raw_mode() -> Result<()> {
 }
 
 pub(crate) fn disable_raw_mode() -> Result<()> {
-    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock().unwrap();
+    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
 
     if let Some(original_mode_ios) = original_mode.as_ref() {
         let tty = tty_fd()?;
