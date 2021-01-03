@@ -92,9 +92,8 @@ use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
-use crate::{impl_display, Result};
+use crate::{csi, impl_display, Result};
 
-mod ansi;
 pub(crate) mod sys;
 
 /// Enables raw mode.
@@ -124,7 +123,7 @@ pub struct DisableLineWrap;
 
 impl Command for DisableLineWrap {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::DISABLE_LINE_WRAP_CSI_SEQUENCE)
+        f.write_str(csi!("?7l"))
     }
 
     #[cfg(windows)]
@@ -143,7 +142,7 @@ pub struct EnableLineWrap;
 
 impl Command for EnableLineWrap {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::ENABLE_LINE_WRAP_CSI_SEQUENCE)
+        f.write_str(csi!("?7h"))
     }
 
     #[cfg(windows)]
@@ -183,7 +182,7 @@ pub struct EnterAlternateScreen;
 
 impl Command for EnterAlternateScreen {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::ENTER_ALTERNATE_SCREEN_CSI_SEQUENCE)
+        f.write_str(csi!("?1049h"))
     }
 
     #[cfg(windows)]
@@ -221,7 +220,7 @@ pub struct LeaveAlternateScreen;
 
 impl Command for LeaveAlternateScreen {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(ansi::LEAVE_ALTERNATE_SCREEN_CSI_SEQUENCE)
+        f.write_str(csi!("?1049l"))
     }
 
     #[cfg(windows)]
@@ -258,7 +257,10 @@ pub struct ScrollUp(pub u16);
 
 impl Command for ScrollUp {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::scroll_up_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}S"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -277,7 +279,10 @@ pub struct ScrollDown(pub u16);
 
 impl Command for ScrollDown {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::scroll_down_csi_sequence(f, self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}T"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -299,11 +304,11 @@ pub struct Clear(pub ClearType);
 impl Command for Clear {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(match self.0 {
-            ClearType::All => ansi::CLEAR_ALL_CSI_SEQUENCE,
-            ClearType::FromCursorDown => ansi::CLEAR_FROM_CURSOR_DOWN_CSI_SEQUENCE,
-            ClearType::FromCursorUp => ansi::CLEAR_FROM_CURSOR_UP_CSI_SEQUENCE,
-            ClearType::CurrentLine => ansi::CLEAR_FROM_CURRENT_LINE_CSI_SEQUENCE,
-            ClearType::UntilNewLine => ansi::CLEAR_UNTIL_NEW_LINE_CSI_SEQUENCE,
+            ClearType::All => csi!("2J"),
+            ClearType::FromCursorDown => csi!("J"),
+            ClearType::FromCursorUp => csi!("1J"),
+            ClearType::CurrentLine => csi!("2K"),
+            ClearType::UntilNewLine => csi!("K"),
         })
     }
 
@@ -323,7 +328,7 @@ pub struct SetSize(pub u16, pub u16);
 
 impl Command for SetSize {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_size_csi_sequence(f, self.0, self.1)
+        write!(f, csi!("8;{};{}t"), self.1, self.0)
     }
 
     #[cfg(windows)]
@@ -342,7 +347,7 @@ pub struct SetTitle<T>(pub T);
 
 impl<T: fmt::Display> Command for SetTitle<T> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        ansi::set_title_ansi_sequence(f, &self.0)
+        write!(f, "\x1B]0;{}\x07", &self.0)
     }
 
     #[cfg(windows)]
