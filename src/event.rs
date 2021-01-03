@@ -80,10 +80,7 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{Command, Result};
-use bitflags::bitflags;
-use lazy_static::lazy_static;
-
+use crate::{csi, Command, Result};
 use filter::{EventFilter, Filter};
 use read::InternalEventReader;
 #[cfg(feature = "event-stream")]
