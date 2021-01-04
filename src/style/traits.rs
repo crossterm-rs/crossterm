@@ -17,7 +17,7 @@ use super::StyledContent;
 /// let styled_text = "Red foreground color on blue background.".red().on_blue();
 /// println!("{}", styled_text);
 /// ```
-pub trait Colorize<D: Display + Clone> {
+pub trait Colorize<D: Display> {
     fn black(self) -> StyledContent<D>;
     fn dark_grey(self) -> StyledContent<D>;
     fn red(self) -> StyledContent<D>;
@@ -66,7 +66,7 @@ pub trait Colorize<D: Display + Clone> {
 /// println!("{}", "Underlined text".underlined());
 /// println!("{}", "Negative text".negative());
 /// ```
-pub trait Styler<D: Display + Clone> {
+pub trait Styler<D: Display> {
     fn reset(self) -> StyledContent<D>;
     fn bold(self) -> StyledContent<D>;
     fn underlined(self) -> StyledContent<D>;

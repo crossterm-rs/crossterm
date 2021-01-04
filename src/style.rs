@@ -153,10 +153,7 @@ mod types;
 ///
 /// println!("{}", styled_content);
 /// ```
-pub fn style<'a, D: 'a>(val: D) -> StyledContent<D>
-where
-    D: Display + Clone,
-{
+pub fn style<D: Display>(val: D) -> StyledContent<D> {
     ContentStyle::new().apply(val)
 }
 
