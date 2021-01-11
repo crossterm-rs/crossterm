@@ -23,8 +23,7 @@ use crate::style::parse_next_u8;
 /// | `White` | `DarkWhite` |
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
-/// See [`Color::Rgb`](enum.Color.html#variant.Rgb) or [`Color::AnsiValue`](enum.Color.html#variant.AnsiValue) for
-/// more info.
+/// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
@@ -94,11 +93,17 @@ pub enum Color {
 
 impl Color {
     /// Parses an ANSI color sequence.
-    /// For example:
-    /// * `5;0 -> Black`,
-    /// * `5;26 -> AnsiValue(26)`,
-    /// * `2;50;60;70 -> Rgb(50, 60, 70)`.
-    /// Invalid sequences map to `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::style::Color;
+    ///
+    /// assert_eq!(Color::parse_ansi("5;0"), Some(Color::Black));
+    /// assert_eq!(Color::parse_ansi("5;26"), Some(Color::AnsiValue(26)));
+    /// assert_eq!(Color::parse_ansi("2;50;60;70"), Some(Color::Rgb { r: 50, g: 60, b: 70 }));
+    /// assert_eq!(Color::parse_ansi("invalid color"), None);
+    /// ```
     ///
     /// Currently, 3/4 bit color values aren't supported so return `None`.
     ///
