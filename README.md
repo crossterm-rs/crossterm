@@ -71,6 +71,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - (Arch, Manjaro) KDE Konsole
 - (Arch) Kitty
 - Linux Mint
+- OpenSuse/Linux Alacritty
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
 terminals have been tested. If you have used this library for a terminal other than the above list without
