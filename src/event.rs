@@ -466,3 +466,41 @@ pub(crate) enum InternalEvent {
     #[cfg(unix)]
     CursorPosition(u16, u16),
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    use super::{KeyCode, KeyEvent, KeyModifiers};
+
+    #[test]
+    fn test_equality() {
+        let lowercase_d_with_shift = KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT);
+        let uppercase_d_with_shift = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT);
+        let uppercase_d = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE);
+        assert_eq!(lowercase_d_with_shift, uppercase_d_with_shift);
+        assert_eq!(uppercase_d, uppercase_d_with_shift);
+    }
+
+    #[test]
+    fn test_hash() {
+        let lowercase_d_with_shift_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT).hash(&mut hasher);
+            hasher.finish()
+        };
+        let uppercase_d_with_shift_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT).hash(&mut hasher);
+            hasher.finish()
+        };
+        let uppercase_d_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE).hash(&mut hasher);
+            hasher.finish()
+        };
+        assert_eq!(lowercase_d_with_shift_hash, uppercase_d_with_shift_hash);
+        assert_eq!(uppercase_d_hash, uppercase_d_with_shift_hash);
+    }
+}
