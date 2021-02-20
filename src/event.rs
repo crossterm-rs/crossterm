@@ -397,6 +397,23 @@ impl KeyEvent {
     pub fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
         KeyEvent { code, modifiers }
     }
+
+    // modifies the KeyEvent,
+    // so that KeyModifiers::SHIFT is present iff
+    // an uppercase char is present.
+    fn normalize_case(mut self) -> KeyEvent {
+        let c = match self.code {
+            KeyCode::Char(c) => c,
+            _ => return self,
+        };
+
+        if c.is_ascii_uppercase() {
+            self.modifiers.insert(KeyModifiers::SHIFT);
+        } else if self.modifiers.contains(KeyModifiers::SHIFT) {
+            self.code = KeyCode::Char(c.to_ascii_uppercase())
+        }
+        self
+    }
 }
 
 impl From<KeyCode> for KeyEvent {
