@@ -385,7 +385,7 @@ bitflags! {
 
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, Clone, Copy, Hash)]
 pub struct KeyEvent {
     /// The key itself.
     pub code: KeyCode,
@@ -424,6 +424,22 @@ impl From<KeyCode> for KeyEvent {
         }
     }
 }
+
+impl PartialEq for KeyEvent {
+    fn eq(&self, other: &KeyEvent) -> bool {
+        let KeyEvent {
+            code: lhs_code,
+            modifiers: lhs_modifiers,
+        } = self.normalize_case();
+        let KeyEvent {
+            code: rhs_code,
+            modifiers: rhs_modifiers,
+        } = other.normalize_case();
+        (lhs_code == rhs_code) && (lhs_modifiers == rhs_modifiers)
+    }
+}
+
+impl Eq for KeyEvent {}
 
 /// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
