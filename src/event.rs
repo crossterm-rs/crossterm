@@ -73,6 +73,7 @@
 //! them (`event-*`).
 
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::time::Duration;
 
 use bitflags::bitflags;
@@ -385,7 +386,7 @@ bitflags! {
 
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, Clone, Copy)]
 pub struct KeyEvent {
     /// The key itself.
     pub code: KeyCode,
@@ -440,6 +441,14 @@ impl PartialEq for KeyEvent {
 }
 
 impl Eq for KeyEvent {}
+
+impl Hash for KeyEvent {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let KeyEvent { code, modifiers } = self.normalize_case();
+        code.hash(state);
+        modifiers.hash(state);
+    }
+}
 
 /// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
