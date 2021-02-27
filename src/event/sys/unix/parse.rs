@@ -270,7 +270,9 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<Interna
         6 => KeyCode::PageDown,
         v @ 11..=15 => KeyCode::F(v - 10),
         v @ 17..=21 => KeyCode::F(v - 11),
-        v @ 23..=24 => KeyCode::F(v - 12),
+        v @ 23..=26 => KeyCode::F(v - 12),
+        v @ 28..=29 => KeyCode::F(v - 15),
+        v @ 31..=34 => KeyCode::F(v - 17),
         _ => return Err(could_not_parse_event_error()),
     };
 
