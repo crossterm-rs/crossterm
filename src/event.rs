@@ -442,11 +442,11 @@ pub enum KeyCode {
     Insert,
     /// F key.
     ///
-    /// `KeyEvent::F(1)` represents F1 key, etc.
+    /// `KeyCode::F(1)` represents F1 key, etc.
     F(u8),
     /// A character.
     ///
-    /// `KeyEvent::Char('c')` represents `c` character, etc.
+    /// `KeyCode::Char('c')` represents `c` character, etc.
     Char(char),
     /// Null.
     Null,
