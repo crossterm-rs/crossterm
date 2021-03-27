@@ -22,11 +22,11 @@ pub(crate) struct WinApiPoll {
 }
 
 impl WinApiPoll {
-    pub(crate) fn new() -> Result<WinApiPoll> {
-        Ok(WinApiPoll {
+    pub(crate) fn new() -> WinApiPoll {
+        WinApiPoll {
             #[cfg(feature = "event-stream")]
             waker: Waker::new()?,
-        })
+        }
     }
 }
 
