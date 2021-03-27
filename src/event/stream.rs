@@ -113,7 +113,9 @@ impl Stream for EventStream {
             Ok(false) => {
                 if !self
                     .stream_wake_task_executed
-                    .compare_and_swap(false, true, Ordering::SeqCst)
+                    .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+                    // https://github.com/rust-lang/rust/issues/80486#issuecomment-752244166
+                    .unwrap_or_else(|x| x)
                 {
                     let stream_waker = cx.waker().clone();
                     let stream_wake_task_executed = self.stream_wake_task_executed.clone();
