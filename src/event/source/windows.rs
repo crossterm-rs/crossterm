@@ -23,7 +23,7 @@ impl WindowsEventSource {
         let console = Console::from(Handle::current_in_handle()?);
         Ok(WindowsEventSource {
             console,
-            
+
             #[cfg(not(feature = "event-stream"))]
             poll: WinApiPoll::new(),
             #[cfg(feature = "event-stream")]
