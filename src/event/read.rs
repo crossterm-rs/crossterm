@@ -7,9 +7,6 @@ use super::source::windows::WindowsEventSource;
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
 use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
-
-use crate::ErrorKind;
-
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
@@ -57,8 +54,7 @@ impl InternalEventReader {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::Other,
                     "Failed to initialize input reader",
-                )
-                .into())
+                ))
             }
         };
 
@@ -75,14 +71,13 @@ impl InternalEventReader {
                         None
                     }
                 }
-                Err(ErrorKind::IoError(e)) => {
+                Err(e) => {
                     if e.kind() == io::ErrorKind::Interrupted {
                         return Ok(false);
                     }
 
-                    return Err(ErrorKind::IoError(e));
+                    return Err(e);
                 }
-                Err(e) => return Err(e),
             };
 
             if poll_timeout.elapsed() || maybe_event.is_some() {
@@ -131,6 +126,7 @@ impl InternalEventReader {
 
 #[cfg(test)]
 mod tests {
+    use std::io;
     use std::{collections::VecDeque, time::Duration};
 
     use crate::ErrorKind;
@@ -314,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_poll_propagates_error() {
-        let source = FakeSource::with_error(ErrorKind::ResizingTerminalFailure("Foo".to_string()));
+        let source = FakeSource::with_error(ErrorKind::from(io::ErrorKind::Other));
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
@@ -327,16 +323,13 @@ mod tests {
                 .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
                 .err()
                 .map(|e| format!("{:?}", &e)),
-            Some(format!(
-                "{:?}",
-                ErrorKind::ResizingTerminalFailure("Foo".to_string())
-            ))
+            Some(format!("{:?}", ErrorKind::from(io::ErrorKind::Other)))
         );
     }
 
     #[test]
     fn test_read_propagates_error() {
-        let source = FakeSource::with_error(ErrorKind::ResizingTerminalFailure("Foo".to_string()));
+        let source = FakeSource::with_error(ErrorKind::from(io::ErrorKind::Other));
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
@@ -349,10 +342,7 @@ mod tests {
                 .read(&InternalEventFilter)
                 .err()
                 .map(|e| format!("{:?}", &e)),
-            Some(format!(
-                "{:?}",
-                ErrorKind::ResizingTerminalFailure("Foo".to_string())
-            ))
+            Some(format!("{:?}", ErrorKind::from(io::ErrorKind::Other)))
         );
     }
 
@@ -360,10 +350,7 @@ mod tests {
     fn test_poll_continues_after_error() {
         const EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 10));
 
-        let source = FakeSource::new(
-            &[EVENT, EVENT],
-            ErrorKind::ResizingTerminalFailure("Foo".to_string()),
-        );
+        let source = FakeSource::new(&[EVENT, EVENT], ErrorKind::from(io::ErrorKind::Other));
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
@@ -382,10 +369,7 @@ mod tests {
     fn test_read_continues_after_error() {
         const EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 10));
 
-        let source = FakeSource::new(
-            &[EVENT, EVENT],
-            ErrorKind::ResizingTerminalFailure("Foo".to_string()),
-        );
+        let source = FakeSource::new(&[EVENT, EVENT], ErrorKind::from(io::ErrorKind::Other));
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),

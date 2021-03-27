@@ -5,7 +5,7 @@ use std::{
 
 use libc::size_t;
 
-use crate::{ErrorKind, Result};
+use crate::Result;
 
 /// A file descriptor wrapper.
 ///
@@ -38,7 +38,7 @@ impl FileDesc {
         };
 
         if result < 0 {
-            Err(ErrorKind::IoError(io::Error::last_os_error()))
+            Err(io::Error::last_os_error())
         } else {
             Ok(result as usize)
         }

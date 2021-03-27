@@ -3,7 +3,7 @@ use std::{collections::VecDeque, io, time::Duration};
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook::iterator::Signals;
 
-use crate::{ErrorKind, Result};
+use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
@@ -41,7 +41,7 @@ pub(crate) struct UnixInternalEventSource {
 
 impl UnixInternalEventSource {
     pub fn new() -> Result<Self> {
-        Ok(UnixInternalEventSource::from_file_descriptor(tty_fd()?)?)
+        UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
@@ -87,7 +87,7 @@ impl EventSource for UnixInternalEventSource {
                 if e.kind() == io::ErrorKind::Interrupted {
                     continue;
                 } else {
-                    return Err(ErrorKind::IoError(e));
+                    return Err(e);
                 }
             };
 
@@ -109,7 +109,7 @@ impl EventSource for UnixInternalEventSource {
                                         );
                                     }
                                 }
-                                Err(ErrorKind::IoError(e)) => {
+                                Err(e) => {
                                     // No more data to read at the moment. We will receive another event
                                     if e.kind() == io::ErrorKind::WouldBlock {
                                         break;
@@ -119,7 +119,6 @@ impl EventSource for UnixInternalEventSource {
                                         continue;
                                     }
                                 }
-                                Err(e) => return Err(e),
                             };
 
                             if let Some(event) = self.parser.next() {

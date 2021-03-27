@@ -46,8 +46,7 @@ fn read_position_raw() -> Result<(u16, u16)> {
                 return Err(Error::new(
                     ErrorKind::Other,
                     "The cursor position could not be read within a normal duration",
-                )
-                .into());
+                ));
             }
             Err(_) => {}
         }
