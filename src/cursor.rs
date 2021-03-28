@@ -360,6 +360,42 @@ impl Command for DisableBlinking {
     }
 }
 
+/// All supported cursor shapes
+///
+/// # Note
+///
+/// - Used with SetCursorShape
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CursorShape {
+    UnderScore,
+    Line,
+    Block,
+}
+
+/// A command that sets the shape of the cursor
+///
+/// # Note
+///
+/// - Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetCursorShape(pub CursorShape);
+
+impl Command for SetCursorShape {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        use CursorShape::*;
+        match self.0 {
+            UnderScore => f.write_str("\x1b[3 q"),
+            Line => f.write_str("\x1b[5 q"),
+            Block => f.write_str("\x1b[2 q"),
+        }
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+        Ok(())
+    }
+}
+
 impl_display!(for MoveTo);
 impl_display!(for MoveToColumn);
 impl_display!(for MoveToRow);
@@ -375,6 +411,7 @@ impl_display!(for Hide);
 impl_display!(for Show);
 impl_display!(for EnableBlinking);
 impl_display!(for DisableBlinking);
+impl_display!(for SetCursorShape);
 
 #[cfg(test)]
 mod tests {
