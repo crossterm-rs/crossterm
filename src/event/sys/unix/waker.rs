@@ -27,12 +27,13 @@ impl Waker {
             .lock()
             .unwrap()
             .wake()
-            .map_err(|e| ErrorKind::IoError(e))
+            .map_err(ErrorKind::IoError)
     }
 
     /// Resets the state so the same waker can be reused.
     ///
     /// This function is not impl
+    #[allow(dead_code, clippy::clippy::unnecessary_wraps)]
     pub(crate) fn reset(&self) -> Result<()> {
         Ok(())
     }
