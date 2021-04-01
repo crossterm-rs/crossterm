@@ -130,12 +130,13 @@ impl EventSource for UnixInternalEventSource {
                                             return Ok(Some(InternalEvent::Event(
                                                 Event::PasteEvents(buffer.drain(..).collect()),
                                             )));
+                                        } else if let InternalEvent::Event(event) = event {
+                                            buffer.push(event);
                                         } else {
-                                            if let InternalEvent::Event(event) = event {
-                                                buffer.push(event);
-                                            } else {
-                                                unreachable!();
-                                            }
+                                            // Speculation: Events between BracketedPasteStart and
+                                            // BracketedPasteEnd are guarentteed to be
+                                            // InternalEvent::Event::Char
+                                            unreachable!();
                                         }
                                     }
                                 } else {
