@@ -73,6 +73,7 @@
 //! them (`event-*`).
 
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::time::Duration;
 
 use bitflags::bitflags;
@@ -385,7 +386,7 @@ bitflags! {
 
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, Clone, Copy)]
 pub struct KeyEvent {
     /// The key itself.
     pub code: KeyCode,
@@ -397,6 +398,23 @@ impl KeyEvent {
     pub fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
         KeyEvent { code, modifiers }
     }
+
+    // modifies the KeyEvent,
+    // so that KeyModifiers::SHIFT is present iff
+    // an uppercase char is present.
+    fn normalize_case(mut self) -> KeyEvent {
+        let c = match self.code {
+            KeyCode::Char(c) => c,
+            _ => return self,
+        };
+
+        if c.is_ascii_uppercase() {
+            self.modifiers.insert(KeyModifiers::SHIFT);
+        } else if self.modifiers.contains(KeyModifiers::SHIFT) {
+            self.code = KeyCode::Char(c.to_ascii_uppercase())
+        }
+        self
+    }
 }
 
 impl From<KeyCode> for KeyEvent {
@@ -405,6 +423,30 @@ impl From<KeyCode> for KeyEvent {
             code,
             modifiers: KeyModifiers::empty(),
         }
+    }
+}
+
+impl PartialEq for KeyEvent {
+    fn eq(&self, other: &KeyEvent) -> bool {
+        let KeyEvent {
+            code: lhs_code,
+            modifiers: lhs_modifiers,
+        } = self.normalize_case();
+        let KeyEvent {
+            code: rhs_code,
+            modifiers: rhs_modifiers,
+        } = other.normalize_case();
+        (lhs_code == rhs_code) && (lhs_modifiers == rhs_modifiers)
+    }
+}
+
+impl Eq for KeyEvent {}
+
+impl Hash for KeyEvent {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let KeyEvent { code, modifiers } = self.normalize_case();
+        code.hash(state);
+        modifiers.hash(state);
     }
 }
 
@@ -465,4 +507,42 @@ pub(crate) enum InternalEvent {
     /// A cursor position (`col`, `row`).
     #[cfg(unix)]
     CursorPosition(u16, u16),
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    use super::{KeyCode, KeyEvent, KeyModifiers};
+
+    #[test]
+    fn test_equality() {
+        let lowercase_d_with_shift = KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT);
+        let uppercase_d_with_shift = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT);
+        let uppercase_d = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE);
+        assert_eq!(lowercase_d_with_shift, uppercase_d_with_shift);
+        assert_eq!(uppercase_d, uppercase_d_with_shift);
+    }
+
+    #[test]
+    fn test_hash() {
+        let lowercase_d_with_shift_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT).hash(&mut hasher);
+            hasher.finish()
+        };
+        let uppercase_d_with_shift_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT).hash(&mut hasher);
+            hasher.finish()
+        };
+        let uppercase_d_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE).hash(&mut hasher);
+            hasher.finish()
+        };
+        assert_eq!(lowercase_d_with_shift_hash, uppercase_d_with_shift_hash);
+        assert_eq!(uppercase_d_hash, uppercase_d_with_shift_hash);
+    }
 }
