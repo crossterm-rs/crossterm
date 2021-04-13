@@ -1,6 +1,7 @@
 //! WinAPI related logic for terminal manipulation.
 
 use std::fmt::{self, Write};
+use std::io;
 
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
@@ -99,15 +100,17 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
 
 pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     if width <= 1 {
-        return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Cannot set the terminal width lower than 1.",
-        )));
+        return Err(ErrorKind::new(
+            io::ErrorKind::InvalidInput,
+            "terminal width must be at least 1",
+        ));
     }
 
     if height <= 1 {
-        return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Cannot set the terminal height lower then 1.",
-        )));
+        return Err(ErrorKind::new(
+            io::ErrorKind::InvalidInput,
+            "terminal height must be at least 1",
+        ));
     }
 
     // get the position of the current console window
@@ -127,9 +130,10 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     let width = width as i16;
     if current_size.width < window.left + width {
         if window.left >= i16::max_value() - width {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from(
-                "Argument out of range when setting terminal width.",
-            )));
+            return Err(ErrorKind::new(
+                io::ErrorKind::InvalidInput,
+                "terminal width too large",
+            ));
         }
 
         new_size.width = window.left + width;
@@ -138,23 +142,18 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     let height = height as i16;
     if current_size.height < window.top + height {
         if window.top >= i16::max_value() - height {
-            return Err(ErrorKind::ResizingTerminalFailure(String::from(
-                "Argument out of range when setting terminal height.",
-            )));
+            return Err(ErrorKind::new(
+                io::ErrorKind::InvalidInput,
+                "terminal height too large",
+            ));
         }
 
         new_size.height = window.top + height;
         resize_buffer = true;
     }
 
-    if resize_buffer
-        && screen_buffer
-            .set_size(new_size.width - 1, new_size.height - 1)
-            .is_err()
-    {
-        return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Something went wrong when setting screen buffer size.",
-        )));
+    if resize_buffer {
+        screen_buffer.set_size(new_size.width - 1, new_size.height - 1)?;
     }
 
     let mut window = window;
@@ -165,29 +164,23 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     console.set_console_info(true, window)?;
 
     // if we resized the buffer, un-resize it.
-    if resize_buffer
-        && screen_buffer
-            .set_size(current_size.width - 1, current_size.height - 1)
-            .is_err()
-    {
-        return Err(ErrorKind::ResizingTerminalFailure(String::from(
-            "Something went wrong when setting screen buffer size.",
-        )));
+    if resize_buffer {
+        screen_buffer.set_size(current_size.width - 1, current_size.height - 1)?;
     }
 
     let bounds = console.largest_window_size();
 
     if width > bounds.x {
-        return Err(ErrorKind::ResizingTerminalFailure(format!(
-            "Argument width: {} out of range when setting terminal width.",
-            width
-        )));
+        return Err(ErrorKind::new(
+            io::ErrorKind::InvalidInput,
+            format!("terminal width {} too large", width),
+        ));
     }
     if height > bounds.y {
-        return Err(ErrorKind::ResizingTerminalFailure(format!(
-            "Argument height: {} out of range when setting terminal height.",
-            width
-        )));
+        return Err(ErrorKind::new(
+            io::ErrorKind::InvalidInput,
+            format!("terminal height {} too large", height),
+        ));
     }
 
     Ok(())
@@ -211,7 +204,7 @@ pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
     if result != 0 {
         Ok(())
     } else {
-        Err(ErrorKind::SettingTerminalTitleFailure)
+        Err(ErrorKind::last_os_error())
     }
 }
 

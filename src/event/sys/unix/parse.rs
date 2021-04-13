@@ -20,10 +20,7 @@ use super::super::super::InternalEvent;
 //
 
 fn could_not_parse_event_error() -> ErrorKind {
-    ErrorKind::IoError(io::Error::new(
-        io::ErrorKind::Other,
-        "Could not parse an event.",
-    ))
+    io::Error::new(io::ErrorKind::Other, "Could not parse an event.")
 }
 
 pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option<InternalEvent>> {

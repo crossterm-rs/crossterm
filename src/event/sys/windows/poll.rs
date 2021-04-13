@@ -74,12 +74,11 @@ impl WinApiPoll {
                 // timeout elapsed
                 Ok(None)
             }
-            WAIT_FAILED => Err(io::Error::last_os_error().into()),
+            WAIT_FAILED => Err(io::Error::last_os_error()),
             _ => Err(io::Error::new(
                 io::ErrorKind::Other,
                 "WaitForMultipleObjects returned unexpected result.",
-            )
-            .into()),
+            )),
         }
     }
 

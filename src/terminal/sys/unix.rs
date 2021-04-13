@@ -10,7 +10,7 @@ use libc::{
 };
 use parking_lot::Mutex;
 
-use crate::error::{ErrorKind, Result};
+use crate::error::Result;
 use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
@@ -129,7 +129,7 @@ fn set_terminal_attr(fd: RawFd, termios: &Termios) -> Result<()> {
 
 fn wrap_with_result(result: i32) -> Result<()> {
     if result == -1 {
-        Err(ErrorKind::IoError(io::Error::last_os_error()))
+        Err(io::Error::last_os_error())
     } else {
         Ok(())
     }

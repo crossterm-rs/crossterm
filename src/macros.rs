@@ -117,7 +117,7 @@ macro_rules! execute {
         // Queue each command, then flush
         $crate::queue!($writer $(, $command)*)
             .and_then(|()| {
-                ::std::io::Write::flush($writer.by_ref()).map_err($crate::ErrorKind::IoError)
+                ::std::io::Write::flush($writer.by_ref())
             })
     }}
 }

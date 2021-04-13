@@ -138,8 +138,7 @@ impl ScreenBufferCursor {
                     "Argument Out of Range Exception when setting cursor position to X: {}",
                     x
                 ),
-            )
-            .into());
+            ));
         }
 
         if y < 0 {
@@ -149,8 +148,7 @@ impl ScreenBufferCursor {
                     "Argument Out of Range Exception when setting cursor position to Y: {}",
                     y
                 ),
-            )
-            .into());
+            ));
         }
 
         let position = COORD { X: x, Y: y };
@@ -160,7 +158,7 @@ impl ScreenBufferCursor {
                 **self.screen_buffer.handle(),
                 position,
             )) {
-                return Err(io::Error::last_os_error().into());
+                return Err(io::Error::last_os_error());
             }
         }
         Ok(())
@@ -177,7 +175,7 @@ impl ScreenBufferCursor {
                 **self.screen_buffer.handle(),
                 &cursor_info,
             )) {
-                return Err(io::Error::last_os_error().into());
+                return Err(io::Error::last_os_error());
             }
         }
         Ok(())
