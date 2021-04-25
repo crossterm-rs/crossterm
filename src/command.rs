@@ -10,7 +10,7 @@ use super::error::Result;
 /// In order to understand how to use and execute commands,
 /// it is recommended that you take a look at [Command Api](../#command-api) chapter.
 pub trait Command {
-    /// Write an ANSI representation of this commmand to the given writer.
+    /// Write an ANSI representation of this command to the given writer.
     /// An ANSI code can manipulate the terminal by writing it to the terminal buffer.
     /// However, only Windows 10 and UNIX systems support this.
     ///
