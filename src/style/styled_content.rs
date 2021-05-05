@@ -27,7 +27,7 @@ use crate::{
 ///
 /// println!("{}", styled);
 /// ```
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct StyledContent<D: Display> {
     /// The style (colors, content attributes).
     style: ContentStyle,
