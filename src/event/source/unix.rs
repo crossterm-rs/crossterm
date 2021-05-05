@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, io, time::Duration};
 
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
-use signal_hook::iterator::Signals;
+use signal_hook_mio::v0_7::Signals;
 
 use crate::Result;
 
@@ -52,7 +52,7 @@ impl UnixInternalEventSource {
         let mut tty_ev = SourceFd(&tty_raw_fd);
         registry.register(&mut tty_ev, TTY_TOKEN, Interest::READABLE)?;
 
-        let mut signals = Signals::new(&[signal_hook::SIGWINCH])?;
+        let mut signals = Signals::new(&[signal_hook::consts::SIGWINCH])?;
         registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
@@ -127,9 +127,9 @@ impl EventSource for UnixInternalEventSource {
                         }
                     }
                     SIGNAL_TOKEN => {
-                        for signal in &self.signals {
-                            match signal as libc::c_int {
-                                signal_hook::SIGWINCH => {
+                        for signal in self.signals.pending() {
+                            match signal {
+                                signal_hook::consts::SIGWINCH => {
                                     // TODO Should we remove tput?
                                     //
                                     // This can take a really long time, because terminal::size can
