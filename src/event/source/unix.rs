@@ -151,8 +151,7 @@ impl EventSource for UnixInternalEventSource {
                         return Err(std::io::Error::new(
                             std::io::ErrorKind::Interrupted,
                             "Poll operation was woken up by `Waker::wake`",
-                        )
-                        .into());
+                        ));
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
