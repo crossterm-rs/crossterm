@@ -154,10 +154,12 @@ impl ScreenBufferCursor {
         let position = COORD { X: x, Y: y };
 
         unsafe {
-            if let Err(_) = result(SetConsoleCursorPosition(
+            if result(SetConsoleCursorPosition(
                 **self.screen_buffer.handle(),
                 position,
-            )) {
+            ))
+            .is_err()
+            {
                 return Err(io::Error::last_os_error());
             }
         }
@@ -171,10 +173,12 @@ impl ScreenBufferCursor {
         };
 
         unsafe {
-            if let Err(_) = result(SetConsoleCursorInfo(
+            if result(SetConsoleCursorInfo(
                 **self.screen_buffer.handle(),
                 &cursor_info,
-            )) {
+            ))
+            .is_err()
+            {
                 return Err(io::Error::last_os_error());
             }
         }
