@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crossterm_winapi::{is_true, Coord, Handle, HandleType, ScreenBuffer};
+use crossterm_winapi::{Coord, Handle, HandleType, ScreenBuffer, result};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
     um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
@@ -154,7 +154,7 @@ impl ScreenBufferCursor {
         let position = COORD { X: x, Y: y };
 
         unsafe {
-            if !is_true(SetConsoleCursorPosition(
+            if let Err(_) = result(SetConsoleCursorPosition(
                 **self.screen_buffer.handle(),
                 position,
             )) {
@@ -171,7 +171,7 @@ impl ScreenBufferCursor {
         };
 
         unsafe {
-            if !is_true(SetConsoleCursorInfo(
+            if let Err(_) = result(SetConsoleCursorInfo(
                 **self.screen_buffer.handle(),
                 &cursor_info,
             )) {
