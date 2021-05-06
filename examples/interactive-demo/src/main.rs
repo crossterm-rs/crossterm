@@ -91,6 +91,6 @@ pub fn buffer_size() -> Result<(u16, u16)> {
 }
 
 fn main() -> Result<()> {
-    let mut stderr = io::stdout();
-    run(&mut stderr)
+    let mut stdout = io::stdout();
+    run(&mut stdout)
 }
