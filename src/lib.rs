@@ -48,6 +48,8 @@
 //!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
 //!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),[`MoveToRow`](cursor/struct.MoveToRow.html),
 //!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html),
+//!    - Shape -
+//!      [`SetCursorShape`](cursor/struct.SetCursorShape .html)
 //! - Module [`event`](event/index.html)
 //!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
 //!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
