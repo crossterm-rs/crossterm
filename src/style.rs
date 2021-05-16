@@ -386,6 +386,7 @@ impl<T: Display> Command for Print<T> {
         panic!("tried to execute Print command using WinAPI, use ANSI instead");
     }
 
+    #[cfg(windows)]
     fn is_ansi_code_supported(&self) -> bool {
         true
     }
