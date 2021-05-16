@@ -24,7 +24,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command Api](../#command-api)
     #[cfg(windows)]
-    fn execute_winapi(&self, writer: impl FnMut() -> Result<()>) -> Result<()>;
+    fn execute_winapi(&self) -> Result<()>;
 
     /// Returns whether the ansi code representation of this command is supported by windows.
     ///
@@ -43,8 +43,8 @@ impl<T: Command + ?Sized> Command for &T {
 
     #[inline]
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
-        T::execute_winapi(self, _writer)
+    fn execute_winapi(&self) -> Result<()> {
+        T::execute_winapi(self)
     }
 
     #[cfg(windows)]
@@ -122,12 +122,11 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     fn queue(&mut self, command: impl Command) -> Result<&mut Self> {
         #[cfg(windows)]
         if !command.is_ansi_code_supported() {
-            command.execute_winapi(|| {
-                write_command_ansi(self, &command)?;
-                // winapi doesn't support queuing
-                self.flush()?;
-                Ok(())
-            })?;
+            // There may be queued commands in this writer, but `execute_winapi` will execute the
+            // command immediately. To prevent commands being executed out of order we flush the
+            // writer now.
+            self.flush()?;
+            command.execute_winapi()?;
             return Ok(self);
         }
 
@@ -224,9 +223,7 @@ fn write_command_ansi<C: Command>(
 pub(crate) fn execute_fmt(f: &mut impl fmt::Write, command: impl Command) -> fmt::Result {
     #[cfg(windows)]
     if !command.is_ansi_code_supported() {
-        return command
-            .execute_winapi(|| panic!("this writer should not be possible to use here"))
-            .map_err(|_| fmt::Error);
+        return command.execute_winapi().map_err(|_| fmt::Error);
     }
 
     command.write_ansi(f)

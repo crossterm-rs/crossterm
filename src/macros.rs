@@ -278,10 +278,7 @@ mod tests {
                 f.write_str(self.value)
             }
 
-            fn execute_winapi(
-                &self,
-                _writer: impl FnMut() -> CrosstermResult<()>,
-            ) -> CrosstermResult<()> {
+            fn execute_winapi(&self) -> CrosstermResult<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
