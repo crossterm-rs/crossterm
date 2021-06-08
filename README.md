@@ -165,6 +165,7 @@ features = ["event-stream"]
 - [Cursive](https://github.com/gyscos/Cursive)
 - [TUI](https://github.com/fdehau/tui-rs)
 - [Rust-sloth](https://github.com/ecumene/rust-sloth)
+- [Rusty-rain](https://github.com/cowboy8625/rusty-rain)
 
 ## Contributing
   
