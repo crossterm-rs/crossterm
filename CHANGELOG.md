@@ -8,7 +8,8 @@
 - Remove lazy_static dependency.
 - Remove extra Clone bounds in the style module.
  - Add `MoveToRow` command.
- 
+ - Remove writer parameter from execute_winapi
+   
 # Version 0.19
 - Use single thread for async event reader. 
 - Patch timeout handling for event polling this was not working correctly.
