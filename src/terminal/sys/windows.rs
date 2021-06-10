@@ -168,7 +168,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
         screen_buffer.set_size(current_size.width - 1, current_size.height - 1)?;
     }
 
-    let bounds = console.largest_window_size();
+    let bounds = console.largest_window_size()?;
 
     if width > bounds.x {
         return Err(ErrorKind::new(

@@ -187,7 +187,7 @@ impl Command for EnterAlternateScreen {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        let alternate_screen = ScreenBuffer::create();
+        let alternate_screen = ScreenBuffer::create()?;
         alternate_screen.show()?;
         Ok(())
     }

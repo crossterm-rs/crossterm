@@ -1,3 +1,15 @@
+# Version 0.20
+- Update from signal-hook with 'mio-feature flag' to signal-hook-mio 0.2.1. 
+- Manually implements Eq, PartialEq and Hash for KeyEvent improving equality checks and hash calculation. 
+- `crossterm::ErrorKind` to `io::Error`.
+- Added Cursor Shape Support.
+- Add support for function keys F13...F20.
+- Support taking any Display in `SetTitle` command.
+- Remove lazy_static dependency.
+- Remove extra Clone bounds in the style module.
+ - Add `MoveToRow` command.
+ - Remove writer parameter from execute_winapi
+   
 # Version 0.19
 - Use single thread for async event reader. 
 - Patch timeout handling for event polling this was not working correctly.

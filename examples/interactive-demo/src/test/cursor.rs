@@ -3,7 +3,7 @@
 use std::io::Write;
 
 use crate::Result;
-use crossterm::{cursor, execute, queue, style, style::Colorize, Command};
+use crossterm::{cursor, execute, queue, style, Command, style::Stylize};
 use std::thread;
 use std::time::Duration;
 
