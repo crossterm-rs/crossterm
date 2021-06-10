@@ -175,7 +175,7 @@
 //! use std::io::{stdout, Write};
 //! use crossterm::{
 //!     ExecutableCommand, QueueableCommand,
-//!     terminal, cursor, style::{self, Colorize}, Result
+//!     terminal, cursor, style::{self, Stylize}, Result
 //! };
 //!
 //! fn main() -> Result<()> {
@@ -204,7 +204,7 @@
 //! use std::io::{stdout, Write};
 //! use crossterm::{
 //!     execute, queue,
-//!     style::{self, Colorize}, cursor, terminal, Result
+//!     style::{self, Stylize}, cursor, terminal, Result
 //! };
 //!
 //! fn main() -> Result<()> {
