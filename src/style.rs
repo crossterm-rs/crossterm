@@ -205,7 +205,7 @@ impl Command for SetForegroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::set_foreground_color(self.0)
     }
 }
@@ -229,7 +229,7 @@ impl Command for SetBackgroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::set_background_color(self.0)
     }
 }
@@ -270,7 +270,7 @@ impl Command for SetColors {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         if let Some(color) = self.0.foreground {
             sys::windows::set_foreground_color(color)?;
         }
@@ -297,7 +297,7 @@ impl Command for SetAttribute {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -324,7 +324,7 @@ impl Command for SetAttributes {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -346,7 +346,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         Ok(())
     }
 }
@@ -365,7 +365,7 @@ impl Command for ResetColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::reset()
     }
 }
@@ -382,8 +382,13 @@ impl<T: Display> Command for Print<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, mut writer: impl FnMut() -> Result<()>) -> Result<()> {
-        writer()
+    fn execute_winapi(&self) -> Result<()> {
+        panic!("tried to execute Print command using WinAPI, use ANSI instead");
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
     }
 }
 
@@ -404,5 +409,5 @@ impl_display!(for ResetColor);
 /// Utility function for ANSI parsing in Color and Colored.
 /// Gets the next element of `iter` and tries to parse it as a u8.
 fn parse_next_u8<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Option<u8> {
-    iter.next().and_then(|s| u8::from_str_radix(s, 10).ok())
+    iter.next().and_then(|s| s.parse().ok())
 }

@@ -371,7 +371,7 @@ mod tests {
         let test_title = "this is a crossterm test title";
         set_window_title(test_title).unwrap();
 
-        let mut raw = [0 as u16; 128];
+        let mut raw = [0_u16; 128];
         let length = unsafe { GetConsoleTitleW(raw.as_mut_ptr(), raw.len() as u32) } as usize;
         assert_ne!(0, length);
 
