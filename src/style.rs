@@ -50,10 +50,11 @@
 //!
 //! Functions:
 //!
-//! Using functions from [`Colorize`](trait.Colorize.html) on a `String` or `&'static str` to color it.
+//! Using functions from [`Stylize`](crate::style::Stylize) on a `String` or `&'static str` to color
+//! it.
 //!
 //! ```no_run
-//! use crossterm::style::Colorize;
+//! use crossterm::style::Stylize;
 //!
 //! println!("{}", "Red foreground color & blue background.".red().on_blue());
 //! ```
@@ -86,10 +87,11 @@
 //!
 //! Functions:
 //!
-//! Using [`Styler`](trait.Styler.html) functions on a `String` or `&'static str` to set attributes to it.
+//! Using [`Stylize`](crate::style::Stylize) functions on a `String` or `&'static str` to set
+//! attributes to it.
 //!
 //! ```no_run
-//! use crossterm::style::Styler;
+//! use crossterm::style::Stylize;
 //!
 //! println!("{}", "Bold".bold());
 //! println!("{}", "Underlined".underlined());
@@ -115,6 +117,7 @@ use std::{
     fmt::{self, Display},
 };
 
+use crate::command::execute_fmt;
 #[cfg(windows)]
 use crate::Result;
 use crate::{csi, impl_display, Command};
@@ -123,17 +126,15 @@ pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
     styled_content::StyledContent,
-    traits::{Colorize, Styler},
+    stylize::Stylize,
     types::{Attribute, Color, Colored, Colors},
 };
 
-#[macro_use]
-mod macros;
 mod attributes;
 mod content_style;
 mod styled_content;
+mod stylize;
 mod sys;
-mod traits;
 mod types;
 
 /// Creates a `StyledContent`.
@@ -145,7 +146,7 @@ mod types;
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::style::{style, Color};
+/// use crossterm::style::{style, Stylize, Color};
 ///
 /// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
@@ -155,24 +156,6 @@ mod types;
 /// ```
 pub fn style<D: Display>(val: D) -> StyledContent<D> {
     ContentStyle::new().apply(val)
-}
-
-impl_colorize!(String);
-impl_colorize!(char);
-
-// We do actually need the parentheses here because the macro doesn't work without them otherwise
-// This is probably a bug somewhere in the compiler, but it isn't that big a deal.
-#[allow(unused_parens)]
-impl<'a> Colorize<&'a str> for &'a str {
-    impl_colorize_callback!(def_color_base!((&'a str)));
-}
-
-impl_styler!(String);
-impl_styler!(char);
-
-#[allow(unused_parens)]
-impl<'a> Styler<&'a str> for &'a str {
-    impl_styler_callback!(def_attr_base!((&'a str)));
 }
 
 /// Returns available color count.
@@ -205,7 +188,7 @@ impl Command for SetForegroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::set_foreground_color(self.0)
     }
 }
@@ -229,7 +212,7 @@ impl Command for SetBackgroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::set_background_color(self.0)
     }
 }
@@ -270,7 +253,7 @@ impl Command for SetColors {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         if let Some(color) = self.0.foreground {
             sys::windows::set_foreground_color(color)?;
         }
@@ -297,7 +280,7 @@ impl Command for SetAttribute {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -324,7 +307,7 @@ impl Command for SetAttributes {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -342,11 +325,48 @@ pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
 impl<D: Display> Command for PrintStyledContent<D> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, "{}", self.0)
+        let style = self.0.style();
+
+        let mut reset_background = false;
+        let mut reset_foreground = false;
+        let mut reset = false;
+
+        if let Some(bg) = style.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+            reset_background = true;
+        }
+        if let Some(fg) = style.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+
+        if !style.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(style.attributes)).map_err(|_| fmt::Error)?;
+            reset = true;
+        }
+
+        write!(f, "{}", self.0.content())?;
+
+        if reset {
+            // NOTE: This will reset colors even though self has no colors, hence produce unexpected
+            // resets.
+            // TODO: reset the set attributes only.
+            execute_fmt(f, ResetColor).map_err(|_| fmt::Error)?;
+        } else {
+            // NOTE: Since the above bug, we do not need to reset colors when we reset attributes.
+            if reset_background {
+                execute_fmt(f, SetBackgroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+            if reset_foreground {
+                execute_fmt(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+        }
+
+        Ok(())
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         Ok(())
     }
 }
@@ -365,7 +385,7 @@ impl Command for ResetColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::windows::reset()
     }
 }
@@ -382,8 +402,13 @@ impl<T: Display> Command for Print<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, mut writer: impl FnMut() -> Result<()>) -> Result<()> {
-        writer()
+    fn execute_winapi(&self) -> Result<()> {
+        panic!("tried to execute Print command using WinAPI, use ANSI instead");
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
     }
 }
 
@@ -404,5 +429,5 @@ impl_display!(for ResetColor);
 /// Utility function for ANSI parsing in Color and Colored.
 /// Gets the next element of `iter` and tries to parse it as a u8.
 fn parse_next_u8<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Option<u8> {
-    iter.next().and_then(|s| u8::from_str_radix(s, 10).ok())
+    iter.next().and_then(|s| s.parse().ok())
 }

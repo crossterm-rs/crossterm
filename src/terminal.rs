@@ -127,7 +127,7 @@ impl Command for DisableLineWrap {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
         let new_mode = console_mode.mode()? & !ENABLE_WRAP_AT_EOL_OUTPUT;
@@ -146,7 +146,7 @@ impl Command for EnableLineWrap {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
         let new_mode = console_mode.mode()? | ENABLE_WRAP_AT_EOL_OUTPUT;
@@ -186,7 +186,7 @@ impl Command for EnterAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         let alternate_screen = ScreenBuffer::create()?;
         alternate_screen.show()?;
         Ok(())
@@ -224,7 +224,7 @@ impl Command for LeaveAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
         Ok(())
@@ -264,7 +264,7 @@ impl Command for ScrollUp {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::scroll_up(self.0)
     }
 }
@@ -286,7 +286,7 @@ impl Command for ScrollDown {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::scroll_down(self.0)
     }
 }
@@ -313,7 +313,7 @@ impl Command for Clear {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::clear(self.0)
     }
 }
@@ -332,7 +332,7 @@ impl Command for SetSize {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::set_size(self.0, self.1)
     }
 }
@@ -351,7 +351,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self, _writer: impl FnMut() -> Result<()>) -> Result<()> {
+    fn execute_winapi(&self) -> Result<()> {
         sys::set_window_title(&self.0)
     }
 }

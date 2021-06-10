@@ -59,7 +59,7 @@ macro_rules! Attribute {
         /// Style existing text:
         ///
         /// ```no_run
-        /// use crossterm::style::Styler;
+        /// use crossterm::style::Stylize;
         ///
         /// println!("{}", "Bold text".bold());
         /// println!("{}", "Underlined text".underlined());
