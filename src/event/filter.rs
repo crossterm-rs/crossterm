@@ -13,7 +13,7 @@ pub(crate) struct CursorPositionFilter;
 #[cfg(unix)]
 impl Filter for CursorPositionFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
-        matches!(*event, InternalEvent::CursorPosition(_, _))
+        matches!(*event, InternalEvent::CursorPosition(_))
     }
 }
 
@@ -47,6 +47,7 @@ mod tests {
     use super::{
         super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent, InternalEventFilter,
     };
+    use crate::cursor::CursorPosition;
     use crate::terminal::TerminalSize;
 
     #[test]
@@ -57,7 +58,12 @@ mod tests {
                 height: 10
             })))
         );
-        assert!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+        assert!(
+            CursorPositionFilter.eval(&InternalEvent::CursorPosition(CursorPosition {
+                column: 0,
+                row: 0
+            }))
+        );
     }
 
     #[test]
@@ -68,7 +74,12 @@ mod tests {
                 height: 10
             })))
         );
-        assert!(!EventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+        assert!(
+            !EventFilter.eval(&InternalEvent::CursorPosition(CursorPosition {
+                column: 0,
+                row: 0
+            }))
+        );
     }
 
     #[test]
@@ -79,6 +90,11 @@ mod tests {
                 height: 10
             })))
         );
-        assert!(InternalEventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+        assert!(
+            InternalEventFilter.eval(&InternalEvent::CursorPosition(CursorPosition {
+                column: 0,
+                row: 0
+            }))
+        );
     }
 }

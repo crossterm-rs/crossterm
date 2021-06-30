@@ -91,6 +91,7 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use crate::cursor::CursorPosition;
 use crate::terminal::TerminalSize;
 use crate::{csi, Command, Result};
 use filter::{EventFilter, Filter};
@@ -515,9 +516,9 @@ pub enum KeyCode {
 pub(crate) enum InternalEvent {
     /// An event.
     Event(Event),
-    /// A cursor position (`col`, `row`).
+    /// A cursor position.
     #[cfg(unix)]
-    CursorPosition(u16, u16),
+    CursorPosition(CursorPosition),
 }
 
 #[cfg(test)]

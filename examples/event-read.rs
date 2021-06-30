@@ -31,7 +31,7 @@ fn print_events() -> Result<()> {
             println!("Cursor position: {:?}\r", position());
         }
 
-        if let Event::Resize { .. } = event {
+        if let Event::Resize(_) = event {
             let (original_size, new_size) = flush_resize_events(event);
             println!("Resize from: {:?}, to: {:?}", original_size, new_size);
         }

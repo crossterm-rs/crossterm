@@ -129,7 +129,7 @@ mod tests {
     use std::io;
     use std::{collections::VecDeque, time::Duration};
 
-    use crate::{terminal::TerminalSize, ErrorKind};
+    use crate::{cursor::CursorPosition, terminal::TerminalSize, ErrorKind};
 
     #[cfg(unix)]
     use super::super::filter::CursorPositionFilter;
@@ -179,7 +179,10 @@ mod tests {
                     width: 10,
                     height: 10,
                 })),
-                InternalEvent::CursorPosition(10, 20),
+                InternalEvent::CursorPosition(CursorPosition {
+                    column: 10,
+                    row: 20,
+                }),
             ]
             .into(),
             source: None,
@@ -208,7 +211,10 @@ mod tests {
     #[test]
     #[cfg(unix)]
     fn test_read_returns_matching_event_in_queue_at_back() {
-        const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
+        const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(CursorPosition {
+            column: 10,
+            row: 20,
+        });
 
         let mut reader = InternalEventReader {
             events: vec![
@@ -233,7 +239,10 @@ mod tests {
             width: 10,
             height: 10,
         }));
-        const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
+        const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(CursorPosition {
+            column: 10,
+            row: 20,
+        });
 
         let mut reader = InternalEventReader {
             events: vec![SKIPPED_EVENT, CURSOR_EVENT].into(),
