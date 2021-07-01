@@ -300,7 +300,7 @@ mod tests {
 
     #[test]
     fn test_known_color_conversion() {
-        assert_eq!("black".parse(), Ok(Color::Black));
+        assert_eq!("grey".parse(), Ok(Color::Grey));
         assert_eq!("dark_grey".parse(), Ok(Color::DarkGrey));
         assert_eq!("red".parse(), Ok(Color::Red));
         assert_eq!("dark_red".parse(), Ok(Color::DarkRed));
@@ -315,7 +315,7 @@ mod tests {
         assert_eq!("cyan".parse(), Ok(Color::Cyan));
         assert_eq!("dark_cyan".parse(), Ok(Color::DarkCyan));
         assert_eq!("white".parse(), Ok(Color::White));
-        assert_eq!("grey".parse(), Ok(Color::Grey));
+        assert_eq!("black".parse(), Ok(Color::Black));
     }
 
     #[test]
@@ -346,21 +346,8 @@ mod serde_tests {
     #[test]
     fn test_deserial_known_color_conversion() {
         assert_eq!(
-            Color::Red,
-            serde_json::from_str::<Color>("\"Red\"").unwrap()
-        );
-
-        assert_eq!(
-            Color::Red,
-            serde_json::from_str::<Color>("\"red\"").unwrap()
-        );
-        assert_eq!(
-            serde_json::from_str::<Color>("\"black\"").unwrap(),
-            Color::Black
-        );
-        assert_eq!(
-            serde_json::from_str::<Color>("\"dark_grey\"").unwrap(),
-            Color::DarkGrey
+            serde_json::from_str::<Color>("\"Red\"").unwrap(),
+            Color::Red
         );
         assert_eq!(
             serde_json::from_str::<Color>("\"red\"").unwrap(),
@@ -369,6 +356,14 @@ mod serde_tests {
         assert_eq!(
             serde_json::from_str::<Color>("\"dark_red\"").unwrap(),
             Color::DarkRed
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"grey\"").unwrap(),
+            Color::Grey
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_grey\"").unwrap(),
+            Color::DarkGrey
         );
         assert_eq!(
             serde_json::from_str::<Color>("\"green\"").unwrap(),
@@ -415,8 +410,8 @@ mod serde_tests {
             Color::White
         );
         assert_eq!(
-            serde_json::from_str::<Color>("\"grey\"").unwrap(),
-            Color::Grey
+            serde_json::from_str::<Color>("\"black\"").unwrap(),
+            Color::Black
         );
     }
 
