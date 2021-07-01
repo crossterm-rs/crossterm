@@ -1,7 +1,10 @@
 use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+
+#[cfg(feature = "serde")]
+use std::fmt;
 
 use crate::style::parse_next_u8;
 
@@ -24,7 +27,7 @@ use crate::style::parse_next_u8;
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     /// Resets the terminal color.
@@ -214,13 +217,90 @@ impl From<(u8, u8, u8)> for Color {
     }
 }
 
+#[cfg(feature = "serde")]
+impl<'de> serde::de::Deserialize<'de> for Color {
+    fn deserialize<D>(deserializer: D) -> Result<Color, D::Error>
+    where
+        D: serde::de::Deserializer<'de>,
+    {
+        struct ColorVisitor;
+        impl<'de> serde::de::Visitor<'de> for ColorVisitor {
+            type Value = Color;
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str(
+                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `u8`, or `3 u8 array`",
+                )
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Color, E>
+            where
+                E: serde::de::Error,
+            {
+                if let Ok(c) = Color::try_from(value) {
+                    Ok(c)
+                } else {
+                    Err(E::invalid_value(serde::de::Unexpected::Str(value), &self))
+                }
+            }
+
+            fn visit_u64<E>(self, value: u64) -> Result<Color, E>
+            where
+                E: serde::de::Error,
+            {
+                if value > 255 {
+                    return Err(E::invalid_value(
+                        serde::de::Unexpected::Unsigned(value),
+                        &self,
+                    ));
+                }
+                Ok(Color::AnsiValue(value as u8))
+            }
+
+            fn visit_seq<M>(self, mut seq: M) -> Result<Color, M::Error>
+            where
+                M: serde::de::SeqAccess<'de>,
+            {
+                let mut values = Vec::new();
+                if let Some(size) = seq.size_hint() {
+                    if size != 3 {
+                        return Err(serde::de::Error::invalid_length(
+                            size,
+                            &"a list of size 3(RGB)",
+                        ));
+                    }
+                }
+                loop {
+                    match seq.next_element::<u8>() {
+                        Ok(Some(x)) => {
+                            values.push(x);
+                        }
+                        Ok(None) => break,
+                        Err(e) => {
+                            return Err(e);
+                        }
+                    }
+                }
+                // recheck as size_hint sometimes not working
+                if values.len() != 3 {
+                    return Err(serde::de::Error::invalid_length(
+                        values.len(),
+                        &"a list of size 3(RGB)",
+                    ));
+                }
+                Ok(Color::from((values[0], values[1], values[2])))
+            }
+        }
+
+        deserializer.deserialize_any(ColorVisitor)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Color;
 
     #[test]
     fn test_known_color_conversion() {
-        assert_eq!("black".parse(), Ok(Color::Black));
+        assert_eq!("grey".parse(), Ok(Color::Grey));
         assert_eq!("dark_grey".parse(), Ok(Color::DarkGrey));
         assert_eq!("red".parse(), Ok(Color::Red));
         assert_eq!("dark_red".parse(), Ok(Color::DarkRed));
@@ -235,7 +315,7 @@ mod tests {
         assert_eq!("cyan".parse(), Ok(Color::Cyan));
         assert_eq!("dark_cyan".parse(), Ok(Color::DarkCyan));
         assert_eq!("white".parse(), Ok(Color::White));
-        assert_eq!("grey".parse(), Ok(Color::Grey));
+        assert_eq!("black".parse(), Ok(Color::Black));
     }
 
     #[test]
@@ -254,5 +334,117 @@ mod tests {
                 b: 255
             }
         );
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::Color;
+    use serde_json;
+
+    #[test]
+    fn test_deserial_known_color_conversion() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"Red\"").unwrap(),
+            Color::Red
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"red\"").unwrap(),
+            Color::Red
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_red\"").unwrap(),
+            Color::DarkRed
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"grey\"").unwrap(),
+            Color::Grey
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_grey\"").unwrap(),
+            Color::DarkGrey
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"green\"").unwrap(),
+            Color::Green
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_green\"").unwrap(),
+            Color::DarkGreen
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"yellow\"").unwrap(),
+            Color::Yellow
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_yellow\"").unwrap(),
+            Color::DarkYellow
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"blue\"").unwrap(),
+            Color::Blue
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_blue\"").unwrap(),
+            Color::DarkBlue
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"magenta\"").unwrap(),
+            Color::Magenta
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_magenta\"").unwrap(),
+            Color::DarkMagenta
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"cyan\"").unwrap(),
+            Color::Cyan
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"dark_cyan\"").unwrap(),
+            Color::DarkCyan
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"white\"").unwrap(),
+            Color::White
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"black\"").unwrap(),
+            Color::Black
+        );
+    }
+
+    #[test]
+    fn test_deserial_unknown_color_conversion() {
+        assert!(serde_json::from_str::<Color>("\"unknown\"").is_err());
+    }
+
+    #[test]
+    fn test_deserial_ansi_value() {
+        assert_eq!(
+            serde_json::from_str::<Color>("255").unwrap(),
+            Color::AnsiValue(255)
+        );
+    }
+
+    #[test]
+    fn test_deserial_unvalid_ansi_value() {
+        assert!(serde_json::from_str::<Color>("256").is_err());
+        assert!(serde_json::from_str::<Color>("-1").is_err());
+    }
+
+    #[test]
+    fn test_deserial_rgb() {
+        assert_eq!(
+            serde_json::from_str::<Color>("[255,255,255]").unwrap(),
+            Color::from((255, 255, 255))
+        );
+    }
+
+    #[test]
+    fn test_deserial_unvalid_rgb() {
+        assert!(serde_json::from_str::<Color>("[255,255,255,255]").is_err());
+        assert!(serde_json::from_str::<Color>("[256,255,255]").is_err());
     }
 }
