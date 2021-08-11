@@ -410,7 +410,6 @@ mod tests {
 
     #[test]
     fn test_raw_mode() {
-
         // check we start from normal mode (may fail on some test harnesses)
         assert_eq!(is_raw_mode_enabled().unwrap(), false);
 
