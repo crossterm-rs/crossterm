@@ -98,6 +98,21 @@ use crate::{csi, impl_display, Result};
 
 pub(crate) mod sys;
 
+/// Tells whether the raw mode is enabled.
+///
+/// Please have a look at the [raw mode](./#raw-mode) section.
+pub fn is_raw_mode_enabled() -> Result<bool> {
+    #[cfg(unix)]
+    {
+        Ok(sys::is_raw_mode_enabled())
+    }
+
+    #[cfg(windows)]
+    {
+        sys::is_raw_mode_enabled()
+    }
+}
+
 /// Enables raw mode.
 ///
 /// Please have a look at the [raw mode](./#raw-mode) section.
@@ -369,7 +384,7 @@ mod tests {
 
     use crate::execute;
 
-    use super::{size, SetSize};
+    use super::*;
 
     // Test is disabled, because it's failing on Travis CI
     #[test]
@@ -391,5 +406,31 @@ mod tests {
         thread::sleep(time::Duration::from_millis(30));
 
         assert_eq!((width, height), size().unwrap());
+    }
+
+    #[test]
+    fn test_raw_mode() {
+
+        // check we start from normal mode (may fail on some test harnesses)
+        assert_eq!(is_raw_mode_enabled().unwrap(), false);
+
+        // enable the raw mode
+        enable_raw_mode().unwrap();
+
+        // check it worked (on unix it doesn't really check the underlying
+        // tty but rather check that the code is consistent)
+        assert_eq!(is_raw_mode_enabled().unwrap(), true);
+
+        // enable it again, this should not change anything
+        enable_raw_mode().unwrap();
+
+        // check we're still in raw mode
+        assert_eq!(is_raw_mode_enabled().unwrap(), true);
+
+        // now let's disable it
+        disable_raw_mode().unwrap();
+
+        // check we're back to normal mode
+        assert_eq!(is_raw_mode_enabled().unwrap(), false);
     }
 }

@@ -67,6 +67,11 @@ pub(crate) fn enable_raw_mode() -> Result<()> {
     Ok(())
 }
 
+/// Reset the raw mode.
+///
+/// More precisely, reset the whole termios mode to what it was before the first call
+/// to [enable_raw_mode]. If you don't mess with termios outside of crossterm, it's
+/// effectively disabling the raw mode and doing nothing else.
 pub(crate) fn disable_raw_mode() -> Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
 
