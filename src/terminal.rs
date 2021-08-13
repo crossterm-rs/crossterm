@@ -239,6 +239,8 @@ impl Command for LeaveAlternateScreen {
 pub enum ClearType {
     /// All cells.
     All,
+    /// All plus history
+    Purge,
     /// All cells from the cursor position downwards.
     FromCursorDown,
     /// All cells from the cursor position upwards.
@@ -307,6 +309,7 @@ impl Command for Clear {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(match self.0 {
             ClearType::All => csi!("2J"),
+            ClearType::Purge => csi!("3J"),
             ClearType::FromCursorDown => csi!("J"),
             ClearType::FromCursorUp => csi!("1J"),
             ClearType::CurrentLine => csi!("2K"),
