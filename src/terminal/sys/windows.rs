@@ -11,14 +11,26 @@ use winapi::{
 
 use crate::{cursor, terminal::ClearType, ErrorKind, Result};
 
-const RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
+/// bits which can't be set in raw mode
+const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
+
+pub(crate) fn is_raw_mode_enabled() -> Result<bool> {
+    let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
+
+    let dw_mode = console_mode.mode()?;
+
+    Ok(
+        // check none of the "not raw" bits is set
+        dw_mode & NOT_RAW_MODE_MASK == 0,
+    )
+}
 
 pub(crate) fn enable_raw_mode() -> Result<()> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
     let dw_mode = console_mode.mode()?;
 
-    let new_mode = dw_mode & !RAW_MODE_MASK;
+    let new_mode = dw_mode & !NOT_RAW_MODE_MASK;
 
     console_mode.set_mode(new_mode)?;
 
@@ -30,7 +42,7 @@ pub(crate) fn disable_raw_mode() -> Result<()> {
 
     let dw_mode = console_mode.mode()?;
 
-    let new_mode = dw_mode | RAW_MODE_MASK;
+    let new_mode = dw_mode | NOT_RAW_MODE_MASK;
 
     console_mode.set_mode(new_mode)?;
 
