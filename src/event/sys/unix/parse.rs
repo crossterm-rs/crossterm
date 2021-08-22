@@ -159,6 +159,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                     match buffer[buffer.len() - 1] {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
+                        b'u' => return parse_csi_u_encoded_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
@@ -234,6 +235,53 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
         b'R' => KeyCode::F(3),
         b'S' => KeyCode::F(4),
         _ => return Err(could_not_parse_event_error()),
+    };
+
+    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
+
+    Ok(Some(InternalEvent::Event(input_event)))
+}
+
+pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
+    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
+    assert!(buffer.ends_with(&[b'u']));
+
+    let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+    let mut split = s.split(';');
+
+    // This CSI sequence a tuple of semicolon-separated numbers.
+    // CSI [codepoint];[modifiers] u
+    // codepoint: ASCII Dec value
+    let codepoint = next_parsed::<u32>(&mut split)?;
+
+    let modifiers = if let Ok(modifier_mask) = next_parsed::<u8>(&mut split) {
+        parse_modifiers(modifier_mask)
+    } else {
+        KeyModifiers::NONE
+    };
+
+    let keycode = {
+        if let Some(c) = char::from_u32(codepoint) {
+            match c {
+                '\x1B' => KeyCode::Esc.into(),
+                '\r' => KeyCode::Enter.into(),
+                // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
+                // newlines as input is because the terminal converts \r into \n for us. When we
+                // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
+                // use Ctrl+J. Waiting to handle it here means it gets picked up later
+                '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter.into(),
+                '\t' => if modifiers.contains(KeyModifiers::SHIFT) {
+                    KeyCode::BackTab.into()
+                } else {
+                    KeyCode::Tab.into()
+                },
+                '\x7F' => KeyCode::Backspace.into(),
+                _ => KeyCode::Char(c).into(),
+            }
+        } else {
+            return Err(could_not_parse_event_error())
+        }
     };
 
     let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
