@@ -1,3 +1,8 @@
+# Version 0.21
+- Expose `is_raw` function.
+- Add 'purge' option on unix system, this clears the entire screen buffer. 
+- Improve serialisation for color enum values.
+
 # Version 0.20
 - Update from signal-hook with 'mio-feature flag' to signal-hook-mio 0.2.1. 
 - Manually implements Eq, PartialEq and Hash for KeyEvent improving equality checks and hash calculation. 

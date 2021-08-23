@@ -74,6 +74,9 @@ pub(crate) fn clear(clear_type: ClearType) -> Result<()> {
         ClearType::FromCursorUp => clear_before_cursor(pos, buffer_size, current_attribute)?,
         ClearType::CurrentLine => clear_current_line(pos, buffer_size, current_attribute)?,
         ClearType::UntilNewLine => clear_until_line(pos, buffer_size, current_attribute)?,
+        _ => {
+            clear_entire_screen(buffer_size, current_attribute)?;
+        } //TODO: make purge flush the entire screen buffer not just the visible window.
     };
     Ok(())
 }

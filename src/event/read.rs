@@ -43,7 +43,7 @@ impl InternalEventReader {
         F: Filter,
     {
         for event in &self.events {
-            if filter.eval(&event) {
+            if filter.eval(event) {
                 return Ok(true);
             }
         }
