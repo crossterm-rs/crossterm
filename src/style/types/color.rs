@@ -16,14 +16,14 @@ use crate::style::parse_next_u8;
 ///
 /// | Light | Dark |
 /// | :--| :--   |
-/// | `Grey` | `Black` |
+/// | `DarkGrey` | `Black` |
 /// | `Red` | `DarkRed` |
 /// | `Green` | `DarkGreen` |
 /// | `Yellow` | `DarkYellow` |
 /// | `Blue` | `DarkBlue` |
 /// | `Magenta` | `DarkMagenta` |
 /// | `Cyan` | `DarkCyan` |
-/// | `White` | `DarkWhite` |
+/// | `White` | `Grey` |
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
