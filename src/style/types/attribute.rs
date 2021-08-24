@@ -162,7 +162,7 @@ impl Attribute {
     }
     /// Returns the SGR attribute value.
     ///
-    /// See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
+    /// See <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters>
     pub fn sgr(self) -> i16 {
         SGR[self as usize]
     }
