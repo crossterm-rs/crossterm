@@ -67,6 +67,7 @@ macro_rules! Attribute {
         /// ```
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+        #[non_exhaustive]
         pub enum Attribute {
             $(
                 $(#[$inner $($args)*])*
@@ -88,7 +89,6 @@ macro_rules! Attribute {
     }
 }
 
-#[non_exhaustive]
 Attribute! {
     /// Resets all the attributes.
     Reset = 0,
@@ -162,7 +162,7 @@ impl Attribute {
     }
     /// Returns the SGR attribute value.
     ///
-    /// See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
+    /// See <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters>
     pub fn sgr(self) -> i16 {
         SGR[self as usize]
     }
