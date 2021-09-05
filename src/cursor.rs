@@ -77,7 +77,8 @@ impl Command for MoveTo {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * Moves a minimum of 1 line.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToNextLine(pub u16);
 
@@ -97,7 +98,8 @@ impl Command for MoveToNextLine {
 ///
 /// # Notes
 ///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * Moves a minimum of 1 line.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToPreviousLine(pub u16);
 
