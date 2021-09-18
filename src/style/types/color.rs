@@ -249,7 +249,7 @@ impl serde::ser::Serialize for Color {
                     return serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b));
                 }
                 _ => {
-                    panic!("Could not serialize {:?}", self);
+                    return Err(serde::ser::Error::custom("Could not serialize enum type"));
                 }
             }
         } else {
@@ -281,7 +281,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 } else {
                     if value.contains("ansi") {
                         // strip away `ansi_(..)' and get the inner value between parenthesis.
-                        let mut results = value.replace("ansi_(", "").replace(")", "");
+                        let results = value.replace("ansi_(", "").replace(")", "");
 
                         let ansi_val = results.parse::<u8>();
 
@@ -290,7 +290,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                         }
                     } else if value.contains("rgb") {
                         // strip away `rgb_(..)' and get the inner values between parenthesis.
-                        let mut results = value
+                        let results = value
                             .replace("rgb_(", "")
                             .replace(")", "")
                             .split(',')
@@ -299,8 +299,8 @@ impl<'de> serde::de::Deserialize<'de> for Color {
 
                         if results.len() == 3 {
                             let r = results[0].parse::<u8>();
-                            let g = results[0].parse::<u8>();
-                            let b = results[0].parse::<u8>();
+                            let g = results[1].parse::<u8>();
+                            let b = results[2].parse::<u8>();
 
                             if r.is_ok() && g.is_ok() && b.is_ok() {
                                 return Ok(Color::Rgb {
