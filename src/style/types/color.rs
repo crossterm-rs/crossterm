@@ -217,35 +217,36 @@ impl From<(u8, u8, u8)> for Color {
 #[cfg(feature = "serde")]
 impl serde::ser::Serialize for Color {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::ser::Serializer
+    where
+        S: serde::ser::Serializer,
     {
-       let str = match *self {
-            Color::Black => { "black" },
+        let str = match *self {
+            Color::Black => "black",
             Color::DarkGrey => "dark_grey",
-             Color::Red => "red",
+            Color::Red => "red",
             Color::DarkRed => "dark_red",
             Color::Green => "green",
             Color::DarkGreen => "dark_green",
             Color::Yellow => "yellow",
             Color::DarkYellow => "dark_yellow",
-             Color::Blue => "blue",
+            Color::Blue => "blue",
             Color::DarkBlue => "dark_blue",
             Color::Magenta => "magenta",
             Color::DarkMagenta => "dark_magenta",
-             Color::Cyan=> "cyan",
+            Color::Cyan => "cyan",
             Color::DarkCyan => "dark_cyan",
             Color::White => "white",
-             Color::Grey => "grey",
-            _ => ""
+            Color::Grey => "grey",
+            _ => "",
         };
 
         if str == "" {
             match *self {
                 Color::AnsiValue(value) => {
-                    return serializer.serialize_str( &format!("ansi_({})", value));
+                    return serializer.serialize_str(&format!("ansi_({})", value));
                 }
                 Color::Rgb { r, g, b } => {
-                    return serializer.serialize_str(&format!("rgb_({},{},{})", r,g,b));
+                    return serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b));
                 }
                 _ => {
                     panic!("Could not serialize {:?}", self);
@@ -272,17 +273,15 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 )
             }
             fn visit_str<E>(self, value: &str) -> Result<Color, E>
-                where
-                    E: serde::de::Error,
+            where
+                E: serde::de::Error,
             {
                 if let Ok(c) = Color::try_from(value) {
                     Ok(c)
                 } else {
                     if value.contains("ansi") {
                         // strip away `ansi_(..)' and get the inner value between parenthesis.
-                        let mut results = value
-                            .replace("ansi_(", "")
-                            .replace(")", "");
+                        let mut results = value.replace("ansi_(", "").replace(")", "");
 
                         let ansi_val = results.parse::<u8>();
 
@@ -295,7 +294,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             .replace("rgb_(", "")
                             .replace(")", "")
                             .split(',')
-                            .map(|x|x.to_string())
+                            .map(|x| x.to_string())
                             .collect::<Vec<String>>();
 
                         if results.len() == 3 {
@@ -304,7 +303,11 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             let b = results[0].parse::<u8>();
 
                             if r.is_ok() && g.is_ok() && b.is_ok() {
-                                return Ok(Color::Rgb { r: r.unwrap(), g: g.unwrap(), b: b.unwrap() })
+                                return Ok(Color::Rgb {
+                                    r: r.unwrap(),
+                                    g: g.unwrap(),
+                                    b: b.unwrap(),
+                                });
                             }
                         }
                     }
