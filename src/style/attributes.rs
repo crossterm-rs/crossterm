@@ -85,7 +85,7 @@ impl Attributes {
 
     /// Returns whether the attribute is set.
     #[inline(always)]
-    pub fn has(self, attribute: Attribute) -> bool {
+    pub const fn has(self, attribute: Attribute) -> bool {
         self.0 & attribute.bytes() != 0
     }
 
@@ -97,7 +97,7 @@ impl Attributes {
 
     /// Returns whether there is no attribute set.
     #[inline(always)]
-    pub fn is_empty(self) -> bool {
+    pub const fn is_empty(self) -> bool {
         self.0 == 0
     }
 }
