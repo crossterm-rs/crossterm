@@ -2,11 +2,9 @@ use std::{
     pin::Pin,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc::{self, SyncSender},
         Arc,
     },
     task::{Context, Poll},
-    thread,
     time::Duration,
 };
 
@@ -17,6 +15,24 @@ use crate::Result;
 use super::{
     filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
     Event, InternalEvent,
+};
+
+#[cfg(feature = "event-stream-tokio")]
+use tokio::{
+    spawn,
+    sync::mpsc::{channel as sync_channel, Sender as SyncSender},
+};
+
+#[cfg(feature = "event-stream-async-std")]
+use async_std::{
+    channel::{bounded as sync_channel, Sender as SyncSender},
+    task::spawn,
+};
+
+#[cfg(not(any(feature = "event-stream-tokio", feature = "event-stream-async-std")))]
+use std::{
+    sync::mpsc::{sync_channel, SyncSender},
+    thread::spawn,
 };
 
 /// A stream of `Result<Event>`.
@@ -38,24 +54,44 @@ pub struct EventStream {
     task_sender: SyncSender<Task>,
 }
 
+fn recv_task(task: Task) {
+    loop {
+        if let Ok(true) = poll_internal(None, &EventFilter) {
+            break;
+        }
+
+        if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
+            break;
+        }
+    }
+    task.stream_wake_task_executed
+        .store(false, Ordering::SeqCst);
+    task.stream_waker.wake();
+}
+
 impl Default for EventStream {
     fn default() -> Self {
-        let (task_sender, receiver) = mpsc::sync_channel::<Task>(1);
+        #[allow(unused_mut)]
+        let (task_sender, mut receiver) = sync_channel::<Task>(1);
 
-        thread::spawn(move || {
+        #[cfg(feature = "event-stream-tokio")]
+        spawn(async move {
+            while let Some(task) = receiver.recv().await {
+                recv_task(task);
+            }
+        });
+
+        #[cfg(feature = "event-stream-async-std")]
+        spawn(async move {
+            while let Ok(task) = receiver.recv().await {
+                recv_task(task);
+            }
+        });
+
+        #[cfg(not(any(feature = "event-stream-tokio", feature = "event-stream-async-std")))]
+        spawn(move || {
             while let Ok(task) = receiver.recv() {
-                loop {
-                    if let Ok(true) = poll_internal(None, &EventFilter) {
-                        break;
-                    }
-
-                    if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
-                        break;
-                    }
-                }
-                task.stream_wake_task_executed
-                    .store(false, Ordering::SeqCst);
-                task.stream_waker.wake();
+                recv_task(task);
             }
         });
 
@@ -124,11 +160,21 @@ impl Stream for EventStream {
 
                     stream_wake_task_should_shutdown.store(false, Ordering::SeqCst);
 
-                    let _ = self.task_sender.send(Task {
+                    #[allow(unused_mut)]
+                    let mut _fsend = self.task_sender.send(Task {
                         stream_waker,
                         stream_wake_task_executed,
                         stream_wake_task_should_shutdown,
                     });
+                    #[cfg(any(feature = "event-stream-tokio", feature = "event-stream-async-std"))]
+                    {
+                        use std::future::Future;
+                        // Inline version of `pin_mut!`
+                        let mut _fsend = unsafe { Pin::new_unchecked(&mut _fsend) };
+                        // Just loop until the sending finishes
+                        // Should we keep the future and not polling it in the loop?
+                        while let Poll::Pending = _fsend.as_mut().poll(cx) {}
+                    }
                 }
                 Poll::Pending
             }

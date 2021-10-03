@@ -28,6 +28,8 @@ all-features = true
 [features]
 default = []
 event-stream = ["futures-core"]
+event-stream-tokio = ["event-stream", "tokio"]
+event-stream-async-std = ["event-stream", "async-std"]
 
 #
 # Shared dependencies
@@ -39,6 +41,8 @@ parking_lot = "0.11"
 # optional deps only added when requested
 futures-core = { version = "0.3", optional = true, default-features = false }
 serde = { version = "1.0", features = ["derive"], optional = true }
+tokio = { version = "1.0", features = ["rt", "sync"], optional = true }
+async-std = { version = "1.10", optional = true }
 
 #
 # Windows dependencies
