@@ -1,13 +1,11 @@
 use std::{
+    future::Future,
     pin::Pin,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
     task::{Context, Poll},
     time::Duration,
 };
 
+use async_stream::try_stream;
 use futures_core::stream::Stream;
 
 use crate::Result;
@@ -16,24 +14,55 @@ use super::{
     filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
     Event, InternalEvent,
 };
+struct ReadEventFuture {
+    poll_internal_waker: Waker,
+}
 
-#[cfg(feature = "event-stream-tokio")]
-use tokio::{
-    spawn,
-    sync::mpsc::{channel as sync_channel, Sender as SyncSender},
-};
+impl Default for ReadEventFuture {
+    fn default() -> Self {
+        Self {
+            poll_internal_waker: lock_internal_event_reader().waker(),
+        }
+    }
+}
 
-#[cfg(feature = "event-stream-async-std")]
-use async_std::{
-    channel::{bounded as sync_channel, Sender as SyncSender},
-    task::spawn,
-};
+impl Future for ReadEventFuture {
+    type Output = Result<Event>;
 
-#[cfg(not(any(feature = "event-stream-tokio", feature = "event-stream-async-std")))]
-use std::{
-    sync::mpsc::{sync_channel, SyncSender},
-    thread::spawn,
-};
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let result = match poll_internal(Some(Duration::from_secs(0)), &EventFilter) {
+            Ok(true) => match read_internal(&EventFilter) {
+                Ok(InternalEvent::Event(event)) => Poll::Ready(Ok(event)),
+                Err(e) => Poll::Ready(Err(e)),
+                #[cfg(unix)]
+                _ => unreachable!(),
+            },
+            Ok(false) => {
+                cx.waker().clone().wake();
+                Poll::Pending
+            }
+            Err(e) => Poll::Ready(Err(e)),
+        };
+        result
+    }
+}
+
+impl Drop for ReadEventFuture {
+    fn drop(&mut self) {
+        let _ = self.poll_internal_waker.wake();
+    }
+}
+
+/// Returns a stream of `Result<Event>`.
+/// See [`EventStream`] for more details.
+pub fn event_stream() -> impl Stream<Item = Result<Event>> {
+    try_stream! {
+        loop {
+            let e = ReadEventFuture::default().await?;
+            yield e;
+        }
+    }
+}
 
 /// A stream of `Result<Event>`.
 ///
@@ -46,148 +75,24 @@ use std::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
-#[derive(Debug)]
-pub struct EventStream {
-    poll_internal_waker: Waker,
-    stream_wake_task_executed: Arc<AtomicBool>,
-    stream_wake_task_should_shutdown: Arc<AtomicBool>,
-    task_sender: SyncSender<Task>,
-}
-
-fn recv_task(task: Task) {
-    loop {
-        if let Ok(true) = poll_internal(None, &EventFilter) {
-            break;
-        }
-
-        if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
-            break;
-        }
-    }
-    task.stream_wake_task_executed
-        .store(false, Ordering::SeqCst);
-    task.stream_waker.wake();
-}
+pub struct EventStream(Pin<Box<dyn Stream<Item = Result<Event>>>>);
 
 impl Default for EventStream {
     fn default() -> Self {
-        #[allow(unused_mut)]
-        let (task_sender, mut receiver) = sync_channel::<Task>(1);
-
-        #[cfg(feature = "event-stream-tokio")]
-        spawn(async move {
-            while let Some(task) = receiver.recv().await {
-                recv_task(task);
-            }
-        });
-
-        #[cfg(feature = "event-stream-async-std")]
-        spawn(async move {
-            while let Ok(task) = receiver.recv().await {
-                recv_task(task);
-            }
-        });
-
-        #[cfg(not(any(feature = "event-stream-tokio", feature = "event-stream-async-std")))]
-        spawn(move || {
-            while let Ok(task) = receiver.recv() {
-                recv_task(task);
-            }
-        });
-
-        EventStream {
-            poll_internal_waker: lock_internal_event_reader().waker(),
-            stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
-            stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
-            task_sender,
-        }
+        Self(Box::pin(event_stream()))
     }
 }
 
 impl EventStream {
-    /// Constructs a new instance of `EventStream`.
-    pub fn new() -> EventStream {
-        EventStream::default()
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
-struct Task {
-    stream_waker: std::task::Waker,
-    stream_wake_task_executed: Arc<AtomicBool>,
-    stream_wake_task_should_shutdown: Arc<AtomicBool>,
-}
-
-// Note to future me
-//
-// We need two wakers in order to implement EventStream correctly.
-//
-// 1. futures::Stream waker
-//
-// Stream::poll_next can return Poll::Pending which means that there's no
-// event available. We are going to spawn a thread with the
-// poll_internal(None, &EventFilter) call. This call blocks until an
-// event is available and then we have to wake up the executor with notification
-// that the task can be resumed.
-//
-// 2. poll_internal waker
-//
-// There's no event available, Poll::Pending was returned, stream waker thread
-// is up and sitting in the poll_internal. User wants to drop the EventStream.
-// We have to wake up the poll_internal (force it to return Ok(false)) and quit
-// the thread before we drop.
 impl Stream for EventStream {
     type Item = Result<Event>;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match poll_internal(Some(Duration::from_secs(0)), &EventFilter) {
-            Ok(true) => match read_internal(&EventFilter) {
-                Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
-                Err(e) => Poll::Ready(Some(Err(e))),
-                #[cfg(unix)]
-                _ => unreachable!(),
-            },
-            Ok(false) => {
-                if !self
-                    .stream_wake_task_executed
-                    .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-                    // https://github.com/rust-lang/rust/issues/80486#issuecomment-752244166
-                    .unwrap_or_else(|x| x)
-                {
-                    let stream_waker = cx.waker().clone();
-                    let stream_wake_task_executed = self.stream_wake_task_executed.clone();
-                    let stream_wake_task_should_shutdown =
-                        self.stream_wake_task_should_shutdown.clone();
-
-                    stream_wake_task_should_shutdown.store(false, Ordering::SeqCst);
-
-                    #[allow(unused_mut)]
-                    let mut _fsend = self.task_sender.send(Task {
-                        stream_waker,
-                        stream_wake_task_executed,
-                        stream_wake_task_should_shutdown,
-                    });
-                    #[cfg(any(feature = "event-stream-tokio", feature = "event-stream-async-std"))]
-                    {
-                        use std::future::Future;
-                        // Inline version of `pin_mut!`
-                        let mut _fsend = unsafe { Pin::new_unchecked(&mut _fsend) };
-                        // Just loop until the sending finishes
-                        // Should we keep the future and not polling it in the loop?
-                        while let Poll::Pending = _fsend.as_mut().poll(cx) {}
-                    }
-                }
-                Poll::Pending
-            }
-            Err(e) => Poll::Ready(Some(Err(e))),
-        };
-        result
-    }
-}
-
-impl Drop for EventStream {
-    fn drop(&mut self) {
-        self.stream_wake_task_should_shutdown
-            .store(true, Ordering::SeqCst);
-        let _ = self.poll_internal_waker.wake();
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.0.as_mut().poll_next(cx)
     }
 }
