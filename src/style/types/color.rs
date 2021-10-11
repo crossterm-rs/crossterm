@@ -279,7 +279,6 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 if let Ok(c) = Color::try_from(value) {
                     Ok(c)
                 } else {
-
                     if value.contains("ansi") {
                         // strip away `ansi_(..)' and get the inner value between parenthesis.
                         let results = value.replace("ansi_(", "").replace(")", "");
@@ -290,7 +289,6 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             return Ok(Color::AnsiValue(ansi));
                         }
                     } else if value.contains("rgb") {
-
                         // strip away `rgb_(..)' and get the inner values between parenthesis.
                         let results = value
                             .replace("rgb_(", "")
