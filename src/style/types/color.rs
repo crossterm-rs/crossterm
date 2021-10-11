@@ -1,7 +1,7 @@
 use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
-use std::fmt;
+use std::{fmt};
 
 use crate::style::parse_next_u8;
 
@@ -24,7 +24,6 @@ use crate::style::parse_next_u8;
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
-//#[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     /// Resets the terminal color.
