@@ -1,7 +1,7 @@
 use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
-use std::{fmt};
+use std::fmt;
 
 use crate::style::parse_next_u8;
 
