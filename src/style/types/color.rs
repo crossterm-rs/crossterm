@@ -258,7 +258,7 @@ impl serde::ser::Serialize for Color {
     }
 }
 
-//#[cfg(feature = "serde")]
+#[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for Color {
     fn deserialize<D>(deserializer: D) -> Result<Color, D::Error>
     where
