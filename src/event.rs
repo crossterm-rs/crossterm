@@ -395,7 +395,7 @@ pub struct KeyEvent {
 }
 
 impl KeyEvent {
-    pub fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
+    pub const fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
         KeyEvent { code, modifiers }
     }
 
