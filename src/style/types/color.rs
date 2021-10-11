@@ -1,9 +1,6 @@
 use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::Serialize;
-
-#[cfg(feature = "serde")]
 use std::fmt;
 
 use crate::style::parse_next_u8;
@@ -27,7 +24,6 @@ use crate::style::parse_next_u8;
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
-#[cfg_attr(feature = "serde", derive(Serialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     /// Resets the terminal color.
@@ -218,6 +214,51 @@ impl From<(u8, u8, u8)> for Color {
 }
 
 #[cfg(feature = "serde")]
+impl serde::ser::Serialize for Color {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        let str = match *self {
+            Color::Black => "black",
+            Color::DarkGrey => "dark_grey",
+            Color::Red => "red",
+            Color::DarkRed => "dark_red",
+            Color::Green => "green",
+            Color::DarkGreen => "dark_green",
+            Color::Yellow => "yellow",
+            Color::DarkYellow => "dark_yellow",
+            Color::Blue => "blue",
+            Color::DarkBlue => "dark_blue",
+            Color::Magenta => "magenta",
+            Color::DarkMagenta => "dark_magenta",
+            Color::Cyan => "cyan",
+            Color::DarkCyan => "dark_cyan",
+            Color::White => "white",
+            Color::Grey => "grey",
+            _ => "",
+        };
+
+        if str == "" {
+            println!("color: {:?}", self);
+            match *self {
+                Color::AnsiValue(value) => {
+                    return serializer.serialize_str(&format!("ansi_({})", value));
+                }
+                Color::Rgb { r, g, b } => {
+                    return serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b));
+                }
+                _ => {
+                    return Err(serde::ser::Error::custom("Could not serialize enum type"));
+                }
+            }
+        } else {
+            return serializer.serialize_str(str);
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for Color {
     fn deserialize<D>(deserializer: D) -> Result<Color, D::Error>
     where
@@ -228,7 +269,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
-                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `u8`, or `3 u8 array`",
+                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)`",
                 )
             }
             fn visit_str<E>(self, value: &str) -> Result<Color, E>
@@ -238,59 +279,45 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 if let Ok(c) = Color::try_from(value) {
                     Ok(c)
                 } else {
+                    if value.contains("ansi") {
+                        // strip away `ansi_(..)' and get the inner value between parenthesis.
+                        let results = value.replace("ansi_(", "").replace(")", "");
+
+                        let ansi_val = results.parse::<u8>();
+
+                        if let Ok(ansi) = ansi_val {
+                            return Ok(Color::AnsiValue(ansi));
+                        }
+                    } else if value.contains("rgb") {
+                        // strip away `rgb_(..)' and get the inner values between parenthesis.
+                        let results = value
+                            .replace("rgb_(", "")
+                            .replace(")", "")
+                            .split(',')
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>();
+
+                        if results.len() == 3 {
+                            let r = results[0].parse::<u8>();
+                            let g = results[1].parse::<u8>();
+                            let b = results[2].parse::<u8>();
+
+                            if r.is_ok() && g.is_ok() && b.is_ok() {
+                                return Ok(Color::Rgb {
+                                    r: r.unwrap(),
+                                    g: g.unwrap(),
+                                    b: b.unwrap(),
+                                });
+                            }
+                        }
+                    }
+
                     Err(E::invalid_value(serde::de::Unexpected::Str(value), &self))
                 }
             }
-
-            fn visit_u64<E>(self, value: u64) -> Result<Color, E>
-            where
-                E: serde::de::Error,
-            {
-                if value > 255 {
-                    return Err(E::invalid_value(
-                        serde::de::Unexpected::Unsigned(value),
-                        &self,
-                    ));
-                }
-                Ok(Color::AnsiValue(value as u8))
-            }
-
-            fn visit_seq<M>(self, mut seq: M) -> Result<Color, M::Error>
-            where
-                M: serde::de::SeqAccess<'de>,
-            {
-                let mut values = Vec::new();
-                if let Some(size) = seq.size_hint() {
-                    if size != 3 {
-                        return Err(serde::de::Error::invalid_length(
-                            size,
-                            &"a list of size 3(RGB)",
-                        ));
-                    }
-                }
-                loop {
-                    match seq.next_element::<u8>() {
-                        Ok(Some(x)) => {
-                            values.push(x);
-                        }
-                        Ok(None) => break,
-                        Err(e) => {
-                            return Err(e);
-                        }
-                    }
-                }
-                // recheck as size_hint sometimes not working
-                if values.len() != 3 {
-                    return Err(serde::de::Error::invalid_length(
-                        values.len(),
-                        &"a list of size 3(RGB)",
-                    ));
-                }
-                Ok(Color::from((values[0], values[1], values[2])))
-            }
         }
 
-        deserializer.deserialize_any(ColorVisitor)
+        deserializer.deserialize_str(ColorVisitor)
     }
 }
 
@@ -423,28 +450,28 @@ mod serde_tests {
     #[test]
     fn test_deserial_ansi_value() {
         assert_eq!(
-            serde_json::from_str::<Color>("255").unwrap(),
+            serde_json::from_str::<Color>("\"ansi_(255)\"").unwrap(),
             Color::AnsiValue(255)
         );
     }
 
     #[test]
     fn test_deserial_unvalid_ansi_value() {
-        assert!(serde_json::from_str::<Color>("256").is_err());
-        assert!(serde_json::from_str::<Color>("-1").is_err());
+        assert!(serde_json::from_str::<Color>("\"ansi_(256)\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"ansi_(-1)\"").is_err());
     }
 
     #[test]
     fn test_deserial_rgb() {
         assert_eq!(
-            serde_json::from_str::<Color>("[255,255,255]").unwrap(),
+            serde_json::from_str::<Color>("\"rgb_(255,255,255)\"").unwrap(),
             Color::from((255, 255, 255))
         );
     }
 
     #[test]
     fn test_deserial_unvalid_rgb() {
-        assert!(serde_json::from_str::<Color>("[255,255,255,255]").is_err());
-        assert!(serde_json::from_str::<Color>("[256,255,255]").is_err());
+        assert!(serde_json::from_str::<Color>("\"rgb_(255,255,255,255)\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"rgb_(256,255,255)\"").is_err());
     }
 }
