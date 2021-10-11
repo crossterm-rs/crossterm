@@ -1,3 +1,7 @@
+# Version 0.22
+- Fix serde Color serialisation/deserialization inconsistency.
+- Update crossterm-winapi 0.8.1 to fix panic for certain mouse events
+
 # Version 0.21
 - Expose `is_raw` function.
 - Add 'purge' option on unix system, this clears the entire screen buffer. 
