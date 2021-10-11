@@ -240,6 +240,7 @@ impl serde::ser::Serialize for Color {
         };
 
         if str == "" {
+            println!("color: {:?}", self);
             match *self {
                 Color::AnsiValue(value) => {
                     return serializer.serialize_str(&format!("ansi_({})", value));
@@ -257,7 +258,7 @@ impl serde::ser::Serialize for Color {
     }
 }
 
-#[cfg(feature = "serde")]
+//#[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for Color {
     fn deserialize<D>(deserializer: D) -> Result<Color, D::Error>
     where
@@ -278,6 +279,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 if let Ok(c) = Color::try_from(value) {
                     Ok(c)
                 } else {
+
                     if value.contains("ansi") {
                         // strip away `ansi_(..)' and get the inner value between parenthesis.
                         let results = value.replace("ansi_(", "").replace(")", "");
@@ -288,6 +290,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             return Ok(Color::AnsiValue(ansi));
                         }
                     } else if value.contains("rgb") {
+
                         // strip away `rgb_(..)' and get the inner values between parenthesis.
                         let results = value
                             .replace("rgb_(", "")
@@ -449,28 +452,28 @@ mod serde_tests {
     #[test]
     fn test_deserial_ansi_value() {
         assert_eq!(
-            serde_json::from_str::<Color>("255").unwrap(),
+            serde_json::from_str::<Color>("\"ansi_(255)\"").unwrap(),
             Color::AnsiValue(255)
         );
     }
 
     #[test]
     fn test_deserial_unvalid_ansi_value() {
-        assert!(serde_json::from_str::<Color>("256").is_err());
-        assert!(serde_json::from_str::<Color>("-1").is_err());
+        assert!(serde_json::from_str::<Color>("\"ansi_(256)\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"ansi_(-1)\"").is_err());
     }
 
     #[test]
     fn test_deserial_rgb() {
         assert_eq!(
-            serde_json::from_str::<Color>("[255,255,255]").unwrap(),
+            serde_json::from_str::<Color>("\"rgb_(255,255,255)\"").unwrap(),
             Color::from((255, 255, 255))
         );
     }
 
     #[test]
     fn test_deserial_unvalid_rgb() {
-        assert!(serde_json::from_str::<Color>("[255,255,255,255]").is_err());
-        assert!(serde_json::from_str::<Color>("[256,255,255]").is_err());
+        assert!(serde_json::from_str::<Color>("\"rgb_(255,255,255,255)\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"rgb_(256,255,255)\"").is_err());
     }
 }
