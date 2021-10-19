@@ -1,4 +1,4 @@
-# Version 0.22
+# Version 0.22.1
 - Update yanked version crossterm-winapi and move to  crossterm-winapi 0.9.0.
 - Changed panic to error when calling disable-mouse capture without setting it first.
 - Update bitflags dependency.
