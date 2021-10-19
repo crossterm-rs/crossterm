@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.21.0"
+version = "0.22.1"
 authors = ["T. Post"]
 description = "A crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -33,7 +33,7 @@ event-stream = ["futures-core"]
 # Shared dependencies
 #
 [dependencies]
-bitflags = "1.2"
+bitflags = "1.3"
 parking_lot = "0.11"
 
 # optional deps only added when requested
@@ -48,7 +48,7 @@ version = "0.3.9"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.8"
+crossterm_winapi = "0.9"
 
 #
 # UNIX dependencies

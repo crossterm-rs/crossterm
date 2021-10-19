@@ -170,6 +170,7 @@ fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::M
         }
         EventFlags::DoubleClick => None, // double click not supported by unix terminals
         EventFlags::MouseHwheeled => None, // horizontal scroll not supported by unix terminals
+        _ => None,
     };
 
     Ok(kind.map(|kind| crate::event::MouseEvent {
