@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.22.0"
+version = "0.22.1"
 authors = ["T. Post"]
 description = "A crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -48,7 +48,7 @@ version = "0.3.9"
 features = ["winuser"]
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.8"
+crossterm_winapi = "0.9"
 
 #
 # UNIX dependencies
