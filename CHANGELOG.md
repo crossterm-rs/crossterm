@@ -1,4 +1,9 @@
 # Version 0.22
+- Update yanked version crossterm-winapi and move to  crossterm-winapi 0.9.0.
+- Changed panic to error when calling disable-mouse capture without setting it first.
+- Update bitflags dependency.
+
+# Version 0.22
 - Fix serde Color serialisation/deserialization inconsistency.
 - Update crossterm-winapi 0.8.1 to fix panic for certain mouse events
 
