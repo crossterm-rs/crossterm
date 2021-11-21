@@ -95,7 +95,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     // it with 31, forcing bits 6 and bits 7 to zero.
                     // So we can make a bitwise OR back to see what's the raw control character.
                     let c = character_raw as u8;
-                    if c < b'\x1F' {
+                    if c <= b'\x1F' {
                         character = (c | b'\x40') as char;
                     } else {
                         return None;
