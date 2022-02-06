@@ -271,16 +271,18 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
                 // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                 // use Ctrl+J. Waiting to handle it here means it gets picked up later
                 '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter.into(),
-                '\t' => if modifiers.contains(KeyModifiers::SHIFT) {
-                    KeyCode::BackTab.into()
-                } else {
-                    KeyCode::Tab.into()
-                },
+                '\t' => {
+                    if modifiers.contains(KeyModifiers::SHIFT) {
+                        KeyCode::BackTab.into()
+                    } else {
+                        KeyCode::Tab.into()
+                    }
+                }
                 '\x7F' => KeyCode::Backspace.into(),
                 _ => KeyCode::Char(c).into(),
             }
         } else {
-            return Err(could_not_parse_event_error())
+            return Err(could_not_parse_event_error());
         }
     };
 
