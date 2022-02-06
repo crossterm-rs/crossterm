@@ -264,22 +264,22 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
     let keycode = {
         if let Some(c) = char::from_u32(codepoint) {
             match c {
-                '\x1B' => KeyCode::Esc.into(),
-                '\r' => KeyCode::Enter.into(),
+                '\x1B' => KeyCode::Esc,
+                '\r' => KeyCode::Enter,
                 // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
                 // newlines as input is because the terminal converts \r into \n for us. When we
                 // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                 // use Ctrl+J. Waiting to handle it here means it gets picked up later
-                '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter.into(),
+                '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
                 '\t' => {
                     if modifiers.contains(KeyModifiers::SHIFT) {
-                        KeyCode::BackTab.into()
+                        KeyCode::BackTab
                     } else {
-                        KeyCode::Tab.into()
+                        KeyCode::Tab
                     }
                 }
-                '\x7F' => KeyCode::Backspace.into(),
-                _ => KeyCode::Char(c).into(),
+                '\x7F' => KeyCode::Backspace,
+                _ => KeyCode::Char(c),
             }
         } else {
             return Err(could_not_parse_event_error());
