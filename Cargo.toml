@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.23"
+version = "0.23.0"
 authors = ["T. Post"]
 description = "A crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -63,7 +63,7 @@ signal-hook-mio = { version = "0.2.1", features = ["support-v0_7"] }
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "1.16.1", features = ["full"] }
+tokio = { version = "1.16", features = ["full"] }
 futures = "0.3"
 futures-timer = "3.0"
 async-std = "1.10"
