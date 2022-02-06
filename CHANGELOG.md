@@ -1,7 +1,7 @@
 # Version 0.23
 - Update dependencies.
 - Add 0 check for all cursor functions to prevent undefined behaviour.
-- Add CSLu key parsing for unix.
+- Add CSIu key parsing for unix.
 - Improve control character window key parsing supporting (e.g. CTRL [ and ])
 - Update library to 2021 edition.
 
