@@ -91,10 +91,14 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     && !modifiers.contains(KeyModifiers::ALT)
                 {
                     // we need to do some parsing
-                    character = match character_raw as u8 {
-                        c @ b'\x01'..=b'\x1A' => (c as u8 - 0x1 + b'a') as char,
-                        c @ b'\x1C'..=b'\x1F' => (c as u8 - 0x1C + b'4') as char,
-                        _ => return None,
+                    // Control character will take the ASCII code produced by the key and bitwise AND
+                    // it with 31, forcing bits 6 and bits 7 to zero.
+                    // So we can make a bitwise OR back to see what's the raw control character.
+                    let c = character_raw as u8;
+                    if c <= b'\x1F' {
+                        character = (c | b'\x40') as char;
+                    } else {
+                        return None;
                     }
                 }
 
