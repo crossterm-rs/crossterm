@@ -414,7 +414,7 @@ mod tests {
     #[test]
     fn test_raw_mode() {
         // check we start from normal mode (may fail on some test harnesses)
-        assert_eq!(is_raw_mode_enabled().unwrap(), false);
+        assert!(!is_raw_mode_enabled().unwrap());
 
         // enable the raw mode
         if enable_raw_mode().is_err() {
@@ -425,18 +425,18 @@ mod tests {
 
         // check it worked (on unix it doesn't really check the underlying
         // tty but rather check that the code is consistent)
-        assert_eq!(is_raw_mode_enabled().unwrap(), true);
+        assert!(is_raw_mode_enabled().unwrap());
 
         // enable it again, this should not change anything
         enable_raw_mode().unwrap();
 
         // check we're still in raw mode
-        assert_eq!(is_raw_mode_enabled().unwrap(), true);
+        assert!(is_raw_mode_enabled().unwrap());
 
         // now let's disable it
         disable_raw_mode().unwrap();
 
         // check we're back to normal mode
-        assert_eq!(is_raw_mode_enabled().unwrap(), false);
+        assert!(!is_raw_mode_enabled().unwrap());
     }
 }
