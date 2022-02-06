@@ -30,20 +30,18 @@ macro_rules! csi {
 /// use std::io::{Write, stdout};
 /// use crossterm::{queue, style::Print};
 ///
-/// fn main() {
-///     let mut stdout = stdout();
+/// let mut stdout = stdout();
 ///
-///     // `Print` will executed executed when `flush` is called.
-///     queue!(stdout, Print("foo".to_string()));
+/// // `Print` will executed executed when `flush` is called.
+/// queue!(stdout, Print("foo".to_string()));
 ///
-///     // some other code (no execution happening here) ...
+/// // some other code (no execution happening here) ...
 ///
-///     // when calling `flush` on `stdout`, all commands will be written to the stdout and therefore executed.
-///     stdout.flush();
+/// // when calling `flush` on `stdout`, all commands will be written to the stdout and therefore executed.
+/// stdout.flush();
 ///
-///     // ==== Output ====
-///     // foo
-/// }
+/// // ==== Output ====
+/// // foo
 /// ```
 ///
 /// Have a look over at the [Command API](./#command-api) for more details.
@@ -86,17 +84,15 @@ macro_rules! queue {
 /// use std::io::{Write, stdout};
 /// use crossterm::{execute, style::Print};
 ///
-///  fn main() {
-///      // will be executed directly
-///      execute!(stdout(), Print("sum:\n".to_string()));
+/// // will be executed directly
+/// execute!(stdout(), Print("sum:\n".to_string()));
 ///
-///      // will be executed directly
-///      execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
+/// // will be executed directly
+/// execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
 ///
-///      // ==== Output ====
-///      // sum:
-///      // 1 + 1 = 2
-///  }
+/// // ==== Output ====
+/// // sum:
+/// // 1 + 1 = 2
 /// ```
 ///
 /// Have a look over at the [Command API](./#command-api) for more details.
