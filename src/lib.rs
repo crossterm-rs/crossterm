@@ -152,7 +152,7 @@
 //! stdout.execute(cursor::MoveTo(5,5));
 //! ```
 //! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue
-//! another command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! another command. Like `stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))`.
 //!
 //! Macros:
 //!
