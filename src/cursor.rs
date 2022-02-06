@@ -134,7 +134,10 @@ pub struct MoveToColumn(pub u16);
 
 impl Command for MoveToColumn {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}G"), self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}G"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -153,7 +156,10 @@ pub struct MoveToRow(pub u16);
 
 impl Command for MoveToRow {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}d"), self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}d"), self.0)?
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
