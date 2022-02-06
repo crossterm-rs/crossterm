@@ -83,12 +83,18 @@ pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}E"), self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}E"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::move_to_next_line(self.0)
+        if self.0 != 0 {
+            sys::move_to_next_line(self.0)?;
+        }
+        Ok(())
     }
 }
 
@@ -103,12 +109,18 @@ pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}F"), self.0)
+        if self.0 != 0 {
+            write!(f, csi!("{}F"), self.0)?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        sys::move_to_previous_line(self.0)
+        if self.0 != 0 {
+            sys::move_to_previous_line(self.0)?;
+        }
+        Ok(())
     }
 }
 
