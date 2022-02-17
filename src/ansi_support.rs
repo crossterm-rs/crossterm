@@ -31,7 +31,7 @@ fn enable_vt_processing() -> Result<()> {
 static SUPPORTS_ANSI_ESCAPE_CODES: AtomicBool = AtomicBool::new(false);
 static INITIALIZER: Once = Once::new();
 
-/// Checks if the current terminal supports ansi escape sequences
+/// Checks if the current terminal supports ANSI escape sequences
 pub fn supports_ansi() -> bool {
     INITIALIZER.call_once(|| {
         // Some terminals on Windows like GitBash can't use WinAPI calls directly

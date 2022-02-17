@@ -24,7 +24,7 @@ pub trait IsTty {
     fn is_tty(&self) -> bool;
 }
 
-/// On unix, the `isatty()` function returns true if a file
+/// On UNIX, the `isatty()` function returns true if a file
 /// descriptor is a terminal.
 #[cfg(unix)]
 impl<S: AsRawFd> IsTty for S {
