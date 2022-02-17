@@ -148,6 +148,8 @@ impl Command for MoveToColumn {
 
 /// A command that moves the terminal cursor to the given row on the current column.
 ///
+/// Columns are 1-based.
+///
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
