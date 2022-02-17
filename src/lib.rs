@@ -250,7 +250,7 @@ pub mod terminal;
 pub mod tty;
 
 #[cfg(windows)]
-/// A module that exposes one function to check if the current terminal supports ansi sequences.
+/// A module that exposes one function to check if the current terminal supports ANSI sequences.
 pub mod ansi_support;
 mod command;
 mod error;

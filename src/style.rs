@@ -61,7 +61,7 @@
 //!
 //! ### Attributes
 //!
-//! How to appy terminal attributes to text.
+//! How to apply terminal attributes to text.
 //!
 //! Command API:
 //!
@@ -427,7 +427,7 @@ impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);
 
 /// Utility function for ANSI parsing in Color and Colored.
-/// Gets the next element of `iter` and tries to parse it as a u8.
+/// Gets the next element of `iter` and tries to parse it as a `u8`.
 fn parse_next_u8<'a>(iter: &mut impl Iterator<Item = &'a str>) -> Option<u8> {
     iter.next().and_then(|s| s.parse().ok())
 }

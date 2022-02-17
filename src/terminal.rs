@@ -55,7 +55,7 @@
 //! - Input will not be forwarded to screen
 //! - Input will not be processed on enter press
 //! - Input will not be line buffered (input sent byte-by-byte to input buffer)
-//! - Special keys like backspace and CTL+C will not be processed by terminal driver
+//! - Special keys like backspace and CTRL+C will not be processed by terminal driver
 //! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
 //!
 //! Raw mode can be enabled/disabled with the [enable_raw_mode](terminal::enable_raw_mode) and [disable_raw_mode](terminal::disable_raw_mode) functions.
