@@ -99,7 +99,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                         character = (c | b'\x40') as char;
                         // if we press something like ctrl-g, we will get `character` with value `G`.
                         // in this case, convert the `character` to lowercase `g`.
-                        if character.is_ascii_uppercase() {
+                        if character.is_ascii_uppercase() && !modifiers.contains(KeyModifiers::SHIFT) {
                             character.make_ascii_lowercase();
                         }
                     } else {
