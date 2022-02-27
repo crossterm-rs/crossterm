@@ -28,10 +28,9 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
 
     // Notice that the color values are stored in wAttribute.
     // So we need to use bitwise operators to check if the values exists or to get current console colors.
-    let mut color: u16;
     let attrs = csbi.attributes();
     let bg_color = attrs & 0x0070;
-    color = color_value | bg_color;
+    let mut color = color_value | bg_color;
 
     // background intensity is a separate value in attrs,
     // wee need to check if this was applied to the current bg color.
@@ -53,10 +52,9 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
 
     // Notice that the color values are stored in wAttribute.
     // So wee need to use bitwise operators to check if the values exists or to get current console colors.
-    let mut color: u16;
     let attrs = csbi.attributes();
     let fg_color = attrs & 0x0007;
-    color = fg_color | color_value;
+    let mut color = fg_color | color_value;
 
     // Foreground intensity is a separate value in attrs,
     // So we need to check if this was applied to the current fg color.
