@@ -71,7 +71,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - (Arch, Manjaro) KDE Konsole
 - (Arch) Kitty
 - Linux Mint
-- OpenSuse/Linux Alacritty
+- (OpenSuse) Alacritty
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
 terminals have been tested. If you have used this library for a terminal other than the above list without
@@ -87,7 +87,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.22"
+crossterm = "0.23"
 ```
 
 </details>
@@ -128,17 +128,16 @@ Checkout this [list](https://docs.rs/crossterm/0.14.0/crossterm/index.html#suppo
 
 ### Feature Flags
 
-To optional feature flags.
-
 ```toml
 [dependencies.crossterm]
-version = "0.17"
+version = "0.23"
 features = ["event-stream"] 
 ```
 
 | Feature | Description |
 | :----- | :----- |
 | `event-stream` | `futures::Stream` producing `Result<Event>`.|
+| `serde`| Se/dese/rializing of events. |
 
 ### Dependency Justification
 
@@ -149,10 +148,10 @@ features = ["event-stream"]
 | `libc` | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only
 | `Mio` | event readiness polling, waking up poller | UNIX only
 | `signal-hook`| signalhook is used to handle terminal resize SIGNAL with Mio. | UNIX only
-| `winapi`| Used for low-level windows system calls which ANSI codes can't replace| windows only
-| `futures-core`| Can be used to for async stream of events | only with a feature flag
-| `serde`| Se/dese/realizing of events | only with a feature flag
- 
+| `winapi`| Used for low-level windows system calls which ANSI codes can't replace | windows only
+| `futures-core`| For async stream of events | only with `event-stream` feature flag
+| `serde`| Se/dese/rializing of events | only with `serde` feature flag
+
 
 ### Other Resources
 
