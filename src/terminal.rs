@@ -100,7 +100,7 @@ pub(crate) mod sys;
 
 /// Tells whether the raw mode is enabled.
 ///
-/// Please have a look at the [raw mode](./#raw-mode) section.
+/// Please have a look at the [raw mode](./index.html#raw-mode) section.
 pub fn is_raw_mode_enabled() -> Result<bool> {
     #[cfg(unix)]
     {
@@ -115,14 +115,14 @@ pub fn is_raw_mode_enabled() -> Result<bool> {
 
 /// Enables raw mode.
 ///
-/// Please have a look at the [raw mode](./#raw-mode) section.
+/// Please have a look at the [raw mode](./index.html#raw-mode) section.
 pub fn enable_raw_mode() -> Result<()> {
     sys::enable_raw_mode()
 }
 
 /// Disables raw mode.
 ///
-/// Please have a look at the [raw mode](./#raw-mode) section.
+/// Please have a look at the [raw mode](./index.html#raw-mode) section.
 pub fn disable_raw_mode() -> Result<()> {
     sys::disable_raw_mode()
 }

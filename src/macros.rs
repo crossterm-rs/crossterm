@@ -44,7 +44,7 @@ macro_rules! csi {
 /// // foo
 /// ```
 ///
-/// Have a look over at the [Command API](./#command-api) for more details.
+/// Have a look over at the [Command API](./index.html#command-api) for more details.
 ///
 /// # Notes
 ///
@@ -95,7 +95,7 @@ macro_rules! queue {
 /// // 1 + 1 = 2
 /// ```
 ///
-/// Have a look over at the [Command API](./#command-api) for more details.
+/// Have a look over at the [Command API](./index.html#command-api) for more details.
 ///
 /// # Notes
 ///

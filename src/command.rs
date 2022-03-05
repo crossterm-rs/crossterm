@@ -8,13 +8,13 @@ use super::error::Result;
 /// Crossterm provides a set of commands,
 /// and there is no immediate reason to implement a command yourself.
 /// In order to understand how to use and execute commands,
-/// it is recommended that you take a look at [Command API](../#command-api) chapter.
+/// it is recommended that you take a look at [Command API](./index.html#command-api) chapter.
 pub trait Command {
     /// Write an ANSI representation of this command to the given writer.
     /// An ANSI code can manipulate the terminal by writing it to the terminal buffer.
     /// However, only Windows 10 and UNIX systems support this.
     ///
-    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](../#command-api)
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result;
 
     /// Execute this command.
@@ -22,7 +22,7 @@ pub trait Command {
     /// Windows versions lower than windows 10 do not support ANSI escape codes,
     /// therefore a direct WinAPI call is made.
     ///
-    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](../#command-api)
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()>;
 
@@ -109,7 +109,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     /// }
     /// ```
     ///
-    /// Have a look over at the [Command API](./#command-api) for more details.
+    /// Have a look over at the [Command API](./index.html#command-api) for more details.
     ///
     /// # Notes
     ///
@@ -167,7 +167,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///  }
     /// ```
     ///
-    /// Have a look over at the [Command API](./#command-api) for more details.
+    /// Have a look over at the [Command API](./index.html#command-api) for more details.
     ///
     /// # Notes
     ///
