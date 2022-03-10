@@ -294,6 +294,71 @@ impl Command for DisableMouseCapture {
     }
 }
 
+/// A command that enables mouse event capturing with more granualarity.
+///
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MouseCaptureOptions {
+    /// Capture mouse button click events
+    // Normal tracking: Send mouse X & Y on button press and release
+    CaptureButton(bool),
+    /// Capture mouse button clicks + drag events
+    // Report button motion events (dragging)
+    CaptureDrag(bool),
+    // Any-event tracking: Report all motion events
+    /// Capture mouse button click + drag + movement events
+    CaptureAny(bool),
+}
+impl Command for MouseCaptureOptions {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        let enable = match *self {
+            Self::CaptureButton(enable) => {
+                let cmd = if enable {
+                    csi!("?1000h")
+                } else {
+                    csi!("?1000l")
+                };
+                f.write_str(cmd)?;
+                enable
+            }
+            Self::CaptureDrag(enable) => {
+                let cmd = if enable {
+                    csi!("?1002h")
+                } else {
+                    csi!("?1002l")
+                };
+                f.write_str(cmd)?;
+                enable
+            }
+            Self::CaptureAny(enable) => {
+                let cmd = if enable {
+                    csi!("?1003h")
+                } else {
+                    csi!("?1003l")
+                };
+                f.write_str(cmd)?;
+                enable
+            }
+        };
+        if enable {
+            f.write_str(concat!(
+                // RXVT mouse mode: Allows mouse coordinates of >223
+                csi!("?1015h"),
+                // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
+                csi!("?1006h"),
+            ))?;
+        } else {
+            f.write_str(concat!(csi!("?1015l"), csi!("?1006l"),))?;
+        }
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        sys::windows::enable_mouse_capture()
+    }
+}
+
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
