@@ -15,12 +15,12 @@
 //! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
 //! * or the [`EventStream`](struct.EventStream.html).
 //!
-//! **Make sure to enable [raw mode](../terminal/#raw-mode) in order for keyboard events to work properly**
+//! **Make sure to enable [raw mode](./terminal/index.html#raw-mode) in order for keyboard events to work properly**
 //!
 //! ## Mouse Events
 //!
 //! Mouse events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](../index.html#command-api)
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](./index.html#command-api)
 //! for more information.
 //!
 //! ## Examples
