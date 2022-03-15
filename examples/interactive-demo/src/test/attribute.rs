@@ -4,10 +4,11 @@ use crate::Result;
 use crossterm::{cursor, queue, style};
 use std::io::Write;
 
-const ATTRIBUTES: [(style::Attribute, style::Attribute); 6] = [
+const ATTRIBUTES: [(style::Attribute, style::Attribute); 10] = [
     (style::Attribute::Bold, style::Attribute::NormalIntensity),
     (style::Attribute::Italic, style::Attribute::NoItalic),
     (style::Attribute::Underlined, style::Attribute::NoUnderline),
+   
     (style::Attribute::DoubleUnderlined, style::Attribute::NoUnderline),
     (style::Attribute::Undercurled, style::Attribute::NoUnderline),
     (style::Attribute::Underdotted, style::Attribute::NoUnderline),

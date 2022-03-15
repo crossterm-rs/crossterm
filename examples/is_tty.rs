@@ -1,4 +1,8 @@
-use crossterm::{tty::IsTty, terminal::{size, SetSize}, execute};
+use crossterm::{
+    execute,
+    terminal::{size, SetSize},
+    tty::IsTty,
+};
 use std::io::{stdin, stdout};
 
 pub fn main() {

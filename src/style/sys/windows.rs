@@ -167,6 +167,7 @@ impl From<Colored> for u16 {
                     Color::AnsiValue(_val) => 0,
                 }
             }
+            Colored::UnderlineColor(_) => 0,
         }
     }
 }

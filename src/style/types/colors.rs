@@ -66,7 +66,7 @@ impl From<Colored> for Colors {
             Colored::UnderlineColor(color) => Colors {
                 foreground: None,
                 background: Some(color),
-            }
+            },
         }
     }
 }

@@ -1,3 +1,14 @@
+# Version 0.24.0
+- Add  DoubleUnderlined, Undercurled, Underdots the text, Underdotted, Underdashes, Underdashed attributes and allow coloring their foreground / background color.
+- Fix windows unicode character parsing, this fixed various key combinations and support typing unicode characters. 
+- Consistency and better documentation on mouse cursor operations (BREAKING CHANGE).
+  - MoveTo, MoveToColumn, MoveToRow are 0-based. (left top most cell is 0,0). Moving like this is absolute
+  - MoveToNextLine, MoveToPreviousLine, MoveUp, MoveDown, MoveRight, MoveLeft are 1-based,. Moving like this is relative. Moving 1 left means moving 1 left. Moving 0 to the left is not possible, wikipedia states that most terminals will just default to 1.
+- terminal::size returns error when previously it returned (0,0).
+- Remove println from serialisation code.
+- Fix mouse up for middle and right buttons.
+- Fix escape codes on Git-Bash + Windows Terminal / Alacritty / WezTerm.
+- 
 # Version 0.23.2
 - Update signal-hook and mio to version 0.8.
 
