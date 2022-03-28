@@ -16,6 +16,7 @@ use super::super::{
 pub(crate) struct WindowsEventSource {
     console: Console,
     poll: WinApiPoll,
+    surrogate_buffer: Option<u16>,
 }
 
 impl WindowsEventSource {
@@ -28,6 +29,8 @@ impl WindowsEventSource {
             poll: WinApiPoll::new(),
             #[cfg(feature = "event-stream")]
             poll: WinApiPoll::new()?,
+
+            surrogate_buffer: None,
         })
     }
 }
@@ -41,7 +44,9 @@ impl EventSource for WindowsEventSource {
                 let number = self.console.number_of_console_input_events()?;
                 if event_ready && number != 0 {
                     let event = match self.console.read_single_input_event()? {
-                        InputRecord::KeyEvent(record) => handle_key_event(record),
+                        InputRecord::KeyEvent(record) => {
+                            handle_key_event(record, &mut self.surrogate_buffer)
+                        }
                         InputRecord::MouseEvent(record) => handle_mouse_event(record),
                         InputRecord::WindowBufferSizeEvent(record) => {
                             Some(Event::Resize(record.size.x as u16, record.size.y as u16))

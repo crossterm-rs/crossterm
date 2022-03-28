@@ -23,18 +23,54 @@ pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Option<Event> {
     None
 }
 
-pub(crate) fn handle_key_event(key_event: KeyEventRecord) -> Option<Event> {
-    if key_event.key_down {
-        if let Some(event) = parse_key_event_record(&key_event) {
-            return Some(Event::Key(event));
-        }
-    }
-
-    None
+enum WindowsKeyEvent {
+    KeyEvent(KeyEvent),
+    Surrogate(u16),
 }
 
-impl From<ControlKeyState> for KeyModifiers {
-    fn from(state: ControlKeyState) -> Self {
+pub(crate) fn handle_key_event(
+    key_event: KeyEventRecord,
+    surrogate_buffer: &mut Option<u16>,
+) -> Option<Event> {
+    if key_event.key_down {
+        let windows_key_event = parse_key_event_record(&key_event)?;
+        match windows_key_event {
+            WindowsKeyEvent::KeyEvent(key_event) => {
+                // Discard any buffered surrogate value if another valid key event comes before the
+                // next surrogate value.
+                *surrogate_buffer = None;
+                Some(Event::Key(key_event))
+            }
+            WindowsKeyEvent::Surrogate(new_surrogate) => {
+                let ch = handle_surrogate(surrogate_buffer, new_surrogate)?;
+                let modifiers = KeyModifiers::from(&key_event.control_key_state);
+                let key_event = KeyEvent::new(KeyCode::Char(ch), modifiers);
+                Some(Event::Key(key_event))
+            }
+        }
+    } else {
+        None
+    }
+}
+
+fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> Option<char> {
+    match *surrogate_buffer {
+        Some(buffered_surrogate) => {
+            *surrogate_buffer = None;
+            std::char::decode_utf16([buffered_surrogate, new_surrogate])
+                .next()
+                .unwrap()
+                .ok()
+        }
+        None => {
+            *surrogate_buffer = Some(new_surrogate);
+            None
+        }
+    }
+}
+
+impl From<&ControlKeyState> for KeyModifiers {
+    fn from(state: &ControlKeyState) -> Self {
         let shift = state.has_state(SHIFT_PRESSED);
         let alt = state.has_state(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED);
         let control = state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED);
@@ -55,8 +91,8 @@ impl From<ControlKeyState> for KeyModifiers {
     }
 }
 
-fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
-    let modifiers = KeyModifiers::from(key_event.control_key_state);
+fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
+    let modifiers = KeyModifiers::from(&key_event.control_key_state);
 
     let key_code = key_event.virtual_key_code as i32;
 
@@ -79,48 +115,42 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_TAB if modifiers.contains(KeyModifiers::SHIFT) => Some(KeyCode::BackTab),
         VK_TAB => Some(KeyCode::Tab),
         _ => {
-            // Modifier Keys (Ctrl, Alt, Shift) Support
-            let character_raw = key_event.u_char;
-
-            if character_raw < 255 {
-                // Invalid character
-                if character_raw == 0 {
-                    return None;
+            let utf16 = key_event.u_char;
+            match utf16 {
+                0 => {
+                    // Unsupported key combination.
+                    None
                 }
-
-                let mut character = character_raw as u8 as char;
-
-                if modifiers.contains(KeyModifiers::CONTROL)
-                    && !modifiers.contains(KeyModifiers::ALT)
-                {
-                    // we need to do some parsing
-                    // Control character will take the ASCII code produced by the key and bitwise AND
-                    // it with 31, forcing bits 6 and bits 7 to zero.
-                    // So we can make a bitwise OR back to see what's the raw control character.
-                    let c = character_raw as u8;
-                    if c <= b'\x1F' {
-                        character = (c | b'\x40') as char;
-                        // if we press something like ctrl-g, we will get `character` with value `G`.
-                        // in this case, convert the `character` to lowercase `g`.
-                        if character.is_ascii_uppercase()
-                            && !modifiers.contains(KeyModifiers::SHIFT)
-                        {
-                            character.make_ascii_lowercase();
-                        }
-                    } else {
-                        return None;
+                control_code @ 0x01..=0x1f if modifiers.contains(KeyModifiers::CONTROL) => {
+                    // Terminal emulators encode the key combinations CTRL+A through CTRL+Z, CTRL+[
+                    // CTRL+\, CTRL+], CTRL+^, and CTRL+_ as control codes 0x01 through 0x1f
+                    // respectively.
+                    // We map them back to character codes before we return the key event. Other
+                    // keys that produce control codes (ESC, TAB, ENTER, BACKSPACE) are handled
+                    // above by their virtual key codes and distinguished that way.
+                    let mut ch = (control_code + 64) as u8 as char;
+                    if !modifiers.contains(KeyModifiers::SHIFT) {
+                        ch.make_ascii_lowercase();
                     }
+                    Some(KeyCode::Char(ch))
                 }
-
-                Some(KeyCode::Char(character))
-            } else {
-                std::char::from_u32(character_raw as u32).map(KeyCode::Char)
+                surrogate @ 0xD800..=0xDFFF => {
+                    return Some(WindowsKeyEvent::Surrogate(surrogate));
+                }
+                unicode_scalar_value => {
+                    // Unwrap is safe: We tested for surrogate values above and those are the only
+                    // u16 values that are invalid when directly interpreted as unicode scalar
+                    // values.
+                    let ch = std::char::from_u32(unicode_scalar_value as u32).unwrap();
+                    Some(KeyCode::Char(ch))
+                }
             }
         }
     };
 
     if let Some(key_code) = parse_result {
-        return Some(KeyEvent::new(key_code, modifiers));
+        let key_event = KeyEvent::new(key_code, modifiers);
+        return Some(WindowsKeyEvent::KeyEvent(key_event));
     }
 
     None
@@ -134,7 +164,7 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 }
 
 fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
-    let modifiers = KeyModifiers::from(event.control_key_state);
+    let modifiers = KeyModifiers::from(&event.control_key_state);
 
     let xpos = event.mouse_position.x as u16;
     let ypos = parse_relative_y(event.mouse_position.y)? as u16;
