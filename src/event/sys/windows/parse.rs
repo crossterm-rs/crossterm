@@ -5,7 +5,8 @@ use winapi::um::{
     },
     winuser::{
         VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME,
-        VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_UP,
+        VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_TAB,
+        VK_UP,
     },
 };
 
@@ -75,6 +76,8 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
         VK_END => Some(KeyCode::End),
         VK_DELETE => Some(KeyCode::Delete),
         VK_INSERT => Some(KeyCode::Insert),
+        VK_TAB if modifiers.contains(KeyModifiers::SHIFT) => Some(KeyCode::BackTab),
+        VK_TAB => Some(KeyCode::Tab),
         _ => {
             // Modifier Keys (Ctrl, Alt, Shift) Support
             let character_raw = key_event.u_char;
@@ -109,13 +112,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<KeyEvent> {
                     }
                 }
 
-                if modifiers.contains(KeyModifiers::SHIFT) && character == '\t' {
-                    Some(KeyCode::BackTab)
-                } else if character == '\t' {
-                    Some(KeyCode::Tab)
-                } else {
-                    Some(KeyCode::Char(character))
-                }
+                Some(KeyCode::Char(character))
             } else {
                 std::char::from_u32(character_raw as u32).map(KeyCode::Char)
             }
