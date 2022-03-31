@@ -32,24 +32,20 @@ pub(crate) fn handle_key_event(
     key_event: KeyEventRecord,
     surrogate_buffer: &mut Option<u16>,
 ) -> Option<Event> {
-    if key_event.key_down {
-        let windows_key_event = parse_key_event_record(&key_event)?;
-        match windows_key_event {
-            WindowsKeyEvent::KeyEvent(key_event) => {
-                // Discard any buffered surrogate value if another valid key event comes before the
-                // next surrogate value.
-                *surrogate_buffer = None;
-                Some(Event::Key(key_event))
-            }
-            WindowsKeyEvent::Surrogate(new_surrogate) => {
-                let ch = handle_surrogate(surrogate_buffer, new_surrogate)?;
-                let modifiers = KeyModifiers::from(&key_event.control_key_state);
-                let key_event = KeyEvent::new(KeyCode::Char(ch), modifiers);
-                Some(Event::Key(key_event))
-            }
+    let windows_key_event = parse_key_event_record(&key_event)?;
+    match windows_key_event {
+        WindowsKeyEvent::KeyEvent(key_event) => {
+            // Discard any buffered surrogate value if another valid key event comes before the
+            // next surrogate value.
+            *surrogate_buffer = None;
+            Some(Event::Key(key_event))
         }
-    } else {
-        None
+        WindowsKeyEvent::Surrogate(new_surrogate) => {
+            let ch = handle_surrogate(surrogate_buffer, new_surrogate)?;
+            let modifiers = KeyModifiers::from(&key_event.control_key_state);
+            let key_event = KeyEvent::new(KeyCode::Char(ch), modifiers);
+            Some(Event::Key(key_event))
+        }
     }
 }
 
@@ -93,10 +89,34 @@ impl From<&ControlKeyState> for KeyModifiers {
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
+    let virtual_key_code = key_event.virtual_key_code as i32;
 
-    let key_code = key_event.virtual_key_code as i32;
+    // We normally ignore all key release events, but we will make an exception for an Alt key
+    // release if it carries a u_char value, as this indicates an Alt code.
+    let is_alt_code = virtual_key_code == VK_MENU && !key_event.key_down && key_event.u_char != 0;
+    if is_alt_code {
+        let utf16 = key_event.u_char;
+        match utf16 {
+            surrogate @ 0xD800..=0xDFFF => {
+                return Some(WindowsKeyEvent::Surrogate(surrogate));
+            }
+            unicode_scalar_value => {
+                // Unwrap is safe: We tested for surrogate values above and those are the only
+                // u16 values that are invalid when directly interpreted as unicode scalar
+                // values.
+                let ch = std::char::from_u32(unicode_scalar_value as u32).unwrap();
+                let key_code = KeyCode::Char(ch);
+                let key_event = KeyEvent::new(key_code, modifiers);
+                return Some(WindowsKeyEvent::KeyEvent(key_event));
+            }
+        }
+    }
 
-    let parse_result = match key_code {
+    if !key_event.key_down {
+        return None;
+    }
+
+    let parse_result = match virtual_key_code {
         VK_SHIFT | VK_CONTROL | VK_MENU => None,
         VK_BACK => Some(KeyCode::Backspace),
         VK_ESCAPE => Some(KeyCode::Esc),
