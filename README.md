@@ -134,24 +134,23 @@ version = "0.23"
 features = ["event-stream"] 
 ```
 
-| Feature | Description |
-| :----- | :----- |
-| `event-stream` | `futures::Stream` producing `Result<Event>`.|
-| `serde`| Se/dese/rializing of events. |
+| Feature        | Description                                  |
+|:---------------|:---------------------------------------------|
+| `event-stream` | `futures::Stream` producing `Result<Event>`. |
+| `serde`        | Se/dese/rializing of events.                 |
 
 ### Dependency Justification
 
-| Dependency | Used for | Included |
-| :----- | :----- | :-----
-| `bitflags` | `KeyModifiers`, those are differ based on input.| always
-| `parking_lot` | locking `RwLock`s with a timeout, const mutexes. | always
-| `libc` | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only
-| `Mio` | event readiness polling, waking up poller | UNIX only
-| `signal-hook`| signalhook is used to handle terminal resize SIGNAL with Mio. | UNIX only
-| `winapi`| Used for low-level windows system calls which ANSI codes can't replace | windows only
-| `futures-core`| For async stream of events | only with `event-stream` feature flag
-| `serde`| Se/dese/rializing of events | only with `serde` feature flag
-
+| Dependency     | Used for                                                                         | Included                              |
+|:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
+| `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
+| `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
+| `libc`         | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only                             |
+| `Mio`          | event readiness polling, waking up poller                                        | UNIX only                             |
+| `signal-hook`  | signalhook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
+| `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
+| `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
+| `serde`        | Se/dese/rializing of events                                                      | only with `serde` feature flag        |
 
 ### Other Resources
 
