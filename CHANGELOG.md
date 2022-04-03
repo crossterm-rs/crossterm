@@ -1,3 +1,6 @@
+# Version 0.23.2
+- Update signal-hook and mio to version 0.8.
+
 # Version 0.23.1
 - Fix control key parsing problem.
 
