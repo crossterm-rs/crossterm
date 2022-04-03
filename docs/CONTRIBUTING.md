@@ -39,11 +39,11 @@ _Languages & Frameworks_ -> _Rust_ -> _Rustfmt_ -> _Run rustfmt on save_.
 
 ### Max Line Length
 
-| Type | Max line length |
-| :--- | ---: |
-| Code | 100 |
-| Comments in the code | 120 |
-| Documentation | 120 |
+| Type                 | Max line length |
+|:---------------------|----------------:|
+| Code                 |             100 |
+| Comments in the code |             120 |
+| Documentation        |             120 |
 
 100 is the [`max_width`](https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#max_width)
 default value.
