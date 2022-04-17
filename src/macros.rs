@@ -16,7 +16,7 @@ macro_rules! csi {
 ///
 /// # Arguments
 ///
-/// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
+/// - [std::io::Writer](std::io::Write)
 ///
 ///     ANSI escape codes are written on the given 'writer', after which they are flushed.
 ///
@@ -70,7 +70,7 @@ macro_rules! queue {
 ///
 /// # Arguments
 ///
-/// - [std::io::Writer](https://doc.rust-lang.org/std/io/trait.Write.html)
+/// - [std::io::Writer](std::io::Write)
 ///
 ///     ANSI escape codes are written on the given 'writer', after which they are flushed.
 ///
