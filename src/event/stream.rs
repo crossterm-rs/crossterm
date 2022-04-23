@@ -24,8 +24,8 @@ use super::{
 /// **This type is not available by default. You have to use the `event-stream` feature flag
 /// to make it available.**
 ///
-/// It implements the [`futures::stream::Stream`](https://docs.rs/futures/0.3.1/futures/stream/trait.Stream.html)
-/// trait and allows you to receive `Event`s with [`async-std`](https://crates.io/crates/async-std)
+/// It implements the [Stream](futures_core::stream::Stream)
+/// trait and allows you to receive [`Event`]s with [`async-std`](https://crates.io/crates/async-std)
 /// or [`tokio`](https://crates.io/crates/tokio) crates.
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
