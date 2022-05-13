@@ -17,8 +17,18 @@ use crate::{
     Result,
 };
 
-pub(crate) fn handle_mouse_event(mouse_event: MouseEvent) -> Option<Event> {
-    if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event) {
+#[derive(Default)]
+pub struct MouseButtonsPressed {
+    pub(crate) left: bool,
+    pub(crate) right: bool,
+    pub(crate) middle: bool,
+}
+
+pub(crate) fn handle_mouse_event(
+    mouse_event: MouseEvent,
+    buttons_pressed: &MouseButtonsPressed,
+) -> Option<Event> {
+    if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event, buttons_pressed) {
         return Some(Event::Mouse(event));
     }
 
@@ -287,31 +297,43 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
     Ok(y - window_size.top)
 }
 
-fn parse_mouse_event_record(event: &MouseEvent) -> Result<Option<crate::event::MouseEvent>> {
+fn parse_mouse_event_record(
+    event: &MouseEvent,
+    buttons_pressed: &MouseButtonsPressed,
+) -> Result<Option<crate::event::MouseEvent>> {
     let modifiers = KeyModifiers::from(&event.control_key_state);
 
     let xpos = event.mouse_position.x as u16;
     let ypos = parse_relative_y(event.mouse_position.y)? as u16;
 
     let button_state = event.button_state;
-    let button = if button_state.right_button() {
-        MouseButton::Right
-    } else if button_state.middle_button() {
-        MouseButton::Middle
-    } else {
-        MouseButton::Left
-    };
 
     let kind = match event.event_flags {
         EventFlags::PressOrRelease => {
-            if button_state.release_button() {
-                // in order to read the up button type, we have to check the last down input record.
+            if button_state.left_button() && !buttons_pressed.left {
+                Some(MouseEventKind::Down(MouseButton::Left))
+            } else if !button_state.left_button() && buttons_pressed.left {
                 Some(MouseEventKind::Up(MouseButton::Left))
+            } else if button_state.right_button() && !buttons_pressed.right {
+                Some(MouseEventKind::Down(MouseButton::Right))
+            } else if !button_state.right_button() && buttons_pressed.right {
+                Some(MouseEventKind::Up(MouseButton::Right))
+            } else if button_state.middle_button() && !buttons_pressed.middle {
+                Some(MouseEventKind::Down(MouseButton::Middle))
+            } else if !button_state.middle_button() && buttons_pressed.middle {
+                Some(MouseEventKind::Up(MouseButton::Middle))
             } else {
-                Some(MouseEventKind::Down(button))
+                None
             }
         }
         EventFlags::MouseMoved => {
+            let button = if button_state.right_button() {
+                MouseButton::Right
+            } else if button_state.middle_button() {
+                MouseButton::Middle
+            } else {
+                MouseButton::Left
+            };
             if button_state.release_button() {
                 Some(MouseEventKind::Moved)
             } else {
