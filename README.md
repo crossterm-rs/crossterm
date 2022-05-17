@@ -150,7 +150,7 @@ features = ["event-stream"]
 | `signal-hook`  | signalhook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
-| `serde`        | Se/dese/rializing of events                                                      | only with `serde` feature flag        |
+| `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
 
 ### Other Resources
 
