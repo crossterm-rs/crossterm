@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use crossterm_winapi::{Console, Handle, InputRecord};
 
-use crate::event::{sys::windows::poll::WinApiPoll, Event};
+use crate::event::{
+    sys::windows::{parse::MouseButtonsPressed, poll::WinApiPoll},
+    Event,
+};
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
@@ -17,6 +20,7 @@ pub(crate) struct WindowsEventSource {
     console: Console,
     poll: WinApiPoll,
     surrogate_buffer: Option<u16>,
+    mouse_buttons_pressed: MouseButtonsPressed,
 }
 
 impl WindowsEventSource {
@@ -31,6 +35,7 @@ impl WindowsEventSource {
             poll: WinApiPoll::new()?,
 
             surrogate_buffer: None,
+            mouse_buttons_pressed: MouseButtonsPressed::default(),
         })
     }
 }
@@ -47,7 +52,17 @@ impl EventSource for WindowsEventSource {
                         InputRecord::KeyEvent(record) => {
                             handle_key_event(record, &mut self.surrogate_buffer)
                         }
-                        InputRecord::MouseEvent(record) => handle_mouse_event(record),
+                        InputRecord::MouseEvent(record) => {
+                            let mouse_event =
+                                handle_mouse_event(record, &self.mouse_buttons_pressed);
+                            self.mouse_buttons_pressed = MouseButtonsPressed {
+                                left: record.button_state.left_button(),
+                                right: record.button_state.right_button(),
+                                middle: record.button_state.middle_button(),
+                            };
+
+                            mouse_event
+                        }
                         InputRecord::WindowBufferSizeEvent(record) => {
                             Some(Event::Resize(record.size.x as u16, record.size.y as u16))
                         }
