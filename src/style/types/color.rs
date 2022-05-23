@@ -240,7 +240,6 @@ impl serde::ser::Serialize for Color {
         };
 
         if str == "" {
-            println!("color: {:?}", self);
             match *self {
                 Color::AnsiValue(value) => {
                     return serializer.serialize_str(&format!("ansi_({})", value));
