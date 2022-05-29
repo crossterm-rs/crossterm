@@ -20,7 +20,7 @@
 //! ## Mouse Events
 //!
 //! Mouse events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](./index.html#command-api)
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](../index.html#command-api)
 //! for more information.
 //!
 //! ## Examples
