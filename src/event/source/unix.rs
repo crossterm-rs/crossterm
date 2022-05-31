@@ -173,7 +173,7 @@ impl EventSource for UnixInternalEventSource {
 //
 // Following `Parser` structure exists for two reasons:
 //
-//  * mimick anes Parser interface
+//  * mimic anes Parser interface
 //  * move the advancing, parsing, ... stuff out of the `try_read` method
 //
 #[derive(Debug)]

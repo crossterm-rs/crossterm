@@ -23,7 +23,7 @@ fn print_events() -> Result<()> {
     loop {
         // Wait up to 1s for another event
         if poll(Duration::from_millis(1_000))? {
-            // It's guaranteed that read() wont block if `poll` returns `Ok(true)`
+            // It's guaranteed that read() won't block if `poll` returns `Ok(true)`
             let event = read()?;
 
             println!("Event::{:?}\r", event);

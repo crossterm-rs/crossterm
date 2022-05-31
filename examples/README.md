@@ -14,7 +14,7 @@ The examples are compatible with the latest release.
 ```
 | File Name                   | Description                    | Topics                                    |
 |:----------------------------|:-------------------------------|:------------------------------------------|
-| `examples/interactive-test` | interactive, walk trough, demo | cursor, style, event                      |
+| `examples/interactive-test` | interactive, walk through, demo | cursor, style, event                      |
 | `event-*`                   | event reading demos            | (async) event reading                     |
 | `stderr`                    | crossterm over stderr demo     | raw mode, alternate screen, custom output |
 | `is_tty`                    | Is this instance a tty ?       | tty                                       |

@@ -407,7 +407,7 @@ pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>
 
     // When button 3 in Cb is used to represent mouse release, you can't tell which button was
     // released. SGR mode solves this by having the sequence end with a lowercase m if it's a
-    // button release and an uppercase M if it's a buton press.
+    // button release and an uppercase M if it's a button press.
     //
     // We've already checked that the last character is a lowercase or uppercase M at the start of
     // this function, so we just need one if.

@@ -33,7 +33,7 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
     let mut color = color_value | bg_color;
 
     // background intensity is a separate value in attrs,
-    // wee need to check if this was applied to the current bg color.
+    // we need to check if this was applied to the current bg color.
     if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
         color |= wincon::BACKGROUND_INTENSITY as u16;
     }
@@ -51,7 +51,7 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
     let csbi = screen_buffer.info()?;
 
     // Notice that the color values are stored in wAttribute.
-    // So wee need to use bitwise operators to check if the values exists or to get current console colors.
+    // So we need to use bitwise operators to check if the values exists or to get current console colors.
     let attrs = csbi.attributes();
     let fg_color = attrs & 0x0007;
     let mut color = fg_color | color_value;
