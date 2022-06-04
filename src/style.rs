@@ -217,6 +217,25 @@ impl Command for SetBackgroundColor {
     }
 }
 
+/// A command that sets the the underline color.
+///
+/// See [`Color`](enum.Color.html) for more info.
+///
+/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// color with one command.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetUnderlineColor(pub Color);
+
+impl Command for SetUnderlineColor {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{}m"), Colored::UnderlineColor(self.0))
+    }
+}
+
 /// A command that optionally sets the foreground and/or background color.
 ///
 /// For example:
@@ -337,6 +356,11 @@ impl<D: Display> Command for PrintStyledContent<D> {
         }
         if let Some(fg) = style.foreground_color {
             execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
+        }
+
+        if let Some(ul) = style.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
             reset_foreground = true;
         }
 

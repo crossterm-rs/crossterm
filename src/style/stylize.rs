@@ -17,7 +17,7 @@ macro_rules! stylize_method {
             }
         }
     };
-    ($method_name_fg:ident, $method_name_bg:ident Color::$color:ident) => {
+    ($method_name_fg:ident, $method_name_bg:ident, $method_name_ul:ident Color::$color:ident) => {
         calculated_docs! {
             #[doc = concat!(
                 "Sets the foreground color to [`",
@@ -39,6 +39,17 @@ macro_rules! stylize_method {
             )]
             fn $method_name_bg(self) -> Self::Styled {
                 self.on(Color::$color)
+            }
+
+            #[doc = concat!(
+                "Sets the underline color to [`",
+                stringify!($color),
+                "`](Color::",
+                stringify!($color),
+                ")."
+            )]
+            fn $method_name_ul(self) -> Self::Styled {
+                self.above(Color::$color)
             }
         }
     };
@@ -77,6 +88,13 @@ pub trait Stylize: Sized {
         styled
     }
 
+    /// Sets the underline color.
+    fn above(self, color: Color) -> Self::Styled {
+        let mut styled = self.stylize();
+        styled.as_mut().underline_color = Some(color);
+        styled
+    }
+
     /// Styles the content with the attribute.
     fn attribute(self, attr: Attribute) -> Self::Styled {
         let mut styled = self.stylize();
@@ -96,22 +114,22 @@ pub trait Stylize: Sized {
     stylize_method!(hidden Attribute::Hidden);
     stylize_method!(crossed_out Attribute::CrossedOut);
 
-    stylize_method!(black, on_black Color::Black);
-    stylize_method!(dark_grey, on_dark_grey Color::DarkGrey);
-    stylize_method!(red, on_red Color::Red);
-    stylize_method!(dark_red, on_dark_red Color::DarkRed);
-    stylize_method!(green, on_green Color::Green);
-    stylize_method!(dark_green, on_dark_green Color::DarkGreen);
-    stylize_method!(yellow, on_yellow Color::Yellow);
-    stylize_method!(dark_yellow, on_dark_yellow Color::DarkYellow);
-    stylize_method!(blue, on_blue Color::Blue);
-    stylize_method!(dark_blue, on_dark_blue Color::DarkBlue);
-    stylize_method!(magenta, on_magenta Color::Magenta);
-    stylize_method!(dark_magenta, on_dark_magenta Color::DarkMagenta);
-    stylize_method!(cyan, on_cyan Color::Cyan);
-    stylize_method!(dark_cyan, on_dark_cyan Color::DarkCyan);
-    stylize_method!(white, on_white Color::White);
-    stylize_method!(grey, on_grey Color::Grey);
+    stylize_method!(black, on_black, above_black Color::Black);
+    stylize_method!(dark_grey, on_dark_grey, above_dark_grey Color::DarkGrey);
+    stylize_method!(red, on_red, above_red Color::Red);
+    stylize_method!(dark_red, on_dark_red, above_dark_red Color::DarkRed);
+    stylize_method!(green, on_green, above_green Color::Green);
+    stylize_method!(dark_green, on_dark_green, above_dark_green Color::DarkGreen);
+    stylize_method!(yellow, on_yellow, above_yellow Color::Yellow);
+    stylize_method!(dark_yellow, on_dark_yellow, above_dark_yellow Color::DarkYellow);
+    stylize_method!(blue, on_blue, above_blue Color::Blue);
+    stylize_method!(dark_blue, on_dark_blue, above_dark_blue Color::DarkBlue);
+    stylize_method!(magenta, on_magenta, above_magenta Color::Magenta);
+    stylize_method!(dark_magenta, on_dark_magenta, above_dark_magenta Color::DarkMagenta);
+    stylize_method!(cyan, on_cyan, above_cyan Color::Cyan);
+    stylize_method!(dark_cyan, on_dark_cyan, above_dark_cyan Color::DarkCyan);
+    stylize_method!(white, on_white, above_white Color::White);
+    stylize_method!(grey, on_grey, above_grey Color::Grey);
 }
 
 macro_rules! impl_stylize_for_display {
