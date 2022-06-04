@@ -101,18 +101,16 @@ Attribute! {
     /// Underlines the text.
     Underlined = 4,
 
-    /// A parsec-crossterm extension.
+    // Other types of underlining
     /// Double underlines the text.
     DoubleUnderlined = 2,
-    /// A parsec-crossterm extension.
     /// Undercurls the text.
     Undercurled = 3,
-    /// A parsec-crossterm extension.
     /// Underdots the text.
     Underdotted = 4,
-    /// A parsec-crossterm extension.
     /// Underdashes the text.
     Underdashed = 5,
+
     /// Makes the text blinking (< 150 per minute).
     SlowBlink = 5,
     /// Makes the text blinking (>= 150 per minute).

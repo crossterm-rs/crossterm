@@ -63,6 +63,10 @@ impl From<Colored> for Colors {
                 foreground: None,
                 background: Some(color),
             },
+            Colored::UnderlineColor(color) => Colors {
+                foreground: None,
+                background: Some(color),
+            }
         }
     }
 }

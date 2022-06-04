@@ -16,6 +16,8 @@ pub enum Colored {
     ForegroundColor(Color),
     /// A background color.
     BackgroundColor(Color),
+    /// An underline color.
+    UnderlineColor(Color),
 }
 
 impl Colored {
@@ -39,16 +41,18 @@ impl Colored {
     ///
     /// See also: [`Color::parse_ansi`].
     pub fn parse_ansi(ansi: &str) -> Option<Self> {
-        use Colored::{BackgroundColor, ForegroundColor};
+        use Colored::{BackgroundColor, ForegroundColor, UnderlineColor};
 
         let values = &mut ansi.split(';');
 
         let output = match parse_next_u8(values)? {
             38 => return Color::parse_ansi_iter(values).map(ForegroundColor),
             48 => return Color::parse_ansi_iter(values).map(BackgroundColor),
+            58 => return Color::parse_ansi_iter(values).map(UnderlineColor),
 
             39 => ForegroundColor(Color::Reset),
             49 => BackgroundColor(Color::Reset),
+            59 => UnderlineColor(Color::Reset),
 
             _ => return None,
         };
@@ -79,6 +83,14 @@ impl fmt::Display for Colored {
                     return f.write_str("49");
                 } else {
                     f.write_str("48;")?;
+                    color = new_color;
+                }
+            }
+            Colored::UnderlineColor(new_color) => {
+                if new_color == Color::Reset {
+                    return f.write_str("59");
+                } else {
+                    f.write_str("58;")?;
                     color = new_color;
                 }
             }
