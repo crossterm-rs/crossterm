@@ -100,6 +100,19 @@ Attribute! {
     Italic = 3,
     /// Underlines the text.
     Underlined = 4,
+
+    /// A parsec-crossterm extension.
+    /// Double underlines the text.
+    DoubleUnderlined = 2,
+    /// A parsec-crossterm extension.
+    /// Undercurls the text.
+    Undercurled = 3,
+    /// A parsec-crossterm extension.
+    /// Underdots the text.
+    Underdotted = 4,
+    /// A parsec-crossterm extension.
+    /// Underdashes the text.
+    Underdashed = 5,
     /// Makes the text blinking (< 150 per minute).
     SlowBlink = 5,
     /// Makes the text blinking (>= 150 per minute).
@@ -163,7 +176,10 @@ impl Attribute {
     /// Returns the SGR attribute value.
     ///
     /// See <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters>
-    pub fn sgr(self) -> i16 {
-        SGR[self as usize]
+    pub fn sgr(self) -> String {
+        if (self as usize) > 4 && (self as usize) < 9 {
+            return "4:".to_string() + SGR[self as usize].to_string().as_str()
+        }
+        SGR[self as usize].to_string()
     }
 }
