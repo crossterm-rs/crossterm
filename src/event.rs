@@ -119,7 +119,7 @@ fn try_lock_internal_event_reader_for(
 /// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
 ///
 /// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
-/// wont block.
+/// won't block.
 ///
 /// # Arguments
 ///
@@ -188,7 +188,7 @@ pub fn poll(timeout: Duration) -> Result<bool> {
 /// fn print_events() -> Result<bool> {
 ///     loop {
 ///         if poll(Duration::from_millis(100))? {
-///             // It's guaranteed that `read` wont block, because `poll` returned
+///             // It's guaranteed that `read` won't block, because `poll` returned
 ///             // `Ok(true)`.
 ///             println!("{:?}", read()?);
 ///         } else {

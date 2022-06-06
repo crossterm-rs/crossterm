@@ -400,7 +400,7 @@ As a preparation for crossterm 0.1.0 we have moved crossterm to an organisation 
 ## Version 0.9.2
 
 - Terminal size linux was not 0-based
-- Windows mouse input event position was 0-based ans should be 1-based
+- Windows mouse input event position was 0-based and should be 1-based
 - Result, ErrorKind are made re-exported
 - Fixed some special key combination detections for UNIX systems
 - Made FreeBSD compile
@@ -511,7 +511,7 @@ This release is all about moving to a stabilized API for 1.0.
 - Bug fix resetting console color.
 - Bug fix whit undoing raw modes.
 - More correct error handling.
-- Overall commend improvement.
+- Overall command improvement.
 - Overall refactor of code.
 
 # Version 0.3.0
@@ -608,7 +608,7 @@ __Now the user has to pass an context type to the modules of Crossterm like this
       let terminal = terminal(&context);
       let color = color(&context);
 
-Because this looks a little odd I will provide a type withs will manage the `Context` for you. You can call the different modules like the following:
+Because this looks a little odd I will provide a type widths will manage the `Context` for you. You can call the different modules like the following:
 
       let crossterm = Crossterm::new();
       let color = crossterm.color();
@@ -624,7 +624,7 @@ _Create alternate screen from `Context`_
 
         // create context.
         let context = crossterm::Context::new();
-        // create instance of Alternatescreen by the given context, this wil also switch to it.
+        // create instance of Alternatescreen by the given context, this will also switch to it.
         let mut screen = crossterm::AlternateScreen::from(context.clone());
         // write to the alternate screen.
         write!(screen,  "test");
@@ -633,7 +633,7 @@ _Create alternate screen from `Crossterm`:_
 
         // create context.
         let crossterm = ::crossterm::Crossterm::new();
-        // create instance of Alternatescreen by the given refrence to crossterm, this wil also switch to it.
+        // create instance of Alternatescreen by the given reference to crossterm, this will also switch to it.
         let mut screen = crossterm::AlternateScreen::from(&crossterm);
         // write to the alternate screen.
         write!(screen,  "test");
@@ -657,7 +657,7 @@ If you don't use the same `Context` in `cursor(), color(), terminal()` than thes
 # Version 0.2
 
 - 256 color support.
-- Text Attributes like: bold, italic, underscore and crossed word ect.
+- Text Attributes like: bold, italic, underscore and crossed word etc.
 - Custom ANSI color code input to set fore- and background color for unix.
 - Storing the current cursor position and resetting to that stored cursor position later.
 - Resizing the terminal.
