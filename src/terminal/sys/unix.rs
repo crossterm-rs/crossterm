@@ -41,7 +41,7 @@ pub(crate) fn size() -> Result<(u16, u16)> {
 
     if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
         if size.ws_col != 0 && size.ws_row != 0 {
-            return Ok((size.ws_col, size.ws_row))
+            return Ok((size.ws_col, size.ws_row));
         }
     }
     tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
