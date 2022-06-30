@@ -338,7 +338,7 @@ impl Command for Clear {
     }
 }
 
-/// A command that sets the terminal size `(columns, rows)`.
+/// A command that sets the terminal buffer size `(columns, rows)`.
 ///
 /// # Notes
 ///
