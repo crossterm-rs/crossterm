@@ -83,7 +83,7 @@ pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}E"), self.0 + 1)?;
+        write!(f, csi!("{}E"), self.0)?;
         Ok(())
     }
 
@@ -108,7 +108,7 @@ pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, csi!("{}F"), self.0 + 1)?;
+        write!(f, csi!("{}F"), self.0)?;
         Ok(())
     }
 
