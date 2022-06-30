@@ -125,7 +125,6 @@ impl Command for MoveToPreviousLine {
 ///
 /// # Notes
 /// * This command is 0 based, meaning 0 is the leftmost column.
-/// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToColumn(pub u16);
@@ -146,7 +145,6 @@ impl Command for MoveToColumn {
 ///
 /// # Notes
 /// * This command is 0 based, meaning 0 is the topmost row.
-/// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToRow(pub u16);
