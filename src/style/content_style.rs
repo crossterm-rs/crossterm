@@ -11,6 +11,8 @@ pub struct ContentStyle {
     pub foreground_color: Option<Color>,
     /// The background color.
     pub background_color: Option<Color>,
+    /// The underline color.
+    pub underline_color: Option<Color>,
     /// List of attributes.
     pub attributes: Attributes,
 }

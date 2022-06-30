@@ -8,6 +8,10 @@ const ATTRIBUTES: [(style::Attribute, style::Attribute); 6] = [
     (style::Attribute::Bold, style::Attribute::NormalIntensity),
     (style::Attribute::Italic, style::Attribute::NoItalic),
     (style::Attribute::Underlined, style::Attribute::NoUnderline),
+    (style::Attribute::DoubleUnderlined, style::Attribute::NoUnderline),
+    (style::Attribute::Undercurled, style::Attribute::NoUnderline),
+    (style::Attribute::Underdotted, style::Attribute::NoUnderline),
+    (style::Attribute::Underdashed, style::Attribute::NoUnderline),
     (style::Attribute::Reverse, style::Attribute::NoReverse),
     (
         style::Attribute::CrossedOut,
