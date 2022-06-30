@@ -164,7 +164,7 @@ impl Command for MoveToRow {
 /// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
-/// * This command is 1 based, meaning `MoveUp(1) moves the cursor up one cell.
+/// * This command is 1 based, meaning `MoveUp(1)` moves the cursor up one cell.
 /// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -185,7 +185,7 @@ impl Command for MoveUp {
 /// A command that moves the terminal cursor a given number of columns to the right.
 ///
 /// # Notes
-/// * This command is 1 based, meaning `MoveRight(1) moves the cursor right one cell.
+/// * This command is 1 based, meaning `MoveRight(1)` moves the cursor right one cell.
 /// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -206,7 +206,7 @@ impl Command for MoveRight {
 /// A command that moves the terminal cursor a given number of rows down.
 ///
 /// # Notes
-/// * This command is 1 based, meaning `MoveDown(1) moves the cursor down one cell.
+/// * This command is 1 based, meaning `MoveDown(1)` moves the cursor down one cell.
 /// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -227,7 +227,7 @@ impl Command for MoveDown {
 /// A command that moves the terminal cursor a given number of columns to the left.
 ///
 /// # Notes
-/// * This command is 1 based, meaning `MoveLeft(1) moves the cursor left one cell.
+/// * This command is 1 based, meaning `MoveLeft(1)` moves the cursor left one cell.
 /// * Most terminals default 0 argument to 1.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
