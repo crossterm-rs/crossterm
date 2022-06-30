@@ -55,7 +55,6 @@ pub(crate) mod sys;
 /// A command that moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes
-///
 /// * Top left cell is represented as `0,0`.
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -76,16 +75,15 @@ impl Command for MoveTo {
 /// and moves it to the first column.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveToNextLine(1)` moves to the next line.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToNextLine(pub u16);
 
 impl Command for MoveToNextLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}E"), self.0)?;
-        }
+        write!(f, csi!("{}E"), self.0)?;
         Ok(())
     }
 
@@ -102,16 +100,15 @@ impl Command for MoveToNextLine {
 /// and moves it to the first column.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveToPreviousLine(1)` moves to the previous line.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToPreviousLine(pub u16);
 
 impl Command for MoveToPreviousLine {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}F"), self.0)?;
-        }
+        write!(f, csi!("{}F"), self.0)?;
         Ok(())
     }
 
@@ -127,16 +124,14 @@ impl Command for MoveToPreviousLine {
 /// A command that moves the terminal cursor to the given column on the current row.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 0 based, meaning 0 is the leftmost column.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToColumn(pub u16);
 
 impl Command for MoveToColumn {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}G"), self.0)?;
-        }
+        write!(f, csi!("{}G"), self.0 + 1)?;
         Ok(())
     }
 
@@ -149,16 +144,14 @@ impl Command for MoveToColumn {
 /// A command that moves the terminal cursor to the given row on the current column.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 0 based, meaning 0 is the topmost row.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveToRow(pub u16);
 
 impl Command for MoveToRow {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}d"), self.0)?
-        }
+        write!(f, csi!("{}d"), self.0 + 1)?;
         Ok(())
     }
 
@@ -171,16 +164,15 @@ impl Command for MoveToRow {
 /// A command that moves the terminal cursor a given number of rows up.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveUp(1)` moves the cursor up one cell.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveUp(pub u16);
 
 impl Command for MoveUp {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}A"), self.0)?;
-        }
+        write!(f, csi!("{}A"), self.0)?;
         Ok(())
     }
 
@@ -193,16 +185,15 @@ impl Command for MoveUp {
 /// A command that moves the terminal cursor a given number of columns to the right.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveRight(1)` moves the cursor right one cell.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveRight(pub u16);
 
 impl Command for MoveRight {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}C"), self.0)?;
-        }
+        write!(f, csi!("{}C"), self.0)?;
         Ok(())
     }
 
@@ -215,16 +206,15 @@ impl Command for MoveRight {
 /// A command that moves the terminal cursor a given number of rows down.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveDown(1)` moves the cursor down one cell.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveDown(pub u16);
 
 impl Command for MoveDown {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}B"), self.0)?;
-        }
+        write!(f, csi!("{}B"), self.0)?;
         Ok(())
     }
 
@@ -237,16 +227,15 @@ impl Command for MoveDown {
 /// A command that moves the terminal cursor a given number of columns to the left.
 ///
 /// # Notes
-///
-/// Commands must be executed/queued for execution otherwise they do nothing.
+/// * This command is 1 based, meaning `MoveLeft(1)` moves the cursor left one cell.
+/// * Most terminals default 0 argument to 1.
+/// * Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MoveLeft(pub u16);
 
 impl Command for MoveLeft {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if self.0 != 0 {
-            write!(f, csi!("{}D"), self.0)?;
-        }
+        write!(f, csi!("{}D"), self.0)?;
         Ok(())
     }
 

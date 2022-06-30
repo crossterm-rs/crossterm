@@ -39,8 +39,8 @@ fn test_move_cursor_to_previous_line<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveToPreviousLine (2)", |_, _| {
-        cursor::MoveToPreviousLine(2)
+    draw_cursor_box(w, "MoveToPreviousLine (1)", |_, _| {
+        cursor::MoveToPreviousLine(1)
     })
 }
 
@@ -48,15 +48,15 @@ fn test_move_cursor_to_next_line<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveToNextLine (2)", |_, _| cursor::MoveToNextLine(2))
+    draw_cursor_box(w, "MoveToNextLine (1)", |_, _| cursor::MoveToNextLine(1))
 }
 
 fn test_move_cursor_to_column<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
-    draw_cursor_box(w, "MoveToColumn (2)", |center_x, _| {
-        cursor::MoveToColumn(center_x + 2)
+    draw_cursor_box(w, "MoveToColumn (1)", |center_x, _| {
+        cursor::MoveToColumn(center_x + 1)
     })
 }
 
@@ -140,7 +140,7 @@ where
         cursor::MoveTo(0, 0),
         style::SetForegroundColor(style::Color::Red),
         style::Print(format!(
-            "Red box is the center. After the action: '{}' another box is drawn.",
+            "Red box is the center. After the action: '{}' '√' is drawn to reflect the action from the center.",
             description
         ))
     )?;
@@ -157,7 +157,7 @@ where
                 queue!(
                     w,
                     cursor::MoveTo(column, row),
-                    style::PrintStyledContent("▓".red())
+                    style::PrintStyledContent("▓".red()),              
                 )?;
             } else {
                 queue!(
@@ -172,7 +172,8 @@ where
     queue!(
         w,
         cursor::MoveTo(center_x, center_y),
-        style::PrintStyledContent("▀".red().on_white())
+        style::PrintStyledContent("▀".red().on_white()),
+        cursor::MoveTo(center_x, center_y),
     )?;
     queue!(
         w,
