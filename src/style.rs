@@ -234,6 +234,14 @@ impl Command for SetUnderlineColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         write!(f, csi!("{}m"), Colored::UnderlineColor(self.0))
     }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "SetUnderlineColor not supported by winapi.",
+        ))
+    }
 }
 
 /// A command that optionally sets the foreground and/or background color.

@@ -176,7 +176,7 @@ impl Attribute {
     /// See <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters>
     pub fn sgr(self) -> String {
         if (self as usize) > 4 && (self as usize) < 9 {
-            return "4:".to_string() + SGR[self as usize].to_string().as_str()
+            return "4:".to_string() + SGR[self as usize].to_string().as_str();
         }
         SGR[self as usize].to_string()
     }
