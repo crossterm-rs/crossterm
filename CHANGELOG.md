@@ -8,7 +8,7 @@
 - Remove println from serialisation code.
 - Fix mouse up for middle and right buttons.
 - Fix escape codes on Git-Bash + Windows Terminal / Alacritty / WezTerm.
-- 
+- Add support for cursor keys in application mode. 
 # Version 0.23.2
 - Update signal-hook and mio to version 0.8.
 
