@@ -44,6 +44,12 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
                             Ok(None)
                         } else {
                             match buffer[2] {
+                                b'D' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Left.into())))),
+                                b'C' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Right.into())))),
+                                b'A' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Up.into())))),
+                                b'B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Down.into())))),
+                                b'H' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Home.into())))),
+                                b'F' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::End.into())))),
                                 // F1-F4
                                 val @ b'P'..=b'S' => Ok(Some(InternalEvent::Event(Event::Key(
                                     KeyCode::F(1 + val - b'P').into(),
