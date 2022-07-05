@@ -396,6 +396,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
         }
         if let Some(ul) = style.underline_color {
             execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+            reset_foreground = true;
         }
 
         if !style.attributes.is_empty() {
