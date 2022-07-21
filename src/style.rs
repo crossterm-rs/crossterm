@@ -340,6 +340,34 @@ impl Command for SetAttributes {
     }
 }
 
+/// A command that sets a style (colors and attributes).
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetStyle(pub ContentStyle);
+
+impl Command for SetStyle {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+
+        if let Some(bg) = self.0.background_color {
+            execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(fg) = self.0.foreground_color {
+            execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(ul) = self.0.underline_color {
+            execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
+        }
+        if !self.0.attributes.is_empty() {
+            execute_fmt(f, SetAttributes(self.0.attributes)).map_err(|_| fmt::Error)?;
+        }
+
+        Ok(())
+    }
+}
+
 /// A command that prints styled content.
 ///
 /// See [`StyledContent`](struct.StyledContent.html) for more info.
@@ -366,7 +394,6 @@ impl<D: Display> Command for PrintStyledContent<D> {
             execute_fmt(f, SetForegroundColor(fg)).map_err(|_| fmt::Error)?;
             reset_foreground = true;
         }
-
         if let Some(ul) = style.underline_color {
             execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
             reset_foreground = true;
