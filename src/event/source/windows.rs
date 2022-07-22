@@ -66,6 +66,14 @@ impl EventSource for WindowsEventSource {
                         InputRecord::WindowBufferSizeEvent(record) => {
                             Some(Event::Resize(record.size.x as u16, record.size.y as u16))
                         }
+                        InputRecord::FocusEvent(record) => {
+                            let event = if record.set_focus {
+                                Event::FocusGained
+                            } else {
+                                Event::FocusLost
+                            };
+                            Some(event)
+                        }
                         _ => None,
                     };
 

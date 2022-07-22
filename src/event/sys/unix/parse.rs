@@ -167,6 +167,8 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         })),
         b'M' => return parse_csi_normal_mouse(buffer),
         b'<' => return parse_csi_sgr_mouse(buffer),
+        b'I' => Some(Event::FocusGained),
+        b'O' => Some(Event::FocusLost),
         b'0'..=b'9' => {
             // Numbered escape code.
             if buffer.len() == 3 {
@@ -742,6 +744,14 @@ mod tests {
                 KeyCode::Delete,
                 KeyModifiers::SHIFT
             )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_focus() {
+        assert_eq!(
+            parse_csi(b"\x1B[O").unwrap(),
+            Some(InternalEvent::Event(Event::FocusLost))
         );
     }
 

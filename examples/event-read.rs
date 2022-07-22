@@ -7,7 +7,10 @@ use std::io::stdout;
 use crossterm::event::poll;
 use crossterm::{
     cursor::position,
-    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{
+        read, DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture,
+        Event, KeyCode,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
     Result,
@@ -15,7 +18,7 @@ use crossterm::{
 use std::time::Duration;
 
 const HELP: &str = r#"Blocking read()
- - Keyboard, mouse and terminal resize events enabled
+ - Keyboard, mouse, focus and terminal resize events enabled
  - Hit "c" to print current cursor position
  - Use Esc to quit
 "#;
@@ -67,13 +70,13 @@ fn main() -> Result<()> {
     enable_raw_mode()?;
 
     let mut stdout = stdout();
-    execute!(stdout, EnableMouseCapture)?;
+    execute!(stdout, EnableFocusChange, EnableMouseCapture)?;
 
     if let Err(e) = print_events() {
         println!("Error: {:?}\r", e);
     }
 
-    execute!(stdout, DisableMouseCapture)?;
+    execute!(stdout, DisableFocusChange, DisableMouseCapture)?;
 
     disable_raw_mode()
 }

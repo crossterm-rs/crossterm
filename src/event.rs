@@ -34,6 +34,8 @@
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
+//!             Event::FocusGained => println!("FocusGained"),
+//!             Event::FocusLost => println!("FocusLost"),
 //!             Event::Key(event) => println!("{:?}", event),
 //!             Event::Mouse(event) => println!("{:?}", event),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
@@ -57,6 +59,8 @@
 //!             // It's guaranteed that the `read()` won't block when the `poll()`
 //!             // function returns `true`
 //!             match read()? {
+//!                 Event::FocusGained => println!("FocusGained"),
+//!                 Event::FocusLost => println!("FocusLost"),
 //!                 Event::Key(event) => println!("{:?}", event),
 //!                 Event::Mouse(event) => println!("{:?}", event),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
@@ -74,6 +78,7 @@
 
 use std::fmt;
 use std::hash::{Hash, Hasher};
+#[cfg(windows)]
 use std::io;
 use std::time::Duration;
 
@@ -409,10 +414,50 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 }
 
+/// A command that enables focus event emission.
+///
+/// Focus events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableFocusChange;
+
+impl Command for EnableFocusChange {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1004h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        // Focus events are always enabled on Windows
+        Ok(())
+    }
+}
+
+/// A command that disables focus event emission.
+///
+/// Focus events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableFocusChange;
+
+impl Command for DisableFocusChange {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1004l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        // Focus events can't be disabled on Windows
+        Ok(())
+    }
+}
+
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Event {
+    /// The terminal gained focus
+    FocusGained,
+    /// The terminal lost focus
+    FocusLost,
     /// A single key event with additional pressed modifiers.
     Key(KeyEvent),
     /// A single mouse event with additional pressed modifiers.
