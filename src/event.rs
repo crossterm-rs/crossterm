@@ -294,6 +294,77 @@ impl Command for DisableMouseCapture {
     }
 }
 
+bitflags! {
+    /// Represents special flags that tell compatible terminals to add extra information to keyboard events.
+    ///
+    /// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/#progressive-enhancement for more information.
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    pub struct KeyboardEnhancementFlags: u8 {
+        /// Represent Escape and modified keys using CSI-u sequences, so they can be unambiguously
+        /// read.
+        const DISAMBIGUATE_ESCAPE_CODES = 0b0000_0001;
+        /// Add extra events with [`KeyEvent.kind`] set to [`KeyEventKind::Repeat`] or
+        /// [`KeyEventKind::Release`] when keys are autorepeated or released.
+        const REPORT_EVENT_TYPES = 0b0000_0010;
+        /// Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
+        /// in addition to the base keycode.
+        ///
+        /// *Note*: these are not yet supported by crossterm.
+        const REPORT_ALTERNATE_KEYS = 0b0000_0100;
+        /// Represent all keyboard events as CSI-u sequences. This is required to get repeat/release
+        /// events for plain-text keys.
+        const REPORT_ALL_KEYS_AS_ESCAPE_CODES = 0b0000_1000;
+        /// Send the Unicode codepoint as well as the keycode.
+        ///
+        /// *Note*: this is not yet supported by crossterm.
+        const REPORT_ASSOCIATED_TEXT = 0b0001_0000;
+    }
+}
+
+/// A command that enables extra kinds of keyboard events.
+///
+/// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/ for more information.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PushKeyboardEnhancementFlags(KeyboardEnhancementFlags);
+
+impl Command for PushKeyboardEnhancementFlags {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, "{}{}u", csi!(">"), self.0.bits())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        unimplemented!("keyboard progressive enhancement not implemented on Windows")
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
+/// A command that disables extra kinds of keyboard events.
+///
+/// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/ for more information.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PopKeyboardEnhancementFlags;
+
+impl Command for PopKeyboardEnhancementFlags {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("<1u"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        unimplemented!("keyboard progressive enhancement not implemented on Windows")
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
@@ -384,6 +455,15 @@ bitflags! {
     }
 }
 
+/// Represents a keyboard event kind.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+pub enum KeyEventKind {
+    Press,
+    Repeat,
+    Release,
+}
+
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, Clone, Copy)]
@@ -392,11 +472,29 @@ pub struct KeyEvent {
     pub code: KeyCode,
     /// Additional key modifiers.
     pub modifiers: KeyModifiers,
+    /// Kind of event.
+    pub kind: KeyEventKind,
 }
 
 impl KeyEvent {
     pub const fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
-        KeyEvent { code, modifiers }
+        KeyEvent {
+            code,
+            modifiers,
+            kind: KeyEventKind::Press,
+        }
+    }
+
+    pub const fn new_with_kind(
+        code: KeyCode,
+        modifiers: KeyModifiers,
+        kind: KeyEventKind,
+    ) -> KeyEvent {
+        KeyEvent {
+            code,
+            modifiers,
+            kind,
+        }
     }
 
     // modifies the KeyEvent,
@@ -422,6 +520,7 @@ impl From<KeyCode> for KeyEvent {
         KeyEvent {
             code,
             modifiers: KeyModifiers::empty(),
+            kind: KeyEventKind::Press,
         }
     }
 }
@@ -431,12 +530,14 @@ impl PartialEq for KeyEvent {
         let KeyEvent {
             code: lhs_code,
             modifiers: lhs_modifiers,
+            kind: lhs_kind,
         } = self.normalize_case();
         let KeyEvent {
             code: rhs_code,
             modifiers: rhs_modifiers,
+            kind: rhs_kind,
         } = other.normalize_case();
-        (lhs_code == rhs_code) && (lhs_modifiers == rhs_modifiers)
+        (lhs_code == rhs_code) && (lhs_modifiers == rhs_modifiers) && (lhs_kind == rhs_kind)
     }
 }
 
@@ -444,9 +545,14 @@ impl Eq for KeyEvent {}
 
 impl Hash for KeyEvent {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        let KeyEvent { code, modifiers } = self.normalize_case();
+        let KeyEvent {
+            code,
+            modifiers,
+            kind,
+        } = self.normalize_case();
         code.hash(state);
         modifiers.hash(state);
+        kind.hash(state);
     }
 }
 
