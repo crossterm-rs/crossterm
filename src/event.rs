@@ -297,7 +297,9 @@ impl Command for DisableMouseCapture {
 bitflags! {
     /// Represents special flags that tell compatible terminals to add extra information to keyboard events.
     ///
-    /// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/#progressive-enhancement for more information.
+    /// See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#progressive-enhancement> for more information.
+    ///
+    /// Alternate keys and Unicode codepoints are not yet supported by crossterm.
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct KeyboardEnhancementFlags: u8 {
         /// Represent Escape and modified keys using CSI-u sequences, so they can be unambiguously
@@ -306,26 +308,59 @@ bitflags! {
         /// Add extra events with [`KeyEvent.kind`] set to [`KeyEventKind::Repeat`] or
         /// [`KeyEventKind::Release`] when keys are autorepeated or released.
         const REPORT_EVENT_TYPES = 0b0000_0010;
-        /// Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
-        /// in addition to the base keycode.
-        ///
-        /// *Note*: these are not yet supported by crossterm.
-        const REPORT_ALTERNATE_KEYS = 0b0000_0100;
+        // Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
+        // in addition to the base keycode.
+        //
+        // *Note*: these are not yet supported by crossterm.
+        // const REPORT_ALTERNATE_KEYS = 0b0000_0100;
         /// Represent all keyboard events as CSI-u sequences. This is required to get repeat/release
         /// events for plain-text keys.
         const REPORT_ALL_KEYS_AS_ESCAPE_CODES = 0b0000_1000;
-        /// Send the Unicode codepoint as well as the keycode.
-        ///
-        /// *Note*: this is not yet supported by crossterm.
-        const REPORT_ASSOCIATED_TEXT = 0b0001_0000;
+        // Send the Unicode codepoint as well as the keycode.
+        //
+        // *Note*: this is not yet supported by crossterm.
+        // const REPORT_ASSOCIATED_TEXT = 0b0001_0000;
     }
 }
 
-/// A command that enables extra kinds of keyboard events.
+/// A command that enables the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/), which adds extra information to keyboard events and removes ambiguity for modifier keys.
 ///
-/// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/ for more information.
+/// It should be paired with [`PopKeyboardEnhancementFlags`] at the end of execution.
+///
+/// Example usage:
+/// ```no_run
+/// use std::io::{Write, stdout};
+/// use crossterm::execute;
+/// use crossterm::event::{
+///     KeyboardEnhancementFlags,
+///     PushKeyboardEnhancementFlags,
+///     PopKeyboardEnhancementFlags
+/// };
+///
+/// let mut stdout = stdout();
+///
+/// execute!(
+///     stdout,
+///     PushKeyboardEnhancementFlags(
+///         KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+///     )
+/// );
+///
+/// // ...
+///
+/// execute!(stdout, PopKeyboardEnhancementFlags);
+/// ```
+///
+/// Note that, currently, only the following support this protocol:
+/// * [kitty terminal](https://sw.kovidgoyal.net/kitty/)
+/// * [foot terminal](https://codeberg.org/dnkl/foot/issues/319)
+/// * [WezTerm terminal](https://wezfurlong.org/wezterm/config/lua/config/enable_kitty_keyboard.html)
+/// * [notcurses library](https://github.com/dankamongmen/notcurses/issues/2131)
+/// * [neovim text editor](https://github.com/neovim/neovim/pull/18181)
+/// * [kakoune text editor](https://github.com/mawww/kakoune/issues/4103)
+/// * [dte text editor](https://gitlab.com/craigbarnes/dte/-/issues/138)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PushKeyboardEnhancementFlags(KeyboardEnhancementFlags);
+pub struct PushKeyboardEnhancementFlags(pub KeyboardEnhancementFlags);
 
 impl Command for PushKeyboardEnhancementFlags {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
@@ -334,7 +369,10 @@ impl Command for PushKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        unimplemented!("keyboard progressive enhancement not implemented on Windows")
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Keyboard progressive enhancement not implemented on Windows.",
+        ))
     }
 
     #[cfg(windows)]
@@ -345,7 +383,9 @@ impl Command for PushKeyboardEnhancementFlags {
 
 /// A command that disables extra kinds of keyboard events.
 ///
-/// See https://sw.kovidgoyal.net/kitty/keyboard-protocol/ for more information.
+/// Specifically, it pops one level of keyboard enhancement flags.
+///
+/// See [`PushKeyboardEnhancementFlags`] and <https://sw.kovidgoyal.net/kitty/keyboard-protocol/> for more information.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PopKeyboardEnhancementFlags;
 
@@ -356,7 +396,10 @@ impl Command for PopKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        unimplemented!("keyboard progressive enhancement not implemented on Windows")
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Keyboard progressive enhancement not implemented on Windows.",
+        ))
     }
 
     #[cfg(windows)]

@@ -51,6 +51,9 @@
 //!    - Shape -
 //!      [`SetCursorShape`](cursor/struct.SetCursorShape.html)
 //! - Module [`event`](event/index.html)
+//!   - Keyboard events -
+//!     [`PushKeyboardEnhancementFlags`](event/struct.PushKeyboardEnhancementFlags.html),
+//!     [`PopKeyboardEnhancementFlags`](event/struct.PopKeyboardEnhancementFlags.html)
 //!   - Mouse events - [`EnableMouseCapture`](event/struct.EnableMouseCapture.html),
 //!     [`DisableMouseCapture`](event/struct.DisableMouseCapture.html)
 //! - Module [`style`](style/index.html)
