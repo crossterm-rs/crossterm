@@ -366,6 +366,16 @@ impl Command for SetStyle {
 
         Ok(())
     }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        panic!("tried to execute SetStyle command using WinAPI, use ANSI instead");
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
+    }
 }
 
 /// A command that prints styled content.
