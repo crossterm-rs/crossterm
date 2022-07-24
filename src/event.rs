@@ -645,6 +645,120 @@ impl Hash for KeyEvent {
     }
 }
 
+/// Represents a key on the keypad (as part of [`KeyCode::Keypad`]).
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum KeypadKeyCode {
+    /// A number key.
+    ///
+    /// `KeypadKeyCode::Number(1)` represents F1 key, etc.
+    Number(u8),
+    /// Keypad Decimal (`.`) key.
+    Decimal,
+    /// Keypad Divide (`/`) key.
+    Divide,
+    /// Keypad Multiply (`*`) key.
+    Multiply,
+    /// Keypad Subtract (`-`) key.
+    Subtract,
+    /// Keypad Add (`+`) key.
+    Add,
+    /// Keypad Enter key.
+    Enter,
+    /// Keypad Equal (`=`) key.
+    Equal,
+    /// Keypad Separator key.
+    Separator,
+    /// Keypad Left key.
+    Left,
+    /// Keypad Right key.
+    Right,
+    /// Keypad Up key.
+    Up,
+    /// Keypad Down key.
+    Down,
+    /// Keypad PageUp key.
+    PageUp,
+    /// Keypad PageDown key.
+    PageDown,
+    /// Keypad Home key.
+    Home,
+    /// Keypad End key.
+    End,
+    /// Keypad Insert key.
+    Insert,
+    /// Keypad Delete key.
+    Delete,
+    /// Keypad Begin key.
+    Begin,
+}
+
+/// Represents a media key (as part of [`KeyCode::Media`]).
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum MediaKeyCode {
+    /// Play media key.
+    Play,
+    /// Pause media key.
+    Pause,
+    /// Play/Pause media key.
+    PlayPause,
+    /// Reverse media key.
+    Reverse,
+    /// Stop media key.
+    Stop,
+    /// Fast-forward media key.
+    FastForward,
+    /// Rewind media key.
+    Rewind,
+    /// Next-track media key.
+    TrackNext,
+    /// Previous-track media key.
+    TrackPrevious,
+    /// Record media key.
+    Record,
+    /// Lower-volume media key.
+    LowerVolume,
+    /// Raise-volume media key.
+    RaiseVolume,
+    /// Mute media key.
+    MuteVolume,
+}
+
+/// Represents a modifier key (as part of [`KeyCode::Modifier`]).
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum ModifierKeyCode {
+    /// Left Shift key.
+    LeftShift,
+    /// Left Control key.
+    LeftControl,
+    /// Left Alt key.
+    LeftAlt,
+    /// Left Super key.
+    LeftSuper,
+    /// Left Hyper key.
+    LeftHyper,
+    /// Left Meta key.
+    LeftMeta,
+    /// Right Shift key.
+    RightShift,
+    /// Right Control key.
+    RightControl,
+    /// Right Alt key.
+    RightAlt,
+    /// Right Super key.
+    RightSuper,
+    /// Right Hyper key.
+    RightHyper,
+    /// Right Meta key.
+    RightMeta,
+    /// Iso Level3 Shift key.
+    IsoLevel3Shift,
+    /// Iso Level5 Shift key.
+    IsoLevel5Shift,
+}
+
 /// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -689,6 +803,31 @@ pub enum KeyCode {
     Null,
     /// Escape key.
     Esc,
+    /// Caps Lock key.
+    ///
+    /// **Note:** this and all following keys can only be read if
+    /// [[`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`]] has been enabled with
+    /// [[`PushKeyboardEnhancementFlags`].
+    CapsLock,
+    /// Scroll Lock key.
+    ScrollLock,
+    /// Num Lock key.
+    NumLock,
+    /// Print Screen key.
+    PrintScreen,
+    /// Pause key.
+    Pause,
+    /// Menu key.
+    Menu,
+    /// A key on the keypad.
+    Keypad(KeypadKeyCode),
+    /// A media key.
+    Media(MediaKeyCode),
+    /// A modifier key.
+    ///
+    /// The [[`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`]] flag is required to
+    /// read these keys.
+    Modifier(ModifierKeyCode),
 }
 
 /// An internal event.
