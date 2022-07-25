@@ -806,8 +806,8 @@ pub enum KeyCode {
     /// Caps Lock key.
     ///
     /// **Note:** this and all following keys can only be read if
-    /// [[`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`]] has been enabled with
-    /// [[`PushKeyboardEnhancementFlags`].
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     CapsLock,
     /// Scroll Lock key.
     ScrollLock,
@@ -825,7 +825,7 @@ pub enum KeyCode {
     Media(MediaKeyCode),
     /// A modifier key.
     ///
-    /// The [[`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`]] flag is required to
+    /// The [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] flag is required to
     /// read these keys.
     Modifier(ModifierKeyCode),
 }
