@@ -375,9 +375,9 @@ impl Command for PushKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        Err(io::Error::new(
-            io::ErrorKind::Unsupported,
-            "Keyboard progressive enhancement not implemented on Windows.",
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            "Keyboard progressive enhancement not implemented for the legacy Windows API.",
         ))
     }
 
@@ -402,9 +402,9 @@ impl Command for PopKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        Err(io::Error::new(
-            io::ErrorKind::Unsupported,
-            "Keyboard progressive enhancement not implemented on Windows.",
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            "Keyboard progressive enhancement not implemented for the legacy Windows API.",
         ))
     }
 
