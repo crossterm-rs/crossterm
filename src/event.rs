@@ -74,6 +74,7 @@
 
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::io;
 use std::time::Duration;
 
 use bitflags::bitflags;
