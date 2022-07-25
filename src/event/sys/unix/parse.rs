@@ -251,6 +251,15 @@ fn parse_modifiers(mask: u8) -> KeyModifiers {
     if modifier_mask & 4 != 0 {
         modifiers |= KeyModifiers::CONTROL;
     }
+    if modifier_mask & 8 != 0 {
+        modifiers |= KeyModifiers::SUPER;
+    }
+    if modifier_mask & 16 != 0 {
+        modifiers |= KeyModifiers::HYPER;
+    }
+    if modifier_mask & 32 != 0 {
+        modifiers |= KeyModifiers::META;
+    }
     modifiers
 }
 
@@ -266,7 +275,13 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
 
-    let modifier_mask = buffer[buffer.len() - 2];
+    let modifier_mask = if buffer.len() > 3 {
+        (buffer[buffer.len() - 2] as char)
+            .to_digit(10)
+            .ok_or(could_not_parse_event_error())? as u8
+    } else {
+        0
+    };
     let key = buffer[buffer.len() - 1];
 
     let modifiers = parse_modifiers(modifier_mask);
@@ -1167,6 +1182,31 @@ mod tests {
                 KeyCode::Modifier(ModifierKeyCode::RightAlt),
                 KeyModifiers::ALT,
                 KeyEventKind::Release,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_key_code_with_extra_modifiers() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;9u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::SUPER
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;17u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::HYPER
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;37u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::META | KeyModifiers::CONTROL
             )))),
         );
     }
