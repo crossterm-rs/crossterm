@@ -169,6 +169,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'<' => return parse_csi_sgr_mouse(buffer),
         b'I' => Some(Event::FocusGained),
         b'O' => Some(Event::FocusLost),
+        b';' => return parse_csi_modifier_key_code(buffer),
         b'0'..=b'9' => {
             // Numbered escape code.
             if buffer.len() == 3 {
@@ -274,17 +275,32 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
+                                                   //
+    let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+    let mut split = s.split(';');
 
-    let modifier_mask = if buffer.len() > 3 {
-        (buffer[buffer.len() - 2] as char)
-            .to_digit(10)
-            .ok_or(could_not_parse_event_error())? as u8
-    } else {
-        0
-    };
+    split.next();
+
+    let (modifiers, kind) =
+        if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
+            (
+                parse_modifiers(modifier_mask),
+                parse_key_event_kind(kind_code),
+            )
+        } else if buffer.len() > 3 {
+            (
+                parse_modifiers(
+                    (buffer[buffer.len() - 2] as char)
+                        .to_digit(10)
+                        .ok_or(could_not_parse_event_error())? as u8,
+                ),
+                KeyEventKind::Press,
+            )
+        } else {
+            (KeyModifiers::NONE, KeyEventKind::Press)
+        };
     let key = buffer[buffer.len() - 1];
-
-    let modifiers = parse_modifiers(modifier_mask);
 
     let keycode = match key {
         b'A' => KeyCode::Up,
@@ -300,7 +316,7 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
         _ => return Err(could_not_parse_event_error()),
     };
 
-    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
+    let input_event = Event::Key(KeyEvent::new_with_kind(keycode, modifiers, kind));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -1207,6 +1223,26 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new(
                 KeyCode::Char('a'),
                 KeyModifiers::META | KeyModifiers::CONTROL
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_special_key_code_with_types() {
+        assert_eq!(
+            parse_event(b"\x1B[;1:3B", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Down,
+                KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[1;1:3B", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Down,
+                KeyModifiers::empty(),
+                KeyEventKind::Release,
             )))),
         );
     }
