@@ -350,7 +350,6 @@ pub struct SetStyle(pub ContentStyle);
 
 impl Command for SetStyle {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-
         if let Some(bg) = self.0.background_color {
             execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
         }
