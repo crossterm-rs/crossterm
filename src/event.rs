@@ -553,6 +553,14 @@ pub enum KeyEventKind {
     Release,
 }
 
+bitflags! {
+    /// Represents extra state about the key event.
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    pub struct KeyEventState: u8 {
+        const KEYPAD = 0b0000_0001;
+    }
+}
+
 /// Represents a key event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialOrd, Clone, Copy)]
@@ -563,6 +571,8 @@ pub struct KeyEvent {
     pub modifiers: KeyModifiers,
     /// Kind of event.
     pub kind: KeyEventKind,
+    /// Keyboard state.
+    pub state: KeyEventState,
 }
 
 impl KeyEvent {
@@ -571,6 +581,7 @@ impl KeyEvent {
             code,
             modifiers,
             kind: KeyEventKind::Press,
+            state: KeyEventState::empty(),
         }
     }
 
@@ -583,6 +594,21 @@ impl KeyEvent {
             code,
             modifiers,
             kind,
+            state: KeyEventState::empty(),
+        }
+    }
+
+    pub const fn new_with_kind_and_state(
+        code: KeyCode,
+        modifiers: KeyModifiers,
+        kind: KeyEventKind,
+        state: KeyEventState,
+    ) -> KeyEvent {
+        KeyEvent {
+            code,
+            modifiers,
+            kind,
+            state,
         }
     }
 
@@ -610,6 +636,7 @@ impl From<KeyCode> for KeyEvent {
             code,
             modifiers: KeyModifiers::empty(),
             kind: KeyEventKind::Press,
+            state: KeyEventState::empty(),
         }
     }
 }
@@ -620,77 +647,36 @@ impl PartialEq for KeyEvent {
             code: lhs_code,
             modifiers: lhs_modifiers,
             kind: lhs_kind,
+            state: lhs_state,
         } = self.normalize_case();
         let KeyEvent {
             code: rhs_code,
             modifiers: rhs_modifiers,
             kind: rhs_kind,
+            state: rhs_state,
         } = other.normalize_case();
-        (lhs_code == rhs_code) && (lhs_modifiers == rhs_modifiers) && (lhs_kind == rhs_kind)
+        (lhs_code == rhs_code)
+            && (lhs_modifiers == rhs_modifiers)
+            && (lhs_kind == rhs_kind)
+            && (lhs_state == rhs_state)
     }
 }
 
 impl Eq for KeyEvent {}
 
 impl Hash for KeyEvent {
-    fn hash<H: Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, hash_state: &mut H) {
         let KeyEvent {
             code,
             modifiers,
             kind,
+            state,
         } = self.normalize_case();
-        code.hash(state);
-        modifiers.hash(state);
-        kind.hash(state);
+        code.hash(hash_state);
+        modifiers.hash(hash_state);
+        kind.hash(hash_state);
+        state.hash(hash_state);
     }
-}
-
-/// Represents a key on the keypad (as part of [`KeyCode::Keypad`]).
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum KeypadKeyCode {
-    /// A number key.
-    ///
-    /// `KeypadKeyCode::Number(1)` represents F1 key, etc.
-    Number(u8),
-    /// Keypad Decimal (`.`) key.
-    Decimal,
-    /// Keypad Divide (`/`) key.
-    Divide,
-    /// Keypad Multiply (`*`) key.
-    Multiply,
-    /// Keypad Subtract (`-`) key.
-    Subtract,
-    /// Keypad Add (`+`) key.
-    Add,
-    /// Keypad Enter key.
-    Enter,
-    /// Keypad Equal (`=`) key.
-    Equal,
-    /// Keypad Separator key.
-    Separator,
-    /// Keypad Left key.
-    Left,
-    /// Keypad Right key.
-    Right,
-    /// Keypad Up key.
-    Up,
-    /// Keypad Down key.
-    Down,
-    /// Keypad PageUp key.
-    PageUp,
-    /// Keypad PageDown key.
-    PageDown,
-    /// Keypad Home key.
-    Home,
-    /// Keypad End key.
-    End,
-    /// Keypad Insert key.
-    Insert,
-    /// Keypad Delete key.
-    Delete,
-    /// Keypad Begin key.
-    Begin,
 }
 
 /// Represents a media key (as part of [`KeyCode::Media`]).
@@ -805,28 +791,58 @@ pub enum KeyCode {
     Esc,
     /// Caps Lock key.
     ///
-    /// **Note:** this and all following keys can only be read if
+    /// **Note:** this key can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     CapsLock,
     /// Scroll Lock key.
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     ScrollLock,
     /// Num Lock key.
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     NumLock,
     /// Print Screen key.
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     PrintScreen,
     /// Pause key.
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     Pause,
     /// Menu key.
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     Menu,
-    /// A key on the keypad.
-    Keypad(KeypadKeyCode),
+    /// The "Begin" key (often mapped to the 5 key when Num Lock is turned on).
+    ///
+    /// **Note:** this key can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
+    KeypadBegin,
     /// A media key.
+    ///
+    /// **Note:** these keys can only be read if
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     Media(MediaKeyCode),
     /// A modifier key.
     ///
-    /// The [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] flag is required to
-    /// read these keys.
+    /// **Note:** these keys can only be read if **both**
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
+    /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] have been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     Modifier(ModifierKeyCode),
 }
 
