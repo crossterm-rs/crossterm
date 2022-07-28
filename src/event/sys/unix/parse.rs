@@ -394,7 +394,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
     // codepoint: ASCII Dec value
     let codepoint = next_parsed::<u32>(&mut split)?;
 
-    let (modifiers, kind) =
+    let (mut modifiers, kind) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
             (
                 parse_modifiers(modifier_mask),
@@ -430,6 +430,21 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
             return Err(could_not_parse_event_error());
         }
     };
+
+    if let KeyCode::Modifier(modifier_keycode) = keycode {
+        match modifier_keycode {
+            ModifierKeyCode::LeftAlt | ModifierKeyCode::RightAlt => {
+                modifiers.set(KeyModifiers::ALT, true)
+            }
+            ModifierKeyCode::LeftControl | ModifierKeyCode::RightControl => {
+                modifiers.set(KeyModifiers::CONTROL, true)
+            }
+            ModifierKeyCode::LeftShift | ModifierKeyCode::RightShift => {
+                modifiers.set(KeyModifiers::SHIFT, true)
+            }
+            _ => {}
+        }
+    }
 
     let input_event = Event::Key(KeyEvent::new_with_kind(keycode, modifiers, kind));
 
@@ -1053,7 +1068,7 @@ mod tests {
             parse_csi_u_encoded_key_code(b"\x1B[57441u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new(
                 KeyCode::Modifier(ModifierKeyCode::LeftShift),
-                KeyModifiers::empty()
+                KeyModifiers::SHIFT,
             )))),
         );
     }
@@ -1097,6 +1112,26 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
                 KeyCode::Char('a'),
                 KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_key_code_has_modifier_on_modifier_press() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57449u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Modifier(ModifierKeyCode::RightAlt),
+                KeyModifiers::ALT,
+                KeyEventKind::Press,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57449;3:3u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Modifier(ModifierKeyCode::RightAlt),
+                KeyModifiers::ALT,
                 KeyEventKind::Release,
             )))),
         );
