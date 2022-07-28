@@ -38,6 +38,8 @@
 //!             Event::FocusLost => println!("FocusLost"),
 //!             Event::Key(event) => println!("{:?}", event),
 //!             Event::Mouse(event) => println!("{:?}", event),
+//!             #[cfg(feature = "bracketed-paste")]
+//!             Event::Paste(data) => println!("{:?}", data),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!         }
 //!     }
@@ -63,6 +65,8 @@
 //!                 Event::FocusLost => println!("FocusLost"),
 //!                 Event::Key(event) => println!("{:?}", event),
 //!                 Event::Mouse(event) => println!("{:?}", event),
+//!                 #[cfg(feature = "bracketed-paste")]
+//!                 Event::Paste(data) => println!("Pasted {:?}", data),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!             }
 //!         } else {
@@ -416,6 +420,8 @@ impl Command for PopKeyboardEnhancementFlags {
 
 /// A command that enables focus event emission.
 ///
+/// It should be paired with [`DisableFocusChange`] at the end of execution.
+///
 /// Focus events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableFocusChange;
@@ -433,8 +439,6 @@ impl Command for EnableFocusChange {
 }
 
 /// A command that disables focus event emission.
-///
-/// Focus events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableFocusChange;
 
@@ -450,9 +454,52 @@ impl Command for DisableFocusChange {
     }
 }
 
+/// A command that enables [bracketed paste mode](https://en.wikipedia.org/wiki/Bracketed-paste).
+///
+/// It should be paired with [`DisableBracketedPaste`] at the end of execution.
+///
+/// This is not supported in older Windows terminals without
+/// [virtual terminal sequences](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
+#[cfg(feature = "bracketed-paste")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableBracketedPaste;
+
+#[cfg(feature = "bracketed-paste")]
+impl Command for EnableBracketedPaste {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2004h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Bracketed paste not implemented in the legacy Windows API.",
+        ))
+    }
+}
+
+/// A command that disables bracketed paste mode.
+#[cfg(feature = "bracketed-paste")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableBracketedPaste;
+
+#[cfg(feature = "bracketed-paste")]
+impl Command for DisableBracketedPaste {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2004l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Ok(())
+    }
+}
+
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
 pub enum Event {
     /// The terminal gained focus
     FocusGained,
@@ -462,6 +509,10 @@ pub enum Event {
     Key(KeyEvent),
     /// A single mouse event with additional pressed modifiers.
     Mouse(MouseEvent),
+    /// A string that was pasted into the terminal. Only emitted if bracketed paste has been
+    /// enabled.
+    #[cfg(feature = "bracketed-paste")]
+    Paste(String),
     /// An resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can be occur in batches.
     Resize(u16, u16),

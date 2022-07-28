@@ -176,11 +176,15 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
             } else {
                 // The final byte of a CSI sequence can be in the range 64-126, so
                 // let's keep reading anything else.
-                let last_byte = *buffer.last().unwrap();
+                let last_byte = buffer[buffer.len() - 1];
                 if !(64..=126).contains(&last_byte) {
                     None
                 } else {
-                    match buffer[buffer.len() - 1] {
+                    #[cfg(feature = "bracketed-paste")]
+                    if buffer.starts_with(b"\x1B[200~") {
+                        return parse_csi_bracketed_paste(buffer);
+                    }
+                    match last_byte {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
@@ -650,6 +654,19 @@ fn parse_cb(cb: u8) -> Result<(MouseEventKind, KeyModifiers)> {
     Ok((kind, modifiers))
 }
 
+#[cfg(feature = "bracketed-paste")]
+pub(crate) fn parse_csi_bracketed_paste(buffer: &[u8]) -> Result<Option<InternalEvent>> {
+    // ESC [ 2 0 0 ~ pasted text ESC 2 0 1 ~
+    assert!(buffer.starts_with(b"\x1B[200~"));
+
+    if !buffer.ends_with(b"\x1b[201~") {
+        Ok(None)
+    } else {
+        let paste = String::from_utf8_lossy(&buffer[6..buffer.len() - 6]).to_string();
+        Ok(Some(InternalEvent::Event(Event::Paste(paste))))
+    }
+}
+
 pub(crate) fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {
     match std::str::from_utf8(buffer) {
         Ok(s) => {
@@ -773,6 +790,15 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyCode::Delete.into()))),
         );
 
+        // parse_csi_bracketed_paste
+        #[cfg(feature = "bracketed-paste")]
+        assert_eq!(
+            parse_event(b"\x1B[200~on and on and on\x1B[201~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Paste(
+                "on and on and on".to_string()
+            ))),
+        );
+
         // parse_csi_rxvt_mouse
         assert_eq!(
             parse_event(b"\x1B[32;30;40;M", false).unwrap(),
@@ -867,6 +893,26 @@ mod tests {
                 KeyCode::Delete,
                 KeyModifiers::SHIFT
             )))),
+        );
+    }
+
+    #[cfg(feature = "bracketed-paste")]
+    #[test]
+    fn test_parse_csi_bracketed_paste() {
+        //
+        assert_eq!(
+            parse_event(b"\x1B[200~o", false).unwrap(),
+            None,
+            "A partial bracketed paste isn't parsed"
+        );
+        assert_eq!(
+            parse_event(b"\x1B[200~o\x1B[2D", false).unwrap(),
+            None,
+            "A partial bracketed paste containing another escape code isn't parsed"
+        );
+        assert_eq!(
+            parse_event(b"\x1B[200~o\x1B[2D\x1B[201~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Paste("o\x1B[2D".to_string())))
         );
     }
 
