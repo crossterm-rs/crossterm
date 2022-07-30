@@ -375,8 +375,8 @@ impl Command for PushKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
             "Keyboard progressive enhancement not implemented for the legacy Windows API.",
         ))
     }
@@ -402,8 +402,8 @@ impl Command for PopKeyboardEnhancementFlags {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
             "Keyboard progressive enhancement not implemented for the legacy Windows API.",
         ))
     }
@@ -557,6 +557,7 @@ bitflags! {
     /// Represents extra state about the key event.
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     pub struct KeyEventState: u8 {
+        /// The key event origins from the keypad.
         const KEYPAD = 0b0000_0001;
     }
 }
@@ -572,6 +573,9 @@ pub struct KeyEvent {
     /// Kind of event.
     pub kind: KeyEventKind,
     /// Keyboard state.
+    ///
+    /// Only set if [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
+    /// [`PushKeyboardEnhancementFlags`].
     pub state: KeyEventState,
 }
 
