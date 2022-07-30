@@ -45,29 +45,24 @@ fn match_event(read_event: Event) {
 }
 
 fn main() {
-    match_event(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::CONTROL,
-        code: KeyCode::Char('z'),
-        kind: KeyEventKind::Press,
-    }));
-    match_event(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::SHIFT,
-        code: KeyCode::Left,
-        kind: KeyEventKind::Press,
-    }));
-    match_event(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::ALT,
-        code: KeyCode::Delete,
-        kind: KeyEventKind::Press,
-    }));
-    match_event(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::ALT | KeyModifiers::SHIFT,
-        code: KeyCode::Right,
-        kind: KeyEventKind::Press,
-    }));
-    match_event(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::ALT | KeyModifiers::CONTROL,
-        code: KeyCode::Home,
-        kind: KeyEventKind::Press,
-    }));
+    match_event(Event::Key(KeyEvent::new(
+        KeyCode::Char('z'),
+        KeyModifiers::CONTROL,
+    )));
+    match_event(Event::Key(KeyEvent::new(
+        KeyCode::Left,
+        KeyModifiers::SHIFT,
+    )));
+    match_event(Event::Key(KeyEvent::new(
+        KeyCode::Delete,
+        KeyModifiers::ALT,
+    )));
+    match_event(Event::Key(KeyEvent::new(
+        KeyCode::Right,
+        KeyModifiers::ALT | KeyModifiers::SHIFT,
+    )));
+    match_event(Event::Key(KeyEvent::new(
+        KeyCode::Home,
+        KeyModifiers::ALT | KeyModifiers::CONTROL,
+    )));
 }

@@ -2,8 +2,8 @@ use std::io;
 
 use crate::{
     event::{
-        Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent,
-        MouseEventKind,
+        Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, MediaKeyCode,
+        ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
     },
     ErrorKind, Result,
 };
@@ -160,11 +160,11 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'B' => Some(Event::Key(KeyCode::Down.into())),
         b'H' => Some(Event::Key(KeyCode::Home.into())),
         b'F' => Some(Event::Key(KeyCode::End.into())),
-        b'Z' => Some(Event::Key(KeyEvent {
-            code: KeyCode::BackTab,
-            modifiers: KeyModifiers::SHIFT,
-            kind: KeyEventKind::Press,
-        })),
+        b'Z' => Some(Event::Key(KeyEvent::new_with_kind(
+            KeyCode::BackTab,
+            KeyModifiers::SHIFT,
+            KeyEventKind::Press,
+        ))),
         b'M' => return parse_csi_normal_mouse(buffer),
         b'<' => return parse_csi_sgr_mouse(buffer),
         b'I' => Some(Event::FocusGained),
@@ -290,6 +290,107 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
     Ok(Some(InternalEvent::Event(input_event)))
 }
 
+fn translate_functional_key_code(codepoint: u32) -> Option<(KeyCode, KeyEventState)> {
+    if let Some(keycode) = match codepoint {
+        57399 => Some(KeyCode::Char('0')),
+        57400 => Some(KeyCode::Char('1')),
+        57401 => Some(KeyCode::Char('2')),
+        57402 => Some(KeyCode::Char('3')),
+        57403 => Some(KeyCode::Char('4')),
+        57404 => Some(KeyCode::Char('5')),
+        57405 => Some(KeyCode::Char('6')),
+        57406 => Some(KeyCode::Char('7')),
+        57407 => Some(KeyCode::Char('8')),
+        57408 => Some(KeyCode::Char('9')),
+        57409 => Some(KeyCode::Char('.')),
+        57410 => Some(KeyCode::Char('/')),
+        57411 => Some(KeyCode::Char('*')),
+        57412 => Some(KeyCode::Char('-')),
+        57413 => Some(KeyCode::Char('+')),
+        57414 => Some(KeyCode::Enter),
+        57415 => Some(KeyCode::Char('=')),
+        57416 => Some(KeyCode::Char(',')),
+        57417 => Some(KeyCode::Left),
+        57418 => Some(KeyCode::Right),
+        57419 => Some(KeyCode::Up),
+        57420 => Some(KeyCode::Down),
+        57421 => Some(KeyCode::PageUp),
+        57422 => Some(KeyCode::PageDown),
+        57423 => Some(KeyCode::Home),
+        57424 => Some(KeyCode::End),
+        57425 => Some(KeyCode::Insert),
+        57426 => Some(KeyCode::Delete),
+        57427 => Some(KeyCode::KeypadBegin),
+        _ => None,
+    } {
+        return Some((keycode, KeyEventState::KEYPAD));
+    }
+
+    if let Some(keycode) = match codepoint {
+        57358 => Some(KeyCode::CapsLock),
+        57359 => Some(KeyCode::ScrollLock),
+        57360 => Some(KeyCode::NumLock),
+        57361 => Some(KeyCode::PrintScreen),
+        57362 => Some(KeyCode::Pause),
+        57363 => Some(KeyCode::Menu),
+        57376 => Some(KeyCode::F(13)),
+        57377 => Some(KeyCode::F(14)),
+        57378 => Some(KeyCode::F(15)),
+        57379 => Some(KeyCode::F(16)),
+        57380 => Some(KeyCode::F(17)),
+        57381 => Some(KeyCode::F(18)),
+        57382 => Some(KeyCode::F(19)),
+        57383 => Some(KeyCode::F(20)),
+        57384 => Some(KeyCode::F(21)),
+        57385 => Some(KeyCode::F(22)),
+        57386 => Some(KeyCode::F(23)),
+        57387 => Some(KeyCode::F(24)),
+        57388 => Some(KeyCode::F(25)),
+        57389 => Some(KeyCode::F(26)),
+        57390 => Some(KeyCode::F(27)),
+        57391 => Some(KeyCode::F(28)),
+        57392 => Some(KeyCode::F(29)),
+        57393 => Some(KeyCode::F(30)),
+        57394 => Some(KeyCode::F(31)),
+        57395 => Some(KeyCode::F(32)),
+        57396 => Some(KeyCode::F(33)),
+        57397 => Some(KeyCode::F(34)),
+        57398 => Some(KeyCode::F(35)),
+        57428 => Some(KeyCode::Media(MediaKeyCode::Play)),
+        57429 => Some(KeyCode::Media(MediaKeyCode::Pause)),
+        57430 => Some(KeyCode::Media(MediaKeyCode::PlayPause)),
+        57431 => Some(KeyCode::Media(MediaKeyCode::Reverse)),
+        57432 => Some(KeyCode::Media(MediaKeyCode::Stop)),
+        57433 => Some(KeyCode::Media(MediaKeyCode::FastForward)),
+        57434 => Some(KeyCode::Media(MediaKeyCode::Rewind)),
+        57435 => Some(KeyCode::Media(MediaKeyCode::TrackNext)),
+        57436 => Some(KeyCode::Media(MediaKeyCode::TrackPrevious)),
+        57437 => Some(KeyCode::Media(MediaKeyCode::Record)),
+        57438 => Some(KeyCode::Media(MediaKeyCode::LowerVolume)),
+        57439 => Some(KeyCode::Media(MediaKeyCode::RaiseVolume)),
+        57440 => Some(KeyCode::Media(MediaKeyCode::MuteVolume)),
+        57441 => Some(KeyCode::Modifier(ModifierKeyCode::LeftShift)),
+        57442 => Some(KeyCode::Modifier(ModifierKeyCode::LeftControl)),
+        57443 => Some(KeyCode::Modifier(ModifierKeyCode::LeftAlt)),
+        57444 => Some(KeyCode::Modifier(ModifierKeyCode::LeftSuper)),
+        57445 => Some(KeyCode::Modifier(ModifierKeyCode::LeftHyper)),
+        57446 => Some(KeyCode::Modifier(ModifierKeyCode::LeftMeta)),
+        57447 => Some(KeyCode::Modifier(ModifierKeyCode::RightShift)),
+        57448 => Some(KeyCode::Modifier(ModifierKeyCode::RightControl)),
+        57449 => Some(KeyCode::Modifier(ModifierKeyCode::RightAlt)),
+        57450 => Some(KeyCode::Modifier(ModifierKeyCode::RightSuper)),
+        57451 => Some(KeyCode::Modifier(ModifierKeyCode::RightHyper)),
+        57452 => Some(KeyCode::Modifier(ModifierKeyCode::RightMeta)),
+        57453 => Some(KeyCode::Modifier(ModifierKeyCode::IsoLevel3Shift)),
+        57454 => Some(KeyCode::Modifier(ModifierKeyCode::IsoLevel5Shift)),
+        _ => None,
+    } {
+        return Some((keycode, KeyEventState::empty()));
+    }
+
+    None
+}
+
 pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'u']));
@@ -303,7 +404,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
     // codepoint: ASCII Dec value
     let codepoint = next_parsed::<u32>(&mut split)?;
 
-    let (modifiers, kind) =
+    let (mut modifiers, kind) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
             (
                 parse_modifiers(modifier_mask),
@@ -313,32 +414,54 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
             (KeyModifiers::NONE, KeyEventKind::Press)
         };
 
-    let keycode = {
-        if let Some(c) = char::from_u32(codepoint) {
-            match c {
-                '\x1B' => KeyCode::Esc,
-                '\r' => KeyCode::Enter,
-                // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
-                // newlines as input is because the terminal converts \r into \n for us. When we
-                // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
-                // use Ctrl+J. Waiting to handle it here means it gets picked up later
-                '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
-                '\t' => {
-                    if modifiers.contains(KeyModifiers::SHIFT) {
-                        KeyCode::BackTab
-                    } else {
-                        KeyCode::Tab
+    let (keycode, state) = {
+        if let Some((special_key_code, state)) = translate_functional_key_code(codepoint) {
+            (special_key_code, state)
+        } else if let Some(c) = char::from_u32(codepoint) {
+            (
+                match c {
+                    '\x1B' => KeyCode::Esc,
+                    '\r' => KeyCode::Enter,
+                    // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
+                    // newlines as input is because the terminal converts \r into \n for us. When we
+                    // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
+                    // use Ctrl+J. Waiting to handle it here means it gets picked up later
+                    '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
+                    '\t' => {
+                        if modifiers.contains(KeyModifiers::SHIFT) {
+                            KeyCode::BackTab
+                        } else {
+                            KeyCode::Tab
+                        }
                     }
-                }
-                '\x7F' => KeyCode::Backspace,
-                _ => KeyCode::Char(c),
-            }
+                    '\x7F' => KeyCode::Backspace,
+                    _ => KeyCode::Char(c),
+                },
+                KeyEventState::empty(),
+            )
         } else {
             return Err(could_not_parse_event_error());
         }
     };
 
-    let input_event = Event::Key(KeyEvent::new_with_kind(keycode, modifiers, kind));
+    if let KeyCode::Modifier(modifier_keycode) = keycode {
+        match modifier_keycode {
+            ModifierKeyCode::LeftAlt | ModifierKeyCode::RightAlt => {
+                modifiers.set(KeyModifiers::ALT, true)
+            }
+            ModifierKeyCode::LeftControl | ModifierKeyCode::RightControl => {
+                modifiers.set(KeyModifiers::CONTROL, true)
+            }
+            ModifierKeyCode::LeftShift | ModifierKeyCode::RightShift => {
+                modifiers.set(KeyModifiers::SHIFT, true)
+            }
+            _ => {}
+        }
+    }
+
+    let input_event = Event::Key(KeyEvent::new_with_kind_and_state(
+        keycode, modifiers, kind, state,
+    ));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -568,7 +691,7 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::event::{KeyModifiers, MouseButton, MouseEvent};
+    use crate::event::{KeyEventState, KeyModifiers, MouseButton, MouseEvent};
 
     use super::*;
 
@@ -928,6 +1051,60 @@ mod tests {
                 KeyModifiers::empty()
             )))),
         );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57358u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::CapsLock,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57376u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::F(13),
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57428u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Media(MediaKeyCode::Play),
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57441u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::LeftShift),
+                KeyModifiers::SHIFT,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_keypad_code() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57399u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyEvent::new_with_kind_and_state(
+                    KeyCode::Char('0'),
+                    KeyModifiers::empty(),
+                    KeyEventKind::Press,
+                    KeyEventState::KEYPAD,
+                )
+            ))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57419u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyEvent::new_with_kind_and_state(
+                    KeyCode::Up,
+                    KeyModifiers::empty(),
+                    KeyEventKind::Press,
+                    KeyEventState::KEYPAD,
+                )
+            ))),
+        );
     }
 
     #[test]
@@ -969,6 +1146,26 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
                 KeyCode::Char('a'),
                 KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_key_code_has_modifier_on_modifier_press() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57449u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Modifier(ModifierKeyCode::RightAlt),
+                KeyModifiers::ALT,
+                KeyEventKind::Press,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57449;3:3u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Modifier(ModifierKeyCode::RightAlt),
+                KeyModifiers::ALT,
                 KeyEventKind::Release,
             )))),
         );
