@@ -436,7 +436,7 @@ impl Command for SetClipboard {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
-        set_clipboard_string(&self.payload).map_err(|err| std::io::Error::from(err))
+        set_clipboard_string(&self.payload).map_err(std::io::Error::from)
     }
 
     #[cfg(windows)]
