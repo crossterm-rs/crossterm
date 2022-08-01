@@ -86,6 +86,8 @@
 use std::fmt;
 
 #[cfg(windows)]
+use clipboard_win::set_clipboard_string;
+#[cfg(windows)]
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -376,10 +378,78 @@ impl<T: fmt::Display> Command for SetTitle<T> {
     }
 }
 
+/// Which selection to set. Only affects X11. See
+/// [X Window selection](https://en.wikipedia.org/wiki/X_Window_selection) for details.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ClipboardKind {
+    /// Set the clipboard selection. This is the only clipboard in most windowing systems.
+    /// In X11, it's the selection set by an explicit copy command
+    Clipboard,
+    /// Set the primary selection.
+    /// In windowing systems other than X11, terminals often perform the same behavior
+    /// as with Clipboard for Primary.
+    /// In X11, this sets the selection used when text is highlighted.
+    Primary,
+    // XTerm also supports "secondary", "select", and "cut-buffers" 0-7 as kinds.
+    // Since those aren't supported elsewhere, not exposing those from here
+}
+
+/// A command that sets the clipboard contents.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetClipboard {
+    // The base64 encoded content for Unix and the raw content for Windows
+    payload: String,
+    kind: ClipboardKind,
+}
+
+impl SetClipboard {
+    #[cfg(windows)]
+    pub fn new(content: &str, kind: ClipboardKind) -> Self {
+        Self {
+            payload: content.to_string(),
+            kind,
+        }
+    }
+
+    #[cfg(not(windows))]
+    pub fn new(content: &str, kind: ClipboardKind) -> Self {
+        Self {
+            payload: base64::encode(content),
+            kind,
+        }
+    }
+}
+
+impl Command for SetClipboard {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        // Send an OSC 52 set command: https://terminalguide.namepad.de/seq/osc-52/
+        let kind = match &self.kind {
+            ClipboardKind::Clipboard => "c",
+            ClipboardKind::Primary => "p",
+        };
+        write!(f, "\x1b]52;{};{}\x1b\\", kind, &self.payload)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        set_clipboard_string(&self.payload).map_err(|err| std::io::Error::from(err))
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
 impl_display!(for ScrollUp);
 impl_display!(for ScrollDown);
 impl_display!(for SetSize);
 impl_display!(for Clear);
+impl_display!(for SetClipboard);
 
 #[cfg(test)]
 mod tests {

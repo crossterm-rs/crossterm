@@ -49,6 +49,7 @@ features = ["winuser", "winerror"]
 
 [target.'cfg(windows)'.dependencies]
 crossterm_winapi = "0.9"
+clipboard-win = { version = "4.4.2", features = ["std"] }
 
 #
 # UNIX dependencies
@@ -58,6 +59,7 @@ libc = "0.2"
 mio = { version = "0.8", features = ["os-poll"] }
 signal-hook = { version = "0.3.13" }
 signal-hook-mio = { version = "0.2.3", features = ["support-v0_8"] }
+base64 = "0.13.0"
 
 #
 # Dev dependencies (examples, ...)
