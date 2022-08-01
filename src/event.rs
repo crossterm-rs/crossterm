@@ -570,12 +570,12 @@ bitflags! {
         const KEYPAD = 0b0000_0001;
         /// The Hyper modifier was held for this key event.
         ///
-        /// This modifier is uncommon; thus, it is not stored in [`KeyEvent.state`] to avoid
+        /// This modifier is uncommon; thus, it is not stored in `KeyEvent.state` to avoid
         /// confusion or failures to match key events.
         const MODIFIER_HYPER = 0b0000_0010;
         /// The Meta modifier was held for this key event.
         ///
-        /// This modifier is uncommon; thus, it is not stored in [`KeyEvent.state`] to avoid
+        /// This modifier is uncommon; thus, it is not stored in `KeyEvent.state` to avoid
         /// confusion or failures to match key events.
         const MODIFIER_META = 0b0000_0100;
         /// Caps Lock was enabled for this key event.
