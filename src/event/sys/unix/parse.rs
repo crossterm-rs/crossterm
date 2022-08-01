@@ -305,7 +305,7 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
                 parse_modifiers(
                     (buffer[buffer.len() - 2] as char)
                         .to_digit(10)
-                        .ok_or(could_not_parse_event_error())? as u8,
+                        .ok_or_else(could_not_parse_event_error)? as u8,
                 ),
                 KeyEventKind::Press,
             )
