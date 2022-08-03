@@ -255,18 +255,18 @@ fn parse_modifiers(mask: u8) -> KeyModifiers {
     if modifier_mask & 8 != 0 {
         modifiers |= KeyModifiers::SUPER;
     }
+    if modifier_mask & 16 != 0 {
+        modifiers |= KeyModifiers::HYPER;
+    }
+    if modifier_mask & 32 != 0 {
+        modifiers |= KeyModifiers::META;
+    }
     modifiers
 }
 
 fn parse_modifiers_to_state(mask: u8) -> KeyEventState {
     let modifier_mask = mask.saturating_sub(1);
     let mut state = KeyEventState::empty();
-    if modifier_mask & 16 != 0 {
-        state |= KeyEventState::MODIFIER_HYPER;
-    }
-    if modifier_mask & 32 != 0 {
-        state |= KeyEventState::MODIFIER_META;
-    }
     if modifier_mask & 64 != 0 {
         state |= KeyEventState::CAPS_LOCK;
     }
@@ -458,7 +458,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
             (KeyModifiers::NONE, KeyEventKind::Press, KeyEventState::NONE)
         };
 
-    let (keycode, mut state_from_keycode) = {
+    let (keycode, state_from_keycode) = {
         if let Some((special_key_code, state)) = translate_functional_key_code(codepoint) {
             (special_key_code, state)
         } else if let Some(c) = char::from_u32(codepoint) {
@@ -503,10 +503,10 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
                 modifiers.set(KeyModifiers::SUPER, true)
             }
             ModifierKeyCode::LeftHyper | ModifierKeyCode::RightHyper => {
-                state_from_keycode.set(KeyEventState::MODIFIER_HYPER, true)
+                modifiers.set(KeyModifiers::HYPER, true)
             }
             ModifierKeyCode::LeftMeta | ModifierKeyCode::RightMeta => {
-                state_from_keycode.set(KeyEventState::MODIFIER_META, true)
+                modifiers.set(KeyModifiers::META, true)
             }
             _ => {}
         }
@@ -1227,33 +1227,24 @@ mod tests {
         );
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[57450u").unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
                 KeyCode::Modifier(ModifierKeyCode::RightSuper),
                 KeyModifiers::SUPER,
-                KeyEventKind::Press,
             )))),
         );
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[57451u").unwrap(),
-            Some(InternalEvent::Event(Event::Key(
-                KeyEvent::new_with_kind_and_state(
-                    KeyCode::Modifier(ModifierKeyCode::RightHyper),
-                    KeyModifiers::NONE,
-                    KeyEventKind::Press,
-                    KeyEventState::MODIFIER_HYPER,
-                )
-            ))),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::RightHyper),
+                KeyModifiers::HYPER,
+            )))),
         );
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[57452u").unwrap(),
-            Some(InternalEvent::Event(Event::Key(
-                KeyEvent::new_with_kind_and_state(
-                    KeyCode::Modifier(ModifierKeyCode::RightMeta),
-                    KeyModifiers::NONE,
-                    KeyEventKind::Press,
-                    KeyEventState::MODIFIER_META,
-                )
-            ))),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::RightMeta),
+                KeyModifiers::META,
+            )))),
         );
     }
 
@@ -1266,32 +1257,24 @@ mod tests {
                 KeyModifiers::SUPER
             )))),
         );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;17u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::HYPER,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;33u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::META,
+            )))),
+        );
     }
 
     #[test]
     fn test_parse_csi_u_encoded_key_code_with_extra_state() {
-        assert_eq!(
-            parse_csi_u_encoded_key_code(b"\x1B[97;17u").unwrap(),
-            Some(InternalEvent::Event(Event::Key(
-                KeyEvent::new_with_kind_and_state(
-                    KeyCode::Char('a'),
-                    KeyModifiers::empty(),
-                    KeyEventKind::Press,
-                    KeyEventState::MODIFIER_HYPER,
-                )
-            ))),
-        );
-        assert_eq!(
-            parse_csi_u_encoded_key_code(b"\x1B[97;37u").unwrap(),
-            Some(InternalEvent::Event(Event::Key(
-                KeyEvent::new_with_kind_and_state(
-                    KeyCode::Char('a'),
-                    KeyModifiers::CONTROL,
-                    KeyEventKind::Press,
-                    KeyEventState::MODIFIER_META,
-                )
-            ))),
-        );
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[97;65u").unwrap(),
             Some(InternalEvent::Event(Event::Key(

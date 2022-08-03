@@ -536,7 +536,7 @@ pub enum MouseButton {
 bitflags! {
     /// Represents key modifiers (shift, control, alt, etc.).
     ///
-    /// **Note:** `SUPER` can only be read if
+    /// **Note:** `SUPER`, `HYPER`, and `META` can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -545,6 +545,8 @@ bitflags! {
         const CONTROL = 0b0000_0010;
         const ALT = 0b0000_0100;
         const SUPER = 0b0000_1000;
+        const HYPER = 0b0001_0000;
+        const META = 0b0010_0000;
         const NONE = 0b0000_0000;
     }
 }
@@ -568,16 +570,6 @@ bitflags! {
     pub struct KeyEventState: u8 {
         /// The key event origins from the keypad.
         const KEYPAD = 0b0000_0001;
-        /// The Hyper modifier was held for this key event.
-        ///
-        /// This modifier is uncommon; thus, it is not stored in `KeyEvent.state` to avoid
-        /// confusion or failures to match key events.
-        const MODIFIER_HYPER = 0b0000_0010;
-        /// The Meta modifier was held for this key event.
-        ///
-        /// This modifier is uncommon; thus, it is not stored in `KeyEvent.state` to avoid
-        /// confusion or failures to match key events.
-        const MODIFIER_META = 0b0000_0100;
         /// Caps Lock was enabled for this key event.
         ///
         /// **Note:** this is set for the initial press of Num Lock itself.
