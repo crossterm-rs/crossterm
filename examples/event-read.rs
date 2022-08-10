@@ -4,7 +4,9 @@
 
 use std::io::stdout;
 
-use crossterm::event::poll;
+use crossterm::event::{
+    poll, KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
+};
 use crossterm::{
     cursor::position,
     event::{
@@ -70,13 +72,27 @@ fn main() -> Result<()> {
     enable_raw_mode()?;
 
     let mut stdout = stdout();
-    execute!(stdout, EnableFocusChange, EnableMouseCapture)?;
+    execute!(
+        stdout,
+        EnableFocusChange,
+        EnableMouseCapture,
+        PushKeyboardEnhancementFlags(
+            KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+                | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
+                | KeyboardEnhancementFlags::REPORT_EVENT_TYPES
+        )
+    )?;
 
     if let Err(e) = print_events() {
         println!("Error: {:?}\r", e);
     }
 
-    execute!(stdout, DisableFocusChange, DisableMouseCapture)?;
+    execute!(
+        stdout,
+        PopKeyboardEnhancementFlags,
+        DisableFocusChange,
+        DisableMouseCapture
+    )?;
 
     disable_raw_mode()
 }

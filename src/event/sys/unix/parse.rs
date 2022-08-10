@@ -169,6 +169,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'<' => return parse_csi_sgr_mouse(buffer),
         b'I' => Some(Event::FocusGained),
         b'O' => Some(Event::FocusLost),
+        b';' => return parse_csi_modifier_key_code(buffer),
         b'0'..=b'9' => {
             // Numbered escape code.
             if buffer.len() == 3 {
@@ -251,7 +252,28 @@ fn parse_modifiers(mask: u8) -> KeyModifiers {
     if modifier_mask & 4 != 0 {
         modifiers |= KeyModifiers::CONTROL;
     }
+    if modifier_mask & 8 != 0 {
+        modifiers |= KeyModifiers::SUPER;
+    }
+    if modifier_mask & 16 != 0 {
+        modifiers |= KeyModifiers::HYPER;
+    }
+    if modifier_mask & 32 != 0 {
+        modifiers |= KeyModifiers::META;
+    }
     modifiers
+}
+
+fn parse_modifiers_to_state(mask: u8) -> KeyEventState {
+    let modifier_mask = mask.saturating_sub(1);
+    let mut state = KeyEventState::empty();
+    if modifier_mask & 64 != 0 {
+        state |= KeyEventState::CAPS_LOCK;
+    }
+    if modifier_mask & 128 != 0 {
+        state |= KeyEventState::NUM_LOCK;
+    }
+    state
 }
 
 fn parse_key_event_kind(kind: u8) -> KeyEventKind {
@@ -265,11 +287,32 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
+                                                   //
+    let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+    let mut split = s.split(';');
 
-    let modifier_mask = buffer[buffer.len() - 2];
+    split.next();
+
+    let (modifiers, kind) =
+        if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
+            (
+                parse_modifiers(modifier_mask),
+                parse_key_event_kind(kind_code),
+            )
+        } else if buffer.len() > 3 {
+            (
+                parse_modifiers(
+                    (buffer[buffer.len() - 2] as char)
+                        .to_digit(10)
+                        .ok_or_else(could_not_parse_event_error)? as u8,
+                ),
+                KeyEventKind::Press,
+            )
+        } else {
+            (KeyModifiers::NONE, KeyEventKind::Press)
+        };
     let key = buffer[buffer.len() - 1];
-
-    let modifiers = parse_modifiers(modifier_mask);
 
     let keycode = match key {
         b'A' => KeyCode::Up,
@@ -285,7 +328,7 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> Result<Option<Intern
         _ => return Err(could_not_parse_event_error()),
     };
 
-    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
+    let input_event = Event::Key(KeyEvent::new_with_kind(keycode, modifiers, kind));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -404,17 +447,18 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
     // codepoint: ASCII Dec value
     let codepoint = next_parsed::<u32>(&mut split)?;
 
-    let (mut modifiers, kind) =
+    let (mut modifiers, kind, state_from_modifiers) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
             (
                 parse_modifiers(modifier_mask),
                 parse_key_event_kind(kind_code),
+                parse_modifiers_to_state(modifier_mask),
             )
         } else {
-            (KeyModifiers::NONE, KeyEventKind::Press)
+            (KeyModifiers::NONE, KeyEventKind::Press, KeyEventState::NONE)
         };
 
-    let (keycode, state) = {
+    let (keycode, state_from_keycode) = {
         if let Some((special_key_code, state)) = translate_functional_key_code(codepoint) {
             (special_key_code, state)
         } else if let Some(c) = char::from_u32(codepoint) {
@@ -455,12 +499,24 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
             ModifierKeyCode::LeftShift | ModifierKeyCode::RightShift => {
                 modifiers.set(KeyModifiers::SHIFT, true)
             }
+            ModifierKeyCode::LeftSuper | ModifierKeyCode::RightSuper => {
+                modifiers.set(KeyModifiers::SUPER, true)
+            }
+            ModifierKeyCode::LeftHyper | ModifierKeyCode::RightHyper => {
+                modifiers.set(KeyModifiers::HYPER, true)
+            }
+            ModifierKeyCode::LeftMeta | ModifierKeyCode::RightMeta => {
+                modifiers.set(KeyModifiers::META, true)
+            }
             _ => {}
         }
     }
 
     let input_event = Event::Key(KeyEvent::new_with_kind_and_state(
-        keycode, modifiers, kind, state,
+        keycode,
+        modifiers,
+        kind,
+        state_from_keycode | state_from_modifiers,
     ));
 
     Ok(Some(InternalEvent::Event(input_event)))
@@ -1166,6 +1222,98 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
                 KeyCode::Modifier(ModifierKeyCode::RightAlt),
                 KeyModifiers::ALT,
+                KeyEventKind::Release,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57450u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::RightSuper),
+                KeyModifiers::SUPER,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57451u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::RightHyper),
+                KeyModifiers::HYPER,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[57452u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Modifier(ModifierKeyCode::RightMeta),
+                KeyModifiers::META,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_key_code_with_extra_modifiers() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;9u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::SUPER
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;17u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::HYPER,
+            )))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;33u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('a'),
+                KeyModifiers::META,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_encoded_key_code_with_extra_state() {
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[97;65u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyEvent::new_with_kind_and_state(
+                    KeyCode::Char('a'),
+                    KeyModifiers::empty(),
+                    KeyEventKind::Press,
+                    KeyEventState::CAPS_LOCK,
+                )
+            ))),
+        );
+        assert_eq!(
+            parse_csi_u_encoded_key_code(b"\x1B[49;129u").unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyEvent::new_with_kind_and_state(
+                    KeyCode::Char('1'),
+                    KeyModifiers::empty(),
+                    KeyEventKind::Press,
+                    KeyEventState::NUM_LOCK,
+                )
+            ))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_special_key_code_with_types() {
+        assert_eq!(
+            parse_event(b"\x1B[;1:3B", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Down,
+                KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[1;1:3B", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Down,
+                KeyModifiers::empty(),
                 KeyEventKind::Release,
             )))),
         );
