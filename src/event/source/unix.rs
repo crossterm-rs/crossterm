@@ -26,7 +26,7 @@ const WAKE_TOKEN: Token = Token(2);
 // I (@zrzka) wasn't able to read more than 1_022 bytes when testing
 // reading on macOS/Linux -> we don't need bigger buffer and 1k of bytes
 // is enough.
-const TTY_BUFFER_SIZE: usize = 1_204;
+const TTY_BUFFER_SIZE: usize = 1_024;
 
 pub(crate) struct UnixInternalEventSource {
     poll: Poll,
