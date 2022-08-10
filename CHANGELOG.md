@@ -1,3 +1,21 @@
+
+# Version 0.25.0
+BREAKING: `Copy` trait is removed from `Event`, you can keep it by removing the "bracked-paste" feature flag. However this flag might be standardized in the future.
+We removed the `Copy` from `Event` because the new `Paste` event, which contains a pasted string into the terminal, which is a non-copy string.
+
+- Add ability to paste a string in into the terminal and fetch the pasted string via events (see `Event::Paste` and `EnableBracketedPaste `).
+- Add support for functional key codes from kitty keyboard protocol. Try out by `PushKeyboardEnhancementFlags`. This protocol allows for:
+  - See: https://sw.kovidgoyal.net/kitty/keyboard-protocol/#modifiers
+  - Press, Repeat, Release event kinds.
+  - SUPER, HYPER, META modifiers.
+  - Media keycodes
+  - Right/left SHIFT, Control, Alt, Super, Hyper, Meta
+  - IsoLevel3Shift, IsoLevel5Shift
+  - Capslock, scroll lock, numlock
+  - Printscreen, pauze, menue, keyboard begin.
+- Create `SetStyle` command to allow setting various styling in one command.
+- Terminal Focus events (see `Event::FocusGained` and `Event::FocusLost`)
+
 # Version 0.24.0
 - Add  DoubleUnderlined, Undercurled, Underdots the text, Underdotted, Underdashes, Underdashed attributes and allow coloring their foreground / background color.
 - Fix windows unicode character parsing, this fixed various key combinations and support typing unicode characters. 

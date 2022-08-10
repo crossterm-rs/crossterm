@@ -73,7 +73,7 @@ fn main() -> Result<()> {
         stdout,
         EnableBracketedPaste,
         EnableFocusChange,
-        EnableMouseCapture
+        EnableMouseCapture,
         PushKeyboardEnhancementFlags(
             KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
                 | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
