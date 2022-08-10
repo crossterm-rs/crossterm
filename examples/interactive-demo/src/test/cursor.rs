@@ -113,7 +113,7 @@ where
 {
     execute!(w,
         cursor::MoveTo(0, 0),
-        style::Print("Save position, print character else were, after three seconds restore to old position."),
+        style::Print("Save position, print character elsewhere, after three seconds restore to old position."),
         cursor::MoveToNextLine(2),
         style::Print("Save ->[ ]<- Position"),
         cursor::MoveTo(8, 2),
