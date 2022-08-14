@@ -29,6 +29,7 @@ all-features = true
 default = ["bracketed-paste"]
 bracketed-paste = []
 event-stream = ["futures-core"]
+strum = ["dep:strum", "strum_macros"]
 
 #
 # Shared dependencies
@@ -40,6 +41,8 @@ parking_lot = "0.12"
 # optional deps only added when requested
 futures-core = { version = "0.3", optional = true, default-features = false }
 serde = { version = "1.0", features = ["derive"], optional = true }
+strum = { version = "0.24", optional = true }
+strum_macros = { version = "0.24", optional = true }
 
 #
 # Windows dependencies

@@ -3,6 +3,9 @@ use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
 #[cfg(feature = "serde")]
 use std::fmt;
 
+#[cfg(feature = "strum")]
+use strum_macros::EnumIter;
+
 use crate::style::parse_next_u8;
 
 /// Represents a color.
@@ -25,6 +28,7 @@ use crate::style::parse_next_u8;
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[cfg_attr(feature = "strum", derive(EnumIter))]
 pub enum Color {
     /// Resets the terminal color.
     Reset,
