@@ -623,7 +623,7 @@ bitflags! {
         const KEYPAD = 0b0000_0001;
         /// Caps Lock was enabled for this key event.
         ///
-        /// **Note:** this is set for the initial press of Num Lock itself.
+        /// **Note:** this is set for the initial press of Caps Lock itself.
         const CAPS_LOCK = 0b0000_1000;
         /// Num Lock was enabled for this key event.
         ///
