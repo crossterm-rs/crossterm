@@ -47,7 +47,7 @@
 //!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
 //!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
 //!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),[`MoveToRow`](cursor/struct.MoveToRow.html),
-//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html),
+//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
 //!    - Shape -
 //!      [`SetCursorShape`](cursor/struct.SetCursorShape.html)
 //! - Module [`event`](event/index.html)
@@ -66,9 +66,9 @@
 //!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
-//!     [`SetSize`](terminal/struct.SetSize.html)
-//!     [`SetTitle`](terminal/struct.SetTitle.html)
-//!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html)
+//!     [`SetSize`](terminal/struct.SetSize.html),
+//!     [`SetTitle`](terminal/struct.SetTitle.html),
+//!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
 //!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
 //!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
