@@ -1,6 +1,9 @@
 use std::{
     fs, io,
-    os::unix::io::{IntoRawFd, RawFd},
+    os::unix::{
+        io::{IntoRawFd, RawFd},
+        prelude::AsRawFd,
+    },
 };
 
 use libc::size_t;
@@ -60,6 +63,12 @@ impl Drop for FileDesc {
             // opened after we closed ours.
             let _ = unsafe { libc::close(self.fd) };
         }
+    }
+}
+
+impl AsRawFd for FileDesc {
+    fn as_raw_fd(&self) -> RawFd {
+        self.raw_fd()
     }
 }
 
