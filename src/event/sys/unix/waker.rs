@@ -6,8 +6,7 @@ use std::{
 
 use crate::Result;
 
-/// Allows to wake up the `mio::Poll::poll()` method.
-/// This type wraps `mio::Waker`, for more information see its documentation.
+/// Allows to wake up the EventSource::try_read() method.
 #[derive(Clone, Debug)]
 pub(crate) struct Waker {
     inner: Arc<Mutex<UnixStream>>,
