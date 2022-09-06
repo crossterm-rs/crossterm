@@ -1,4 +1,4 @@
-use std::{fmt::Debug, mem::MaybeUninit, time::Duration};
+use std::{fmt::Debug, mem::MaybeUninit, os::unix::prelude::AsRawFd, time::Duration};
 
 use crate::Result;
 
@@ -55,49 +55,11 @@ impl FdSet {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct FdSelector {
+pub struct FdResult {
     pub fd: i32,
     pub read: bool,
     pub write: bool,
     pub error: bool,
-}
-
-impl FdSelector {
-    pub fn new(fd: i32, read: bool, write: bool, error: bool) -> Self {
-        FdSelector {
-            fd,
-            read,
-            write,
-            error,
-        }
-    }
-
-    pub fn read(fd: i32) -> Self {
-        FdSelector {
-            fd,
-            read: true,
-            write: false,
-            error: false,
-        }
-    }
-
-    pub fn write(fd: i32) -> Self {
-        FdSelector {
-            fd,
-            read: false,
-            write: true,
-            error: false,
-        }
-    }
-
-    pub fn error(fd: i32) -> Self {
-        FdSelector {
-            fd,
-            read: false,
-            write: false,
-            error: true,
-        }
-    }
 }
 
 #[derive(Clone, Default, Debug)]
@@ -134,39 +96,32 @@ impl Selector {
     }
 
     #[inline]
-    pub fn set(&mut self, selector: FdSelector) -> &mut Self {
-        if selector.read {
-            self.read.set(selector.fd)
-        }
-        if selector.write {
-            self.write.set(selector.fd)
-        }
-        if selector.error {
-            self.error.set(selector.fd)
-        }
-        self.max_fd = self.max_fd.max(selector.fd);
-        self
-    }
-    #[inline]
-    pub fn clear(&mut self, selector: FdSelector) -> &mut Self {
-        if selector.read {
-            self.read.clear(selector.fd)
-        }
-        if selector.write {
-            self.write.clear(selector.fd)
-        }
-        if selector.error {
-            self.error.clear(selector.fd)
-        }
+    pub fn add<F: AsRawFd>(&mut self, fd: &F) -> &mut Self {
+        let fd = fd.as_raw_fd();
+        // Only add to read and error sets. Not supporting write fds for now
+        self.read.set(fd);
+        self.error.set(fd);
+        self.max_fd = self.max_fd.max(fd);
         self
     }
 
-    pub fn get(&self, fd: i32) -> Option<FdSelector> {
+    #[inline]
+    #[allow(dead_code)]
+    pub fn remove<F: AsRawFd>(&mut self, fd: &F) -> &mut Self {
+        let fd = fd.as_raw_fd();
+        self.read.clear(fd);
+        self.write.clear(fd);
+        self.error.clear(fd);
+        self
+    }
+
+    pub fn get<F: AsRawFd>(&self, fd: &F) -> Option<FdResult> {
+        let fd = fd.as_raw_fd();
         let read = self.read.is_set(fd);
         let write = self.write.is_set(fd);
         let error = self.error.is_set(fd);
         if read | write | error {
-            Some(FdSelector {
+            Some(FdResult {
                 fd,
                 read,
                 write,
@@ -175,9 +130,5 @@ impl Selector {
         } else {
             None
         }
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = FdSelector> + '_ {
-        (0..=self.max_fd).filter_map(|i| self.get(i))
     }
 }

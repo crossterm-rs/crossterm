@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 
 use signal_hook::consts::SIGWINCH;
@@ -20,11 +19,10 @@ use super::{
         },
         InternalEvent,
     },
-    select::{FdSelector, Selector},
+    select::Selector,
     EventSource,
 };
 
-// TODO find a better name for this
 #[cfg(feature = "event-stream")]
 struct UnixWaker {
     reader: UnixStream,
@@ -51,7 +49,6 @@ pub(crate) struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_fd: FileDesc,
-    selector: Selector,
     resize_reader: UnixStream,
     #[cfg(feature = "event-stream")]
     waker: UnixWaker,
@@ -70,7 +67,6 @@ impl UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_fd: input_fd,
-            selector: Selector::default(),
             resize_reader,
             #[cfg(feature = "event-stream")]
             waker: UnixWaker::new()?,
@@ -81,70 +77,69 @@ impl UnixInternalEventSource {
 impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let timeout = PollTimeout::new(timeout);
+        let mut selector = Selector::default();
 
         while timeout.leftover().map_or(true, |t| !t.is_zero()) {
-            let tty_fd = self.tty_fd.raw_fd();
-            let resize_fd = self.resize_reader.as_raw_fd();
-            self.selector.set(FdSelector::read(tty_fd));
-            self.selector.set(FdSelector::read(resize_fd));
+            if let Some(event) = self.parser.next() {
+                return Ok(Some(event));
+            }
+            selector.add(&self.tty_fd);
+            selector.add(&self.resize_reader);
 
             #[cfg(feature = "event-stream")]
-            self.selector
-                .set(FdSelector::read(self.waker.reader.as_raw_fd()));
+            selector.add(&self.waker.reader);
 
-            // todo signals and such
-            let _ = self.selector.select(timeout.leftover())?;
-            for FdSelector { fd, .. } in self.selector.iter() {
-                if fd == tty_fd {
-                    loop {
-                        match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
-                            Ok(read_count) => {
-                                if read_count > 0 {
-                                    self.parser.advance(
-                                        &self.tty_buffer[..read_count],
-                                        read_count == TTY_BUFFER_SIZE,
-                                    );
-                                }
+            let _ = selector.select(timeout.leftover())?;
+            if selector.get(&self.tty_fd).is_some() {
+                loop {
+                    match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                        Ok(read_count) => {
+                            if read_count > 0 {
+                                self.parser.advance(
+                                    &self.tty_buffer[..read_count],
+                                    read_count == TTY_BUFFER_SIZE,
+                                );
                             }
-                            Err(e) => {
-                                // No more data to read at the moment. We will receive another event
-                                if e.kind() == io::ErrorKind::WouldBlock {
-                                    break;
-                                }
-                                // once more data is available to read.
-                                else if e.kind() == io::ErrorKind::Interrupted {
-                                    continue;
-                                }
-                            }
-                        };
-
-                        if let Some(event) = self.parser.next() {
-                            return Ok(Some(event));
                         }
-                    }
-                } else if fd == resize_fd {
-                    let mut buff = [0];
-                    if self.resize_reader.read(&mut buff)? > 0 {
-                        // TODO Should we remove tput?
-                        //
-                        // This can take a really long time, because terminal::size can
-                        // launch new process (tput) and then it parses its output. It's
-                        // not a really long time from the absolute time point of view, but
-                        // it's a really long time from the mio, async-std/tokio executor, ...
-                        // point of view.
-                        let new_size = crate::terminal::size()?;
-                        return Ok(Some(InternalEvent::Event(Event::Resize(
-                            new_size.0, new_size.1,
-                        ))));
+                        Err(e) => {
+                            // No more data to read at the moment. We will receive another event
+                            if e.kind() == io::ErrorKind::WouldBlock {
+                                break;
+                            }
+                            // once more data is available to read.
+                            else if e.kind() == io::ErrorKind::Interrupted {
+                                continue;
+                            }
+                        }
+                    };
+
+                    if let Some(event) = self.parser.next() {
+                        return Ok(Some(event));
                     }
                 }
-                #[cfg(feature = "event-stream")]
-                if fd == self.waker.reader.as_raw_fd() {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Interrupted,
-                        "Poll operation was woken up by `Waker::wake`",
-                    ));
+            }
+            if selector.get(&self.resize_reader).is_some() {
+                let mut buff = [0];
+                if self.resize_reader.read(&mut buff)? > 0 {
+                    // TODO Should we remove tput?
+                    //
+                    // This can take a really long time, because terminal::size can
+                    // launch new process (tput) and then it parses its output. It's
+                    // not a really long time from the absolute time point of view, but
+                    // it's a really long time from the mio, async-std/tokio executor, ...
+                    // point of view.
+                    let new_size = crate::terminal::size()?;
+                    return Ok(Some(InternalEvent::Event(Event::Resize(
+                        new_size.0, new_size.1,
+                    ))));
                 }
+            }
+            #[cfg(feature = "event-stream")]
+            if selector.get(&self.waker.reader).is_some() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                ));
             }
         }
         Ok(None)
