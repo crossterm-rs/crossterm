@@ -5,8 +5,6 @@ use super::sys::Waker;
 use super::InternalEvent;
 
 #[cfg(unix)]
-pub(crate) mod select;
-#[cfg(unix)]
 pub(crate) mod unix;
 #[cfg(windows)]
 pub(crate) mod windows;

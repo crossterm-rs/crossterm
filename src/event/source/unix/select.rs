@@ -11,6 +11,7 @@ impl Default for FdSet {
         let mut fd_set = MaybeUninit::<libc::fd_set>::uninit();
         FdSet(unsafe {
             libc::FD_ZERO(fd_set.as_mut_ptr());
+            // SAFETY: we trust FD_ZERO initializes the values of fd_set to 0
             fd_set.assume_init()
         })
     }
@@ -31,12 +32,16 @@ impl Debug for FdSet {
 impl FdSet {
     #[inline]
     pub fn set(&mut self, fd: i32) {
+        assert!(fd >= 0 && (fd as usize) < libc::FD_SETSIZE);
+        // SAFETY: pointer is valid and fd is in bound
         unsafe { libc::FD_SET(fd, self.as_mut_ptr()) }
     }
 
     #[inline]
-    pub fn clear(&mut self, fd: i32) {
-        unsafe { libc::FD_CLR(fd, self.as_mut_ptr()) }
+    pub fn is_set(&self, fd: i32) -> bool {
+        assert!(fd >= 0 && (fd as usize) < libc::FD_SETSIZE);
+        // SAFETY: pointer is valid and fd is in bound
+        unsafe { libc::FD_ISSET(fd, self.as_ptr()) }
     }
 
     #[inline]
@@ -48,10 +53,6 @@ impl FdSet {
     pub fn as_ptr(&self) -> *const libc::fd_set {
         &self.0 as *const _
     }
-    #[inline]
-    pub fn is_set(&self, fd: i32) -> bool {
-        unsafe { libc::FD_ISSET(fd, self.as_ptr()) }
-    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -62,6 +63,7 @@ pub struct FdResult {
     pub error: bool,
 }
 
+/// A small wrapper around the `select()` syscall. Currently only polls read/write events.
 #[derive(Clone, Default, Debug)]
 pub(crate) struct Selector {
     read: FdSet,
@@ -86,6 +88,9 @@ impl Selector {
             .as_mut()
             .map(|timeval| timeval as *mut _)
             .unwrap_or(std::ptr::null_mut());
+        // SAFETY:
+        // * read/write/error pointers are exclusive and valid
+        // * timeval_ptr points to timeval (a local variable) or is null (which is allowed)
         let result = unsafe { libc::select(self.max_fd + 1, read, write, error, timeval_ptr) };
 
         if result >= 0 {
@@ -102,16 +107,6 @@ impl Selector {
         self.read.set(fd);
         self.error.set(fd);
         self.max_fd = self.max_fd.max(fd);
-        self
-    }
-
-    #[inline]
-    #[allow(dead_code)]
-    pub fn remove<F: AsRawFd>(&mut self, fd: &F) -> &mut Self {
-        let fd = fd.as_raw_fd();
-        self.read.clear(fd);
-        self.write.clear(fd);
-        self.error.clear(fd);
         self
     }
 

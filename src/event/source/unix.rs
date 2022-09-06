@@ -8,6 +8,9 @@ use crate::event::timeout::PollTimeout;
 use crate::event::Event;
 use crate::Result;
 
+mod select;
+use self::select::Selector;
+
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
 
@@ -19,7 +22,6 @@ use super::{
         },
         InternalEvent,
     },
-    select::Selector,
     EventSource,
 };
 
