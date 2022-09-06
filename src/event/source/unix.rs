@@ -138,10 +138,12 @@ impl EventSource for UnixInternalEventSource {
             }
             #[cfg(feature = "event-stream")]
             if selector.get(&self.waker.reader).is_some() {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Interrupted,
-                    "Poll operation was woken up by `Waker::wake`",
-                ));
+                if self.waker.reader.read(&mut [0])? > 0 {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::Interrupted,
+                        "Poll operation was woken up by `Waker::wake`",
+                    ));
+                }
             }
         }
         Ok(None)
