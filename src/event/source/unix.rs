@@ -5,6 +5,7 @@ use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 use signal_hook::consts::SIGWINCH;
 use signal_hook::low_level::pipe;
 
+use crate::event::timeout::PollTimeout;
 use crate::event::Event;
 use crate::Result;
 
@@ -79,70 +80,71 @@ impl UnixInternalEventSource {
 
 impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
-        let tty_fd = self.tty_fd.raw_fd();
-        let resize_fd = self.resize_reader.as_raw_fd();
-        self.selector.set(FdSelector::read(tty_fd));
-        self.selector.set(FdSelector::read(resize_fd));
+        let timeout = PollTimeout::new(timeout);
 
-        #[cfg(feature = "event-stream")]
-        self.selector
-            .set(FdSelector::read(self.waker.reader.as_raw_fd()));
+        while timeout.leftover().map_or(true, |t| !t.is_zero()) {
+            let tty_fd = self.tty_fd.raw_fd();
+            let resize_fd = self.resize_reader.as_raw_fd();
+            self.selector.set(FdSelector::read(tty_fd));
+            self.selector.set(FdSelector::read(resize_fd));
 
-        // todo signals and such
-        let result = self.selector.select(timeout)?;
-        if result == 0 {
-            return Ok(None);
-        }
-        for FdSelector { fd, .. } in self.selector.iter() {
-            if fd == tty_fd {
-                loop {
-                    match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
-                        Ok(read_count) => {
-                            if read_count > 0 {
-                                self.parser.advance(
-                                    &self.tty_buffer[..read_count],
-                                    read_count == TTY_BUFFER_SIZE,
-                                );
+            #[cfg(feature = "event-stream")]
+            self.selector
+                .set(FdSelector::read(self.waker.reader.as_raw_fd()));
+
+            // todo signals and such
+            let _ = self.selector.select(timeout.leftover())?;
+            for FdSelector { fd, .. } in self.selector.iter() {
+                if fd == tty_fd {
+                    loop {
+                        match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                            Ok(read_count) => {
+                                if read_count > 0 {
+                                    self.parser.advance(
+                                        &self.tty_buffer[..read_count],
+                                        read_count == TTY_BUFFER_SIZE,
+                                    );
+                                }
                             }
+                            Err(e) => {
+                                // No more data to read at the moment. We will receive another event
+                                if e.kind() == io::ErrorKind::WouldBlock {
+                                    break;
+                                }
+                                // once more data is available to read.
+                                else if e.kind() == io::ErrorKind::Interrupted {
+                                    continue;
+                                }
+                            }
+                        };
+
+                        if let Some(event) = self.parser.next() {
+                            return Ok(Some(event));
                         }
-                        Err(e) => {
-                            // No more data to read at the moment. We will receive another event
-                            if e.kind() == io::ErrorKind::WouldBlock {
-                                break;
-                            }
-                            // once more data is available to read.
-                            else if e.kind() == io::ErrorKind::Interrupted {
-                                continue;
-                            }
-                        }
-                    };
-
-                    if let Some(event) = self.parser.next() {
-                        return Ok(Some(event));
+                    }
+                } else if fd == resize_fd {
+                    let mut buff = [0];
+                    if self.resize_reader.read(&mut buff)? > 0 {
+                        // TODO Should we remove tput?
+                        //
+                        // This can take a really long time, because terminal::size can
+                        // launch new process (tput) and then it parses its output. It's
+                        // not a really long time from the absolute time point of view, but
+                        // it's a really long time from the mio, async-std/tokio executor, ...
+                        // point of view.
+                        let new_size = crate::terminal::size()?;
+                        return Ok(Some(InternalEvent::Event(Event::Resize(
+                            new_size.0, new_size.1,
+                        ))));
                     }
                 }
-            } else if fd == resize_fd {
-                let mut buff = [0];
-                if self.resize_reader.read(&mut buff)? > 0 {
-                    // TODO Should we remove tput?
-                    //
-                    // This can take a really long time, because terminal::size can
-                    // launch new process (tput) and then it parses its output. It's
-                    // not a really long time from the absolute time point of view, but
-                    // it's a really long time from the mio, async-std/tokio executor, ...
-                    // point of view.
-                    let new_size = crate::terminal::size()?;
-                    return Ok(Some(InternalEvent::Event(Event::Resize(
-                        new_size.0, new_size.1,
-                    ))));
+                #[cfg(feature = "event-stream")]
+                if fd == self.waker.reader.as_raw_fd() {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::Interrupted,
+                        "Poll operation was woken up by `Waker::wake`",
+                    ));
                 }
-            }
-            #[cfg(feature = "event-stream")]
-            if fd == self.waker.reader.as_raw_fd() {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Interrupted,
-                    "Poll operation was woken up by `Waker::wake`",
-                ));
             }
         }
         Ok(None)
