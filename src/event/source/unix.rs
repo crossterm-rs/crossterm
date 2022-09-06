@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 
 use signal_hook::low_level::pipe;
@@ -34,7 +34,7 @@ struct WakePipe {
 #[cfg(feature = "event-stream")]
 impl WakePipe {
     fn new() -> Result<Self> {
-        let (receiver, sender) = UnixStream::pair()?;
+        let (receiver, sender) = nonblocking_unix_pair()?;
         Ok(WakePipe {
             receiver,
             waker: Waker::new(sender),
@@ -56,6 +56,13 @@ pub(crate) struct UnixInternalEventSource {
     wake_pipe: WakePipe,
 }
 
+fn nonblocking_unix_pair() -> Result<(UnixStream, UnixStream)> {
+    let (receiver, sender) = UnixStream::pair()?;
+    receiver.set_nonblocking(true)?;
+    sender.set_nonblocking(true)?;
+    Ok((receiver, sender))
+}
+
 impl UnixInternalEventSource {
     pub fn new() -> Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
@@ -67,7 +74,7 @@ impl UnixInternalEventSource {
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty: input_fd,
             winch_signal_receiver: {
-                let (receiver, sender) = UnixStream::pair()?;
+                let (receiver, sender) = nonblocking_unix_pair()?;
                 // Unregistering is unnecessary because EventSource is a singleton
                 pipe::register(libc::SIGWINCH, sender)?;
                 receiver
@@ -75,6 +82,24 @@ impl UnixInternalEventSource {
             #[cfg(feature = "event-stream")]
             wake_pipe: WakePipe::new()?,
         })
+    }
+}
+
+/// read_complete reads from a non-blocking file descriptor
+/// until the buffer is full or it would block.
+///
+/// Similar to `std::io::Read::read_to_end`, except this function
+/// only fills the given buffer and does not read beyond that.
+fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> Result<usize> {
+    loop {
+        match fd.read(buf, buf.len()) {
+            Ok(x) => return Ok(x),
+            Err(e) => match e.kind() {
+                io::ErrorKind::WouldBlock => return Ok(0),
+                io::ErrorKind::Interrupted => continue,
+                _ => return Err(e),
+            },
+        }
     }
 }
 
@@ -97,55 +122,49 @@ impl EventSource for UnixInternalEventSource {
             let _ = selector.select(timeout.leftover())?;
             if selector.get(&self.tty).is_some() {
                 loop {
-                    match self.tty.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
-                        Ok(read_count) => {
-                            if read_count > 0 {
-                                self.parser.advance(
-                                    &self.tty_buffer[..read_count],
-                                    read_count == TTY_BUFFER_SIZE,
-                                );
-                            }
-                        }
-                        Err(e) => {
-                            match e.kind() {
-                                // No more data to read at the moment. We will receive another event
-                                // once more data is available to read.
-                                io::ErrorKind::WouldBlock => break,
-                                io::ErrorKind::Interrupted => continue,
-                                _ => return Err(e),
-                            }
-                        }
-                    };
+                    let read_count = read_complete(&self.tty, &mut self.tty_buffer)?;
+                    if read_count > 0 {
+                        self.parser.advance(
+                            &self.tty_buffer[..read_count],
+                            read_count == TTY_BUFFER_SIZE,
+                        );
+                    }
 
                     if let Some(event) = self.parser.next() {
                         return Ok(Some(event));
                     }
+
+                    if read_count == 0 {
+                        break;
+                    }
                 }
             }
             if selector.get(&self.winch_signal_receiver).is_some() {
-                let mut buff = [0];
-                if self.winch_signal_receiver.read(&mut buff)? > 0 {
-                    // TODO Should we remove tput?
-                    //
-                    // This can take a really long time, because terminal::size can
-                    // launch new process (tput) and then it parses its output. It's
-                    // not a really long time from the absolute time point of view, but
-                    // it's a really long time from the mio, async-std/tokio executor, ...
-                    // point of view.
-                    let new_size = crate::terminal::size()?;
-                    return Ok(Some(InternalEvent::Event(Event::Resize(
-                        new_size.0, new_size.1,
-                    ))));
-                }
+                let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
+                // drain the pipe
+                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+                // TODO Should we remove tput?
+                //
+                // This can take a really long time, because terminal::size can
+                // launch new process (tput) and then it parses its output. It's
+                // not a really long time from the absolute time point of view, but
+                // it's a really long time from the mio, async-std/tokio executor, ...
+                // point of view.
+                let new_size = crate::terminal::size()?;
+                return Ok(Some(InternalEvent::Event(Event::Resize(
+                    new_size.0, new_size.1,
+                ))));
             }
             #[cfg(feature = "event-stream")]
             if selector.get(&self.wake_pipe.receiver).is_some() {
-                if self.wake_pipe.receiver.read(&mut [0])? > 0 {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Interrupted,
-                        "Poll operation was woken up by `Waker::wake`",
-                    ));
-                }
+                let fd = FileDesc::new(self.wake_pipe.receiver.as_raw_fd(), false);
+                // drain the pipe
+                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                ));
             }
         }
         Ok(None)
