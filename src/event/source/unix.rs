@@ -1,7 +1,6 @@
 use std::io::Read;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 
-use signal_hook::consts::SIGWINCH;
 use signal_hook::low_level::pipe;
 
 use crate::event::timeout::PollTimeout;
@@ -25,19 +24,20 @@ use super::{
     EventSource,
 };
 
+/// Holds a prototypical Waker and a receiver we can wait on when doing select().
 #[cfg(feature = "event-stream")]
-struct UnixWaker {
-    reader: UnixStream,
+struct WakePipe {
+    receiver: UnixStream,
     waker: Waker,
 }
 
 #[cfg(feature = "event-stream")]
-impl UnixWaker {
+impl WakePipe {
     fn new() -> Result<Self> {
-        let (reader, writer) = UnixStream::pair()?;
-        Ok(UnixWaker {
-            reader,
-            waker: Waker::new(writer),
+        let (receiver, sender) = UnixStream::pair()?;
+        Ok(WakePipe {
+            receiver,
+            waker: Waker::new(sender),
         })
     }
 }
@@ -50,10 +50,10 @@ const TTY_BUFFER_SIZE: usize = 1_024;
 pub(crate) struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
-    tty_fd: FileDesc,
-    resize_reader: UnixStream,
+    tty: FileDesc,
+    winch_signal_receiver: UnixStream,
     #[cfg(feature = "event-stream")]
-    waker: UnixWaker,
+    wake_pipe: WakePipe,
 }
 
 impl UnixInternalEventSource {
@@ -62,16 +62,18 @@ impl UnixInternalEventSource {
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
-        let (resize_reader, resize_writer) = UnixStream::pair()?;
-        pipe::register(SIGWINCH, resize_writer)?;
-
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
-            tty_fd: input_fd,
-            resize_reader,
+            tty: input_fd,
+            winch_signal_receiver: {
+                let (receiver, sender) = UnixStream::pair()?;
+                // Unregistering is unnecessary because EventSource is a singleton
+                pipe::register(libc::SIGWINCH, sender)?;
+                receiver
+            },
             #[cfg(feature = "event-stream")]
-            waker: UnixWaker::new()?,
+            wake_pipe: WakePipe::new()?,
         })
     }
 }
@@ -82,19 +84,20 @@ impl EventSource for UnixInternalEventSource {
         let mut selector = Selector::default();
 
         while timeout.leftover().map_or(true, |t| !t.is_zero()) {
+            // check if there are buffered events from the last read
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
             }
-            selector.add(&self.tty_fd);
-            selector.add(&self.resize_reader);
+            selector.add(&self.tty);
+            selector.add(&self.winch_signal_receiver);
 
             #[cfg(feature = "event-stream")]
-            selector.add(&self.waker.reader);
+            selector.add(&self.wake_pipe.receiver);
 
             let _ = selector.select(timeout.leftover())?;
-            if selector.get(&self.tty_fd).is_some() {
+            if selector.get(&self.tty).is_some() {
                 loop {
-                    match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                    match self.tty.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
                         Ok(read_count) => {
                             if read_count > 0 {
                                 self.parser.advance(
@@ -104,13 +107,12 @@ impl EventSource for UnixInternalEventSource {
                             }
                         }
                         Err(e) => {
-                            // No more data to read at the moment. We will receive another event
-                            if e.kind() == io::ErrorKind::WouldBlock {
-                                break;
-                            }
-                            // once more data is available to read.
-                            else if e.kind() == io::ErrorKind::Interrupted {
-                                continue;
+                            match e.kind() {
+                                // No more data to read at the moment. We will receive another event
+                                // once more data is available to read.
+                                io::ErrorKind::WouldBlock => break,
+                                io::ErrorKind::Interrupted => continue,
+                                _ => return Err(e),
                             }
                         }
                     };
@@ -120,9 +122,9 @@ impl EventSource for UnixInternalEventSource {
                     }
                 }
             }
-            if selector.get(&self.resize_reader).is_some() {
+            if selector.get(&self.winch_signal_receiver).is_some() {
                 let mut buff = [0];
-                if self.resize_reader.read(&mut buff)? > 0 {
+                if self.winch_signal_receiver.read(&mut buff)? > 0 {
                     // TODO Should we remove tput?
                     //
                     // This can take a really long time, because terminal::size can
@@ -137,8 +139,8 @@ impl EventSource for UnixInternalEventSource {
                 }
             }
             #[cfg(feature = "event-stream")]
-            if selector.get(&self.waker.reader).is_some() {
-                if self.waker.reader.read(&mut [0])? > 0 {
+            if selector.get(&self.wake_pipe.receiver).is_some() {
+                if self.wake_pipe.receiver.read(&mut [0])? > 0 {
                     return Err(std::io::Error::new(
                         std::io::ErrorKind::Interrupted,
                         "Poll operation was woken up by `Waker::wake`",
@@ -151,7 +153,7 @@ impl EventSource for UnixInternalEventSource {
 
     #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker {
-        self.waker.waker.clone()
+        self.wake_pipe.waker.clone()
     }
 }
 

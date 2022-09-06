@@ -4,7 +4,7 @@ use crate::Result;
 
 #[repr(transparent)]
 #[derive(Clone)]
-pub struct FdSet(libc::fd_set);
+struct FdSet(libc::fd_set);
 
 impl Default for FdSet {
     fn default() -> Self {
@@ -21,7 +21,7 @@ impl Debug for FdSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut set = f.debug_set();
         for i in 0..libc::FD_SETSIZE {
-            if self.is_set(i as i32) {
+            if self.contains(i as i32) {
                 set.entry(&i);
             }
         }
@@ -31,26 +31,26 @@ impl Debug for FdSet {
 
 impl FdSet {
     #[inline]
-    pub fn set(&mut self, fd: i32) {
+    fn set(&mut self, fd: i32) {
         assert!(fd >= 0 && (fd as usize) < libc::FD_SETSIZE);
         // SAFETY: pointer is valid and fd is in bound
         unsafe { libc::FD_SET(fd, self.as_mut_ptr()) }
     }
 
     #[inline]
-    pub fn is_set(&self, fd: i32) -> bool {
+    fn contains(&self, fd: i32) -> bool {
         assert!(fd >= 0 && (fd as usize) < libc::FD_SETSIZE);
         // SAFETY: pointer is valid and fd is in bound
         unsafe { libc::FD_ISSET(fd, self.as_ptr()) }
     }
 
     #[inline]
-    pub fn as_mut_ptr(&mut self) -> *mut libc::fd_set {
+    fn as_mut_ptr(&mut self) -> *mut libc::fd_set {
         &mut self.0 as *mut _
     }
 
     #[inline]
-    pub fn as_ptr(&self) -> *const libc::fd_set {
+    fn as_ptr(&self) -> *const libc::fd_set {
         &self.0 as *const _
     }
 }
@@ -63,7 +63,9 @@ pub struct FdResult {
     pub error: bool,
 }
 
-/// A small wrapper around the `select()` syscall. Currently only polls read/write events.
+/// Wraps the `select` syscall. Instantiate with `::default()`, then
+/// add FDs to select on using `.add()`, and finally call `.select()`.
+/// Currently only read and exception events are supportd.
 #[derive(Clone, Default, Debug)]
 pub(crate) struct Selector {
     read: FdSet,
@@ -73,13 +75,18 @@ pub(crate) struct Selector {
 }
 
 impl Selector {
+    /// Performs the select() syscal. If timeout is None, will block indefinitely.
+    /// Updates the internal FD sets of the selector instance, which can later
+    /// be accessed by the `get(fd)` method
     pub fn select(&mut self, timeout: Option<Duration>) -> Result<usize> {
         let Selector {
             read, write, error, ..
         } = self;
+
         let read = read as *mut _ as *mut libc::fd_set;
         let write = write as *mut _ as *mut libc::fd_set;
         let error = error as *mut _ as *mut libc::fd_set;
+
         let mut timeval = timeout.map(|t| libc::timeval {
             tv_sec: t.as_secs() as libc::time_t,
             tv_usec: t.subsec_micros() as libc::suseconds_t,
@@ -88,6 +95,7 @@ impl Selector {
             .as_mut()
             .map(|timeval| timeval as *mut _)
             .unwrap_or(std::ptr::null_mut());
+
         // SAFETY:
         // * read/write/error pointers are exclusive and valid
         // * timeval_ptr points to timeval (a local variable) or is null (which is allowed)
@@ -101,6 +109,7 @@ impl Selector {
     }
 
     #[inline]
+    /// adds a file descriptor to the read and error FD sets of the select operation.
     pub fn add<F: AsRawFd>(&mut self, fd: &F) -> &mut Self {
         let fd = fd.as_raw_fd();
         // Only add to read and error sets. Not supporting write fds for now
@@ -110,11 +119,14 @@ impl Selector {
         self
     }
 
+    /// If the given file descriptor exists in any of the FD sets
+    /// in the selector, returns an FdResult specifying which sets
+    /// it was a part of.
     pub fn get<F: AsRawFd>(&self, fd: &F) -> Option<FdResult> {
         let fd = fd.as_raw_fd();
-        let read = self.read.is_set(fd);
-        let write = self.write.is_set(fd);
-        let error = self.error.is_set(fd);
+        let read = self.read.contains(fd);
+        let write = self.write.contains(fd);
+        let error = self.error.contains(fd);
         if read | write | error {
             Some(FdResult {
                 fd,
