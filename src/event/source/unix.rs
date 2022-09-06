@@ -10,6 +10,7 @@ use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use super::super::sys::Waker;
+
 use super::{
     super::{
         sys::unix::{
@@ -22,6 +23,24 @@ use super::{
     EventSource,
 };
 
+// TODO find a better name for this
+#[cfg(feature = "event-stream")]
+struct UnixWaker {
+    reader: UnixStream,
+    waker: Waker,
+}
+
+#[cfg(feature = "event-stream")]
+impl UnixWaker {
+    fn new() -> Result<Self> {
+        let (reader, writer) = UnixStream::pair()?;
+        Ok(UnixWaker {
+            reader,
+            waker: Waker::new(writer),
+        })
+    }
+}
+
 // I (@zrzka) wasn't able to read more than 1_022 bytes when testing
 // reading on macOS/Linux -> we don't need bigger buffer and 1k of bytes
 // is enough.
@@ -32,7 +51,9 @@ pub(crate) struct UnixInternalEventSource {
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_fd: FileDesc,
     selector: Selector,
-    resize_signal: UnixStream,
+    resize_reader: UnixStream,
+    #[cfg(feature = "event-stream")]
+    waker: UnixWaker,
 }
 
 impl UnixInternalEventSource {
@@ -41,15 +62,17 @@ impl UnixInternalEventSource {
     }
 
     pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
-        let (mut read, write) = UnixStream::pair()?;
-        pipe::register(SIGWINCH, write)?;
+        let (resize_reader, resize_writer) = UnixStream::pair()?;
+        pipe::register(SIGWINCH, resize_writer)?;
 
         Ok(UnixInternalEventSource {
-            resize_signal: read,
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_fd: input_fd,
             selector: Selector::default(),
+            resize_reader,
+            #[cfg(feature = "event-stream")]
+            waker: UnixWaker::new()?,
         })
     }
 }
@@ -57,9 +80,13 @@ impl UnixInternalEventSource {
 impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
         let tty_fd = self.tty_fd.raw_fd();
-        let resize_fd = self.resize_signal.as_raw_fd();
+        let resize_fd = self.resize_reader.as_raw_fd();
         self.selector.set(FdSelector::read(tty_fd));
         self.selector.set(FdSelector::read(resize_fd));
+
+        #[cfg(feature = "event-stream")]
+        self.selector
+            .set(FdSelector::read(self.waker.reader.as_raw_fd()));
 
         // todo signals and such
         let result = self.selector.select(timeout)?;
@@ -96,7 +123,7 @@ impl EventSource for UnixInternalEventSource {
                 }
             } else if fd == resize_fd {
                 let mut buff = [0];
-                if self.resize_signal.read(&mut buff)? > 0 {
+                if self.resize_reader.read(&mut buff)? > 0 {
                     // TODO Should we remove tput?
                     //
                     // This can take a really long time, because terminal::size can
@@ -110,14 +137,20 @@ impl EventSource for UnixInternalEventSource {
                     ))));
                 }
             }
-            // TODO other fds
+            #[cfg(feature = "event-stream")]
+            if fd == self.waker.reader.as_raw_fd() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                ));
+            }
         }
         Ok(None)
     }
 
     #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker {
-        todo!()
+        self.waker.waker.clone()
     }
 }
 
