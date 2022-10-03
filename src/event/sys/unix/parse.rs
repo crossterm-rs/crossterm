@@ -537,11 +537,16 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<Interna
     // This CSI sequence can be a list of semicolon-separated numbers.
     let first = next_parsed::<u8>(&mut split)?;
 
-    let modifiers = if let Ok(modifier_mask) = next_parsed::<u8>(&mut split) {
-        parse_modifiers(modifier_mask)
-    } else {
-        KeyModifiers::NONE
-    };
+    let (modifiers, kind, state) =
+        if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
+            (
+                parse_modifiers(modifier_mask),
+                parse_key_event_kind(kind_code),
+                parse_modifiers_to_state(modifier_mask),
+            )
+        } else {
+            (KeyModifiers::NONE, KeyEventKind::Press, KeyEventState::NONE)
+        };
 
     let keycode = match first {
         1 | 7 => KeyCode::Home,
@@ -558,7 +563,9 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> Result<Option<Interna
         _ => return Err(could_not_parse_event_error()),
     };
 
-    let input_event = Event::Key(KeyEvent::new(keycode, modifiers));
+    let input_event = Event::Key(KeyEvent::new_with_kind_and_state(
+        keycode, modifiers, kind, state,
+    ));
 
     Ok(Some(InternalEvent::Event(input_event)))
 }
@@ -1360,6 +1367,26 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
                 KeyCode::Down,
                 KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_numbered_escape_code_with_types() {
+        assert_eq!(
+            parse_event(b"\x1B[5;1:3~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::PageUp,
+                KeyModifiers::empty(),
+                KeyEventKind::Release,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[6;5:3~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::PageDown,
+                KeyModifiers::CONTROL,
                 KeyEventKind::Release,
             )))),
         );
