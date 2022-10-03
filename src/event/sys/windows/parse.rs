@@ -1,14 +1,16 @@
 use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, ScreenBuffer};
-use winapi::um::{
-    wincon::{
+use windows_sys::Win32::{
+    System::Console::{
         CAPSLOCK_ON, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED,
         SHIFT_PRESSED,
     },
-    winuser::{
-        GetForegroundWindow, GetKeyboardLayout, GetWindowThreadProcessId, ToUnicodeEx, VK_BACK,
-        VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME, VK_INSERT,
-        VK_LEFT, VK_MENU, VK_NEXT, VK_NUMPAD0, VK_NUMPAD9, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT,
-        VK_TAB, VK_UP,
+    UI::{
+        Input::KeyboardAndMouse::{
+            GetKeyboardLayout, ToUnicodeEx, VK_BACK, VK_CONTROL, VK_DELETE, VK_DOWN, VK_END,
+            VK_ESCAPE, VK_F1, VK_F24, VK_HOME, VK_INSERT, VK_LEFT, VK_MENU, VK_NEXT, VK_NUMPAD0,
+            VK_NUMPAD9, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT, VK_TAB, VK_UP,
+        },
+        WindowsAndMessaging::{GetForegroundWindow, GetWindowThreadProcessId},
     },
 };
 
@@ -203,7 +205,7 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
 
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
-    let virtual_key_code = key_event.virtual_key_code as i32;
+    let virtual_key_code = key_event.virtual_key_code;
 
     // We normally ignore all key release events, but we will make an exception for an Alt key
     // release if it carries a u_char value, as this indicates an Alt code.

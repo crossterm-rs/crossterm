@@ -90,7 +90,7 @@ use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
-use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
+use windows_sys::Win32::System::Console::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
