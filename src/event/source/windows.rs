@@ -64,7 +64,11 @@ impl EventSource for WindowsEventSource {
                             mouse_event
                         }
                         InputRecord::WindowBufferSizeEvent(record) => {
-                            Some(Event::Resize(record.size.x as u16, record.size.y as u16))
+                            // windows starts counting at 0, unix at 1, add one to replicate unix behaviour.
+                            Some(Event::Resize(
+                                record.size.x as u16 + 1,
+                                record.size.y as u16 + 1,
+                            ))
                         }
                         InputRecord::FocusEvent(record) => {
                             let event = if record.set_focus {
