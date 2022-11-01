@@ -9,13 +9,18 @@ see [Tested Terminals](#tested-terminals) for more info).
 
 ## Table of Contents
 
-* [Features](#features)
-    * [Tested Terminals](#tested-terminals)
-* [Getting Started](#getting-started)
-    * [Feature Flags](#feature-flags)
-* [Other Resources](#other-resources)
-* [Used By](#used-by)
-* [Contributing](#contributing)    
+- [Cross-platform Terminal Manipulation Library](#cross-platform-terminal-manipulation-library)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+    - [Tested Terminals](#tested-terminals)
+  - [Getting Started](#getting-started)
+    - [Feature Flags](#feature-flags)
+    - [Dependency Justification](#dependency-justification)
+    - [Other Resources](#other-resources)
+  - [Used By](#used-by)
+  - [Contributing](#contributing)
+  - [Authors](#authors)
+  - [License](#license)
 
 ## Features
 
@@ -146,9 +151,9 @@ features = ["event-stream"]
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
 | `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other lowlevel functionality. | UNIX only                             |
+| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | UNIX only                             |
 | `Mio`          | event readiness polling, waking up poller                                        | UNIX only                             |
-| `signal-hook`  | signalhook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
+| `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |

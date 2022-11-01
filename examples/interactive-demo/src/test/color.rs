@@ -155,7 +155,7 @@ where
 {
     test_color_values_matrix_16x16(w, "Color::Rgb red values", |col, row| Color::Rgb {
         r: (row * 16 + col) as u8,
-        g: 0 as u8,
+        g: 0_u8,
         b: 0,
     })
 }
