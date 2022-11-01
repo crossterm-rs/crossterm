@@ -67,8 +67,7 @@ impl WinApiPoll {
                 Err(io::Error::new(
                     io::ErrorKind::Interrupted,
                     "Poll operation was woken up by `Waker::wake`",
-                )
-                .into())
+                ))
             }
             WAIT_TIMEOUT | WAIT_ABANDONED_0 => {
                 // timeout elapsed
