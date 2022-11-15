@@ -138,7 +138,7 @@ features = ["event-stream"]
 | Feature        | Description                                  |
 |:---------------|:---------------------------------------------|
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
-| `serde`        | Se/dese/rializing of events.                 |
+| `serde`        | De/serializing of events.                    |
 
 ### Dependency Justification
 
