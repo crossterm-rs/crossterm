@@ -1,7 +1,9 @@
 //! UNIX related logic for terminal manipulation.
 
 use std::fs::File;
+use std::io::Write;
 use std::os::unix::io::{IntoRawFd, RawFd};
+use std::time::Duration;
 use std::{io, mem, process};
 
 use libc::{
@@ -11,7 +13,9 @@ use libc::{
 use parking_lot::Mutex;
 
 use crate::error::Result;
+use crate::event::filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter};
 use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
+use crate::event::{poll_internal, read_internal, InternalEvent};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
 // None -> we're not in the raw mode
@@ -86,6 +90,72 @@ pub(crate) fn disable_raw_mode() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Queries the terminal's support for progressive keyboard enhancement.
+///
+/// On unix systems, this function will block and possibly time out while
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+pub fn supports_keyboard_enhancement() -> Result<bool> {
+    if is_raw_mode_enabled() {
+        read_supports_keyboard_enhancement_raw()
+    } else {
+        read_supports_keyboard_enhancement_flags()
+    }
+}
+
+fn read_supports_keyboard_enhancement_flags() -> Result<bool> {
+    enable_raw_mode()?;
+    let flags = read_supports_keyboard_enhancement_raw();
+    disable_raw_mode()?;
+    flags
+}
+
+fn read_supports_keyboard_enhancement_raw() -> Result<bool> {
+    // This is the recommended method for testing support for the keyboard enhancement protocol.
+    // We send a query for the flags supported by the terminal and then the primary device attributes
+    // query. If we receive the primary device attributes response but not the keyboard enhancement
+    // flags, none of the flags are supported.
+    //
+    // See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#detection-of-support-for-this-protocol>
+
+    // ESC [ ? u        Query progressive keyboard enhancement flags (kitty protocol).
+    // ESC [ c          Query primary device attributes.
+    const QUERY: &[u8] = b"\x1B[?u\x1B[c";
+
+    if let Err(_) = File::open("/dev/tty").and_then(|mut file| {
+        file.write_all(QUERY)?;
+        file.flush()
+    }) {
+        let mut stdout = io::stdout();
+        stdout.write_all(QUERY)?;
+        stdout.flush()?;
+    }
+
+    loop {
+        match poll_internal(
+            Some(Duration::from_millis(2000)),
+            &KeyboardEnhancementFlagsFilter,
+        ) {
+            Ok(true) => {
+                match read_internal(&KeyboardEnhancementFlagsFilter) {
+                    Ok(InternalEvent::KeyboardEnhancementFlags(_current_flags)) => {
+                        // Flush the PrimaryDeviceAttributes out of the event queue.
+                        read_internal(&PrimaryDeviceAttributesFilter).ok();
+                        return Ok(true);
+                    }
+                    _ => return Ok(false),
+                }
+            }
+            Ok(false) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "The keyboard enhancement status could not be read within a normal duration",
+                ));
+            }
+            Err(_) => {}
+        }
+    }
 }
 
 /// execute tput with the given argument and parse

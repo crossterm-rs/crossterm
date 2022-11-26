@@ -932,6 +932,12 @@ pub(crate) enum InternalEvent {
     /// A cursor position (`col`, `row`).
     #[cfg(unix)]
     CursorPosition(u16, u16),
+    /// The progressive keyboard enhancement flags enabled by the terminal.
+    #[cfg(unix)]
+    KeyboardEnhancementFlags(KeyboardEnhancementFlags),
+    /// Attributes and architectural class of the terminal.
+    #[cfg(unix)]
+    PrimaryDeviceAttributes,
 }
 
 #[cfg(test)]

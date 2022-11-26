@@ -58,6 +58,13 @@ pub(crate) fn size() -> Result<(u16, u16)> {
     ))
 }
 
+/// Queries the terminal's support for progressive keyboard enhancement.
+///
+/// This always returns `Ok(false)` on Windows.
+pub fn supports_keyboard_enhancement() -> Result<bool> {
+    Ok(false)
+}
+
 pub(crate) fn clear(clear_type: ClearType) -> Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
     let csbi = screen_buffer.info()?;
