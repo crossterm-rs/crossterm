@@ -13,7 +13,7 @@ use crossterm::{
         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
         EnableFocusChange, EnableMouseCapture, Event, KeyCode,
     },
-    execute,
+    execute, queue,
     terminal::{disable_raw_mode, enable_raw_mode},
     Result,
 };
@@ -69,20 +69,36 @@ fn main() -> Result<()> {
     enable_raw_mode()?;
 
     let mut stdout = stdout();
+
+    let supports_keyboard_enhancement = matches!(
+        crossterm::terminal::supports_keyboard_enhancement(),
+        Ok(true)
+    );
+
+    if supports_keyboard_enhancement {
+        queue!(
+            stdout,
+            PushKeyboardEnhancementFlags(
+                KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+                    | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
+                    | KeyboardEnhancementFlags::REPORT_EVENT_TYPES
+            )
+        )?;
+    }
+
     execute!(
         stdout,
         EnableBracketedPaste,
         EnableFocusChange,
         EnableMouseCapture,
-        PushKeyboardEnhancementFlags(
-            KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-                | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
-                | KeyboardEnhancementFlags::REPORT_EVENT_TYPES
-        )
     )?;
 
     if let Err(e) = print_events() {
         println!("Error: {:?}\r", e);
+    }
+
+    if supports_keyboard_enhancement {
+        queue!(stdout, PopKeyboardEnhancementFlags)?;
     }
 
     execute!(
