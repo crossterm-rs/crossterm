@@ -60,7 +60,7 @@ fn flush_resize_events(first_resize: (u16, u16)) -> ((u16, u16), (u16, u16)) {
         }
     }
 
-    return (first_resize, last_resize);
+    (first_resize, last_resize)
 }
 
 fn main() -> Result<()> {
