@@ -170,7 +170,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'I' => Some(Event::FocusGained),
         b'O' => Some(Event::FocusLost),
         b';' => return parse_csi_modifier_key_code(buffer),
-        // P, Q, R, and S for compatibility Kitty keyboard protocol,
+        // P, Q, R, and S for compatibility with Kitty keyboard protocol,
         // as the 1 in 'CSI 1 P' etc. must be omitted if there are no
         // modifiers pressed:
         // https://sw.kovidgoyal.net/kitty/keyboard-protocol/#legacy-functional-keys
@@ -200,11 +200,13 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                         // In the case of an R in the last byte, we
                         // need to check whether it's a Kitty keyboard
                         // protocol F3 event or a Report Cursor
-                        // Position response. If it contains an event
-                        // type, it's definitely not a cursor
-                        // position.
-                        b'R' if buffer[buffer.len() - 3] != b':' =>
-                            return parse_csi_cursor_position(buffer),
+                        // Position response. The protocol
+                        // specification states that when used as a
+                        // key event, the bytes following the CSI must
+                        // be '1;' so we check that.
+                        b'R' if buffer.starts_with(b"\x1B[1;") =>
+                            return parse_csi_modifier_key_code(buffer),
+                        b'R' => return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
