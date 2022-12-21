@@ -170,6 +170,14 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'I' => Some(Event::FocusGained),
         b'O' => Some(Event::FocusLost),
         b';' => return parse_csi_modifier_key_code(buffer),
+        // P, Q, R, and S for compatibility Kitty keyboard protocol,
+        // as the 1 in 'CSI 1 P' etc. must be omitted if there are no
+        // modifiers pressed:
+        // https://sw.kovidgoyal.net/kitty/keyboard-protocol/#legacy-functional-keys
+        b'P' => Some(Event::Key(KeyCode::F(1).into())),
+        b'Q' => Some(Event::Key(KeyCode::F(2).into())),
+        b'R' => Some(Event::Key(KeyCode::F(3).into())),
+        b'S' => Some(Event::Key(KeyCode::F(4).into())),
         b'0'..=b'9' => {
             // Numbered escape code.
             if buffer.len() == 3 {
@@ -189,7 +197,13 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
-                        b'R' => return parse_csi_cursor_position(buffer),
+                        // In the case of an R in the last byte, we
+                        // need to check whether it's a Kitty keyboard
+                        // protocol F3 event or a Report Cursor
+                        // Position response. If it contains an event
+                        // type, it's definitely not a cursor
+                        // position.
+                        b'R' if buffer[buffer.len() - 3] != b':' => return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
