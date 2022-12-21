@@ -203,7 +203,8 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                         // Position response. If it contains an event
                         // type, it's definitely not a cursor
                         // position.
-                        b'R' if buffer[buffer.len() - 3] != b':' => return parse_csi_cursor_position(buffer),
+                        b'R' if buffer[buffer.len() - 3] != b':' =>
+                            return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
