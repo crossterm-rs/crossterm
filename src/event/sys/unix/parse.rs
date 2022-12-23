@@ -31,14 +31,6 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
         return Ok(None);
     }
 
-    println!(
-        "{:?}",
-        buffer
-            .iter()
-            .map(|v| char::from_u32(*v as u32).unwrap())
-            .collect::<String>()
-    );
-
     match buffer[0] {
         b'\x1B' => {
             if buffer.len() == 1 {
