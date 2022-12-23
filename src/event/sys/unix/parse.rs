@@ -31,6 +31,14 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
         return Ok(None);
     }
 
+    println!(
+        "{:?}",
+        buffer
+            .iter()
+            .map(|v| char::from_u32(*v as u32).unwrap())
+            .collect::<String>()
+    );
+
     match buffer[0] {
         b'\x1B' => {
             if buffer.len() == 1 {
@@ -197,15 +205,6 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
-                        // In the case of an R in the last byte, we
-                        // need to check whether it's a Kitty keyboard
-                        // protocol F3 event or a Report Cursor
-                        // Position response. The protocol
-                        // specification states that when used as a
-                        // key event, the bytes following the CSI must
-                        // be '1;' so we check that.
-                        b'R' if buffer.starts_with(b"\x1B[1;") =>
-                            return parse_csi_modifier_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
