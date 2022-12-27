@@ -170,13 +170,12 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'I' => Some(Event::FocusGained),
         b'O' => Some(Event::FocusLost),
         b';' => return parse_csi_modifier_key_code(buffer),
-        // P, Q, R, and S for compatibility with Kitty keyboard protocol,
+        // P, Q, and S for compatibility with Kitty keyboard protocol,
         // as the 1 in 'CSI 1 P' etc. must be omitted if there are no
         // modifiers pressed:
         // https://sw.kovidgoyal.net/kitty/keyboard-protocol/#legacy-functional-keys
         b'P' => Some(Event::Key(KeyCode::F(1).into())),
         b'Q' => Some(Event::Key(KeyCode::F(2).into())),
-        b'R' => Some(Event::Key(KeyCode::F(3).into())),
         b'S' => Some(Event::Key(KeyCode::F(4).into())),
         b'0'..=b'9' => {
             // Numbered escape code.
