@@ -136,7 +136,7 @@ impl EventSource for UnixInternalEventSource {
                 Err(filedescriptor::Error::Io(e)) => return Err(e),
                 res => res.expect("polling tty"),
             };
-            if fds[0].events & POLLIN != 0 {
+            if fds[0].revents & POLLIN != 0 {
                 loop {
                     let read_count = read_complete(&self.tty, &mut self.tty_buffer)?;
                     if read_count > 0 {
@@ -155,7 +155,7 @@ impl EventSource for UnixInternalEventSource {
                     }
                 }
             }
-            if fds[1].events & POLLIN != 0 {
+            if fds[1].revents & POLLIN != 0 {
                 let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
@@ -173,7 +173,7 @@ impl EventSource for UnixInternalEventSource {
             }
 
             #[cfg(feature = "event-stream")]
-            if fds[2].events & POLLIN != 0 {
+            if fds[2].revents & POLLIN != 0 {
                 let fd = FileDesc::new(self.wake_pipe.receiver.as_raw_fd(), false);
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
