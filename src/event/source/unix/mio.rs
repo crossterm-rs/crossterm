@@ -52,7 +52,7 @@ impl UnixInternalEventSource {
         let mut tty_ev = SourceFd(&tty_raw_fd);
         registry.register(&mut tty_ev, TTY_TOKEN, Interest::READABLE)?;
 
-        let mut signals = Signals::new(&[signal_hook::consts::SIGWINCH])?;
+        let mut signals = Signals::new([signal_hook::consts::SIGWINCH])?;
         registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
