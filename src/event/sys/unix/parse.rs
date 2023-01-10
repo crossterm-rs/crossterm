@@ -2,8 +2,9 @@ use std::io;
 
 use crate::{
     event::{
-        Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, MediaKeyCode,
-        ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
+        Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers,
+        KeyboardEnhancementFlags, MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent,
+        MouseEventKind,
     },
     ErrorKind, Result,
 };
@@ -177,6 +178,11 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>> {
         b'P' => Some(Event::Key(KeyCode::F(1).into())),
         b'Q' => Some(Event::Key(KeyCode::F(2).into())),
         b'S' => Some(Event::Key(KeyCode::F(4).into())),
+        b'?' => match buffer[buffer.len() - 1] {
+            b'u' => return parse_csi_keyboard_enhancement_flags(buffer),
+            b'c' => return parse_csi_primary_device_attributes(buffer),
+            _ => None,
+        },
         b'0'..=b'9' => {
             // Numbered escape code.
             if buffer.len() == 3 {
@@ -249,6 +255,51 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> Result<Option<Internal
     let x = next_parsed::<u16>(&mut split)? - 1;
 
     Ok(Some(InternalEvent::CursorPosition(x, y)))
+}
+
+fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> Result<Option<InternalEvent>> {
+    // ESC [ ? flags u
+    assert!(buffer.starts_with(&[b'\x1B', b'[', b'?'])); // ESC [ ?
+    assert!(buffer.ends_with(&[b'u']));
+
+    if buffer.len() < 5 {
+        return Ok(None);
+    }
+
+    let bits = buffer[3];
+    let mut flags = KeyboardEnhancementFlags::empty();
+
+    if bits & 1 != 0 {
+        flags |= KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES;
+    }
+    if bits & 2 != 0 {
+        flags |= KeyboardEnhancementFlags::REPORT_EVENT_TYPES;
+    }
+    // *Note*: this is not yet supported by crossterm.
+    // if bits & 4 != 0 {
+    //     flags |= KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS;
+    // }
+    if bits & 8 != 0 {
+        flags |= KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES;
+    }
+    // *Note*: this is not yet supported by crossterm.
+    // if bits & 16 != 0 {
+    //     flags |= KeyboardEnhancementFlags::REPORT_ASSOCIATED_TEXT;
+    // }
+
+    Ok(Some(InternalEvent::KeyboardEnhancementFlags(flags)))
+}
+
+fn parse_csi_primary_device_attributes(buffer: &[u8]) -> Result<Option<InternalEvent>> {
+    // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
+    assert!(buffer.starts_with(&[b'\x1B', b'[', b'?']));
+    assert!(buffer.ends_with(&[b'c']));
+
+    // This is a stub for parsing the primary device attributes. This response is not
+    // exposed in the crossterm API so we don't need to parse the individual attributes yet.
+    // See <https://vt100.net/docs/vt510-rm/DA1.html>
+
+    Ok(Some(InternalEvent::PrimaryDeviceAttributes))
 }
 
 fn parse_modifiers(mask: u8) -> KeyModifiers {

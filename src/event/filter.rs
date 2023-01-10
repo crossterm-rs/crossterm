@@ -17,6 +17,35 @@ impl Filter for CursorPositionFilter {
     }
 }
 
+#[cfg(unix)]
+#[derive(Debug, Clone)]
+pub(crate) struct KeyboardEnhancementFlagsFilter;
+
+#[cfg(unix)]
+impl Filter for KeyboardEnhancementFlagsFilter {
+    fn eval(&self, event: &InternalEvent) -> bool {
+        // This filter checks for either a KeyboardEnhancementFlags response or
+        // a PrimaryDeviceAttributes response. If we receive the PrimaryDeviceAttributes
+        // response but not KeyboardEnhancementFlags, the terminal does not support
+        // progressive keyboard enhancement.
+        matches!(
+            *event,
+            InternalEvent::KeyboardEnhancementFlags(_) | InternalEvent::PrimaryDeviceAttributes
+        )
+    }
+}
+
+#[cfg(unix)]
+#[derive(Debug, Clone)]
+pub(crate) struct PrimaryDeviceAttributesFilter;
+
+#[cfg(unix)]
+impl Filter for PrimaryDeviceAttributesFilter {
+    fn eval(&self, event: &InternalEvent) -> bool {
+        matches!(*event, InternalEvent::PrimaryDeviceAttributes)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct EventFilter;
 
@@ -45,13 +74,31 @@ impl Filter for InternalEventFilter {
 #[cfg(unix)]
 mod tests {
     use super::{
-        super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent, InternalEventFilter,
+        super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent,
+        InternalEventFilter, KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter,
     };
 
     #[test]
     fn test_cursor_position_filter_filters_cursor_position() {
         assert!(!CursorPositionFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
         assert!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+    }
+
+    #[test]
+    fn test_keyboard_enhancement_status_filter_filters_keyboard_enhancement_status() {
+        assert!(!KeyboardEnhancementFlagsFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(
+            KeyboardEnhancementFlagsFilter.eval(&InternalEvent::KeyboardEnhancementFlags(
+                crate::event::KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+            ))
+        );
+        assert!(KeyboardEnhancementFlagsFilter.eval(&InternalEvent::PrimaryDeviceAttributes));
+    }
+
+    #[test]
+    fn test_primary_device_attributes_filter_filters_primary_device_attributes() {
+        assert!(!PrimaryDeviceAttributesFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(PrimaryDeviceAttributesFilter.eval(&InternalEvent::PrimaryDeviceAttributes));
     }
 
     #[test]

@@ -98,6 +98,8 @@ use crate::{csi, impl_display, Result};
 
 pub(crate) mod sys;
 
+pub use sys::supports_keyboard_enhancement;
+
 /// Tells whether the raw mode is enabled.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
