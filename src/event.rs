@@ -643,7 +643,9 @@ pub struct KeyEvent {
     pub modifiers: KeyModifiers,
     /// Kind of event.
     ///
-    /// Only set if [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
+    /// Only set if:
+    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
+    /// - Windows: always
     pub kind: KeyEventKind,
     /// Keyboard state.
     ///

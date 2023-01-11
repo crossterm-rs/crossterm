@@ -13,7 +13,7 @@ use winapi::um::{
 };
 
 use crate::{
-    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind},
+    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind, KeyEventKind},
     Result,
 };
 
@@ -221,7 +221,8 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                 // values.
                 let ch = std::char::from_u32(unicode_scalar_value as u32).unwrap();
                 let key_code = KeyCode::Char(ch);
-                let key_event = KeyEvent::new(key_code, modifiers);
+                let kind = if key_event.key_down { KeyEventKind::Press } else { KeyEventKind::Release };
+                let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
                 return Some(WindowsKeyEvent::KeyEvent(key_event));
             }
         }
@@ -232,10 +233,6 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     let is_only_alt_modifier = modifiers.contains(KeyModifiers::ALT)
         && !modifiers.contains(KeyModifiers::SHIFT | KeyModifiers::CONTROL);
     if is_only_alt_modifier && is_numpad_numeric_key {
-        return None;
-    }
-
-    if !key_event.key_down {
         return None;
     }
 
@@ -283,7 +280,8 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     };
 
     if let Some(key_code) = parse_result {
-        let key_event = KeyEvent::new(key_code, modifiers);
+        let kind = if key_event.key_down { KeyEventKind::Press } else { KeyEventKind::Release };
+        let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
         return Some(WindowsKeyEvent::KeyEvent(key_event));
     }
 
