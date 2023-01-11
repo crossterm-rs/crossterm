@@ -1,36 +1,11 @@
-use std::sync::{Arc, Mutex};
+#[cfg(feature = "use-dev-tty")]
+pub(crate) mod tty;
 
-use mio::{Registry, Token};
+#[cfg(not(feature = "use-dev-tty"))]
+pub(crate) mod mio;
 
-use crate::Result;
+#[cfg(feature = "use-dev-tty")]
+pub(crate) use self::tty::Waker;
 
-/// Allows to wake up the `mio::Poll::poll()` method.
-/// This type wraps `mio::Waker`, for more information see its documentation.
-#[derive(Clone, Debug)]
-pub(crate) struct Waker {
-    inner: Arc<Mutex<mio::Waker>>,
-}
-
-impl Waker {
-    /// Create a new `Waker`.
-    pub(crate) fn new(registry: &Registry, waker_token: Token) -> Result<Self> {
-        Ok(Self {
-            inner: Arc::new(Mutex::new(mio::Waker::new(registry, waker_token)?)),
-        })
-    }
-
-    /// Wake up the [`Poll`] associated with this `Waker`.
-    ///
-    /// Readiness is set to `Ready::readable()`.
-    pub(crate) fn wake(&self) -> Result<()> {
-        self.inner.lock().unwrap().wake()
-    }
-
-    /// Resets the state so the same waker can be reused.
-    ///
-    /// This function is not impl
-    #[allow(dead_code, clippy::clippy::unnecessary_wraps)]
-    pub(crate) fn reset(&self) -> Result<()> {
-        Ok(())
-    }
-}
+#[cfg(not(feature = "use-dev-tty"))]
+pub(crate) use self::mio::Waker;

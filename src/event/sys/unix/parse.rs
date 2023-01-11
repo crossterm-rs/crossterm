@@ -105,11 +105,11 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> Result<Option
             KeyCode::Backspace.into(),
         )))),
         c @ b'\x01'..=b'\x1A' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-            KeyCode::Char((c as u8 - 0x1 + b'a') as char),
+            KeyCode::Char((c - 0x1 + b'a') as char),
             KeyModifiers::CONTROL,
         ))))),
         c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-            KeyCode::Char((c as u8 - 0x1C + b'4') as char),
+            KeyCode::Char((c - 0x1C + b'4') as char),
             KeyModifiers::CONTROL,
         ))))),
         b'\0' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
