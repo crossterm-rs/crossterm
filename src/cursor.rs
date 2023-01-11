@@ -333,7 +333,10 @@ impl Command for Show {
 ///
 /// # Notes
 ///
+/// - Some Unix terminals (ex: GNOME and Konsole) do not support this functionality.
+///   Use SetCursorStyle for better cross-compatibility.
 /// - Windows versions lower than Windows 10 do not support this functionality.
+///   Use SetCursorStyle for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
@@ -353,7 +356,10 @@ impl Command for EnableBlinking {
 ///
 /// # Notes
 ///
+/// - Some Unix terminals (ex: GNOME and Konsole) do not support this functionality.
+///   Use SetCursorStyle for better cross-compatibility.
 /// - Windows versions lower than Windows 10 do not support this functionality.
+///   Use SetCursorStyle for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
@@ -393,13 +399,13 @@ pub enum SetCursorStyle {
 impl Command for SetCursorStyle {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         match self {
-            SetCursorStyle::DefaultUserShape => f.write_str("\x1b[?12h\x1b[0 q"),
-            SetCursorStyle::BlinkingBlock => f.write_str("\x1b[?12h\x1b[1 q"),
-            SetCursorStyle::SteadyBlock => f.write_str("\x1b[?12l\x1b[2 q"),
-            SetCursorStyle::BlinkingUnderScore => f.write_str("\x1b[?12h\x1b[3 q"),
-            SetCursorStyle::SteadyUnderScore => f.write_str("\x1b[?12l\x1b[4 q"),
-            SetCursorStyle::BlinkingBar => f.write_str("\x1b[?12h\x1b[5 q"),
-            SetCursorStyle::SteadyBar => f.write_str("\x1b[?12l\x1b[6 q"),
+            SetCursorStyle::DefaultUserShape => f.write_str("\x1b[0 q"),
+            SetCursorStyle::BlinkingBlock => f.write_str("\x1b[1 q"),
+            SetCursorStyle::SteadyBlock => f.write_str("\x1b[2 q"),
+            SetCursorStyle::BlinkingUnderScore => f.write_str("\x1b[3 q"),
+            SetCursorStyle::SteadyUnderScore => f.write_str("\x1b[4 q"),
+            SetCursorStyle::BlinkingBar => f.write_str("\x1b[5 q"),
+            SetCursorStyle::SteadyBar => f.write_str("\x1b[6 q"),
         }
     }
 

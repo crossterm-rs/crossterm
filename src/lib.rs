@@ -41,15 +41,14 @@
 //! - Module [`cursor`](cursor/index.html)
 //!   - Visibility - [`Show`](cursor/struct.Show.html), [`Hide`](cursor/struct.Hide.html)
 //!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
-//!     [`DisableBlinking`](cursor/struct.DisableBlinking.html)
+//!     [`DisableBlinking`](cursor/struct.DisableBlinking.html),
+//!     [`SetCursorStyle`](cursor/enum.SetCursorStyle.html)
 //!   - Position -
 //!     [`SavePosition`](cursor/struct.SavePosition.html), [`RestorePosition`](cursor/struct.RestorePosition.html),
 //!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
 //!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
 //!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),[`MoveToRow`](cursor/struct.MoveToRow.html),
 //!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
-//!    - Shape -
-//!      [`SetCursorShape`](cursor/struct.SetCursorShape.html)
 //! - Module [`event`](event/index.html)
 //!   - Keyboard events -
 //!     [`PushKeyboardEnhancementFlags`](event/struct.PushKeyboardEnhancementFlags.html),
