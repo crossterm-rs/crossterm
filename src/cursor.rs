@@ -329,25 +329,28 @@ impl Command for Show {
 
 /// A command that enables blinking of the terminal cursor.
 ///
+/// See `SetCursorStyle` which is more advanced and better supported.
+/// 
 /// # Notes
 ///
 /// - Windows versions lower than Windows 10 do not support this functionality.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
-
 impl Command for EnableBlinking {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(csi!("?12h"))
     }
-
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         Ok(())
     }
 }
 
+
 /// A command that disables blinking of the terminal cursor.
+/// 
+/// See `SetCursorStyle` which is more advanced and better supported.
 ///
 /// # Notes
 ///
@@ -355,45 +358,49 @@ impl Command for EnableBlinking {
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
-
 impl Command for DisableBlinking {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(csi!("?12l"))
     }
-
     #[cfg(windows)]
     fn execute_winapi(&self) -> Result<()> {
         Ok(())
     }
 }
 
-/// All supported cursor shapes
-///
-/// # Note
-///
-/// - Used with SetCursorShape
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CursorShape {
-    UnderScore,
-    Line,
-    Block,
-}
-
-/// A command that sets the shape of the cursor
-///
+/// A command that sets the style of the cursor.
+/// It uses two types of escape codes, one to control blinking, and the other the shape.
+/// 
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SetCursorShape(pub CursorShape);
+pub enum SetCursorStyle {
+    /// Default cursor shape configured by the user.
+    DefaultUserShape,
+    /// A blinking block cursor shape (■).
+    BlinkingBlock,
+    /// A non blinking block cursor shape (inverse of `BlinkingBlock`).
+    SteadyBlock,
+    /// A blinking underscore cursor shape(_).
+    BlinkingUnderScore,
+    /// A non blinking underscore cursor shape (inverse of `BlinkingUnderScore`).
+    SteadyUnderScore,
+    /// A blinking cursor bar shape (|)
+    BlinkingBar,
+    /// A steady cursor bar shape (inverse of `BlinkingBar`).
+    SteadyBar,
+}
 
-impl Command for SetCursorShape {
+impl Command for SetCursorStyle {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        use CursorShape::*;
-        match self.0 {
-            UnderScore => f.write_str("\x1b[3 q"),
-            Line => f.write_str("\x1b[5 q"),
-            Block => f.write_str("\x1b[2 q"),
+        match self {
+            SetCursorStyle::DefaultUserShape => f.write_str("\x1b[?12h\x1b[0 q"),
+            SetCursorStyle::BlinkingBlock => f.write_str("\x1b[?12h\x1b[1 q"),
+            SetCursorStyle::SteadyBlock => f.write_str("\x1b[?12l\x1b[2 q"),
+            SetCursorStyle::BlinkingUnderScore => f.write_str("\x1b[?12h\x1b[3 q"),
+            SetCursorStyle::SteadyUnderScore => f.write_str("\x1b[?12l\x1b[4 q"),
+            SetCursorStyle::BlinkingBar => f.write_str("\x1b[?12h\x1b[5 q"),
+            SetCursorStyle::SteadyBar => f.write_str("\x1b[?12l\x1b[6 q"),
         }
     }
 
@@ -418,7 +425,7 @@ impl_display!(for Hide);
 impl_display!(for Show);
 impl_display!(for EnableBlinking);
 impl_display!(for DisableBlinking);
-impl_display!(for SetCursorShape);
+impl_display!(for SetCursorStyle);
 
 #[cfg(test)]
 mod tests {
