@@ -333,9 +333,7 @@ impl Command for Show {
 ///
 /// # Notes
 ///
-/// - Some Unix terminals (ex: GNOME and Konsole) do not support this functionality.
-///   Use SetCursorStyle for better cross-compatibility.
-/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
 ///   Use SetCursorStyle for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -356,9 +354,7 @@ impl Command for EnableBlinking {
 ///
 /// # Notes
 ///
-/// - Some Unix terminals (ex: GNOME and Konsole) do not support this functionality.
-///   Use SetCursorStyle for better cross-compatibility.
-/// - Windows versions lower than Windows 10 do not support this functionality.
+/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
 ///   Use SetCursorStyle for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
