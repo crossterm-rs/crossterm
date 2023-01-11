@@ -74,27 +74,42 @@ where
     execute!(w, style::Print("ShowCursor"), cursor::Show)
 }
 
-fn test_enable_cursor_blinking<W>(w: &mut W) -> Result<()>
+fn test_cursor_blinking_block<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
     execute!(
         w,
-        style::Print("EnableCursorBlinking"),
-        cursor::EnableBlinking
+        style::Print("Blinking Block:"),
+        cursor::MoveLeft(2),
+        cursor::SetCursorStyle::BlinkingBlock,
     )
 }
 
-fn test_disable_cursor_blinking<W>(w: &mut W) -> Result<()>
+fn test_cursor_blinking_underscore<W>(w: &mut W) -> Result<()>
 where
     W: Write,
 {
     execute!(
         w,
-        style::Print("DisableCursorBlinking"),
-        cursor::DisableBlinking
+        style::Print("Blinking Underscore:"),
+        cursor::MoveLeft(2),
+        cursor::SetCursorStyle::BlinkingUnderScore,
     )
 }
+
+fn test_cursor_blinking_bar<W>(w: &mut W) -> Result<()>
+where
+    W: Write,
+{
+    execute!(
+        w,
+        style::Print("Blinking bar:"),
+        cursor::MoveLeft(2),
+        cursor::SetCursorStyle::BlinkingBar,
+    )
+}
+
 
 fn test_move_cursor_to<W>(w: &mut W) -> Result<()>
 where
@@ -192,8 +207,9 @@ where
         w,
         test_hide_cursor,
         test_show_cursor,
-        test_enable_cursor_blinking,
-        test_disable_cursor_blinking,
+        test_cursor_blinking_bar,
+        test_cursor_blinking_block,
+        test_cursor_blinking_underscore,
         test_move_cursor_left,
         test_move_cursor_right,
         test_move_cursor_up,

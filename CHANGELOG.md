@@ -1,3 +1,11 @@
+# Version 0.26.0
+## Added ⭐
+
+- ⚠️ Add `SetCursorStyle` to set the cursor style. 
+
+## Breaking
+
+- Remove `SetCursorShape` in vavour of `SetCursorStyle`.
 
 # Version 0.25.0
 BREAKING: `Copy` trait is removed from `Event`, you can keep it by removing the "bracked-paste" feature flag. However this flag might be standardized in the future.
