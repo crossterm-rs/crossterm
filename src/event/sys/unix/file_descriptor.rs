@@ -73,6 +73,7 @@ impl AsRawFd for FileDesc {
 }
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
+#[cfg(not(feature = "use-dev-tty"))]
 pub fn tty_fd() -> Result<FileDesc> {
     let (fd, close_on_drop) = if unsafe { libc::isatty(libc::STDIN_FILENO) == 1 } {
         (libc::STDIN_FILENO, false)
@@ -88,4 +89,38 @@ pub fn tty_fd() -> Result<FileDesc> {
     };
 
     Ok(FileDesc::new(fd, close_on_drop))
+}
+
+/// Creates a file descriptor pointing to the standard input or `/dev/tty`.
+#[cfg(feature = "use-dev-tty")]
+pub fn tty_fd(close_on_drop: bool) -> Result<FileDesc> {
+    use crate::tty::IsTty;
+
+    let fd = match open_rw("/dev/tty") {
+        Ok(tty) => {
+            println!("Can open");
+            tty
+        }
+        Err(e) => {
+            println!("Can not open");
+            if stdin().is_tty() {
+                libc::STDIN_FILENO
+            } else {
+                return Err(ErrorKind::IoError(io::Error::new(io::ErrorKind::Other, "Failed to initialize file descriptor. Crossterm first tried to open `/dev/tty` and then `libc::STDIN_FILENO` but both could not be used.")));
+            }
+        }
+    };
+
+    Ok(FileDesc::new(fd, close_on_drop))
+}
+
+fn open_rw<P: AsRef<Path>>(path: P) -> io::Result<RawFd> {
+    use std::fs::OpenOptions;
+
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(path)?;
+
+    Ok(file.into_raw_fd())
 }
