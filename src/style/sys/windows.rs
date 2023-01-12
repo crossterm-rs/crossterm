@@ -34,8 +34,8 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> Result<()> {
 
     // background intensity is a separate value in attrs,
     // we need to check if this was applied to the current bg color.
-    if (attrs & wincon::BACKGROUND_INTENSITY as u16) != 0 {
-        color |= wincon::BACKGROUND_INTENSITY as u16;
+    if (attrs & wincon::BACKGROUND_INTENSITY) != 0 {
+        color |= wincon::BACKGROUND_INTENSITY;
     }
 
     Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
@@ -58,8 +58,8 @@ pub(crate) fn set_background_color(bg_color: Color) -> Result<()> {
 
     // Foreground intensity is a separate value in attrs,
     // So we need to check if this was applied to the current fg color.
-    if (attrs & wincon::FOREGROUND_INTENSITY as u16) != 0 {
-        color |= wincon::FOREGROUND_INTENSITY as u16;
+    if (attrs & wincon::FOREGROUND_INTENSITY) != 0 {
+        color |= wincon::FOREGROUND_INTENSITY;
     }
 
     Console::from(screen_buffer.handle().clone()).set_text_attribute(color)?;
