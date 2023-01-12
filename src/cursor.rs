@@ -328,13 +328,11 @@ impl Command for Show {
 }
 
 /// A command that enables blinking of the terminal cursor.
-///
-/// See `SetCursorStyle` which is more advanced and better supported.
-///
+/// 
 /// # Notes
 ///
 /// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
-///   Use SetCursorStyle for better cross-compatibility.
+///   Use `SetCursorStyle` for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
@@ -350,12 +348,10 @@ impl Command for EnableBlinking {
 
 /// A command that disables blinking of the terminal cursor.
 ///
-/// See `SetCursorStyle` which is more advanced and better supported.
-///
 /// # Notes
 ///
 /// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
-///   Use SetCursorStyle for better cross-compatibility.
+///   Use `SetCursorStyle` for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
