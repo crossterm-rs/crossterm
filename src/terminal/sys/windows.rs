@@ -234,7 +234,7 @@ fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16
     let (mut x, mut y) = (location.x, location.y);
 
     // if cursor position is at the outer right position
-    if x as i16 > buffer_size.width {
+    if x > buffer_size.width {
         y += 1;
         x = 0;
     }
@@ -303,7 +303,7 @@ fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) 
     let start_location = Coord::new(x, y);
 
     // get sum cells before cursor
-    let cells_to_write = (buffer_size.width - x as i16) as u32;
+    let cells_to_write = (buffer_size.width - x) as u32;
 
     // clear until the current line
     clear_winapi(start_location, cells_to_write, current_attribute)?;

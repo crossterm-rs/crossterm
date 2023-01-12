@@ -110,7 +110,7 @@ fn try_ensure_char_case(ch: char, desired_case: CharCase) -> char {
             let mut iter = ch.to_lowercase();
             // Unwrap is safe; iterator yields one or more chars.
             let ch_lower = iter.next().unwrap();
-            if iter.next() == None {
+            if iter.next().is_none() {
                 ch_lower
             } else {
                 ch
@@ -120,7 +120,7 @@ fn try_ensure_char_case(ch: char, desired_case: CharCase) -> char {
             let mut iter = ch.to_uppercase();
             // Unwrap is safe; iterator yields one or more chars.
             let ch_upper = iter.next().unwrap();
-            if iter.next() == None {
+            if iter.next().is_none() {
                 ch_upper
             } else {
                 ch
@@ -186,7 +186,7 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
 
     let mut ch_iter = std::char::decode_utf16(utf16_buf.into_iter().take(ret as usize));
     let mut ch = ch_iter.next()?.ok()?;
-    if ch_iter.next() != None {
+    if ch_iter.next().is_some() {
         // Key doesn't map to a single char.
         return None;
     }
