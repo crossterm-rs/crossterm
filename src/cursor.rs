@@ -330,7 +330,7 @@ impl Command for Show {
 /// A command that enables blinking of the terminal cursor.
 ///
 /// See `SetCursorStyle` which is more advanced and better supported.
-/// 
+///
 /// # Notes
 ///
 /// - Windows versions lower than Windows 10 do not support this functionality.
@@ -347,9 +347,8 @@ impl Command for EnableBlinking {
     }
 }
 
-
 /// A command that disables blinking of the terminal cursor.
-/// 
+///
 /// See `SetCursorStyle` which is more advanced and better supported.
 ///
 /// # Notes
@@ -370,7 +369,7 @@ impl Command for DisableBlinking {
 
 /// A command that sets the style of the cursor.
 /// It uses two types of escape codes, one to control blinking, and the other the shape.
-/// 
+///
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.

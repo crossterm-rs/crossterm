@@ -37,7 +37,7 @@ impl FileDesc {
                 self.fd,
                 buffer.as_mut_ptr() as *mut libc::c_void,
                 size as size_t,
-            ) 
+            )
         };
 
         if result < 0 {
