@@ -114,8 +114,8 @@ impl fmt::Display for Colored {
             Color::DarkCyan => f.write_str("5;6"),
             Color::White => f.write_str("5;15"),
             Color::Grey => f.write_str("5;7"),
-            Color::Rgb { r, g, b } => write!(f, "2;{};{};{}", r, g, b),
-            Color::AnsiValue(val) => write!(f, "5;{}", val),
+            Color::Rgb { r, g, b } => write!(f, "2;{r};{g};{b}"),
+            Color::AnsiValue(val) => write!(f, "5;{val}"),
             _ => Ok(()),
         }
     }

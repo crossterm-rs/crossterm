@@ -195,13 +195,13 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     if width > bounds.x {
         return Err(ErrorKind::new(
             io::ErrorKind::InvalidInput,
-            format!("terminal width {} too large", width),
+            format!("terminal width {width} too large"),
         ));
     }
     if height > bounds.y {
         return Err(ErrorKind::new(
             io::ErrorKind::InvalidInput,
-            format!("terminal height {} too large", height),
+            format!("terminal height {height} too large"),
         ));
     }
 
@@ -218,7 +218,7 @@ pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
     }
 
     let mut title_utf16 = Utf16Encoder(Vec::new());
-    write!(title_utf16, "{}", title).expect("formatting failed");
+    write!(title_utf16, "{title}").expect("formatting failed");
     title_utf16.0.push(0);
     let title = title_utf16.0;
 

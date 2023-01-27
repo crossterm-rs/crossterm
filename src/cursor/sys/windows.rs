@@ -135,8 +135,7 @@ impl ScreenBufferCursor {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
-                    "Argument Out of Range Exception when setting cursor position to X: {}",
-                    x
+                    "Argument Out of Range Exception when setting cursor position to X: {x}"
                 ),
             ));
         }
@@ -145,8 +144,7 @@ impl ScreenBufferCursor {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!(
-                    "Argument Out of Range Exception when setting cursor position to Y: {}",
-                    y
+                    "Argument Out of Range Exception when setting cursor position to Y: {y}"
                 ),
             ));
         }
