@@ -1,12 +1,19 @@
 # Version 0.26.0
 ## Added ⭐
 
-- ⚠️ Add `SetCursorStyle` to set the cursor style. 
+- Add `SetCursorStyle` to set the cursor apearance and visibility. (#742)
+- Add key release event for windows. (#745)
+- Add a function to check if kitty keyboard enhancement protocol is availible. (#732)
+- Add filedescriptors poll in order to move away from mio in the future (can be used via `use-dev-tty`). (#735)
 
-## Breaking
+## Fixed 🐛
+- Improved F1-F4 handling for kitty keyboard protocol. (#736)
+- Improved parsing of event types/modifiers with certain keys for kitty protocol. (#716)
 
-- Remove `SetCursorShape` in vavour of `SetCursorStyle`.
+## Breaking ⚠️
 
+- Remove `SetCursorShape` in vavour of `SetCursorStyle`.  (#742)
+- Make Windows resize event match `terminal::size` (#714)
 # Version 0.25.0
 BREAKING: `Copy` trait is removed from `Event`, you can keep it by removing the "bracked-paste" feature flag. However this flag might be standardized in the future.
 We removed the `Copy` from `Event` because the new `Paste` event, which contains a pasted string into the terminal, which is a non-copy string.
