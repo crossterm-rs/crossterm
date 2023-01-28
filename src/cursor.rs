@@ -328,7 +328,7 @@ impl Command for Show {
 }
 
 /// A command that enables blinking of the terminal cursor.
-/// 
+///
 /// # Notes
 ///
 /// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
