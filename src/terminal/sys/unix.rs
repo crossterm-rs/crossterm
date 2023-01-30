@@ -131,7 +131,6 @@ fn read_supports_keyboard_enhancement_raw() -> Result<bool> {
         let mut stdout = io::stdout();
         stdout.write_all(QUERY)?;
         stdout.flush()?;
-        return Ok(false);
     }
 
     loop {
