@@ -378,6 +378,91 @@ impl<T: fmt::Display> Command for SetTitle<T> {
     }
 }
 
+/// A command that instructs the terminal emulator to being a synchronized frame.
+///
+/// # Notes
+///
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered alternate screen.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io::{stdout, Write};
+/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
+///
+/// fn main() -> Result<()> {
+///     execute!(stdout(), BeginSynchronizedUpdate)?;
+///
+///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
+///
+///     execute!(stdout(), EndSynchronizedUpdate)?;
+/// }
+/// ```
+///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BeginSynchronizedUpdate;
+
+impl Command for BeginSynchronizedUpdate {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2026h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
+    }
+}
+
+///
+/// A command that instructs the terminal to end a synchronized frame.
+///
+/// # Notes
+///
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [BeginSynchronizedUpdate](./struct.BeginSynchronizedUpdate.html) to enter the alternate screen.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io::{stdout, Write};
+/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
+///
+/// fn main() -> Result<()> {
+///     execute!(stdout(), BeginSynchronizedUpdate)?;
+///
+///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
+///
+///     execute!(stdout(), EndSynchronizedUpdate)?;
+/// }
+/// ```
+///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EndSynchronizedUpdate;
+
+impl Command for EndSynchronizedUpdate {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2026l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> Result<()> {
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
+    }
+}
+
 impl_display!(for ScrollUp);
 impl_display!(for ScrollDown);
 impl_display!(for SetSize);

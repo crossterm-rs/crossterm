@@ -1,6 +1,8 @@
 use std::fmt;
 use std::io::{self, Write};
 
+use crate::terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
+
 use super::error::Result;
 
 /// An interface for a command that performs an action on the terminal.
@@ -184,6 +186,62 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     }
 }
 
+/// An interface for types that support synchronized updates.
+pub trait SynchronizedUpdate {
+    /// Performs a set of actions against the given type.
+    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> Result<T>;
+}
+
+impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
+    /// Performs a set of actions within a synchronous update.
+    ///
+    /// Updates will be suspended in the terminal, the function will be executed against self,
+    /// updates will be resumed, and a flush will be performed.
+    ///
+    /// # Arguments
+    ///
+    /// - Function
+    ///
+    ///     A function that performs the operations that must execute in a synchronized update.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::io::{Write, stdout};
+    ///
+    /// use crossterm::{Result, ExecutableCommand, SynchronizedUpdate, style::Print};
+    ///
+    ///  fn main() -> Result<()> {
+    ///     let mut stdout = stdout();
+    ///
+    ///     stdout.sync_update(|stdout| {
+    ///         stdout.execute(Print("foo 1\n".to_string()))?
+    ///         stdout.execute(Print("foo 2".to_string()))?;
+    ///         // The effects of the print command will not be present in the terminal
+    ///         // buffer, but not visible in the terminal.
+    ///     })
+    ///
+    ///     // The effects of the commands will be visible.
+    ///
+    ///     Ok(())
+    ///
+    ///     // ==== Output ====
+    ///     // foo 1
+    ///     // foo 2
+    /// }
+    /// ```
+    ///
+    /// # Notes
+    ///
+    /// * This command is performed only using ANSI codes, and will do nothing on terminals
+    ///   that do not support ANSI codes, or this specific extension.
+    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> Result<T> {
+        self.queue(BeginSynchronizedUpdate)?;
+        let result = operations(self);
+        self.execute(EndSynchronizedUpdate)?;
+        Ok(result)
+    }
+}
 /// Writes the ANSI representation of a command to the given writer.
 fn write_command_ansi<C: Command>(
     io: &mut (impl io::Write + ?Sized),
