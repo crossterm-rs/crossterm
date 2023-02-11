@@ -420,7 +420,6 @@ impl Command for BeginSynchronizedUpdate {
     }
 }
 
-///
 /// A command that instructs the terminal to end a synchronized frame.
 ///
 /// # Notes
