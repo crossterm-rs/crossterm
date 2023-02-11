@@ -3,7 +3,7 @@
 
 - Add `SetCursorStyle` to set the cursor apearance and visibility. (#742)
 - Add key release event for windows. (#745)
-- Add a function to check if kitty keyboard enhancement protocol is availible. (#732)
+- Add a function to check if kitty keyboard enhancement protocol is available. (#732)
 - Add filedescriptors poll in order to move away from mio in the future (can be used via `use-dev-tty`). (#735)
 
 ## Fixed 🐛
@@ -12,7 +12,7 @@
 
 ## Breaking ⚠️
 
-- Remove `SetCursorShape` in vavour of `SetCursorStyle`.  (#742)
+- Remove `SetCursorShape` in favour of `SetCursorStyle`.  (#742)
 - Make Windows resize event match `terminal::size` (#714)
 # Version 0.25.0
 BREAKING: `Copy` trait is removed from `Event`, you can keep it by removing the "bracked-paste" feature flag. However this flag might be standardized in the future.
