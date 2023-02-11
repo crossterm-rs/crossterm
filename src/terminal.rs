@@ -385,6 +385,16 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 /// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered alternate screen.
 ///
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
+/// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+///
+/// This mode attempts to mitigate that.
+///
+/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
+/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
+/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
+/// by unintentionally rendering in the middle a of an application screen update.
+///
 /// # Examples
 ///
 /// ```no_run
@@ -426,6 +436,16 @@ impl Command for BeginSynchronizedUpdate {
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
 /// * Use [BeginSynchronizedUpdate](./struct.BeginSynchronizedUpdate.html) to enter the alternate screen.
+///
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
+/// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+///
+/// This mode attempts to mitigate that.
+///
+/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
+/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
+/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
+/// by unintentionally rendering in the middle a of an application screen update.
 ///
 /// # Examples
 ///
