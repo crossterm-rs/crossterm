@@ -275,10 +275,9 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> Result<Option<Internal
     if bits & 2 != 0 {
         flags |= KeyboardEnhancementFlags::REPORT_EVENT_TYPES;
     }
-    // *Note*: this is not yet supported by crossterm.
-    // if bits & 4 != 0 {
-    //     flags |= KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS;
-    // }
+    if bits & 4 != 0 {
+        flags |= KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS;
+    }
     if bits & 8 != 0 {
         flags |= KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES;
     }
@@ -500,14 +499,33 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'u']));
 
+    // This function parses `CSI … u` sequences. These are sequences defined in either
+    // the `CSI u` (a.k.a. "Fix Keyboard Input on Terminals - Please", https://www.leonerd.org.uk/hacks/fixterms/)
+    // or Kitty Keyboard Protocol (https://sw.kovidgoyal.net/kitty/keyboard-protocol/) specifications.
+    // This CSI sequence is a tuple of semicolon-separated numbers.
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
     let mut split = s.split(';');
 
-    // This CSI sequence a tuple of semicolon-separated numbers.
-    // CSI [codepoint];[modifiers] u
-    // codepoint: ASCII Dec value
-    let codepoint = next_parsed::<u32>(&mut split)?;
+    // In `CSI u`, this is parsed as:
+    //
+    //     CSI codepoint ; modifiers u
+    //     codepoint: ASCII Dec value
+    //
+    // The Kitty Keyboard Protocol extends this with optional components that can be
+    // enabled progressively. The full sequence is parsed as:
+    //
+    //     CSI unicode-key-code:alternate-key-codes ; modifiers:event-type ; text-as-codepoints u
+    let mut codepoints = split
+        .next()
+        .ok_or_else(could_not_parse_event_error)?
+        .split(':');
+
+    let codepoint = codepoints
+        .next()
+        .ok_or_else(could_not_parse_event_error)?
+        .parse::<u32>()
+        .map_err(|_| could_not_parse_event_error())?;
 
     let (mut modifiers, kind, state_from_modifiers) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
@@ -520,7 +538,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
             (KeyModifiers::NONE, KeyEventKind::Press, KeyEventState::NONE)
         };
 
-    let (keycode, state_from_keycode) = {
+    let (mut keycode, state_from_keycode) = {
         if let Some((special_key_code, state)) = translate_functional_key_code(codepoint) {
             (special_key_code, state)
         } else if let Some(c) = char::from_u32(codepoint) {
@@ -571,6 +589,21 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> Result<Option<Inter
                 modifiers.set(KeyModifiers::META, true)
             }
             _ => {}
+        }
+    }
+
+    // When the "report alternate keys" flag is enabled in the Kitty Keyboard Protocol
+    // and the terminal sends a keyboard event containing shift, the sequence will
+    // contain an additional codepoint separated by a ':' character which contains
+    // the shifted character according to the keyboard layout.
+    if modifiers.contains(KeyModifiers::SHIFT) {
+        if let Some(shifted_c) = codepoints
+            .next()
+            .and_then(|codepoint| codepoint.parse::<u32>().ok())
+            .and_then(char::from_u32)
+        {
+            keycode = KeyCode::Char(shifted_c);
+            modifiers.set(KeyModifiers::SHIFT, false);
         }
     }
 
@@ -1407,6 +1440,26 @@ mod tests {
                     KeyEventState::NUM_LOCK,
                 )
             ))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_with_shifted_keycode() {
+        assert_eq!(
+            // A-S-9 is equivalent to A-(
+            parse_event(b"\x1B[57:40;4u", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('('),
+                KeyModifiers::ALT,
+            )))),
+        );
+        assert_eq!(
+            // A-S-minus is equivalent to A-_
+            parse_event(b"\x1B[45:95;4u", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('_'),
+                KeyModifiers::ALT,
+            )))),
         );
     }
 

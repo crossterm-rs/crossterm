@@ -319,10 +319,9 @@ bitflags! {
         /// [`KeyEventKind::Release`] when keys are autorepeated or released.
         const REPORT_EVENT_TYPES = 0b0000_0010;
         // Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
-        // in addition to the base keycode.
-        //
-        // *Note*: these are not yet supported by crossterm.
-        // const REPORT_ALTERNATE_KEYS = 0b0000_0100;
+        // in addition to the base keycode. The alternate keycode overrides the base keycode in
+        // resulting `KeyEvent`s.
+        const REPORT_ALTERNATE_KEYS = 0b0000_0100;
         /// Represent all keyboard events as CSI-u sequences. This is required to get repeat/release
         /// events for plain-text keys.
         const REPORT_ALL_KEYS_AS_ESCAPE_CODES = 0b0000_1000;
