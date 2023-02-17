@@ -215,11 +215,12 @@ impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
     ///     let mut stdout = stdout();
     ///
     ///     stdout.sync_update(|stdout| {
-    ///         stdout.execute(Print("foo 1\n".to_string()))?
+    ///         stdout.execute(Print("foo 1\n".to_string()))?;
     ///         stdout.execute(Print("foo 2".to_string()))?;
     ///         // The effects of the print command will not be present in the terminal
     ///         // buffer, but not visible in the terminal.
-    ///     })
+    ///         crossterm::Result::Ok(())
+    ///     })?;
     ///
     ///     // The effects of the commands will be visible.
     ///

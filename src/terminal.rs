@@ -399,7 +399,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
+/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), BeginSynchronizedUpdate)?;
@@ -407,6 +407,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
 ///
 ///     execute!(stdout(), EndSynchronizedUpdate)?;
+///     Ok(())
 /// }
 /// ```
 ///
@@ -451,7 +452,7 @@ impl Command for BeginSynchronizedUpdate {
 ///
 /// ```no_run
 /// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
+/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
 /// fn main() -> Result<()> {
 ///     execute!(stdout(), BeginSynchronizedUpdate)?;
@@ -459,6 +460,7 @@ impl Command for BeginSynchronizedUpdate {
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
 ///
 ///     execute!(stdout(), EndSynchronizedUpdate)?;
+///     Ok(())
 /// }
 /// ```
 ///
