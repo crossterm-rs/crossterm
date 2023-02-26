@@ -131,8 +131,20 @@ impl EventSource for UnixInternalEventSource {
                 return Ok(Some(event));
             }
             match poll(&mut fds, timeout.leftover()) {
-                Err(filedescriptor::Error::Io(e)) => return Err(e),
-                res => res.expect("polling tty"),
+                Err(filedescriptor::Error::Poll(e)) | Err(filedescriptor::Error::Io(e)) => {
+                    match e.kind() {
+                        // retry on EINTR
+                        io::ErrorKind::Interrupted => continue,
+                        _ => return Err(e),
+                    }
+                }
+                Err(e) => {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        format!("got unexpected error while polling: {:?}", e),
+                    ))
+                }
+                Ok(_) => (),
             };
             if fds[0].revents & POLLIN != 0 {
                 loop {
