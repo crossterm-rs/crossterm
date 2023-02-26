@@ -1,3 +1,14 @@
+# Version 0.26.1
+
+## Added ⭐
+- Add synchronized output/update control (#756)
+- Add kitty report alternate keys functionality (#754)
+- Updates dev dependencies.
+
+## Fixed 🐛
+- Fix icorrect return in kitty keyboard enhancement check (#751)
+- Fix panic when using `use-dev-tty` feature flag (#762)
+
 # Version 0.26.0
 ## Added ⭐
 
