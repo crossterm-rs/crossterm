@@ -27,6 +27,7 @@ Available tests:
 2. color (foreground, background)
 3. attributes (bold, italic, ...)
 4. input
+5. synchronized output
 
 Select test to run ('1', '2', ...) or hit 'q' to quit.
 "#;
@@ -59,6 +60,7 @@ where
             '2' => test::color::run(w)?,
             '3' => test::attribute::run(w)?,
             '4' => test::event::run(w)?,
+            '5' => test::synchronized_output::run(w)?,
             'q' => break,
             _ => {}
         };

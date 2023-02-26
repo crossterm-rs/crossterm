@@ -235,7 +235,7 @@
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
 pub use crate::{
-    command::{Command, ExecutableCommand, QueueableCommand},
+    command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate},
     error::{ErrorKind, Result},
 };
 
