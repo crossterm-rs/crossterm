@@ -63,10 +63,10 @@
 //! ## Examples
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
-//! use crossterm::{execute, Result, terminal::{ScrollUp, SetSize, size}};
+//! use std::io::{stdout, Write, Error};
+//! use crossterm::{execute, terminal::{ScrollUp, SetSize, size}};
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> Result<(), Error> {
 //!     let (cols, rows) = size()?;
 //!     // Resize terminal and scroll up.
 //!     execute!(
@@ -83,7 +83,7 @@
 //!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
-use std::fmt;
+use std::{fmt, io};
 
 #[cfg(windows)]
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
@@ -94,7 +94,7 @@ use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
-use crate::{csi, impl_display, Result};
+use crate::{csi, impl_display};
 
 pub(crate) mod sys;
 
@@ -104,7 +104,7 @@ pub use sys::supports_keyboard_enhancement;
 /// Tells whether the raw mode is enabled.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn is_raw_mode_enabled() -> Result<bool> {
+pub fn is_raw_mode_enabled() -> Result<bool, io::Error> {
     #[cfg(unix)]
     {
         Ok(sys::is_raw_mode_enabled())
@@ -119,21 +119,21 @@ pub fn is_raw_mode_enabled() -> Result<bool> {
 /// Enables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn enable_raw_mode() -> Result<()> {
+pub fn enable_raw_mode() -> Result<(), io::Error> {
     sys::enable_raw_mode()
 }
 
 /// Disables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn disable_raw_mode() -> Result<()> {
+pub fn disable_raw_mode() -> Result<(), io::Error> {
     sys::disable_raw_mode()
 }
 
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
-pub fn size() -> Result<(u16, u16)> {
+pub fn size() -> Result<(u16, u16), io::Error> {
     sys::size()
 }
 
@@ -185,10 +185,10 @@ impl Command for EnableLineWrap {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use std::io::{stdout, Write, Error};
+/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<()> {
+/// fn main() -> Result<(), Error> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
@@ -223,10 +223,10 @@ impl Command for EnterAlternateScreen {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use std::io::{stdout, Write, Error};
+/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<()> {
+/// fn main() -> Result<(), Error> {
 ///     execute!(stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
@@ -399,10 +399,10 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
+/// use std::io::{stdout, Write, Error};
+/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
-/// fn main() -> Result<()> {
+/// fn main() -> Result<(), Error> {
 ///     execute!(stdout(), BeginSynchronizedUpdate)?;
 ///
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
@@ -452,10 +452,10 @@ impl Command for BeginSynchronizedUpdate {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
+/// use std::io::{stdout, Write, Error};
+/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
-/// fn main() -> Result<()> {
+/// fn main() -> Result<(), Error> {
 ///     execute!(stdout(), BeginSynchronizedUpdate)?;
 ///
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.

@@ -12,8 +12,6 @@ use std::{
 
 use futures_core::stream::Stream;
 
-use crate::Result;
-
 use crate::event::{
     filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
     Event, InternalEvent,
@@ -100,7 +98,7 @@ struct Task {
 // We have to wake up the poll_internal (force it to return Ok(false)) and quit
 // the thread before we drop.
 impl Stream for EventStream {
-    type Item = Result<Event>;
+    type Item = Result<Event, std::io::Error>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let result = match poll_internal(Some(Duration::from_secs(0)), &EventFilter) {

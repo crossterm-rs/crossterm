@@ -30,7 +30,7 @@
 //! ```no_run
 //! use crossterm::event::{read, Event};
 //!
-//! fn print_events() -> crossterm::Result<()> {
+//! fn print_events() -> Result<(), std::io::Error> {
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
@@ -50,11 +50,11 @@
 //! Non-blocking read:
 //!
 //! ```no_run
-//! use std::time::Duration;
+//! use std::{time::Duration, io};
 //!
 //! use crossterm::event::{poll, read, Event};
 //!
-//! fn print_events() -> crossterm::Result<()> {
+//! fn print_events() -> Result<(), io::Error> {
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
 //!         if poll(Duration::from_millis(500))? {
@@ -141,11 +141,10 @@ fn try_lock_internal_event_reader_for(
 /// Return immediately:
 ///
 /// ```no_run
-/// use std::time::Duration;
+/// use std::{time::Duration, io};
+/// use crossterm::{event::poll};
 ///
-/// use crossterm::{event::poll, Result};
-///
-/// fn is_event_available() -> Result<bool> {
+/// fn is_event_available() -> Result<bool, io::Error> {
 ///     // Zero duration says that the `poll` function must return immediately
 ///     // with an `Event` availability information
 ///     poll(Duration::from_secs(0))
@@ -155,17 +154,17 @@ fn try_lock_internal_event_reader_for(
 /// Wait up to 100ms:
 ///
 /// ```no_run
-/// use std::time::Duration;
+/// use std::{time::Duration, io};
 ///
-/// use crossterm::{event::poll, Result};
+/// use crossterm::event::poll;
 ///
-/// fn is_event_available() -> Result<bool> {
+/// fn is_event_available() -> Result<bool, io::Error> {
 ///     // Wait for an `Event` availability for 100ms. It returns immediately
 ///     // if an `Event` is/becomes available.
 ///     poll(Duration::from_millis(100))
 /// }
 /// ```
-pub fn poll(timeout: Duration) -> crate::Result<bool> {
+pub fn poll(timeout: Duration) -> Result<bool, io::Error> {
     poll_internal(Some(timeout), &EventFilter)
 }
 
@@ -179,9 +178,10 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 /// Blocking read:
 ///
 /// ```no_run
-/// use crossterm::{event::read, Result};
+/// use crossterm::event::read;
+/// use std::io;
 ///
-/// fn print_events() -> Result<bool> {
+/// fn print_events() -> Result<bool, io::Error> {
 ///     loop {
 ///         // Blocks until an `Event` is available
 ///         println!("{:?}", read()?);
@@ -193,10 +193,11 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 ///
 /// ```no_run
 /// use std::time::Duration;
+/// use std::io;
 ///
-/// use crossterm::{event::{read, poll}, Result};
+/// use crossterm::event::{read, poll};
 ///
-/// fn print_events() -> Result<bool> {
+/// fn print_events() -> Result<bool, io::Error> {
 ///     loop {
 ///         if poll(Duration::from_millis(100))? {
 ///             // It's guaranteed that `read` won't block, because `poll` returned
@@ -208,7 +209,7 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 ///     }
 /// }
 /// ```
-pub fn read() -> crate::Result<Event> {
+pub fn read() -> Result<Event, io::Error> {
     match read_internal(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
@@ -217,7 +218,7 @@ pub fn read() -> crate::Result<Event> {
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> crate::Result<bool>
+pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> Result<bool, io::Error>
 where
     F: Filter,
 {
@@ -235,7 +236,7 @@ where
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal<F>(filter: &F) -> crate::Result<InternalEvent>
+pub(crate) fn read_internal<F>(filter: &F) -> Result<InternalEvent, io::Error>
 where
     F: Filter,
 {

@@ -172,13 +172,13 @@
 //! Functions:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{stdout, Write, Error};
 //! use crossterm::{
 //!     ExecutableCommand, QueueableCommand,
-//!     terminal, cursor, style::{self, Stylize}, Result
+//!     terminal, cursor, style::{self, Stylize}
 //! };
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> Result<(), Error> {
 //!   let mut stdout = stdout();
 //!
 //!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
@@ -201,13 +201,13 @@
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{stdout, Write, Error};
 //! use crossterm::{
 //!     execute, queue,
-//!     style::{self, Stylize}, cursor, terminal, Result
+//!     style::{self, Stylize}, cursor, terminal
 //! };
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> Result<(), Error> {
 //!   let mut stdout = stdout();
 //!
 //!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
@@ -230,10 +230,7 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use crate::{
-    command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate},
-    error::{ErrorKind, Result},
-};
+pub use crate::command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate};
 
 /// A module to work with the terminal cursor
 pub mod cursor;
@@ -252,7 +249,6 @@ pub mod tty;
 /// A module that exposes one function to check if the current terminal supports ANSI sequences.
 pub mod ansi_support;
 mod command;
-mod error;
 pub(crate) mod macros;
 
 #[cfg(all(windows, not(feature = "windows")))]

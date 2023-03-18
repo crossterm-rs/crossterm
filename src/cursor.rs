@@ -13,14 +13,14 @@
 //! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{stdout, Write, Error};
 //!
 //! use crossterm::{
-//!     ExecutableCommand, execute, Result,
+//!     ExecutableCommand, execute,
 //!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
 //! };
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> Result<(), Error> {
 //!     // with macro
 //!     execute!(
 //!         stdout(),

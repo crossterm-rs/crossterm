@@ -1,6 +1,6 @@
 #![allow(clippy::cognitive_complexity)]
 
-use std::io::{self, Write};
+use std::io;
 
 use crossterm::event::KeyEventKind;
 pub use crossterm::{
@@ -8,7 +8,7 @@ pub use crossterm::{
     event::{self, Event, KeyCode, KeyEvent},
     execute, queue, style,
     terminal::{self, ClearType},
-    Command, Result,
+    Command,
 };
 
 #[macro_use]
@@ -33,9 +33,9 @@ Available tests:
 Select test to run ('1', '2', ...) or hit 'q' to quit.
 "#;
 
-fn run<W>(w: &mut W) -> Result<()>
+fn run<W>(w: &mut W) -> Result<(), io::Error>
 where
-    W: Write,
+    W: io::Write,
 {
     execute!(w, terminal::EnterAlternateScreen)?;
 

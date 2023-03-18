@@ -3,12 +3,9 @@
 //!
 //! cargo run --example event-read-char-line
 
-use crossterm::{
-    event::{self, Event, KeyCode, KeyEvent},
-    Result,
-};
+use crossterm::event::{self, Event, KeyCode, KeyEvent};
 
-pub fn read_char() -> Result<char> {
+pub fn read_char() -> Result<char, std::io::Error> {
     loop {
         if let Event::Key(KeyEvent {
             code: KeyCode::Char(c),
@@ -20,7 +17,7 @@ pub fn read_char() -> Result<char> {
     }
 }
 
-pub fn read_line() -> Result<String> {
+pub fn read_line() -> Result<String, std::io::Error> {
     let mut line = String::new();
     while let Event::Key(KeyEvent { code, .. }) = event::read()? {
         match code {

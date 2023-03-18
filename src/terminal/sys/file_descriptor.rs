@@ -8,8 +8,6 @@ use std::{
 
 use libc::size_t;
 
-use crate::Result;
-
 /// A file descriptor wrapper.
 ///
 /// It allows to retrieve raw file descriptor, write to the file descriptor and
@@ -31,7 +29,7 @@ impl FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
-    pub fn read(&self, buffer: &mut [u8], size: usize) -> Result<usize> {
+    pub fn read(&self, buffer: &mut [u8], size: usize) -> Result<usize, io::Error> {
         let result = unsafe {
             libc::read(
                 self.fd,
@@ -73,7 +71,7 @@ impl AsRawFd for FileDesc {
 }
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
-pub fn tty_fd() -> Result<FileDesc> {
+pub fn tty_fd() -> Result<FileDesc, io::Error> {
     let (fd, close_on_drop) = if unsafe { libc::isatty(libc::STDIN_FILENO) == 1 } {
         (libc::STDIN_FILENO, false)
     } else {

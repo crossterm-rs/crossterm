@@ -19,7 +19,10 @@ pub(crate) trait EventSource: Sync + Send {
     ///               for the given timeout
     ///
     /// Returns `Ok(None)` if there's no event available and timeout expires.
-    fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>>;
+    fn try_read(
+        &mut self,
+        timeout: Option<Duration>,
+    ) -> Result<Option<InternalEvent>, std::io::Error>;
 
     /// Returns a `Waker` allowing to wake/force the `try_read` method to return `Ok(None)`.
     #[cfg(feature = "event-stream")]

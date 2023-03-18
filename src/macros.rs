@@ -242,7 +242,6 @@ mod tests {
 
         use super::FakeWrite;
         use crate::command::Command;
-        use crate::error::Result as CrosstermResult;
 
         // We need to test two different APIs: WinAPI and the write api. We
         // don't know until runtime which we're supporting (via
@@ -274,7 +273,7 @@ mod tests {
                 f.write_str(self.value)
             }
 
-            fn execute_winapi(&self) -> CrosstermResult<()> {
+            fn execute_winapi(&self) -> Result<(), io::Error> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
