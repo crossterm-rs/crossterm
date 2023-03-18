@@ -273,7 +273,7 @@ mod tests {
                 f.write_str(self.value)
             }
 
-            fn execute_winapi(&self) -> Result<(), io::Error> {
+            fn execute_winapi(&self) -> io::Result<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
@@ -294,7 +294,7 @@ mod tests {
         // write buffer are equal to the concatenation of `stream_result`.
         fn test_harness<E: Debug>(
             stream_result: &[&'static str],
-            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> Result<(), E>,
+            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> io::Result<()>,
         ) {
             let mut stream = WindowsEventStream::default();
             let mut writer = FakeWrite::default();

@@ -44,7 +44,7 @@ impl InternalEventReader {
         &mut self,
         timeout: Option<Duration>,
         filter: &F,
-    ) -> Result<bool, io::Error>
+    ) -> io::Result<bool>
     where
         F: Filter,
     {
@@ -99,7 +99,7 @@ impl InternalEventReader {
         }
     }
 
-    pub(crate) fn read<F>(&mut self, filter: &F) -> Result<InternalEvent, io::Error>
+    pub(crate) fn read<F>(&mut self, filter: &F) -> io::Result<InternalEvent>
     where
         F: Filter,
     {
@@ -408,7 +408,7 @@ mod tests {
         fn try_read(
             &mut self,
             _timeout: Option<Duration>,
-        ) -> Result<Option<InternalEvent>, io::Error> {
+        ) -> io::Result<Option<InternalEvent>> {
             // Return error if set in case there's just one remaining event
             if self.events.len() == 1 {
                 if let Some(error) = self.error.take() {

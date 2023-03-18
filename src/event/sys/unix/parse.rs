@@ -26,7 +26,7 @@ fn could_not_parse_event_error() -> io::Error {
 pub(crate) fn parse_event(
     buffer: &[u8],
     input_available: bool,
-) -> Result<Option<InternalEvent>, io::Error> {
+) -> io::Result<Option<InternalEvent>> {
     if buffer.is_empty() {
         return Ok(None);
     }
@@ -134,7 +134,7 @@ fn char_code_to_event(code: KeyCode) -> KeyEvent {
     KeyEvent::new(code, modifiers)
 }
 
-pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
 
     if buffer.len() == 2 {
@@ -213,7 +213,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Erro
     Ok(input_event.map(InternalEvent::Event))
 }
 
-pub(crate) fn next_parsed<T>(iter: &mut dyn Iterator<Item = &str>) -> Result<T, io::Error>
+pub(crate) fn next_parsed<T>(iter: &mut dyn Iterator<Item = &str>) -> io::Result<T>
 where
     T: std::str::FromStr,
 {
@@ -223,7 +223,7 @@ where
         .map_err(|_| could_not_parse_event_error())
 }
 
-fn modifier_and_kind_parsed(iter: &mut dyn Iterator<Item = &str>) -> Result<(u8, u8), io::Error> {
+fn modifier_and_kind_parsed(iter: &mut dyn Iterator<Item = &str>) -> io::Result<(u8, u8)> {
     let mut sub_split = iter
         .next()
         .ok_or_else(could_not_parse_event_error)?
@@ -238,7 +238,7 @@ fn modifier_and_kind_parsed(iter: &mut dyn Iterator<Item = &str>) -> Result<(u8,
     }
 }
 
-pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ Cy ; Cx R
     //   Cy - cursor row number (starting from 1)
     //   Cx - cursor column number (starting from 1)
@@ -256,7 +256,7 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> Result<Option<Internal
     Ok(Some(InternalEvent::CursorPosition(x, y)))
 }
 
-fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ ? flags u
     assert!(buffer.starts_with(&[b'\x1B', b'[', b'?'])); // ESC [ ?
     assert!(buffer.ends_with(&[b'u']));
@@ -288,7 +288,7 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> Result<Option<Internal
     Ok(Some(InternalEvent::KeyboardEnhancementFlags(flags)))
 }
 
-fn parse_csi_primary_device_attributes(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+fn parse_csi_primary_device_attributes(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
     assert!(buffer.starts_with(&[b'\x1B', b'[', b'?']));
     assert!(buffer.ends_with(&[b'c']));
@@ -347,7 +347,7 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 
 pub(crate) fn parse_csi_modifier_key_code(
     buffer: &[u8],
-) -> Result<Option<InternalEvent>, io::Error> {
+) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
                                                    //
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
@@ -498,7 +498,7 @@ fn translate_functional_key_code(codepoint: u32) -> Option<(KeyCode, KeyEventSta
 
 pub(crate) fn parse_csi_u_encoded_key_code(
     buffer: &[u8],
-) -> Result<Option<InternalEvent>, io::Error> {
+) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'u']));
 
@@ -622,7 +622,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(
 
 pub(crate) fn parse_csi_special_key_code(
     buffer: &[u8],
-) -> Result<Option<InternalEvent>, io::Error> {
+) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'~']));
 
@@ -666,7 +666,7 @@ pub(crate) fn parse_csi_special_key_code(
     Ok(Some(InternalEvent::Event(input_event)))
 }
 
-pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // rxvt mouse encoding:
     // ESC [ Cb ; Cx ; Cy ; M
 
@@ -693,7 +693,7 @@ pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> Result<Option<InternalEvent
     }))))
 }
 
-pub(crate) fn parse_csi_normal_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi_normal_mouse(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // Normal mouse encoding: ESC [ M CB Cx Cy (6 characters only).
 
     assert!(buffer.starts_with(&[b'\x1B', b'[', b'M'])); // ESC [ M
@@ -721,7 +721,7 @@ pub(crate) fn parse_csi_normal_mouse(buffer: &[u8]) -> Result<Option<InternalEve
     }))))
 }
 
-pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ < Cb ; Cx ; Cy (;) (M or m)
 
     assert!(buffer.starts_with(&[b'\x1B', b'[', b'<'])); // ESC [ <
@@ -779,7 +779,7 @@ pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> Result<Option<InternalEvent>
 /// - mouse is dragging
 /// - button number
 /// - button number
-fn parse_cb(cb: u8) -> Result<(MouseEventKind, KeyModifiers), io::Error> {
+fn parse_cb(cb: u8) -> io::Result<(MouseEventKind, KeyModifiers)> {
     let button_number = (cb & 0b0000_0011) | ((cb & 0b1100_0000) >> 4);
     let dragging = cb & 0b0010_0000 == 0b0010_0000;
 
@@ -814,7 +814,7 @@ fn parse_cb(cb: u8) -> Result<(MouseEventKind, KeyModifiers), io::Error> {
 }
 
 #[cfg(feature = "bracketed-paste")]
-pub(crate) fn parse_csi_bracketed_paste(buffer: &[u8]) -> Result<Option<InternalEvent>, io::Error> {
+pub(crate) fn parse_csi_bracketed_paste(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ 2 0 0 ~ pasted text ESC 2 0 1 ~
     assert!(buffer.starts_with(b"\x1B[200~"));
 
@@ -826,7 +826,7 @@ pub(crate) fn parse_csi_bracketed_paste(buffer: &[u8]) -> Result<Option<Internal
     }
 }
 
-pub(crate) fn parse_utf8_char(buffer: &[u8]) -> Result<Option<char>, io::Error> {
+pub(crate) fn parse_utf8_char(buffer: &[u8]) -> io::Result<Option<char>> {
     match std::str::from_utf8(buffer) {
         Ok(s) => {
             let ch = s.chars().next().ok_or_else(could_not_parse_event_error)?;

@@ -63,20 +63,20 @@
 //! ## Examples
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
+//! use std::io::{self, Write};
 //! use crossterm::{execute, terminal::{ScrollUp, SetSize, size}};
 //!
-//! fn main() -> Result<(), Error> {
+//! fn main() -> io::Result<()> {
 //!     let (cols, rows) = size()?;
 //!     // Resize terminal and scroll up.
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         SetSize(10, 10),
 //!         ScrollUp(5)
 //!     )?;
 //!
 //!     // Be a good citizen, cleanup
-//!     execute!(stdout(), SetSize(cols, rows))?;
+//!     execute!(io::stdout(), SetSize(cols, rows))?;
 //!     Ok(())
 //! }
 //! ```
@@ -104,7 +104,7 @@ pub use sys::supports_keyboard_enhancement;
 /// Tells whether the raw mode is enabled.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn is_raw_mode_enabled() -> Result<bool, io::Error> {
+pub fn is_raw_mode_enabled() -> io::Result<bool> {
     #[cfg(unix)]
     {
         Ok(sys::is_raw_mode_enabled())
@@ -119,21 +119,21 @@ pub fn is_raw_mode_enabled() -> Result<bool, io::Error> {
 /// Enables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn enable_raw_mode() -> Result<(), io::Error> {
+pub fn enable_raw_mode() -> io::Result<()> {
     sys::enable_raw_mode()
 }
 
 /// Disables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn disable_raw_mode() -> Result<(), io::Error> {
+pub fn disable_raw_mode() -> io::Result<()> {
     sys::disable_raw_mode()
 }
 
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
-pub fn size() -> Result<(u16, u16), io::Error> {
+pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
 }
 
@@ -185,15 +185,15 @@ impl Command for EnableLineWrap {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write, Error};
+/// use std::io::{self, Write};
 /// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<(), Error> {
-///     execute!(stdout(), EnterAlternateScreen)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
 ///
-///     execute!(stdout(), LeaveAlternateScreen)
+///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
 ///
@@ -223,15 +223,15 @@ impl Command for EnterAlternateScreen {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write, Error};
+/// use std::io::{self, Write};
 /// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<(), Error> {
-///     execute!(stdout(), EnterAlternateScreen)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
 ///
-///     execute!(stdout(), LeaveAlternateScreen)
+///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
 ///
@@ -399,15 +399,15 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write, Error};
+/// use std::io::{self, Write};
 /// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
-/// fn main() -> Result<(), Error> {
-///     execute!(stdout(), BeginSynchronizedUpdate)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
 ///
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
 ///
-///     execute!(stdout(), EndSynchronizedUpdate)?;
+///     execute!(io::stdout(), EndSynchronizedUpdate)?;
 ///     Ok(())
 /// }
 /// ```
@@ -452,15 +452,15 @@ impl Command for BeginSynchronizedUpdate {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write, Error};
+/// use std::io::{self, Write};
 /// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
-/// fn main() -> Result<(), Error> {
-///     execute!(stdout(), BeginSynchronizedUpdate)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
 ///
 ///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
 ///
-///     execute!(stdout(), EndSynchronizedUpdate)?;
+///     execute!(io::stdout(), EndSynchronizedUpdate)?;
 ///     Ok(())
 /// }
 /// ```

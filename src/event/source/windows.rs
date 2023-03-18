@@ -24,7 +24,7 @@ pub(crate) struct WindowsEventSource {
 }
 
 impl WindowsEventSource {
-    pub(crate) fn new() -> Result<WindowsEventSource, io::Error> {
+    pub(crate) fn new() -> io::Result<WindowsEventSource> {
         let console = Console::from(Handle::current_in_handle()?);
         Ok(WindowsEventSource {
             console,
@@ -41,7 +41,7 @@ impl WindowsEventSource {
 }
 
 impl EventSource for WindowsEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>, io::Error> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {

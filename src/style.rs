@@ -28,14 +28,13 @@
 //! Using the Command API to color text.
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
-//!
+//! use std::io::{self, Write};
 //! use crossterm::execute;
 //! use crossterm::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
 //!
-//! fn main() -> Result<(), Error> {
+//! fn main() -> io::Result<()> {
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         // Blue foreground
 //!         SetForegroundColor(Color::Blue),
 //!         // Red background
@@ -68,14 +67,14 @@
 //! Using the Command API to set attributes.
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
+//! use std::io::{self, Write};
 //!
 //! use crossterm::{execute, style::Print};
 //! use crossterm::style::{SetAttribute, Attribute};
 //!
-//! fn main() -> Result<(), Error> {
+//! fn main() -> io::Result<()> {
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         // Set to bold
 //!         SetAttribute(Attribute::Bold),
 //!         Print("Bold text here.".to_string()),

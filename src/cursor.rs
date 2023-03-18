@@ -13,17 +13,17 @@
 //! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
+//! use std::io::{self, Write};
 //!
 //! use crossterm::{
 //!     ExecutableCommand, execute,
 //!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
 //! };
 //!
-//! fn main() -> Result<(), Error> {
+//! fn main() -> io::Result<()> {
 //!     // with macro
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         SavePosition,
 //!         MoveTo(10, 10),
 //!         EnableBlinking,
@@ -32,7 +32,7 @@
 //!     );
 //!
 //!   // with function
-//!   stdout()
+//!   io::stdout()
 //!     .execute(MoveTo(11,11))?
 //!     .execute(RestorePosition);
 //!

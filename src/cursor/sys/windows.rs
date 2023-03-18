@@ -37,7 +37,7 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 /// Returns the cursor position (column, row).
 ///
 /// The top left cell is represented `0,0`.
-pub fn position() -> Result<(u16, u16)> {
+pub fn position() -> io::Result<(u16> {
     let cursor = ScreenBufferCursor::output()?;
     let mut position = cursor.position()?;
     //    if position.y != 0 {

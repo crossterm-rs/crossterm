@@ -33,11 +33,11 @@ pub(crate) struct UnixInternalEventSource {
 }
 
 impl UnixInternalEventSource {
-    pub fn new() -> Result<Self, io::Error> {
+    pub fn new() -> io::Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self, io::Error> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> io::Result<Self> {
         let poll = Poll::new()?;
         let registry = poll.registry();
 
@@ -65,7 +65,7 @@ impl UnixInternalEventSource {
 }
 
 impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>, io::Error> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         if let Some(event) = self.parser.next() {
             return Ok(Some(event));
         }

@@ -1,4 +1,7 @@
-use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
+use std::{
+    convert::{AsRef, TryFrom},
+    str::FromStr,
+};
 
 #[cfg(feature = "serde")]
 use std::fmt;

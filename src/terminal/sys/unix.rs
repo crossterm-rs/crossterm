@@ -21,7 +21,7 @@ pub(crate) fn is_raw_mode_enabled() -> bool {
 }
 
 #[allow(clippy::useless_conversion)]
-pub(crate) fn size() -> Result<(u16, u16), io::Error> {
+pub(crate) fn size() -> io::Result<(u16, u16)> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let mut size = winsize {
         ws_row: 0,
@@ -48,7 +48,7 @@ pub(crate) fn size() -> Result<(u16, u16), io::Error> {
     tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
 }
 
-pub(crate) fn enable_raw_mode() -> Result<(), io::Error> {
+pub(crate) fn enable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
 
     if original_mode.is_some() {
@@ -74,7 +74,7 @@ pub(crate) fn enable_raw_mode() -> Result<(), io::Error> {
 /// More precisely, reset the whole termios mode to what it was before the first call
 /// to [enable_raw_mode]. If you don't mess with termios outside of crossterm, it's
 /// effectively disabling the raw mode and doing nothing else.
-pub(crate) fn disable_raw_mode() -> Result<(), io::Error> {
+pub(crate) fn disable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
 
     if let Some(original_mode_ios) = original_mode.as_ref() {
@@ -91,7 +91,7 @@ pub(crate) fn disable_raw_mode() -> Result<(), io::Error> {
 ///
 /// On unix systems, this function will block and possibly time out while
 /// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
-pub fn supports_keyboard_enhancement() -> Result<bool, io::Error> {
+pub fn supports_keyboard_enhancement() -> io::Result<bool> {
     if is_raw_mode_enabled() {
         read_supports_keyboard_enhancement_raw()
     } else {
@@ -99,14 +99,14 @@ pub fn supports_keyboard_enhancement() -> Result<bool, io::Error> {
     }
 }
 
-fn read_supports_keyboard_enhancement_flags() -> Result<bool, io::Error> {
+fn read_supports_keyboard_enhancement_flags() -> io::Result<bool> {
     enable_raw_mode()?;
     let flags = read_supports_keyboard_enhancement_raw();
     disable_raw_mode()?;
     flags
 }
 
-fn read_supports_keyboard_enhancement_raw() -> Result<bool, io::Error> {
+fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device attributes
     // query. If we receive the primary device attributes response but not the keyboard enhancement
@@ -189,7 +189,7 @@ fn raw_terminal_attr(termios: &mut Termios) {
     unsafe { cfmakeraw(termios) }
 }
 
-fn get_terminal_attr(fd: RawFd) -> Result<Termios, io::Error> {
+fn get_terminal_attr(fd: RawFd) -> io::Result<Termios> {
     unsafe {
         let mut termios = mem::zeroed();
         wrap_with_result(tcgetattr(fd, &mut termios))?;
@@ -197,11 +197,11 @@ fn get_terminal_attr(fd: RawFd) -> Result<Termios, io::Error> {
     }
 }
 
-fn set_terminal_attr(fd: RawFd, termios: &Termios) -> Result<(), io::Error> {
+fn set_terminal_attr(fd: RawFd, termios: &Termios) -> io::Result<()> {
     wrap_with_result(unsafe { tcsetattr(fd, TCSANOW, termios) })
 }
 
-fn wrap_with_result(result: i32) -> Result<(), io::Error> {
+fn wrap_with_result(result: i32) -> io::Result<()> {
     if result == -1 {
         Err(io::Error::last_os_error())
     } else {

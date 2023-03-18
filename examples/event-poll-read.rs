@@ -18,7 +18,7 @@ const HELP: &str = r#"Blocking poll() & non-blocking read()
  - Use Esc to quit
 "#;
 
-fn print_events() -> Result<(), io::Error> {
+fn print_events() -> io::Result<()> {
     loop {
         // Wait up to 1s for another event
         if poll(Duration::from_millis(1_000))? {
@@ -43,7 +43,7 @@ fn print_events() -> Result<(), io::Error> {
     Ok(())
 }
 
-fn main() -> Result<(), io::Error> {
+fn main() -> io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;

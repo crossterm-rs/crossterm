@@ -154,7 +154,7 @@ Attribute! {
 }
 
 impl Display for Attribute {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", SetAttribute(*self))?;
         Ok(())
     }

@@ -7,7 +7,7 @@ use crossterm::{
 };
 use std::io;
 
-fn test_event<W>(w: &mut W) -> Result<(), io::Error>
+fn test_event<W>(w: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {

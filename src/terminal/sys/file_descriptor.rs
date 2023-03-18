@@ -29,7 +29,7 @@ impl FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
-    pub fn read(&self, buffer: &mut [u8], size: usize) -> Result<usize, io::Error> {
+    pub fn read(&self, buffer: &mut [u8], size: usize) -> io::Result<usize> {
         let result = unsafe {
             libc::read(
                 self.fd,
@@ -71,7 +71,7 @@ impl AsRawFd for FileDesc {
 }
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
-pub fn tty_fd() -> Result<FileDesc, io::Error> {
+pub fn tty_fd() -> io::Result<FileDesc> {
     let (fd, close_on_drop) = if unsafe { libc::isatty(libc::STDIN_FILENO) == 1 } {
         (libc::STDIN_FILENO, false)
     } else {

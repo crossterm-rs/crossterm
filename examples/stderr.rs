@@ -45,7 +45,7 @@ Hit any key to quit this screen:
 Any other key will print this text (so that you may copy-paste)
 "#;
 
-fn run_app<W>(write: &mut W) -> Result<char, io::Error>
+fn run_app<W>(write: &mut W) -> io::Result<char>
 where
     W: io::Write,
 {
@@ -72,7 +72,7 @@ where
     Ok(user_char)
 }
 
-pub fn read_char() -> Result<char, io::Error> {
+pub fn read_char() -> io::Result<char> {
     loop {
         if let Event::Key(KeyEvent {
             code: KeyCode::Char(c),

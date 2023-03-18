@@ -21,7 +21,7 @@ impl Waker {
     /// Wake up the [`Poll`] associated with this `Waker`.
     ///
     /// Readiness is set to `Ready::readable()`.
-    pub(crate) fn wake(&self) -> Result<(), io::Error> {
+    pub(crate) fn wake(&self) -> io::Result<()> {
         self.inner.lock().unwrap().write(&[0])?;
         Ok(())
     }

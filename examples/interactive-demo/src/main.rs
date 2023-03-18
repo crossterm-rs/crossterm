@@ -33,7 +33,7 @@ Available tests:
 Select test to run ('1', '2', ...) or hit 'q' to quit.
 "#;
 
-fn run<W>(w: &mut W) -> Result<(), io::Error>
+fn run<W>(w: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {
@@ -94,7 +94,7 @@ pub fn read_char() -> Result<char> {
     }
 }
 
-pub fn buffer_size() -> Result<(u16, u16)> {
+pub fn buffer_size() -> io::Result<(u16> {
     terminal::size()
 }
 

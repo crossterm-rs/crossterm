@@ -155,7 +155,7 @@
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{Write, stdout};
+//! use std::io::{stdout, Write};
 //! use crossterm::{execute, ExecutableCommand, cursor};
 //!
 //! let mut stdout = stdout();
@@ -172,14 +172,14 @@
 //! Functions:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
+//! use std::io::{self, Write};
 //! use crossterm::{
 //!     ExecutableCommand, QueueableCommand,
 //!     terminal, cursor, style::{self, Stylize}
 //! };
 //!
-//! fn main() -> Result<(), Error> {
-//!   let mut stdout = stdout();
+//! fn main() -> io::Result<()> {
+//!   let mut stdout = io::stdout();
 //!
 //!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
@@ -201,14 +201,14 @@
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write, Error};
+//! use std::io::{self, Write};
 //! use crossterm::{
 //!     execute, queue,
 //!     style::{self, Stylize}, cursor, terminal
 //! };
 //!
-//! fn main() -> Result<(), Error> {
-//!   let mut stdout = stdout();
+//! fn main() -> io::Result<()> {
+//!   let mut stdout = io::stdout();
 //!
 //!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!

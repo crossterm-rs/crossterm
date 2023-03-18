@@ -24,7 +24,7 @@ const HELP: &str = r#"Blocking read()
  - Use Esc to quit
 "#;
 
-fn print_events() -> Result<(), io::Error> {
+fn print_events() -> io::Result<()> {
     loop {
         // Blocking read
         let event = read()?;
@@ -62,7 +62,7 @@ fn flush_resize_events(first_resize: (u16, u16)) -> ((u16, u16), (u16, u16)) {
     (first_resize, last_resize)
 }
 
-fn main() -> Result<(), io::Error> {
+fn main() -> io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;
