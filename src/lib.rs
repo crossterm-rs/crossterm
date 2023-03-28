@@ -266,4 +266,3 @@ compile_error!("Compiling on Windows with \"winapi\" feature disabled. Feature \
 
 #[cfg(all(crossterm_winapi, not(feature = "crossterm_winapi")))]
 compile_error!("Compiling on Windows with \"crossterm_winapi\" feature disabled. Feature \"crossterm_winapi\" should only be disabled when project will never be compiled on Windows.");
-
