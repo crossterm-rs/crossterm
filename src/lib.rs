@@ -257,3 +257,13 @@ pub mod ansi_support;
 mod command;
 mod error;
 pub(crate) mod macros;
+
+#[cfg(all(windows, not(feature = "windows")))]
+compile_error!("Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows.");
+
+#[cfg(all(winapi, not(feature = "winapi")))]
+compile_error!("Compiling on Windows with \"winapi\" feature disabled. Feature \"winapi\" should only be disabled when project will never be compiled on Windows.");
+
+#[cfg(all(crossterm_winapi, not(feature = "crossterm_winapi")))]
+compile_error!("Compiling on Windows with \"crossterm_winapi\" feature disabled. Feature \"crossterm_winapi\" should only be disabled when project will never be compiled on Windows.");
+
