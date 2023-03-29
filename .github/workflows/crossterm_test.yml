@@ -63,8 +63,12 @@ jobs:
       run: cargo test --all-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features
+      if: matrix.os != 'windows-2019'
       run: cargo test --no-default-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
+    - name: Test no default features with windows feature enabled
+      if: matrix.os == 'windows-2019'
+      run: cargo test --no-default-features --features windows -- --nocapture --test-threads 1
     - name: Test Packaging
       if: matrix.rust == 'stable'
       run: cargo package
