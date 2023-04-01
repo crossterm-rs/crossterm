@@ -26,7 +26,8 @@ all-features = true
 # Features
 #
 [features]
-default = ["bracketed-paste"]
+default = ["bracketed-paste", "windows"]
+windows = ["winapi", "crossterm_winapi"]
 bracketed-paste = []
 event-stream = ["futures-core"]
 use-dev-tty = ["filedescriptor"]
@@ -48,9 +49,10 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 [target.'cfg(windows)'.dependencies.winapi]
 version = "0.3.9"
 features = ["winuser", "winerror"]
+optional = true
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.9"
+crossterm_winapi = { version = "0.9", optional = true }
 
 #
 # UNIX dependencies
