@@ -2,6 +2,7 @@
 
 use std::io::{self, Write};
 
+use crossterm::event::KeyEventKind;
 pub use crossterm::{
     cursor,
     event::{self, Event, KeyCode, KeyEvent},
@@ -80,7 +81,9 @@ pub fn read_char() -> Result<char> {
     loop {
         if let Ok(Event::Key(KeyEvent {
             code: KeyCode::Char(c),
-            ..
+            kind: KeyEventKind::Press,
+            modifiers: _,
+            state: _,
         })) = event::read()
         {
             return Ok(c);
