@@ -290,7 +290,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
             KeyEventKind::Release
         };
         let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
-            return Some(WindowsKeyEvent::KeyEvent(key_event));
+        return Some(WindowsKeyEvent::KeyEvent(key_event));
     }
 
     None

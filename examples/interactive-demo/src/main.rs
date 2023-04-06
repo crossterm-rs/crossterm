@@ -62,7 +62,10 @@ where
             '3' => test::attribute::run(w)?,
             '4' => test::event::run(w)?,
             '5' => test::synchronized_output::run(w)?,
-            'q' => break,
+            'q' => {
+                execute!(w, cursor::SetCursorStyle::DefaultUserShape).unwrap();
+                break;
+            }
             _ => {}
         };
     }
