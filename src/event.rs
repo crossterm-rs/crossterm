@@ -251,6 +251,7 @@ bitflags! {
     ///
     /// Alternate keys and Unicode codepoints are not yet supported by crossterm.
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct KeyboardEnhancementFlags: u8 {
         /// Represent Escape and modified keys using CSI-u sequences, so they can be unambiguously
         /// read.
@@ -598,6 +599,7 @@ bitflags! {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct KeyModifiers: u8 {
         const SHIFT = 0b0000_0001;
         const CONTROL = 0b0000_0010;
@@ -625,6 +627,7 @@ bitflags! {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct KeyEventState: u8 {
         /// The key event origins from the keypad.
         const KEYPAD = 0b0000_0001;
