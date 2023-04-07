@@ -2,8 +2,6 @@ use std::sync::{Arc, Mutex};
 
 use ::mio::{Registry, Token};
 
-use crate::Result;
-
 /// Allows to wake up the `mio::Poll::poll()` method.
 /// This type wraps `mio::Waker`, for more information see its documentation.
 #[derive(Clone, Debug)]

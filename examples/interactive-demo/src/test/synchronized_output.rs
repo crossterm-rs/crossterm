@@ -2,8 +2,6 @@ use std::io::Write;
 
 use crossterm::{cursor, execute, style::Print, SynchronizedUpdate};
 
-use crate::Result;
-
 fn render_slowly<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
