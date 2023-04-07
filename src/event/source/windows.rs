@@ -8,7 +8,7 @@ use crate::event::{
 };
 
 #[cfg(feature = "event-stream")]
-use  crate::event::sys::Waker;
+use crate::event::sys::Waker;
 use crate::event::{
     source::EventSource,
     sys::windows::parse::{handle_key_event, handle_mouse_event},

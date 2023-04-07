@@ -242,6 +242,7 @@ pub use crate::{
 /// A module to work with the terminal cursor
 pub mod cursor;
 /// A module to read events.
+#[cfg(feature = "events")]
 pub mod event;
 /// A module to apply attributes and colors on your text.
 pub mod style;

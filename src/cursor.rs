@@ -50,6 +50,8 @@ use crate::{csi, impl_display, Command};
 
 pub(crate) mod sys;
 
+pub use sys::position;
+
 /// A command that moves the terminal cursor to the given position (column, row).
 ///
 /// # Notes

@@ -7,15 +7,10 @@ use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
-use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 use crate::event::{
-    source::EventSource,
-    sys::unix::{
-                parse::parse_event,
-    },
-    timeout::PollTimeout,
-    Event, InternalEvent,
+    source::EventSource, sys::unix::parse::parse_event, timeout::PollTimeout, Event, InternalEvent,
 };
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);

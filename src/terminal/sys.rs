@@ -18,6 +18,6 @@ pub(crate) use self::windows::{
 mod windows;
 
 #[cfg(unix)]
-mod unix;
-#[cfg(unix)]
 pub mod file_descriptor;
+#[cfg(unix)]
+mod unix;

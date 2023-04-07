@@ -1,19 +1,17 @@
-use std::{ time::Duration};
-use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use crate::event::{
     filter::{EventFilter, Filter},
     read::InternalEventReader,
     timeout::PollTimeout,
-    InternalEvent
+    Event, InternalEvent,
 };
-
-use super::Event;
+use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
+use std::time::Duration;
 
 /// Static instance of `InternalEventReader`.
 /// This needs to be static because there can be one event reader.
 static INTERNAL_EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
 
-pub (super) fn lock_internal_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
+pub(super) fn lock_internal_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
     MutexGuard::map(INTERNAL_EVENT_READER.lock(), |reader| {
         reader.get_or_insert_with(InternalEventReader::default)
     })

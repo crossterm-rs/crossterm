@@ -1,6 +1,4 @@
-use std::{fmt};
-
-
+use std::fmt;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
