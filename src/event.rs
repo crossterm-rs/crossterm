@@ -164,7 +164,7 @@ fn try_lock_internal_event_reader_for(
 ///     poll(Duration::from_millis(100))
 /// }
 /// ```
-pub fn poll(timeout: Duration) -> io::Result<bool> {
+pub fn poll(timeout: Duration) -> std::io::Result<bool> {
     poll_internal(Some(timeout), &EventFilter)
 }
 
@@ -209,7 +209,7 @@ pub fn poll(timeout: Duration) -> io::Result<bool> {
 ///     }
 /// }
 /// ```
-pub fn read() -> io::Result<Event> {
+pub fn read() -> std::io::Result<Event> {
     match read_internal(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
@@ -218,7 +218,7 @@ pub fn read() -> io::Result<Event> {
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> io::Result<bool>
+pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
 where
     F: Filter,
 {
@@ -236,7 +236,7 @@ where
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal<F>(filter: &F) -> io::Result<InternalEvent>
+pub(crate) fn read_internal<F>(filter: &F) -> std::io::Result<InternalEvent>
 where
     F: Filter,
 {
@@ -297,7 +297,7 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
@@ -326,7 +326,7 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::disable_mouse_capture()
     }
 
@@ -350,7 +350,7 @@ impl Command for EnableFocusChange {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events are always enabled on Windows
         Ok(())
     }
@@ -366,7 +366,7 @@ impl Command for DisableFocusChange {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events can't be disabled on Windows
         Ok(())
     }
@@ -389,7 +389,7 @@ impl Command for EnableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Unsupported,
             "Bracketed paste not implemented in the legacy Windows API.",
@@ -409,7 +409,7 @@ impl Command for DisableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) ->std:: io::Result<()> {
         Ok(())
     }
 }
@@ -459,7 +459,7 @@ impl Command for PushKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
         Err(io::Error::new(
@@ -488,7 +488,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) ->std:: io::Result<()> {
         use std::io;
 
         Err(io::Error::new(

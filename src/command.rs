@@ -24,7 +24,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()>;
+    fn execute_winapi(&self) -> io::Result<()>;
 
     /// Returns whether the ANSI code representation of this command is supported by windows.
     ///
@@ -43,7 +43,7 @@ impl<T: Command + ?Sized> Command for &T {
 
     #[inline]
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         T::execute_winapi(self)
     }
 

@@ -52,7 +52,7 @@ async fn print_events() {
     }
 }
 
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;

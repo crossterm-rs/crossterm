@@ -80,7 +80,7 @@ where
     terminal::disable_raw_mode()
 }
 
-pub fn read_char() -> Result<char> {
+pub fn read_char() -> std::io::Result<char> {
     loop {
         if let Ok(Event::Key(KeyEvent {
             code: KeyCode::Char(c),
@@ -98,7 +98,7 @@ pub fn buffer_size() -> io::Result<(u16> {
     terminal::size()
 }
 
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     let mut stdout = io::stdout();
     run(&mut stdout)
 }

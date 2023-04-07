@@ -7,7 +7,6 @@ use crate::event::source::windows::WindowsEventSource;
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent};
-use crate::Result;
 
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {

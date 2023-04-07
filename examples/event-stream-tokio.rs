@@ -53,7 +53,7 @@ async fn print_events() {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> std::io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;

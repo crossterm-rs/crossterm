@@ -117,8 +117,6 @@ use std::{
 };
 
 use crate::command::execute_fmt;
-#[cfg(windows)]
-use crate::Result;
 use crate::{csi, impl_display, Command};
 
 pub use self::{
@@ -187,7 +185,7 @@ impl Command for SetForegroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::set_foreground_color(self.0)
     }
 }
@@ -211,7 +209,7 @@ impl Command for SetBackgroundColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::set_background_color(self.0)
     }
 }
@@ -235,7 +233,7 @@ impl Command for SetUnderlineColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Other,
             "SetUnderlineColor not supported by winapi.",
@@ -279,7 +277,7 @@ impl Command for SetColors {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         if let Some(color) = self.0.foreground {
             sys::windows::set_foreground_color(color)?;
         }
@@ -306,7 +304,7 @@ impl Command for SetAttribute {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -333,7 +331,7 @@ impl Command for SetAttributes {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -366,7 +364,7 @@ impl Command for SetStyle {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         panic!("tried to execute SetStyle command using WinAPI, use ANSI instead");
     }
 
@@ -433,7 +431,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -452,7 +450,7 @@ impl Command for ResetColor {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::reset()
     }
 }
@@ -469,7 +467,7 @@ impl<T: Display> Command for Print<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         panic!("tried to execute Print command using WinAPI, use ANSI instead");
     }
 

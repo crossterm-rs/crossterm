@@ -10,8 +10,6 @@ use winapi::{
     },
 };
 
-use crate::Result;
-
 #[cfg(feature = "event-stream")]
 pub(crate) use super::waker::Waker;
 
@@ -28,7 +26,7 @@ impl WinApiPoll {
     }
 
     #[cfg(feature = "event-stream")]
-    pub(crate) fn new() -> Result<WinApiPoll> {
+    pub(crate) fn new() -> std::io::Result<WinApiPoll> {
         Ok(WinApiPoll {
             waker: Waker::new()?,
         })
@@ -36,7 +34,7 @@ impl WinApiPoll {
 }
 
 impl WinApiPoll {
-    pub fn poll(&mut self, timeout: Option<Duration>) -> Result<Option<bool>> {
+    pub fn poll(&mut self, timeout: Option<Duration>) -> std::io::Result<Option<bool>> {
         let dw_millis = if let Some(duration) = timeout {
             duration.as_millis() as u32
         } else {

@@ -218,7 +218,7 @@ impl From<(u8, u8, u8)> for Color {
 
 #[cfg(feature = "serde")]
 impl serde::ser::Serialize for Color {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> std::io::Result<S::Ok, S::Error>
     where
         S: serde::ser::Serializer,
     {
@@ -262,7 +262,7 @@ impl serde::ser::Serialize for Color {
 
 #[cfg(feature = "serde")]
 impl<'de> serde::de::Deserialize<'de> for Color {
-    fn deserialize<D>(deserializer: D) -> Result<Color, D::Error>
+    fn deserialize<D>(deserializer: D) -> std::io::Result<Color, D::Error>
     where
         D: serde::de::Deserializer<'de>,
     {
@@ -274,7 +274,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                     "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)`",
                 )
             }
-            fn visit_str<E>(self, value: &str) -> Result<Color, E>
+            fn visit_str<E>(self, value: &str) -> std::io::Result<Color, E>
             where
                 E: serde::de::Error,
             {

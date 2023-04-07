@@ -33,7 +33,7 @@ where
     Ok(())
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

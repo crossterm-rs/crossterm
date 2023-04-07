@@ -17,7 +17,6 @@ use crate::{
         Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent,
         MouseEventKind,
     },
-    Result,
 };
 
 #[derive(Default)]
@@ -301,7 +300,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
 
 // The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.
 // This means that when the mouse cursor is at the top left it will be x: 0, y: 2295 (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0 to the window.
-pub fn parse_relative_y(y: i16) -> Result<i16> {
+pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window_size = ScreenBuffer::current()?.info()?.terminal_window();
     Ok(y - window_size.top)
 }
@@ -309,7 +308,7 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 fn parse_mouse_event_record(
     event: &crossterm_winapi::MouseEvent,
     buttons_pressed: &MouseButtonsPressed,
-) -> Result<Option<MouseEvent>> {
+) -> std::io::Result<Option<MouseEvent>> {
     let modifiers = KeyModifiers::from(&event.control_key_state);
 
     let xpos = event.mouse_position.x as u16;
