@@ -82,7 +82,7 @@ impl Command for PushKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> crate::Result<()> {
         use std::io;
 
         Err(io::Error::new(

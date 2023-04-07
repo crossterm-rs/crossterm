@@ -1,6 +1,7 @@
 mod types;
 mod api;
 #[cfg(feature = "event-stream")]
+#[cfg(unix)]
 pub(crate) mod waker;
 pub(crate) mod filter;
 pub(crate) mod read;

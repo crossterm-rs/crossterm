@@ -7,7 +7,7 @@ use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
-use crate::terminal::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 use crate::event::{
     source::EventSource,
     sys::unix::{
