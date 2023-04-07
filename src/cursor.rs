@@ -48,8 +48,6 @@ use std::fmt;
 use crate::Result;
 use crate::{csi, impl_display, Command};
 
-pub use sys::position;
-
 pub(crate) mod sys;
 
 /// A command that moves the terminal cursor to the given position (column, row).
@@ -432,7 +430,7 @@ mod tests {
     use crate::execute;
 
     use super::{
-        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

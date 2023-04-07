@@ -11,7 +11,9 @@ use crate::Result;
 #[cfg(feature = "event-stream")]
 pub(crate) mod waker;
 
+#[cfg(feature = "events")]
 pub(crate) mod parse;
+#[cfg(feature = "events")]
 pub(crate) mod poll;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;

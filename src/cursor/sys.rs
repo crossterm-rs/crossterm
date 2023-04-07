@@ -1,6 +1,7 @@
 //! This module provides platform related functions.
 
 #[cfg(unix)]
+#[cfg(feature = "events")]
 pub use self::unix::position;
 #[cfg(windows)]
 pub use self::windows::position;
@@ -14,4 +15,5 @@ pub(crate) use self::windows::{
 pub(crate) mod windows;
 
 #[cfg(unix)]
+#[cfg(feature = "events")]
 pub(crate) mod unix;

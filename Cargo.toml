@@ -26,12 +26,12 @@ all-features = true
 # Features
 #
 [features]
-default = ["bracketed-paste", "windows"]
+default = ["bracketed-paste", "windows", "events"]
 windows = ["winapi", "crossterm_winapi"]
 bracketed-paste = []
 event-stream = ["futures-core"]
 use-dev-tty = ["filedescriptor"]
-
+events = ["mio", "signal-hook", "signal-hook-mio"]
 #
 # Shared dependencies
 #
@@ -59,10 +59,10 @@ crossterm_winapi = { version = "0.9", optional = true }
 #
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-signal-hook = { version = "0.3.13" }
+signal-hook = { version = "0.3.13", optional = true }
 filedescriptor = { version = "0.8", optional = true }
-mio = { version = "0.8", features = ["os-poll"] }
-signal-hook-mio = { version = "0.2.3", features = ["support-v0_8"] }
+mio = { version = "0.8", features = ["os-poll"], optional = true }
+signal-hook-mio = { version = "0.2.3", features = ["support-v0_8"], optional = true }
 
 #
 # Dev dependencies (examples, ...)
