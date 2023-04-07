@@ -5,6 +5,9 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 use super::{
     filter::{EventFilter, Filter},
     read::InternalEventReader,

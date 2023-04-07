@@ -82,9 +82,6 @@
 
 use std::fmt;
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 use crate::{csi, Command};
 
 #[cfg(feature = "events")]
