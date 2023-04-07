@@ -14,7 +14,7 @@ use futures_core::stream::Stream;
 
 use crate::Result;
 
-use super::{
+use crate::event::{
     filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
     Event, InternalEvent,
 };

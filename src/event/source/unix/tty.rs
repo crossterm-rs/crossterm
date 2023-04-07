@@ -11,15 +11,8 @@ use filedescriptor::{poll, pollfd, POLLIN};
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
-
-use crate::event::{
-    source::EventSource,
-    sys::unix::{
-        file_descriptor::{tty_fd, FileDesc},
-        parse::parse_event,
-    },
-    InternalEvent,
-};
+use crate::event::{source::EventSource, sys::unix::parse::parse_event, InternalEvent};
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 
 /// Holds a prototypical Waker and a receiver we can wait on when doing select().
 #[cfg(feature = "event-stream")]

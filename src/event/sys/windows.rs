@@ -8,11 +8,10 @@ use crossterm_winapi::{ConsoleMode, Handle};
 
 use crate::Result;
 
-#[cfg(feature = "event-stream")]
-pub(crate) mod waker;
-
 pub(crate) mod parse;
 pub(crate) mod poll;
+#[cfg(feature = "event-stream")]
+pub(crate) mod waker;
 
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 

@@ -1,21 +1,18 @@
 //! UNIX related logic for terminal manipulation.
 
-use std::fs::File;
-use std::io::Write;
-use std::os::unix::io::{IntoRawFd, RawFd};
-use std::time::Duration;
-use std::{io, mem, process};
-
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
     TIOCGWINSZ,
 };
 use parking_lot::Mutex;
+use std::fs::File;
+
+use std::os::unix::io::{IntoRawFd, RawFd};
+
+use std::{io, mem, process};
 
 use crate::error::Result;
-use crate::event::filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter};
-use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
-use crate::event::{poll_internal, read_internal, InternalEvent};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
 // None -> we're not in the raw mode
@@ -96,6 +93,7 @@ pub(crate) fn disable_raw_mode() -> Result<()> {
 ///
 /// On unix systems, this function will block and possibly time out while
 /// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+#[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> Result<bool> {
     if is_raw_mode_enabled() {
         read_supports_keyboard_enhancement_raw()
@@ -104,6 +102,7 @@ pub fn supports_keyboard_enhancement() -> Result<bool> {
     }
 }
 
+#[cfg(feature = "events")]
 fn read_supports_keyboard_enhancement_flags() -> Result<bool> {
     enable_raw_mode()?;
     let flags = read_supports_keyboard_enhancement_raw();
@@ -111,7 +110,15 @@ fn read_supports_keyboard_enhancement_flags() -> Result<bool> {
     flags
 }
 
+#[cfg(feature = "events")]
 fn read_supports_keyboard_enhancement_raw() -> Result<bool> {
+    use crate::event::{
+        filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
+        poll_internal, read_internal, InternalEvent,
+    };
+    use std::io::Write;
+    use std::time::Duration;
+
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device attributes
     // query. If we receive the primary device attributes response but not the keyboard enhancement

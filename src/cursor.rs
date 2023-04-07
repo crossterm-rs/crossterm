@@ -48,9 +48,10 @@ use std::fmt;
 use crate::Result;
 use crate::{csi, impl_display, Command};
 
-pub use sys::position;
-
 pub(crate) mod sys;
+
+#[cfg(feature = "events")]
+pub use sys::position;
 
 /// A command that moves the terminal cursor to the given position (column, row).
 ///
@@ -426,13 +427,14 @@ impl_display!(for DisableBlinking);
 impl_display!(for SetCursorStyle);
 
 #[cfg(test)]
+#[cfg(feature = "events")]
 mod tests {
     use std::io::{self, stdout};
 
     use crate::execute;
 
     use super::{
-        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

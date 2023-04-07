@@ -8,12 +8,12 @@ use crate::event::{
 };
 
 #[cfg(feature = "event-stream")]
-use super::super::sys::Waker;
-use super::super::{
+use crate::event::sys::Waker;
+use crate::event::{
     source::EventSource,
     sys::windows::parse::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,
-    InternalEvent, Result,
+    InternalEvent,
 };
 
 pub(crate) struct WindowsEventSource {
@@ -24,7 +24,7 @@ pub(crate) struct WindowsEventSource {
 }
 
 impl WindowsEventSource {
-    pub(crate) fn new() -> Result<WindowsEventSource> {
+    pub(crate) fn new() -> crate::Result<WindowsEventSource> {
         let console = Console::from(Handle::current_in_handle()?);
         Ok(WindowsEventSource {
             console,
@@ -41,7 +41,7 @@ impl WindowsEventSource {
 }
 
 impl EventSource for WindowsEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> crate::Result<Option<InternalEvent>> {
         let poll_timeout = PollTimeout::new(timeout);
 
         loop {

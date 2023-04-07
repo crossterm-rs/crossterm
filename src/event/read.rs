@@ -1,12 +1,14 @@
 use std::{collections::vec_deque::VecDeque, io, time::Duration};
 
 #[cfg(unix)]
-use super::source::unix::UnixInternalEventSource;
+use crate::event::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
-use super::source::windows::WindowsEventSource;
+use crate::event::source::windows::WindowsEventSource;
 #[cfg(feature = "event-stream")]
-use super::sys::Waker;
-use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
+use crate::event::sys::Waker;
+use crate::event::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent};
+use crate::Result;
+
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,

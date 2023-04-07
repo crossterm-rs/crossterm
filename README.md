@@ -144,6 +144,12 @@ features = ["event-stream"]
 |:---------------|:---------------------------------------------|
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
+| `events`        | Reading input/system events (enabled by default) |
+| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
+
+
+To use crossterm as a very tin layer you can disable the `events` feature or use `filedescriptor` feature. 
+This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 ### Dependency Justification
 
@@ -151,9 +157,9 @@ features = ["event-stream"]
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
 | `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | UNIX only                             |
-| `Mio`          | event readiness polling, waking up poller                                        | UNIX only                             |
-| `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
+| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | optional (`events` feature), UNIX only |
+| `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
+| `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                   |  optional (`events` feature),UNIX only |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
