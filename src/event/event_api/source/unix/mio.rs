@@ -7,11 +7,11 @@ use crate::Result;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
+use crate::terminal::file_descriptor::{tty_fd, FileDesc};
 use crate::event::{
     source::EventSource,
     sys::unix::{
-        file_descriptor::{tty_fd, FileDesc},
-        parse::parse_event,
+                parse::parse_event,
     },
     timeout::PollTimeout,
     Event, InternalEvent,

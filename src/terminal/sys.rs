@@ -21,5 +21,3 @@ mod windows;
 mod unix;
 #[cfg(unix)]
 pub mod file_descriptor;
-#[cfg(unix)]
-pub mod waker;

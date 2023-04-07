@@ -1,6 +1,6 @@
 //! UNIX related logic for terminal manipulation.
 
-use crate::event::sys::unix::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
     TIOCGWINSZ,

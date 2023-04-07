@@ -5,7 +5,7 @@ use std::{fmt};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{csi, Command, Result};
+use crate::{csi, Command};
 use bitflags::bitflags;
 use std::hash::{Hash, Hasher};
 
@@ -111,7 +111,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> crate::Result<()> {
         use std::io;
 
         Err(io::Error::new(
