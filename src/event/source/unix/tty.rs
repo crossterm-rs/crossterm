@@ -5,8 +5,6 @@ use signal_hook::low_level::pipe;
 
 use crate::event::timeout::PollTimeout;
 use crate::event::Event;
-use crate::Result;
-
 use filedescriptor::{poll, pollfd, POLLIN};
 
 #[cfg(feature = "event-stream")]
@@ -23,7 +21,7 @@ struct WakePipe {
 
 #[cfg(feature = "event-stream")]
 impl WakePipe {
-    fn new() -> Result<Self> {
+    fn new() -> io::Result<Self> {
         let (receiver, sender) = nonblocking_unix_pair()?;
         Ok(WakePipe {
             receiver,
@@ -46,7 +44,7 @@ pub(crate) struct UnixInternalEventSource {
     wake_pipe: WakePipe,
 }
 
-fn nonblocking_unix_pair() -> Result<(UnixStream, UnixStream)> {
+fn nonblocking_unix_pair() -> io::Result<(UnixStream, UnixStream)> {
     let (receiver, sender) = UnixStream::pair()?;
     receiver.set_nonblocking(true)?;
     sender.set_nonblocking(true)?;
@@ -54,11 +52,11 @@ fn nonblocking_unix_pair() -> Result<(UnixStream, UnixStream)> {
 }
 
 impl UnixInternalEventSource {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> io::Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> io::Result<Self> {
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
@@ -80,7 +78,7 @@ impl UnixInternalEventSource {
 ///
 /// Similar to `std::io::Read::read_to_end`, except this function
 /// only fills the given buffer and does not read beyond that.
-fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> Result<usize> {
+fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
     loop {
         match fd.read(buf, buf.len()) {
             Ok(x) => return Ok(x),
@@ -94,7 +92,7 @@ fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> Result<usize> {
 }
 
 impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         let timeout = PollTimeout::new(timeout);
 
         fn make_pollfd<F: AsRawFd>(fd: &F) -> pollfd {

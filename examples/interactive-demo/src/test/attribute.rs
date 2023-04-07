@@ -21,7 +21,7 @@ const ATTRIBUTES: [(style::Attribute, style::Attribute); 10] = [
     (style::Attribute::SlowBlink, style::Attribute::NoBlink),
 ];
 
-fn test_set_display_attributes<W>(w: &mut W) -> Result<()>
+fn test_set_display_attributes<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -48,7 +48,7 @@ where
     Ok(())
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

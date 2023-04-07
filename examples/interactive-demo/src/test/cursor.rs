@@ -2,40 +2,39 @@
 
 use std::io::Write;
 
-use crate::Result;
 use crossterm::{cursor, execute, queue, style, Command, style::Stylize};
 use std::thread;
 use std::time::Duration;
 
-fn test_move_cursor_up<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_up<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     draw_cursor_box(w, "Move Up (2)", |_, _| cursor::MoveUp(2))
 }
 
-fn test_move_cursor_down<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_down<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     draw_cursor_box(w, "Move Down (2)", |_, _| cursor::MoveDown(2))
 }
 
-fn test_move_cursor_left<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_left<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     draw_cursor_box(w, "Move Left (2)", |_, _| cursor::MoveLeft(2))
 }
 
-fn test_move_cursor_right<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_right<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     draw_cursor_box(w, "Move Right (2)", |_, _| cursor::MoveRight(2))
 }
 
-fn test_move_cursor_to_previous_line<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_to_previous_line<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -44,14 +43,14 @@ where
     })
 }
 
-fn test_move_cursor_to_next_line<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_to_next_line<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     draw_cursor_box(w, "MoveToNextLine (1)", |_, _| cursor::MoveToNextLine(1))
 }
 
-fn test_move_cursor_to_column<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_to_column<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -60,21 +59,21 @@ where
     })
 }
 
-fn test_hide_cursor<W>(w: &mut W) -> Result<()>
+fn test_hide_cursor<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     execute!(w, style::Print("HideCursor"), cursor::Hide)
 }
 
-fn test_show_cursor<W>(w: &mut W) -> Result<()>
+fn test_show_cursor<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
     execute!(w, style::Print("ShowCursor"), cursor::Show)
 }
 
-fn test_cursor_blinking_block<W>(w: &mut W) -> Result<()>
+fn test_cursor_blinking_block<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -86,7 +85,7 @@ where
     )
 }
 
-fn test_cursor_blinking_underscore<W>(w: &mut W) -> Result<()>
+fn test_cursor_blinking_underscore<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -98,7 +97,7 @@ where
     )
 }
 
-fn test_cursor_blinking_bar<W>(w: &mut W) -> Result<()>
+fn test_cursor_blinking_bar<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -111,7 +110,7 @@ where
 }
 
 
-fn test_move_cursor_to<W>(w: &mut W) -> Result<()>
+fn test_move_cursor_to<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -122,7 +121,7 @@ where
     )
 }
 
-fn test_save_restore_cursor_position<W>(w: &mut W) -> Result<()>
+fn test_save_restore_cursor_position<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -143,7 +142,7 @@ where
 }
 
 /// Draws  a box with an colored center, this center can be taken as a reference point after running the given cursor command.
-fn draw_cursor_box<W, F, T>(w: &mut W, description: &str, cursor_command: F) -> Result<()>
+fn draw_cursor_box<W, F, T>(w: &mut W, description: &str, cursor_command: F) -> std::io::Result<()>
 where
     W: Write,
     F: Fn(u16, u16) -> T,
@@ -199,7 +198,7 @@ where
     Ok(())
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

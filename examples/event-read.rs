@@ -2,7 +2,7 @@
 //!
 //! cargo run --example event-read
 
-use std::io::stdout;
+use std::io;
 
 use crossterm::event::{
     poll, KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
@@ -15,7 +15,6 @@ use crossterm::{
     },
     execute, queue,
     terminal::{disable_raw_mode, enable_raw_mode},
-    Result,
 };
 use std::time::Duration;
 
@@ -25,7 +24,7 @@ const HELP: &str = r#"Blocking read()
  - Use Esc to quit
 "#;
 
-fn print_events() -> Result<()> {
+fn print_events() -> io::Result<()> {
     loop {
         // Blocking read
         let event = read()?;
@@ -63,12 +62,12 @@ fn flush_resize_events(first_resize: (u16, u16)) -> ((u16, u16), (u16, u16)) {
     (first_resize, last_resize)
 }
 
-fn main() -> Result<()> {
+fn main() -> io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;
 
-    let mut stdout = stdout();
+    let mut stdout = io::stdout();
 
     let supports_keyboard_enhancement = matches!(
         crossterm::terminal::supports_keyboard_enhancement(),

@@ -30,7 +30,7 @@
 //! ```no_run
 //! use crossterm::event::{read, Event};
 //!
-//! fn print_events() -> crossterm::Result<()> {
+//! fn print_events() -> std::io::Result<()> {
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
@@ -50,11 +50,11 @@
 //! Non-blocking read:
 //!
 //! ```no_run
-//! use std::time::Duration;
+//! use std::{time::Duration, io};
 //!
 //! use crossterm::event::{poll, read, Event};
 //!
-//! fn print_events() -> crossterm::Result<()> {
+//! fn print_events() -> io::Result<()> {
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
 //!         if poll(Duration::from_millis(500))? {
@@ -141,11 +141,10 @@ fn try_lock_internal_event_reader_for(
 /// Return immediately:
 ///
 /// ```no_run
-/// use std::time::Duration;
+/// use std::{time::Duration, io};
+/// use crossterm::{event::poll};
 ///
-/// use crossterm::{event::poll, Result};
-///
-/// fn is_event_available() -> Result<bool> {
+/// fn is_event_available() -> io::Result<bool> {
 ///     // Zero duration says that the `poll` function must return immediately
 ///     // with an `Event` availability information
 ///     poll(Duration::from_secs(0))
@@ -155,17 +154,17 @@ fn try_lock_internal_event_reader_for(
 /// Wait up to 100ms:
 ///
 /// ```no_run
-/// use std::time::Duration;
+/// use std::{time::Duration, io};
 ///
-/// use crossterm::{event::poll, Result};
+/// use crossterm::event::poll;
 ///
-/// fn is_event_available() -> Result<bool> {
+/// fn is_event_available() -> io::Result<bool> {
 ///     // Wait for an `Event` availability for 100ms. It returns immediately
 ///     // if an `Event` is/becomes available.
 ///     poll(Duration::from_millis(100))
 /// }
 /// ```
-pub fn poll(timeout: Duration) -> crate::Result<bool> {
+pub fn poll(timeout: Duration) -> std::io::Result<bool> {
     poll_internal(Some(timeout), &EventFilter)
 }
 
@@ -179,9 +178,10 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 /// Blocking read:
 ///
 /// ```no_run
-/// use crossterm::{event::read, Result};
+/// use crossterm::event::read;
+/// use std::io;
 ///
-/// fn print_events() -> Result<bool> {
+/// fn print_events() -> io::Result<bool> {
 ///     loop {
 ///         // Blocks until an `Event` is available
 ///         println!("{:?}", read()?);
@@ -193,10 +193,11 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 ///
 /// ```no_run
 /// use std::time::Duration;
+/// use std::io;
 ///
-/// use crossterm::{event::{read, poll}, Result};
+/// use crossterm::event::{read, poll};
 ///
-/// fn print_events() -> Result<bool> {
+/// fn print_events() -> io::Result<bool> {
 ///     loop {
 ///         if poll(Duration::from_millis(100))? {
 ///             // It's guaranteed that `read` won't block, because `poll` returned
@@ -208,7 +209,7 @@ pub fn poll(timeout: Duration) -> crate::Result<bool> {
 ///     }
 /// }
 /// ```
-pub fn read() -> crate::Result<Event> {
+pub fn read() -> std::io::Result<Event> {
     match read_internal(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
@@ -217,7 +218,7 @@ pub fn read() -> crate::Result<Event> {
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> crate::Result<bool>
+pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
 where
     F: Filter,
 {
@@ -235,7 +236,7 @@ where
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal<F>(filter: &F) -> crate::Result<InternalEvent>
+pub(crate) fn read_internal<F>(filter: &F) -> std::io::Result<InternalEvent>
 where
     F: Filter,
 {
@@ -296,7 +297,7 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
@@ -325,7 +326,7 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::disable_mouse_capture()
     }
 
@@ -349,7 +350,7 @@ impl Command for EnableFocusChange {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events are always enabled on Windows
         Ok(())
     }
@@ -365,7 +366,7 @@ impl Command for DisableFocusChange {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events can't be disabled on Windows
         Ok(())
     }
@@ -388,7 +389,7 @@ impl Command for EnableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Unsupported,
             "Bracketed paste not implemented in the legacy Windows API.",
@@ -408,7 +409,7 @@ impl Command for DisableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -458,7 +459,7 @@ impl Command for PushKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
         Err(io::Error::new(
@@ -487,7 +488,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> crate::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
         Err(io::Error::new(

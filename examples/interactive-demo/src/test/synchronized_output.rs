@@ -2,9 +2,7 @@ use std::io::Write;
 
 use crossterm::{cursor, execute, style::Print, SynchronizedUpdate};
 
-use crate::Result;
-
-fn render_slowly<W>(w: &mut W) -> Result<()>
+fn render_slowly<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -15,7 +13,7 @@ where
     Ok(())
 }
 
-fn test_slow_rendering<W>(w: &mut W) -> Result<()>
+fn test_slow_rendering<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -34,7 +32,7 @@ where
     Ok(())
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

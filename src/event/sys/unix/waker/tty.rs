@@ -1,10 +1,8 @@
 use std::{
-    io::Write,
+    io::{self, Write},
     os::unix::net::UnixStream,
     sync::{Arc, Mutex},
 };
-
-use crate::Result;
 
 /// Allows to wake up the EventSource::try_read() method.
 #[derive(Clone, Debug)]
@@ -23,16 +21,8 @@ impl Waker {
     /// Wake up the [`Poll`] associated with this `Waker`.
     ///
     /// Readiness is set to `Ready::readable()`.
-    pub(crate) fn wake(&self) -> Result<()> {
+    pub(crate) fn wake(&self) -> io::Result<()> {
         self.inner.lock().unwrap().write(&[0])?;
-        Ok(())
-    }
-
-    /// Resets the state so the same waker can be reused.
-    ///
-    /// This function is not impl
-    #[allow(dead_code, clippy::clippy::unnecessary_wraps)]
-    pub(crate) fn reset(&self) -> Result<()> {
         Ok(())
     }
 }

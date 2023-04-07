@@ -109,7 +109,7 @@ use crossterm::{
     event,
 };
 
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     // using the macro
     execute!(
         stdout(),

@@ -3,8 +3,6 @@ use std::io::{self, Write};
 
 use crate::terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate};
 
-use super::error::Result;
-
 /// An interface for a command that performs an action on the terminal.
 ///
 /// Crossterm provides a set of commands,
@@ -26,7 +24,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()>;
+    fn execute_winapi(&self) -> io::Result<()>;
 
     /// Returns whether the ANSI code representation of this command is supported by windows.
     ///
@@ -45,7 +43,7 @@ impl<T: Command + ?Sized> Command for &T {
 
     #[inline]
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         T::execute_winapi(self)
     }
 
@@ -59,13 +57,13 @@ impl<T: Command + ?Sized> Command for &T {
 /// An interface for types that can queue commands for further execution.
 pub trait QueueableCommand {
     /// Queues the given command for further execution.
-    fn queue(&mut self, command: impl Command) -> Result<&mut Self>;
+    fn queue(&mut self, command: impl Command) -> io::Result<&mut Self>;
 }
 
 /// An interface for types that can directly execute commands.
 pub trait ExecutableCommand {
     /// Executes the given command directly.
-    fn execute(&mut self, command: impl Command) -> Result<&mut Self>;
+    fn execute(&mut self, command: impl Command) -> io::Result<&mut Self>;
 }
 
 impl<T: Write + ?Sized> QueueableCommand for T {
@@ -86,12 +84,11 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     /// # Examples
     ///
     /// ```rust
-    /// use std::io::{Write, stdout};
+    /// use std::io::{self, Write};
+    /// use crossterm::{QueueableCommand, style::Print};
     ///
-    /// use crossterm::{Result, QueueableCommand, style::Print};
-    ///
-    ///  fn main() -> Result<()> {
-    ///     let mut stdout = stdout();
+    ///  fn main() -> io::Result<()> {
+    ///     let mut stdout = io::stdout();
     ///
     ///     // `Print` will executed executed when `flush` is called.
     ///     stdout
@@ -121,7 +118,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
-    fn queue(&mut self, command: impl Command) -> Result<&mut Self> {
+    fn queue(&mut self, command: impl Command) -> io::Result<&mut Self> {
         #[cfg(windows)]
         if !command.is_ansi_code_supported() {
             // There may be queued commands in this writer, but `execute_winapi` will execute the
@@ -151,13 +148,12 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     /// # Example
     ///
     /// ```rust
-    /// use std::io::{Write, stdout};
+    /// use std::io;
+    /// use crossterm::{ExecutableCommand, style::Print};
     ///
-    /// use crossterm::{Result, ExecutableCommand, style::Print};
-    ///
-    ///  fn main() -> Result<()> {
+    /// fn main() -> io::Result<()> {
     ///      // will be executed directly
-    ///       stdout()
+    ///       io::stdout()
     ///         .execute(Print("sum:\n".to_string()))?
     ///         .execute(Print(format!("1 + 1= {} ", 1 + 1)))?;
     ///
@@ -166,7 +162,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///      // ==== Output ====
     ///      // sum:
     ///      // 1 + 1 = 2
-    ///  }
+    /// }
     /// ```
     ///
     /// Have a look over at the [Command API](./index.html#command-api) for more details.
@@ -179,7 +175,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///     and can therefore not be written to the given `writer`.
     ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
     ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
-    fn execute(&mut self, command: impl Command) -> Result<&mut Self> {
+    fn execute(&mut self, command: impl Command) -> io::Result<&mut Self> {
         self.queue(command)?;
         self.flush()?;
         Ok(self)
@@ -189,7 +185,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
 /// An interface for types that support synchronized updates.
 pub trait SynchronizedUpdate {
     /// Performs a set of actions against the given type.
-    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> Result<T>;
+    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> io::Result<T>;
 }
 
 impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
@@ -207,19 +203,18 @@ impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
     /// # Examples
     ///
     /// ```rust
-    /// use std::io::{Write, stdout};
+    /// use std::io;
+    /// use crossterm::{ExecutableCommand, SynchronizedUpdate, style::Print};
     ///
-    /// use crossterm::{Result, ExecutableCommand, SynchronizedUpdate, style::Print};
-    ///
-    ///  fn main() -> Result<()> {
-    ///     let mut stdout = stdout();
+    /// fn main() -> io::Result<()> {
+    ///     let mut stdout = io::stdout();
     ///
     ///     stdout.sync_update(|stdout| {
     ///         stdout.execute(Print("foo 1\n".to_string()))?;
     ///         stdout.execute(Print("foo 2".to_string()))?;
     ///         // The effects of the print command will not be present in the terminal
     ///         // buffer, but not visible in the terminal.
-    ///         crossterm::Result::Ok(())
+    ///         std::io::Result::Ok(())
     ///     })?;
     ///
     ///     // The effects of the commands will be visible.
@@ -247,7 +242,7 @@ impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
     /// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
     /// by unintentionally rendering in the middle a of an application screen update.
     ///
-    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> Result<T> {
+    fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> io::Result<T> {
         self.queue(BeginSynchronizedUpdate)?;
         let result = operations(self);
         self.execute(EndSynchronizedUpdate)?;

@@ -10,8 +10,6 @@ use winapi::{
     um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
 };
 
-use crate::Result;
-
 /// The position of the cursor, written when you save the cursor's position.
 ///
 /// This is `u64::MAX` initially. Otherwise, it stores the cursor's x position bit-shifted left 16
@@ -21,7 +19,7 @@ static SAVED_CURSOR_POS: AtomicU64 = AtomicU64::new(u64::MAX);
 // The 'y' position of the cursor is not relative to the window but absolute to screen buffer.
 // We can calculate the relative cursor position by subtracting the top position of the terminal window from the y position.
 // This results in an 1-based coord zo subtract 1 to make cursor position 0-based.
-pub fn parse_relative_y(y: i16) -> Result<i16> {
+pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window = ScreenBuffer::current()?.info()?;
 
     let window_size = window.terminal_window();
@@ -37,7 +35,7 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 /// Returns the cursor position (column, row).
 ///
 /// The top left cell is represented `0,0`.
-pub fn position() -> Result<(u16, u16)> {
+pub fn position() -> io::Result<(u16, u16)> {
     let cursor = ScreenBufferCursor::output()?;
     let mut position = cursor.position()?;
     //    if position.y != 0 {
@@ -46,70 +44,70 @@ pub fn position() -> Result<(u16, u16)> {
     Ok(position.into())
 }
 
-pub(crate) fn show_cursor(show_cursor: bool) -> Result<()> {
+pub(crate) fn show_cursor(show_cursor: bool) -> std::io::Result<()> {
     ScreenBufferCursor::from(Handle::current_out_handle()?).set_visibility(show_cursor)
 }
 
-pub(crate) fn move_to(column: u16, row: u16) -> Result<()> {
+pub(crate) fn move_to(column: u16, row: u16) -> std::io::Result<()> {
     let cursor = ScreenBufferCursor::output()?;
     cursor.move_to(column as i16, row as i16)?;
     Ok(())
 }
 
-pub(crate) fn move_up(count: u16) -> Result<()> {
+pub(crate) fn move_up(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
     move_to(column, row - count)?;
     Ok(())
 }
 
-pub(crate) fn move_right(count: u16) -> Result<()> {
+pub(crate) fn move_right(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
     move_to(column + count, row)?;
     Ok(())
 }
 
-pub(crate) fn move_down(count: u16) -> Result<()> {
+pub(crate) fn move_down(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
     move_to(column, row + count)?;
     Ok(())
 }
 
-pub(crate) fn move_left(count: u16) -> Result<()> {
+pub(crate) fn move_left(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
     move_to(column - count, row)?;
     Ok(())
 }
 
-pub(crate) fn move_to_column(new_column: u16) -> Result<()> {
+pub(crate) fn move_to_column(new_column: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
     move_to(new_column, row)?;
     Ok(())
 }
 
-pub(crate) fn move_to_row(new_row: u16) -> Result<()> {
+pub(crate) fn move_to_row(new_row: u16) -> std::io::Result<()> {
     let (col, _) = position()?;
     move_to(col, new_row)?;
     Ok(())
 }
 
-pub(crate) fn move_to_next_line(count: u16) -> Result<()> {
+pub(crate) fn move_to_next_line(count: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
     move_to(0, row + count)?;
     Ok(())
 }
 
-pub(crate) fn move_to_previous_line(count: u16) -> Result<()> {
+pub(crate) fn move_to_previous_line(count: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
     move_to(0, row - count)?;
     Ok(())
 }
 
-pub(crate) fn save_position() -> Result<()> {
+pub(crate) fn save_position() -> std::io::Result<()> {
     ScreenBufferCursor::output()?.save_position()?;
     Ok(())
 }
 
-pub(crate) fn restore_position() -> Result<()> {
+pub(crate) fn restore_position() -> std::io::Result<()> {
     ScreenBufferCursor::output()?.restore_position()?;
     Ok(())
 }
@@ -120,17 +118,17 @@ struct ScreenBufferCursor {
 }
 
 impl ScreenBufferCursor {
-    fn output() -> Result<ScreenBufferCursor> {
+    fn output() -> std::io::Result<ScreenBufferCursor> {
         Ok(ScreenBufferCursor {
             screen_buffer: ScreenBuffer::from(Handle::new(HandleType::CurrentOutputHandle)?),
         })
     }
 
-    fn position(&self) -> Result<Coord> {
+    fn position(&self) -> std::io::Result<Coord> {
         Ok(self.screen_buffer.info()?.cursor_pos())
     }
 
-    fn move_to(&self, x: i16, y: i16) -> Result<()> {
+    fn move_to(&self, x: i16, y: i16) -> std::io::Result<()> {
         if x < 0 {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
@@ -160,7 +158,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    fn set_visibility(&self, visible: bool) -> Result<()> {
+    fn set_visibility(&self, visible: bool) -> std::io::Result<()> {
         let cursor_info = CONSOLE_CURSOR_INFO {
             dwSize: 100,
             bVisible: if visible { TRUE } else { FALSE },
@@ -179,7 +177,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    fn restore_position(&self) -> Result<()> {
+    fn restore_position(&self) -> std::io::Result<()> {
         if let Ok(val) = u32::try_from(SAVED_CURSOR_POS.load(Ordering::Relaxed)) {
             let x = (val >> 16) as i16;
             let y = val as i16;
@@ -189,7 +187,7 @@ impl ScreenBufferCursor {
         Ok(())
     }
 
-    fn save_position(&self) -> Result<()> {
+    fn save_position(&self) -> std::io::Result<()> {
         let position = self.position()?;
 
         let bits = u64::from(u32::from(position.x as u16) << 16 | u32::from(position.y as u16));

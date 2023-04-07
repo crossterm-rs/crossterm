@@ -12,7 +12,6 @@ use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
-    Result,
 };
 
 const HELP: &str = r#"EventStream based on futures_util::Stream with tokio
@@ -53,7 +52,7 @@ async fn print_events() {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> std::io::Result<()> {
     println!("{}", HELP);
 
     enable_raw_mode()?;

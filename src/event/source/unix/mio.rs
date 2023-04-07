@@ -3,8 +3,6 @@ use std::{collections::VecDeque, io, time::Duration};
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook_mio::v0_8::Signals;
 
-use crate::Result;
-
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
@@ -35,11 +33,11 @@ pub(crate) struct UnixInternalEventSource {
 }
 
 impl UnixInternalEventSource {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> io::Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> io::Result<Self> {
         let poll = Poll::new()?;
         let registry = poll.registry();
 
@@ -67,7 +65,7 @@ impl UnixInternalEventSource {
 }
 
 impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         if let Some(event) = self.parser.next() {
             return Ok(Some(event));
         }
