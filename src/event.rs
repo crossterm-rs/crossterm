@@ -242,7 +242,7 @@ impl Command for DisableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> crate::Result<()> {
         Ok(())
     }
 }
