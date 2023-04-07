@@ -427,6 +427,7 @@ impl_display!(for DisableBlinking);
 impl_display!(for SetCursorStyle);
 
 #[cfg(test)]
+#[cfg(feature = "events")]
 mod tests {
     use std::io::{self, stdout};
 
