@@ -6,7 +6,8 @@ use super::source::unix::UnixInternalEventSource;
 use super::source::windows::WindowsEventSource;
 #[cfg(feature = "event-stream")]
 use super::sys::Waker;
-use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent, Result};
+use super::{filter::Filter, source::EventSource, timeout::PollTimeout, InternalEvent};
+use crate::Result;
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,

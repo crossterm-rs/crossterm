@@ -222,9 +222,9 @@ impl Command for EnableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
-        Err(io::Error::new(
-            io::ErrorKind::Unsupported,
+    fn execute_winapi(&self) -> crate::Result<()> {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
             "Bracketed paste not implemented in the legacy Windows API.",
         ))
     }

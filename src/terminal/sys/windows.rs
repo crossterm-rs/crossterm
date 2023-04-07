@@ -61,6 +61,7 @@ pub(crate) fn size() -> Result<(u16, u16)> {
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
 /// This always returns `Ok(false)` on Windows.
+#[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> Result<bool> {
     Ok(false)
 }
