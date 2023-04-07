@@ -238,7 +238,6 @@ mod tests {
         use std::fmt;
 
         use std::cell::RefCell;
-        use std::fmt::Debug;
 
         use super::FakeWrite;
         use crate::command::Command;
@@ -273,7 +272,7 @@ mod tests {
                 f.write_str(self.value)
             }
 
-            fn execute_winapi(&self) -> io::Result<()> {
+            fn execute_winapi(&self) -> std::io::Result<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
@@ -292,9 +291,9 @@ mod tests {
         // If the stream was populated, it tests that the two arrays are equal.
         // If the writer was populated, it tests that the contents of the
         // write buffer are equal to the concatenation of `stream_result`.
-        fn test_harness<E: Debug>(
+        fn test_harness(
             stream_result: &[&'static str],
-            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> io::Result<()>,
+            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> std::io::Result<()>,
         ) {
             let mut stream = WindowsEventStream::default();
             let mut writer = FakeWrite::default();
