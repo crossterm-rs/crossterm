@@ -15,8 +15,8 @@ use futures_core::stream::Stream;
 use crate::Result;
 
 use crate::event::{
-    lock_internal_event_reader, filter::EventFilter, poll_internal, read_internal,
-    sys::Waker, Event, InternalEvent,
+    filter::EventFilter, lock_internal_event_reader, poll_internal, read_internal, sys::Waker,
+    Event, InternalEvent,
 };
 
 /// A stream of `Result<Event>`.
