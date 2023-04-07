@@ -110,6 +110,13 @@ fn read_supports_keyboard_enhancement_flags() -> io::Result<bool> {
 
 #[cfg(feature = "events")]
 fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
+    use crate::event::{
+        filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
+        poll_internal, read_internal, InternalEvent,
+    };
+    use std::io::Write;
+    use std::time::Duration;
+
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device attributes
     // query. If we receive the primary device attributes response but not the keyboard enhancement
