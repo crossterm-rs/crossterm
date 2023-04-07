@@ -79,12 +79,28 @@ serde_json = "1.0"
 #
 [[example]]
 name = "event-read"
-required-features = ["bracketed-paste"]
+required-features = ["bracketed-paste", "events"]
+
+[[example]]
+name = "event-match-modifiers"
+required-features = ["bracketed-paste", "events"]
+
+[[example]]
+name = "event-poll-read"
+required-features = ["bracketed-paste", "events"]
 
 [[example]]
 name = "event-stream-async-std"
-required-features = ["event-stream"]
+required-features = ["event-stream", "events"]
 
 [[example]]
 name = "event-stream-tokio"
-required-features = ["event-stream"]
+required-features = ["event-stream", "events"]
+
+[[example]]
+name = "event-read-char-line"
+required-features = ["events"]
+
+[[example]]
+name = "stderr"
+required-features = ["events"]
