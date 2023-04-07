@@ -1,4 +1,4 @@
-use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, MouseEvent, ScreenBuffer};
+use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, ScreenBuffer};
 use winapi::um::{
     wincon::{
         CAPSLOCK_ON, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED,
@@ -13,7 +13,7 @@ use winapi::um::{
 };
 
 use crate::{
-    event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEventKind},
+    event::{Event, KeyCode, KeyEvent, KeyEventKind,MouseEvent, KeyModifiers, MouseButton, MouseEventKind},
     Result,
 };
 
@@ -25,7 +25,7 @@ pub struct MouseButtonsPressed {
 }
 
 pub(crate) fn handle_mouse_event(
-    mouse_event: MouseEvent,
+    mouse_event: crossterm_winapi::MouseEvent,
     buttons_pressed: &MouseButtonsPressed,
 ) -> Option<Event> {
     if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event, buttons_pressed) {
@@ -304,9 +304,9 @@ pub fn parse_relative_y(y: i16) -> Result<i16> {
 }
 
 fn parse_mouse_event_record(
-    event: &MouseEvent,
+    event: &crossterm_winapi::MouseEvent,
     buttons_pressed: &MouseButtonsPressed,
-) -> Result<Option<crate::event::MouseEvent>> {
+) -> Result<Option<MouseEvent>> {
     let modifiers = KeyModifiers::from(&event.control_key_state);
 
     let xpos = event.mouse_position.x as u16;
@@ -363,7 +363,7 @@ fn parse_mouse_event_record(
         _ => None,
     };
 
-    Ok(kind.map(|kind| crate::event::MouseEvent {
+    Ok(kind.map(|kind| MouseEvent {
         kind,
         column: xpos,
         row: ypos,

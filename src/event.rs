@@ -85,24 +85,10 @@ use std::fmt;
 use crate::{csi, Command};
 
 #[cfg(feature = "events")]
-pub(crate) mod filter;
+mod event_api;
 #[cfg(feature = "events")]
-mod read;
-#[cfg(feature = "events")]
-mod source;
-#[cfg(feature = "event-stream")]
-#[cfg(feature = "events")]
-mod stream;
-#[cfg(feature = "events")]
-mod timeout;
+pub use event_api::*;
 
-#[cfg(feature = "events")]
-mod events_api;
-
-#[cfg(feature = "events")]
-pub use events_api::*;
-
-pub(crate) mod sys;
 
 /// A command that enables mouse event capturing.
 ///
@@ -140,9 +126,11 @@ impl Command for EnableMouseCapture {
 /// A command that disables mouse event capturing.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[cfg(feature="events")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableMouseCapture;
 
+#[cfg(feature="events")]
 impl Command for DisableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(concat!(

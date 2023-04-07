@@ -8,8 +8,8 @@ use crate::event::{
 };
 
 #[cfg(feature = "event-stream")]
-use super::super::sys::Waker;
-use super::super::{
+use  crate::event::sys::Waker;
+use crate::event::{
     source::EventSource,
     sys::windows::parse::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,

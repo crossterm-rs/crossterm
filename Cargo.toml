@@ -29,7 +29,7 @@ all-features = true
 default = ["bracketed-paste", "windows", "events"]
 windows = ["winapi", "crossterm_winapi"]
 bracketed-paste = []
-event-stream = ["futures-core"]
+event-stream = ["futures-core", "events"]
 use-dev-tty = ["filedescriptor"]
 events = ["mio", "signal-hook", "signal-hook-mio"]
 #
