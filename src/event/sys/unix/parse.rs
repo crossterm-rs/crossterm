@@ -345,9 +345,7 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
     }
 }
 
-pub(crate) fn parse_csi_modifier_key_code(
-    buffer: &[u8],
-) -> io::Result<Option<InternalEvent>> {
+pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
                                                    //
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
@@ -496,9 +494,7 @@ fn translate_functional_key_code(codepoint: u32) -> Option<(KeyCode, KeyEventSta
     None
 }
 
-pub(crate) fn parse_csi_u_encoded_key_code(
-    buffer: &[u8],
-) -> io::Result<Option<InternalEvent>> {
+pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'u']));
 
@@ -620,9 +616,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(
     Ok(Some(InternalEvent::Event(input_event)))
 }
 
-pub(crate) fn parse_csi_special_key_code(
-    buffer: &[u8],
-) -> io::Result<Option<InternalEvent>> {
+pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
     assert!(buffer.ends_with(&[b'~']));
 

@@ -231,7 +231,11 @@ pub(crate) fn set_window_title(title: impl fmt::Display) -> std::io::Result<()> 
     }
 }
 
-fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> std::io::Result<()> {
+fn clear_after_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (mut x, mut y) = (location.x, location.y);
 
     // if cursor position is at the outer right position
@@ -249,7 +253,11 @@ fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16
     clear_winapi(start_location, cells_to_write, current_attribute)
 }
 
-fn clear_before_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> std::io::Result<()> {
+fn clear_before_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (xpos, ypos) = (location.x, location.y);
 
     // one cell after cursor position
@@ -282,7 +290,11 @@ fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> std::io::Re
     Ok(())
 }
 
-fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16) -> std::io::Result<()> {
+fn clear_current_line(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     // location where to start clearing
     let start_location = Coord::new(0, location.y);
 
@@ -297,7 +309,11 @@ fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16
     Ok(())
 }
 
-fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) -> std::io::Result<()> {
+fn clear_until_line(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (x, y) = (location.x, location.y);
 
     // location where to start clearing
@@ -314,7 +330,11 @@ fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) 
     Ok(())
 }
 
-fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> std::io::Result<()> {
+fn clear_winapi(
+    start_location: Coord,
+    cells_to_write: u32,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let console = Console::from(Handle::current_out_handle()?);
     console.fill_whit_character(start_location, cells_to_write, ' ')?;
     console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;

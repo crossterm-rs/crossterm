@@ -409,7 +409,7 @@ impl Command for DisableBracketedPaste {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) ->std:: io::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -488,7 +488,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) ->std:: io::Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
         Err(io::Error::new(

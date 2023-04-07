@@ -39,11 +39,7 @@ impl InternalEventReader {
         self.source.as_ref().expect("reader source not set").waker()
     }
 
-    pub(crate) fn poll<F>(
-        &mut self,
-        timeout: Option<Duration>,
-        filter: &F,
-    ) -> io::Result<bool>
+    pub(crate) fn poll<F>(&mut self, timeout: Option<Duration>, filter: &F) -> io::Result<bool>
     where
         F: Filter,
     {
@@ -404,10 +400,7 @@ mod tests {
     }
 
     impl EventSource for FakeSource {
-        fn try_read(
-            &mut self,
-            _timeout: Option<Duration>,
-        ) -> io::Result<Option<InternalEvent>> {
+        fn try_read(&mut self, _timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
             // Return error if set in case there's just one remaining event
             if self.events.len() == 1 {
                 if let Some(error) = self.error.take() {

@@ -12,11 +12,8 @@ use winapi::um::{
     },
 };
 
-use crate::{
-    event::{
-        Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent,
-        MouseEventKind,
-    },
+use crate::event::{
+    Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };
 
 #[derive(Default)]

@@ -244,7 +244,7 @@ impl Command for LeaveAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) ->io::Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
         Ok(())
@@ -286,7 +286,7 @@ impl Command for ScrollUp {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) ->io:: Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::scroll_up(self.0)
     }
 }
