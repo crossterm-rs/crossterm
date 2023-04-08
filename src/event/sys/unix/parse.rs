@@ -271,6 +271,7 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
     if bits & 1 != 0 {
         flags |= KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES;
     }
+    #[cfg(feature = "event-kind")]
     if bits & 2 != 0 {
         flags |= KeyboardEnhancementFlags::REPORT_EVENT_TYPES;
     }
