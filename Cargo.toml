@@ -27,16 +27,18 @@ all-features = true
 #
 [features]
 default = ["bracketed-paste", "windows", "events"]
-windows = ["winapi", "crossterm_winapi"]
+windows = ["dep:winapi", "dep:crossterm_winapi"]
 bracketed-paste = []
 event-stream = ["futures-core", "events"]
 use-dev-tty = ["filedescriptor"]
-events = ["mio", "signal-hook", "signal-hook-mio"]
+events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"]
+serde = ["dep:serde", "bitflags/serde"]
+
 #
 # Shared dependencies
 #
 [dependencies]
-bitflags = "2.1"
+bitflags = {version = "2.1" }
 parking_lot = "0.12"
 
 # optional deps only added when requested

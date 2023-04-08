@@ -101,9 +101,6 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use std::fmt;
 use std::time::Duration;
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 use bitflags::bitflags;
 use std::hash::{Hash, Hasher};
 
@@ -250,7 +247,7 @@ bitflags! {
     /// See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#progressive-enhancement> for more information.
     ///
     /// Alternate keys and Unicode codepoints are not yet supported by crossterm.
-    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
     #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct KeyboardEnhancementFlags: u8 {
         /// Represent Escape and modified keys using CSI-u sequences, so they can be unambiguously
@@ -505,7 +502,7 @@ impl Command for PopKeyboardEnhancementFlags {
 }
 
 /// Represents an event.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
 pub enum Event {
@@ -541,7 +538,7 @@ pub enum Event {
 /// Some platforms/terminals does not report all key modifiers
 /// combinations for all mouse event types. For example - macOS reports
 /// `Ctrl` + left mouse button click as a right mouse button click.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub struct MouseEvent {
     /// The kind of mouse event that was caused.
@@ -563,7 +560,7 @@ pub struct MouseEvent {
 /// Some platforms/terminals do not report mouse button for the
 /// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
@@ -581,7 +578,7 @@ pub enum MouseEventKind {
 }
 
 /// Represents a mouse button.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseButton {
     /// Left mouse button.
@@ -598,7 +595,7 @@ bitflags! {
     /// **Note:** `SUPER`, `HYPER`, and `META` can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
     #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct KeyModifiers: u8 {
         const SHIFT = 0b0000_0001;
@@ -612,7 +609,7 @@ bitflags! {
 }
 
 /// Represents a keyboard event kind.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum KeyEventKind {
     Press,
@@ -626,8 +623,8 @@ bitflags! {
     /// **Note:** This state can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
     pub struct KeyEventState: u8 {
         /// The key event origins from the keypad.
         const KEYPAD = 0b0000_0001;
@@ -644,7 +641,7 @@ bitflags! {
 }
 
 /// Represents a key event.
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Clone, Copy)]
 pub struct KeyEvent {
     /// The key itself.
@@ -770,7 +767,7 @@ impl Hash for KeyEvent {
 
 /// Represents a media key (as part of [`KeyCode::Media`]).
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum MediaKeyCode {
     /// Play media key.
     Play,
@@ -802,7 +799,7 @@ pub enum MediaKeyCode {
 
 /// Represents a modifier key (as part of [`KeyCode::Modifier`]).
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ModifierKeyCode {
     /// Left Shift key.
     LeftShift,
@@ -836,7 +833,7 @@ pub enum ModifierKeyCode {
 
 /// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyCode {
     /// Backspace key.
     Backspace,
