@@ -340,6 +340,7 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
     match kind {
         1 => KeyEventKind::Press,
         2 => KeyEventKind::Repeat,
+        #[cfg(feature = "event-kind")]
         3 => KeyEventKind::Release,
         _ => KeyEventKind::Press,
     }

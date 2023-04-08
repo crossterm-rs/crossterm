@@ -1,6 +1,5 @@
 #![allow(clippy::cognitive_complexity)]
 
-use crate::Result;
 use crossterm::{cursor, queue, style, style::Color};
 use std::io::Write;
 

@@ -223,7 +223,11 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                 let kind = if key_event.key_down {
                     KeyEventKind::Press
                 } else {
-                    KeyEventKind::Release
+                    if cfg!(feature = "event-kind") {
+                        KeyEventKind::Release
+                    } else {
+                        KeyEventKind::Press
+                    }
                 };
                 let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
                 return Some(WindowsKeyEvent::KeyEvent(key_event));
@@ -235,7 +239,17 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     let is_numpad_numeric_key = (VK_NUMPAD0..=VK_NUMPAD9).contains(&virtual_key_code);
     let is_only_alt_modifier = modifiers.contains(KeyModifiers::ALT)
         && !modifiers.contains(KeyModifiers::SHIFT | KeyModifiers::CONTROL);
+
     if is_only_alt_modifier && is_numpad_numeric_key {
+        return None;
+    }
+
+    if !key_event.key_down && virtual_key_code == VK_RETURN {
+        // For some reason in some cases we receive a release ENTER event here at the application start.
+        // This might have to do with the initial enter when running a CLI command.
+        // We early exit here to prevent confusion.
+        //
+        // https://github.com/crossterm-rs/crossterm/issues/752
         return None;
     }
 
@@ -286,7 +300,11 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
         let kind = if key_event.key_down {
             KeyEventKind::Press
         } else {
-            KeyEventKind::Release
+            if cfg!(feature = "event-kind") {
+                KeyEventKind::Release
+            } else {
+                KeyEventKind::Press
+            }
         };
         let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
         return Some(WindowsKeyEvent::KeyEvent(key_event));

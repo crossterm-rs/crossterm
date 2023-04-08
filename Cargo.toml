@@ -33,6 +33,7 @@ event-stream = ["dep:futures-core", "events"] # Enables async events
 use-dev-tty = ["filedescriptor"] # Enables raw file descriptor polling / selecting instead of mio.
 events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"] # Enables reading input/events from the system.
 serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
+event-kind = ["events"] # Enables a 'release' event for input for windows and kitty protocol.
 
 #
 # Shared dependencies
@@ -81,7 +82,7 @@ serde_json = "1.0"
 #
 [[example]]
 name = "event-read"
-required-features = ["bracketed-paste", "events"]
+required-features = ["bracketed-paste", "events", "event-kind"]
 
 [[example]]
 name = "event-match-modifiers"
