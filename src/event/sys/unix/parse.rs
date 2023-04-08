@@ -339,6 +339,7 @@ fn parse_modifiers_to_state(mask: u8) -> KeyEventState {
 fn parse_key_event_kind(kind: u8) -> KeyEventKind {
     match kind {
         1 => KeyEventKind::Press,
+        #[cfg(feature = "event-kind")]
         2 => KeyEventKind::Repeat,
         #[cfg(feature = "event-kind")]
         3 => KeyEventKind::Release,
@@ -1341,6 +1342,7 @@ mod tests {
                 KeyEventKind::Repeat,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[97;1:3u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
@@ -1464,6 +1466,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "event-kind")]
     fn test_parse_csi_special_key_code_with_types() {
         assert_eq!(
             parse_event(b"\x1B[;1:3B", false).unwrap(),
@@ -1484,6 +1487,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "event-kind")]
     fn test_parse_csi_numbered_escape_code_with_types() {
         assert_eq!(
             parse_event(b"\x1B[5;1:3~", false).unwrap(),

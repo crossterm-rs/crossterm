@@ -223,11 +223,13 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                 let kind = if key_event.key_down {
                     KeyEventKind::Press
                 } else {
-                    if cfg!(feature = "event-kind") {
+                    #[cfg(feature = "event-kind")]
+                    {
                         KeyEventKind::Release
-                    } else {
-                        KeyEventKind::Press
                     }
+                    // Dont register key up event.
+                    #[cfg(not(feature = "event-kind"))]
+                    return None;
                 };
                 let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
                 return Some(WindowsKeyEvent::KeyEvent(key_event));
@@ -300,11 +302,13 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
         let kind = if key_event.key_down {
             KeyEventKind::Press
         } else {
-            if cfg!(feature = "event-kind") {
+            #[cfg(feature = "event-kind")]
+            {
                 KeyEventKind::Release
-            } else {
-                KeyEventKind::Press
             }
+            // Dont register key up event.
+            #[cfg(not(feature = "event-kind"))]
+            return None;
         };
         let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
         return Some(WindowsKeyEvent::KeyEvent(key_event));

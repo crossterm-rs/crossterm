@@ -256,6 +256,7 @@ bitflags! {
         /// Add extra events with [`KeyEvent.kind`] set to [`KeyEventKind::Repeat`] or
         /// [`KeyEventKind::Release`] when keys are autorepeated or released.
         /// IMPORTANT: Requires feature `event-kind` to be enabled.
+        #[cfg(feature="event-kind")]
         const REPORT_EVENT_TYPES = 0b0000_0010;
         // Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
         // in addition to the base keycode. The alternate keycode overrides the base keycode in
@@ -614,7 +615,9 @@ bitflags! {
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum KeyEventKind {
     Press,
+    #[cfg(feature = "event-kind")]
     Repeat,
+    #[cfg(feature = "event-kind")]
     Release,
 }
 
@@ -650,6 +653,7 @@ pub struct KeyEvent {
     /// Additional key modifiers.
     pub modifiers: KeyModifiers,
     /// Kind of event.
+    /// By default `KeyEventKind::Press`.
     ///
     /// Only set if:
     /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
