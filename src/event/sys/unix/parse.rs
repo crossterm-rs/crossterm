@@ -1,7 +1,7 @@
 use std::io;
 
 use crate::event::{
-    Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
+    Event, KeyCode, KeyEvent, KeyEventKind::Release,, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
     MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
 };
 
@@ -1365,6 +1365,7 @@ mod tests {
                 KeyEventKind::Press,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[57449;3:3u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
