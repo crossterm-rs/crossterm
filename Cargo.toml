@@ -27,12 +27,12 @@ all-features = true
 #
 [features]
 default = ["bracketed-paste", "windows", "events"]
-windows = ["dep:winapi", "dep:crossterm_winapi"]
-bracketed-paste = []
-event-stream = ["futures-core", "events"]
-use-dev-tty = ["filedescriptor"]
-events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"]
-serde = ["dep:serde", "bitflags/serde"]
+windows = ["dep:winapi", "dep:crossterm_winapi"] # Disables winapi dependencies from being included into the binary (SHOULD NOT be disabled on windows).
+bracketed-paste = [] # Enables triggering a `Event::Paste` when pasting text into the terminal.
+event-stream = ["dep:futures-core", "events"] # Enables async events
+use-dev-tty = ["filedescriptor"] # Enables raw file descriptor polling / selecting instead of mio.
+events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"] # Enables reading input/events from the system.
+serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
 
 #
 # Shared dependencies
