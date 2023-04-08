@@ -611,6 +611,7 @@ bitflags! {
 }
 
 /// Represents a keyboard event kind.
+/// - Enable `event-kind` feature to get release events on windows, and on unix when kitty-protocol is enabled and `KeyboardEnhancementFlags::REPORT_EVENT_TYPES` is set.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum KeyEventKind {

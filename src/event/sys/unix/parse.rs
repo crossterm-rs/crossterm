@@ -1335,6 +1335,7 @@ mod tests {
                 KeyEventKind::Press,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[97;1:2u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
