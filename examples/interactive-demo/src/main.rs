@@ -94,7 +94,7 @@ pub fn read_char() -> std::io::Result<char> {
     }
 }
 
-pub fn buffer_size() -> io::Result<(u16> {
+pub fn buffer_size() -> io::Result<(u16, u16)> {
     terminal::size()
 }
 
