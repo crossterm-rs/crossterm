@@ -2,7 +2,7 @@
 
 use std::io::Write;
 
-use crossterm::{cursor, execute, queue, style, Command, style::Stylize};
+use crossterm::{cursor, execute, queue, style, style::Stylize, Command};
 use std::thread;
 use std::time::Duration;
 
@@ -109,7 +109,6 @@ where
     )
 }
 
-
 fn test_move_cursor_to<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
@@ -171,7 +170,7 @@ where
                 queue!(
                     w,
                     cursor::MoveTo(column, row),
-                    style::PrintStyledContent("▓".red()),              
+                    style::PrintStyledContent("▓".red()),
                 )?;
             } else {
                 queue!(

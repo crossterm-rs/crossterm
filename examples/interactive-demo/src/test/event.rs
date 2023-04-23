@@ -5,7 +5,7 @@ use crossterm::{
     event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
 };
-use std::io;
+use std::io::{self, Write};
 
 fn test_event<W>(w: &mut W) -> io::Result<()>
 where
