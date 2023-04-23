@@ -1,8 +1,9 @@
 use std::io;
 
 use crate::event::{
-    Event, KeyCode, KeyEvent, KeyEventKind::Release,, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
-    MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
+    Event, KeyCode, KeyEvent, KeyEventKind::Release, KeyEventState, KeyModifiers,
+    KeyboardEnhancementFlags, MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent,
+    MouseEventKind,
 };
 
 use super::super::super::InternalEvent;
