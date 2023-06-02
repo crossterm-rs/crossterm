@@ -575,6 +575,10 @@ pub enum MouseEventKind {
     ScrollDown,
     /// Scrolled mouse wheel upwards (away from the user).
     ScrollUp,
+    /// Scrolled mouse wheel left (mostly on a laptop touchpad).
+    ScrollLeft,
+    /// Scrolled mouse wheel right (mostly on a laptop touchpad).
+    ScrollRight,
 }
 
 /// Represents a mouse button.
