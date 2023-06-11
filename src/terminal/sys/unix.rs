@@ -1,6 +1,9 @@
 //! UNIX related logic for terminal manipulation.
 
-use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::{
+    sys::file_descriptor::{tty_fd, FileDesc},
+    WindowSize,
+};
 use libc::{
     cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
     TIOCGWINSZ,
@@ -20,8 +23,19 @@ pub(crate) fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().is_some()
 }
 
+impl From<winsize> for WindowSize {
+    fn from(size: winsize) -> WindowSize {
+        WindowSize {
+            columns: size.ws_col,
+            rows: size.ws_row,
+            width: size.ws_xpixel,
+            height: size.ws_ypixel,
+        }
+    }
+}
+
 #[allow(clippy::useless_conversion)]
-pub(crate) fn size() -> io::Result<(u16, u16)> {
+pub(crate) fn window_size() -> io::Result<WindowSize> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
     let mut size = winsize {
         ws_row: 0,
@@ -38,11 +52,17 @@ pub(crate) fn size() -> io::Result<(u16, u16)> {
         STDOUT_FILENO
     };
 
-    if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok()
-        && size.ws_col != 0
-        && size.ws_row != 0
-    {
-        return Ok((size.ws_col, size.ws_row));
+    if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
+        return Ok(size.into());
+    }
+
+    Err(std::io::Error::last_os_error().into())
+}
+
+#[allow(clippy::useless_conversion)]
+pub(crate) fn size() -> io::Result<(u16, u16)> {
+    if let Ok(window_size) = window_size() {
+        return Ok((window_size.columns, window_size.rows));
     }
 
     tput_size().ok_or_else(|| std::io::Error::last_os_error().into())

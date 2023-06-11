@@ -137,6 +137,23 @@ pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
 }
 
+#[derive(Debug)]
+pub struct WindowSize {
+    pub rows: u16,
+    pub columns: u16,
+    pub width: u16,
+    pub height: u16,
+}
+
+/// Returns the terminal size `[WindowSize]`.
+///
+/// The width and height in pixels may not be reliably implemented or default to 0.
+/// For unix, https://man7.org/linux/man-pages/man4/tty_ioctl.4.html documents them as "unused".
+/// For windows it is not implemented.
+pub fn window_size() -> io::Result<WindowSize> {
+    sys::window_size()
+}
+
 /// Disables line wrapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableLineWrap;
