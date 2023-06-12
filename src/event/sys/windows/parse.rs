@@ -366,7 +366,7 @@ fn parse_mouse_event_record(
             } else {
                 None
             }
-        }, 
+        }
         _ => None,
     };
 
