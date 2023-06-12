@@ -358,7 +358,15 @@ fn parse_mouse_event_record(
             }
         }
         EventFlags::DoubleClick => None, // double click not supported by unix terminals
-        EventFlags::MouseHwheeled => None, // horizontal scroll not supported by unix terminals
+        EventFlags::MouseHwheeled => {
+            if button_state.scroll_left() {
+                Some(MouseEventKind::ScrollLeft)
+            } else if button_state.scroll_right() {
+                Some(MouseEventKind::ScrollRight)
+            } else {
+                None
+            }
+        }, 
         _ => None,
     };
 
