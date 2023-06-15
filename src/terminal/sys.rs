@@ -13,6 +13,10 @@ pub(crate) use self::windows::{
     clear, disable_raw_mode, enable_raw_mode, is_raw_mode_enabled, scroll_down, scroll_up,
     set_size, set_window_title, size,
 };
+#[cfg(all(windows, test))]
+pub(crate) use self::windows::{
+    temp_screen_buffer,
+};
 
 #[cfg(windows)]
 mod windows;
