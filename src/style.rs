@@ -69,8 +69,8 @@
 //! ```no_run
 //! use std::io::{self, Write};
 //!
-//! use crossterm::{execute, style::Print};
-//! use crossterm::style::{SetAttribute, Attribute};
+//! use crossterm::execute;
+//! use crossterm::style::{Attribute, Print, SetAttribute};
 //!
 //! fn main() -> io::Result<()> {
 //!     execute!(
