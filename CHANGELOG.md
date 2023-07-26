@@ -25,6 +25,8 @@
 
 - Remove `SetCursorShape` in favour of `SetCursorStyle`.  (#742)
 - Make Windows resize event match `terminal::size` (#714)
+- Rust 1.58 or later is now required.
+
 # Version 0.25.0
 BREAKING: `Copy` trait is removed from `Event`, you can keep it by removing the "bracked-paste" feature flag. However this flag might be standardized in the future.
 We removed the `Copy` from `Event` because the new `Paste` event, which contains a pasted string into the terminal, which is a non-copy string.
