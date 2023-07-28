@@ -166,6 +166,18 @@ pub fn available_color_count() -> u16 {
         .unwrap_or(8)
 }
 
+/// Forces colored output on or off globally, overriding NO_COLOR.
+///
+/// # Notes
+///
+/// crossterm supports NO_COLOR (https://no-color.org/) to disabled colored output.
+///
+/// This API allows applications to override that behavior and force colorized output
+/// even if NO_COLOR is set.
+pub fn force_color_output(enabled: bool) {
+    Colored::set_ansi_color_disabled(!enabled)
+}
+
 /// A command that sets the the foreground color.
 ///
 /// See [`Color`](enum.Color.html) for more info.
