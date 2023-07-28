@@ -490,4 +490,24 @@ mod serde_tests {
         assert!(serde_json::from_str::<Color>("\"rgb_(255,255,255,255)\"").is_err());
         assert!(serde_json::from_str::<Color>("\"rgb_(256,255,255)\"").is_err());
     }
+
+    #[test]
+    fn test_deserial_rgb_hex() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#ffffff\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#FFFFFF\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+    }
+
+    #[test]
+    fn test_deserial_unvalid_rgb_hex() {
+        assert!(serde_json::from_str::<Color>("\"#FFFFFFFF\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"#FFGFFF\"").is_err());
+        // Ferris is 4 bytes so this will be considered the correct length.
+        assert!(serde_json::from_str::<Color>("\"#ff🦀\"").is_err());
+    }
 }
