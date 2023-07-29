@@ -93,7 +93,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.23"
+crossterm = "0.26"
 ```
 
 </details>
@@ -136,7 +136,7 @@ Checkout this [list](https://docs.rs/crossterm/latest/crossterm/index.html#suppo
 
 ```toml
 [dependencies.crossterm]
-version = "0.23"
+version = "0.26"
 features = ["event-stream"] 
 ```
 
