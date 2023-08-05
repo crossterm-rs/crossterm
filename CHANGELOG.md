@@ -23,6 +23,7 @@
 ## Breaking ⚠️
 - Remove `SetCursorShape` in favour of `SetCursorStyle`.  (#742)
 - Make Windows resize event match `terminal::size` (#714)
+- Rust 1.58 or later is now required.
 - Add key release event for windows. (#745)
 
 # Version 0.25.0
