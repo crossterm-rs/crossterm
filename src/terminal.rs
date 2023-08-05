@@ -154,6 +154,23 @@ pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
 }
 
+/// Instructs the terminal to give an alert.
+///
+/// # Notes
+///
+/// Typically this is a bell sound, but may also be a visual alert such as a screen flash.
+///
+/// See [Wikipedia](https://en.wikipedia.org/wiki/Bell_character).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Bell;
+
+impl fmt::Display for Bell {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use fmt::Write;
+        f.write_char(0x07 as char)
+    }
+}
+
 /// Disables line wrapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableLineWrap;
@@ -502,38 +519,10 @@ impl Command for EndSynchronizedUpdate {
     }
 }
 
-/// A command that instructs the terminal to give an alert.
-///
-/// # Notes
-///
-/// Typically this is a bell sound, but may also be a visual alert such as a screen flash.
-///
-/// See [Wikipedia](https://en.wikipedia.org/wiki/Bell_character).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Bell;
-
-impl Command for Bell {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_char(0x07 as char)
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> io::Result<()> {
-        Ok(())
-    }
-
-    #[cfg(windows)]
-    #[inline]
-    fn is_ansi_code_supported(&self) -> bool {
-        true
-    }
-}
-
 impl_display!(for ScrollUp);
 impl_display!(for ScrollDown);
 impl_display!(for SetSize);
 impl_display!(for Clear);
-impl_display!(for Bell);
 
 #[cfg(test)]
 mod tests {
