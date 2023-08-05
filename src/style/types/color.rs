@@ -271,7 +271,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
-                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)`",
+                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)` or `#rgbhex`",
                 )
             }
             fn visit_str<E>(self, value: &str) -> Result<Color, E>
@@ -303,6 +303,20 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             let r = results[0].parse::<u8>();
                             let g = results[1].parse::<u8>();
                             let b = results[2].parse::<u8>();
+
+                            if r.is_ok() && g.is_ok() && b.is_ok() {
+                                return Ok(Color::Rgb {
+                                    r: r.unwrap(),
+                                    g: g.unwrap(),
+                                    b: b.unwrap(),
+                                });
+                            }
+                        }
+                    } else if let Some(hex) = value.strip_prefix('#') {
+                        if hex.is_ascii() && hex.len() == 6 {
+                            let r = u8::from_str_radix(&hex[0..2], 16);
+                            let g = u8::from_str_radix(&hex[2..4], 16);
+                            let b = u8::from_str_radix(&hex[4..6], 16);
 
                             if r.is_ok() && g.is_ok() && b.is_ok() {
                                 return Ok(Color::Rgb {
@@ -475,5 +489,25 @@ mod serde_tests {
     fn test_deserial_unvalid_rgb() {
         assert!(serde_json::from_str::<Color>("\"rgb_(255,255,255,255)\"").is_err());
         assert!(serde_json::from_str::<Color>("\"rgb_(256,255,255)\"").is_err());
+    }
+
+    #[test]
+    fn test_deserial_rgb_hex() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#ffffff\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#FFFFFF\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+    }
+
+    #[test]
+    fn test_deserial_unvalid_rgb_hex() {
+        assert!(serde_json::from_str::<Color>("\"#FFFFFFFF\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"#FFGFFF\"").is_err());
+        // Ferris is 4 bytes so this will be considered the correct length.
+        assert!(serde_json::from_str::<Color>("\"#ff🦀\"").is_err());
     }
 }
