@@ -352,20 +352,53 @@ fn clear_winapi(
 }
 
 #[cfg(test)]
+// Create a new screen buffer to avoid changing the terminal the test
+// is running within.
+pub fn temp_screen_buffer() -> std::io::Result<ScreenBuffer> {
+    let alternate_screen = ScreenBuffer::create()?;
+    alternate_screen.show().unwrap();
+    Ok(alternate_screen)
+}
+
+#[cfg(test)]
 mod tests {
     use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
     use crossterm_winapi::ScreenBuffer;
+    use serial_test::serial;
     use winapi::um::wincon::GetConsoleTitleW;
 
-    use super::{scroll_down, scroll_up, set_size, set_window_title, size};
+    use super::{scroll_down, scroll_up, set_size, set_window_title, size, temp_screen_buffer};
 
     #[test]
-    fn test_resize_winapi() {
+    #[serial]
+    fn test_resize_winapi_20_21() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
         let (width, height) = size().unwrap();
 
-        set_size(30, 30).unwrap();
-        assert_eq!((30, 30), size().unwrap());
+        // The values 20 and 21 are arbitrary and different from each other
+        // just to see they're not crossed over.
+        set_size(20, 21).unwrap();
+        assert_eq!((20, 21), size().unwrap());
+
+        // reset to previous size
+        set_size(width, height).unwrap();
+        assert_eq!((width, height), size().unwrap());
+    }
+
+    // This is similar to test_resize_winapi_20_21() above. This verifies that
+    // another test of similar functionality runs independently (that a testing
+    // race condition has been addressed).
+    #[test]
+    #[serial]
+    fn test_resize_winapi_30_31() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
+        let (width, height) = size().unwrap();
+
+        set_size(30, 31).unwrap();
+        assert_eq!((30, 31), size().unwrap());
 
         // reset to previous size
         set_size(width, height).unwrap();
@@ -420,7 +453,10 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_set_title_winapi() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
         let test_title = "this is a crossterm test title";
         set_window_title(test_title).unwrap();
 
