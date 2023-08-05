@@ -1,6 +1,26 @@
+# Version 0.27
+
+## Added ⭐
+
+- Add `NO_COLOR` support (https://no-color.org/)
+- Add option to force overwrite `NO_COLOR` (#802)
+- Add support for scroll left/right events on windows and unix systems (#788).
+- Add `window_size` function to fetch pixel width/height of screen for more sophisticated rendering in terminals.
+- Add support for deserializing hex color strings to `Color`` e.g #fffff.
+
+## Changes 
+
+- Make the events module an optional feature `events` (to make crossterm more lightweight) (#776)
+
+## Breaking ⚠️
+
+- Set minimum rust version to 1.58 (#798)
+- Change all error types to `std::io::Result` (#765)
+
 # Version 0.26.1
 
 ## Added ⭐
+
 - Add synchronized output/update control (#756)
 - Add kitty report alternate keys functionality (#754)
 - Updates dev dependencies.
