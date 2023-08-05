@@ -380,7 +380,6 @@ mod tests {
     }
 }
 
-
 #[cfg(test)]
 #[cfg(feature = "serde")]
 mod serde_tests {
