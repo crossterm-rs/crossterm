@@ -9,7 +9,10 @@ use winapi::{
     um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
 };
 
-use crate::{cursor, terminal::ClearType};
+use crate::{
+    cursor,
+    terminal::{ClearType, WindowSize},
+};
 
 /// bits which can't be set in raw mode
 const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
@@ -55,6 +58,13 @@ pub(crate) fn size() -> io::Result<(u16, u16)> {
     Ok((
         (terminal_size.width + 1) as u16,
         (terminal_size.height + 1) as u16,
+    ))
+}
+
+pub(crate) fn window_size() -> io::Result<WindowSize> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        "Window pixel size not implemented for the Windows API.",
     ))
 }
 

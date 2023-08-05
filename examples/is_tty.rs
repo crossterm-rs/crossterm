@@ -6,9 +6,9 @@ use crossterm::{
 use std::io::{stdin, stdout};
 
 pub fn main() {
-    println!("{:?}", size().unwrap());
+    println!("size: {:?}", size().unwrap());
     execute!(stdout(), SetSize(10, 10)).unwrap();
-    println!("{:?}", size().unwrap());
+    println!("resized: {:?}", size().unwrap());
 
     if stdin().is_tty() {
         println!("Is TTY");
