@@ -379,7 +379,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
     }
 }
 
-/// A command that instructs the terminal emulator to being a synchronized frame.
+/// A command that instructs the terminal emulator to begin a synchronized frame.
 ///
 /// # Notes
 ///
