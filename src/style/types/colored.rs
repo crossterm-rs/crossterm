@@ -86,7 +86,6 @@ impl Colored {
         ANSI_COLOR_DISABLED.load(Ordering::SeqCst)
     }
 
-    #[cfg(test)]
     pub fn set_ansi_color_disabled(val: bool) {
         // Force the one-time initializer to run.
         _ = Self::ansi_color_disabled_memoized();
