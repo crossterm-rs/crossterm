@@ -74,7 +74,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
     - Ubuntu 17.10
     - Pop!_OS ( Ubuntu ) 20.04
 - (Arch, Manjaro) KDE Konsole
-- (Arch) Kitty
+- (Arch, NixOS) Kitty
 - Linux Mint
 - (OpenSuse) Alacritty
 - (Chrome OS) Crostini
