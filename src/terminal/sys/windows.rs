@@ -392,6 +392,7 @@ mod tests {
     // race condition has been addressed).
     #[test]
     #[serial]
+    #[ignore]
     fn test_resize_winapi_30_31() {
         let _test_screen = temp_screen_buffer().unwrap();
 
