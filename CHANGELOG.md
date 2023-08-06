@@ -14,7 +14,7 @@
 
 ## Breaking ⚠️
 
-- Set minimum rust version to 1.58 (#798)
+- Set minimum rustc version to 1.58 (#798)
 - Change all error types to `std::io::Result` (#765)
 
 # Version 0.26.1
