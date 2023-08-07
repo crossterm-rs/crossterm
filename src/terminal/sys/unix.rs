@@ -34,6 +34,46 @@ impl From<winsize> for WindowSize {
     }
 }
 
+#[cfg(feature = "events")]
+pub fn read_window_size(timeout: std::time::Duration) -> io::Result<(u16, u16)> {
+    if is_raw_mode_enabled() {
+        read_window_size_raw(timeout)
+    } else {
+        enable_raw_mode()?;
+        let size = read_window_size_raw(timeout);
+        disable_raw_mode()?;
+        size
+    }
+}
+
+#[cfg(feature = "events")]
+pub(crate) fn read_window_size_raw(timeout: std::time::Duration) -> io::Result<(u16, u16)> {
+    use crate::event::{filter::WindowSizeFilter, poll_internal, read_internal, InternalEvent};
+    use std::io::Write;
+
+    // Use `ESC [ 14 t` to and retrieve the window size.
+    let mut stdout = io::stdout();
+    stdout.write_all(b"\x1B[14t")?;
+    stdout.flush()?;
+
+    loop {
+        match poll_internal(Some(timeout), &WindowSizeFilter) {
+            Ok(true) => {
+                if let Ok(InternalEvent::WindowSize(w, h)) = read_internal(&WindowSizeFilter) {
+                    return Ok((w, h));
+                }
+            }
+            Ok(false) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "Could not read the window size",
+                ));
+            }
+            Err(_) => {}
+        }
+    }
+}
+
 #[allow(clippy::useless_conversion)]
 pub(crate) fn window_size() -> io::Result<WindowSize> {
     // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc

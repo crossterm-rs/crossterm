@@ -19,6 +19,17 @@ impl Filter for CursorPositionFilter {
 
 #[cfg(unix)]
 #[derive(Debug, Clone)]
+pub(crate) struct WindowSizeFilter;
+
+#[cfg(unix)]
+impl Filter for WindowSizeFilter {
+    fn eval(&self, event: &InternalEvent) -> bool {
+        matches!(*event, InternalEvent::WindowSize(_, _))
+    }
+}
+
+#[cfg(unix)]
+#[derive(Debug, Clone)]
 pub(crate) struct KeyboardEnhancementFlagsFilter;
 
 #[cfg(unix)]
@@ -76,12 +87,19 @@ mod tests {
     use super::{
         super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent,
         InternalEventFilter, KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter,
+        WindowSizeFilter,
     };
 
     #[test]
     fn test_cursor_position_filter_filters_cursor_position() {
         assert!(!CursorPositionFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
         assert!(CursorPositionFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+    }
+
+    #[test]
+    fn test_window_size_filter_filters_window_size() {
+        assert!(!WindowSizeFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(WindowSizeFilter.eval(&InternalEvent::WindowSize(0, 0)));
     }
 
     #[test]
@@ -105,11 +123,13 @@ mod tests {
     fn test_event_filter_filters_events() {
         assert!(EventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
         assert!(!EventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+        assert!(!EventFilter.eval(&InternalEvent::WindowSize(0, 0)));
     }
 
     #[test]
     fn test_event_filter_filters_internal_events() {
         assert!(InternalEventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
         assert!(InternalEventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
+        assert!(InternalEventFilter.eval(&InternalEvent::WindowSize(0, 0)));
     }
 }

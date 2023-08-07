@@ -947,6 +947,9 @@ pub(crate) enum InternalEvent {
     /// A cursor position (`col`, `row`).
     #[cfg(unix)]
     CursorPosition(u16, u16),
+    /// Terminal window size in pixels (`width`, `height`).
+    #[cfg(unix)]
+    WindowSize(u16, u16),
     /// The progressive keyboard enhancement flags enabled by the terminal.
     #[cfg(unix)]
     KeyboardEnhancementFlags(KeyboardEnhancementFlags),
