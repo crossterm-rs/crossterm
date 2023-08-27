@@ -4,28 +4,36 @@ use std::fmt::{self, Write};
 use std::io::{self};
 
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
-use winapi::{
-    shared::minwindef::DWORD,
-    um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+use winapi::shared::minwindef::DWORD;
+use winapi::um::wincon::{
+    SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_EXTENDED_FLAGS, ENABLE_INSERT_MODE,
+    ENABLE_LINE_INPUT, ENABLE_MOUSE_INPUT, ENABLE_PROCESSED_INPUT, ENABLE_QUICK_EDIT_MODE,
+    ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_WINDOW_INPUT,
 };
 
-use crate::{
-    cursor,
-    terminal::{ClearType, WindowSize},
-};
+use crate::cursor;
+use crate::terminal::{ClearType, WindowSize};
+
+/// bits which must be set in raw mode
+const RAW_MODE_MASK: DWORD = ENABLE_EXTENDED_FLAGS
+    | ENABLE_INSERT_MODE
+    | ENABLE_QUICK_EDIT_MODE
+    | ENABLE_VIRTUAL_TERMINAL_INPUT;
 
 /// bits which can't be set in raw mode
-const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
+const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT
+    | ENABLE_ECHO_INPUT
+    | ENABLE_MOUSE_INPUT
+    | ENABLE_WINDOW_INPUT
+    | ENABLE_PROCESSED_INPUT;
 
 pub(crate) fn is_raw_mode_enabled() -> std::io::Result<bool> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
     let dw_mode = console_mode.mode()?;
 
-    Ok(
-        // check none of the "not raw" bits is set
-        dw_mode & NOT_RAW_MODE_MASK == 0,
-    )
+    // check none of the "not raw" and all of the "raw" bits are set
+    Ok(dw_mode & NOT_RAW_MODE_MASK == 0 && dw_mode & RAW_MODE_MASK == RAW_MODE_MASK)
 }
 
 pub(crate) fn enable_raw_mode() -> std::io::Result<()> {
@@ -33,7 +41,7 @@ pub(crate) fn enable_raw_mode() -> std::io::Result<()> {
 
     let dw_mode = console_mode.mode()?;
 
-    let new_mode = dw_mode & !NOT_RAW_MODE_MASK;
+    let new_mode = dw_mode & !NOT_RAW_MODE_MASK | RAW_MODE_MASK;
 
     console_mode.set_mode(new_mode)?;
 
@@ -45,7 +53,7 @@ pub(crate) fn disable_raw_mode() -> std::io::Result<()> {
 
     let dw_mode = console_mode.mode()?;
 
-    let new_mode = dw_mode | NOT_RAW_MODE_MASK;
+    let new_mode = dw_mode & !RAW_MODE_MASK | NOT_RAW_MODE_MASK;
 
     console_mode.set_mode(new_mode)?;
 
