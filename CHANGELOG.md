@@ -6,7 +6,7 @@
 - Add option to force overwrite `NO_COLOR` (#802)
 - Add support for scroll left/right events on windows and unix systems (#788).
 - Add `window_size` function to fetch pixel width/height of screen for more sophisticated rendering in terminals.
-- Add support for deserializing hex color strings to `Color`` e.g #fffff.
+- Add support for deserializing hex color strings to `Color` e.g #fffff.
 
 ## Changes 
 
