@@ -7,8 +7,9 @@
 - Add support for scroll left/right events on windows and unix systems (#788).
 - Add `window_size` function to fetch pixel width/height of screen for more sophisticated rendering in terminals.
 - Add support for deserializing hex color strings to `Color`` e.g #fffff.
+- Add support for (de)serializing `Reset` `Color`
 
-## Changes 
+## Changes
 
 - Make the events module an optional feature `events` (to make crossterm more lightweight) (#776)
 
@@ -65,7 +66,7 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 
 # Version 0.24.0
 - Add  DoubleUnderlined, Undercurled, Underdots the text, Underdotted, Underdashes, Underdashed attributes and allow coloring their foreground / background color.
-- Fix windows unicode character parsing, this fixed various key combinations and support typing unicode characters. 
+- Fix windows unicode character parsing, this fixed various key combinations and support typing unicode characters.
 - Consistency and better documentation on mouse cursor operations (BREAKING CHANGE).
   - MoveTo, MoveToColumn, MoveToRow are 0-based. (left top most cell is 0,0). Moving like this is absolute
   - MoveToNextLine, MoveToPreviousLine, MoveUp, MoveDown, MoveRight, MoveLeft are 1-based,. Moving like this is relative. Moving 1 left means moving 1 left. Moving 0 to the left is not possible, wikipedia states that most terminals will just default to 1.
@@ -73,7 +74,7 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 - Remove println from serialisation code.
 - Fix mouse up for middle and right buttons.
 - Fix escape codes on Git-Bash + Windows Terminal / Alacritty / WezTerm.
-- Add support for cursor keys in application mode. 
+- Add support for cursor keys in application mode.
 # Version 0.23.2
 - Update signal-hook and mio to version 0.8.
 
@@ -98,12 +99,12 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 
 # Version 0.21
 - Expose `is_raw` function.
-- Add 'purge' option on unix system, this clears the entire screen buffer. 
+- Add 'purge' option on unix system, this clears the entire screen buffer.
 - Improve serialisation for color enum values.
 
 # Version 0.20
-- Update from signal-hook with 'mio-feature flag' to signal-hook-mio 0.2.1. 
-- Manually implements Eq, PartialEq and Hash for KeyEvent improving equality checks and hash calculation. 
+- Update from signal-hook with 'mio-feature flag' to signal-hook-mio 0.2.1.
+- Manually implements Eq, PartialEq and Hash for KeyEvent improving equality checks and hash calculation.
 - `crossterm::ErrorKind` to `io::Error`.
 - Added Cursor Shape Support.
 - Add support for function keys F13...F20.
@@ -112,9 +113,9 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 - Remove extra Clone bounds in the style module.
  - Add `MoveToRow` command.
  - Remove writer parameter from execute_winapi
-   
+
 # Version 0.19
-- Use single thread for async event reader. 
+- Use single thread for async event reader.
 - Patch timeout handling for event polling this was not working correctly.
 - Add unix support for more key combinations mainly complex ones with ALT/SHIFT/CTRL.
 - Derive `PartialEq` and `Eq` for ContentStyle
@@ -124,13 +125,13 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 # Version 0.18.2
 - Fix panic when only setting bold and redirecting stdout.
 - Use `tty_fd` for set/get terminal attributes
- 
+
 # Version 0.18.1
 - Fix enabling ANSI support when stdout is redirected
 - Update crossterm-winapi to 0.6.2
 
 # Version 0.18.0
-- Fix get position bug 
+- Fix get position bug
 - Fix windows 8 or lower write to user-given stdout instead of stdout.
 - Make MoveCursor(Left/Right/Up/Dow) command with input 0 not move.
 - Switch to futures-core to reduce dependencies.
@@ -142,13 +143,13 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 - Fix cursor position retrieval bug linux.
 
 # Version 0.17.6
-- Add functionality to retrieve color based on passed ansi code. 
+- Add functionality to retrieve color based on passed ansi code.
 - Switch from 'futures' to 'futures-util' crate to reduce dependency count
 - Mio 0.7 update
 - signal-hook update
 - Make windows raw_mode act on CONIN$
 - Added From<(u8, u8, u8)> Trait to Color::Rgb Enum
-- Implement Color::try_from() 
+- Implement Color::try_from()
 - Implement styler traits for `&'a str`
 
 # Version 0.17.5
@@ -157,14 +158,14 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 - Mio 0.7 update
 
 # Version 0.17.4
-- Add macros for `Colorize` and `Styler` impls, add an impl for `String` 
-- Add shift modifier to uppercase char events on unix 
+- Add macros for `Colorize` and `Styler` impls, add an impl for `String`
+- Add shift modifier to uppercase char events on unix
 
 # Version 0.17.3
 - Fix get terminal size mac os, this did not report the correct size.
 
 # Version 0.17.2
-- Windows unicode support 
+- Windows unicode support
 
 # Version 0.17.1
 - Reverted bug in 0.17.0: "Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.".
@@ -174,18 +175,18 @@ We removed the `Copy` from `Event` because the new `Paste` event, which contains
 - Impl Display for MoveToColumn, MoveToNextLine, MoveToPreviousLine
 - Make unix event reader always use `/dev/tty`.
 - Direct write command ansi_codes into formatter instead of double allocation.
-- Add NONE flag to KeyModifiers 
+- Add NONE flag to KeyModifiers
 - Add support for converting chars to StylizedContent
 - Make terminal size function fallback to `STDOUT_FILENO` if `/dev/tty` is missing.
 
 # Version 0.16.0
 - Change attribute vector in `ContentStyle` to bitmask.
 - Add `SetAttributes` command.
-- Add `Attributes` type, which is a bitfield of enabled attributes. 
+- Add `Attributes` type, which is a bitfield of enabled attributes.
 - Remove `exit()`, was useless.
 
 # Version 0.15.0
-- Fix CTRL + J key combination. This used to return an ENTER event. 
+- Fix CTRL + J key combination. This used to return an ENTER event.
 - Add a generic implementation `Command` for `&T: Command`. This allows commands to be queued by reference, as well as by value.
 - Remove unnecessary `Clone` trait bounds from `StyledContent`.
 - Add `StyledContent::style_mut`.
