@@ -1,3 +1,8 @@
+# Version 0.27.1
+
+## Added ⭐
+- Add support for (de)serializing `Reset` `Color`
+
 # Version 0.27
 
 ## Added ⭐
@@ -7,7 +12,6 @@
 - Add support for scroll left/right events on windows and unix systems (#788).
 - Add `window_size` function to fetch pixel width/height of screen for more sophisticated rendering in terminals.
 - Add support for deserializing hex color strings to `Color`` e.g #fffff.
-- Add support for (de)serializing `Reset` `Color`
 
 ## Changes
 
