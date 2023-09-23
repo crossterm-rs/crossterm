@@ -314,7 +314,7 @@ fn parse_mouse_event_record(
     let button_state = event.button_state;
 
     let kind = match event.event_flags {
-        EventFlags::PressOrRelease => {
+        EventFlags::PressOrRelease | EventFlags::DoubleClick => {
             if button_state.left_button() && !buttons_pressed.left {
                 Some(MouseEventKind::Down(MouseButton::Left))
             } else if !button_state.left_button() && buttons_pressed.left {
@@ -357,7 +357,6 @@ fn parse_mouse_event_record(
                 None
             }
         }
-        EventFlags::DoubleClick => None, // double click not supported by unix terminals
         EventFlags::MouseHwheeled => {
             if button_state.scroll_left() {
                 Some(MouseEventKind::ScrollLeft)
