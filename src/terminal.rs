@@ -130,13 +130,19 @@ pub fn disable_raw_mode() -> io::Result<()> {
     sys::disable_raw_mode()
 }
 
-/// Returns the terminal size `(columns, rows)`.
+/// Returns the terminal size in `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
 pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
 }
 
+/// Terminal size in both `(columns, rows)` and pixel `(width, height)`.
+///
+/// The returned width and height by the terminal may not be reliable or default to 0.
+/// For linux, [tty_ioctl] specifically the `width` and `height` fields are documented as "unused".
+///
+/// [tty_ioctl]: https://man7.org/linux/man-pages/man4/tty_ioctl.4.html
 #[derive(Debug)]
 pub struct WindowSize {
     pub rows: u16,
@@ -145,11 +151,10 @@ pub struct WindowSize {
     pub height: u16,
 }
 
-/// Returns the terminal size `[WindowSize]`.
+/// Returns the terminal `(columns,rows)` and also pixel sizes as [WindowSize].
 ///
-/// The width and height in pixels may not be reliably implemented or default to 0.
-/// For unix, https://man7.org/linux/man-pages/man4/tty_ioctl.4.html documents them as "unused".
-/// For windows it is not implemented.
+/// All fields in the struct may default to zero without returning en error.
+/// On windows this **always** returns an error.
 pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
 }
