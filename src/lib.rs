@@ -2,8 +2,7 @@
 
 //! # Cross-platform Terminal Manipulation Library
 //!
-//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces (see [features](#features)). It supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested,
-//! see [Tested Terminals](#tested-terminals) for more info).
+//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces.
 //!
 //! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
 //! see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
