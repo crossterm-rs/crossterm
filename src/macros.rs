@@ -88,7 +88,7 @@ macro_rules! queue {
 /// execute!(stdout(), Print("sum:\n".to_string()));
 ///
 /// // will be executed directly
-/// execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
+/// execute!(stdout(), Print("1 + 1 = ".to_string()), Print((1+1).to_string()));
 ///
 /// // ==== Output ====
 /// // sum:
