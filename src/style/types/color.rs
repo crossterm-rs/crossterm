@@ -173,6 +173,7 @@ impl TryFrom<&str> for Color {
         let src = src.to_lowercase();
 
         match src.as_ref() {
+            "reset" => Ok(Color::Reset),
             "black" => Ok(Color::Black),
             "dark_grey" => Ok(Color::DarkGrey),
             "red" => Ok(Color::Red),
@@ -223,6 +224,7 @@ impl serde::ser::Serialize for Color {
         S: serde::ser::Serializer,
     {
         let str = match *self {
+            Color::Reset => "reset",
             Color::Black => "black",
             Color::DarkGrey => "dark_grey",
             Color::Red => "red",
@@ -271,7 +273,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
-                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)` or `#rgbhex`",
+                    "`reset`, `black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)` or `#rgbhex`",
                 )
             }
             fn visit_str<E>(self, value: &str) -> Result<Color, E>
@@ -343,6 +345,7 @@ mod tests {
 
     #[test]
     fn test_known_color_conversion() {
+        assert_eq!("reset".parse(), Ok(Color::Reset));
         assert_eq!("grey".parse(), Ok(Color::Grey));
         assert_eq!("dark_grey".parse(), Ok(Color::DarkGrey));
         assert_eq!("red".parse(), Ok(Color::Red));
@@ -388,6 +391,14 @@ mod serde_tests {
 
     #[test]
     fn test_deserial_known_color_conversion() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"Reset\"").unwrap(),
+            Color::Reset
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"reset\"").unwrap(),
+            Color::Reset
+        );
         assert_eq!(
             serde_json::from_str::<Color>("\"Red\"").unwrap(),
             Color::Red
