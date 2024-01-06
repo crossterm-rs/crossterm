@@ -150,7 +150,7 @@ features = ["event-stream"]
 | `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
 
 
-To use crossterm as a very tin layer you can disable the `events` feature or use `filedescriptor` feature. 
+To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
 This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 ### Dependency Justification
