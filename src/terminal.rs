@@ -404,7 +404,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 /// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered alternate screen.
 ///
 /// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
-/// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+/// renders its current state. With applications updating the screen at a higher frequency this can cause tearing.
 ///
 /// This mode attempts to mitigate that.
 ///
