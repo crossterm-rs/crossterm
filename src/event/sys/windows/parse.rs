@@ -61,19 +61,16 @@ pub(crate) fn handle_key_event(
 }
 
 fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> Option<char> {
-    match *surrogate_buffer {
-        Some(buffered_surrogate) => {
-            *surrogate_buffer = None;
-            std::char::decode_utf16([buffered_surrogate, new_surrogate])
-                .next()
-                .unwrap()
-                .ok()
-        }
-        None => {
-            *surrogate_buffer = Some(new_surrogate);
-            None
-        }
+    if new_surrogate < 0xDC00 {
+        // Discard any buffered surrogate value if another high surrogate comes.
+        *surrogate_buffer = Some(new_surrogate);
+        return None;
     }
+    let buffered_surrogate = surrogate_buffer.take()?;
+    std::char::decode_utf16([buffered_surrogate, new_surrogate])
+        .next()
+        .unwrap()
+        .ok()
 }
 
 impl From<&ControlKeyState> for KeyModifiers {
