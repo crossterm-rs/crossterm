@@ -107,7 +107,7 @@ use std::io::{stdout, Write};
 use crossterm::{
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    ExecutableCommand, Result,
+    ExecutableCommand,
     event,
 };
 
