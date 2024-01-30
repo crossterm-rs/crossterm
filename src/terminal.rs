@@ -154,6 +154,23 @@ pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
 }
 
+/// Instructs the terminal to give an alert.
+///
+/// # Notes
+///
+/// Typically this is a bell sound, but may also be a visual alert such as a screen flash.
+///
+/// See [Wikipedia](https://en.wikipedia.org/wiki/Bell_character).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Bell;
+
+impl fmt::Display for Bell {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use fmt::Write;
+        f.write_char(0x07 as char)
+    }
+}
+
 /// Disables line wrapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableLineWrap;
