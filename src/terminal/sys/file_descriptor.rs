@@ -29,12 +29,12 @@ impl FileDesc {
         FileDesc { fd, close_on_drop }
     }
 
-    pub fn read(&self, buffer: &mut [u8], size: usize) -> io::Result<usize> {
+    pub fn read(&self, buffer: &mut [u8]) -> io::Result<usize> {
         let result = unsafe {
             libc::read(
                 self.fd,
                 buffer.as_mut_ptr() as *mut libc::c_void,
-                size as size_t,
+                buffer.len() as size_t,
             )
         };
 

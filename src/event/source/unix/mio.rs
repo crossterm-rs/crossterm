@@ -93,7 +93,7 @@ impl EventSource for UnixInternalEventSource {
                 match token {
                     TTY_TOKEN => {
                         loop {
-                            match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                            match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
                                     if read_count > 0 {
                                         self.parser.advance(
