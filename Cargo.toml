@@ -28,18 +28,28 @@ all-features = true
 #
 [features]
 default = ["bracketed-paste", "windows", "events"]
-windows = ["dep:winapi", "dep:crossterm_winapi"] # Disables winapi dependencies from being included into the binary (SHOULD NOT be disabled on windows).
-bracketed-paste = [] # Enables triggering a `Event::Paste` when pasting text into the terminal.
+windows = [
+        "dep:windows-sys",
+        "dep:crossterm_winapi",
+] # Disables winapi dependencies from being included into the binary (SHOULD NOT be disabled on windows).
+bracketed-paste = [
+] # Enables triggering a `Event::Paste` when pasting text into the terminal.
 event-stream = ["dep:futures-core", "events"] # Enables async events
-use-dev-tty = ["filedescriptor"] # Enables raw file descriptor polling / selecting instead of mio.
-events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"] # Enables reading input/events from the system.
+use-dev-tty = [
+        "filedescriptor",
+] # Enables raw file descriptor polling / selecting instead of mio.
+events = [
+        "dep:mio",
+        "dep:signal-hook",
+        "dep:signal-hook-mio",
+] # Enables reading input/events from the system.
 serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
 
 #
 # Shared dependencies
 #
 [dependencies]
-bitflags = {version = "2.3" }
+bitflags = { version = "2.3" }
 parking_lot = "0.12"
 
 # optional deps only added when requested
@@ -49,10 +59,18 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 #
 # Windows dependencies
 #
-[target.'cfg(windows)'.dependencies.winapi]
-version = "0.3.9"
-features = ["winuser", "winerror"]
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.52.0"
 optional = true
+features = [
+        "Win32_Foundation",
+        "Win32_System_Console",
+        "Win32_System_Threading",
+        "Win32_System_WindowsProgramming",
+        "Win32_UI_WindowsAndMessaging",
+        "Win32_UI_TextServices",
+        "Win32_UI_Input_KeyboardAndMouse",
+]
 
 [target.'cfg(windows)'.dependencies]
 crossterm_winapi = { version = "0.9.1", optional = true }
@@ -65,7 +83,9 @@ libc = "0.2"
 signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
 mio = { version = "0.8", features = ["os-poll"], optional = true }
-signal-hook-mio = { version = "0.2.3", features = ["support-v0_8"], optional = true }
+signal-hook-mio = { version = "0.2.3", features = [
+        "support-v0_8",
+], optional = true }
 
 #
 # Dev dependencies (examples, ...)

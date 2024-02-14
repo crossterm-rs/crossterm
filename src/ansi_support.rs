@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use crossterm_winapi::{ConsoleMode, Handle};
 use parking_lot::Once;
-use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+use windows_sys::Win32::System::Console::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 /// Enable virtual terminal processing.
 ///

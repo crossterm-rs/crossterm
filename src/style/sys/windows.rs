@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use crossterm_winapi::{Console, Handle, HandleType, ScreenBuffer};
-use winapi::um::wincon;
+use windows_sys::Win32::System::Console as wincon;
 
 use super::super::{Color, Colored};
 

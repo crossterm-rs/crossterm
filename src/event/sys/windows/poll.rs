@@ -2,12 +2,9 @@ use std::io;
 use std::time::Duration;
 
 use crossterm_winapi::Handle;
-use winapi::{
-    shared::winerror::WAIT_TIMEOUT,
-    um::{
-        synchapi::WaitForMultipleObjects,
-        winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0},
-    },
+use windows_sys::Win32::{
+    Foundation::{WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0, WAIT_TIMEOUT},
+    System::Threading::{WaitForMultipleObjects, INFINITE},
 };
 
 #[cfg(feature = "event-stream")]
@@ -50,8 +47,9 @@ impl WinApiPoll {
         #[cfg(not(feature = "event-stream"))]
         let handles = &[*console_handle];
 
-        let output =
-            unsafe { WaitForMultipleObjects(handles.len() as u32, handles.as_ptr(), 0, dw_millis) };
+        let output = unsafe {
+            WaitForMultipleObjects(handles.len() as u32, handles.as_ptr() as _, 0, dw_millis)
+        };
 
         match output {
             output if output == WAIT_OBJECT_0 => {

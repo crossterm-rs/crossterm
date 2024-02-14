@@ -4,9 +4,8 @@ use std::fmt::{self, Write};
 use std::io::{self};
 
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
-use winapi::{
-    shared::minwindef::DWORD,
-    um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+use windows_sys::Win32::System::Console::{
+    SetConsoleTitleW, CONSOLE_MODE, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT,
 };
 
 use crate::{
@@ -15,7 +14,8 @@ use crate::{
 };
 
 /// bits which can't be set in raw mode
-const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
+const NOT_RAW_MODE_MASK: CONSOLE_MODE =
+    ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
 
 pub(crate) fn is_raw_mode_enabled() -> std::io::Result<bool> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
@@ -366,7 +366,7 @@ mod tests {
 
     use crossterm_winapi::ScreenBuffer;
     use serial_test::serial;
-    use winapi::um::wincon::GetConsoleTitleW;
+    use windows_sys::Win32::System::Console::GetConsoleTitleW;
 
     use super::{scroll_down, scroll_up, set_size, set_window_title, size, temp_screen_buffer};
 
