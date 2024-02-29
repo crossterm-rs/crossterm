@@ -17,11 +17,11 @@
 //!
 //! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events to work properly**
 //!
-//! ## Mouse Events
+//! ## Mouse and Focus Events
 //!
-//! Mouse events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](../index.html#command-api)
-//! for more information.
+//! Mouse and focus events are not enabled by default. You have to enable them with the
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html)/[`EnableFocusChange`](struct.EnableFocusChange.html) command.
+//! See [Command API](../index.html#command-api) for more information.
 //!
 //! ## Examples
 //!
