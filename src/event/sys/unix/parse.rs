@@ -202,6 +202,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
+                        b't' if buffer[2] == b'4' => return parse_csi_window_size(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
@@ -254,6 +255,24 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<Inte
     let x = next_parsed::<u16>(&mut split)? - 1;
 
     Ok(Some(InternalEvent::CursorPosition(x, y)))
+}
+
+pub(crate) fn parse_csi_window_size(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // ESC [ 4 ; Ch ; Cw t
+    //   Ch - window height (in pixels)
+    //   Cw - window width (in pixels)
+    assert!(buffer.starts_with(&[b'\x1B', b'[', b'4', b';'])); // ESC [ 4 ;
+    assert!(buffer.ends_with(&[b't']));
+
+    let s = std::str::from_utf8(&buffer[4..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let mut split = s.split(';');
+
+    let h = next_parsed::<u16>(&mut split)?;
+    let w = next_parsed::<u16>(&mut split)?;
+
+    Ok(Some(InternalEvent::WindowSize(w, h)))
 }
 
 fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
@@ -924,6 +943,12 @@ mod tests {
             Some(InternalEvent::CursorPosition(9, 19))
         );
 
+        // parse_csi_window_size
+        assert_eq!(
+            parse_event(b"\x1B[4;2014;3840t", false).unwrap(),
+            Some(InternalEvent::WindowSize(3840, 2014))
+        );
+
         // parse_csi
         assert_eq!(
             parse_event(b"\x1B[D", false).unwrap(),
@@ -1010,6 +1035,14 @@ mod tests {
         assert_eq!(
             parse_csi_cursor_position(b"\x1B[20;10R").unwrap(),
             Some(InternalEvent::CursorPosition(9, 19))
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_window_size() {
+        assert_eq!(
+            parse_csi_window_size(b"\x1B[4;2014;3840t").unwrap(),
+            Some(InternalEvent::WindowSize(3840, 2014))
         );
     }
 

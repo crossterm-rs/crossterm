@@ -154,6 +154,16 @@ pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
 }
 
+/// Returns the terminal size `(width, height)`.
+///
+/// Some terminals do not implement the `ioctl` system call to get the size in pixels,
+/// but support it by sending a `CSI 14 t` sequence, this function returns the reported pixel size.
+#[cfg(unix)]
+#[cfg(feature = "events")]
+pub fn window_size_csi(timeout: std::time::Duration) -> io::Result<(u16, u16)> {
+    sys::read_window_size(timeout)
+}
+
 /// Disables line wrapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableLineWrap;

@@ -2,6 +2,9 @@
 
 #[cfg(unix)]
 #[cfg(feature = "events")]
+pub use self::unix::read_window_size;
+#[cfg(unix)]
+#[cfg(feature = "events")]
 pub use self::unix::supports_keyboard_enhancement;
 #[cfg(unix)]
 pub(crate) use self::unix::{
