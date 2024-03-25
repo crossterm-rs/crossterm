@@ -70,11 +70,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - Console Host
     - Windows 10 (Pro)
     - Windows 8.1 (N)
-- Windows Terminal (Preview)
-    - Windows 11 (Pro)
-    - Windows 10 x86_64 (Pro)
 - Ubuntu Desktop Terminal
-    - Ubuntu 23.04
     - Ubuntu 17.10
     - Pop!_OS ( Ubuntu ) 20.04
 - (Arch, Manjaro) KDE Konsole
@@ -84,7 +80,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - (Chrome OS) Crostini
 - Apple
     - macOS Monterey 12.7.1 (Intel-Chip)
-    - macOS 15.3.1 (Silicon-Chip, M1 Max)
+    - macOS Sonama 14.4 (Apple M1 Max, Silicon-Chip)
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
 terminals have been tested. If you have used this library for a terminal other than the above list without
