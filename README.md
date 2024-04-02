@@ -74,7 +74,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
     - Windows 10 x86_64 (Enterprise)
     - Windows 11 arm64 (Enterprise, virtual machine running on Macbook M1 Max with Parallel)
 - Ubuntu Desktop Terminal
-    - Ubuntu 23.04 x86_64 (Virtual machine running on Windows 10 x86_64 with VMWare Workstation)
+    - Ubuntu 23.04 x86_64 (virtual machine running on Windows 10 x86_64 with VMWare Workstation)
     - Ubuntu 17.10
     - Pop!_OS ( Ubuntu ) 20.04
 - (Arch, Manjaro) KDE Konsole
