@@ -244,20 +244,20 @@ impl serde::ser::Serialize for Color {
             _ => "",
         };
 
-        if str == "" {
+        if str.is_empty() {
             match *self {
                 Color::AnsiValue(value) => {
-                    return serializer.serialize_str(&format!("ansi_({})", value));
+                    serializer.serialize_str(&format!("ansi_({})", value))
                 }
                 Color::Rgb { r, g, b } => {
-                    return serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b));
+                    serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b))
                 }
                 _ => {
-                    return Err(serde::ser::Error::custom("Could not serialize enum type"));
+                    Err(serde::ser::Error::custom("Could not serialize enum type"))
                 }
             }
         } else {
-            return serializer.serialize_str(str);
+            serializer.serialize_str(str)
         }
     }
 }
