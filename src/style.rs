@@ -279,13 +279,24 @@ pub struct SetColors(pub Colors);
 
 impl Command for SetColors {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        if let Some(color) = self.0.foreground {
-            SetForegroundColor(color).write_ansi(f)?;
+        // Writing both foreground and background colors in one command resulted in about 20% more
+        // FPS (20 to 24 fps) on a fullscreen (171x51) app that writes every cell with a different
+        // foreground and background color, compared to separately using the SetForegroundColor and
+        // SetBackgroundColor commands (iTerm2, M2 Macbook Pro). `Esc[38;5;<fg>mEsc[48;5;<bg>m` (16
+        // chars) vs `Esc[38;5;<fg>;48;5;<bg>m` (14 chars)
+        match (self.0.foreground, self.0.background) {
+            (Some(fg), Some(bg)) => {
+                write!(
+                    f,
+                    csi!("{};{}m"),
+                    Colored::ForegroundColor(fg),
+                    Colored::BackgroundColor(bg)
+                )
+            }
+            (Some(fg), None) => write!(f, csi!("{}m"), Colored::ForegroundColor(fg)),
+            (None, Some(bg)) => write!(f, csi!("{}m"), Colored::BackgroundColor(bg)),
+            (None, None) => Ok(()),
         }
-        if let Some(color) = self.0.background {
-            SetBackgroundColor(color).write_ansi(f)?;
-        }
-        Ok(())
     }
 
     #[cfg(windows)]
