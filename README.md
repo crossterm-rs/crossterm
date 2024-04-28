@@ -62,7 +62,7 @@ see [Tested Terminals](#tested-terminals) for more info).
     - Poll/read API
     
 <!--
-WARNING: Do not change following heading title as it's used in the URL by other crates!
+WARNING: Do not change the following heading title as it's used in the URL by other crates!
 -->
 
 ### Tested Terminals
@@ -147,10 +147,10 @@ features = ["event-stream"]
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
 | `events`        | Reading input/system events (enabled by default) |
-| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
+| `filedescriptor` | Use raw filedescriptor for all events rather than mio dependency |
 
 
-To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
+To use crossterm as a very thin layer you can disable the `events` feature or use the `filedescriptor` feature. 
 This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 ### Dependency Justification
