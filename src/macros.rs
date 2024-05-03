@@ -149,7 +149,7 @@ mod tests {
 
     // Helper for execute tests to confirm flush
     #[derive(Default, Debug, Clone)]
-    pub(self) struct FakeWrite {
+    struct FakeWrite {
         buffer: String,
         flushed: bool,
     }
