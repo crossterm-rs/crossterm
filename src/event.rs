@@ -256,9 +256,9 @@ bitflags! {
         /// Add extra events with [`KeyEvent.kind`] set to [`KeyEventKind::Repeat`] or
         /// [`KeyEventKind::Release`] when keys are autorepeated or released.
         const REPORT_EVENT_TYPES = 0b0000_0010;
-        // Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
-        // in addition to the base keycode. The alternate keycode overrides the base keycode in
-        // resulting `KeyEvent`s.
+        /// Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
+        /// in addition to the base keycode. The alternate keycode overrides the base keycode in
+        /// resulting `KeyEvent`s.
         const REPORT_ALTERNATE_KEYS = 0b0000_0100;
         /// Represent all keyboard events as CSI-u sequences. This is required to get repeat/release
         /// events for plain-text keys.
@@ -444,6 +444,7 @@ impl Command for DisableBracketedPaste {
 /// * [kitty terminal](https://sw.kovidgoyal.net/kitty/)
 /// * [foot terminal](https://codeberg.org/dnkl/foot/issues/319)
 /// * [WezTerm terminal](https://wezfurlong.org/wezterm/config/lua/config/enable_kitty_keyboard.html)
+/// * [alacritty terminal](https://github.com/alacritty/alacritty/issues/6378)
 /// * [notcurses library](https://github.com/dankamongmen/notcurses/issues/2131)
 /// * [neovim text editor](https://github.com/neovim/neovim/pull/18181)
 /// * [kakoune text editor](https://github.com/mawww/kakoune/issues/4103)
