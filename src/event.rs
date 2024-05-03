@@ -444,7 +444,7 @@ impl Command for DisableBracketedPaste {
 /// * [kitty terminal](https://sw.kovidgoyal.net/kitty/)
 /// * [foot terminal](https://codeberg.org/dnkl/foot/issues/319)
 /// * [WezTerm terminal](https://wezfurlong.org/wezterm/config/lua/config/enable_kitty_keyboard.html)
-/// * [alacritty terminal](https://github.com/alacritty/alacritty/commit/cb03806e2ab85674c45e87e1bb24dfe2fd1a918c)
+/// * [alacritty terminal](https://github.com/alacritty/alacritty/issues/6378)
 /// * [notcurses library](https://github.com/dankamongmen/notcurses/issues/2131)
 /// * [neovim text editor](https://github.com/neovim/neovim/pull/18181)
 /// * [kakoune text editor](https://github.com/mawww/kakoune/issues/4103)
