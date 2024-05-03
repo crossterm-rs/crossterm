@@ -248,7 +248,7 @@ impl Command for SetUnderlineColor {
     fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Other,
-            "SetUnderlineColor not supported by winapi.",
+            "SetUnderlineColor not supported by windows-sys.",
         ))
     }
 }

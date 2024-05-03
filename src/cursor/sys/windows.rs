@@ -5,10 +5,13 @@ use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crossterm_winapi::{result, Coord, Handle, HandleType, ScreenBuffer};
-use winapi::{
-    shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+use windows_sys::Win32::Foundation::BOOL;
+use windows_sys::Win32::System::Console::{
+    SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD,
 };
+
+const FALSE: BOOL = 0;
+const TRUE: BOOL = 1;
 
 /// The position of the cursor, written when you save the cursor's position.
 ///
@@ -147,7 +150,7 @@ impl ScreenBufferCursor {
 
         unsafe {
             if result(SetConsoleCursorPosition(
-                **self.screen_buffer.handle(),
+                **self.screen_buffer.handle() as isize,
                 position,
             ))
             .is_err()
@@ -166,7 +169,7 @@ impl ScreenBufferCursor {
 
         unsafe {
             if result(SetConsoleCursorInfo(
-                **self.screen_buffer.handle(),
+                **self.screen_buffer.handle() as isize,
                 &cursor_info,
             ))
             .is_err()
