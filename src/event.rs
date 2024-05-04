@@ -920,7 +920,6 @@ impl Display for ModifierKeyCode {
     ///
     /// On other platforms, the super key is referred to as "Super".
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        #[cfg(target_os = "macos")]
         match self {
             ModifierKeyCode::LeftShift => write!(f, "Left Shift"),
             ModifierKeyCode::LeftHyper => write!(f, "Left Hyper"),
