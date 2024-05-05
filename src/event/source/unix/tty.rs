@@ -80,7 +80,7 @@ impl UnixInternalEventSource {
 /// only fills the given buffer and does not read beyond that.
 fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
     loop {
-        match fd.read(buf, buf.len()) {
+        match fd.read(buf) {
             Ok(x) => return Ok(x),
             Err(e) => match e.kind() {
                 io::ErrorKind::WouldBlock => return Ok(0),
