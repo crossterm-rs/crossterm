@@ -4,6 +4,7 @@
 #[cfg(feature = "events")]
 pub use self::unix::position;
 #[cfg(windows)]
+#[cfg(feature = "events")]
 pub use self::windows::position;
 #[cfg(windows)]
 pub(crate) use self::windows::{

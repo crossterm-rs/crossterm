@@ -140,8 +140,11 @@ mod tests {
 
     #[test]
     fn test_attributes_const() {
-      const ATTRIBUTES: Attributes = Attributes::none().with(Attribute::Bold).with(Attribute::Italic).without(Attribute::Bold);
-      assert!(!ATTRIBUTES.has(Attribute::Bold));
-      assert!(ATTRIBUTES.has(Attribute::Italic));
+        const ATTRIBUTES: Attributes = Attributes::none()
+            .with(Attribute::Bold)
+            .with(Attribute::Italic)
+            .without(Attribute::Bold);
+        assert!(!ATTRIBUTES.has(Attribute::Bold));
+        assert!(ATTRIBUTES.has(Attribute::Italic));
     }
 }

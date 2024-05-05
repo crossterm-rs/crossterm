@@ -120,23 +120,18 @@ impl EventSource for UnixInternalEventSource {
                         }
                     }
                     SIGNAL_TOKEN => {
-                        for signal in self.signals.pending() {
-                            match signal {
-                                signal_hook::consts::SIGWINCH => {
-                                    // TODO Should we remove tput?
-                                    //
-                                    // This can take a really long time, because terminal::size can
-                                    // launch new process (tput) and then it parses its output. It's
-                                    // not a really long time from the absolute time point of view, but
-                                    // it's a really long time from the mio, async-std/tokio executor, ...
-                                    // point of view.
-                                    let new_size = crate::terminal::size()?;
-                                    return Ok(Some(InternalEvent::Event(Event::Resize(
-                                        new_size.0, new_size.1,
-                                    ))));
-                                }
-                                _ => unreachable!("Synchronize signal registration & handling"),
-                            };
+                        if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
+                            // TODO Should we remove tput?
+                            //
+                            // This can take a really long time, because terminal::size can
+                            // launch new process (tput) and then it parses its output. It's
+                            // not a really long time from the absolute time point of view, but
+                            // it's a really long time from the mio, async-std/tokio executor, ...
+                            // point of view.
+                            let new_size = crate::terminal::size()?;
+                            return Ok(Some(InternalEvent::Event(Event::Resize(
+                                new_size.0, new_size.1,
+                            ))));
                         }
                     }
                     #[cfg(feature = "event-stream")]
