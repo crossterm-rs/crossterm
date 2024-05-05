@@ -910,7 +910,7 @@ impl Display for ModifierKeyCode {
     ///
     /// # Platform-specific Notes
     ///
-    /// On macOS, the control, alt, and super keys is displayed as "Control", "Option", and
+    /// On macOS, the control, alt, and super keys are displayed as "Control", "Option", and
     /// "Command" respectively. See
     /// <https://support.apple.com/guide/applestyleguide/welcome/1.0/web>.
     ///
@@ -920,7 +920,6 @@ impl Display for ModifierKeyCode {
     ///
     /// On other platforms, the super key is referred to as "Super".
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        #[cfg(target_os = "macos")]
         match self {
             ModifierKeyCode::LeftShift => write!(f, "Left Shift"),
             ModifierKeyCode::LeftHyper => write!(f, "Left Hyper"),
