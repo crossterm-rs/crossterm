@@ -241,9 +241,6 @@ pub mod style;
 /// A module to work with the terminal.
 pub mod terminal;
 
-/// A module to query if the current instance is a tty.
-pub mod tty;
-
 #[cfg(windows)]
 /// A module that exposes one function to check if the current terminal supports ANSI sequences.
 pub mod ansi_support;
