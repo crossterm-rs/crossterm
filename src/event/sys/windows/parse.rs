@@ -61,7 +61,7 @@ pub(crate) fn handle_key_event(
 }
 
 fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> Option<char> {
-    if new_surrogate < 0xDC00 {
+    if new_surrogate < LOW_SURROGATE_FIRST {
         // Discard any buffered surrogate value if another high surrogate comes.
         *surrogate_buffer = Some(new_surrogate);
         return None;
@@ -265,7 +265,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                     // are handled by their virtual key codes above.
                     get_char_for_key(key_event).map(KeyCode::Char)
                 }
-                surrogate @ 0xD800..=0xDFFF => {
+                surrogate @ HIGH_SURROGATE_FIRST..=LOW_SURROGATE_LAST => {
                     return Some(WindowsKeyEvent::Surrogate(surrogate));
                 }
                 unicode_scalar_value => {
@@ -373,3 +373,8 @@ fn parse_mouse_event_record(
         modifiers,
     }))
 }
+
+const HIGH_SURROGATE_FIRST: u16 = 0xD800;
+const LOW_SURROGATE_FIRST: u16 = 0xDC00;
+const LOW_SURROGATE_LAST: u16 = 0xDFFF;
+
