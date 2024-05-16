@@ -71,13 +71,13 @@ pub(crate) mod termios {
     pub(crate) fn tcsetattr(
         fd: impl AsFd,
         optional: OptionalActions,
-        termios: &Termios
+        termios: &Termios,
     ) -> Result<()> {
         unsafe {
             cvt(libc::tcsetattr(
                 fd.as_fd().as_raw_fd(),
                 optional as _,
-                termios
+                termios,
             ))?;
 
             Ok(())
