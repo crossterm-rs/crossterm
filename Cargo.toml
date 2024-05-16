@@ -10,7 +10,7 @@ keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2021"
-rust-version = "1.58.0"
+rust-version = "1.63.0"
 categories = ["command-line-interface", "command-line-utilities"]
 
 [lib]
