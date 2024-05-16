@@ -10,7 +10,7 @@ use libc::{
     TIOCGWINSZ,
 };
 use parking_lot::Mutex;
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 use rustix::{
     fd::AsFd,
     termios::{Termios, Winsize},
@@ -42,7 +42,7 @@ impl From<winsize> for WindowSize {
         }
     }
 }
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 impl From<Winsize> for WindowSize {
     fn from(size: Winsize) -> WindowSize {
         WindowSize {
@@ -80,7 +80,7 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
     Err(std::io::Error::last_os_error().into())
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 pub(crate) fn window_size() -> io::Result<WindowSize> {
     let file = File::open("/dev/tty").map(|file| (FileDesc::Owned(file.into())));
     let fd = if let Ok(file) = &file {
@@ -120,7 +120,7 @@ pub(crate) fn enable_raw_mode() -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 pub(crate) fn enable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
     if original_mode.is_some() {
@@ -154,7 +154,7 @@ pub(crate) fn disable_raw_mode() -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 pub(crate) fn disable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
     if let Some(original_mode_ios) = original_mode.as_ref() {
@@ -166,13 +166,13 @@ pub(crate) fn disable_raw_mode() -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 fn get_terminal_attr(fd: impl AsFd) -> io::Result<Termios> {
     let result = rustix::termios::tcgetattr(fd)?;
     Ok(result)
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
     rustix::termios::tcsetattr(fd, rustix::termios::OptionalActions::Now, termios)?;
     Ok(())

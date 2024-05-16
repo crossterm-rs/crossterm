@@ -34,7 +34,7 @@ impl<S: AsRawFd> IsTty for S {
     }
 }
 
-#[cfg(all(unix, feature = "rustix"))]
+#[cfg(all(unix, not(feature = "libc")))]
 impl<S: AsRawFd> IsTty for S {
     fn is_tty(&self) -> bool {
         let fd = self.as_raw_fd();

@@ -2,7 +2,7 @@ use std::io;
 
 #[cfg(feature = "libc")]
 use libc::size_t;
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 use rustix::fd::{AsFd, AsRawFd, BorrowedFd, OwnedFd, RawFd};
 #[cfg(feature = "libc")]
 use std::{
@@ -24,7 +24,7 @@ pub struct FileDesc {
     close_on_drop: bool,
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 pub enum FileDesc {
     Owned(OwnedFd),
     Static(BorrowedFd<'static>),
@@ -64,7 +64,7 @@ impl FileDesc {
     }
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 impl FileDesc {
     pub fn read(&self, buffer: &mut [u8]) -> io::Result<usize> {
         let fd = match self {
@@ -103,7 +103,7 @@ impl AsRawFd for FileDesc {
     }
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 impl AsFd for FileDesc {
     fn as_fd(&self) -> BorrowedFd<'_> {
         match self {
@@ -132,7 +132,7 @@ pub fn tty_fd() -> io::Result<FileDesc> {
     Ok(FileDesc::new(fd, close_on_drop))
 }
 
-#[cfg(feature = "rustix")]
+#[cfg(not(feature = "libc"))]
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
 pub fn tty_fd() -> io::Result<FileDesc> {
     use std::fs::File;

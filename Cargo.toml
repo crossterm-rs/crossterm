@@ -27,7 +27,7 @@ all-features = true
 # Features
 #
 [features]
-default = ["bracketed-paste", "windows", "events", "libc"]
+default = ["bracketed-paste", "windows", "events"]
 windows = [
     "dep:winapi",
     "dep:crossterm_winapi",
@@ -71,12 +71,14 @@ crossterm_winapi = { version = "0.9.1", optional = true }
 # UNIX dependencies
 #
 [target.'cfg(unix)'.dependencies]
+# Default to using rustix for UNIX systems, but provide an option to use libc for backwards
+# compatibility.
 libc = { version = "0.2", default-features = false, optional = true }
 rustix = { version = "0.38.34", default-features = false, features = [
     "std",
     "stdio",
     "termios",
-], optional = true }
+] }
 signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
 mio = { version = "0.8", features = ["os-poll"], optional = true }
