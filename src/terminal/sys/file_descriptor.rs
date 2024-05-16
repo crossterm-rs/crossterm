@@ -1,6 +1,6 @@
+use crate::sys;
+use std::os::unix::io::{AsFd, AsRawFd, BorrowedFd, OwnedFd, RawFd};
 use std::{fs, io};
-
-use rustix::fd::{AsFd, AsRawFd, BorrowedFd, OwnedFd, RawFd};
 
 /// A file descriptor wrapper.
 ///
@@ -19,7 +19,7 @@ impl FileDesc {
             Self::Static(fd) => fd.as_fd(),
         };
 
-        let result = rustix::io::read(fd, buffer)?;
+        let result = sys::io::read(fd, buffer)?;
         Ok(result)
     }
 
@@ -49,8 +49,8 @@ impl AsRawFd for FileDesc {
 
 /// Creates a file descriptor pointing to the standard input or `/dev/tty`.
 pub fn tty_fd() -> io::Result<FileDesc> {
-    if rustix::termios::isatty(rustix::stdio::stdin()) {
-        Ok(FileDesc::Static(rustix::stdio::stdin()))
+    if sys::termios::isatty(sys::stdio::stdin()) {
+        Ok(FileDesc::Static(sys::stdio::stdin()))
     } else {
         Ok(FileDesc::Owned(
             fs::OpenOptions::new()

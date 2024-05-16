@@ -1,15 +1,16 @@
 //! UNIX related logic for terminal manipulation.
 
+use crate::sys::{
+    self,
+    termios::{Termios, Winsize},
+};
 use crate::terminal::{
     sys::file_descriptor::{tty_fd, FileDesc},
     WindowSize,
 };
 use parking_lot::Mutex;
-use rustix::{
-    fd::AsFd,
-    termios::{Termios, Winsize},
-};
 use std::fs::File;
+use std::os::unix::io::AsFd;
 
 use std::{io, process};
 
@@ -39,10 +40,10 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
         file.as_fd()
     } else {
         // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
-        rustix::stdio::stdout()
+        sys::stdio::stdout()
     };
 
-    let size = rustix::termios::tcgetwinsize(fd)?;
+    let size = sys::termios::tcgetwinsize(fd)?;
     Ok(size.into())
 }
 
@@ -66,7 +67,13 @@ pub(crate) fn enable_raw_mode() -> io::Result<()> {
     let mut ios = get_terminal_attr(&tty)?;
     let original_mode_ios = ios.clone();
 
+    #[cfg(feature = "rustix")]
     ios.make_raw();
+    #[cfg(not(feature = "rustix"))]
+    unsafe {
+        libc::cfmakeraw(&mut ios);
+    }
+
     set_terminal_attr(&tty, &ios)?;
 
     // Keep it last - set the original mode only if we were able to switch to the raw mode
@@ -201,11 +208,11 @@ fn tput_size() -> Option<(u16, u16)> {
 }
 
 fn get_terminal_attr(fd: impl AsFd) -> io::Result<Termios> {
-    let result = rustix::termios::tcgetattr(fd)?;
+    let result = sys::termios::tcgetattr(fd)?;
     Ok(result)
 }
 
 fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
-    rustix::termios::tcsetattr(fd, rustix::termios::OptionalActions::Now, termios)?;
+    sys::termios::tcsetattr(fd, sys::termios::OptionalActions::Now, termios)?;
     Ok(())
 }

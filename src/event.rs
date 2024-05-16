@@ -1150,7 +1150,6 @@ pub(crate) enum InternalEvent {
 #[cfg(test)]
 mod tests {
     use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
 
     use super::*;
     use KeyCode::*;

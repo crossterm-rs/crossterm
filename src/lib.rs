@@ -249,6 +249,8 @@ pub mod tty;
 pub mod ansi_support;
 mod command;
 pub(crate) mod macros;
+#[cfg(unix)]
+mod sys;
 
 #[cfg(all(windows, not(feature = "windows")))]
 compile_error!("Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows.");

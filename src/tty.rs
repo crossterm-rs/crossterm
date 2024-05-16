@@ -30,7 +30,7 @@ pub trait IsTty {
 impl<S: AsRawFd> IsTty for S {
     fn is_tty(&self) -> bool {
         let fd = self.as_raw_fd();
-        rustix::termios::isatty(unsafe { std::os::unix::io::BorrowedFd::borrow_raw(fd) })
+        crate::sys::termios::isatty(unsafe { std::os::unix::io::BorrowedFd::borrow_raw(fd) })
     }
 }
 
