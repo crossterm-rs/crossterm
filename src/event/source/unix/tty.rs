@@ -1,5 +1,9 @@
+#[cfg(feature = "libc")]
 use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
+
+#[cfg(not(feature = "libc"))]
+use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
 
@@ -38,7 +42,7 @@ const TTY_BUFFER_SIZE: usize = 1_024;
 pub(crate) struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
-    tty: FileDesc,
+    tty: FileDesc<'static>,
     winch_signal_receiver: UnixStream,
     #[cfg(feature = "event-stream")]
     wake_pipe: WakePipe,
@@ -56,7 +60,7 @@ impl UnixInternalEventSource {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> io::Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc<'static>) -> io::Result<Self> {
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
@@ -64,7 +68,10 @@ impl UnixInternalEventSource {
             winch_signal_receiver: {
                 let (receiver, sender) = nonblocking_unix_pair()?;
                 // Unregistering is unnecessary because EventSource is a singleton
+                #[cfg(feature = "libc")]
                 pipe::register(libc::SIGWINCH, sender)?;
+                #[cfg(not(feature = "libc"))]
+                pipe::register(rustix::process::Signal::Winch as i32, sender)?;
                 receiver
             },
             #[cfg(feature = "event-stream")]
@@ -157,7 +164,10 @@ impl EventSource for UnixInternalEventSource {
                 }
             }
             if fds[1].revents & POLLIN != 0 {
+                #[cfg(feature = "libc")]
                 let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
+                #[cfg(not(feature = "libc"))]
+                let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
                 // TODO Should we remove tput?

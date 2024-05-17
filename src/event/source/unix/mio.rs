@@ -26,7 +26,7 @@ pub(crate) struct UnixInternalEventSource {
     events: Events,
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
-    tty_fd: FileDesc,
+    tty_fd: FileDesc<'static>,
     signals: Signals,
     #[cfg(feature = "event-stream")]
     waker: Waker,
@@ -37,7 +37,7 @@ impl UnixInternalEventSource {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> io::Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc<'static>) -> io::Result<Self> {
         let poll = Poll::new()?;
         let registry = poll.registry();
 
