@@ -13,7 +13,7 @@ use std::fs::File;
 
 use std::os::unix::io::{IntoRawFd, RawFd};
 
-use std::{io, mem, process};
+use std::{env, io, mem, process};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
 // None -> we're not in the raw mode
@@ -53,6 +53,10 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
     };
 
     if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
+        if size.ws_row == 0 && size.ws_col == 0 {
+            size.ws_row = env::var("LINES").unwrap_or("0".to_string()).parse::<u16>().unwrap();
+            size.ws_col = env::var("COLUMNS").unwrap_or("0".to_string()).parse::<u16>().unwrap();
+        }
         return Ok(size.into());
     }
 
