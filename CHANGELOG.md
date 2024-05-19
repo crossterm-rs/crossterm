@@ -1,3 +1,8 @@
+# Unreleased
+
+- Use Rustix by default instead of libc. Libc can be re-enabled if necessary with the libc feature flag.
+- `FileDesc` now requires a lifetime annotation.
+
 # Version 0.27.1
 
 ## Added ⭐
