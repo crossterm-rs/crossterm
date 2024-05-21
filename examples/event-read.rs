@@ -104,7 +104,6 @@ fn main() -> io::Result<()> {
     execute!(
         stdout,
         DisableBracketedPaste,
-        PopKeyboardEnhancementFlags,
         DisableFocusChange,
         DisableMouseCapture
     )?;
