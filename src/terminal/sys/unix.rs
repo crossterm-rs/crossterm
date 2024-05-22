@@ -53,9 +53,13 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
     };
 
     if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
+        // For some terminals (for example Emacs eshell/eterm) the
+        // ioctl with TIOCGWINSZ might falsely return 0 columns and 0
+        // rows. If this happens we try to use environment variables
+        // to determine the window size.
         if size.ws_row == 0 && size.ws_col == 0 {
-            size.ws_row = env::var("LINES").unwrap_or("0".to_string()).parse::<u16>().unwrap();
-            size.ws_col = env::var("COLUMNS").unwrap_or("0".to_string()).parse::<u16>().unwrap();
+            size.ws_row = env::var("LINES").map_or(Ok(0), |v| v.parse()).unwrap_or(0);
+            size.ws_col = env::var("COLUMNS").map_or(Ok(0), |v| v.parse()).unwrap_or(0);
         }
         return Ok(size.into());
     }
