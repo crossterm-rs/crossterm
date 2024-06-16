@@ -1,7 +1,5 @@
 # Unreleased
 
-
-
 # Version 0.28
 
 ## Added ⭐
