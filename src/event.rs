@@ -17,20 +17,32 @@
 //!
 //! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events to work properly**
 //!
-//! ## Mouse Events
+//! ## Mouse and Focus Events
 //!
-//! Mouse events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) command. See [Command API](../index.html#command-api)
-//! for more information.
+//! Mouse and focus events are not enabled by default. You have to enable them with the
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) / [`EnableFocusChange`](struct.EnableFocusChange.html) command.
+//! See [Command API](../index.html#command-api) for more information.
 //!
 //! ## Examples
 //!
 //! Blocking read:
 //!
 //! ```no_run
-//! use crossterm::event::{read, Event};
+//! use crossterm::{
+//!     event::{
+//!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
+//!         EnableFocusChange, EnableMouseCapture, Event,
+//!     },
+//!     execute,
+//! };
 //!
 //! fn print_events() -> std::io::Result<()> {
+//!     execute!(
+//!          std::io::stdout(),
+//!          EnableBracketedPaste,
+//!          EnableFocusChange,
+//!          EnableMouseCapture
+//!     )?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
@@ -43,6 +55,12 @@
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!         }
 //!     }
+//!     execute!(
+//!         std::io::stdout(),
+//!         DisableBracketedPaste,
+//!         DisableFocusChange,
+//!         DisableMouseCapture
+//!     )?;
 //!     Ok(())
 //! }
 //! ```
@@ -52,9 +70,21 @@
 //! ```no_run
 //! use std::{time::Duration, io};
 //!
-//! use crossterm::event::{poll, read, Event};
+//! use crossterm::{
+//!     event::{
+//!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
+//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
+//!     },
+//!     execute,
+//! };
 //!
 //! fn print_events() -> io::Result<()> {
+//!     execute!(
+//!          std::io::stdout(),
+//!          EnableBracketedPaste,
+//!          EnableFocusChange,
+//!          EnableMouseCapture
+//!     )?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
 //!         if poll(Duration::from_millis(500))? {
@@ -73,6 +103,12 @@
 //!             // Timeout expired and no `Event` is available
 //!         }
 //!     }
+//!     execute!(
+//!         std::io::stdout(),
+//!         DisableBracketedPaste,
+//!         DisableFocusChange,
+//!         DisableMouseCapture
+//!     )?;
 //!     Ok(())
 //! }
 //! ```
