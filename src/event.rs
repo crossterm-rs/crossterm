@@ -721,11 +721,11 @@ bitflags! {
         /// Caps Lock was enabled for this key event.
         ///
         /// **Note:** this is set for the initial press of Caps Lock itself.
-        const CAPS_LOCK = 0b0000_1000;
+        const CAPS_LOCK = 0b0000_0010;
         /// Num Lock was enabled for this key event.
         ///
         /// **Note:** this is set for the initial press of Num Lock itself.
-        const NUM_LOCK = 0b0000_1000;
+        const NUM_LOCK = 0b0000_0100;
         const NONE = 0b0000_0000;
     }
 }
