@@ -28,6 +28,7 @@
 //! Blocking read:
 //!
 //! ```no_run
+//! #![cfg(feature = "bracketed-paste")]
 //! use crossterm::{
 //!     event::{
 //!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
@@ -68,6 +69,7 @@
 //! Non-blocking read:
 //!
 //! ```no_run
+//! #![cfg(feature = "bracketed-paste")]
 //! use std::{time::Duration, io};
 //!
 //! use crossterm::{
