@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.27.0"
+version = "0.28.0"
 authors = ["T. Post"]
 description = "A crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
