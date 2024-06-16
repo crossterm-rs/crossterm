@@ -10,7 +10,7 @@ keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2021"
-rust-version = "1.58.0"
+rust-version = "1.63.0"
 categories = ["command-line-interface", "command-line-utilities"]
 
 [lib]
@@ -71,7 +71,14 @@ crossterm_winapi = { version = "0.9.1", optional = true }
 # UNIX dependencies
 #
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
+# Default to using rustix for UNIX systems, but provide an option to use libc for backwards
+# compatibility.
+libc = { version = "0.2", default-features = false, optional = true }
+rustix = { version = "0.38.34", default-features = false, features = [
+    "std",
+    "stdio",
+    "termios",
+] }
 signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
 mio = { version = "0.8", features = ["os-poll"], optional = true }
