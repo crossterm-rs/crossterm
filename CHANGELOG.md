@@ -1,7 +1,26 @@
 # Unreleased
 
-- Use Rustix by default instead of libc. Libc can be re-enabled if necessary with the libc feature flag.
+
+
+# Version 0.28
+
+## Added ⭐
+- Capture double click mouse events on windows (#826)
+- (De)serialize Reset color (#824)
+- Add functions to allow constructing `Attributes` in a const context (#817)
+- Implement `Display` for `KeyCode` and `KeyModifiers` (#862)
+
+## Changed ⚙️
+
+- Use Rustix by default instead of libc. Libc can be re-enabled if necessary with the `libc` feature flag (#892)
 - `FileDesc` now requires a lifetime annotation.
+- Improve available color detection (#885)
+- Speed up `SetColors` by ~15-25% (#879)
+- Remove unsafe and unnecessary size argument from `FileDesc::read()` (#821)
+
+## Breaking ⚠️
+- Fix duplicate bit masks for caps lock and num lock (#863).
+  This breaks serialization of `KeyEventState`
 
 # Version 0.27.1
 
@@ -18,7 +37,7 @@
 - Add `window_size` function to fetch pixel width/height of screen for more sophisticated rendering in terminals.
 - Add support for deserializing hex color strings to `Color` e.g #fffff.
 
-## Changes
+## Changes ⚙️
 
 - Make the events module an optional feature `events` (to make crossterm more lightweight) (#776)
 
