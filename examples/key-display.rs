@@ -35,9 +35,9 @@ fn print_events() -> io::Result<()> {
             Event::Key(event) if event.kind == KeyEventKind::Press => {
                 print!("Key pressed: ");
                 if event.modifiers != KeyModifiers::NONE {
-                    print!("{}+", event.modifiers);
+                    print!("{:?}+", event.modifiers);
                 }
-                println!("{}\r", event.code);
+                println!("{:?}\r", event.code);
                 if event.code == KeyCode::Esc {
                     break;
                 }
