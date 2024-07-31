@@ -162,7 +162,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> std::io::Result<()> {
 
     let width = width as i16;
     if current_size.width < window.left + width {
-        if window.left >= i16::max_value() - width {
+        if window.left >= i16::MAX - width {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "terminal width too large",
@@ -174,7 +174,7 @@ pub(crate) fn set_size(width: u16, height: u16) -> std::io::Result<()> {
     }
     let height = height as i16;
     if current_size.height < window.top + height {
-        if window.top >= i16::max_value() - height {
+        if window.top >= i16::MAX - height {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "terminal height too large",

@@ -68,7 +68,7 @@ jobs:
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features with use-dev-tty feature enabled
       if: matrix.os != 'windows-2019'
-      run: cargo test --no-default-features --features "use-dev-tty events" -- --nocapture --test-threads 1
+      run: cargo test --no-default-features --features "use-dev-tty events bracketed-paste" -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features with windows feature enabled
       if: matrix.os == 'windows-2019'
