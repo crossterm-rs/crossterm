@@ -88,7 +88,7 @@ macro_rules! queue {
 /// execute!(stdout(), Print("sum:\n".to_string()));
 ///
 /// // will be executed directly
-/// execute!(stdout(), Print("1 + 1= ".to_string()), Print((1+1).to_string()));
+/// execute!(stdout(), Print("1 + 1 = ".to_string()), Print((1+1).to_string()));
 ///
 /// // ==== Output ====
 /// // sum:
@@ -149,7 +149,7 @@ mod tests {
 
     // Helper for execute tests to confirm flush
     #[derive(Default, Debug, Clone)]
-    pub(self) struct FakeWrite {
+    struct FakeWrite {
         buffer: String,
         flushed: bool,
     }
@@ -238,11 +238,9 @@ mod tests {
         use std::fmt;
 
         use std::cell::RefCell;
-        use std::fmt::Debug;
 
         use super::FakeWrite;
         use crate::command::Command;
-        use crate::error::Result as CrosstermResult;
 
         // We need to test two different APIs: WinAPI and the write api. We
         // don't know until runtime which we're supporting (via
@@ -274,7 +272,7 @@ mod tests {
                 f.write_str(self.value)
             }
 
-            fn execute_winapi(&self) -> CrosstermResult<()> {
+            fn execute_winapi(&self) -> std::io::Result<()> {
                 self.stream.borrow_mut().push(self.value);
                 Ok(())
             }
@@ -293,9 +291,9 @@ mod tests {
         // If the stream was populated, it tests that the two arrays are equal.
         // If the writer was populated, it tests that the contents of the
         // write buffer are equal to the concatenation of `stream_result`.
-        fn test_harness<E: Debug>(
+        fn test_harness(
             stream_result: &[&'static str],
-            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> Result<(), E>,
+            test: impl FnOnce(&mut FakeWrite, &mut WindowsEventStream) -> std::io::Result<()>,
         ) {
             let mut stream = WindowsEventStream::default();
             let mut writer = FakeWrite::default();

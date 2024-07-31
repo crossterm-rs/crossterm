@@ -63,27 +63,27 @@
 //! ## Examples
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
-//! use crossterm::{execute, Result, terminal::{ScrollUp, SetSize, size}};
+//! use std::io::{self, Write};
+//! use crossterm::{execute, terminal::{ScrollUp, SetSize, size}};
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> io::Result<()> {
 //!     let (cols, rows) = size()?;
 //!     // Resize terminal and scroll up.
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         SetSize(10, 10),
 //!         ScrollUp(5)
 //!     )?;
 //!
 //!     // Be a good citizen, cleanup
-//!     execute!(stdout(), SetSize(cols, rows))?;
+//!     execute!(io::stdout(), SetSize(cols, rows))?;
 //!     Ok(())
 //! }
 //! ```
 //!
 //! For manual execution control check out [crossterm::queue](../macro.queue.html).
 
-use std::fmt;
+use std::{fmt, io};
 
 #[cfg(windows)]
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
@@ -94,16 +94,17 @@ use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
 use crate::Command;
-use crate::{csi, impl_display, Result};
+use crate::{csi, impl_display};
 
 pub(crate) mod sys;
 
+#[cfg(feature = "events")]
 pub use sys::supports_keyboard_enhancement;
 
 /// Tells whether the raw mode is enabled.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn is_raw_mode_enabled() -> Result<bool> {
+pub fn is_raw_mode_enabled() -> io::Result<bool> {
     #[cfg(unix)]
     {
         Ok(sys::is_raw_mode_enabled())
@@ -118,22 +119,39 @@ pub fn is_raw_mode_enabled() -> Result<bool> {
 /// Enables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn enable_raw_mode() -> Result<()> {
+pub fn enable_raw_mode() -> io::Result<()> {
     sys::enable_raw_mode()
 }
 
 /// Disables raw mode.
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
-pub fn disable_raw_mode() -> Result<()> {
+pub fn disable_raw_mode() -> io::Result<()> {
     sys::disable_raw_mode()
 }
 
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
-pub fn size() -> Result<(u16, u16)> {
+pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
+}
+
+#[derive(Debug)]
+pub struct WindowSize {
+    pub rows: u16,
+    pub columns: u16,
+    pub width: u16,
+    pub height: u16,
+}
+
+/// Returns the terminal size `[WindowSize]`.
+///
+/// The width and height in pixels may not be reliably implemented or default to 0.
+/// For unix, https://man7.org/linux/man-pages/man4/tty_ioctl.4.html documents them as "unused".
+/// For windows it is not implemented.
+pub fn window_size() -> io::Result<WindowSize> {
+    sys::window_size()
 }
 
 /// Disables line wrapping.
@@ -146,7 +164,7 @@ impl Command for DisableLineWrap {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
         let new_mode = console_mode.mode()? & !ENABLE_WRAP_AT_EOL_OUTPUT;
@@ -165,7 +183,7 @@ impl Command for EnableLineWrap {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
         let new_mode = console_mode.mode()? | ENABLE_WRAP_AT_EOL_OUTPUT;
@@ -184,15 +202,15 @@ impl Command for EnableLineWrap {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use std::io::{self, Write};
+/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<()> {
-///     execute!(stdout(), EnterAlternateScreen)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
 ///
-///     execute!(stdout(), LeaveAlternateScreen)
+///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
 ///
@@ -205,7 +223,7 @@ impl Command for EnterAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         let alternate_screen = ScreenBuffer::create()?;
         alternate_screen.show()?;
         Ok(())
@@ -222,15 +240,15 @@ impl Command for EnterAlternateScreen {
 /// # Examples
 ///
 /// ```no_run
-/// use std::io::{stdout, Write};
-/// use crossterm::{execute, Result, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
+/// use std::io::{self, Write};
+/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
-/// fn main() -> Result<()> {
-///     execute!(stdout(), EnterAlternateScreen)?;
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), EnterAlternateScreen)?;
 ///
 ///     // Do anything on the alternate screen
 ///
-///     execute!(stdout(), LeaveAlternateScreen)
+///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
 ///
@@ -243,7 +261,7 @@ impl Command for LeaveAlternateScreen {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
         Ok(())
@@ -285,7 +303,7 @@ impl Command for ScrollUp {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::scroll_up(self.0)
     }
 }
@@ -307,7 +325,7 @@ impl Command for ScrollDown {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::scroll_down(self.0)
     }
 }
@@ -335,7 +353,7 @@ impl Command for Clear {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::clear(self.0)
     }
 }
@@ -354,7 +372,7 @@ impl Command for SetSize {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::set_size(self.0, self.1)
     }
 }
@@ -373,8 +391,114 @@ impl<T: fmt::Display> Command for SetTitle<T> {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> io::Result<()> {
         sys::set_window_title(&self.0)
+    }
+}
+
+/// A command that instructs the terminal emulator to begin a synchronized frame.
+///
+/// # Notes
+///
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered alternate screen.
+///
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
+/// renders its current state. With applications updating the screen at a higher frequency this can cause tearing.
+///
+/// This mode attempts to mitigate that.
+///
+/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
+/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
+/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
+/// by unintentionally rendering in the middle a of an application screen update.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io::{self, Write};
+/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
+///
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
+///
+///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
+///
+///     execute!(io::stdout(), EndSynchronizedUpdate)?;
+///     Ok(())
+/// }
+/// ```
+///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BeginSynchronizedUpdate;
+
+impl Command for BeginSynchronizedUpdate {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2026h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
+    }
+}
+
+/// A command that instructs the terminal to end a synchronized frame.
+///
+/// # Notes
+///
+/// * Commands must be executed/queued for execution otherwise they do nothing.
+/// * Use [BeginSynchronizedUpdate](./struct.BeginSynchronizedUpdate.html) to enter the alternate screen.
+///
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
+/// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+///
+/// This mode attempts to mitigate that.
+///
+/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
+/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
+/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
+/// by unintentionally rendering in the middle a of an application screen update.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io::{self, Write};
+/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
+///
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
+///
+///     // Anything performed here will not be rendered until EndSynchronizedUpdate is called.
+///
+///     execute!(io::stdout(), EndSynchronizedUpdate)?;
+///     Ok(())
+/// }
+/// ```
+///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EndSynchronizedUpdate;
+
+impl Command for EndSynchronizedUpdate {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2026l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn is_ansi_code_supported(&self) -> bool {
+        true
     }
 }
 

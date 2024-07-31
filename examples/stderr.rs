@@ -8,7 +8,7 @@
 //!
 //! cargo run --example stderr
 
-use std::io::{stderr, Write};
+use std::io;
 
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
@@ -17,7 +17,6 @@ use crossterm::{
     execute, queue,
     style::Print,
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
-    Result,
 };
 
 const TEXT: &str = r#"
@@ -46,9 +45,9 @@ Hit any key to quit this screen:
 Any other key will print this text (so that you may copy-paste)
 "#;
 
-fn run_app<W>(write: &mut W) -> Result<char>
+fn run_app<W>(write: &mut W) -> io::Result<char>
 where
-    W: Write,
+    W: io::Write,
 {
     queue!(
         write,
@@ -73,7 +72,7 @@ where
     Ok(user_char)
 }
 
-pub fn read_char() -> Result<char> {
+pub fn read_char() -> io::Result<char> {
     loop {
         if let Event::Key(KeyEvent {
             code: KeyCode::Char(c),
@@ -87,7 +86,7 @@ pub fn read_char() -> Result<char> {
 
 // cargo run --example stderr
 fn main() {
-    match run_app(&mut stderr()).unwrap() {
+    match run_app(&mut io::stderr()).unwrap() {
         '1' => print!(".."),
         '2' => print!("/"),
         '3' => print!("~"),

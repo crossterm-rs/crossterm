@@ -1,13 +1,14 @@
 #![allow(clippy::cognitive_complexity)]
 
-use std::io::{self, Write};
+use std::io;
 
+use crossterm::event::KeyEventKind;
 pub use crossterm::{
     cursor,
     event::{self, Event, KeyCode, KeyEvent},
     execute, queue, style,
     terminal::{self, ClearType},
-    Command, Result,
+    Command,
 };
 
 #[macro_use]
@@ -27,13 +28,14 @@ Available tests:
 2. color (foreground, background)
 3. attributes (bold, italic, ...)
 4. input
+5. synchronized output
 
 Select test to run ('1', '2', ...) or hit 'q' to quit.
 "#;
 
-fn run<W>(w: &mut W) -> Result<()>
+fn run<W>(w: &mut W) -> io::Result<()>
 where
-    W: Write,
+    W: io::Write,
 {
     execute!(w, terminal::EnterAlternateScreen)?;
 
@@ -59,7 +61,11 @@ where
             '2' => test::color::run(w)?,
             '3' => test::attribute::run(w)?,
             '4' => test::event::run(w)?,
-            'q' => break,
+            '5' => test::synchronized_output::run(w)?,
+            'q' => {
+                execute!(w, cursor::SetCursorStyle::DefaultUserShape).unwrap();
+                break;
+            }
             _ => {}
         };
     }
@@ -74,11 +80,13 @@ where
     terminal::disable_raw_mode()
 }
 
-pub fn read_char() -> Result<char> {
+pub fn read_char() -> std::io::Result<char> {
     loop {
         if let Ok(Event::Key(KeyEvent {
             code: KeyCode::Char(c),
-            ..
+            kind: KeyEventKind::Press,
+            modifiers: _,
+            state: _,
         })) = event::read()
         {
             return Ok(c);
@@ -86,11 +94,11 @@ pub fn read_char() -> Result<char> {
     }
 }
 
-pub fn buffer_size() -> Result<(u16, u16)> {
+pub fn buffer_size() -> io::Result<(u16, u16)> {
     terminal::size()
 }
 
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     let mut stdout = io::stdout();
     run(&mut stdout)
 }

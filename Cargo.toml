@@ -1,6 +1,6 @@
 [package]
 name = "crossterm"
-version = "0.25.0"
+version = "0.28.0"
 authors = ["T. Post"]
 description = "A crossplatform terminal library for manipulating terminals."
 repository = "https://github.com/crossterm-rs/crossterm"
@@ -10,6 +10,7 @@ keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
 edition = "2021"
+rust-version = "1.63.0"
 categories = ["command-line-interface", "command-line-utilities"]
 
 [lib]
@@ -26,16 +27,29 @@ all-features = true
 # Features
 #
 [features]
-default = ["bracketed-paste"]
-bracketed-paste = []
-event-stream = ["futures-core"]
-use-dev-tty = ["filedescriptor"]
+default = ["bracketed-paste", "windows", "events"]
+windows = [
+    "dep:winapi",
+    "dep:crossterm_winapi",
+] # Disables winapi dependencies from being included into the binary (SHOULD NOT be disabled on windows).
+bracketed-paste = [
+] # Enables triggering a `Event::Paste` when pasting text into the terminal.
+event-stream = ["dep:futures-core", "events"] # Enables async events
+use-dev-tty = [
+    "filedescriptor",
+] # Enables raw file descriptor polling / selecting instead of mio.
+events = [
+    "dep:mio",
+    "dep:signal-hook",
+    "dep:signal-hook-mio",
+] # Enables reading input/events from the system.
+serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
 
 #
 # Shared dependencies
 #
 [dependencies]
-bitflags = "1.3"
+bitflags = { version = "2.3" }
 parking_lot = "0.12"
 
 # optional deps only added when requested
@@ -48,41 +62,73 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 [target.'cfg(windows)'.dependencies.winapi]
 version = "0.3.9"
 features = ["winuser", "winerror"]
+optional = true
 
 [target.'cfg(windows)'.dependencies]
-crossterm_winapi = "0.9"
+crossterm_winapi = { version = "0.9.1", optional = true }
 
 #
 # UNIX dependencies
 #
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
-signal-hook = { version = "0.3.13" }
+# Default to using rustix for UNIX systems, but provide an option to use libc for backwards
+# compatibility.
+libc = { version = "0.2", default-features = false, optional = true }
+rustix = { version = "0.38.34", default-features = false, features = [
+    "std",
+    "stdio",
+    "termios",
+] }
+signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
-mio = { version = "0.8", features = ["os-poll"] }
-signal-hook-mio = { version = "0.2.3", features = ["support-v0_8"] }
+mio = { version = "0.8", features = ["os-poll"], optional = true }
+signal-hook-mio = { version = "0.2.3", features = [
+    "support-v0_8",
+], optional = true }
 
 #
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "1.16", features = ["full"] }
+tokio = { version = "1.25", features = ["full"] }
 futures = "0.3"
 futures-timer = "3.0"
-async-std = "1.10"
+async-std = "1.12"
 serde_json = "1.0"
+serial_test = "2.0.0"
+temp-env = "0.3.6"
 
 #
 # Examples
 #
 [[example]]
 name = "event-read"
-required-features = ["bracketed-paste"]
+required-features = ["bracketed-paste", "events"]
+
+[[example]]
+name = "event-match-modifiers"
+required-features = ["bracketed-paste", "events"]
+
+[[example]]
+name = "event-poll-read"
+required-features = ["bracketed-paste", "events"]
 
 [[example]]
 name = "event-stream-async-std"
-required-features = ["event-stream"]
+required-features = ["event-stream", "events"]
 
 [[example]]
 name = "event-stream-tokio"
-required-features = ["event-stream"]
+required-features = ["event-stream", "events"]
+
+[[example]]
+name = "event-read-char-line"
+required-features = ["events"]
+
+[[example]]
+name = "stderr"
+required-features = ["events"]
+
+[[example]]
+name = "key-display"
+required-features = ["events"]

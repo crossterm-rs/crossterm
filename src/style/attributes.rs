@@ -62,6 +62,26 @@ impl BitXor for Attributes {
 }
 
 impl Attributes {
+    /// Returns the empty bitset.
+    #[inline(always)]
+    pub const fn none() -> Self {
+        Self(0)
+    }
+
+    /// Returns a copy of the bitset with the given attribute set.
+    /// If it's already set, this returns the bitset unmodified.
+    #[inline(always)]
+    pub const fn with(self, attribute: Attribute) -> Self {
+        Self(self.0 | attribute.bytes())
+    }
+
+    /// Returns a copy of the bitset with the given attribute unset.
+    /// If it's not set, this returns the bitset unmodified.
+    #[inline(always)]
+    pub const fn without(self, attribute: Attribute) -> Self {
+        Self(self.0 & !attribute.bytes())
+    }
+
     /// Sets the attribute.
     /// If it's already set, this does nothing.
     #[inline(always)]
@@ -116,5 +136,15 @@ mod tests {
         assert!(!attributes.has(Attribute::Italic));
         attributes.toggle(Attribute::Bold);
         assert!(attributes.is_empty());
+    }
+
+    #[test]
+    fn test_attributes_const() {
+        const ATTRIBUTES: Attributes = Attributes::none()
+            .with(Attribute::Bold)
+            .with(Attribute::Italic)
+            .without(Attribute::Bold);
+        assert!(!ATTRIBUTES.has(Attribute::Bold));
+        assert!(ATTRIBUTES.has(Attribute::Italic));
     }
 }

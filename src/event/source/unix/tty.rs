@@ -1,25 +1,20 @@
+#[cfg(feature = "libc")]
 use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
+
+#[cfg(not(feature = "libc"))]
+use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
 
 use crate::event::timeout::PollTimeout;
 use crate::event::Event;
-use crate::Result;
-
 use filedescriptor::{poll, pollfd, POLLIN};
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
-
-use crate::event::{
-    source::EventSource,
-    sys::unix::{
-        file_descriptor::{tty_fd, FileDesc},
-        parse::parse_event,
-    },
-    InternalEvent,
-};
+use crate::event::{source::EventSource, sys::unix::parse::parse_event, InternalEvent};
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 
 /// Holds a prototypical Waker and a receiver we can wait on when doing select().
 #[cfg(feature = "event-stream")]
@@ -30,7 +25,7 @@ struct WakePipe {
 
 #[cfg(feature = "event-stream")]
 impl WakePipe {
-    fn new() -> Result<Self> {
+    fn new() -> io::Result<Self> {
         let (receiver, sender) = nonblocking_unix_pair()?;
         Ok(WakePipe {
             receiver,
@@ -47,13 +42,13 @@ const TTY_BUFFER_SIZE: usize = 1_024;
 pub(crate) struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
-    tty: FileDesc,
+    tty: FileDesc<'static>,
     winch_signal_receiver: UnixStream,
     #[cfg(feature = "event-stream")]
     wake_pipe: WakePipe,
 }
 
-fn nonblocking_unix_pair() -> Result<(UnixStream, UnixStream)> {
+fn nonblocking_unix_pair() -> io::Result<(UnixStream, UnixStream)> {
     let (receiver, sender) = UnixStream::pair()?;
     receiver.set_nonblocking(true)?;
     sender.set_nonblocking(true)?;
@@ -61,11 +56,11 @@ fn nonblocking_unix_pair() -> Result<(UnixStream, UnixStream)> {
 }
 
 impl UnixInternalEventSource {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> io::Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc<'static>) -> io::Result<Self> {
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
@@ -73,7 +68,10 @@ impl UnixInternalEventSource {
             winch_signal_receiver: {
                 let (receiver, sender) = nonblocking_unix_pair()?;
                 // Unregistering is unnecessary because EventSource is a singleton
+                #[cfg(feature = "libc")]
                 pipe::register(libc::SIGWINCH, sender)?;
+                #[cfg(not(feature = "libc"))]
+                pipe::register(rustix::process::Signal::Winch as i32, sender)?;
                 receiver
             },
             #[cfg(feature = "event-stream")]
@@ -87,9 +85,9 @@ impl UnixInternalEventSource {
 ///
 /// Similar to `std::io::Read::read_to_end`, except this function
 /// only fills the given buffer and does not read beyond that.
-fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> Result<usize> {
+fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
     loop {
-        match fd.read(buf, buf.len()) {
+        match fd.read(buf) {
             Ok(x) => return Ok(x),
             Err(e) => match e.kind() {
                 io::ErrorKind::WouldBlock => return Ok(0),
@@ -101,7 +99,7 @@ fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> Result<usize> {
 }
 
 impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         let timeout = PollTimeout::new(timeout);
 
         fn make_pollfd<F: AsRawFd>(fd: &F) -> pollfd {
@@ -131,8 +129,20 @@ impl EventSource for UnixInternalEventSource {
                 return Ok(Some(event));
             }
             match poll(&mut fds, timeout.leftover()) {
-                Err(filedescriptor::Error::Io(e)) => return Err(e),
-                res => res.expect("polling tty"),
+                Err(filedescriptor::Error::Poll(e)) | Err(filedescriptor::Error::Io(e)) => {
+                    match e.kind() {
+                        // retry on EINTR
+                        io::ErrorKind::Interrupted => continue,
+                        _ => return Err(e),
+                    }
+                }
+                Err(e) => {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        format!("got unexpected error while polling: {:?}", e),
+                    ))
+                }
+                Ok(_) => (),
             };
             if fds[0].revents & POLLIN != 0 {
                 loop {
@@ -154,7 +164,10 @@ impl EventSource for UnixInternalEventSource {
                 }
             }
             if fds[1].revents & POLLIN != 0 {
+                #[cfg(feature = "libc")]
                 let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
+                #[cfg(not(feature = "libc"))]
+                let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
                 // TODO Should we remove tput?

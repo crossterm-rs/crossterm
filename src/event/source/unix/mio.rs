@@ -3,19 +3,12 @@ use std::{collections::VecDeque, io, time::Duration};
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook_mio::v0_8::Signals;
 
-use crate::Result;
-
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
-    source::EventSource,
-    sys::unix::{
-        file_descriptor::{tty_fd, FileDesc},
-        parse::parse_event,
-    },
-    timeout::PollTimeout,
-    Event, InternalEvent,
+    source::EventSource, sys::unix::parse::parse_event, timeout::PollTimeout, Event, InternalEvent,
 };
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
@@ -33,18 +26,18 @@ pub(crate) struct UnixInternalEventSource {
     events: Events,
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
-    tty_fd: FileDesc,
+    tty_fd: FileDesc<'static>,
     signals: Signals,
     #[cfg(feature = "event-stream")]
     waker: Waker,
 }
 
 impl UnixInternalEventSource {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> io::Result<Self> {
         UnixInternalEventSource::from_file_descriptor(tty_fd()?)
     }
 
-    pub(crate) fn from_file_descriptor(input_fd: FileDesc) -> Result<Self> {
+    pub(crate) fn from_file_descriptor(input_fd: FileDesc<'static>) -> io::Result<Self> {
         let poll = Poll::new()?;
         let registry = poll.registry();
 
@@ -72,7 +65,7 @@ impl UnixInternalEventSource {
 }
 
 impl EventSource for UnixInternalEventSource {
-    fn try_read(&mut self, timeout: Option<Duration>) -> Result<Option<InternalEvent>> {
+    fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         if let Some(event) = self.parser.next() {
             return Ok(Some(event));
         }
@@ -100,7 +93,7 @@ impl EventSource for UnixInternalEventSource {
                 match token {
                     TTY_TOKEN => {
                         loop {
-                            match self.tty_fd.read(&mut self.tty_buffer, TTY_BUFFER_SIZE) {
+                            match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
                                     if read_count > 0 {
                                         self.parser.advance(
@@ -127,23 +120,18 @@ impl EventSource for UnixInternalEventSource {
                         }
                     }
                     SIGNAL_TOKEN => {
-                        for signal in self.signals.pending() {
-                            match signal {
-                                signal_hook::consts::SIGWINCH => {
-                                    // TODO Should we remove tput?
-                                    //
-                                    // This can take a really long time, because terminal::size can
-                                    // launch new process (tput) and then it parses its output. It's
-                                    // not a really long time from the absolute time point of view, but
-                                    // it's a really long time from the mio, async-std/tokio executor, ...
-                                    // point of view.
-                                    let new_size = crate::terminal::size()?;
-                                    return Ok(Some(InternalEvent::Event(Event::Resize(
-                                        new_size.0, new_size.1,
-                                    ))));
-                                }
-                                _ => unreachable!("Synchronize signal registration & handling"),
-                            };
+                        if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
+                            // TODO Should we remove tput?
+                            //
+                            // This can take a really long time, because terminal::size can
+                            // launch new process (tput) and then it parses its output. It's
+                            // not a really long time from the absolute time point of view, but
+                            // it's a really long time from the mio, async-std/tokio executor, ...
+                            // point of view.
+                            let new_size = crate::terminal::size()?;
+                            return Ok(Some(InternalEvent::Event(Event::Resize(
+                                new_size.0, new_size.1,
+                            ))));
                         }
                     }
                     #[cfg(feature = "event-stream")]

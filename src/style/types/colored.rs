@@ -1,4 +1,6 @@
+use parking_lot::Once;
 use std::fmt::{self, Formatter};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -17,9 +19,12 @@ pub enum Colored {
     /// A background color.
     BackgroundColor(Color),
     /// An underline color.
-    /// Imporant: doesnt work on windows 10 or lower.
+    /// Important: doesn't work on windows 10 or lower.
     UnderlineColor(Color),
 }
+
+static ANSI_COLOR_DISABLED: AtomicBool = AtomicBool::new(false);
+static INITIALIZER: Once = Once::new();
 
 impl Colored {
     /// Parse an ANSI foreground or background color.
@@ -64,11 +69,37 @@ impl Colored {
 
         Some(output)
     }
+
+    /// Checks whether ansi color sequences are disabled by setting of NO_COLOR
+    /// in environment as per https://no-color.org/
+    pub fn ansi_color_disabled() -> bool {
+        !std::env::var("NO_COLOR")
+            .unwrap_or("".to_string())
+            .is_empty()
+    }
+
+    pub fn ansi_color_disabled_memoized() -> bool {
+        INITIALIZER.call_once(|| {
+            ANSI_COLOR_DISABLED.store(Self::ansi_color_disabled(), Ordering::SeqCst);
+        });
+
+        ANSI_COLOR_DISABLED.load(Ordering::SeqCst)
+    }
+
+    pub fn set_ansi_color_disabled(val: bool) {
+        // Force the one-time initializer to run.
+        _ = Self::ansi_color_disabled_memoized();
+        ANSI_COLOR_DISABLED.store(val, Ordering::SeqCst);
+    }
 }
 
 impl fmt::Display for Colored {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let color;
+
+        if Self::ansi_color_disabled_memoized() {
+            return Ok(());
+        }
 
         match *self {
             Colored::ForegroundColor(new_color) => {
@@ -114,8 +145,8 @@ impl fmt::Display for Colored {
             Color::DarkCyan => f.write_str("5;6"),
             Color::White => f.write_str("5;15"),
             Color::Grey => f.write_str("5;7"),
-            Color::Rgb { r, g, b } => write!(f, "2;{};{};{}", r, g, b),
-            Color::AnsiValue(val) => write!(f, "5;{}", val),
+            Color::Rgb { r, g, b } => write!(f, "2;{r};{g};{b}"),
+            Color::AnsiValue(val) => write!(f, "5;{val}"),
             _ => Ok(()),
         }
     }
@@ -125,40 +156,47 @@ impl fmt::Display for Colored {
 mod tests {
     use crate::style::{Color, Colored};
 
+    fn check_format_color(colored: Colored, expected: &str) {
+        Colored::set_ansi_color_disabled(true);
+        assert_eq!(colored.to_string(), "");
+        Colored::set_ansi_color_disabled(false);
+        assert_eq!(colored.to_string(), expected);
+    }
+
     #[test]
     fn test_format_fg_color() {
         let colored = Colored::ForegroundColor(Color::Red);
-        assert_eq!(colored.to_string(), "38;5;9");
+        check_format_color(colored, "38;5;9");
     }
 
     #[test]
     fn test_format_bg_color() {
         let colored = Colored::BackgroundColor(Color::Red);
-        assert_eq!(colored.to_string(), "48;5;9");
+        check_format_color(colored, "48;5;9");
     }
 
     #[test]
     fn test_format_reset_fg_color() {
         let colored = Colored::ForegroundColor(Color::Reset);
-        assert_eq!(colored.to_string(), "39");
+        check_format_color(colored, "39");
     }
 
     #[test]
     fn test_format_reset_bg_color() {
         let colored = Colored::BackgroundColor(Color::Reset);
-        assert_eq!(colored.to_string(), "49");
+        check_format_color(colored, "49");
     }
 
     #[test]
     fn test_format_fg_rgb_color() {
         let colored = Colored::BackgroundColor(Color::Rgb { r: 1, g: 2, b: 3 });
-        assert_eq!(colored.to_string(), "48;2;1;2;3");
+        check_format_color(colored, "48;2;1;2;3");
     }
 
     #[test]
     fn test_format_fg_ansi_color() {
         let colored = Colored::ForegroundColor(Color::AnsiValue(255));
-        assert_eq!(colored.to_string(), "38;5;255");
+        check_format_color(colored, "38;5;255");
     }
 
     #[test]
@@ -266,5 +304,17 @@ mod tests {
         test("48;2;0;2;257");
         test("48;2;0;2;25;");
         test("48;2;0;2;25;3");
+    }
+
+    #[test]
+    fn test_no_color() {
+        std::env::set_var("NO_COLOR", "1");
+        assert!(Colored::ansi_color_disabled());
+        std::env::set_var("NO_COLOR", "XXX");
+        assert!(Colored::ansi_color_disabled());
+        std::env::set_var("NO_COLOR", "");
+        assert!(!Colored::ansi_color_disabled());
+        std::env::remove_var("NO_COLOR");
+        assert!(!Colored::ansi_color_disabled());
     }
 }

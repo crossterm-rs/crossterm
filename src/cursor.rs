@@ -13,17 +13,17 @@
 //! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{self, Write};
 //!
 //! use crossterm::{
-//!     ExecutableCommand, execute, Result,
+//!     ExecutableCommand, execute,
 //!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
 //! };
 //!
-//! fn main() -> Result<()> {
+//! fn main() -> io::Result<()> {
 //!     // with macro
 //!     execute!(
-//!         stdout(),
+//!         io::stdout(),
 //!         SavePosition,
 //!         MoveTo(10, 10),
 //!         EnableBlinking,
@@ -32,7 +32,7 @@
 //!     );
 //!
 //!   // with function
-//!   stdout()
+//!   io::stdout()
 //!     .execute(MoveTo(11,11))?
 //!     .execute(RestorePosition);
 //!
@@ -44,13 +44,12 @@
 
 use std::fmt;
 
-#[cfg(windows)]
-use crate::Result;
 use crate::{csi, impl_display, Command};
 
-pub use sys::position;
-
 pub(crate) mod sys;
+
+#[cfg(feature = "events")]
+pub use sys::position;
 
 /// A command that moves the terminal cursor to the given position (column, row).
 ///
@@ -66,7 +65,7 @@ impl Command for MoveTo {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to(self.0, self.1)
     }
 }
@@ -88,7 +87,7 @@ impl Command for MoveToNextLine {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         if self.0 != 0 {
             sys::move_to_next_line(self.0)?;
         }
@@ -113,7 +112,7 @@ impl Command for MoveToPreviousLine {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         if self.0 != 0 {
             sys::move_to_previous_line(self.0)?;
         }
@@ -136,7 +135,7 @@ impl Command for MoveToColumn {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to_column(self.0)
     }
 }
@@ -156,7 +155,7 @@ impl Command for MoveToRow {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to_row(self.0)
     }
 }
@@ -177,7 +176,7 @@ impl Command for MoveUp {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_up(self.0)
     }
 }
@@ -198,7 +197,7 @@ impl Command for MoveRight {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_right(self.0)
     }
 }
@@ -219,7 +218,7 @@ impl Command for MoveDown {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_down(self.0)
     }
 }
@@ -240,7 +239,7 @@ impl Command for MoveLeft {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_left(self.0)
     }
 }
@@ -262,7 +261,7 @@ impl Command for SavePosition {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::save_position()
     }
 }
@@ -284,7 +283,7 @@ impl Command for RestorePosition {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::restore_position()
     }
 }
@@ -303,7 +302,7 @@ impl Command for Hide {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::show_cursor(false)
     }
 }
@@ -322,13 +321,13 @@ impl Command for Show {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         sys::show_cursor(true)
     }
 }
 
 /// A command that enables blinking of the terminal cursor.
-/// 
+///
 /// # Notes
 ///
 /// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
@@ -341,7 +340,7 @@ impl Command for EnableBlinking {
         f.write_str(csi!("?12h"))
     }
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -360,7 +359,7 @@ impl Command for DisableBlinking {
         f.write_str(csi!("?12l"))
     }
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -403,7 +402,7 @@ impl Command for SetCursorStyle {
     }
 
     #[cfg(windows)]
-    fn execute_winapi(&self) -> Result<()> {
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -426,13 +425,14 @@ impl_display!(for DisableBlinking);
 impl_display!(for SetCursorStyle);
 
 #[cfg(test)]
+#[cfg(feature = "events")]
 mod tests {
     use std::io::{self, stdout};
 
     use crate::execute;
 
     use super::{
-        position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

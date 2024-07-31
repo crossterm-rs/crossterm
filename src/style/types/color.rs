@@ -1,4 +1,7 @@
-use std::{convert::AsRef, convert::TryFrom, result::Result, str::FromStr};
+use std::{
+    convert::{AsRef, TryFrom},
+    str::FromStr,
+};
 
 #[cfg(feature = "serde")]
 use std::fmt;
@@ -170,6 +173,7 @@ impl TryFrom<&str> for Color {
         let src = src.to_lowercase();
 
         match src.as_ref() {
+            "reset" => Ok(Color::Reset),
             "black" => Ok(Color::Black),
             "dark_grey" => Ok(Color::DarkGrey),
             "red" => Ok(Color::Red),
@@ -220,6 +224,7 @@ impl serde::ser::Serialize for Color {
         S: serde::ser::Serializer,
     {
         let str = match *self {
+            Color::Reset => "reset",
             Color::Black => "black",
             Color::DarkGrey => "dark_grey",
             Color::Red => "red",
@@ -239,20 +244,16 @@ impl serde::ser::Serialize for Color {
             _ => "",
         };
 
-        if str == "" {
+        if str.is_empty() {
             match *self {
-                Color::AnsiValue(value) => {
-                    return serializer.serialize_str(&format!("ansi_({})", value));
-                }
+                Color::AnsiValue(value) => serializer.serialize_str(&format!("ansi_({})", value)),
                 Color::Rgb { r, g, b } => {
-                    return serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b));
+                    serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b))
                 }
-                _ => {
-                    return Err(serde::ser::Error::custom("Could not serialize enum type"));
-                }
+                _ => Err(serde::ser::Error::custom("Could not serialize enum type")),
             }
         } else {
-            return serializer.serialize_str(str);
+            serializer.serialize_str(str)
         }
     }
 }
@@ -268,7 +269,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
-                    "`black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)`",
+                    "`reset`, `black`, `blue`, `dark_blue`, `cyan`, `dark_cyan`, `green`, `dark_green`, `grey`, `dark_grey`, `magenta`, `dark_magenta`, `red`, `dark_red`, `white`, `yellow`, `dark_yellow`, `ansi_(value)`, or `rgb_(r,g,b)` or `#rgbhex`",
                 )
             }
             fn visit_str<E>(self, value: &str) -> Result<Color, E>
@@ -309,6 +310,20 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                                 });
                             }
                         }
+                    } else if let Some(hex) = value.strip_prefix('#') {
+                        if hex.is_ascii() && hex.len() == 6 {
+                            let r = u8::from_str_radix(&hex[0..2], 16);
+                            let g = u8::from_str_radix(&hex[2..4], 16);
+                            let b = u8::from_str_radix(&hex[4..6], 16);
+
+                            if r.is_ok() && g.is_ok() && b.is_ok() {
+                                return Ok(Color::Rgb {
+                                    r: r.unwrap(),
+                                    g: g.unwrap(),
+                                    b: b.unwrap(),
+                                });
+                            }
+                        }
                     }
 
                     Err(E::invalid_value(serde::de::Unexpected::Str(value), &self))
@@ -326,6 +341,7 @@ mod tests {
 
     #[test]
     fn test_known_color_conversion() {
+        assert_eq!("reset".parse(), Ok(Color::Reset));
         assert_eq!("grey".parse(), Ok(Color::Grey));
         assert_eq!("dark_grey".parse(), Ok(Color::DarkGrey));
         assert_eq!("red".parse(), Ok(Color::Red));
@@ -371,6 +387,14 @@ mod serde_tests {
 
     #[test]
     fn test_deserial_known_color_conversion() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"Reset\"").unwrap(),
+            Color::Reset
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"reset\"").unwrap(),
+            Color::Reset
+        );
         assert_eq!(
             serde_json::from_str::<Color>("\"Red\"").unwrap(),
             Color::Red
@@ -472,5 +496,25 @@ mod serde_tests {
     fn test_deserial_unvalid_rgb() {
         assert!(serde_json::from_str::<Color>("\"rgb_(255,255,255,255)\"").is_err());
         assert!(serde_json::from_str::<Color>("\"rgb_(256,255,255)\"").is_err());
+    }
+
+    #[test]
+    fn test_deserial_rgb_hex() {
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#ffffff\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+        assert_eq!(
+            serde_json::from_str::<Color>("\"#FFFFFF\"").unwrap(),
+            Color::from((255, 255, 255))
+        );
+    }
+
+    #[test]
+    fn test_deserial_unvalid_rgb_hex() {
+        assert!(serde_json::from_str::<Color>("\"#FFFFFFFF\"").is_err());
+        assert!(serde_json::from_str::<Color>("\"#FFGFFF\"").is_err());
+        // Ferris is 4 bytes so this will be considered the correct length.
+        assert!(serde_json::from_str::<Color>("\"#ff🦀\"").is_err());
     }
 }

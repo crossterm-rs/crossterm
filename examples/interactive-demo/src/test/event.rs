@@ -3,13 +3,13 @@
 use crossterm::{
     cursor::position,
     event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
-    execute, Result,
+    execute,
 };
-use std::io::Write;
+use std::io::{self, Write};
 
-fn test_event<W>(w: &mut W) -> Result<()>
+fn test_event<W>(w: &mut W) -> io::Result<()>
 where
-    W: Write,
+    W: io::Write,
 {
     execute!(w, EnableMouseCapture)?;
 
@@ -33,7 +33,7 @@ where
     Ok(())
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

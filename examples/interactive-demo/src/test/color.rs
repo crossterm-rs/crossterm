@@ -1,6 +1,5 @@
 #![allow(clippy::cognitive_complexity)]
 
-use crate::Result;
 use crossterm::{cursor, queue, style, style::Color};
 use std::io::Write;
 
@@ -28,7 +27,7 @@ const COLORS: [Color; 21] = [
     Color::Rgb { r: 0, g: 0, b: 255 },
 ];
 
-fn test_set_foreground_color<W>(w: &mut W) -> Result<()>
+fn test_set_foreground_color<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -63,7 +62,7 @@ where
     Ok(())
 }
 
-fn test_set_background_color<W>(w: &mut W) -> Result<()>
+fn test_set_background_color<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -98,7 +97,7 @@ where
     Ok(())
 }
 
-fn test_color_values_matrix_16x16<W, F>(w: &mut W, title: &str, color: F) -> Result<()>
+fn test_color_values_matrix_16x16<W, F>(w: &mut W, title: &str, color: F) -> std::io::Result<()>
 where
     W: Write,
     F: Fn(u16, u16) -> Color,
@@ -140,7 +139,7 @@ where
     Ok(())
 }
 
-fn test_color_ansi_values<W>(w: &mut W) -> Result<()>
+fn test_color_ansi_values<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -149,7 +148,7 @@ where
     })
 }
 
-fn test_rgb_red_values<W>(w: &mut W) -> Result<()>
+fn test_rgb_red_values<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -160,7 +159,7 @@ where
     })
 }
 
-fn test_rgb_green_values<W>(w: &mut W) -> Result<()>
+fn test_rgb_green_values<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -171,7 +170,7 @@ where
     })
 }
 
-fn test_rgb_blue_values<W>(w: &mut W) -> Result<()>
+fn test_rgb_blue_values<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
@@ -182,7 +181,7 @@ where
     })
 }
 
-pub fn run<W>(w: &mut W) -> Result<()>
+pub fn run<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {

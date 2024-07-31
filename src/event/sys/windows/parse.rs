@@ -1,4 +1,4 @@
-use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, MouseEvent, ScreenBuffer};
+use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, ScreenBuffer};
 use winapi::um::{
     wincon::{
         CAPSLOCK_ON, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED,
@@ -12,9 +12,8 @@ use winapi::um::{
     },
 };
 
-use crate::{
-    event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind},
-    Result,
+use crate::event::{
+    Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };
 
 #[derive(Default)]
@@ -25,7 +24,7 @@ pub struct MouseButtonsPressed {
 }
 
 pub(crate) fn handle_mouse_event(
-    mouse_event: MouseEvent,
+    mouse_event: crossterm_winapi::MouseEvent,
     buttons_pressed: &MouseButtonsPressed,
 ) -> Option<Event> {
     if let Ok(Some(event)) = parse_mouse_event_record(&mouse_event, buttons_pressed) {
@@ -221,7 +220,12 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                 // values.
                 let ch = std::char::from_u32(unicode_scalar_value as u32).unwrap();
                 let key_code = KeyCode::Char(ch);
-                let key_event = KeyEvent::new(key_code, modifiers);
+                let kind = if key_event.key_down {
+                    KeyEventKind::Press
+                } else {
+                    KeyEventKind::Release
+                };
+                let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
                 return Some(WindowsKeyEvent::KeyEvent(key_event));
             }
         }
@@ -232,10 +236,6 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     let is_only_alt_modifier = modifiers.contains(KeyModifiers::ALT)
         && !modifiers.contains(KeyModifiers::SHIFT | KeyModifiers::CONTROL);
     if is_only_alt_modifier && is_numpad_numeric_key {
-        return None;
-    }
-
-    if !key_event.key_down {
         return None;
     }
 
@@ -283,7 +283,12 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     };
 
     if let Some(key_code) = parse_result {
-        let key_event = KeyEvent::new(key_code, modifiers);
+        let kind = if key_event.key_down {
+            KeyEventKind::Press
+        } else {
+            KeyEventKind::Release
+        };
+        let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
         return Some(WindowsKeyEvent::KeyEvent(key_event));
     }
 
@@ -292,15 +297,15 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
 
 // The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.
 // This means that when the mouse cursor is at the top left it will be x: 0, y: 2295 (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0 to the window.
-pub fn parse_relative_y(y: i16) -> Result<i16> {
+pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window_size = ScreenBuffer::current()?.info()?.terminal_window();
     Ok(y - window_size.top)
 }
 
 fn parse_mouse_event_record(
-    event: &MouseEvent,
+    event: &crossterm_winapi::MouseEvent,
     buttons_pressed: &MouseButtonsPressed,
-) -> Result<Option<crate::event::MouseEvent>> {
+) -> std::io::Result<Option<MouseEvent>> {
     let modifiers = KeyModifiers::from(&event.control_key_state);
 
     let xpos = event.mouse_position.x as u16;
@@ -309,7 +314,7 @@ fn parse_mouse_event_record(
     let button_state = event.button_state;
 
     let kind = match event.event_flags {
-        EventFlags::PressOrRelease => {
+        EventFlags::PressOrRelease | EventFlags::DoubleClick => {
             if button_state.left_button() && !buttons_pressed.left {
                 Some(MouseEventKind::Down(MouseButton::Left))
             } else if !button_state.left_button() && buttons_pressed.left {
@@ -352,12 +357,19 @@ fn parse_mouse_event_record(
                 None
             }
         }
-        EventFlags::DoubleClick => None, // double click not supported by unix terminals
-        EventFlags::MouseHwheeled => None, // horizontal scroll not supported by unix terminals
+        EventFlags::MouseHwheeled => {
+            if button_state.scroll_left() {
+                Some(MouseEventKind::ScrollLeft)
+            } else if button_state.scroll_right() {
+                Some(MouseEventKind::ScrollRight)
+            } else {
+                None
+            }
+        }
         _ => None,
     };
 
-    Ok(kind.map(|kind| crate::event::MouseEvent {
+    Ok(kind.map(|kind| MouseEvent {
         kind,
         column: xpos,
         row: ypos,

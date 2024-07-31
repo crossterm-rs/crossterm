@@ -1,7 +1,7 @@
 //! WinAPI related logic for terminal manipulation.
 
 use std::fmt::{self, Write};
-use std::io;
+use std::io::{self};
 
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
@@ -9,12 +9,15 @@ use winapi::{
     um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
 };
 
-use crate::{cursor, terminal::ClearType, ErrorKind, Result};
+use crate::{
+    cursor,
+    terminal::{ClearType, WindowSize},
+};
 
 /// bits which can't be set in raw mode
 const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
 
-pub(crate) fn is_raw_mode_enabled() -> Result<bool> {
+pub(crate) fn is_raw_mode_enabled() -> std::io::Result<bool> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
     let dw_mode = console_mode.mode()?;
@@ -25,7 +28,7 @@ pub(crate) fn is_raw_mode_enabled() -> Result<bool> {
     )
 }
 
-pub(crate) fn enable_raw_mode() -> Result<()> {
+pub(crate) fn enable_raw_mode() -> std::io::Result<()> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
     let dw_mode = console_mode.mode()?;
@@ -37,7 +40,7 @@ pub(crate) fn enable_raw_mode() -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn disable_raw_mode() -> Result<()> {
+pub(crate) fn disable_raw_mode() -> std::io::Result<()> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
     let dw_mode = console_mode.mode()?;
@@ -49,7 +52,7 @@ pub(crate) fn disable_raw_mode() -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn size() -> Result<(u16, u16)> {
+pub(crate) fn size() -> io::Result<(u16, u16)> {
     let terminal_size = ScreenBuffer::current()?.info()?.terminal_size();
     // windows starts counting at 0, unix at 1, add one to replicated unix behaviour.
     Ok((
@@ -58,14 +61,22 @@ pub(crate) fn size() -> Result<(u16, u16)> {
     ))
 }
 
+pub(crate) fn window_size() -> io::Result<WindowSize> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        "Window pixel size not implemented for the Windows API.",
+    ))
+}
+
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
 /// This always returns `Ok(false)` on Windows.
-pub fn supports_keyboard_enhancement() -> Result<bool> {
+#[cfg(feature = "events")]
+pub fn supports_keyboard_enhancement() -> std::io::Result<bool> {
     Ok(false)
 }
 
-pub(crate) fn clear(clear_type: ClearType) -> Result<()> {
+pub(crate) fn clear(clear_type: ClearType) -> std::io::Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
     let csbi = screen_buffer.info()?;
 
@@ -88,7 +99,7 @@ pub(crate) fn clear(clear_type: ClearType) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn scroll_up(row_count: u16) -> Result<()> {
+pub(crate) fn scroll_up(row_count: u16) -> std::io::Result<()> {
     let csbi = ScreenBuffer::current()?;
     let mut window = csbi.info()?.terminal_window();
 
@@ -103,7 +114,7 @@ pub(crate) fn scroll_up(row_count: u16) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
+pub(crate) fn scroll_down(row_count: u16) -> std::io::Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
     let csbi = screen_buffer.info()?;
     let mut window = csbi.terminal_window();
@@ -120,16 +131,16 @@ pub(crate) fn scroll_down(row_count: u16) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
+pub(crate) fn set_size(width: u16, height: u16) -> std::io::Result<()> {
     if width <= 1 {
-        return Err(ErrorKind::new(
+        return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
             "terminal width must be at least 1",
         ));
     }
 
     if height <= 1 {
-        return Err(ErrorKind::new(
+        return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
             "terminal height must be at least 1",
         ));
@@ -151,8 +162,8 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
 
     let width = width as i16;
     if current_size.width < window.left + width {
-        if window.left >= i16::max_value() - width {
-            return Err(ErrorKind::new(
+        if window.left >= i16::MAX - width {
+            return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "terminal width too large",
             ));
@@ -163,8 +174,8 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     }
     let height = height as i16;
     if current_size.height < window.top + height {
-        if window.top >= i16::max_value() - height {
-            return Err(ErrorKind::new(
+        if window.top >= i16::MAX - height {
+            return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "terminal height too large",
             ));
@@ -193,22 +204,22 @@ pub(crate) fn set_size(width: u16, height: u16) -> Result<()> {
     let bounds = console.largest_window_size()?;
 
     if width > bounds.x {
-        return Err(ErrorKind::new(
+        return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            format!("terminal width {} too large", width),
+            format!("terminal width {width} too large"),
         ));
     }
     if height > bounds.y {
-        return Err(ErrorKind::new(
+        return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            format!("terminal height {} too large", height),
+            format!("terminal height {height} too large"),
         ));
     }
 
     Ok(())
 }
 
-pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
+pub(crate) fn set_window_title(title: impl fmt::Display) -> std::io::Result<()> {
     struct Utf16Encoder(Vec<u16>);
     impl Write for Utf16Encoder {
         fn write_str(&mut self, s: &str) -> fmt::Result {
@@ -218,7 +229,7 @@ pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
     }
 
     let mut title_utf16 = Utf16Encoder(Vec::new());
-    write!(title_utf16, "{}", title).expect("formatting failed");
+    write!(title_utf16, "{title}").expect("formatting failed");
     title_utf16.0.push(0);
     let title = title_utf16.0;
 
@@ -226,11 +237,15 @@ pub(crate) fn set_window_title(title: impl fmt::Display) -> Result<()> {
     if result != 0 {
         Ok(())
     } else {
-        Err(ErrorKind::last_os_error())
+        Err(io::Error::last_os_error())
     }
 }
 
-fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_after_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (mut x, mut y) = (location.x, location.y);
 
     // if cursor position is at the outer right position
@@ -248,7 +263,11 @@ fn clear_after_cursor(location: Coord, buffer_size: Size, current_attribute: u16
     clear_winapi(start_location, cells_to_write, current_attribute)
 }
 
-fn clear_before_cursor(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_before_cursor(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (xpos, ypos) = (location.x, location.y);
 
     // one cell after cursor position
@@ -266,7 +285,7 @@ fn clear_before_cursor(location: Coord, buffer_size: Size, current_attribute: u1
     clear_winapi(start_location, cells_to_write, current_attribute)
 }
 
-fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> std::io::Result<()> {
     // get sum cells before cursor
     let cells_to_write = buffer_size.width as u32 * buffer_size.height as u32;
 
@@ -281,7 +300,11 @@ fn clear_entire_screen(buffer_size: Size, current_attribute: u16) -> Result<()> 
     Ok(())
 }
 
-fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_current_line(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     // location where to start clearing
     let start_location = Coord::new(0, location.y);
 
@@ -296,7 +319,11 @@ fn clear_current_line(location: Coord, buffer_size: Size, current_attribute: u16
     Ok(())
 }
 
-fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) -> Result<()> {
+fn clear_until_line(
+    location: Coord,
+    buffer_size: Size,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let (x, y) = (location.x, location.y);
 
     // location where to start clearing
@@ -313,7 +340,11 @@ fn clear_until_line(location: Coord, buffer_size: Size, current_attribute: u16) 
     Ok(())
 }
 
-fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u16) -> Result<()> {
+fn clear_winapi(
+    start_location: Coord,
+    cells_to_write: u32,
+    current_attribute: u16,
+) -> std::io::Result<()> {
     let console = Console::from(Handle::current_out_handle()?);
     console.fill_whit_character(start_location, cells_to_write, ' ')?;
     console.fill_whit_attribute(start_location, cells_to_write, current_attribute)?;
@@ -321,20 +352,54 @@ fn clear_winapi(start_location: Coord, cells_to_write: u32, current_attribute: u
 }
 
 #[cfg(test)]
+// Create a new screen buffer to avoid changing the terminal the test
+// is running within.
+pub fn temp_screen_buffer() -> std::io::Result<ScreenBuffer> {
+    let alternate_screen = ScreenBuffer::create()?;
+    alternate_screen.show().unwrap();
+    Ok(alternate_screen)
+}
+
+#[cfg(test)]
 mod tests {
     use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
     use crossterm_winapi::ScreenBuffer;
+    use serial_test::serial;
     use winapi::um::wincon::GetConsoleTitleW;
 
-    use super::{scroll_down, scroll_up, set_size, set_window_title, size};
+    use super::{scroll_down, scroll_up, set_size, set_window_title, size, temp_screen_buffer};
 
     #[test]
-    fn test_resize_winapi() {
+    #[serial]
+    fn test_resize_winapi_20_21() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
         let (width, height) = size().unwrap();
 
-        set_size(30, 30).unwrap();
-        assert_eq!((30, 30), size().unwrap());
+        // The values 20 and 21 are arbitrary and different from each other
+        // just to see they're not crossed over.
+        set_size(20, 21).unwrap();
+        assert_eq!((20, 21), size().unwrap());
+
+        // reset to previous size
+        set_size(width, height).unwrap();
+        assert_eq!((width, height), size().unwrap());
+    }
+
+    // This is similar to test_resize_winapi_20_21() above. This verifies that
+    // another test of similar functionality runs independently (that a testing
+    // race condition has been addressed).
+    #[test]
+    #[serial]
+    #[ignore]
+    fn test_resize_winapi_30_31() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
+        let (width, height) = size().unwrap();
+
+        set_size(30, 31).unwrap();
+        assert_eq!((30, 31), size().unwrap());
 
         // reset to previous size
         set_size(width, height).unwrap();
@@ -389,7 +454,10 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_set_title_winapi() {
+        let _test_screen = temp_screen_buffer().unwrap();
+
         let test_title = "this is a crossterm test title";
         set_window_title(test_title).unwrap();
 

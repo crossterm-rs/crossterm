@@ -1,13 +1,8 @@
 #![deny(unused_imports, unused_must_use)]
 
-//! # Crossterm
+//! # Cross-platform Terminal Manipulation Library
 //!
-//! Have you ever been disappointed when a terminal library for rust was only written for UNIX systems?
-//! Crossterm provides clearing, event (input) handling, styling, cursor movement, and terminal actions for both
-//! Windows and UNIX systems.
-//!
-//! Crossterm aims to be simple and easy to call in code. Through the simplicity of Crossterm, you do not
-//! have to worry about the platform you are working with.
+//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces.
 //!
 //! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
 //! see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
@@ -159,7 +154,7 @@
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{Write, stdout};
+//! use std::io::{stdout, Write};
 //! use crossterm::{execute, ExecutableCommand, cursor};
 //!
 //! let mut stdout = stdout();
@@ -176,14 +171,14 @@
 //! Functions:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{self, Write};
 //! use crossterm::{
 //!     ExecutableCommand, QueueableCommand,
-//!     terminal, cursor, style::{self, Stylize}, Result
+//!     terminal, cursor, style::{self, Stylize}
 //! };
 //!
-//! fn main() -> Result<()> {
-//!   let mut stdout = stdout();
+//! fn main() -> io::Result<()> {
+//!   let mut stdout = io::stdout();
 //!
 //!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
@@ -205,14 +200,14 @@
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
+//! use std::io::{self, Write};
 //! use crossterm::{
 //!     execute, queue,
-//!     style::{self, Stylize}, cursor, terminal, Result
+//!     style::{self, Stylize}, cursor, terminal
 //! };
 //!
-//! fn main() -> Result<()> {
-//!   let mut stdout = stdout();
+//! fn main() -> io::Result<()> {
+//!   let mut stdout = io::stdout();
 //!
 //!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
@@ -234,14 +229,12 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
-pub use crate::{
-    command::{Command, ExecutableCommand, QueueableCommand},
-    error::{ErrorKind, Result},
-};
+pub use crate::command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate};
 
 /// A module to work with the terminal cursor
 pub mod cursor;
 /// A module to read events.
+#[cfg(feature = "events")]
 pub mod event;
 /// A module to apply attributes and colors on your text.
 pub mod style;
@@ -255,5 +248,13 @@ pub mod tty;
 /// A module that exposes one function to check if the current terminal supports ANSI sequences.
 pub mod ansi_support;
 mod command;
-mod error;
 pub(crate) mod macros;
+
+#[cfg(all(windows, not(feature = "windows")))]
+compile_error!("Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows.");
+
+#[cfg(all(winapi, not(feature = "winapi")))]
+compile_error!("Compiling on Windows with \"winapi\" feature disabled. Feature \"winapi\" should only be disabled when project will never be compiled on Windows.");
+
+#[cfg(all(crossterm_winapi, not(feature = "crossterm_winapi")))]
+compile_error!("Compiling on Windows with \"crossterm_winapi\" feature disabled. Feature \"crossterm_winapi\" should only be disabled when project will never be compiled on Windows.");

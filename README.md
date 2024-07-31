@@ -70,14 +70,21 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - Console Host
     - Windows 10 (Pro)
     - Windows 8.1 (N)
+- Windows Terminal
+    - Windows 10 x86_64 (Enterprise)
+    - Windows 11 arm64 (Enterprise)
 - Ubuntu Desktop Terminal
+    - Ubuntu 23.04 64-bit
     - Ubuntu 17.10
     - Pop!_OS ( Ubuntu ) 20.04
 - (Arch, Manjaro) KDE Konsole
-- (Arch) Kitty
+- (Arch, NixOS) Kitty
 - Linux Mint
 - (OpenSuse) Alacritty
 - (Chrome OS) Crostini
+- Apple
+    - macOS Monterey 12.7.1 (Intel-Chip)
+    - macOS Sonama 14.4 (M1 Max, Apple Silicon-Chip)
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7; however, not all of the
 terminals have been tested. If you have used this library for a terminal other than the above list without
@@ -93,7 +100,7 @@ Click to show Cargo.toml.
 
 ```toml
 [dependencies]
-crossterm = "0.23"
+crossterm = "0.27"
 ```
 
 </details>
@@ -105,11 +112,11 @@ use std::io::{stdout, Write};
 use crossterm::{
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    ExecutableCommand, Result,
+    ExecutableCommand,
     event,
 };
 
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     // using the macro
     execute!(
         stdout(),
@@ -130,13 +137,13 @@ fn main() -> Result<()> {
 }
 ```
 
-Checkout this [list](https://docs.rs/crossterm/0.14.0/crossterm/index.html#supported-commands) with all possible commands.
+Checkout this [list](https://docs.rs/crossterm/latest/crossterm/index.html#supported-commands) with all possible commands.
 
 ### Feature Flags
 
 ```toml
 [dependencies.crossterm]
-version = "0.23"
+version = "0.27"
 features = ["event-stream"] 
 ```
 
@@ -144,6 +151,12 @@ features = ["event-stream"]
 |:---------------|:---------------------------------------------|
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
+| `events`        | Reading input/system events (enabled by default) |
+| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
+
+
+To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
+This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 ### Dependency Justification
 
@@ -151,9 +164,9 @@ features = ["event-stream"]
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
 | `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | UNIX only                             |
-| `Mio`          | event readiness polling, waking up poller                                        | UNIX only                             |
-| `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                    | UNIX only                             |
+| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | optional (`events` feature), UNIX only |
+| `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
+| `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                   |  optional (`events` feature),UNIX only |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
