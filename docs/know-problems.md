@@ -1,7 +1,7 @@
 # Known Problems
 
 There are some problems I discovered during development. 
-And I don't think it has to do anything with crossterm but it has to do whit how terminals handle ANSI or WinApi. 
+And I don't think it has to do anything with crossterm but it has to do with how terminals handle ANSI or WinApi. 
 
 ## WinAPI
 

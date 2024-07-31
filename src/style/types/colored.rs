@@ -19,7 +19,7 @@ pub enum Colored {
     /// A background color.
     BackgroundColor(Color),
     /// An underline color.
-    /// Imporant: doesnt work on windows 10 or lower.
+    /// Important: doesn't work on windows 10 or lower.
     UnderlineColor(Color),
 }
 
