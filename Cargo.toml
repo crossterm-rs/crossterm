@@ -37,6 +37,7 @@ bracketed-paste = [
 event-stream = ["dep:futures-core", "events"] # Enables async events
 use-dev-tty = [
     "filedescriptor",
+    "rustix/process",
 ] # Enables raw file descriptor polling / selecting instead of mio.
 events = [
     "dep:mio",
