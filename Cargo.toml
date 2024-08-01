@@ -82,9 +82,9 @@ rustix = { version = "0.38.34", default-features = false, features = [
 ] }
 signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
-mio = { version = "0.8", features = ["os-poll"], optional = true }
-signal-hook-mio = { version = "0.2.3", features = [
-    "support-v0_8",
+mio = { version = "1.0", features = ["os-poll"], optional = true }
+signal-hook-mio = { version = "0.2.4", features = [
+    "support-v1_0",
 ], optional = true }
 
 #

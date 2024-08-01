@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, io, time::Duration};
 
 use mio::{unix::SourceFd, Events, Interest, Poll, Token};
-use signal_hook_mio::v0_8::Signals;
+use signal_hook_mio::v1_0::Signals;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;

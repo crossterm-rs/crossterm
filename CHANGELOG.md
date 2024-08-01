@@ -1,5 +1,15 @@
 # Unreleased
 
+# Version 0.28.1
+
+## Fixed 🐛
+
+- Fix broken build on linux when using `use-dev-tty` with (#906)
+
+## Breaking ⚠️
+
+- Fix desync with mio and signalhook between repo and published crate. (upgrade to mio 1.0)
+
 # Version 0.28
 
 ## Added ⭐
