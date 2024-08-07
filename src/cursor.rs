@@ -370,7 +370,7 @@ impl Command for DisableBlinking {
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SetCursorStyle {
     /// Default cursor shape configured by the user.
     DefaultUserShape,
@@ -432,7 +432,8 @@ mod tests {
     use crate::execute;
 
     use super::{
-        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
+        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition,
+        SavePosition, SetCursorStyle,
     };
 
     // Test is disabled, because it's failing on Travis
@@ -500,5 +501,19 @@ mod tests {
 
         assert_eq!(x, saved_x);
         assert_eq!(y, saved_y);
+    }
+
+    #[test]
+    fn test_set_cursor_style() {
+        assert_eq!(
+            SetCursorStyle::DefaultUserShape,
+            SetCursorStyle::DefaultUserShape
+        );
+        assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock,);
+        assert_ne!(
+            SetCursorStyle::BlinkingBlock,
+            SetCursorStyle::BlinkingUnderScore,
+        );
+        assert_eq!(format!("{:?}", SetCursorStyle::SteadyBar), "SteadyBar");
     }
 }
