@@ -370,7 +370,7 @@ impl Command for DisableBlinking {
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum SetCursorStyle {
     /// Default cursor shape configured by the user.
     DefaultUserShape,
@@ -427,6 +427,7 @@ impl_display!(for SetCursorStyle);
 #[cfg(test)]
 #[cfg(feature = "events")]
 mod tests {
+    use std::hash::{DefaultHasher, Hash};
     use std::io::{self, stdout};
 
     use crate::execute;
@@ -509,5 +510,22 @@ mod tests {
         assert!(SetCursorStyle::BlinkingBlock != SetCursorStyle::BlinkingUnderScore);
         assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock);
         assert_eq!(format!("{:?}", SetCursorStyle::SteadyBar), "SteadyBar");
+        let s1 = SetCursorStyle::DefaultUserShape;
+        let s2 = s1;
+        let s3 = s1.clone();
+        assert!(s2 == s1);
+        assert!(s3 == s1);
+        let mut hasher = DefaultHasher::new();
+        let h1 = &s1;
+        let h2 = &s2;
+        let h3 = &s3;
+        assert!(h1.hash(&mut hasher) == h2.hash(&mut hasher));
+        assert!(h1.hash(&mut hasher) == h3.hash(&mut hasher));
+        assert!(SetCursorStyle::DefaultUserShape < SetCursorStyle::BlinkingBlock);
+        assert!(SetCursorStyle::BlinkingBlock < SetCursorStyle::SteadyBlock);
+        assert!(SetCursorStyle::SteadyBlock < SetCursorStyle::BlinkingUnderScore);
+        assert!(SetCursorStyle::BlinkingUnderScore < SetCursorStyle::SteadyUnderScore);
+        assert!(SetCursorStyle::SteadyUnderScore < SetCursorStyle::BlinkingBar);
+        assert!(SetCursorStyle::BlinkingBar < SetCursorStyle::SteadyBar);
     }
 }
