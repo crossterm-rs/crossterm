@@ -370,7 +370,7 @@ impl Command for DisableBlinking {
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SetCursorStyle {
     /// Default cursor shape configured by the user.
     DefaultUserShape,
