@@ -509,7 +509,7 @@ mod tests {
             SetCursorStyle::DefaultUserShape,
             SetCursorStyle::DefaultUserShape
         );
-        assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock,);
+        assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock);
         assert_ne!(
             SetCursorStyle::BlinkingBlock,
             SetCursorStyle::BlinkingUnderScore,
