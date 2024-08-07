@@ -505,15 +505,9 @@ mod tests {
 
     #[test]
     fn test_set_cursor_style() {
-        assert_eq!(
-            SetCursorStyle::DefaultUserShape,
-            SetCursorStyle::DefaultUserShape
-        );
+        assert!(SetCursorStyle::DefaultUserShape == SetCursorStyle::DefaultUserShape);
+        assert!(SetCursorStyle::BlinkingBlock != SetCursorStyle::BlinkingUnderScore);
         assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock);
-        assert_ne!(
-            SetCursorStyle::BlinkingBlock,
-            SetCursorStyle::BlinkingUnderScore,
-        );
         assert_eq!(format!("{:?}", SetCursorStyle::SteadyBar), "SteadyBar");
     }
 }
