@@ -370,7 +370,7 @@ impl Command for DisableBlinking {
 /// # Note
 ///
 /// - Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SetCursorStyle {
     /// Default cursor shape configured by the user.
     DefaultUserShape,
@@ -516,16 +516,7 @@ mod tests {
         assert!(s2 == s1);
         assert!(s3 == s1);
         let mut hasher = DefaultHasher::new();
-        let h1 = &s1;
-        let h2 = &s2;
-        let h3 = &s3;
-        assert!(h1.hash(&mut hasher) == h2.hash(&mut hasher));
-        assert!(h1.hash(&mut hasher) == h3.hash(&mut hasher));
-        assert!(SetCursorStyle::DefaultUserShape < SetCursorStyle::BlinkingBlock);
-        assert!(SetCursorStyle::BlinkingBlock < SetCursorStyle::SteadyBlock);
-        assert!(SetCursorStyle::SteadyBlock < SetCursorStyle::BlinkingUnderScore);
-        assert!(SetCursorStyle::BlinkingUnderScore < SetCursorStyle::SteadyUnderScore);
-        assert!(SetCursorStyle::SteadyUnderScore < SetCursorStyle::BlinkingBar);
-        assert!(SetCursorStyle::BlinkingBar < SetCursorStyle::SteadyBar);
+        assert!(s1.hash(&mut hasher) == s2.hash(&mut hasher));
+        assert!(s1.hash(&mut hasher) == s3.hash(&mut hasher));
     }
 }
