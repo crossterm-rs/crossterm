@@ -433,7 +433,7 @@ mod tests {
 
     use super::{
         sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition,
-        SavePosition, SetCursorStyle,
+        SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis
