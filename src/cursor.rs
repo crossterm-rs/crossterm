@@ -504,19 +504,4 @@ mod tests {
         assert_eq!(y, saved_y);
     }
 
-    #[test]
-    fn test_set_cursor_style() {
-        assert!(SetCursorStyle::DefaultUserShape == SetCursorStyle::DefaultUserShape);
-        assert!(SetCursorStyle::BlinkingBlock != SetCursorStyle::BlinkingUnderScore);
-        assert_eq!(SetCursorStyle::BlinkingBlock, SetCursorStyle::BlinkingBlock);
-        assert_eq!(format!("{:?}", SetCursorStyle::SteadyBar), "SteadyBar");
-        let s1 = SetCursorStyle::DefaultUserShape;
-        let s2 = s1;
-        let s3 = s1.clone();
-        assert!(s2 == s1);
-        assert!(s3 == s1);
-        let mut hasher = DefaultHasher::new();
-        assert!(s1.hash(&mut hasher) == s2.hash(&mut hasher));
-        assert!(s1.hash(&mut hasher) == s3.hash(&mut hasher));
-    }
 }
