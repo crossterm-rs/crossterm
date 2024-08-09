@@ -427,7 +427,6 @@ impl_display!(for SetCursorStyle);
 #[cfg(test)]
 #[cfg(feature = "events")]
 mod tests {
-    use std::hash::{DefaultHasher, Hash};
     use std::io::{self, stdout};
 
     use crate::execute;
@@ -503,5 +502,4 @@ mod tests {
         assert_eq!(x, saved_x);
         assert_eq!(y, saved_y);
     }
-
 }
