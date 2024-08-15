@@ -4,7 +4,7 @@ use crate::style::Attribute;
 
 /// a bitset for all possible attributes
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct Attributes(u32);
+pub struct Attributes(pub u32);
 
 impl From<Attribute> for Attributes {
     fn from(attribute: Attribute) -> Self {
