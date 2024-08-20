@@ -330,6 +330,46 @@ impl Command for ScrollDown {
     }
 }
 
+/// A command that sets the scrolling region.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetScrollingRegion(pub u16, pub u16);
+
+impl Command for SetScrollingRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("{};{}r"), self.0, self.1)?;
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        unimplemented!("not implemented for winapi");
+    }
+}
+
+/// A command that resets the scrolling region.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ResetScrollingRegion;
+
+impl Command for ResetScrollingRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("r"))?;
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        unimplemented!("not implemented for winapi");
+    }
+}
+
 /// A command that clears the terminal screen buffer.
 ///
 /// See the [`ClearType`](enum.ClearType.html) enum.
