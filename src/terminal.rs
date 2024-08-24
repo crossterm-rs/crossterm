@@ -330,6 +330,90 @@ impl Command for ScrollDown {
     }
 }
 
+/// A command that scrolls the terminal screen a given number of rows up in a specific scrolling
+/// region.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScrollUpInRegion {
+    /// The first row of the scrolling region.
+    pub first_row: u16,
+
+    /// The last row of the scrolling region.
+    pub last_row: u16,
+
+    /// The number of lines to scroll up by.
+    pub lines_to_scroll: u16,
+}
+
+impl Command for ScrollUpInRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if self.lines_to_scroll != 0 {
+            write!(
+                f,
+                csi!("{};{}r"),
+                self.first_row.saturating_add(1),
+                self.last_row.saturating_add(1)
+            )?;
+            write!(f, csi!("{}S"), self.lines_to_scroll)?;
+            write!(f, csi!("r"))?;
+        }
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "command not supported for winapi",
+        ))
+    }
+}
+
+/// A command that scrolls the terminal screen a given number of rows down in a specific scrolling
+/// region.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScrollDownInRegion {
+    /// The first row of the scrolling region.
+    pub first_row: u16,
+
+    /// The last row of the scrolling region.
+    pub last_row: u16,
+
+    /// The number of lines to scroll down by.
+    pub lines_to_scroll: u16,
+}
+
+impl Command for ScrollDownInRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        if self.lines_to_scroll != 0 {
+            write!(
+                f,
+                csi!("{};{}r"),
+                self.first_row.saturating_add(1),
+                self.last_row.saturating_add(1)
+            )?;
+            write!(f, csi!("{}T"), self.lines_to_scroll)?;
+            write!(f, csi!("r"))?;
+        }
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "command not supported for winapi",
+        ))
+    }
+}
+
 /// A command that clears the terminal screen buffer.
 ///
 /// See the [`ClearType`](enum.ClearType.html) enum.
