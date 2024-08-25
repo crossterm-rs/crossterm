@@ -245,11 +245,29 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// }
 /// ```
 pub fn read() -> std::io::Result<Event> {
-    match read_internal(&EventFilter)? {
+    // #[cfg(target_os = "macos")]
+    #[cfg(unix)]
+    let _ = set_nonblocking(true);
+
+    let readed_event = read_internal(&EventFilter)?;
+
+    // #[cfg(target_os = "macos")]
+    #[cfg(unix)]
+    let _ = set_nonblocking(false);
+
+    match readed_event {
         InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
         _ => unreachable!(),
     }
+}
+
+fn set_nonblocking(is_nonblock: bool) {
+    use rustix::fd::AsRawFd;
+    let stdin_fd = std::io::stdin().as_raw_fd();
+    let fd = unsafe  { rustix::fd::BorrowedFd::borrow_raw(stdin_fd) };
+
+    let _ = rustix::io::ioctl_fionbio(fd, is_nonblock);
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
