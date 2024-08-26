@@ -71,7 +71,7 @@ impl Colored {
     }
 
     /// Checks whether ansi color sequences are disabled by setting of NO_COLOR
-    /// in environment as per https://no-color.org/
+    /// in environment as per <https://no-color.org/>
     pub fn ansi_color_disabled() -> bool {
         !std::env::var("NO_COLOR")
             .unwrap_or("".to_string())

@@ -181,7 +181,7 @@ fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
 /// On unix systems, this function will block and possibly time out while
-/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+/// [`event::read`](crate::event::read()) or [`event::poll`](crate::event::poll) are being called.
 #[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> io::Result<bool> {
     if is_raw_mode_enabled() {

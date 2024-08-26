@@ -13,7 +13,7 @@ use crate::{
 /// The top left cell is represented as `(0, 0)`.
 ///
 /// On unix systems, this function will block and possibly time out while
-/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+/// [`crossterm::event::read`](crate::event::read()) or [`crossterm::event::poll`](crate::event::poll) are being called.
 pub fn position() -> io::Result<(u16, u16)> {
     if is_raw_mode_enabled() {
         read_position_raw()

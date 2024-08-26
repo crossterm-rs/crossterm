@@ -184,7 +184,7 @@ pub fn available_color_count() -> u16 {
 ///
 /// # Notes
 ///
-/// crossterm supports NO_COLOR (https://no-color.org/) to disabled colored output.
+/// crossterm supports NO_COLOR (<https://no-color.org/>) to disabled colored output.
 ///
 /// This API allows applications to override that behavior and force colorized output
 /// even if NO_COLOR is set.
