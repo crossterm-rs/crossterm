@@ -330,6 +330,69 @@ impl Command for ScrollDown {
     }
 }
 
+/// A command that sets the scrolling region.
+///
+/// The scrolling region contains all of the rows from `first` up to and including `last`.
+///
+/// The scrolling region will be used by all future scroll-up and scroll-down commands, until the
+/// scrolling region is set to something else, or it is reset. The scrolling region can be reset
+/// with the [`ResetScrollingRegion`] command.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+///
+/// `first` and `last` are 0-based.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SetScrollingRegion {
+    pub first: u16,
+    pub last: u16,
+}
+
+impl Command for SetScrollingRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(
+            f,
+            csi!("{};{}r"),
+            self.first.saturating_add(1),
+            self.last.saturating_add(1),
+        )
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "command not supported for winapi",
+        ))
+    }
+}
+
+/// A command that resets the scrolling region.
+///
+/// After this command is executed, the scrolling region will consist of the whole screen. See
+/// [`SetScrollingRegion`] for more details.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ResetScrollingRegion;
+
+impl Command for ResetScrollingRegion {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, csi!("r"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "command not supported for winapi",
+        ))
+    }
+}
+
 /// A command that clears the terminal screen buffer.
 ///
 /// See the [`ClearType`](enum.ClearType.html) enum.
