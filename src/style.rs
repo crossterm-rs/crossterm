@@ -116,6 +116,9 @@ use std::{
     fmt::{self, Display},
 };
 
+#[cfg(feature = "disable-guard")]
+use std::sync::atomic::AtomicBool;
+
 use crate::command::execute_fmt;
 use crate::{csi, impl_display, Command};
 
@@ -180,6 +183,91 @@ pub fn available_color_count() -> u16 {
         })
 }
 
+#[cfg(feature = "disable-guard")]
+static ANSI_DISABLED: AtomicBool = AtomicBool::new(false);
+
+#[cfg(feature = "disable-guard")]
+/// A guard that disables styled output
+/// 
+/// See [`disable_ansi`](crate::style::disable_ansi)
+pub struct AnsiDisabledGuard(bool);
+
+#[cfg(feature = "disable-guard")]
+/// Build a guard that temporarily disables output style.
+/// 
+/// If `disable` is `true`, the guard will disable output style until it is dropped.
+/// If `disable` is `false`, the guard will not do anything.
+/// 
+/// Typical use of this feature is to disable style on redirected stdout or stderr, in order to
+/// prevent the output from being polluted by ANSI escape codes.
+/// 
+/// This function is behind the `disable-guard` feature.
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// # use std::io::{self, IsTerminal};
+/// use crossterm::style::{self, Stylize};
+/// 
+/// fn print_diagnostic() {
+///     let _guard = style::disable_ansi(!io::stderr().is_terminal());
+/// 
+///     // styling stderr output is now only active if stderr is not redirected
+///     eprintln!("{}: {}", "error".red().bold(), "something went wrong".bold());
+/// }
+/// 
+/// ```
+/// # Notes
+/// 
+/// The guard will disable styled output in all threads. It is likely not what you want.
+/// External locking must be used if you style output in multiple threads. 
+/// [`io::stderr().lock()`](https://doc.rust-lang.org/std/io/struct.Stderr.html#method.lock) or
+/// [`io::stdout().lock()`](https://doc.rust-lang.org/std/io/struct.Stdout.html#method.lock)
+/// are typically used.
+///
+/// A more detailed example:
+/// 
+/// ```no_run
+/// # use std::io::{self, IsTerminal};
+/// # use std::fmt::{self, Display};
+/// use crossterm::style::{self, Stylize};
+/// # struct Error;
+/// # impl Display for Error { fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result { Ok(()) } }
+/// 
+/// fn write_diagnostic<W: io::Write>(out: &mut W, err: &Error) -> io::Result<()> {
+///     writeln!(out, "{}: {}", "error".red().bold(), err.to_string().bold()) 
+/// }
+/// 
+/// fn print_diagnostic(err: &Error, force_color: bool) -> io::Result<()> {
+///     let stderr = io::stderr().lock();
+///     let _guard = style::disable_ansi(!force_color && !stderr.is_terminal());
+/// 
+///     let mut out = io::BufWriter::new(stderr);
+///     write_diagnostic(&mut out, err)
+/// }
+/// ```
+/// 
+/// See also: [`is_ansi_disabled()`](crate::style::is_ansi_disabled)
+#[must_use]
+pub fn disable_ansi(disable: bool) -> AnsiDisabledGuard {
+    AnsiDisabledGuard(ANSI_DISABLED.swap(disable, std::sync::atomic::Ordering::Relaxed))
+}
+
+#[cfg(feature = "disable-guard")]
+impl Drop for AnsiDisabledGuard {
+    fn drop(&mut self) {
+        ANSI_DISABLED.store(self.0, std::sync::atomic::Ordering::Relaxed);
+    }
+}
+
+#[cfg(feature = "disable-guard")]
+/// Checks whether ansi styling is currently disabled
+/// 
+/// See [`disable_ansi`](crate::style::disable_ansi)
+pub fn is_ansi_disabled() -> bool {
+    ANSI_DISABLED.load(std::sync::atomic::Ordering::Relaxed)
+}
+
 /// Forces colored output on or off globally, overriding NO_COLOR.
 ///
 /// # Notes
@@ -207,11 +295,19 @@ pub struct SetForegroundColor(pub Color);
 
 impl Command for SetForegroundColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         write!(f, csi!("{}m"), Colored::ForegroundColor(self.0))
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         sys::windows::set_foreground_color(self.0)
     }
 }
@@ -231,11 +327,19 @@ pub struct SetBackgroundColor(pub Color);
 
 impl Command for SetBackgroundColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         write!(f, csi!("{}m"), Colored::BackgroundColor(self.0))
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         sys::windows::set_background_color(self.0)
     }
 }
@@ -255,6 +359,10 @@ pub struct SetUnderlineColor(pub Color);
 
 impl Command for SetUnderlineColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         write!(f, csi!("{}m"), Colored::UnderlineColor(self.0))
     }
 
@@ -293,6 +401,10 @@ pub struct SetColors(pub Colors);
 
 impl Command for SetColors {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         // Writing both foreground and background colors in one command resulted in about 20% more
         // FPS (20 to 24 fps) on a fullscreen (171x51) app that writes every cell with a different
         // foreground and background color, compared to separately using the SetForegroundColor and
@@ -315,6 +427,10 @@ impl Command for SetColors {
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         if let Some(color) = self.0.foreground {
             sys::windows::set_foreground_color(color)?;
         }
@@ -337,11 +453,19 @@ pub struct SetAttribute(pub Attribute);
 
 impl Command for SetAttribute {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         write!(f, csi!("{}m"), self.0.sgr())
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         // attributes are not supported by WinAPI.
         Ok(())
     }
@@ -359,6 +483,10 @@ pub struct SetAttributes(pub Attributes);
 
 impl Command for SetAttributes {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         for attr in Attribute::iterator() {
             if self.0.has(attr) {
                 SetAttribute(attr).write_ansi(f)?;
@@ -384,6 +512,10 @@ pub struct SetStyle(pub ContentStyle);
 
 impl Command for SetStyle {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         if let Some(bg) = self.0.background_color {
             execute_fmt(f, SetBackgroundColor(bg)).map_err(|_| fmt::Error)?;
         }
@@ -423,6 +555,12 @@ pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
 impl<D: Display> Command for PrintStyledContent<D> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            write!(f, "{}", self.0.content())?;
+            return Ok(());
+        }
+
         let style = self.0.style();
 
         let mut reset_background = false;
@@ -483,11 +621,19 @@ pub struct ResetColor;
 
 impl Command for ResetColor {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         f.write_str(csi!("0m"))
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
+        #[cfg(feature = "disable-guard")]
+        if is_ansi_disabled() {
+            return Ok(());
+        }
         sys::windows::reset()
     }
 }

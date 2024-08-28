@@ -45,6 +45,7 @@ events = [
     "dep:signal-hook-mio",
 ] # Enables reading input/events from the system.
 serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
+disable-guard = [] # Guard to locally disable ansi style code emission.
 
 #
 # Shared dependencies
