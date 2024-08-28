@@ -97,6 +97,11 @@ impl fmt::Display for Colored {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let color;
 
+        #[cfg(feature = "disable-guard")]
+        if crate::style::is_ansi_disabled() {
+            return Ok(());
+        }
+
         if Self::ansi_color_disabled_memoized() {
             return Ok(());
         }
