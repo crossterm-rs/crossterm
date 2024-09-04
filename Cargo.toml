@@ -44,7 +44,7 @@ events = [
     "dep:signal-hook",
     "dep:signal-hook-mio",
 ] # Enables reading input/events from the system.
-serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
+serde = ["dep:serde", "dep:arrayvec", "bitflags/serde"] # Enables 'serde' for various types.
 
 #
 # Shared dependencies
@@ -54,6 +54,7 @@ bitflags = { version = "2.3" }
 parking_lot = "0.12"
 
 # optional deps only added when requested
+arrayvec = { version = "0.7.6", optional = true }
 futures-core = { version = "0.3", optional = true, default-features = false }
 serde = { version = "1.0", features = ["derive"], optional = true }
 

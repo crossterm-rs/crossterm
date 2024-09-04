@@ -223,7 +223,11 @@ impl serde::ser::Serialize for Color {
     where
         S: serde::ser::Serializer,
     {
-        let str = match *self {
+        use std::fmt::Write as _;
+        // "rgb_(255,255,255)".len()
+        const MAX_LEN: usize = 17;
+        let mut buf = arrayvec::ArrayString::<MAX_LEN>::new();
+        serializer.serialize_str(match *self {
             Color::Reset => "reset",
             Color::Black => "black",
             Color::DarkGrey => "dark_grey",
@@ -241,20 +245,15 @@ impl serde::ser::Serialize for Color {
             Color::DarkCyan => "dark_cyan",
             Color::White => "white",
             Color::Grey => "grey",
-            _ => "",
-        };
-
-        if str.is_empty() {
-            match *self {
-                Color::AnsiValue(value) => serializer.serialize_str(&format!("ansi_({})", value)),
-                Color::Rgb { r, g, b } => {
-                    serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b))
-                }
-                _ => Err(serde::ser::Error::custom("Could not serialize enum type")),
+            Color::AnsiValue(c) => {
+                let _ = write!(&mut buf, "ansi_({})", c);
+                buf.as_str()
             }
-        } else {
-            serializer.serialize_str(str)
-        }
+            Color::Rgb { r, g, b } => {
+                let _ = write!(&mut buf, "rgb_({},{},{})", r, g, b);
+                buf.as_str()
+            }
+        })
     }
 }
 
@@ -277,57 +276,37 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                 E: serde::de::Error,
             {
                 if let Ok(c) = Color::try_from(value) {
-                    Ok(c)
-                } else {
-                    if value.contains("ansi") {
-                        // strip away `ansi_(..)' and get the inner value between parenthesis.
-                        let results = value.replace("ansi_(", "").replace(")", "");
-
-                        let ansi_val = results.parse::<u8>();
-
-                        if let Ok(ansi) = ansi_val {
+                    return Ok(c);
+                }
+                if let Some(rest) = value.strip_prefix("ansi_(") {
+                    if let Some(rest) = rest.strip_suffix(')') {
+                        if let Ok(ansi) = rest.parse::<u8>() {
                             return Ok(Color::AnsiValue(ansi));
                         }
-                    } else if value.contains("rgb") {
-                        // strip away `rgb_(..)' and get the inner values between parenthesis.
-                        let results = value
-                            .replace("rgb_(", "")
-                            .replace(")", "")
-                            .split(',')
-                            .map(|x| x.to_string())
-                            .collect::<Vec<String>>();
-
-                        if results.len() == 3 {
-                            let r = results[0].parse::<u8>();
-                            let g = results[1].parse::<u8>();
-                            let b = results[2].parse::<u8>();
-
-                            if r.is_ok() && g.is_ok() && b.is_ok() {
-                                return Ok(Color::Rgb {
-                                    r: r.unwrap(),
-                                    g: g.unwrap(),
-                                    b: b.unwrap(),
-                                });
-                            }
-                        }
-                    } else if let Some(hex) = value.strip_prefix('#') {
-                        if hex.is_ascii() && hex.len() == 6 {
-                            let r = u8::from_str_radix(&hex[0..2], 16);
-                            let g = u8::from_str_radix(&hex[2..4], 16);
-                            let b = u8::from_str_radix(&hex[4..6], 16);
-
-                            if r.is_ok() && g.is_ok() && b.is_ok() {
-                                return Ok(Color::Rgb {
-                                    r: r.unwrap(),
-                                    g: g.unwrap(),
-                                    b: b.unwrap(),
-                                });
-                            }
+                    }
+                } else if let Some(rest) = value.strip_prefix("rgb_(") {
+                    if let Some(rest) = rest.strip_suffix(')') {
+                        let mut spl = rest.split(',');
+                        let r = spl.next().and_then(|c| c.parse::<u8>().ok());
+                        let g = spl.next().and_then(|c| c.parse::<u8>().ok());
+                        let b = spl.next().and_then(|c| c.parse::<u8>().ok());
+                        let none = spl.next();
+                        if let (Some(r), Some(g), Some(b), None) = (r, g, b, none) {
+                            return Ok(Color::Rgb { r, g, b });
                         }
                     }
-
-                    Err(E::invalid_value(serde::de::Unexpected::Str(value), &self))
+                } else if let Some(hex) = value.strip_prefix('#') {
+                    if hex.len() == 6 {
+                        let r = u8::from_str_radix(&hex[0..2], 16);
+                        let g = u8::from_str_radix(&hex[2..4], 16);
+                        let b = u8::from_str_radix(&hex[4..6], 16);
+                        if let (Ok(r), Ok(g), Ok(b)) = (r, g, b) {
+                            return Ok(Color::Rgb { r, g, b });
+                        }
+                    }
                 }
+
+                Err(E::invalid_value(serde::de::Unexpected::Str(value), &self))
             }
         }
 
