@@ -75,7 +75,7 @@ crossterm_winapi = { version = "0.9.1", optional = true }
 # Default to using rustix for UNIX systems, but provide an option to use libc for backwards
 # compatibility.
 libc = { version = "0.2", default-features = false, optional = true }
-rustix = { version = "0.38.34", default-features = false, features = [
+rustix = { version = "0.38.36", default-features = false, features = [
     "std",
     "stdio",
     "termios",
