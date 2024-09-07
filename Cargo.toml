@@ -91,12 +91,12 @@ signal-hook-mio = { version = "0.2.4", features = [
 # Dev dependencies (examples, ...)
 #
 [dev-dependencies]
-tokio = { version = "1.25", features = ["full"] }
+tokio = { version = "1.40", features = ["full"] }
 futures = "0.3"
 futures-timer = "3.0"
-async-std = "1.12"
+async-std = "1.13"
 serde_json = "1.0"
-serial_test = "2.0.0"
+serial_test = "3.1"
 temp-env = "0.3.6"
 
 #
