@@ -178,6 +178,62 @@ fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
     Ok(())
 }
 
+/// Returns the cell size in pixels (height, width).
+///
+/// On unix systems, this function will block and possibly time out while
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+#[cfg(feature = "events")]
+pub fn cell_size() -> io::Result<(u16, u16)> {
+    if is_raw_mode_enabled() {
+        read_cell_size_raw()
+    } else {
+        read_cell_size()
+    }
+}
+
+#[cfg(feature = "events")]
+fn read_cell_size() -> io::Result<(u16, u16)> {
+    enable_raw_mode()?;
+    let pos = read_cell_size_raw();
+    disable_raw_mode()?;
+    pos
+}
+
+#[cfg(feature = "events")]
+fn read_cell_size_raw() -> io::Result<(u16, u16)> {
+    // Use `ESC [ 16 t` to and retrieve the cell pixel size.
+    use {
+        crate::event::{filter::CellPixelSizeFilter, poll_internal, read_internal, InternalEvent},
+        std::{
+            io::{self, Error, ErrorKind, Write},
+            time::Duration,
+        },
+    };
+
+    let mut stdout = io::stdout();
+    stdout.write_all(b"\x1B[16t")?;
+    stdout.flush()?;
+
+    loop {
+        match poll_internal(Some(Duration::from_millis(2000)), &CellPixelSizeFilter) {
+            Ok(true) => {
+                if let Ok(InternalEvent::CellSizePixels(height, width)) =
+                    read_internal(&CellPixelSizeFilter)
+                {
+                    return Ok((height, width));
+                }
+            }
+            Ok(false) => {
+                return Err(Error::new(
+                    ErrorKind::Other,
+                    "The cell pixel size could not be read within a normal duration",
+                ));
+            }
+            Err(_) => {}
+        }
+    }
+}
+
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
 /// On unix systems, this function will block and possibly time out while
