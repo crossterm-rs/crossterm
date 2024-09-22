@@ -202,6 +202,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
+                        b't' => return parse_csi_cell_size_pixels(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
@@ -254,6 +255,25 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<Inte
     let x = next_parsed::<u16>(&mut split)? - 1;
 
     Ok(Some(InternalEvent::CursorPosition(x, y)))
+}
+
+pub(crate) fn parse_csi_cell_size_pixels(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // ESC [ 6 ; height ; width t
+    //   height - cell height in pixels
+    //   width  - cell width in pixels
+    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
+    assert!(buffer.ends_with(&[b't']));
+
+    let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let mut split = s.split(';');
+
+    let _ = next_parsed::<u16>(&mut split)? - 1; // should be 6
+    let height = next_parsed::<u16>(&mut split)? - 1;
+    let width = next_parsed::<u16>(&mut split)? - 1;
+
+    Ok(Some(InternalEvent::CellSizePixels(height, width)))
 }
 
 fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
