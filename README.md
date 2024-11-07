@@ -180,7 +180,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 - [Broot](https://dystroy.org/broot/)
 - [Cursive](https://github.com/gyscos/Cursive)
-- [TUI](https://github.com/fdehau/tui-rs)
+- [Ratatui](https://github.com/ratatui/ratatui)
 - [Rust-sloth](https://github.com/ecumene/rust-sloth)
 - [Rusty-rain](https://github.com/cowboy8625/rusty-rain)
 
