@@ -79,18 +79,20 @@ fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> O
 impl From<&ControlKeyState> for KeyModifiers {
     fn from(state: &ControlKeyState) -> Self {
         let shift = state.has_state(SHIFT_PRESSED);
-        let alt = state.has_state(LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED);
+        let l_alt = state.has_state(LEFT_ALT_PRESSED);
+        let r_alt = state.has_state(RIGHT_ALT_PRESSED);
         let control = state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED);
+        let alt_gr = control && r_alt;
 
         let mut modifier = KeyModifiers::empty();
 
         if shift {
             modifier |= KeyModifiers::SHIFT;
         }
-        if control {
+        if control && !alt_gr {
             modifier |= KeyModifiers::CONTROL;
         }
-        if alt {
+        if (l_alt || r_alt) && !alt_gr {
             modifier |= KeyModifiers::ALT;
         }
 
