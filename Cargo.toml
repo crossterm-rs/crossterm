@@ -45,6 +45,7 @@ events = [
     "dep:signal-hook-mio",
 ] # Enables reading input/events from the system.
 serde = ["dep:serde", "bitflags/serde"] # Enables 'serde' for various types.
+event-kind = ["events"] # Enables a 'release' event for input for windows and kitty protocol.
 
 #
 # Shared dependencies
@@ -104,7 +105,7 @@ temp-env = "0.3.6"
 #
 [[example]]
 name = "event-read"
-required-features = ["bracketed-paste", "events"]
+required-features = ["bracketed-paste", "events", "event-kind"]
 
 [[example]]
 name = "event-match-modifiers"

@@ -1,8 +1,9 @@
 use std::io;
 
 use crate::event::{
-    Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
-    MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
+    Event, KeyCode, KeyEvent, KeyEventKind::Release, KeyEventState, KeyModifiers,
+    KeyboardEnhancementFlags, MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent,
+    MouseEventKind,
 };
 
 use super::super::super::InternalEvent;
@@ -271,6 +272,7 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
     if bits & 1 != 0 {
         flags |= KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES;
     }
+    #[cfg(feature = "event-kind")]
     if bits & 2 != 0 {
         flags |= KeyboardEnhancementFlags::REPORT_EVENT_TYPES;
     }
@@ -339,7 +341,9 @@ fn parse_modifiers_to_state(mask: u8) -> KeyEventState {
 fn parse_key_event_kind(kind: u8) -> KeyEventKind {
     match kind {
         1 => KeyEventKind::Press,
+        #[cfg(feature = "event-kind")]
         2 => KeyEventKind::Repeat,
+        #[cfg(feature = "event-kind")]
         3 => KeyEventKind::Release,
         _ => KeyEventKind::Press,
     }
@@ -1334,6 +1338,7 @@ mod tests {
                 KeyEventKind::Press,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[97;1:2u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
@@ -1342,6 +1347,7 @@ mod tests {
                 KeyEventKind::Repeat,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[97;1:3u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
@@ -1362,6 +1368,7 @@ mod tests {
                 KeyEventKind::Press,
             )))),
         );
+        #[cfg(feature = "event-kind")]
         assert_eq!(
             parse_csi_u_encoded_key_code(b"\x1B[57449;3:3u").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
@@ -1465,6 +1472,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "event-kind")]
     fn test_parse_csi_special_key_code_with_types() {
         assert_eq!(
             parse_event(b"\x1B[;1:3B", false).unwrap(),
@@ -1485,6 +1493,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "event-kind")]
     fn test_parse_csi_numbered_escape_code_with_types() {
         assert_eq!(
             parse_event(b"\x1B[5;1:3~", false).unwrap(),
