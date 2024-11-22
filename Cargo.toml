@@ -32,8 +32,7 @@ windows = [
     "dep:winapi",
     "dep:crossterm_winapi",
 ] # Disables winapi dependencies from being included into the binary (SHOULD NOT be disabled on windows).
-bracketed-paste = [
-] # Enables triggering a `Event::Paste` when pasting text into the terminal.
+bracketed-paste = [] # Enables triggering a `Event::Paste` when pasting text into the terminal.
 event-stream = ["dep:futures-core", "events"] # Enables async events
 use-dev-tty = [
     "filedescriptor",
@@ -75,17 +74,11 @@ crossterm_winapi = { version = "0.9.1", optional = true }
 # Default to using rustix for UNIX systems, but provide an option to use libc for backwards
 # compatibility.
 libc = { version = "0.2", default-features = false, optional = true }
-rustix = { version = "0.38.34", default-features = false, features = [
-    "std",
-    "stdio",
-    "termios",
-] }
+rustix = { version = "0.38.34", default-features = false, features = ["std", "stdio", "termios"] }
 signal-hook = { version = "0.3.17", optional = true }
 filedescriptor = { version = "0.8", optional = true }
 mio = { version = "1.0", features = ["os-poll"], optional = true }
-signal-hook-mio = { version = "0.2.4", features = [
-    "support-v1_0",
-], optional = true }
+signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = true }
 
 #
 # Dev dependencies (examples, ...)
