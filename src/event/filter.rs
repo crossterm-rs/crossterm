@@ -61,22 +61,22 @@ impl Filter for EventFilter {
     }
 }
 
-#[derive(Debug, Clone)]
-pub(crate) struct InternalEventFilter;
-
-impl Filter for InternalEventFilter {
-    fn eval(&self, _: &InternalEvent) -> bool {
-        true
-    }
-}
-
 #[cfg(test)]
 #[cfg(unix)]
 mod tests {
     use super::{
         super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent,
-        InternalEventFilter, KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter,
+        KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter,
     };
+
+    #[derive(Debug, Clone)]
+    pub(crate) struct InternalEventFilter;
+
+    impl Filter for InternalEventFilter {
+        fn eval(&self, _: &InternalEvent) -> bool {
+            true
+        }
+    }
 
     #[test]
     fn test_cursor_position_filter_filters_cursor_position() {
