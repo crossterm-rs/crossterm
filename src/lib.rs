@@ -223,6 +223,8 @@
 //!   Ok(())
 //! }
 //!```
+//! ## Feature Flags
+#![doc = document_features::document_features!()]
 //!
 //! [write]: https://doc.rust-lang.org/std/io/trait.Write.html
 //! [stdout]: https://doc.rust-lang.org/std/io/fn.stdout.html
