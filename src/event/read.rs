@@ -132,10 +132,16 @@ mod tests {
 
     #[cfg(unix)]
     use super::super::filter::CursorPositionFilter;
-    use super::{
-        super::{filter::InternalEventFilter, Event},
-        EventSource, InternalEvent, InternalEventReader,
-    };
+    use super::{super::Event, EventSource, Filter, InternalEvent, InternalEventReader};
+
+    #[derive(Debug, Clone)]
+    pub(crate) struct InternalEventFilter;
+
+    impl Filter for InternalEventFilter {
+        fn eval(&self, _: &InternalEvent) -> bool {
+            true
+        }
+    }
 
     #[test]
     fn test_poll_fails_without_event_source() {
