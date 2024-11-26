@@ -580,6 +580,7 @@ impl Event {
     /// while !event::read()?.is_key_press() {
     ///     // ...
     /// }
+    /// # Ok::<(), std::io::Error>(())
     /// ```
     #[inline]
     pub fn is_key_press(&self) -> bool {
