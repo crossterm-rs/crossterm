@@ -126,6 +126,7 @@ pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
+use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
@@ -543,7 +544,7 @@ impl Command for PopKeyboardEnhancementFlags {
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash, IsVariant)]
 pub enum Event {
     /// The terminal gained focus
     FocusGained,
@@ -560,6 +561,63 @@ pub enum Event {
     /// An resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+}
+
+impl Event {
+    /// Returns `true` if the event is a key press event.
+    ///
+    /// This is useful for waiting for any key press event, regardless of the key that was pressed.
+    ///
+    /// Returns `false` for key release and repeat events (as well as for non-key events).
+    ///
+    /// # Examples
+    ///
+    /// The following code runs a loop that processes events until a key press event is encountered:
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while !event::read()?.is_key_press() {
+    ///     // ...
+    /// }
+    /// ```
+    #[inline]
+    pub fn is_key_press(&self) -> bool {
+        matches!(
+            self,
+            Event::Key(KeyEvent {
+                kind: KeyEventKind::Press,
+                ..
+            })
+        )
+    }
+
+    /// Returns an Option containing the KeyEvent if the event is a key press event.
+    ///
+    /// This is a convenience method that makes apps that only care about key press events, and not
+    /// key release or repeat events (or non-key events), easier to write.
+    ///
+    /// Returns `None` for key release and repeat events (as well as for non-key events).
+    ///
+    /// # Examples
+    ///
+    /// The following code runs a loop that only processes key press events:
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Ok(event) = event::read() {
+    ///     if let Some(key) = event.as_key_press() {
+    ///         // ...
+    ///     }
+    /// }
+    #[inline]
+    pub fn as_key_press(&self) -> Option<&KeyEvent> {
+        match self {
+            Event::Key(event) if self.is_key_press() => Some(event),
+            _ => None,
+        }
+    }
 }
 
 /// Represents a mouse event.
@@ -600,7 +658,7 @@ pub struct MouseEvent {
 /// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash, IsVariant)]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
     Down(MouseButton),
@@ -622,7 +680,7 @@ pub enum MouseEventKind {
 
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash, IsVariant)]
 pub enum MouseButton {
     /// Left mouse button.
     Left,
@@ -702,7 +760,7 @@ impl Display for KeyModifiers {
 
 /// Represents a keyboard event kind.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash, IsVariant)]
 pub enum KeyEventKind {
     Press,
     Repeat,
@@ -805,6 +863,21 @@ impl KeyEvent {
             self.code = KeyCode::Char(c.to_ascii_uppercase())
         }
         self
+    }
+
+    /// Returns whether the key event is a press event.
+    pub fn is_press(&self) -> bool {
+        self.kind.is_press()
+    }
+
+    /// Returns whether the key event is a release event.
+    pub fn is_release(&self) -> bool {
+        self.kind.is_release()
+    }
+
+    /// Returns whether the key event is a repeat event.
+    pub fn is_repeat(&self) -> bool {
+        self.kind.is_repeat()
     }
 }
 
@@ -1006,7 +1079,7 @@ impl Display for ModifierKeyCode {
 }
 
 /// Represents a key.
-#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash, IsVariant)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyCode {
     /// Backspace key (Delete on macOS, Backspace on other platforms).
@@ -1040,10 +1113,12 @@ pub enum KeyCode {
     /// F key.
     ///
     /// `KeyCode::F(1)` represents F1 key, etc.
+    #[is_variant(ignore)]
     F(u8),
     /// A character.
     ///
     /// `KeyCode::Char('c')` represents `c` character, etc.
+    #[is_variant(ignore)]
     Char(char),
     /// Null.
     Null,
@@ -1096,6 +1171,7 @@ pub enum KeyCode {
     /// **Note:** these keys can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
+    #[is_variant(ignore)]
     Media(MediaKeyCode),
     /// A modifier key.
     ///
@@ -1103,7 +1179,90 @@ pub enum KeyCode {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
     /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] have been enabled with
     /// [`PushKeyboardEnhancementFlags`].
+    #[is_variant(ignore)]
     Modifier(ModifierKeyCode),
+}
+
+impl KeyCode {
+    /// Returns `true` if the key code is the given function key.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crossterm::event::KeyCode;
+    /// assert!(KeyCode::F(1).is_function_key(1));
+    /// assert!(!KeyCode::F(1).is_function_key(2));
+    /// ```
+    pub fn is_function_key(&self, n: u8) -> bool {
+        matches!(self, KeyCode::F(m) if *m == n)
+    }
+
+    /// Returns `true` if the key code is the given character.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crossterm::event::KeyCode;
+    /// assert!(KeyCode::Char('a').is_char('a'));
+    /// assert!(!KeyCode::Char('a').is_char('b'));
+    /// assert!(!KeyCode::F(1).is_char('a'));
+    /// ```
+    pub fn is_char(&self, c: char) -> bool {
+        matches!(self, KeyCode::Char(m) if *m == c)
+    }
+
+    /// Returns the character if the key code is a character key.
+    ///
+    /// Returns `None` if the key code is not a character key.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crossterm::event::KeyCode;
+    /// assert_eq!(KeyCode::Char('a').as_char(), Some('a'));
+    /// assert_eq!(KeyCode::F(1).as_char(), None);
+    /// ```
+    pub fn as_char(&self) -> Option<char> {
+        match self {
+            KeyCode::Char(c) => Some(*c),
+            _ => None,
+        }
+    }
+
+    /// Returns `true` if the key code is the given media key.
+    ///
+    /// **Note:** this method requires
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] to be enabled with
+    /// [`PushKeyboardEnhancementFlags`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crossterm::event::{KeyCode, MediaKeyCode};
+    /// assert!(KeyCode::Media(MediaKeyCode::Play).is_media_key(MediaKeyCode::Play));
+    /// assert!(!KeyCode::Media(MediaKeyCode::Play).is_media_key(MediaKeyCode::Pause));
+    /// ```
+    pub fn is_media_key(&self, media: MediaKeyCode) -> bool {
+        matches!(self, KeyCode::Media(m) if *m == media)
+    }
+
+    /// Returns `true` if the key code is the given modifier key.
+    ///
+    /// **Note:** this method requires both
+    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
+    /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] to be enabled with
+    /// [`PushKeyboardEnhancementFlags`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crossterm::event::{KeyCode, ModifierKeyCode};
+    /// assert!(KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::LeftShift));
+    /// assert!(!KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift));
+    /// ```
+    pub fn is_modifier(&self, modifier: ModifierKeyCode) -> bool {
+        matches!(self, KeyCode::Modifier(m) if *m == modifier)
+    }
 }
 
 impl Display for KeyCode {
@@ -1323,5 +1482,88 @@ mod tests {
         assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
         assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
         assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
+    }
+
+    #[test]
+    fn test_event_is() {
+        let event = Event::FocusGained;
+        assert!(event.is_focus_gained());
+        assert!(!event.is_key());
+
+        let event = Event::FocusLost;
+        assert!(event.is_focus_lost());
+        assert!(!event.is_key());
+
+        let event = Event::Resize(1, 1);
+        assert!(event.is_resize());
+        assert!(!event.is_key());
+
+        let event = Event::Key(KeyCode::Esc.into());
+        assert!(event.is_key());
+        assert!(!event.is_focus_gained());
+
+        let event = Event::Mouse(MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: 1,
+            row: 1,
+            modifiers: KeyModifiers::empty(),
+        });
+        assert!(event.is_mouse());
+        assert!(!event.is_key());
+    }
+
+    const ESC_PRESSED: KeyEvent =
+        KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Press);
+    const ESC_RELEASED: KeyEvent =
+        KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Release);
+    const ESC_REPEAT: KeyEvent =
+        KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Repeat);
+
+    #[test]
+    fn test_event_is_key_press() {
+        let event = Event::Key(ESC_PRESSED);
+        assert!(event.is_key_press());
+
+        let event = Event::Key(ESC_RELEASED);
+        assert!(!event.is_key_press());
+
+        let event = Event::Key(ESC_REPEAT);
+        assert!(!event.is_key_press());
+
+        let event = Event::FocusGained;
+        assert!(!event.is_key_press());
+    }
+
+    #[test]
+    fn test_event_as_key_press() {
+        let event = Event::Key(ESC_PRESSED);
+        assert_eq!(event.as_key_press(), Some(&ESC_PRESSED));
+
+        let event = Event::Key(ESC_RELEASED);
+        assert_eq!(event.as_key_press(), None);
+
+        let event = Event::Key(ESC_REPEAT);
+        assert_eq!(event.as_key_press(), None);
+
+        let event = Event::FocusGained;
+        assert_eq!(event.as_key_press(), None);
+    }
+
+    #[test]
+    fn test_key_event_is() {
+        let event = ESC_PRESSED;
+        assert!(event.is_press());
+        assert!(!event.is_release());
+        assert!(!event.is_repeat());
+
+        let event = ESC_RELEASED;
+        assert!(!event.is_press());
+        assert!(event.is_release());
+        assert!(!event.is_repeat());
+
+        let event = ESC_REPEAT;
+        assert!(!event.is_press());
+        assert!(!event.is_release());
+        assert!(event.is_repeat());
     }
 }

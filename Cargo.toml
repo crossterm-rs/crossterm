@@ -46,6 +46,7 @@ use-dev-tty = ["filedescriptor", "rustix/process"]
 
 [dependencies]
 bitflags = { version = "2.3" }
+derive_more = { version = "1.0.0", features = ["is_variant"] }
 document-features = "0.2.10"
 futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
