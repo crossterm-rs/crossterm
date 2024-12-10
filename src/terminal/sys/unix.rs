@@ -174,6 +174,14 @@ fn get_terminal_attr(fd: impl AsFd) -> io::Result<Termios> {
 
 #[cfg(not(feature = "libc"))]
 fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
+    // When stdin is not a tty, fd points to '/dev/tty', causing tcsetattr to hang on macOS.
+    if !rustix::termios::isatty(std::io::stdin()) {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "Attempt to set terminal attributes with no terminal attached",
+        ))
+    }
+
     rustix::termios::tcsetattr(fd, rustix::termios::OptionalActions::Now, termios)?;
     Ok(())
 }
