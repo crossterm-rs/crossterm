@@ -5,12 +5,13 @@
 
 use std::io;
 
-use crossterm::event::{self, Event, KeyCode, KeyEvent};
+use crossterm::{event::{self, Event, KeyCode, KeyEvent, KeyEventKind}, terminal};
 
 pub fn read_char() -> io::Result<char> {
     loop {
         if let Event::Key(KeyEvent {
             code: KeyCode::Char(c),
+            kind: KeyEventKind::Press,
             ..
         }) = event::read()?
         {
@@ -21,24 +22,36 @@ pub fn read_char() -> io::Result<char> {
 
 pub fn read_line() -> io::Result<String> {
     let mut line = String::new();
-    while let Event::Key(KeyEvent { code, .. }) = event::read()? {
-        match code {
-            KeyCode::Enter => {
-                break;
+    loop {
+        if let Event::Key(KeyEvent{
+            code,
+            kind: KeyEventKind::Press,
+            ..
+        }) = event::read()? {
+            match code {
+                KeyCode::Enter => {
+                    break;
+                }
+                KeyCode::Char(c) => {
+                    line.push(c);
+                }
+                _ => {}
             }
-            KeyCode::Char(c) => {
-                line.push(c);
-            }
-            _ => {}
         }
     }
 
     Ok(line)
 }
 
-fn main() {
-    println!("read line:");
-    println!("{:?}", read_line());
-    println!("read char:");
-    println!("{:?}", read_char());
+fn main() -> io::Result<()> {
+    terminal::enable_raw_mode()?;
+
+    println!("read line:\r");
+    println!("{:?}\r", read_line());
+    println!("read char:\r");
+    println!("{:?}\r", read_char());
+    println!("read char again:\r");
+    println!("{:?}\r", read_char());
+
+    terminal::disable_raw_mode()
 }
