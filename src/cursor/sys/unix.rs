@@ -1,11 +1,14 @@
 use std::{
-    io::{self, Error, ErrorKind, Write},
+    io::{self, Error, ErrorKind},
     time::Duration,
 };
 
 use crate::{
     event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
-    terminal::{disable_raw_mode, enable_raw_mode, sys::is_raw_mode_enabled},
+    terminal::{
+        disable_raw_mode, enable_raw_mode,
+        sys::{file_descriptor::tty_fd_out, is_raw_mode_enabled},
+    },
 };
 
 /// Returns the cursor position (column, row).
@@ -31,10 +34,8 @@ fn read_position() -> io::Result<(u16, u16)> {
 
 fn read_position_raw() -> io::Result<(u16, u16)> {
     // Use `ESC [ 6 n` to and retrieve the cursor position.
-    let mut stdout = io::stdout();
-    stdout.write_all(b"\x1B[6n")?;
-    stdout.flush()?;
-
+    let stdout = tty_fd_out()?;
+    stdout.write(b"\x1B[6n")?;
     loop {
         match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
             Ok(true) => {
