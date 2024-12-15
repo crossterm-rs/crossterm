@@ -1,6 +1,6 @@
 use std::{
     io::{self, Error, ErrorKind, Write},
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use crate::{
@@ -35,8 +35,10 @@ fn read_position_raw() -> io::Result<(u16, u16)> {
     stdout.write_all(b"\x1B[6n")?;
     stdout.flush()?;
 
+    let poll_timeout = Duration::from_millis(2000);
+    let poll_start = Instant::now();
     loop {
-        match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
+        match poll_internal(Some(poll_timeout), &CursorPositionFilter) {
             Ok(true) => {
                 if let Ok(InternalEvent::CursorPosition(x, y)) =
                     read_internal(&CursorPositionFilter)
@@ -48,6 +50,12 @@ fn read_position_raw() -> io::Result<(u16, u16)> {
                 return Err(Error::new(
                     ErrorKind::Other,
                     "The cursor position could not be read within a normal duration",
+                ));
+            }
+            Err(e) if Instant::now() - poll_start > poll_timeout => {
+                return Err(io::Error::new(
+                    e.kind(),
+                    format!("Error reading cursor position: {e:?}"),
                 ));
             }
             Err(_) => {}
