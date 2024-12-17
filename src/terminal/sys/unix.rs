@@ -1,5 +1,7 @@
 //! UNIX related logic for terminal manipulation.
 
+#[cfg(feature = "events")]
+use crate::event::KeyboardEnhancementFlags;
 use crate::terminal::{
     sys::file_descriptor::{tty_fd, FileDesc},
     WindowSize,
@@ -184,23 +186,32 @@ fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
 /// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
 #[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> io::Result<bool> {
+    query_keyboard_enhancement_flags().map(|flags| flags.is_some())
+}
+
+/// Queries the terminal's currently active keyboard enhancement flags.
+///
+/// On unix systems, this function will block and possibly time out while
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+#[cfg(feature = "events")]
+pub fn query_keyboard_enhancement_flags() -> io::Result<Option<KeyboardEnhancementFlags>> {
     if is_raw_mode_enabled() {
-        read_supports_keyboard_enhancement_raw()
+        query_keyboard_enhancement_flags_raw()
     } else {
-        read_supports_keyboard_enhancement_flags()
+        query_keyboard_enhancement_flags_nonraw()
     }
 }
 
 #[cfg(feature = "events")]
-fn read_supports_keyboard_enhancement_flags() -> io::Result<bool> {
+fn query_keyboard_enhancement_flags_nonraw() -> io::Result<Option<KeyboardEnhancementFlags>> {
     enable_raw_mode()?;
-    let flags = read_supports_keyboard_enhancement_raw();
+    let flags = query_keyboard_enhancement_flags_raw();
     disable_raw_mode()?;
     flags
 }
 
 #[cfg(feature = "events")]
-fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
+fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhancementFlags>> {
     use crate::event::{
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         poll_internal, read_internal, InternalEvent,
@@ -236,12 +247,12 @@ fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
         ) {
             Ok(true) => {
                 match read_internal(&KeyboardEnhancementFlagsFilter) {
-                    Ok(InternalEvent::KeyboardEnhancementFlags(_current_flags)) => {
+                    Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
                         // Flush the PrimaryDeviceAttributes out of the event queue.
                         read_internal(&PrimaryDeviceAttributesFilter).ok();
-                        return Ok(true);
+                        return Ok(Some(current_flags));
                     }
-                    _ => return Ok(false),
+                    _ => return Ok(None),
                 }
             }
             Ok(false) => {
