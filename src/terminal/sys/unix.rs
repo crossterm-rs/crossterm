@@ -205,8 +205,8 @@ fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         poll_internal, read_internal, InternalEvent,
     };
-    use std::io::Write;
     use std::time::Duration;
+    use std::{io::Write, time::Instant};
 
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device attributes
@@ -229,11 +229,10 @@ fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
         stdout.flush()?;
     }
 
+    let poll_timeout = Duration::from_millis(2000);
+    let poll_start = Instant::now();
     loop {
-        match poll_internal(
-            Some(Duration::from_millis(2000)),
-            &KeyboardEnhancementFlagsFilter,
-        ) {
+        match poll_internal(Some(poll_timeout), &KeyboardEnhancementFlagsFilter) {
             Ok(true) => {
                 match read_internal(&KeyboardEnhancementFlagsFilter) {
                     Ok(InternalEvent::KeyboardEnhancementFlags(_current_flags)) => {
@@ -248,6 +247,12 @@ fn read_supports_keyboard_enhancement_raw() -> io::Result<bool> {
                 return Err(io::Error::new(
                     io::ErrorKind::Other,
                     "The keyboard enhancement status could not be read within a normal duration",
+                ));
+            }
+            Err(e) if Instant::now() - poll_start > poll_timeout => {
+                return Err(io::Error::new(
+                    e.kind(),
+                    format!("Error reading keyboard enhancement status: {e:?}"),
                 ));
             }
             Err(_) => {}
