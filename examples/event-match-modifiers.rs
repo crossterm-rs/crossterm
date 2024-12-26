@@ -5,7 +5,7 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
 fn match_event(event: Event) {
-    if let Some(key) = event.as_key_press() {
+    if let Some(key) = event.as_key_press_event() {
         match key {
             KeyEvent {
                 modifiers: KeyModifiers::CONTROL,
@@ -33,7 +33,7 @@ fn match_event(event: Event) {
             KeyEvent {
                 code, modifiers, ..
             } => {
-                if *modifiers == (KeyModifiers::ALT | KeyModifiers::SHIFT) {
+                if modifiers == (KeyModifiers::ALT | KeyModifiers::SHIFT) {
                     println!("Alt + Shift {:?}", code);
                 } else {
                     println!("({:?}) with key: {:?}", modifiers, code)

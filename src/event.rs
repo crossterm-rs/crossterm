@@ -593,6 +593,54 @@ impl Event {
         )
     }
 
+    /// Returns `true` if the event is a key release event.
+    #[inline]
+    pub fn is_key_release(&self) -> bool {
+        matches!(
+            self,
+            Event::Key(KeyEvent {
+                kind: KeyEventKind::Release,
+                ..
+            })
+        )
+    }
+
+    /// Returns `true` if the event is a key repeat event.
+    #[inline]
+    pub fn is_key_repeat(&self) -> bool {
+        matches!(
+            self,
+            Event::Key(KeyEvent {
+                kind: KeyEventKind::Repeat,
+                ..
+            })
+        )
+    }
+
+    /// Returns the key event if the event is a key event, otherwise `None`.
+    ///
+    /// This is a convenience method that makes apps that only care about key events easier to write.
+    ///
+    /// # Examples
+    ///
+    /// The following code runs a loop that only processes key events:
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Some(key_event) = event::read()?.as_key_event() {
+    ///     // ...
+    /// }
+    /// # std::io::Result::Ok(())
+    /// ```
+    #[inline]
+    pub fn as_key_event(&self) -> Option<KeyEvent> {
+        match self {
+            Event::Key(event) => Some(*event),
+            _ => None,
+        }
+    }
+
     /// Returns an Option containing the KeyEvent if the event is a key press event.
     ///
     /// This is a convenience method that makes apps that only care about key press events, and not
@@ -608,14 +656,100 @@ impl Event {
     /// use crossterm::event;
     ///
     /// while let Ok(event) = event::read() {
-    ///     if let Some(key) = event.as_key_press() {
+    ///     if let Some(key) = event.as_key_press_event() {
     ///         // ...
     ///     }
     /// }
     #[inline]
-    pub fn as_key_press(&self) -> Option<&KeyEvent> {
+    pub fn as_key_press_event(&self) -> Option<KeyEvent> {
         match self {
-            Event::Key(event) if self.is_key_press() => Some(event),
+            Event::Key(event) if self.is_key_press() => Some(*event),
+            _ => None,
+        }
+    }
+
+    /// Returns an Option containing the KeyEvent if the event is a key release event.
+    #[inline]
+    pub fn as_key_release_event(&self) -> Option<KeyEvent> {
+        match self {
+            Event::Key(event) if event.kind == KeyEventKind::Release => Some(*event),
+            _ => None,
+        }
+    }
+
+    /// Returns an Option containing the KeyEvent if the event is a key repeat event.
+    #[inline]
+    pub fn as_key_repeat_event(&self) -> Option<KeyEvent> {
+        match self {
+            Event::Key(event) if event.kind == KeyEventKind::Repeat => Some(*event),
+            _ => None,
+        }
+    }
+
+    /// Returns the mouse event if the event is a mouse event, otherwise `None`.
+    ///
+    /// This is a convenience method that makes code which only cares about mouse events easier to
+    /// write.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Some(mouse_event) = event::read()?.as_mouse_event() {
+    ///     // ...
+    /// }
+    /// # std::io::Result::Ok(())
+    /// ```
+    #[inline]
+    pub fn as_mouse_event(&self) -> Option<MouseEvent> {
+        match self {
+            Event::Mouse(event) => Some(*event),
+            _ => None,
+        }
+    }
+
+    /// Returns the pasted string if the event is a paste event, otherwise `None`.
+    ///
+    /// This is a convenience method that makes code which only cares about paste events easier to write.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Some(paste) = event::read()?.as_paste_event() {
+    ///     // ...
+    /// }
+    /// # std::io::Result::Ok(())
+    /// ```
+    #[cfg(feature = "bracketed-paste")]
+    #[inline]
+    pub fn as_paste_event(&self) -> Option<&str> {
+        match self {
+            Event::Paste(paste) => Some(paste),
+            _ => None,
+        }
+    }
+
+    /// Returns the size as a tuple if the event is a resize event, otherwise `None`.
+    ///
+    /// This is a convenience method that makes code which only cares about resize events easier to write.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Some((columns, rows)) = event::read()?.as_resize_event() {
+    ///     // ...
+    /// }
+    /// # std::io::Result::Ok(())
+    /// ```
+    #[inline]
+    pub fn as_resize_event(&self) -> Option<(u16, u16)> {
+        match self {
+            Event::Resize(columns, rows) => Some((*columns, *rows)),
             _ => None,
         }
     }
@@ -1485,86 +1619,107 @@ mod tests {
         assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
     }
 
-    #[test]
-    fn test_event_is() {
-        let event = Event::FocusGained;
-        assert!(event.is_focus_gained());
-        assert!(!event.is_key());
-
-        let event = Event::FocusLost;
-        assert!(event.is_focus_lost());
-        assert!(!event.is_key());
-
-        let event = Event::Resize(1, 1);
-        assert!(event.is_resize());
-        assert!(!event.is_key());
-
-        let event = Event::Key(KeyCode::Esc.into());
-        assert!(event.is_key());
-        assert!(!event.is_focus_gained());
-
-        let event = Event::Mouse(MouseEvent {
-            kind: MouseEventKind::Down(MouseButton::Left),
-            column: 1,
-            row: 1,
-            modifiers: KeyModifiers::empty(),
-        });
-        assert!(event.is_mouse());
-        assert!(!event.is_key());
-    }
-
     const ESC_PRESSED: KeyEvent =
         KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Press);
     const ESC_RELEASED: KeyEvent =
         KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Release);
     const ESC_REPEAT: KeyEvent =
         KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Repeat);
+    const MOUSE_CLICK: MouseEvent = MouseEvent {
+        kind: MouseEventKind::Down(MouseButton::Left),
+        column: 1,
+        row: 1,
+        modifiers: KeyModifiers::empty(),
+    };
 
     #[test]
-    fn test_event_is_key_press() {
+    fn event_is() {
+        let event = Event::FocusGained;
+        assert!(event.is_focus_gained());
+        assert!(event.is_focus_gained());
+        assert!(!event.is_key());
+
+        let event = Event::FocusLost;
+        assert!(event.is_focus_lost());
+        assert!(!event.is_focus_gained());
+        assert!(!event.is_key());
+
+        let event = Event::Resize(1, 1);
+        assert!(event.is_resize());
+        assert!(!event.is_key());
+
         let event = Event::Key(ESC_PRESSED);
+        assert!(event.is_key());
         assert!(event.is_key_press());
+        assert!(!event.is_key_release());
+        assert!(!event.is_key_repeat());
+        assert!(!event.is_focus_gained());
 
         let event = Event::Key(ESC_RELEASED);
+        assert!(event.is_key());
         assert!(!event.is_key_press());
+        assert!(event.is_key_release());
+        assert!(!event.is_key_repeat());
+        assert!(!event.is_focus_gained());
 
         let event = Event::Key(ESC_REPEAT);
+        assert!(event.is_key());
         assert!(!event.is_key_press());
+        assert!(!event.is_key_release());
+        assert!(event.is_key_repeat());
+        assert!(!event.is_focus_gained());
 
-        let event = Event::FocusGained;
-        assert!(!event.is_key_press());
+        let event = Event::Mouse(MOUSE_CLICK);
+        assert!(event.is_mouse());
+        assert!(!event.is_key());
+
+        #[cfg(feature = "bracketed-paste")]
+        {
+            let event = Event::Paste("".to_string());
+            assert!(event.is_paste());
+            assert!(!event.is_key());
+        }
     }
 
     #[test]
-    fn test_event_as_key_press() {
+    fn event_as() {
+        let event = Event::FocusGained;
+        assert_eq!(event.as_key_event(), None);
+
         let event = Event::Key(ESC_PRESSED);
-        assert_eq!(event.as_key_press(), Some(&ESC_PRESSED));
+        assert_eq!(event.as_key_event(), Some(ESC_PRESSED));
+        assert_eq!(event.as_key_press_event(), Some(ESC_PRESSED));
+        assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_resize_event(), None);
 
         let event = Event::Key(ESC_RELEASED);
-        assert_eq!(event.as_key_press(), None);
+        assert_eq!(event.as_key_event(), Some(ESC_RELEASED));
+        assert_eq!(event.as_key_release_event(), Some(ESC_RELEASED));
+        assert_eq!(event.as_key_press_event(), None);
+        assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_resize_event(), None);
 
         let event = Event::Key(ESC_REPEAT);
-        assert_eq!(event.as_key_press(), None);
+        assert_eq!(event.as_key_event(), Some(ESC_REPEAT));
+        assert_eq!(event.as_key_repeat_event(), Some(ESC_REPEAT));
+        assert_eq!(event.as_key_press_event(), None);
+        assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_resize_event(), None);
 
-        let event = Event::FocusGained;
-        assert_eq!(event.as_key_press(), None);
-    }
+        let event = Event::Resize(1, 1);
+        assert_eq!(event.as_resize_event(), Some((1, 1)));
+        assert_eq!(event.as_key_event(), None);
 
-    #[test]
-    fn test_key_event_is() {
-        let event = ESC_PRESSED;
-        assert!(event.is_press());
-        assert!(!event.is_release());
-        assert!(!event.is_repeat());
+        let event = Event::Mouse(MOUSE_CLICK);
+        assert_eq!(event.as_mouse_event(), Some(MOUSE_CLICK));
+        assert_eq!(event.as_key_event(), None);
 
-        let event = ESC_RELEASED;
-        assert!(!event.is_press());
-        assert!(event.is_release());
-        assert!(!event.is_repeat());
-
-        let event = ESC_REPEAT;
-        assert!(!event.is_press());
-        assert!(!event.is_release());
-        assert!(event.is_repeat());
+        #[cfg(feature = "bracketed-paste")]
+        {
+            let event = Event::Paste("".to_string());
+            assert_eq!(event.as_paste_event(), Some(""));
+            assert_eq!(event.as_key_event(), None);
+        }
     }
 }
