@@ -135,7 +135,7 @@ fn char_code_to_event(code: KeyCode) -> KeyEvent {
 }
 
 pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
 
     if buffer.len() == 2 {
         return Ok(None);
@@ -242,8 +242,8 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<Inte
     // ESC [ Cy ; Cx R
     //   Cy - cursor row number (starting from 1)
     //   Cx - cursor column number (starting from 1)
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
-    assert!(buffer.ends_with(&[b'R']));
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
+    assert!(buffer.ends_with(b"R"));
 
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
@@ -258,8 +258,8 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<Inte
 
 fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ ? flags u
-    assert!(buffer.starts_with(&[b'\x1B', b'[', b'?'])); // ESC [ ?
-    assert!(buffer.ends_with(&[b'u']));
+    assert!(buffer.starts_with(b"\x1B[?")); // ESC [ ?
+    assert!(buffer.ends_with(b"u"));
 
     if buffer.len() < 5 {
         return Ok(None);
@@ -290,8 +290,8 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
 
 fn parse_csi_primary_device_attributes(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
-    assert!(buffer.starts_with(&[b'\x1B', b'[', b'?']));
-    assert!(buffer.ends_with(&[b'c']));
+    assert!(buffer.starts_with(b"\x1B[?"));
+    assert!(buffer.ends_with(b"c"));
 
     // This is a stub for parsing the primary device attributes. This response is not
     // exposed in the crossterm API so we don't need to parse the individual attributes yet.
@@ -346,8 +346,8 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 }
 
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
-                                                   //
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
+                                           //
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
     let mut split = s.split(';');
@@ -495,8 +495,8 @@ fn translate_functional_key_code(codepoint: u32) -> Option<(KeyCode, KeyEventSta
 }
 
 pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
-    assert!(buffer.ends_with(&[b'u']));
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
+    assert!(buffer.ends_with(b"u"));
 
     // This function parses `CSI … u` sequences. These are sequences defined in either
     // the `CSI u` (a.k.a. "Fix Keyboard Input on Terminals - Please", https://www.leonerd.org.uk/hacks/fixterms/)
@@ -617,8 +617,8 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
 }
 
 pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
-    assert!(buffer.ends_with(&[b'~']));
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
+    assert!(buffer.ends_with(b"~"));
 
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
@@ -664,8 +664,8 @@ pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> io::Result<Option<InternalE
     // rxvt mouse encoding:
     // ESC [ Cb ; Cx ; Cy ; M
 
-    assert!(buffer.starts_with(&[b'\x1B', b'['])); // ESC [
-    assert!(buffer.ends_with(&[b'M']));
+    assert!(buffer.starts_with(b"\x1B[")); // ESC [
+    assert!(buffer.ends_with(b"M"));
 
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
@@ -690,7 +690,7 @@ pub(crate) fn parse_csi_rxvt_mouse(buffer: &[u8]) -> io::Result<Option<InternalE
 pub(crate) fn parse_csi_normal_mouse(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // Normal mouse encoding: ESC [ M CB Cx Cy (6 characters only).
 
-    assert!(buffer.starts_with(&[b'\x1B', b'[', b'M'])); // ESC [ M
+    assert!(buffer.starts_with(b"\x1B[M")); // ESC [ M
 
     if buffer.len() < 6 {
         return Ok(None);
@@ -718,9 +718,9 @@ pub(crate) fn parse_csi_normal_mouse(buffer: &[u8]) -> io::Result<Option<Interna
 pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ < Cb ; Cx ; Cy (;) (M or m)
 
-    assert!(buffer.starts_with(&[b'\x1B', b'[', b'<'])); // ESC [ <
+    assert!(buffer.starts_with(b"\x1B[<")); // ESC [ <
 
-    if !buffer.ends_with(&[b'm']) && !buffer.ends_with(&[b'M']) {
+    if !buffer.ends_with(b"m") && !buffer.ends_with(b"M") {
         return Ok(None);
     }
 

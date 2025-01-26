@@ -66,8 +66,8 @@ impl EventSource for WindowsEventSource {
                         InputRecord::WindowBufferSizeEvent(record) => {
                             // windows starts counting at 0, unix at 1, add one to replicate unix behaviour.
                             Some(Event::Resize(
-                                record.size.x as u16 + 1,
-                                record.size.y as u16 + 1,
+                                (record.size.x as i32 + 1) as u16,
+                                (record.size.y as i32 + 1) as u16,
                             ))
                         }
                         InputRecord::FocusEvent(record) => {

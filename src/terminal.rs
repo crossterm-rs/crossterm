@@ -148,7 +148,7 @@ pub struct WindowSize {
 /// Returns the terminal size `[WindowSize]`.
 ///
 /// The width and height in pixels may not be reliably implemented or default to 0.
-/// For unix, https://man7.org/linux/man-pages/man4/tty_ioctl.4.html documents them as "unused".
+/// For unix, <https://man7.org/linux/man-pages/man4/tty_ioctl.4.html> documents them as "unused".
 /// For windows it is not implemented.
 pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
