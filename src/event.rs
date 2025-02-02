@@ -668,7 +668,7 @@ impl Event {
         }
     }
 
-    /// Returns an Option containing the KeyEvent if the event is a key release event.
+    /// Returns an Option containing the `KeyEvent` if the event is a key release event.
     #[inline]
     pub fn as_key_release_event(&self) -> Option<KeyEvent> {
         match self {
