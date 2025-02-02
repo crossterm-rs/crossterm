@@ -7,9 +7,9 @@
 
 use std::io;
 
-use crossterm::event::{KeyEventKind, KeyModifiers};
+use crossterm::event::KeyModifiers;
 use crossterm::{
-    event::{read, Event, KeyCode},
+    event::{read, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 
@@ -29,20 +29,17 @@ fn main() -> io::Result<()> {
 }
 
 fn print_events() -> io::Result<()> {
-    loop {
-        let event = read()?;
-        match event {
-            Event::Key(event) if event.kind == KeyEventKind::Press => {
-                print!("Key pressed: ");
-                if event.modifiers != KeyModifiers::NONE {
-                    print!("{}+", event.modifiers);
-                }
-                println!("{}\r", event.code);
-                if event.code == KeyCode::Esc {
-                    break;
-                }
-            }
-            _ => {}
+    while let Ok(event) = read() {
+        let Some(event) = event.as_key_press_event() else {
+            continue;
+        };
+        let modifier = match event.modifiers {
+            KeyModifiers::NONE => "".to_string(),
+            _ => format!("{:}+", event.modifiers),
+        };
+        println!("Key pressed: {modifier}{code}\r", code = event.code);
+        if event.code == KeyCode::Esc {
+            break;
         }
     }
     Ok(())
