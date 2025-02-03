@@ -29,6 +29,17 @@ use crate::event::{
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
 /// it (`event-stream-*`).
+///
+/// ## Caveats
+///
+/// On creating this future, a plain OS-thread is spawned. This thread is not scheduled
+/// under the control of async runtime. This thread only shutdowns when this future is dropped !
+///
+/// This implementation will never yield an end for a stream aka a Ready(None).
+///
+/// User concerned about that overhead caused by the OS thread outside an async runtime,
+/// are advised to implement their own stream implementation
+/// in respect to their used async runtime.
 #[derive(Debug)]
 pub struct EventStream {
     poll_internal_waker: Waker,
