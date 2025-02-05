@@ -5,7 +5,10 @@
 
 use std::io;
 
-use crossterm::{event::{self, Event, KeyCode, KeyEvent, KeyEventKind}, terminal};
+use crossterm::{
+    event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    terminal,
+};
 
 pub fn read_char() -> io::Result<char> {
     loop {
@@ -23,11 +26,12 @@ pub fn read_char() -> io::Result<char> {
 pub fn read_line() -> io::Result<String> {
     let mut line = String::new();
     loop {
-        if let Event::Key(KeyEvent{
+        if let Event::Key(KeyEvent {
             code,
             kind: KeyEventKind::Press,
             ..
-        }) = event::read()? {
+        }) = event::read()?
+        {
             match code {
                 KeyCode::Enter => {
                     break;
