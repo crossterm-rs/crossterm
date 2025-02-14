@@ -21,7 +21,7 @@ path = "src/lib.rs"
 all-features = true
 
 [features]
-default = ["bracketed-paste", "events", "windows"]
+default = ["bracketed-paste", "events", "windows", "derive-more"]
 
 #! ### Default features
 ## Enables triggering [`Event::Paste`](event::Event::Paste) when pasting text into the terminal.
@@ -44,9 +44,12 @@ serde = ["dep:serde", "bitflags/serde"]
 ## Enables raw file descriptor polling / selecting instead of mio.
 use-dev-tty = ["filedescriptor", "rustix/process"]
 
+## Enables `is_*` helper functions for event enums.
+derive-more = ["dep:derive_more"]
+
 [dependencies]
 bitflags = { version = "2.3" }
-derive_more = { version = "1.0.0", features = ["is_variant"] }
+derive_more = { version = "1.0.0", features = ["is_variant"], optional = true }
 document-features = "0.2.10"
 futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
