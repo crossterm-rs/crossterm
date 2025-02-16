@@ -11,7 +11,7 @@ use crate::event::{filter::Filter, source::EventSource, timeout::PollTimeout, In
 /// Can be used to read `InternalEvent`s.
 pub(crate) struct InternalEventReader {
     events: VecDeque<InternalEvent>,
-    source: Option<Box<dyn EventSource>>,
+    source: io::Result<Box<dyn EventSource>>,
     skipped_events: Vec<InternalEvent>,
 }
 
@@ -22,7 +22,7 @@ impl Default for InternalEventReader {
         #[cfg(unix)]
         let source = UnixInternalEventSource::new();
 
-        let source = source.ok().map(|x| Box::new(x) as Box<dyn EventSource>);
+        let source = source.map(|x| Box::new(x) as Box<dyn EventSource>);
 
         InternalEventReader {
             source,
@@ -50,11 +50,11 @@ impl InternalEventReader {
         }
 
         let event_source = match self.source.as_mut() {
-            Some(source) => source,
-            None => {
+            Ok(source) => source,
+            Err(e) => {
                 return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "Failed to initialize input reader",
+                    e.kind(),
+                    format!("Failed to initialize input reader: {e:?}"),
                 ))
             }
         };
@@ -147,7 +147,7 @@ mod tests {
     fn test_poll_fails_without_event_source() {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -164,7 +164,7 @@ mod tests {
     fn test_poll_returns_true_for_matching_event_in_queue_at_front() {
         let mut reader = InternalEventReader {
             events: vec![InternalEvent::Event(Event::Resize(10, 10))].into(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -180,7 +180,7 @@ mod tests {
                 InternalEvent::CursorPosition(10, 20),
             ]
             .into(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -193,7 +193,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: vec![EVENT].into(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -207,7 +207,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: vec![InternalEvent::Event(Event::Resize(10, 10)), CURSOR_EVENT].into(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -222,7 +222,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: vec![SKIPPED_EVENT, CURSOR_EVENT].into(),
-            source: None,
+            source: Err(io::Error::new(io::ErrorKind::Other, "not initialized")),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -236,7 +236,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -251,7 +251,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -269,7 +269,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -284,7 +284,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -301,7 +301,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -317,7 +317,7 @@ mod tests {
     fn test_poll_propagates_error() {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(FakeSource::new(&[]))),
+            source: Ok(Box::new(FakeSource::new(&[]))),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -334,7 +334,7 @@ mod tests {
     fn test_read_propagates_error() {
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(FakeSource::new(&[]))),
+            source: Ok(Box::new(FakeSource::new(&[]))),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -355,7 +355,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
@@ -374,7 +374,7 @@ mod tests {
 
         let mut reader = InternalEventReader {
             events: VecDeque::new(),
-            source: Some(Box::new(source)),
+            source: Ok(Box::new(source)),
             skipped_events: Vec::with_capacity(32),
         };
 
