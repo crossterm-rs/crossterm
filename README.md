@@ -154,6 +154,7 @@ features = ["event-stream"]
 | `events`        | Reading input/system events (enabled by default) |
 | `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
 | `derive-more`  | Adds `is_*` helper functions for event types |
+| `clipboard`    | Enables crossterm::clipboard                 |
 
 
 To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
@@ -172,6 +173,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
 | `derive_more`  | Adds `is_*` helper functions for event types                                     | optional (`derive-more` feature), included by default |
+| `base64`       | Encoding clipboard data for OSC52 sequences in crossterm::clipboard              | only with `clipboard` feature flag    |
 
 ### Other Resources
 
