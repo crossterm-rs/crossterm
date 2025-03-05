@@ -1,5 +1,9 @@
 # Unreleased
 
+## Added ⭐
+
+- Copy to clipboard using OSC52 (#974)
+
 # Version 0.28.1
 
 ## Fixed 🐛

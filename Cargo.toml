@@ -47,7 +47,11 @@ use-dev-tty = ["filedescriptor", "rustix/process"]
 ## Enables `is_*` helper functions for event enums.
 derive-more = ["dep:derive_more"]
 
+## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
+osc52 = ["dep:base64"]
+
 [dependencies]
+base64 = { version = "0.22", optional = true }
 bitflags = { version = "2.3" }
 derive_more = { version = "1.0.0", features = ["is_variant"], optional = true }
 document-features = "0.2.10"
@@ -112,3 +116,7 @@ required-features = ["events"]
 [[example]]
 name = "key-display"
 required-features = ["events"]
+
+[[example]]
+name = "copy-to-clipboard"
+required-features = ["osc52"]
