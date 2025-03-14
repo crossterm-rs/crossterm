@@ -21,7 +21,7 @@ path = "src/lib.rs"
 all-features = true
 
 [features]
-default = ["bracketed-paste", "events", "windows", "derive-more"]
+default = ["bracketed-paste", "events", "windows", "derive-more", "clipboard"]
 
 #! ### Default features
 ## Enables triggering [`Event::Paste`](event::Event::Paste) when pasting text into the terminal.
