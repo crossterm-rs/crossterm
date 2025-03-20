@@ -265,7 +265,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
         D: serde::de::Deserializer<'de>,
     {
         struct ColorVisitor;
-        impl<'de> serde::de::Visitor<'de> for ColorVisitor {
+        impl serde::de::Visitor<'_> for ColorVisitor {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
@@ -302,12 +302,8 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             let g = results[1].parse::<u8>();
                             let b = results[2].parse::<u8>();
 
-                            if r.is_ok() && g.is_ok() && b.is_ok() {
-                                return Ok(Color::Rgb {
-                                    r: r.unwrap(),
-                                    g: g.unwrap(),
-                                    b: b.unwrap(),
-                                });
+                            if let (Ok(r), Ok(g), Ok(b)) = (r, g, b) {
+                                return Ok(Color::Rgb { r, g, b });
                             }
                         }
                     } else if let Some(hex) = value.strip_prefix('#') {
@@ -316,12 +312,8 @@ impl<'de> serde::de::Deserialize<'de> for Color {
                             let g = u8::from_str_radix(&hex[2..4], 16);
                             let b = u8::from_str_radix(&hex[4..6], 16);
 
-                            if r.is_ok() && g.is_ok() && b.is_ok() {
-                                return Ok(Color::Rgb {
-                                    r: r.unwrap(),
-                                    g: g.unwrap(),
-                                    b: b.unwrap(),
-                                });
+                            if let (Ok(r), Ok(g), Ok(b)) = (r, g, b) {
+                                return Ok(Color::Rgb { r, g, b });
                             }
                         }
                     }

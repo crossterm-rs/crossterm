@@ -79,7 +79,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///
     /// - [Command](./trait.Command.html)
     ///
-    ///     The command that you want to queue for later execution.
+    ///   The command that you want to queue for later execution.
     ///
     /// # Examples
     ///
@@ -114,10 +114,10 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
     /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
-    ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    ///     and can therefore not be written to the given `writer`.
-    ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    ///   The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+    ///   and can therefore not be written to the given `writer`.
+    ///   Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
+    ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command) -> io::Result<&mut Self> {
         #[cfg(windows)]
         if !command.is_ansi_code_supported() {
@@ -143,7 +143,7 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///
     /// - [Command](./trait.Command.html)
     ///
-    ///     The command that you want to execute directly.
+    ///   The command that you want to execute directly.
     ///
     /// # Example
     ///
@@ -171,10 +171,10 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
     /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
-    ///     The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    ///     and can therefore not be written to the given `writer`.
-    ///     Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    ///     and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    ///   The reason for this is that Windows versions lower than 10 do not support ANSI codes,
+    ///   and can therefore not be written to the given `writer`.
+    ///   Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
+    ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn execute(&mut self, command: impl Command) -> io::Result<&mut Self> {
         self.queue(command)?;
         self.flush()?;
