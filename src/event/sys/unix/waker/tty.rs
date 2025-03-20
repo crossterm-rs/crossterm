@@ -22,7 +22,7 @@ impl Waker {
     ///
     /// Readiness is set to `Ready::readable()`.
     pub(crate) fn wake(&self) -> io::Result<()> {
-        self.inner.lock().unwrap().write(&[0])?;
+        self.inner.lock().unwrap().write_all(&[0])?;
         Ok(())
     }
 }
