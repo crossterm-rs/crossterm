@@ -265,7 +265,7 @@ impl<'de> serde::de::Deserialize<'de> for Color {
         D: serde::de::Deserializer<'de>,
     {
         struct ColorVisitor;
-        impl<'de> serde::de::Visitor<'de> for ColorVisitor {
+        impl serde::de::Visitor<'_> for ColorVisitor {
             type Value = Color;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str(
