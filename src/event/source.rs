@@ -16,7 +16,7 @@ pub(crate) trait EventSource: Sync + Send {
     /// # Arguments
     ///
     /// * `timeout` - `None` block indefinitely until an event is available, `Some(duration)` blocks
-    ///               for the given timeout
+    ///   for the given timeout
     ///
     /// Returns `Ok(None)` if there's no event available and timeout expires.
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>>;
