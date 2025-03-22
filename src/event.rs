@@ -1626,6 +1626,20 @@ mod tests {
         assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
     }
 
+    #[test]
+    fn key_modifiers_display() {
+        let modifiers = KeyModifiers::SHIFT | KeyModifiers::CONTROL | KeyModifiers::ALT;
+
+        #[cfg(target_os = "macos")]
+        assert_eq!(modifiers.to_string(), "Shift+Control+Option");
+
+        #[cfg(target_os = "windows")]
+        assert_eq!(modifiers.to_string(), "Shift+Ctrl+Alt");
+
+        #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+        assert_eq!(modifiers.to_string(), "Shift+Control+Alt");
+    }
+
     const ESC_PRESSED: KeyEvent =
         KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Press);
     const ESC_RELEASED: KeyEvent =
