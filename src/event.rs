@@ -870,8 +870,9 @@ impl Display for KeyModifiers {
         for modifier in self.iter() {
             if !first {
                 f.write_str("+")?;
-                first = false;
             }
+
+            first = false;
             match modifier {
                 KeyModifiers::SHIFT => f.write_str("Shift")?,
                 #[cfg(unix)]
