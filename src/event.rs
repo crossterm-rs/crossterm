@@ -674,7 +674,7 @@ impl Event {
     #[inline]
     pub fn as_key_release_event(&self) -> Option<KeyEvent> {
         match self {
-            Event::Key(event) if event.kind == KeyEventKind::Release => Some(*event),
+            Event::Key(event) if self.is_key_release() => Some(*event),
             _ => None,
         }
     }
@@ -683,7 +683,7 @@ impl Event {
     #[inline]
     pub fn as_key_repeat_event(&self) -> Option<KeyEvent> {
         match self {
-            Event::Key(event) if event.kind == KeyEventKind::Repeat => Some(*event),
+            Event::Key(event) if self.is_key_repeat() => Some(*event),
             _ => None,
         }
     }
