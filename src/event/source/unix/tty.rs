@@ -71,7 +71,7 @@ impl UnixInternalEventSource {
                 #[cfg(feature = "libc")]
                 pipe::register(libc::SIGWINCH, sender)?;
                 #[cfg(not(feature = "libc"))]
-                pipe::register(rustix::process::Signal::Winch as i32, sender)?;
+                pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
                 receiver
             },
             #[cfg(feature = "event-stream")]
