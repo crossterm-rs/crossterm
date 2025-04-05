@@ -52,9 +52,9 @@ osc52 = ["dep:base64"]
 
 [dependencies]
 base64 = { version = "0.22", optional = true }
-bitflags = { version = "2.3" }
-derive_more = { version = "1.0.0", features = ["is_variant"], optional = true }
-document-features = "0.2.10"
+bitflags = { version = "2.9" }
+derive_more = { version = "2.0.0", features = ["is_variant"], optional = true }
+document-features = "0.2.11"
 futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
 serde = { version = "1.0", features = ["derive"], optional = true }
@@ -76,13 +76,13 @@ signal-hook = { version = "0.3.17", optional = true }
 signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = true }
 
 [dev-dependencies]
-async-std = "1.12"
+async-std = "1.13"
 futures = "0.3"
 futures-timer = "3.0"
 serde_json = "1.0"
-serial_test = "2.0.0"
+serial_test = "3.0.0"
 temp-env = "0.3.6"
-tokio = { version = "1.25", features = ["full"] }
+tokio = { version = "1.44", features = ["full"] }
 
 # Examples
 [[example]]
