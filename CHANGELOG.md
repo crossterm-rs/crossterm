@@ -1,8 +1,20 @@
 # Unreleased
 
+# Version 0.29
+
 ## Added ⭐
 
 - Copy to clipboard using OSC52 (#974)
+- Derive standard traits for "SetCursorStyle" (#909)
+- Add query_keyboard_enhancement_flags to read enabled flags (#958)
+- Add is_* and as_* methods to the event enums (#949)
+- Add a feature flag for derive_more impls (#970)
+- Update rustix to 1.0 (#982)
+
+## Breaking ⚠️
+
+- Correctly fix KeyModifiers Display impl Properly adding + in between modifiers (#979)
+
 
 # Version 0.28.1
 
