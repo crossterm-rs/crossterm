@@ -120,7 +120,7 @@
 
 pub(crate) mod filter;
 pub(crate) mod read;
-pub(crate) mod source;
+pub mod source;
 #[cfg(feature = "event-stream")]
 pub(crate) mod stream;
 pub(crate) mod sys;
@@ -1472,7 +1472,7 @@ impl Display for KeyCode {
 /// Encapsulates publicly available `Event` with additional internal
 /// events that shouldn't be publicly available to the crate users.
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Eq)]
-pub(crate) enum InternalEvent {
+pub enum InternalEvent {
     /// An event.
     Event(Event),
     /// A cursor position (`col`, `row`).
