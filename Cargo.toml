@@ -50,6 +50,9 @@ derive-more = ["dep:derive_more"]
 ## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
 osc52 = ["dep:base64"]
 
+## Enables calloop [EventSource](calloop::EventSource) support.
+calloop = ["dep:calloop"]
+
 [dependencies]
 base64 = { version = "0.22", optional = true }
 bitflags = { version = "2.9" }
@@ -59,7 +62,6 @@ futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
 serde = { version = "1.0", features = ["derive"], optional = true }
 
-calloop = "0.14.2"
 
 # Windows dependencies
 [target.'cfg(windows)'.dependencies]
@@ -85,6 +87,8 @@ signal-hook = { version = "0.3.17", optional = true }
 signal-hook-mio = { version = "0.2.4", features = [
   "support-v1_0",
 ], optional = true }
+# runtime
+calloop = { version = "0.14.2", optional = true }
 
 [dev-dependencies]
 async-std = "1.13"
