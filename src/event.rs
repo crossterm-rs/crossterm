@@ -120,12 +120,13 @@
 
 pub(crate) mod filter;
 pub(crate) mod read;
-pub mod runtime;
-pub mod source;
+pub(crate) mod source;
 #[cfg(feature = "event-stream")]
 pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
+
+pub mod runtime;
 
 #[cfg(feature = "derive-more")]
 use derive_more::derive::IsVariant;
