@@ -1,5 +1,11 @@
 {
   "rust": {
-    "features": ["default"]
+    "features": [
+      "use-dev-tty",
+      "bracketed-paste",
+      "events",
+      "windows",
+      "derive-more"
+    ]
   }
 }

@@ -1,8 +1,13 @@
 use calloop::{generic::Generic, EventSource, Interest, Mode, Poll, PostAction, TokenFactory};
-use std::{collections::VecDeque, io};
+use signal_hook::low_level::pipe;
+use std::{
+    collections::VecDeque,
+    io,
+    os::{fd::AsFd, unix::net::UnixStream},
+};
 
 use crate::{
-    event::{sys::unix::parse::parse_event, InternalEvent},
+    event::{sys::unix::parse::parse_event, Event, InternalEvent},
     terminal::sys::file_descriptor::{tty_fd, FileDesc},
 };
 
@@ -11,25 +16,31 @@ use crate::{
 // is enough.
 const TTY_BUFFER_SIZE: usize = 1_024;
 
+fn nonblocking_unix_pair() -> io::Result<(UnixStream, UnixStream)> {
+    let (receiver, sender) = UnixStream::pair()?;
+    receiver.set_nonblocking(true)?;
+    sender.set_nonblocking(true)?;
+    Ok((receiver, sender))
+}
+
 pub struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_source: Generic<FileDesc<'static>>,
-    // sig_source: Signals,
+    sig_source: Generic<UnixStream>,
 }
 
 impl UnixInternalEventSource {
     pub fn new() -> io::Result<Self> {
-        let fd = tty_fd()?;
-        let tty_source = Generic::new(fd, Interest::READ, Mode::Edge);
-
-        // let mut sig_source = Signals::new(&[signal_hook::consts::SIGWINCH])?;
-
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
-            tty_source,
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
-            // sig_source,
+            tty_source: Generic::new(tty_fd()?, Interest::READ, Mode::Edge),
+            sig_source: {
+                let (receiver, sender) = nonblocking_unix_pair()?;
+                pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
+                Generic::new(receiver, Interest::READ, Mode::Edge)
+            },
         })
     }
 }
@@ -46,9 +57,7 @@ impl EventSource for UnixInternalEventSource {
         factory: &mut TokenFactory,
     ) -> Result<(), calloop::Error> {
         self.tty_source.register(poll, factory)?;
-
-        // self.sig_source.register(poll, factory)?;
-
+        self.sig_source.register(poll, factory)?;
         Ok(())
     }
 
@@ -58,13 +67,13 @@ impl EventSource for UnixInternalEventSource {
         factory: &mut TokenFactory,
     ) -> Result<(), calloop::Error> {
         self.tty_source.reregister(poll, factory)?;
-        // self.sig_source.reregister(poll, factory)?;
+        self.sig_source.reregister(poll, factory)?;
         Ok(())
     }
 
     fn unregister(&mut self, poll: &mut Poll) -> Result<(), calloop::Error> {
         self.tty_source.unregister(poll)?;
-        // self.sig_source.unregister(poll)?;
+        self.sig_source.unregister(poll)?;
         Ok(())
     }
 
@@ -95,6 +104,19 @@ impl EventSource for UnixInternalEventSource {
                     break;
                 }
             }
+
+            Ok(calloop::PostAction::Continue)
+        })?;
+
+        self.sig_source.process_events(readiness, token, |_, f| {
+            let fd = FileDesc::Borrowed(f.as_fd());
+            // drain the pipe
+            while read_complete(&fd, &mut [0; 1024])? != 0 {}
+
+            let new_size = crate::terminal::size()?;
+            self.parser
+                .internal_events
+                .push_back(InternalEvent::Event(Event::Resize(new_size.0, new_size.1)));
 
             Ok(calloop::PostAction::Continue)
         })?;
@@ -186,16 +208,16 @@ impl Parser {
         }
     }
     fn take_events(&mut self) -> VecDeque<InternalEvent> {
-        let mut es = std::mem::take(&mut self.internal_events);
+        let mut es = std::mem::replace(&mut self.internal_events, VecDeque::with_capacity(128));
         es.shrink_to_fit();
         es
     }
 }
 
-// impl Iterator for Parser {
-//     type Item = InternalEvent;
-//
-//     fn next(&mut self) -> Option<Self::Item> {
-//         self.internal_events.pop_front()
-//     }
-// }
+impl Iterator for Parser {
+    type Item = InternalEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.internal_events.pop_front()
+    }
+}
