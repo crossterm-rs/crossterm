@@ -213,11 +213,3 @@ impl Parser {
         es
     }
 }
-
-impl Iterator for Parser {
-    type Item = InternalEvent;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.internal_events.pop_front()
-    }
-}

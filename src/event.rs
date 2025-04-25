@@ -120,6 +120,7 @@
 
 pub(crate) mod filter;
 pub(crate) mod read;
+pub mod runtime;
 pub mod source;
 #[cfg(feature = "event-stream")]
 pub(crate) mod stream;

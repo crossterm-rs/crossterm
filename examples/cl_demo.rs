@@ -3,7 +3,7 @@ use std::io;
 use calloop::EventLoop;
 use crossterm::{
     event::{
-        source::unix::cl::UnixInternalEventSource, DisableBracketedPaste, DisableFocusChange,
+        runtime::calloop::UnixInternalEventSource, DisableBracketedPaste, DisableFocusChange,
         DisableMouseCapture, EnableBracketedPaste, EnableFocusChange, EnableMouseCapture,
         KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
     },
