@@ -11,12 +11,16 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 
-fn _main() {
+struct LoopData {
+    exit: bool,
+}
+
+fn event_loop() {
     let mut el = EventLoop::try_new().unwrap();
     el.handle()
         .insert_source(
             UnixInternalEventSource::new().unwrap(),
-            |es, _, data: &mut A| {
+            |es, _, data: &mut LoopData| {
                 println!("{:?}\r", es);
                 es.iter().for_each(|e| {
                     if let crossterm::event::InternalEvent::Event(crossterm::event::Event::Key(
@@ -33,17 +37,13 @@ fn _main() {
         )
         .unwrap();
 
-    let mut a = A { exit: false };
+    let mut a = LoopData { exit: false };
     loop {
         el.dispatch(None, &mut a).unwrap();
         if a.exit {
             break;
         }
     }
-}
-
-struct A {
-    exit: bool,
 }
 
 fn main() {
@@ -77,7 +77,7 @@ fn main() {
     )
     .unwrap();
 
-    _main();
+    event_loop();
 
     if supports_keyboard_enhancement {
         queue!(stdout, PopKeyboardEnhancementFlags).unwrap();
