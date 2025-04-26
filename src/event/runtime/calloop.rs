@@ -24,7 +24,7 @@ fn nonblocking_unix_pair() -> io::Result<(UnixStream, UnixStream)> {
     Ok((receiver, sender))
 }
 
-pub struct UnixInternalEventSource {
+pub struct UnixEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     #[cfg(not(feature = "libc"))]
@@ -34,9 +34,9 @@ pub struct UnixInternalEventSource {
     sig_source: Generic<UnixStream>,
 }
 
-impl UnixInternalEventSource {
+impl UnixEventSource {
     pub fn new() -> io::Result<Self> {
-        Ok(UnixInternalEventSource {
+        Ok(UnixEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_source: {
@@ -62,7 +62,7 @@ impl UnixInternalEventSource {
     }
 }
 
-impl EventSource for UnixInternalEventSource {
+impl EventSource for UnixEventSource {
     type Event = Vec<Event>;
     type Metadata = ();
     type Ret = io::Result<()>;

@@ -3,4 +3,3 @@
 **/.vscode/
 **/*.rs.bk
 **/Cargo.lock
-.neoconf.json

@@ -3,7 +3,7 @@ use std::io;
 use calloop::EventLoop;
 use crossterm::{
     event::{
-        runtime::calloop::UnixInternalEventSource, DisableBracketedPaste, DisableFocusChange,
+        runtime::calloop::UnixEventSource, DisableBracketedPaste, DisableFocusChange,
         DisableMouseCapture, EnableBracketedPaste, EnableFocusChange, EnableMouseCapture,
         KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
     },
@@ -19,7 +19,7 @@ fn event_loop() {
     let mut el = EventLoop::try_new().unwrap();
     el.handle()
         .insert_source(
-            UnixInternalEventSource::new().unwrap(),
+            UnixEventSource::new().unwrap(),
             |es, _, data: &mut LoopData| {
                 println!("{:?}\r", es);
                 es.iter().for_each(|e| {
