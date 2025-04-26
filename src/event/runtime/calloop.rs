@@ -1,12 +1,11 @@
-use calloop::{generic::Generic, EventSource, Interest, Mode, Poll, PostAction, TokenFactory};
-use signal_hook::low_level::pipe;
-use std::{collections::VecDeque, io, os::unix::net::UnixStream};
-
-#[cfg(feature = "libc")]
-use std::os::fd::AsRawFd;
-
 #[cfg(not(feature = "libc"))]
 use std::os::fd::AsFd;
+#[cfg(feature = "libc")]
+use std::os::fd::AsRawFd;
+use std::{collections::VecDeque, io, os::unix::net::UnixStream};
+
+use calloop::{generic::Generic, EventSource, Interest, Mode, Poll, PostAction, TokenFactory};
+use signal_hook::low_level::pipe;
 
 use crate::{
     event::{sys::unix::parse::parse_event, Event, InternalEvent},
