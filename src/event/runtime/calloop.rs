@@ -1,10 +1,12 @@
 use calloop::{generic::Generic, EventSource, Interest, Mode, Poll, PostAction, TokenFactory};
 use signal_hook::low_level::pipe;
-use std::{
-    collections::VecDeque,
-    io,
-    os::{fd::AsFd, unix::net::UnixStream},
-};
+use std::{collections::VecDeque, io, os::unix::net::UnixStream};
+
+#[cfg(feature = "libc")]
+use std::os::fd::AsRawFd;
+
+#[cfg(not(feature = "libc"))]
+use std::os::fd::AsFd;
 
 use crate::{
     event::{sys::unix::parse::parse_event, Event, InternalEvent},
@@ -26,7 +28,10 @@ fn nonblocking_unix_pair() -> io::Result<(UnixStream, UnixStream)> {
 pub struct UnixInternalEventSource {
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
+    #[cfg(not(feature = "libc"))]
     tty_source: Generic<FileDesc<'static>>,
+    #[cfg(feature = "libc")]
+    tty_source: Generic<calloop::generic::FdWrapper<FileDesc<'static>>>,
     sig_source: Generic<UnixStream>,
 }
 
@@ -35,9 +40,22 @@ impl UnixInternalEventSource {
         Ok(UnixInternalEventSource {
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
-            tty_source: Generic::new(tty_fd()?, Interest::READ, Mode::Edge),
+            tty_source: {
+                let fd = {
+                    #[cfg(feature = "libc")]
+                    unsafe {
+                        calloop::generic::FdWrapper::new(tty_fd()?)
+                    }
+                    #[cfg(not(feature = "libc"))]
+                    tty_fd()?
+                };
+                Generic::new(fd, Interest::READ, Mode::Edge)
+            },
             sig_source: {
                 let (receiver, sender) = nonblocking_unix_pair()?;
+                #[cfg(feature = "libc")]
+                pipe::register(libc::SIGWINCH, sender)?;
+                #[cfg(not(feature = "libc"))]
                 pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
                 Generic::new(receiver, Interest::READ, Mode::Edge)
             },
@@ -109,7 +127,11 @@ impl EventSource for UnixInternalEventSource {
         })?;
 
         self.sig_source.process_events(readiness, token, |_, f| {
+            #[cfg(feature = "libc")]
+            let fd = FileDesc::new(f.as_raw_fd(), false);
+            #[cfg(not(feature = "libc"))]
             let fd = FileDesc::Borrowed(f.as_fd());
+
             // drain the pipe
             while read_complete(&fd, &mut [0; 1024])? != 0 {}
 
