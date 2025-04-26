@@ -64,7 +64,7 @@ impl UnixInternalEventSource {
 }
 
 impl EventSource for UnixInternalEventSource {
-    type Event = VecDeque<InternalEvent>;
+    type Event = Vec<Event>;
     type Metadata = ();
     type Ret = io::Result<()>;
     type Error = io::Error;
@@ -144,7 +144,18 @@ impl EventSource for UnixInternalEventSource {
         })?;
 
         if !self.parser.internal_events.is_empty() {
-            callback(self.parser.take_events(), &mut ()).unwrap();
+            let public_events: Self::Event = self
+                .parser
+                .take_events()
+                .into_iter()
+                .filter_map(|e| match e {
+                    InternalEvent::Event(event) => Some(event),
+                    _ => None,
+                })
+                .collect();
+            if !public_events.is_empty() {
+                callback(public_events, &mut ()).unwrap();
+            }
         };
 
         Ok(PostAction::Continue)

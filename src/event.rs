@@ -1474,7 +1474,7 @@ impl Display for KeyCode {
 /// Encapsulates publicly available `Event` with additional internal
 /// events that shouldn't be publicly available to the crate users.
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Eq)]
-pub enum InternalEvent {
+pub(crate) enum InternalEvent {
     /// An event.
     Event(Event),
     /// A cursor position (`col`, `row`).

@@ -23,10 +23,7 @@ fn event_loop() {
             |es, _, data: &mut LoopData| {
                 println!("{:?}\r", es);
                 es.iter().for_each(|e| {
-                    if let crossterm::event::InternalEvent::Event(crossterm::event::Event::Key(
-                        key_event,
-                    )) = e
-                    {
+                    if let crossterm::event::Event::Key(key_event) = e {
                         if key_event.code.is_esc() {
                             data.exit = true;
                         }
