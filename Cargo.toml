@@ -33,6 +33,9 @@ events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"]
 ## Enables windows specific crates.
 windows = ["dep:winapi", "dep:crossterm_winapi"]
 
+## Enables `is_*` helper functions for event enums.
+derive-more = ["dep:derive_more"]
+
 #! ### Optional Features
 
 ## Enables the [EventStream](event::EventStream) struct for async event reading.
@@ -43,9 +46,6 @@ serde = ["dep:serde", "bitflags/serde"]
 
 ## Enables raw file descriptor polling / selecting instead of mio.
 use-dev-tty = ["filedescriptor", "rustix/process"]
-
-## Enables `is_*` helper functions for event enums.
-derive-more = ["dep:derive_more"]
 
 ## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
 osc52 = ["dep:base64"]
