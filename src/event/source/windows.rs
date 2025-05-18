@@ -21,6 +21,7 @@ pub(crate) struct WindowsEventSource {
     poll: WinApiPoll,
     surrogate_buffer: Option<u16>,
     mouse_buttons_pressed: MouseButtonsPressed,
+    has_altgr: bool,
 }
 
 impl WindowsEventSource {
@@ -36,6 +37,7 @@ impl WindowsEventSource {
 
             surrogate_buffer: None,
             mouse_buttons_pressed: MouseButtonsPressed::default(),
+            has_altgr: false,
         })
     }
 }
@@ -49,9 +51,11 @@ impl EventSource for WindowsEventSource {
                 let number = self.console.number_of_console_input_events()?;
                 if event_ready && number != 0 {
                     let event = match self.console.read_single_input_event()? {
-                        InputRecord::KeyEvent(record) => {
-                            handle_key_event(record, &mut self.surrogate_buffer)
-                        }
+                        InputRecord::KeyEvent(record) => handle_key_event(
+                            record,
+                            &mut self.surrogate_buffer,
+                            &mut self.has_altgr,
+                        ),
                         InputRecord::MouseEvent(record) => {
                             let mouse_event =
                                 handle_mouse_event(record, &self.mouse_buttons_pressed);

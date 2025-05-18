@@ -844,6 +844,7 @@ bitflags! {
         const SUPER = 0b0000_1000;
         const HYPER = 0b0001_0000;
         const META = 0b0010_0000;
+        const ALTGR = 0b1000_0000;
         const NONE = 0b0000_0000;
     }
 }
@@ -891,6 +892,8 @@ impl Display for KeyModifiers {
                 KeyModifiers::SUPER => f.write_str("Super")?,
                 KeyModifiers::HYPER => f.write_str("Hyper")?,
                 KeyModifiers::META => f.write_str("Meta")?,
+                #[cfg(target_os = "windows")]
+                KeyModifiers::ALTGR => f.write_str("AltGr")?,
                 _ => unreachable!(),
             }
         }
@@ -898,6 +901,12 @@ impl Display for KeyModifiers {
     }
 }
 
+impl KeyModifiers {
+    pub(crate) fn adjust_altgr(self) -> KeyModifiers {
+        self.intersection(KeyModifiers::CONTROL)
+            .intersection(KeyModifiers::ALT)
+    }
+}
 /// Represents a keyboard event kind.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "derive-more", derive(IsVariant))]

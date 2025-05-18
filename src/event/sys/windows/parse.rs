@@ -1,8 +1,8 @@
 use crossterm_winapi::{ControlKeyState, EventFlags, KeyEventRecord, ScreenBuffer};
 use winapi::um::{
     wincon::{
-        CAPSLOCK_ON, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED, RIGHT_CTRL_PRESSED,
-        SHIFT_PRESSED,
+        CAPSLOCK_ON, ENHANCED_KEY, LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED, RIGHT_ALT_PRESSED,
+        RIGHT_CTRL_PRESSED, SHIFT_PRESSED,
     },
     winuser::{
         GetForegroundWindow, GetKeyboardLayout, GetWindowThreadProcessId, ToUnicodeEx, VK_BACK,
@@ -42,8 +42,9 @@ enum WindowsKeyEvent {
 pub(crate) fn handle_key_event(
     key_event: KeyEventRecord,
     surrogate_buffer: &mut Option<u16>,
+    has_altgr: &mut bool,
 ) -> Option<Event> {
-    let windows_key_event = parse_key_event_record(&key_event)?;
+    let windows_key_event = parse_key_event_record(&key_event, has_altgr)?;
     match windows_key_event {
         WindowsKeyEvent::KeyEvent(key_event) => {
             // Discard any buffered surrogate value if another valid key event comes before the
@@ -82,7 +83,7 @@ impl From<&ControlKeyState> for KeyModifiers {
         let l_alt = state.has_state(LEFT_ALT_PRESSED);
         let r_alt = state.has_state(RIGHT_ALT_PRESSED);
         let control = state.has_state(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED);
-        let alt_gr = control && r_alt;
+        let alt_gr = control && r_alt && state.has_state(ENHANCED_KEY);
 
         let mut modifier = KeyModifiers::empty();
 
@@ -94,6 +95,10 @@ impl From<&ControlKeyState> for KeyModifiers {
         }
         if (l_alt || r_alt) && !alt_gr {
             modifier |= KeyModifiers::ALT;
+        }
+
+        if alt_gr {
+            modifier |= KeyModifiers::ALTGR;
         }
 
         modifier
@@ -203,8 +208,21 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
     Some(ch)
 }
 
-fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
+fn parse_key_event_record(
+    key_event: &KeyEventRecord,
+    has_altgr: &mut bool,
+) -> Option<WindowsKeyEvent> {
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
+    let modifiers = if *has_altgr {
+        let m = modifiers.adjust_altgr();
+        if !key_event.key_down && key_event.u_char == 0x0 {
+            *has_altgr = false;
+        }
+        m
+    } else {
+        *has_altgr = matches!(modifiers, KeyModifiers::ALTGR) && key_event.u_char == 0x0;
+        modifiers
+    };
     let virtual_key_code = key_event.virtual_key_code as i32;
 
     // We normally ignore all key release events, but we will make an exception for an Alt key
