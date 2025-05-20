@@ -226,7 +226,8 @@
 //!   Ok(())
 //! }
 //!```
-//! ## Feature Flags
+//!
+#![cfg_attr(feature = "document-features", doc = "## Feature Flags")]
 #![cfg_attr(feature = "document-features", doc = document_features::document_features!())]
 //!
 //! [write]: https://doc.rust-lang.org/std/io/trait.Write.html
