@@ -21,7 +21,7 @@ path = "src/lib.rs"
 all-features = true
 
 [features]
-default = ["bracketed-paste", "events", "windows", "derive-more"]
+default = ["bracketed-paste", "derive-more", "events", "windows"]
 
 #! ### Default features
 ## Enables triggering [`Event::Paste`](event::Event::Paste) when pasting text into the terminal.
@@ -33,7 +33,13 @@ events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"]
 ## Enables windows specific crates.
 windows = ["dep:winapi", "dep:crossterm_winapi"]
 
+## Enables `is_*` helper functions for event enums.
+derive-more = ["dep:derive_more"]
+
 #! ### Optional Features
+
+## Enables documentation for crate features.
+document-features = ["dep:document-features"]
 
 ## Enables the [EventStream](event::EventStream) struct for async event reading.
 event-stream = ["dep:futures-core", "events"]
@@ -44,9 +50,6 @@ serde = ["dep:serde", "bitflags/serde"]
 ## Enables raw file descriptor polling / selecting instead of mio.
 use-dev-tty = ["filedescriptor", "rustix/process"]
 
-## Enables `is_*` helper functions for event enums.
-derive-more = ["dep:derive_more"]
-
 ## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
 osc52 = ["dep:base64"]
 
@@ -54,7 +57,7 @@ osc52 = ["dep:base64"]
 base64 = { version = "0.22", optional = true }
 bitflags = { version = "2.9" }
 derive_more = { version = "2.0.0", features = ["is_variant"], optional = true }
-document-features = "0.2.11"
+document-features = { version = "0.2.11", optional = true }
 futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
 serde = { version = "1.0", features = ["derive"], optional = true }
