@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, str};
 
 use crate::event::{
     Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
@@ -75,6 +75,7 @@ pub(crate) fn parse_event(
                     }
                     b'[' => parse_csi(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
+                    b'_' => parse_apc(buffer),
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
                             if let InternalEvent::Event(Event::Key(key_event)) = event {
@@ -132,6 +133,20 @@ fn char_code_to_event(code: KeyCode) -> KeyEvent {
         _ => KeyModifiers::empty(),
     };
     KeyEvent::new(code, modifiers)
+}
+
+pub(crate) fn parse_apc(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    assert!(buffer.starts_with(b"\x1B_")); // ESC _
+    if !buffer.ends_with(b"\x1B\x5C") || buffer.len() == 2 {
+        return Ok(None);
+    }
+
+    // APC strings should contain only ASCII characters
+    let input_str = str::from_utf8(&buffer[2..buffer.len() - 2])
+        .map_err(|_| could_not_parse_event_error())?;
+    let input_event = Event::ApplicationProgramCommand(input_str.to_string());
+
+    Ok(Some(InternalEvent::Event(input_event)))
 }
 
 pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
@@ -995,6 +1010,14 @@ mod tests {
                 KeyModifiers::SHIFT
             )))),
         );
+
+        // parse_apc
+        assert_eq!(
+            parse_event("\x1B_APC; Test\x1B\\".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::ApplicationProgramCommand(
+                "APC; Test".to_string()
+            )))
+        )
     }
 
     #[test]
@@ -1501,6 +1524,40 @@ mod tests {
                 KeyModifiers::CONTROL,
                 KeyEventKind::Release,
             )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_apc() {
+        assert_eq!(
+            parse_event("\x1B__APC; Test_\x1B\\".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::ApplicationProgramCommand(
+                "_APC; Test_".to_string()
+            )))
+        );
+
+        assert_eq!(
+            parse_event("\x1B_".as_bytes(), false).unwrap(),
+            None
+        );
+
+        assert_eq!(
+            parse_event("\x1B_\x1B".as_bytes(), false).unwrap(),
+            None
+        );
+
+        assert_eq!(
+            parse_event("\x1B_\x1B\\".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::ApplicationProgramCommand(
+                "".to_string()
+            )))
+        );
+
+        assert_ne!(
+            parse_event("\x1BAPC; Test_\x1B\\".as_bytes(), false).unwrap(),
+            Some(InternalEvent::Event(Event::ApplicationProgramCommand(
+                "APC; Test_".to_string()
+            )))
         );
     }
 }

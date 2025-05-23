@@ -54,6 +54,7 @@
 //!             #[cfg(feature = "bracketed-paste")]
 //!             Event::Paste(data) => println!("{:?}", data),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!             Event::ApplicationProgramCommand(command) => println!("New APC {}", command),
 //!         }
 //!     }
 //!     execute!(
@@ -100,6 +101,7 @@
 //!                 #[cfg(feature = "bracketed-paste")]
 //!                 Event::Paste(data) => println!("Pasted {:?}", data),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!                 Event::ApplicationProgramCommand(command) => println!("New APC {}", command),
 //!             }
 //!         } else {
 //!             // Timeout expired and no `Event` is available
@@ -563,6 +565,9 @@ pub enum Event {
     /// An resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+    /// Application Program Command sent by the terminal.
+    /// Primarily used by the Kitty terminal for graphics commands.
+    ApplicationProgramCommand(String)
 }
 
 impl Event {
@@ -752,6 +757,28 @@ impl Event {
     pub fn as_resize_event(&self) -> Option<(u16, u16)> {
         match self {
             Event::Resize(columns, rows) => Some((*columns, *rows)),
+            _ => None,
+        }
+    }
+
+    /// Returns the string of the command if the event is a APC event, otherwise `None`.
+    ///
+    /// This is a convenience method that makes code which only cares about resize events easier to write.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use crossterm::event;
+    ///
+    /// while let Some(command) = event::read()?.as_apc_event() {
+    ///     // ...
+    /// }
+    /// # std::io::Result::Ok(())
+    /// ```
+    #[inline]
+    pub fn as_apc_event(&self) -> Option<&str> {
+        match self {
+            Event::ApplicationProgramCommand(command) => Some(command),
             _ => None,
         }
     }
@@ -1713,35 +1740,66 @@ mod tests {
         assert_eq!(event.as_key_press_event(), Some(ESC_PRESSED));
         assert_eq!(event.as_key_release_event(), None);
         assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_mouse_event(), None);
         assert_eq!(event.as_resize_event(), None);
+        assert_eq!(event.as_apc_event(), None);
 
         let event = Event::Key(ESC_RELEASED);
         assert_eq!(event.as_key_event(), Some(ESC_RELEASED));
         assert_eq!(event.as_key_release_event(), Some(ESC_RELEASED));
         assert_eq!(event.as_key_press_event(), None);
         assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_mouse_event(), None);
         assert_eq!(event.as_resize_event(), None);
+        assert_eq!(event.as_apc_event(), None);
 
         let event = Event::Key(ESC_REPEAT);
         assert_eq!(event.as_key_event(), Some(ESC_REPEAT));
         assert_eq!(event.as_key_repeat_event(), Some(ESC_REPEAT));
         assert_eq!(event.as_key_press_event(), None);
         assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_mouse_event(), None);
         assert_eq!(event.as_resize_event(), None);
+        assert_eq!(event.as_apc_event(), None);
 
         let event = Event::Resize(1, 1);
         assert_eq!(event.as_resize_event(), Some((1, 1)));
         assert_eq!(event.as_key_event(), None);
+        assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_key_press_event(), None);
+        assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_mouse_event(), None);
+        assert_eq!(event.as_apc_event(), None);
 
         let event = Event::Mouse(MOUSE_CLICK);
         assert_eq!(event.as_mouse_event(), Some(MOUSE_CLICK));
         assert_eq!(event.as_key_event(), None);
+        assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_key_press_event(), None);
+        assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_resize_event(), None);
+        assert_eq!(event.as_apc_event(), None);
 
         #[cfg(feature = "bracketed-paste")]
         {
             let event = Event::Paste("".to_string());
             assert_eq!(event.as_paste_event(), Some(""));
             assert_eq!(event.as_key_event(), None);
+            assert_eq!(event.as_key_release_event(), None);
+            assert_eq!(event.as_key_press_event(), None);
+            assert_eq!(event.as_key_repeat_event(), None);
+            assert_eq!(event.as_resize_event(), None);
+            assert_eq!(event.as_mouse_event(), None);
+            assert_eq!(event.as_apc_event(), None);
         }
+
+        let event = Event::ApplicationProgramCommand("".to_string());
+        assert_eq!(event.as_apc_event(), Some(""));
+        assert_eq!(event.as_key_event(), None);
+        assert_eq!(event.as_key_release_event(), None);
+        assert_eq!(event.as_key_press_event(), None);
+        assert_eq!(event.as_key_repeat_event(), None);
+        assert_eq!(event.as_resize_event(), None);
+        assert_eq!(event.as_mouse_event(), None);
     }
 }
