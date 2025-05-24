@@ -109,6 +109,10 @@ name = "event-stream-tokio"
 required-features = ["event-stream", "events"]
 
 [[example]]
+name = "event-stream-tokio-pixels"
+required-features = ["event-stream", "events"]
+
+[[example]]
 name = "event-read-char-line"
 required-features = ["events"]
 
