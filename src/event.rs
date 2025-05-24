@@ -567,7 +567,7 @@ pub enum Event {
     Resize(u16, u16),
     /// Application Program Command sent by the terminal.
     /// Primarily used by the Kitty terminal for graphics commands.
-    ApplicationProgramCommand(String)
+    ApplicationProgramCommand(String),
 }
 
 impl Event {

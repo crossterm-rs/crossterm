@@ -142,8 +142,8 @@ pub(crate) fn parse_apc(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     }
 
     // APC strings should contain only ASCII characters
-    let input_str = str::from_utf8(&buffer[2..buffer.len() - 2])
-        .map_err(|_| could_not_parse_event_error())?;
+    let apc_buf = &buffer[2..buffer.len() - 2];
+    let input_str = str::from_utf8(apc_buf).map_err(|_| could_not_parse_event_error())?;
     let input_event = Event::ApplicationProgramCommand(input_str.to_string());
 
     Ok(Some(InternalEvent::Event(input_event)))
@@ -1530,31 +1530,23 @@ mod tests {
     #[test]
     fn test_parse_apc() {
         assert_eq!(
-            parse_event("\x1B__APC; Test_\x1B\\".as_bytes(), false).unwrap(),
+            parse_event(b"\x1B__APC; Test_\x1B\\", false).unwrap(),
             Some(InternalEvent::Event(Event::ApplicationProgramCommand(
                 "_APC; Test_".to_string()
             )))
         );
 
+        assert_eq!(parse_event(b"\x1B_", false).unwrap(), None);
+        assert_eq!(parse_event(b"\x1B_\x1B", false).unwrap(), None);
         assert_eq!(
-            parse_event("\x1B_".as_bytes(), false).unwrap(),
-            None
-        );
-
-        assert_eq!(
-            parse_event("\x1B_\x1B".as_bytes(), false).unwrap(),
-            None
-        );
-
-        assert_eq!(
-            parse_event("\x1B_\x1B\\".as_bytes(), false).unwrap(),
+            parse_event(b"\x1B_\x1B\\", false).unwrap(),
             Some(InternalEvent::Event(Event::ApplicationProgramCommand(
                 "".to_string()
             )))
         );
 
         assert_ne!(
-            parse_event("\x1BAPC; Test_\x1B\\".as_bytes(), false).unwrap(),
+            parse_event(b"\x1BAPC; Test_\x1B\\", false).unwrap(),
             Some(InternalEvent::Event(Event::ApplicationProgramCommand(
                 "APC; Test_".to_string()
             )))
