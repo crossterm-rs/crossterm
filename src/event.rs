@@ -562,7 +562,7 @@ pub enum Event {
     /// enabled.
     #[cfg(feature = "bracketed-paste")]
     Paste(String),
-    /// An resize event with new dimensions after resize (columns, rows).
+    /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
     /// Application Program Command sent by the terminal.
