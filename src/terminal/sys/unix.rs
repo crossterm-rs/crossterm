@@ -214,7 +214,7 @@ fn query_keyboard_enhancement_flags_nonraw() -> io::Result<Option<KeyboardEnhanc
 fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhancementFlags>> {
     use crate::event::{
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
-        poll_internal, read_internal, InternalEvent,
+        internal::{poll_internal, read_internal, InternalEvent},
     };
     use std::io::Write;
     use std::time::Duration;

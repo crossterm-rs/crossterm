@@ -119,6 +119,7 @@
 //! them (`event-*`).
 
 pub(crate) mod filter;
+pub(crate) mod internal;
 pub(crate) mod read;
 pub(crate) mod source;
 #[cfg(feature = "event-stream")]
@@ -131,36 +132,12 @@ use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
-use crate::event::{
-    filter::{EventFilter, Filter},
-    read::InternalEventReader,
-    timeout::PollTimeout,
-};
-use crate::{csi, Command};
-use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
+use crate::{csi, event::filter::EventFilter, Command};
 use std::fmt::{self, Display};
 use std::time::Duration;
 
 use bitflags::bitflags;
 use std::hash::{Hash, Hasher};
-
-/// Static instance of `InternalEventReader`.
-/// This needs to be static because there can be one event reader.
-static INTERNAL_EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
-
-pub(crate) fn lock_internal_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
-    MutexGuard::map(INTERNAL_EVENT_READER.lock(), |reader| {
-        reader.get_or_insert_with(InternalEventReader::default)
-    })
-}
-fn try_lock_internal_event_reader_for(
-    duration: Duration,
-) -> Option<MappedMutexGuard<'static, InternalEventReader>> {
-    Some(MutexGuard::map(
-        INTERNAL_EVENT_READER.try_lock_for(duration)?,
-        |reader| reader.get_or_insert_with(InternalEventReader::default),
-    ))
-}
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
 ///
@@ -202,7 +179,7 @@ fn try_lock_internal_event_reader_for(
 /// }
 /// ```
 pub fn poll(timeout: Duration) -> std::io::Result<bool> {
-    poll_internal(Some(timeout), &EventFilter)
+    internal::poll_internal(Some(timeout), &EventFilter)
 }
 
 /// Reads a single [`Event`](enum.Event.html).
@@ -247,38 +224,11 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// }
 /// ```
 pub fn read() -> std::io::Result<Event> {
-    match read_internal(&EventFilter)? {
-        InternalEvent::Event(event) => Ok(event),
+    match internal::read_internal(&EventFilter)? {
+        internal::InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
         _ => unreachable!(),
     }
-}
-
-/// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
-where
-    F: Filter,
-{
-    let (mut reader, timeout) = if let Some(timeout) = timeout {
-        let poll_timeout = PollTimeout::new(Some(timeout));
-        if let Some(reader) = try_lock_internal_event_reader_for(timeout) {
-            (reader, poll_timeout.leftover())
-        } else {
-            return Ok(false);
-        }
-    } else {
-        (lock_internal_event_reader(), None)
-    };
-    reader.poll(timeout, filter)
-}
-
-/// Reads a single `InternalEvent`.
-pub(crate) fn read_internal<F>(filter: &F) -> std::io::Result<InternalEvent>
-where
-    F: Filter,
-{
-    let mut reader = lock_internal_event_reader();
-    reader.read(filter)
 }
 
 bitflags! {
@@ -1465,25 +1415,6 @@ impl Display for KeyCode {
             KeyCode::Modifier(modifier) => write!(f, "{modifier}"),
         }
     }
-}
-
-/// An internal event.
-///
-/// Encapsulates publicly available `Event` with additional internal
-/// events that shouldn't be publicly available to the crate users.
-#[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Eq)]
-pub(crate) enum InternalEvent {
-    /// An event.
-    Event(Event),
-    /// A cursor position (`col`, `row`).
-    #[cfg(unix)]
-    CursorPosition(u16, u16),
-    /// The progressive keyboard enhancement flags enabled by the terminal.
-    #[cfg(unix)]
-    KeyboardEnhancementFlags(KeyboardEnhancementFlags),
-    /// Attributes and architectural class of the terminal.
-    #[cfg(unix)]
-    PrimaryDeviceAttributes,
 }
 
 #[cfg(test)]
