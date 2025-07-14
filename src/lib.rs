@@ -67,7 +67,7 @@
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
 //!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
 //! - Module [`clipboard`](clipboard/index.html) (requires
-//!     [`feature = "osc52"`](#optional-features))
+//!   [`feature = "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
 //!
 //! ### Command Execution
