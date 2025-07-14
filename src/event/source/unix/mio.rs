@@ -6,7 +6,8 @@ use signal_hook_mio::v1_0::Signals;
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
-    source::EventSource, sys::unix::parse::parse_event, timeout::PollTimeout, Event, InternalEvent,
+    internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event,
+    timeout::PollTimeout, Event,
 };
 use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 

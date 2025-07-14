@@ -1,4 +1,4 @@
-use crate::event::InternalEvent;
+use crate::event::internal::InternalEvent;
 
 /// Interface for filtering an `InternalEvent`.
 pub(crate) trait Filter: Send + Sync + 'static {

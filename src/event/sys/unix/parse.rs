@@ -5,7 +5,7 @@ use crate::event::{
     MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
 };
 
-use super::super::super::InternalEvent;
+use crate::event::internal::InternalEvent;
 
 // Event parsing
 //
