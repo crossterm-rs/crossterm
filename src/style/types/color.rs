@@ -246,10 +246,8 @@ impl serde::ser::Serialize for Color {
 
         if str.is_empty() {
             match *self {
-                Color::AnsiValue(value) => serializer.serialize_str(&format!("ansi_({})", value)),
-                Color::Rgb { r, g, b } => {
-                    serializer.serialize_str(&format!("rgb_({},{},{})", r, g, b))
-                }
+                Color::AnsiValue(value) => serializer.serialize_str(&format!("ansi_({value})")),
+                Color::Rgb { r, g, b } => serializer.serialize_str(&format!("rgb_({r},{g},{b})")),
                 _ => Err(serde::ser::Error::custom("Could not serialize enum type")),
             }
         } else {

@@ -33,7 +33,7 @@ async fn print_events() {
             maybe_event = event => {
                 match maybe_event {
                     Some(Ok(event)) => {
-                        println!("Event::{:?}\r", event);
+                        println!("Event::{event:?}\r");
 
                         if event == Event::Key(KeyCode::Char('c').into()) {
                             println!("Cursor position: {:?}\r", position());
@@ -43,7 +43,7 @@ async fn print_events() {
                             break;
                         }
                     }
-                    Some(Err(e)) => println!("Error: {:?}\r", e),
+                    Some(Err(e)) => println!("Error: {e:?}\r"),
                     None => break,
                 }
             }
@@ -52,7 +52,7 @@ async fn print_events() {
 }
 
 fn main() -> std::io::Result<()> {
-    println!("{}", HELP);
+    println!("{HELP}");
 
     enable_raw_mode()?;
 

@@ -29,7 +29,7 @@ fn print_events() -> io::Result<()> {
         // Blocking read
         let event = read()?;
 
-        println!("Event: {:?}\r", event);
+        println!("Event: {event:?}\r");
 
         if event == Event::Key(KeyCode::Char('c').into()) {
             println!("Cursor position: {:?}\r", position());
@@ -37,7 +37,7 @@ fn print_events() -> io::Result<()> {
 
         if let Event::Resize(x, y) = event {
             let (original_size, new_size) = flush_resize_events((x, y));
-            println!("Resize from: {:?}, to: {:?}\r", original_size, new_size);
+            println!("Resize from: {original_size:?}, to: {new_size:?}\r");
         }
 
         if event == Event::Key(KeyCode::Esc.into()) {
@@ -63,7 +63,7 @@ fn flush_resize_events(first_resize: (u16, u16)) -> ((u16, u16), (u16, u16)) {
 }
 
 fn main() -> io::Result<()> {
-    println!("{}", HELP);
+    println!("{HELP}");
 
     enable_raw_mode()?;
 
@@ -94,7 +94,7 @@ fn main() -> io::Result<()> {
     )?;
 
     if let Err(e) = print_events() {
-        println!("Error: {:?}\r", e);
+        println!("Error: {e:?}\r");
     }
 
     if supports_keyboard_enhancement {

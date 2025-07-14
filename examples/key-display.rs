@@ -19,10 +19,10 @@ const HELP: &str = r#"Key display
 "#;
 
 fn main() -> io::Result<()> {
-    println!("{}", HELP);
+    println!("{HELP}");
     enable_raw_mode()?;
     if let Err(e) = print_events() {
-        println!("Error: {:?}\r", e);
+        println!("Error: {e:?}\r");
     }
     disable_raw_mode()?;
     Ok(())

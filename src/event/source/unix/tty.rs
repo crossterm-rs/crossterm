@@ -139,7 +139,7 @@ impl EventSource for UnixInternalEventSource {
                 Err(e) => {
                     return Err(std::io::Error::new(
                         std::io::ErrorKind::Other,
-                        format!("got unexpected error while polling: {:?}", e),
+                        format!("got unexpected error while polling: {e:?}"),
                     ))
                 }
                 Ok(_) => (),

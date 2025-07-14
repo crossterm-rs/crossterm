@@ -12,21 +12,21 @@ fn match_event(event: Event) {
                 code,
                 ..
             } => {
-                println!("Control + {:?}", code);
+                println!("Control + {code:?}");
             }
             KeyEvent {
                 modifiers: KeyModifiers::SHIFT,
                 code,
                 ..
             } => {
-                println!("Shift + {:?}", code);
+                println!("Shift + {code:?}");
             }
             KeyEvent {
                 modifiers: KeyModifiers::ALT,
                 code,
                 ..
             } => {
-                println!("Alt + {:?}", code);
+                println!("Alt + {code:?}");
             }
 
             // Match on multiple modifiers:
@@ -34,9 +34,9 @@ fn match_event(event: Event) {
                 code, modifiers, ..
             } => {
                 if modifiers == (KeyModifiers::ALT | KeyModifiers::SHIFT) {
-                    println!("Alt + Shift {:?}", code);
+                    println!("Alt + Shift {code:?}");
                 } else {
-                    println!("({:?}) with key: {:?}", modifiers, code)
+                    println!("({modifiers:?}) with key: {code:?}")
                 }
             }
         }
