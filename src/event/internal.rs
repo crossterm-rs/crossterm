@@ -8,46 +8,47 @@ use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeo
 
 /// Static instance of `InternalEventReader`.
 /// This needs to be static because there can be one event reader.
-static INTERNAL_EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
+static EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
 
-pub(crate) fn lock_internal_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
-    MutexGuard::map(INTERNAL_EVENT_READER.lock(), |reader| {
+pub(crate) fn lock_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
+    MutexGuard::map(EVENT_READER.lock(), |reader| {
         reader.get_or_insert_with(InternalEventReader::default)
     })
 }
-pub fn try_lock_internal_event_reader_for(
+
+fn try_lock_event_reader_for(
     duration: Duration,
 ) -> Option<MappedMutexGuard<'static, InternalEventReader>> {
     Some(MutexGuard::map(
-        INTERNAL_EVENT_READER.try_lock_for(duration)?,
+        EVENT_READER.try_lock_for(duration)?,
         |reader| reader.get_or_insert_with(InternalEventReader::default),
     ))
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
-pub(crate) fn poll_internal<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
+pub(crate) fn poll<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
 where
     F: Filter,
 {
     let (mut reader, timeout) = if let Some(timeout) = timeout {
         let poll_timeout = PollTimeout::new(Some(timeout));
-        if let Some(reader) = try_lock_internal_event_reader_for(timeout) {
+        if let Some(reader) = try_lock_event_reader_for(timeout) {
             (reader, poll_timeout.leftover())
         } else {
             return Ok(false);
         }
     } else {
-        (lock_internal_event_reader(), None)
+        (lock_event_reader(), None)
     };
     reader.poll(timeout, filter)
 }
 
 /// Reads a single `InternalEvent`.
-pub(crate) fn read_internal<F>(filter: &F) -> std::io::Result<InternalEvent>
+pub(crate) fn read<F>(filter: &F) -> std::io::Result<InternalEvent>
 where
     F: Filter,
 {
-    let mut reader = lock_internal_event_reader();
+    let mut reader = lock_event_reader();
     reader.read(filter)
 }
 
