@@ -179,7 +179,7 @@ use std::hash::{Hash, Hasher};
 /// }
 /// ```
 pub fn poll(timeout: Duration) -> std::io::Result<bool> {
-    internal::poll_internal(Some(timeout), &EventFilter)
+    internal::poll(Some(timeout), &EventFilter)
 }
 
 /// Reads a single [`Event`](enum.Event.html).
@@ -224,7 +224,7 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// }
 /// ```
 pub fn read() -> std::io::Result<Event> {
-    match internal::read_internal(&EventFilter)? {
+    match internal::read(&EventFilter)? {
         internal::InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
         _ => unreachable!(),
