@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2019, macOS-latest]
+        os: [ubuntu-latest, windows-2022, macOS-latest]
         rust: [stable, nightly]
         # Allow failures on nightly, it's just informative
         include:
@@ -63,15 +63,15 @@ jobs:
       run: cargo test --all-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features
-      if: matrix.os != 'windows-2019'
+      if: matrix.os != 'windows-2022'
       run: cargo test --no-default-features -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features with use-dev-tty feature enabled
-      if: matrix.os != 'windows-2019'
+      if: matrix.os != 'windows-2022'
       run: cargo test --no-default-features --features "use-dev-tty events event-stream bracketed-paste" -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test no default features with windows feature enabled
-      if: matrix.os == 'windows-2019'
+      if: matrix.os == 'windows-2022'
       run: cargo test --no-default-features --features "windows" -- --nocapture --test-threads 1
       continue-on-error: ${{ matrix.can-fail }}
     - name: Test Packaging
