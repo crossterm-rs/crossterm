@@ -126,6 +126,8 @@ pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
+pub mod runtime;
+
 #[cfg(feature = "derive-more")]
 use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
