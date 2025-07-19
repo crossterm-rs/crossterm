@@ -2,7 +2,7 @@
 
 #[cfg(unix)]
 #[cfg(feature = "events")]
-pub use self::unix::supports_keyboard_enhancement;
+pub use self::unix::{cell_size, supports_keyboard_enhancement};
 #[cfg(unix)]
 pub(crate) use self::unix::{
     disable_raw_mode, enable_raw_mode, is_raw_mode_enabled, size, window_size,

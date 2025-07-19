@@ -374,6 +374,71 @@ impl Command for DisableMouseCapture {
     }
 }
 
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[cfg(feature = "events")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableMousePixelCapture;
+
+#[cfg(feature = "events")]
+impl Command for EnableMousePixelCapture {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(concat!(
+            // Normal tracking: Send mouse X & Y on button press and release
+            csi!("?1000h"),
+            // Button-event tracking: Report button motion events (dragging)
+            csi!("?1002h"),
+            // Any-event tracking: Report all motion events
+            csi!("?1003h"),
+            // RXVT mouse mode: Allows mouse coordinates of >223
+            csi!("?1015h"),
+            // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
+            csi!("?1006h"),
+            // SGR-Pixels mouse mode: Allows mouse coordinates in pixels
+            csi!("?1016h"),
+        ))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        sys::windows::enable_mouse_capture()
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
+/// A command that disables mouse event capturing.
+///
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableMousePixelCapture;
+
+impl Command for DisableMousePixelCapture {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(concat!(
+            // The inverse commands of EnableMouseCapture, in reverse order.
+            csi!("?1016l"),
+            csi!("?1006l"),
+            csi!("?1015l"),
+            csi!("?1003l"),
+            csi!("?1002l"),
+            csi!("?1000l"),
+        ))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        sys::windows::disable_mouse_capture()
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
 /// A command that enables focus event emission.
 ///
 /// It should be paired with [`DisableFocusChange`] at the end of execution.
@@ -1478,6 +1543,9 @@ pub(crate) enum InternalEvent {
     /// A cursor position (`col`, `row`).
     #[cfg(unix)]
     CursorPosition(u16, u16),
+    /// The cell size in pixels (`height`, `width`).
+    #[cfg(unix)]
+    CellSizePixels(u16, u16),
     /// The progressive keyboard enhancement flags enabled by the terminal.
     #[cfg(unix)]
     KeyboardEnhancementFlags(KeyboardEnhancementFlags),

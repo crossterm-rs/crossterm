@@ -19,6 +19,17 @@ impl Filter for CursorPositionFilter {
 
 #[cfg(unix)]
 #[derive(Debug, Clone)]
+pub(crate) struct CellPixelSizeFilter;
+
+#[cfg(unix)]
+impl Filter for CellPixelSizeFilter {
+    fn eval(&self, event: &InternalEvent) -> bool {
+        matches!(*event, InternalEvent::CellSizePixels(_, _))
+    }
+}
+
+#[cfg(unix)]
+#[derive(Debug, Clone)]
 pub(crate) struct KeyboardEnhancementFlagsFilter;
 
 #[cfg(unix)]
