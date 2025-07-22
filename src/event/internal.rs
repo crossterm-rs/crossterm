@@ -52,6 +52,15 @@ where
     reader.read(filter)
 }
 
+/// Reads a single `InternalEvent`. Non-blocking.
+pub(crate) fn try_read<F>(filter: &F) -> Option<InternalEvent>
+where
+    F: Filter,
+{
+    let mut reader = lock_event_reader();
+    reader.try_read(filter)
+}
+
 /// An internal event.
 ///
 /// Encapsulates publicly available `Event` with additional internal

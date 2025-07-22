@@ -132,7 +132,11 @@ use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
-use crate::{csi, event::filter::EventFilter, Command};
+use crate::{
+    csi,
+    event::{filter::EventFilter, internal::InternalEvent},
+    Command,
+};
 use std::fmt::{self, Display};
 use std::time::Duration;
 
@@ -225,7 +229,37 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// ```
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
-        internal::InternalEvent::Event(event) => Ok(event),
+        InternalEvent::Event(event) => Ok(event),
+        #[cfg(unix)]
+        _ => unreachable!(),
+    }
+}
+
+/// Attempts to read a single [`Event`](enum.Event.html) without blocking the thread.
+///
+/// If no event is found, `None` is returned.
+///
+/// # Examples
+///
+/// ```no_run
+/// use crossterm::event::{try_read, poll};
+/// use std::{io, time::Duration};
+///
+/// fn print_all_events() -> io::Result<bool> {
+///     loop {
+///         if poll(Duration::from_millis(100))? {
+///             // Fetch *all* available events at once
+///             while let Some(event) = try_read() {
+///                 // ...
+///             }
+///         }
+///     }
+/// }
+/// ```
+pub fn try_read() -> Option<Event> {
+    match internal::try_read(&EventFilter) {
+        Some(InternalEvent::Event(event)) => Some(event),
+        None => None,
         #[cfg(unix)]
         _ => unreachable!(),
     }
