@@ -3,7 +3,7 @@ use std::ops::{BitAnd, BitOr, BitXor};
 use crate::style::Attribute;
 
 /// a bitset for all possible attributes
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Attributes(u32);
 
 impl From<Attribute> for Attributes {

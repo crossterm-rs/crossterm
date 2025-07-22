@@ -26,7 +26,7 @@ use crate::style::{Color, Colored};
 /// ```
 ///
 /// See [Color](enum.Color.html).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Colors {
     pub foreground: Option<Color>,
     pub background: Option<Color>,
