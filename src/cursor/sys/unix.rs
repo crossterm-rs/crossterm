@@ -4,7 +4,10 @@ use std::{
 };
 
 use crate::{
-    event::{filter::CursorPositionFilter, poll_internal, read_internal, InternalEvent},
+    event::{
+        filter::CursorPositionFilter,
+        internal::{self, InternalEvent},
+    },
     terminal::{disable_raw_mode, enable_raw_mode, sys::is_raw_mode_enabled},
 };
 
@@ -36,10 +39,10 @@ fn read_position_raw() -> io::Result<(u16, u16)> {
     stdout.flush()?;
 
     loop {
-        match poll_internal(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
+        match internal::poll(Some(Duration::from_millis(2000)), &CursorPositionFilter) {
             Ok(true) => {
                 if let Ok(InternalEvent::CursorPosition(x, y)) =
-                    read_internal(&CursorPositionFilter)
+                    internal::read(&CursorPositionFilter)
                 {
                     return Ok((x, y));
                 }

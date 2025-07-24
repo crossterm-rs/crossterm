@@ -214,7 +214,7 @@ fn query_keyboard_enhancement_flags_nonraw() -> io::Result<Option<KeyboardEnhanc
 fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhancementFlags>> {
     use crate::event::{
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
-        poll_internal, read_internal, InternalEvent,
+        internal::{self, InternalEvent},
     };
     use std::io::Write;
     use std::time::Duration;
@@ -241,15 +241,15 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     }
 
     loop {
-        match poll_internal(
+        match internal::poll(
             Some(Duration::from_millis(2000)),
             &KeyboardEnhancementFlagsFilter,
         ) {
             Ok(true) => {
-                match read_internal(&KeyboardEnhancementFlagsFilter) {
+                match internal::read(&KeyboardEnhancementFlagsFilter) {
                     Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
                         // Flush the PrimaryDeviceAttributes out of the event queue.
-                        read_internal(&PrimaryDeviceAttributesFilter).ok();
+                        internal::read(&PrimaryDeviceAttributesFilter).ok();
                         return Ok(Some(current_flags));
                     }
                     _ => return Ok(None),

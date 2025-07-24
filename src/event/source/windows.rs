@@ -10,10 +10,10 @@ use crate::event::{
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
+    internal::InternalEvent,
     source::EventSource,
     sys::windows::parse::{handle_key_event, handle_mouse_event},
     timeout::PollTimeout,
-    InternalEvent,
 };
 
 pub(crate) struct WindowsEventSource {
