@@ -17,7 +17,7 @@ const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
 /// console mode if it's initialized.
 static ORIGINAL_CONSOLE_MODE: AtomicU64 = AtomicU64::new(u64::MAX);
 
-/// Initializes the default console color. It will will be skipped if it has already been initialized.
+/// Initializes the default console color. It will be skipped if it has already been initialized.
 fn init_original_console_mode(original_mode: u32) {
     let _ = ORIGINAL_CONSOLE_MODE.compare_exchange(
         u64::MAX,
