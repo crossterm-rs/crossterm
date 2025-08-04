@@ -1,21 +1,28 @@
+#[cfg(not(feature = "no-tty"))]
 use std::time::Duration;
 
+#[cfg(not(feature = "no-tty"))]
 use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 
+use crate::event::Event;
 #[cfg(unix)]
 use crate::event::KeyboardEnhancementFlags;
-use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeout, Event};
+#[cfg(not(feature = "no-tty"))]
+use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeout};
 
 /// Static instance of `InternalEventReader`.
 /// This needs to be static because there can be one event reader.
+#[cfg(not(feature = "no-tty"))]
 static EVENT_READER: Mutex<Option<InternalEventReader>> = parking_lot::const_mutex(None);
 
+#[cfg(not(feature = "no-tty"))]
 pub(crate) fn lock_event_reader() -> MappedMutexGuard<'static, InternalEventReader> {
     MutexGuard::map(EVENT_READER.lock(), |reader| {
         reader.get_or_insert_with(InternalEventReader::default)
     })
 }
 
+#[cfg(not(feature = "no-tty"))]
 fn try_lock_event_reader_for(
     duration: Duration,
 ) -> Option<MappedMutexGuard<'static, InternalEventReader>> {
@@ -26,6 +33,7 @@ fn try_lock_event_reader_for(
 }
 
 /// Polls to check if there are any `InternalEvent`s that can be read within the given duration.
+#[cfg(not(feature = "no-tty"))]
 pub(crate) fn poll<F>(timeout: Option<Duration>, filter: &F) -> std::io::Result<bool>
 where
     F: Filter,
@@ -44,6 +52,7 @@ where
 }
 
 /// Reads a single `InternalEvent`.
+#[cfg(not(feature = "no-tty"))]
 pub(crate) fn read<F>(filter: &F) -> std::io::Result<InternalEvent>
 where
     F: Filter,
@@ -53,6 +62,7 @@ where
 }
 
 /// Reads a single `InternalEvent`. Non-blocking.
+#[cfg(not(feature = "no-tty"))]
 pub(crate) fn try_read<F>(filter: &F) -> Option<InternalEvent>
 where
     F: Filter,
