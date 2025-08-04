@@ -98,7 +98,45 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
 #[allow(clippy::useless_conversion)]
 pub(crate) fn size() -> io::Result<(u16, u16)> {
     if let Ok(window_size) = window_size() {
-        return Ok((window_size.columns, window_size.rows));
+        // Let's add default (ANSI terminal) values in case when 'tcgetwinsize' returns Ok with columns and/or rows
+        // equal to 0. In practice, Ok((0,0)) often results in crashes (frequently) or rendering issues (more rarely)
+        // when running applications over a serial line.
+        //
+        // Meanwhile, applications like vi and vim work well in the same environment. The reason is they rely on
+        // multiple sources to determine the terminal size: tcgetwinsize, environment variables, terminfo, fallbacks to
+        // defaults, and more. They use an enhanced and layered mechanism for detecting the terminal dimensions, which
+        // seems to be implemented in this library.
+        //
+        // Since implementing such a mechanism could take quite some time, I'd prefer to provide
+        // only default values for now:
+        // - they can serve as a starting point for discussing the problem and solutions
+        // - they can help prevent crashes in existing applications
+        // - they are simple and predictable
+        //
+        // Some links on issues / PRs caused by Ok with zero columns/rows:
+        // - Helix - https://github.com/helix-editor/helix/pull/14050
+        // - Helix - https://github.com/helix-editor/helix/issues/14101
+        // - aichat - https://github.com/sigoden/aichat/pull/1366
+        //
+        // Some links on vi / vim:
+        // - getting terminal size in vim:
+        //   https://github.com/vim/vim/blob/b88f9e4a04ce9fb70abb7cdae17688aa4f49c8c9/src/os_unix.c#L4299
+        // - using defaults in vi:
+        //   https://github.com/mirror/busybox/blob/371fe9f71d445d18be28c82a2a6d82115c8af19d/editors/vi.c#L4814
+        const ANSI_TERM_COLUMNS: u16 = 80;
+        const ANSI_TERM_ROWS: u16 = 24;
+
+        let columns = if window_size.columns == 0 {
+            ANSI_TERM_COLUMNS
+        } else {
+            window_size.columns
+        };
+        let rows = if window_size.rows == 0 {
+            ANSI_TERM_ROWS
+        } else {
+            window_size.rows
+        };
+        return Ok((columns, rows));
     }
 
     tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
