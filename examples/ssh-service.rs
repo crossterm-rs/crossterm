@@ -18,7 +18,6 @@ use crossterm::{
     terminal::WindowSize,
 };
 use russh::keys::ssh_key::PublicKey;
-use russh::keys::PrivateKey;
 use russh::server::*;
 use russh::{Channel, ChannelId, Pty};
 use tokio::sync::Mutex;
@@ -44,27 +43,20 @@ impl AppServer {
     }
 
     pub async fn run(&mut self) -> Result<(), anyhow::Error> {
-        // NOTE: For test only
-        let encoded_private_key = r#"
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACCIZOukggdnRXIYg7MP8GcSYVGMWXSAxBuaTo5JrVEbrwAAAKC+kpPxvpKT
-8QAAAAtzc2gtZWQyNTUxOQAAACCIZOukggdnRXIYg7MP8GcSYVGMWXSAxBuaTo5JrVEbrw
-AAAEBY+ilXLu4O3XnxgKtZeZB592hGsWvIWQN9AF8Ee+cIGohk66SCB2dFchiDsw/wZxJh
-UYxZdIDEG5pOjkmtURuvAAAAGnJpY2tAbG9jYWxob3N0LmxvY2FsZG9tYWluAQID
------END OPENSSH PRIVATE KEY-----
-"#;
-        let private_key = encoded_private_key.parse::<PrivateKey>().unwrap();
         let config = Config {
             inactivity_timeout: Some(std::time::Duration::from_secs(3600)),
             auth_rejection_time: std::time::Duration::from_secs(3),
             auth_rejection_time_initial: Some(std::time::Duration::from_secs(0)),
-            keys: vec![private_key],
+            keys: vec![russh::keys::PrivateKey::random(
+                &mut rand_core::OsRng,
+                russh::keys::Algorithm::Ed25519,
+            )
+            .unwrap()],
             nodelay: true,
             ..Default::default()
         };
 
-        self.run_on_address(Arc::new(config), ("0.0.0.0", 2222))
+        self.run_on_address(Arc::new(config), ("127.0.0.1", 2222))
             .await?;
         Ok(())
     }
