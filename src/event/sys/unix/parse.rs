@@ -207,6 +207,15 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
                 }
             }
         }
+        #[cfg(unix)]
+        #[cfg(feature = "no-tty")]
+        b'W' => {
+            if b'R' == buffer[buffer.len() - 1] {
+                return parse_csi_win_size(buffer);
+            } else {
+                None
+            }
+        }
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -343,6 +352,26 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
         3 => KeyEventKind::Release,
         _ => KeyEventKind::Press,
     }
+}
+
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub(crate) fn parse_csi_win_size(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // ESC [ Wx ; Wy R
+    //   Wx - window row number (starting from 1)
+    //   Wy - window column number (starting from 1)
+    assert!(buffer.starts_with(b"\x1B[W")); // ESC [
+    assert!(buffer.ends_with(b"R"));
+
+    let s = std::str::from_utf8(&buffer[3..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let mut split = s.split(';');
+
+    let x = next_parsed::<u16>(&mut split)?;
+    let y = next_parsed::<u16>(&mut split)?;
+
+    Ok(Some(InternalEvent::Event(Event::Resize(x, y))))
 }
 
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {

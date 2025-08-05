@@ -178,6 +178,7 @@ mod tests {
     }
 
     #[cfg(not(windows))]
+    #[cfg(not(feature = "no-tty"))]
     mod unix {
         use std::fmt;
 
@@ -242,6 +243,7 @@ mod tests {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     mod windows {
         use std::fmt;
 

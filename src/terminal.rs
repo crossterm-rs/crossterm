@@ -85,11 +85,11 @@
 
 use std::{fmt, io};
 
-#[cfg(windows)]
+#[cfg(all(windows, not(feature = "no-tty")))]
 use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-#[cfg(windows)]
+#[cfg(all(windows, not(feature = "no-tty")))]
 use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
 
 #[doc(no_inline)]
@@ -105,12 +105,16 @@ pub use sys::supports_keyboard_enhancement;
 ///
 /// Please have a look at the [raw mode](./index.html#raw-mode) section.
 pub fn is_raw_mode_enabled() -> io::Result<bool> {
-    #[cfg(unix)]
+    #[cfg(feature = "no-tty")]
+    {
+        Ok(sys::is_raw_mode_enabled())
+    }
+    #[cfg(all(unix, not(feature = "no-tty")))]
     {
         Ok(sys::is_raw_mode_enabled())
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     {
         sys::is_raw_mode_enabled()
     }
@@ -133,8 +137,14 @@ pub fn disable_raw_mode() -> io::Result<()> {
 /// Returns the terminal size `(columns, rows)`.
 ///
 /// The top left cell is represented `(1, 1)`.
+#[cfg(not(feature = "no-tty"))]
 pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
+}
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub fn size(event: &crate::event::internal_no_tty::NoTtyEvent) -> io::Result<(u16, u16)> {
+    sys::size(event)
 }
 
 #[derive(Debug)]
@@ -150,8 +160,15 @@ pub struct WindowSize {
 /// The width and height in pixels may not be reliably implemented or default to 0.
 /// For unix, <https://man7.org/linux/man-pages/man4/tty_ioctl.4.html> documents them as "unused".
 /// For windows it is not implemented.
+#[cfg(not(feature = "no-tty"))]
 pub fn window_size() -> io::Result<WindowSize> {
     sys::window_size()
+}
+
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub fn window_size(event: &crate::event::internal_no_tty::NoTtyEvent) -> io::Result<WindowSize> {
+    sys::window_size(event)
 }
 
 /// Disables line wrapping.
@@ -163,7 +180,7 @@ impl Command for DisableLineWrap {
         f.write_str(csi!("?7l"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
@@ -182,7 +199,7 @@ impl Command for EnableLineWrap {
         f.write_str(csi!("?7h"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::current()?;
         let console_mode = ConsoleMode::from(screen_buffer.handle().clone());
@@ -222,7 +239,7 @@ impl Command for EnterAlternateScreen {
         f.write_str(csi!("?1049h"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         let alternate_screen = ScreenBuffer::create()?;
         alternate_screen.show()?;
@@ -260,7 +277,7 @@ impl Command for LeaveAlternateScreen {
         f.write_str(csi!("?1049l"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
@@ -302,7 +319,7 @@ impl Command for ScrollUp {
         Ok(())
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         sys::scroll_up(self.0)
     }
@@ -324,7 +341,7 @@ impl Command for ScrollDown {
         Ok(())
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         sys::scroll_down(self.0)
     }
@@ -352,7 +369,7 @@ impl Command for Clear {
         })
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         sys::clear(self.0)
     }
@@ -371,7 +388,7 @@ impl Command for SetSize {
         write!(f, csi!("8;{};{}t"), self.1, self.0)
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         sys::set_size(self.0, self.1)
     }
@@ -390,7 +407,7 @@ impl<T: fmt::Display> Command for SetTitle<T> {
         write!(f, "\x1B]0;{}\x07", &self.0)
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         sys::set_window_title(&self.0)
     }
@@ -437,12 +454,12 @@ impl Command for BeginSynchronizedUpdate {
         f.write_str(csi!("?2026h"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         Ok(())
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     #[inline]
     fn is_ansi_code_supported(&self) -> bool {
         true
@@ -490,12 +507,12 @@ impl Command for EndSynchronizedUpdate {
         f.write_str(csi!("?2026l"))
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     fn execute_winapi(&self) -> io::Result<()> {
         Ok(())
     }
 
-    #[cfg(windows)]
+    #[cfg(all(windows, not(feature = "no-tty")))]
     #[inline]
     fn is_ansi_code_supported(&self) -> bool {
         true
@@ -509,8 +526,10 @@ impl_display!(for Clear);
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(feature = "no-tty"))]
     use std::{io::stdout, thread, time};
 
+    #[cfg(not(feature = "no-tty"))]
     use crate::execute;
 
     use super::*;
@@ -518,6 +537,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis CI
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_resize_ansi() {
         let (width, height) = size().unwrap();
 
