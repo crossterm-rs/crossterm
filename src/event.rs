@@ -133,7 +133,7 @@ pub(crate) mod timeout;
 pub mod internal_no_tty;
 #[cfg(unix)]
 #[cfg(feature = "no-tty")]
-pub use internal_no_tty::NoTtyEvent;
+pub use internal_no_tty::{NoTtyEvent, SenderWriter};
 
 #[cfg(feature = "derive-more")]
 use derive_more::derive::IsVariant;

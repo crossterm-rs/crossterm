@@ -39,7 +39,7 @@ derive-more = ["dep:derive_more"]
 #! ### Optional Features
 
 ## Enable non-psudo-terminal
-no-tty = ["dep:crossbeam-channel"]
+no-tty = ["dep:crossbeam-channel", "tokio"]
 
 ## Enables documentation for crate features.
 document-features = ["dep:document-features"]
@@ -64,13 +64,17 @@ document-features = { version = "0.2.11", optional = true }
 futures-core = { version = "0.3", optional = true, default-features = false }
 parking_lot = "0.12"
 serde = { version = "1.0", features = ["derive"], optional = true }
-crossbeam-channel = {version = "0.5",optional=true}
+crossbeam-channel = { version = "0.5", optional = true }
+tokio = { version = "1", optional = true, features = ["sync"] }
 
 
 # Windows dependencies
 [target.'cfg(windows)'.dependencies]
 crossterm_winapi = { version = "0.9.1", optional = true }
-winapi = { version = "0.3.9", optional = true, features = ["winuser", "winerror"] }
+winapi = { version = "0.3.9", optional = true, features = [
+  "winuser",
+  "winerror",
+] }
 
 # UNIX dependencies
 [target.'cfg(all(unix,not(feature="no-tty")))'.dependencies]
@@ -79,9 +83,15 @@ filedescriptor = { version = "0.8", optional = true }
 # compatibility.
 libc = { version = "0.2", default-features = false, optional = true }
 mio = { version = "1.0", features = ["os-poll"], optional = true }
-rustix = { version = "1", default-features = false, features = ["std", "stdio", "termios"] }
+rustix = { version = "1", default-features = false, features = [
+  "std",
+  "stdio",
+  "termios",
+] }
 signal-hook = { version = "0.3.17", optional = true }
-signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = true }
+signal-hook-mio = { version = "0.2.4", features = [
+  "support-v1_0",
+], optional = true }
 
 [dev-dependencies]
 async-std = "1.13"
@@ -93,7 +103,7 @@ temp-env = "0.3.6"
 tokio = { version = "1.44", features = ["full"] }
 russh = "0.53.0"
 rand_core = "0.6"
-anyhow="1"
+anyhow = "1"
 
 # Examples
 [[example]]

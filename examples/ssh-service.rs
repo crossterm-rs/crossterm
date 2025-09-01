@@ -7,7 +7,7 @@ use crossterm::event::{
 use std::time::Duration;
 
 use crossbeam_channel::{unbounded, Receiver, Sender};
-use crossterm::event::NoTtyEvent;
+use crossterm::event::{NoTtyEvent, SenderWriter};
 use crossterm::{
     cursor::position,
     event::{
@@ -185,6 +185,7 @@ impl Handler for AppServer {
         let handle = session.handle();
         let (tx, mut rx) = tokio::sync::mpsc::channel::<Vec<u8>>(5);
         let tx2 = tx.clone();
+        let tx3 = tx.clone();
         const HELP: &str = "Blocking read()\r\n- Keyboard, mouse, focus and terminal resize events enabled\r\n- Hit \"c\" to print current cursor position\r\n- Use Esc to quit\r\n";
         let _ = handle.data(channel, HELP.into()).await;
         tokio::task::spawn_blocking(move || {
@@ -192,7 +193,7 @@ impl Handler for AppServer {
                 crossterm::terminal::supports_keyboard_enhancement(&pty),
                 Ok(true)
             );
-            let mut tx = SenderWriter(tx);
+            let mut tx = SenderWriter::new(tx);
 
             if supports_keyboard_enhancement {
                 let _ = queue!(
@@ -223,17 +224,17 @@ impl Handler for AppServer {
                 };
 
                 let data = format!("Event: {event:?}\r\n");
-                let _ = tx.0.blocking_send(data.into());
+                let _ = tx3.blocking_send(data.into());
 
                 if event == Event::Key(KeyCode::Char('c').into()) {
                     let data = format!("Cursor position: {:?}\r\n", position(&pty));
-                    let _ = tx.0.blocking_send(data.into());
+                    let _ = tx3.blocking_send(data.into());
                 }
 
                 if let Event::Resize(x, y) = event {
                     let (original_size, new_size) = flush_resize_events(&pty, (x, y));
                     let data = format!("Resize from: {original_size:?}, to: {new_size:?}\r\n");
-                    let _ = tx.0.blocking_send(data.into());
+                    let _ = tx3.blocking_send(data.into());
                 }
 
                 if event == Event::Key(KeyCode::Esc.into()) {
@@ -295,21 +296,6 @@ impl Drop for AppServer {
             let mut clients = clients.lock().await;
             clients.remove(&id);
         });
-    }
-}
-
-struct SenderWriter(tokio::sync::mpsc::Sender<Vec<u8>>);
-impl std::io::Write for SenderWriter {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        self.0
-            .blocking_send(buf.to_vec())
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
-        Ok(buf.len())
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        // mpsc is unbuffered; nothing to flush
-        Ok(())
     }
 }
 

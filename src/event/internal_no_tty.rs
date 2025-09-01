@@ -72,3 +72,26 @@ impl NoTtyEvent {
         reader.try_read(filter)
     }
 }
+
+#[derive(Clone)]
+pub struct SenderWriter(tokio::sync::mpsc::Sender<Vec<u8>>);
+
+impl SenderWriter {
+    pub fn new(sender: tokio::sync::mpsc::Sender<Vec<u8>>) -> Self {
+        Self(sender)
+    }
+}
+
+impl std::io::Write for SenderWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.0
+            .blocking_send(buf.to_vec())
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        // mpsc is unbuffered; nothing to flush
+        Ok(())
+    }
+}
