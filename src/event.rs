@@ -123,13 +123,22 @@ pub(crate) mod internal;
 pub(crate) mod read;
 pub(crate) mod source;
 #[cfg(feature = "event-stream")]
+#[cfg(not(feature = "no-tty"))]
 pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub mod internal_no_tty;
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub use internal_no_tty::{NoTtyEvent, SenderWriter};
+
 #[cfg(feature = "derive-more")]
 use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
+#[cfg(not(feature = "no-tty"))]
 pub use stream::EventStream;
 
 use crate::{
@@ -182,8 +191,15 @@ use std::hash::{Hash, Hasher};
 ///     poll(Duration::from_millis(100))
 /// }
 /// ```
+#[cfg(not(feature = "no-tty"))]
 pub fn poll(timeout: Duration) -> std::io::Result<bool> {
     internal::poll(Some(timeout), &EventFilter)
+}
+
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub fn poll(event: &NoTtyEvent, timeout: Duration) -> std::io::Result<bool> {
+    event.poll(Some(timeout), &EventFilter)
 }
 
 /// Reads a single [`Event`](enum.Event.html).
@@ -227,10 +243,20 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 ///     }
 /// }
 /// ```
+#[cfg(not(feature = "no-tty"))]
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
         #[cfg(unix)]
+        _ => unreachable!(),
+    }
+}
+
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub fn read(event: &NoTtyEvent) -> std::io::Result<Event> {
+    match event.read(&EventFilter)? {
+        InternalEvent::Event(event) => Ok(event),
         _ => unreachable!(),
     }
 }
@@ -256,11 +282,22 @@ pub fn read() -> std::io::Result<Event> {
 ///     }
 /// }
 /// ```
+#[cfg(not(feature = "no-tty"))]
 pub fn try_read() -> Option<Event> {
     match internal::try_read(&EventFilter) {
         Some(InternalEvent::Event(event)) => Some(event),
         None => None,
         #[cfg(unix)]
+        _ => unreachable!(),
+    }
+}
+
+#[cfg(unix)]
+#[cfg(feature = "no-tty")]
+pub fn try_read(event: &NoTtyEvent) -> Option<Event> {
+    match event.try_read(&EventFilter) {
+        Some(InternalEvent::Event(event)) => Some(event),
+        None => None,
         _ => unreachable!(),
     }
 }
@@ -319,11 +356,13 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         false
     }
@@ -348,11 +387,13 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::disable_mouse_capture()
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         false
     }
@@ -372,6 +413,7 @@ impl Command for EnableFocusChange {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events are always enabled on Windows
         Ok(())
@@ -388,6 +430,7 @@ impl Command for DisableFocusChange {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events can't be disabled on Windows
         Ok(())
@@ -411,6 +454,7 @@ impl Command for EnableBracketedPaste {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Unsupported,
@@ -431,6 +475,7 @@ impl Command for DisableBracketedPaste {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
@@ -482,6 +527,7 @@ impl Command for PushKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
@@ -492,6 +538,7 @@ impl Command for PushKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         false
     }
@@ -511,6 +558,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
@@ -521,6 +569,7 @@ impl Command for PopKeyboardEnhancementFlags {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         false
     }
