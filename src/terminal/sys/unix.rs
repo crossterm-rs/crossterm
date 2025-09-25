@@ -97,11 +97,30 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
 
 #[allow(clippy::useless_conversion)]
 pub(crate) fn size() -> io::Result<(u16, u16)> {
-    if let Ok(window_size) = window_size() {
-        return Ok((window_size.columns, window_size.rows));
+    // The first source of the sizes is 'window_size'. Three results are possible:
+    //
+    // - reliable size
+    // - unreliable size
+    // - error
+    //
+    // A reliable size means the number of columns and rows is nonzero.
+    // In this case, we can return it to the caller.
+    //
+    // An unreliable size means the number of columns or rows (or both) is 0.
+    // This is quite common when a terminal is running over serial lines and/or
+    // in minimal environments. In this case, try to use the second source of
+    // sizes.
+    //
+    // In case of an error, it’s fine to return the error immediately. If simply
+    // reading the sizes fails, most likely something went completely wrong.
+    // We can signal that immediately.
+    match window_size()? {
+        WindowSize { rows: 0, .. } | WindowSize { columns: 0, .. } => (),
+        window_size => return Ok((window_size.columns, window_size.rows)),
     }
 
-    tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
+    // Use `tput` as the second source.
+    tput_size().ok_or_else(std::io::Error::last_os_error)
 }
 
 #[cfg(feature = "libc")]
