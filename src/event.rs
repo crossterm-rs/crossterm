@@ -1292,6 +1292,42 @@ pub enum KeyCode {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     KeypadBegin,
+    /// Keypad 0 key (DECKPAM application mode).
+    Keypad0,
+    /// Keypad 1 key (DECKPAM application mode).
+    Keypad1,
+    /// Keypad 2 key (DECKPAM application mode).
+    Keypad2,
+    /// Keypad 3 key (DECKPAM application mode).
+    Keypad3,
+    /// Keypad 4 key (DECKPAM application mode).
+    Keypad4,
+    /// Keypad 5 key (DECKPAM application mode).
+    Keypad5,
+    /// Keypad 6 key (DECKPAM application mode).
+    Keypad6,
+    /// Keypad 7 key (DECKPAM application mode).
+    Keypad7,
+    /// Keypad 8 key (DECKPAM application mode).
+    Keypad8,
+    /// Keypad 9 key (DECKPAM application mode).
+    Keypad9,
+    /// Keypad multiply (*) key (DECKPAM application mode).
+    KeypadMultiply,
+    /// Keypad plus (+) key (DECKPAM application mode).
+    KeypadPlus,
+    /// Keypad comma (,) key (DECKPAM application mode).
+    KeypadComma,
+    /// Keypad minus (-) key (DECKPAM application mode).
+    KeypadMinus,
+    /// Keypad period (.) key (DECKPAM application mode).
+    KeypadPeriod,
+    /// Keypad divide (/) key (DECKPAM application mode).
+    KeypadDivide,
+    /// Keypad equal (=) key (DECKPAM application mode).
+    KeypadEqual,
+    /// Keypad enter key (DECKPAM application mode).
+    KeypadEnter,
     /// A media key.
     ///
     /// **Note:** these keys can only be read if
@@ -1445,6 +1481,24 @@ impl Display for KeyCode {
             KeyCode::Pause => write!(f, "Pause"),
             KeyCode::Menu => write!(f, "Menu"),
             KeyCode::KeypadBegin => write!(f, "Begin"),
+            KeyCode::Keypad0 => write!(f, "Keypad 0"),
+            KeyCode::Keypad1 => write!(f, "Keypad 1"),
+            KeyCode::Keypad2 => write!(f, "Keypad 2"),
+            KeyCode::Keypad3 => write!(f, "Keypad 3"),
+            KeyCode::Keypad4 => write!(f, "Keypad 4"),
+            KeyCode::Keypad5 => write!(f, "Keypad 5"),
+            KeyCode::Keypad6 => write!(f, "Keypad 6"),
+            KeyCode::Keypad7 => write!(f, "Keypad 7"),
+            KeyCode::Keypad8 => write!(f, "Keypad 8"),
+            KeyCode::Keypad9 => write!(f, "Keypad 9"),
+            KeyCode::KeypadMultiply => write!(f, "Keypad *"),
+            KeyCode::KeypadPlus => write!(f, "Keypad +"),
+            KeyCode::KeypadComma => write!(f, "Keypad ,"),
+            KeyCode::KeypadMinus => write!(f, "Keypad -"),
+            KeyCode::KeypadPeriod => write!(f, "Keypad ."),
+            KeyCode::KeypadDivide => write!(f, "Keypad /"),
+            KeyCode::KeypadEqual => write!(f, "Keypad ="),
+            KeyCode::KeypadEnter => write!(f, "Keypad Enter"),
             KeyCode::Media(media) => write!(f, "{media}"),
             KeyCode::Modifier(modifier) => write!(f, "{modifier}"),
         }
