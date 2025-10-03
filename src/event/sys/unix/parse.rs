@@ -59,17 +59,12 @@ pub(crate) fn parse_event(
                                 (None, 2)
                             };
 
-                            let modifiers = match modifier {
-                                Some(b'2') => KeyModifiers::SHIFT,
-                                Some(b'3') => KeyModifiers::ALT,
-                                Some(b'4') => KeyModifiers::SHIFT | KeyModifiers::ALT,
-                                Some(b'5') => KeyModifiers::CONTROL,
-                                Some(b'6') => KeyModifiers::SHIFT | KeyModifiers::CONTROL,
-                                Some(b'7') => KeyModifiers::ALT | KeyModifiers::CONTROL,
-                                Some(b'8') => {
-                                    KeyModifiers::SHIFT | KeyModifiers::ALT | KeyModifiers::CONTROL
-                                }
-                                _ => KeyModifiers::empty(),
+                            // Parse modifiers using the same bitwise extraction used elsewhere in the codebase
+                            // Convert ASCII digit ('2'-'8') to numeric value (2-8) first
+                            let modifiers = if let Some(modifier_byte) = modifier {
+                                parse_modifiers(modifier_byte - b'0')
+                            } else {
+                                KeyModifiers::empty()
                             };
 
                             let keycode = match buffer[key_index] {

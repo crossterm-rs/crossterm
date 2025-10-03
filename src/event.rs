@@ -436,6 +436,42 @@ impl Command for DisableBracketedPaste {
     }
 }
 
+/// A command that enables DECKPAM (application keypad) mode.
+///
+/// It should be paired with [`DisableApplicationKeypad`] at the end of execution.
+///
+/// When enabled, numeric keypad keys send distinct escape sequences ([`KeyCode::Keypad0`]
+/// through [`KeyCode::Keypad9`], etc.) instead of regular characters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableApplicationKeypad;
+
+impl Command for EnableApplicationKeypad {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str("\x1B=")
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+/// A command that disables DECKPAM (application keypad) mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableApplicationKeypad;
+
+impl Command for DisableApplicationKeypad {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str("\x1B>")
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        // DECKPAM is handled by the terminal emulator via ANSI sequences
+        Ok(())
+    }
+}
+
 /// A command that enables the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/), which adds extra information to keyboard events and removes ambiguity for modifier keys.
 ///
 /// It should be paired with [`PopKeyboardEnhancementFlags`] at the end of execution.
