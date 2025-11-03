@@ -67,7 +67,7 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
         ws_ypixel: 0,
     };
 
-    let file = File::open("/dev/tty").map(|file| (FileDesc::new(file.into_raw_fd(), true)));
+    let file = File::open("/dev/tty").map(|file| FileDesc::new(file.into_raw_fd(), true));
     let fd = if let Ok(file) = &file {
         file.raw_fd()
     } else {
