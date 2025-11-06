@@ -227,13 +227,16 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     // See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#detection-of-support-for-this-protocol>
 
     // ESC [ ? u        Query progressive keyboard enhancement flags (kitty protocol).
-    // ESC [ c          Query primary device attributes.
-    const QUERY: &[u8] = b"\x1B[?u\x1B[c";
+    // ESC [ 0 c          Query primary device attributes.
+    const QUERY: &[u8] = b"\x1B[?u\x1B[0c";
 
-    let result = File::open("/dev/tty").and_then(|mut file| {
-        file.write_all(QUERY)?;
-        file.flush()
-    });
+    let result = File::options()
+        .write(true)
+        .open("/dev/tty")
+        .and_then(|mut file| {
+            file.write_all(QUERY)?;
+            file.flush()
+        });
     if result.is_err() {
         let mut stdout = io::stdout();
         stdout.write_all(QUERY)?;
