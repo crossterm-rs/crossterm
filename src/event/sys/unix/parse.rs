@@ -46,31 +46,61 @@ pub(crate) fn parse_event(
                         if buffer.len() == 2 {
                             Ok(None)
                         } else {
-                            match buffer[2] {
-                                b'D' => {
-                                    Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Left.into()))))
+                            // Check for DECKPAM sequences with modifiers: ESC O <modifier> <key>
+                            // Modifier codes: 2=Shift, 3=Alt, 4=Shift+Alt, 5=Ctrl, 6=Shift+Ctrl,
+                            // 7=Alt+Ctrl, 8=Shift+Alt+Ctrl
+                            let (modifier, key_index) = if buffer[2].is_ascii_digit() {
+                                // We have a modifier byte, need to wait for the key byte
+                                if buffer.len() == 3 {
+                                    return Ok(None); // Wait for the key byte
                                 }
-                                b'C' => Ok(Some(InternalEvent::Event(Event::Key(
-                                    KeyCode::Right.into(),
-                                )))),
-                                b'A' => {
-                                    Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Up.into()))))
-                                }
-                                b'B' => {
-                                    Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Down.into()))))
-                                }
-                                b'H' => {
-                                    Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Home.into()))))
-                                }
-                                b'F' => {
-                                    Ok(Some(InternalEvent::Event(Event::Key(KeyCode::End.into()))))
-                                }
+                                (Some(buffer[2]), 3)
+                            } else {
+                                (None, 2)
+                            };
+
+                            // Parse modifiers using the same bitwise extraction used elsewhere in the codebase
+                            // Convert ASCII digit ('2'-'8') to numeric value (2-8) first
+                            let modifiers = if let Some(modifier_byte) = modifier {
+                                parse_modifiers(modifier_byte - b'0')
+                            } else {
+                                KeyModifiers::empty()
+                            };
+
+                            let keycode = match buffer[key_index] {
+                                b'D' => KeyCode::Left,
+                                b'C' => KeyCode::Right,
+                                b'A' => KeyCode::Up,
+                                b'B' => KeyCode::Down,
+                                b'H' => KeyCode::Home,
+                                b'F' => KeyCode::End,
                                 // F1-F4
-                                val @ b'P'..=b'S' => Ok(Some(InternalEvent::Event(Event::Key(
-                                    KeyCode::F(1 + val - b'P').into(),
-                                )))),
-                                _ => Err(could_not_parse_event_error()),
-                            }
+                                val @ b'P'..=b'S' => KeyCode::F(1 + val - b'P'),
+                                // DECKPAM keypad keys (application mode)
+                                b'p' => KeyCode::Keypad0,
+                                b'q' => KeyCode::Keypad1,
+                                b'r' => KeyCode::Keypad2,
+                                b's' => KeyCode::Keypad3,
+                                b't' => KeyCode::Keypad4,
+                                b'u' => KeyCode::Keypad5,
+                                b'v' => KeyCode::Keypad6,
+                                b'w' => KeyCode::Keypad7,
+                                b'x' => KeyCode::Keypad8,
+                                b'y' => KeyCode::Keypad9,
+                                b'j' => KeyCode::KeypadMultiply,
+                                b'k' => KeyCode::KeypadPlus,
+                                b'l' => KeyCode::KeypadComma,
+                                b'm' => KeyCode::KeypadMinus,
+                                b'n' => KeyCode::KeypadPeriod,
+                                b'o' => KeyCode::KeypadDivide,
+                                b'X' => KeyCode::KeypadEqual,
+                                b'M' => KeyCode::KeypadEnter,
+                                _ => return Err(could_not_parse_event_error()),
+                            };
+
+                            Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                                keycode, modifiers,
+                            )))))
                         }
                     }
                     b'[' => parse_csi(buffer),
@@ -1501,6 +1531,389 @@ mod tests {
                 KeyModifiers::CONTROL,
                 KeyEventKind::Release,
             )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_numeric_keys() {
+        // Test keypad 0-9 without modifiers
+        assert_eq!(
+            parse_event(b"\x1BOp", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad0,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOq", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad1,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOr", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad2,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOs", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad3,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOt", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad4,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOu", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad5,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOv", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad6,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOw", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad7,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOx", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad8,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOy", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad9,
+                KeyModifiers::empty()
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_operators() {
+        // Test keypad operator keys without modifiers
+        assert_eq!(
+            parse_event(b"\x1BOj", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadMultiply,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOk", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadPlus,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOl", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadComma,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOm", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadMinus,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOn", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadPeriod,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOo", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadDivide,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOX", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadEqual,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOM", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadEnter,
+                KeyModifiers::empty()
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_with_shift_modifier() {
+        // Test keypad keys with Shift modifier (modifier code 2)
+        assert_eq!(
+            parse_event(b"\x1BO2p", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad0,
+                KeyModifiers::SHIFT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO2q", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad1,
+                KeyModifiers::SHIFT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO2j", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadMultiply,
+                KeyModifiers::SHIFT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO2M", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadEnter,
+                KeyModifiers::SHIFT
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_with_alt_modifier() {
+        // Test keypad keys with Alt modifier (modifier code 3)
+        assert_eq!(
+            parse_event(b"\x1BO3p", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad0,
+                KeyModifiers::ALT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO3y", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad9,
+                KeyModifiers::ALT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO3k", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadPlus,
+                KeyModifiers::ALT
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_with_ctrl_modifier() {
+        // Test keypad keys with Control modifier (modifier code 5)
+        assert_eq!(
+            parse_event(b"\x1BO5p", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad0,
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO5x", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad8,
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO5o", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadDivide,
+                KeyModifiers::CONTROL
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_keypad_with_combined_modifiers() {
+        // Test Shift+Alt (modifier code 4)
+        assert_eq!(
+            parse_event(b"\x1BO4p", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad0,
+                KeyModifiers::SHIFT | KeyModifiers::ALT
+            )))),
+        );
+
+        // Test Shift+Ctrl (modifier code 6)
+        assert_eq!(
+            parse_event(b"\x1BO6q", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad1,
+                KeyModifiers::SHIFT | KeyModifiers::CONTROL
+            )))),
+        );
+
+        // Test Alt+Ctrl (modifier code 7)
+        assert_eq!(
+            parse_event(b"\x1BO7r", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad2,
+                KeyModifiers::ALT | KeyModifiers::CONTROL
+            )))),
+        );
+
+        // Test Shift+Alt+Ctrl (modifier code 8)
+        assert_eq!(
+            parse_event(b"\x1BO8s", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Keypad3,
+                KeyModifiers::SHIFT | KeyModifiers::ALT | KeyModifiers::CONTROL
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_incomplete_sequences() {
+        // Test that incomplete sequences return Ok(None) to wait for more bytes
+        assert_eq!(
+            parse_event(b"\x1BO", true).unwrap(),
+            None,
+            "Incomplete ESC O sequence should wait for more bytes"
+        );
+
+        assert_eq!(
+            parse_event(b"\x1BO2", true).unwrap(),
+            None,
+            "Incomplete ESC O with modifier should wait for key byte"
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_existing_keys_still_work() {
+        // Ensure existing ESC O sequences (arrows, Home, End, F1-F4) still work
+        assert_eq!(
+            parse_event(b"\x1BOD", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Left,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOC", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Right,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOA", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Up,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOB", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Down,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOH", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Home,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOF", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::End,
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOP", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::F(1),
+                KeyModifiers::empty()
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOQ", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::F(2),
+                KeyModifiers::empty()
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_existing_keys_with_modifiers() {
+        // Test that existing keys work with the new modifier support
+        assert_eq!(
+            parse_event(b"\x1BO2D", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Left,
+                KeyModifiers::SHIFT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO5C", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Right,
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO3H", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Home,
+                KeyModifiers::ALT
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BO7P", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::F(1),
+                KeyModifiers::ALT | KeyModifiers::CONTROL
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_deckpam_invalid_sequences() {
+        // Test that invalid key codes after ESC O result in error
+        assert!(
+            parse_event(b"\x1BOz", false).is_err(),
+            "Invalid DECKPAM key code should return error"
+        );
+        assert!(
+            parse_event(b"\x1BO2z", false).is_err(),
+            "Invalid DECKPAM key code with modifier should return error"
         );
     }
 }
