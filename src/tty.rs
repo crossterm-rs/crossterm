@@ -3,12 +3,12 @@
 //! This module defines the IsTty trait and the is_tty method to
 //! return true if the item represents a terminal.
 
-#[cfg(unix)]
+#[cfg(all(unix, not(feature = "no-tty")))]
 use std::os::unix::io::AsRawFd;
-#[cfg(windows)]
+#[cfg(all(windows, not(feature = "no-tty")))]
 use std::os::windows::io::AsRawHandle;
 
-#[cfg(windows)]
+#[cfg(all(windows, not(feature = "no-tty")))]
 use winapi::um::consoleapi::GetConsoleMode;
 
 /// Adds the `is_tty` method to types that might represent a terminal
@@ -26,7 +26,7 @@ pub trait IsTty {
 
 /// On UNIX, the `isatty()` function returns true if a file
 /// descriptor is a terminal.
-#[cfg(all(unix, feature = "libc"))]
+#[cfg(all(unix, feature = "libc", not(feature = "no-tty")))]
 impl<S: AsRawFd> IsTty for S {
     fn is_tty(&self) -> bool {
         let fd = self.as_raw_fd();
@@ -34,7 +34,7 @@ impl<S: AsRawFd> IsTty for S {
     }
 }
 
-#[cfg(all(unix, not(feature = "libc")))]
+#[cfg(all(unix, not(feature = "libc"), not(feature = "no-tty")))]
 impl<S: AsRawFd> IsTty for S {
     fn is_tty(&self) -> bool {
         let fd = self.as_raw_fd();
@@ -44,7 +44,7 @@ impl<S: AsRawFd> IsTty for S {
 
 /// On windows, `GetConsoleMode` will return true if we are in a terminal.
 /// Otherwise false.
-#[cfg(windows)]
+#[cfg(all(windows, not(feature = "no-tty")))]
 impl<S: AsRawHandle> IsTty for S {
     fn is_tty(&self) -> bool {
         let mut mode = 0;

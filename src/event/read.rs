@@ -1,10 +1,13 @@
 use std::{collections::vec_deque::VecDeque, io, time::Duration};
 
 #[cfg(unix)]
+#[cfg(not(feature = "no-tty"))]
 use crate::event::source::unix::UnixInternalEventSource;
 #[cfg(windows)]
+#[cfg(not(feature = "no-tty"))]
 use crate::event::source::windows::WindowsEventSource;
 #[cfg(feature = "event-stream")]
+#[cfg(not(feature = "no-tty"))]
 use crate::event::sys::Waker;
 use crate::event::{
     filter::Filter, internal::InternalEvent, source::EventSource, timeout::PollTimeout,
@@ -20,10 +23,16 @@ pub(crate) struct InternalEventReader {
 impl Default for InternalEventReader {
     fn default() -> Self {
         #[cfg(windows)]
+        #[cfg(not(feature = "no-tty"))]
         let source = WindowsEventSource::new();
         #[cfg(unix)]
+        #[cfg(not(feature = "no-tty"))]
         let source = UnixInternalEventSource::new();
+        #[cfg(unix)]
+        #[cfg(feature = "no-tty")]
+        let source = None;
 
+        #[cfg(not(feature = "no-tty"))]
         let source = source.ok().map(|x| Box::new(x) as Box<dyn EventSource>);
 
         InternalEventReader {
@@ -37,6 +46,7 @@ impl Default for InternalEventReader {
 impl InternalEventReader {
     /// Returns a `Waker` allowing to wake/force the `poll` method to return `Ok(false)`.
     #[cfg(feature = "event-stream")]
+    #[cfg(not(feature = "no-tty"))]
     pub(crate) fn waker(&self) -> Waker {
         self.source.as_ref().expect("reader source not set").waker()
     }
@@ -142,6 +152,13 @@ impl InternalEventReader {
         self.events.extend(skipped_events);
 
         result
+    }
+
+    #[cfg(unix)]
+    #[cfg(feature = "no-tty")]
+    pub(crate) fn with_source(mut self, source: Option<Box<dyn EventSource>>) -> Self {
+        self.source = source;
+        self
     }
 }
 
@@ -471,6 +488,7 @@ mod tests {
         }
 
         #[cfg(feature = "event-stream")]
+        #[cfg(not(feature = "no-tty"))]
         fn waker(&self) -> super::super::sys::Waker {
             unimplemented!();
         }

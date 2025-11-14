@@ -65,6 +65,7 @@ impl Command for MoveTo {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to(self.0, self.1)
     }
@@ -87,6 +88,7 @@ impl Command for MoveToNextLine {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         if self.0 != 0 {
             sys::move_to_next_line(self.0)?;
@@ -112,6 +114,7 @@ impl Command for MoveToPreviousLine {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         if self.0 != 0 {
             sys::move_to_previous_line(self.0)?;
@@ -135,6 +138,7 @@ impl Command for MoveToColumn {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to_column(self.0)
     }
@@ -155,6 +159,7 @@ impl Command for MoveToRow {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_to_row(self.0)
     }
@@ -176,6 +181,7 @@ impl Command for MoveUp {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_up(self.0)
     }
@@ -197,6 +203,7 @@ impl Command for MoveRight {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_right(self.0)
     }
@@ -218,6 +225,7 @@ impl Command for MoveDown {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_down(self.0)
     }
@@ -239,6 +247,7 @@ impl Command for MoveLeft {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::move_left(self.0)
     }
@@ -261,6 +270,7 @@ impl Command for SavePosition {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::save_position()
     }
@@ -283,6 +293,7 @@ impl Command for RestorePosition {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::restore_position()
     }
@@ -302,6 +313,7 @@ impl Command for Hide {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::show_cursor(false)
     }
@@ -321,6 +333,7 @@ impl Command for Show {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::show_cursor(true)
     }
@@ -340,6 +353,7 @@ impl Command for EnableBlinking {
         f.write_str(csi!("?12h"))
     }
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
@@ -359,6 +373,7 @@ impl Command for DisableBlinking {
         f.write_str(csi!("?12l"))
     }
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
@@ -402,6 +417,7 @@ impl Command for SetCursorStyle {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
@@ -427,10 +443,13 @@ impl_display!(for SetCursorStyle);
 #[cfg(test)]
 #[cfg(feature = "events")]
 mod tests {
+    #[cfg(not(feature = "no-tty"))]
     use std::io::{self, stdout};
 
+    #[cfg(not(feature = "no-tty"))]
     use crate::execute;
 
+    #[cfg(not(feature = "no-tty"))]
     use super::{
         sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
@@ -438,6 +457,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_move_to() {
         let (saved_x, saved_y) = position().unwrap();
 
@@ -451,6 +471,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_move_right() {
         let (saved_x, saved_y) = position().unwrap();
         execute!(io::stdout(), MoveRight(1)).unwrap();
@@ -460,6 +481,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_move_left() {
         execute!(stdout(), MoveTo(2, 0), MoveLeft(2)).unwrap();
         assert_eq!(position().unwrap(), (0, 0));
@@ -468,6 +490,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_move_up() {
         execute!(stdout(), MoveTo(0, 2), MoveUp(2)).unwrap();
         assert_eq!(position().unwrap(), (0, 0));
@@ -476,6 +499,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_move_down() {
         execute!(stdout(), MoveTo(0, 0), MoveDown(2)).unwrap();
 
@@ -485,6 +509,7 @@ mod tests {
     // Test is disabled, because it's failing on Travis
     #[test]
     #[ignore]
+    #[cfg(not(feature = "no-tty"))]
     fn test_save_restore_position() {
         let (saved_x, saved_y) = position().unwrap();
 
