@@ -137,7 +137,7 @@ pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WindowSize {
     pub rows: u16,
     pub columns: u16,
