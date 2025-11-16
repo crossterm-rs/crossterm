@@ -61,19 +61,16 @@ pub(crate) fn handle_key_event(
 }
 
 fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> Option<char> {
-    match *surrogate_buffer {
-        Some(buffered_surrogate) => {
-            *surrogate_buffer = None;
-            std::char::decode_utf16([buffered_surrogate, new_surrogate])
-                .next()
-                .unwrap()
-                .ok()
-        }
-        None => {
-            *surrogate_buffer = Some(new_surrogate);
-            None
-        }
+    if new_surrogate < LOW_SURROGATE_FIRST {
+        // Discard any buffered surrogate value if another high surrogate comes.
+        *surrogate_buffer = Some(new_surrogate);
+        return None;
     }
+    let buffered_surrogate = surrogate_buffer.take()?;
+    std::char::decode_utf16([buffered_surrogate, new_surrogate])
+        .next()
+        .unwrap()
+        .ok()
 }
 
 impl From<&ControlKeyState> for KeyModifiers {
@@ -268,7 +265,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                     // are handled by their virtual key codes above.
                     get_char_for_key(key_event).map(KeyCode::Char)
                 }
-                surrogate @ 0xD800..=0xDFFF => {
+                surrogate @ HIGH_SURROGATE_FIRST..=LOW_SURROGATE_LAST => {
                     return Some(WindowsKeyEvent::Surrogate(surrogate));
                 }
                 unicode_scalar_value => {
@@ -375,4 +372,43 @@ fn parse_mouse_event_record(
         row: ypos,
         modifiers,
     }))
+}
+
+const HIGH_SURROGATE_FIRST: u16 = 0xD800;
+const LOW_SURROGATE_FIRST: u16 = 0xDC00;
+const LOW_SURROGATE_LAST: u16 = 0xDFFF;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_handle_surrogate() {
+        fn testcase(mut buf: Option<u16>, new: u16) -> (Option<u16>, Option<char>) {
+            let ch = handle_surrogate(&mut buf, new);
+            (buf, ch)
+        }
+        assert_eq!(
+            [
+                // Continuous high surrogates
+                testcase(Some(0xD800), 0xDBFF),
+                // A normal surrogate pair
+                testcase(Some(0xD800), 0xDC00),
+                // An empty buffer and a high surrogate
+                testcase(None, 0xDBFF),
+                // An empty buffer and a low surrogate
+                testcase(None, 0xDC00),
+            ],
+            [
+                // The newer one will be stored
+                (Some(0xDBFF), None),
+                // A valid char will return
+                (None, Some('\u{10000}')),
+                // The high surrogate will be stored
+                (Some(0xDBFF), None),
+                // The low surrogate will be ignored
+                (None, None),
+            ]
+        );
+    }
 }
