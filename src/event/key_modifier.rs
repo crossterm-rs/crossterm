@@ -95,3 +95,55 @@ impl Display for ModifierKeyCode {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use KeyCode::*;
+    use ModifierKeyCode::*;
+
+    #[test]
+    fn modifier_keycode_display() {
+        assert_eq!(format!("{}", Modifier(LeftShift)), "Left Shift");
+        assert_eq!(format!("{}", Modifier(LeftHyper)), "Left Hyper");
+        assert_eq!(format!("{}", Modifier(LeftMeta)), "Left Meta");
+        assert_eq!(format!("{}", Modifier(RightShift)), "Right Shift");
+        assert_eq!(format!("{}", Modifier(RightHyper)), "Right Hyper");
+        assert_eq!(format!("{}", Modifier(RightMeta)), "Right Meta");
+        assert_eq!(format!("{}", Modifier(IsoLevel3Shift)), "Iso Level 3 Shift");
+        assert_eq!(format!("{}", Modifier(IsoLevel5Shift)), "Iso Level 5 Shift");
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn modifier_keycode_display_macos() {
+        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Control");
+        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Option");
+        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Command");
+        assert_eq!(format!("{}", Modifier(RightControl)), "Right Control");
+        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Option");
+        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Command");
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn modifier_keycode_display_windows() {
+        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
+        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
+        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Windows");
+        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
+        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
+        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Windows");
+    }
+
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    #[test]
+    fn modifier_keycode_display_other() {
+        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
+        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
+        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Super");
+        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
+        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
+        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
+    }
+}

@@ -1120,7 +1120,6 @@ mod tests {
     use super::*;
     use KeyCode::*;
     use MediaKeyCode::*;
-    use ModifierKeyCode::*;
 
     #[test]
     fn test_equality() {
@@ -1153,44 +1152,6 @@ mod tests {
     }
 
     #[test]
-    fn keycode_display() {
-        #[cfg(target_os = "macos")]
-        {
-            assert_eq!(format!("{Backspace}"), "Delete");
-            assert_eq!(format!("{Delete}"), "Fwd Del");
-            assert_eq!(format!("{Enter}"), "Return");
-        }
-        #[cfg(not(target_os = "macos"))]
-        {
-            assert_eq!(format!("{}", Backspace), "Backspace");
-            assert_eq!(format!("{}", Delete), "Del");
-            assert_eq!(format!("{}", Enter), "Enter");
-        }
-        assert_eq!(format!("{Left}"), "Left");
-        assert_eq!(format!("{Right}"), "Right");
-        assert_eq!(format!("{Up}"), "Up");
-        assert_eq!(format!("{Down}"), "Down");
-        assert_eq!(format!("{Home}"), "Home");
-        assert_eq!(format!("{End}"), "End");
-        assert_eq!(format!("{PageUp}"), "Page Up");
-        assert_eq!(format!("{PageDown}"), "Page Down");
-        assert_eq!(format!("{Tab}"), "Tab");
-        assert_eq!(format!("{BackTab}"), "Back Tab");
-        assert_eq!(format!("{Insert}"), "Insert");
-        assert_eq!(format!("{}", F(1)), "F1");
-        assert_eq!(format!("{}", Char('a')), "a");
-        assert_eq!(format!("{Null}"), "Null");
-        assert_eq!(format!("{Esc}"), "Esc");
-        assert_eq!(format!("{CapsLock}"), "Caps Lock");
-        assert_eq!(format!("{ScrollLock}"), "Scroll Lock");
-        assert_eq!(format!("{NumLock}"), "Num Lock");
-        assert_eq!(format!("{PrintScreen}"), "Print Screen");
-        assert_eq!(format!("{}", KeyCode::Pause), "Pause");
-        assert_eq!(format!("{Menu}"), "Menu");
-        assert_eq!(format!("{KeypadBegin}"), "Begin");
-    }
-
-    #[test]
     fn media_keycode_display() {
         assert_eq!(format!("{}", Media(Play)), "Play");
         assert_eq!(format!("{}", Media(MediaKeyCode::Pause)), "Pause");
@@ -1205,51 +1166,6 @@ mod tests {
         assert_eq!(format!("{}", Media(LowerVolume)), "Lower Volume");
         assert_eq!(format!("{}", Media(RaiseVolume)), "Raise Volume");
         assert_eq!(format!("{}", Media(MuteVolume)), "Mute Volume");
-    }
-
-    #[test]
-    fn modifier_keycode_display() {
-        assert_eq!(format!("{}", Modifier(LeftShift)), "Left Shift");
-        assert_eq!(format!("{}", Modifier(LeftHyper)), "Left Hyper");
-        assert_eq!(format!("{}", Modifier(LeftMeta)), "Left Meta");
-        assert_eq!(format!("{}", Modifier(RightShift)), "Right Shift");
-        assert_eq!(format!("{}", Modifier(RightHyper)), "Right Hyper");
-        assert_eq!(format!("{}", Modifier(RightMeta)), "Right Meta");
-        assert_eq!(format!("{}", Modifier(IsoLevel3Shift)), "Iso Level 3 Shift");
-        assert_eq!(format!("{}", Modifier(IsoLevel5Shift)), "Iso Level 5 Shift");
-    }
-
-    #[cfg(target_os = "macos")]
-    #[test]
-    fn modifier_keycode_display_macos() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Control");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Option");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Command");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Control");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Option");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Command");
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn modifier_keycode_display_windows() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Windows");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Windows");
-    }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    #[test]
-    fn modifier_keycode_display_other() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Super");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
     }
 
     #[test]

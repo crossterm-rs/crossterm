@@ -247,3 +247,47 @@ impl Display for KeyCode {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use KeyCode::*;
+
+    #[test]
+    fn keycode_display() {
+        #[cfg(target_os = "macos")]
+        {
+            assert_eq!(format!("{Backspace}"), "Delete");
+            assert_eq!(format!("{Delete}"), "Fwd Del");
+            assert_eq!(format!("{Enter}"), "Return");
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            assert_eq!(format!("{}", Backspace), "Backspace");
+            assert_eq!(format!("{}", Delete), "Del");
+            assert_eq!(format!("{}", Enter), "Enter");
+        }
+        assert_eq!(format!("{Left}"), "Left");
+        assert_eq!(format!("{Right}"), "Right");
+        assert_eq!(format!("{Up}"), "Up");
+        assert_eq!(format!("{Down}"), "Down");
+        assert_eq!(format!("{Home}"), "Home");
+        assert_eq!(format!("{End}"), "End");
+        assert_eq!(format!("{PageUp}"), "Page Up");
+        assert_eq!(format!("{PageDown}"), "Page Down");
+        assert_eq!(format!("{Tab}"), "Tab");
+        assert_eq!(format!("{BackTab}"), "Back Tab");
+        assert_eq!(format!("{Insert}"), "Insert");
+        assert_eq!(format!("{}", F(1)), "F1");
+        assert_eq!(format!("{}", Char('a')), "a");
+        assert_eq!(format!("{Null}"), "Null");
+        assert_eq!(format!("{Esc}"), "Esc");
+        assert_eq!(format!("{CapsLock}"), "Caps Lock");
+        assert_eq!(format!("{ScrollLock}"), "Scroll Lock");
+        assert_eq!(format!("{NumLock}"), "Num Lock");
+        assert_eq!(format!("{PrintScreen}"), "Print Screen");
+        assert_eq!(format!("{}", KeyCode::Pause), "Pause");
+        assert_eq!(format!("{Menu}"), "Menu");
+        assert_eq!(format!("{KeypadBegin}"), "Begin");
+    }
+}
