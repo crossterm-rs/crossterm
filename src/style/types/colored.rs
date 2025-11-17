@@ -206,6 +206,7 @@ mod tests {
 
     #[test]
     fn test_parse_ansi_bg() {
+        // BUG: hey, this should be `BackgroundColor`!
         test_parse_ansi(Colored::ForegroundColor)
     }
 
