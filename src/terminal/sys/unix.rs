@@ -8,20 +8,32 @@ use crate::terminal::{
 };
 #[cfg(feature = "libc")]
 use libc::{
-    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
-    TIOCGWINSZ,
+    cfmakeraw, dup, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO,
+    TCSANOW, TIOCGWINSZ,
 };
 use parking_lot::Mutex;
 #[cfg(not(feature = "libc"))]
-use rustix::{
-    fd::AsFd,
-    termios::{Termios, Winsize},
+use {
+    rustix::{
+        fd::{AsFd, FromRawFd},
+        termios::{Termios, Winsize},
+    },
+    std::{
+        io::Error,
+        os::fd::{BorrowedFd, IntoRawFd},
+    },
 };
 
-use std::{fs::File, io, process};
+use std::{
+    fs::File,
+    io::{self, Read, Write},
+    process,
+};
 #[cfg(feature = "libc")]
 use std::{
+    io::Error,
     mem,
+    os::fd::{AsRawFd, FromRawFd},
     os::unix::io::{IntoRawFd, RawFd},
 };
 
@@ -56,6 +68,146 @@ impl From<Winsize> for WindowSize {
     }
 }
 
+/// Parse the csi escape sequence response
+///
+/// It must follow this format : "\x1b[4;height;width" + "t"
+fn parse_csi_response(buf: &[u8]) -> Option<(u16, u16)> {
+    let nul_terminator_pos = buf.iter().position(|c| *c == 0).unwrap_or(buf.len());
+
+    let response = std::str::from_utf8(&buf[..nul_terminator_pos]).ok()?;
+
+    if let Some(response) = response
+        .strip_prefix("\x1b[4;")
+        .and_then(|response| response.strip_suffix("t"))
+    {
+        let mut iter = response.split(";");
+
+        // TODO: rewrite using a let chain when using Rust edition 2024 or later
+        let height = iter.next().and_then(|height| height.parse().ok());
+        let width = iter.next().and_then(|height| height.parse().ok());
+        match (height, width) {
+            (Some(height), Some(width)) => Some((height, width)),
+            _ => None,
+        }
+    } else {
+        None
+    }
+}
+
+#[cfg(feature = "libc")]
+fn csi_window_size(fd: i32) -> io::Result<(u16, u16)> {
+    let original_term_attr = if is_raw_mode_enabled() {
+        None
+    } else {
+        Some(get_terminal_attr(fd)?)
+    };
+
+    // We need to duplicate the file descriptor so that the original fd is not closed
+    // twice when the new `File` we create is dropped
+    let fd = match unsafe { dup(fd) } {
+        i32::MIN..0 => return Err(Error::new(io::ErrorKind::Other, "dup() failed")),
+        fd => fd,
+    };
+    let mut file = unsafe { std::fs::File::from_raw_fd(fd) };
+
+    // Enabling raw mode if not enabled already
+    if let Some(original_term_attr) = &original_term_attr {
+        let mut ios = *original_term_attr;
+        raw_terminal_attr(&mut ios);
+        set_terminal_attr(file.as_raw_fd(), &ios)?;
+    }
+
+    // After this point, we have to check if we need to disable raw mode
+    // before exiting this function
+
+    file.write("\x1b[14t".as_bytes()).map_err(|err| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_raw_fd(), original_term_attr);
+        };
+        err
+    })?;
+
+    let mut response = [0u8; 32];
+    file.read(&mut response).map_err(|err| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_raw_fd(), original_term_attr);
+        };
+        err
+    })?;
+
+    let ws_pixel = parse_csi_response(&response).ok_or_else(|| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_raw_fd(), original_term_attr);
+        };
+        Error::new(io::ErrorKind::Other, "parse_csi_response() failed")
+    })?;
+
+    // Disabling raw mode if *we* enabled it
+    if let Some(original_term_attr) = original_term_attr {
+        set_terminal_attr(file.as_raw_fd(), &original_term_attr)?;
+    }
+
+    Ok(ws_pixel)
+}
+
+/// Get the window size in pixels
+///
+/// This function is called when window_size() sets size.width or size.height to 0
+/// It determines the window size using a CSI control sequence (https://www.xfree86.org/current/ctlseqs.html)
+/// It returns a tuple (ws_xpixel, ws_ypixel)
+#[cfg(not(feature = "libc"))]
+fn csi_window_size(fd: BorrowedFd<'_>) -> io::Result<(u16, u16)> {
+    let original_term_attr = if is_raw_mode_enabled() {
+        None
+    } else {
+        Some(get_terminal_attr(fd)?)
+    };
+
+    // We need to duplicate the file descriptor so that the original fd is not closed
+    // twice when the new `File` we create is dropped
+    let fd = rustix::io::dup(fd)?;
+    let mut file = unsafe { std::fs::File::from_raw_fd(fd.into_raw_fd()) };
+
+    // Enabling raw mode if not enabled already
+    if let Some(original_term_attr) = &original_term_attr {
+        let mut ios = original_term_attr.clone();
+        ios.make_raw();
+        set_terminal_attr(file.as_fd(), &ios)?;
+    }
+
+    // After this point, we have to check if we need to disable raw mode
+    // before exiting this function
+
+    file.write("\x1b[14t".as_bytes()).map_err(|err| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_fd(), original_term_attr);
+        };
+        err
+    })?;
+
+    let mut response = [0u8; 32];
+    file.read(&mut response).map_err(|err| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_fd(), original_term_attr);
+        };
+        err
+    })?;
+
+    let ws_pixel = parse_csi_response(&response).ok_or_else(|| {
+        if let Some(original_term_attr) = &original_term_attr {
+            let _ = set_terminal_attr(file.as_fd(), original_term_attr);
+        };
+        Error::new(io::ErrorKind::Other, "parse_csi_response() failed")
+    })?;
+
+    // Disabling raw mode if *we* enabled it
+    if let Some(original_term_attr) = original_term_attr {
+        set_terminal_attr(file.as_fd(), &original_term_attr)?;
+    }
+
+    Ok(ws_pixel)
+}
+
 #[allow(clippy::useless_conversion)]
 #[cfg(feature = "libc")]
 pub(crate) fn window_size() -> io::Result<WindowSize> {
@@ -67,7 +219,12 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
         ws_ypixel: 0,
     };
 
-    let file = File::open("/dev/tty").map(|file| FileDesc::new(file.into_raw_fd(), true));
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .open("/dev/tty")
+        .map(|file| FileDesc::new(file.into_raw_fd(), true));
+
     let fd = if let Ok(file) = &file {
         file.raw_fd()
     } else {
@@ -76,6 +233,12 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
     };
 
     if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
+        if size.ws_xpixel == 0 || size.ws_ypixel == 0 {
+            if let Ok((ws_xpixel, ws_ypixel)) = csi_window_size(fd) {
+                size.ws_xpixel = ws_xpixel;
+                size.ws_ypixel = ws_ypixel;
+            }
+        }
         return Ok(size.into());
     }
 
@@ -84,14 +247,25 @@ pub(crate) fn window_size() -> io::Result<WindowSize> {
 
 #[cfg(not(feature = "libc"))]
 pub(crate) fn window_size() -> io::Result<WindowSize> {
-    let file = File::open("/dev/tty").map(|file| FileDesc::Owned(file.into()));
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .open("/dev/tty")
+        .map(|file| FileDesc::Owned(file.into()));
+
     let fd = if let Ok(file) = &file {
         file.as_fd()
     } else {
         // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
         rustix::stdio::stdout()
     };
-    let size = rustix::termios::tcgetwinsize(fd)?;
+    let mut size = rustix::termios::tcgetwinsize(fd)?;
+    if size.ws_xpixel == 0 || size.ws_ypixel == 0 {
+        if let Ok((ws_xpixel, ws_ypixel)) = csi_window_size(fd) {
+            size.ws_xpixel = ws_xpixel;
+            size.ws_ypixel = ws_ypixel;
+        }
+    }
     Ok(size.into())
 }
 
