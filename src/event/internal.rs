@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 
-#[cfg(unix)]
 use crate::event::KeyboardEnhancementFlags;
 use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeout, Event};
 
@@ -70,12 +69,9 @@ pub(crate) enum InternalEvent {
     /// An event.
     Event(Event),
     /// A cursor position (`col`, `row`).
-    #[cfg(unix)]
     CursorPosition(u16, u16),
     /// The progressive keyboard enhancement flags enabled by the terminal.
-    #[cfg(unix)]
     KeyboardEnhancementFlags(KeyboardEnhancementFlags),
     /// Attributes and architectural class of the terminal.
-    #[cfg(unix)]
     PrimaryDeviceAttributes,
 }

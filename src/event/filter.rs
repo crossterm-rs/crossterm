@@ -6,22 +6,18 @@ pub(crate) trait Filter: Send + Sync + 'static {
     fn eval(&self, event: &InternalEvent) -> bool;
 }
 
-#[cfg(unix)]
 #[derive(Debug, Clone)]
 pub(crate) struct CursorPositionFilter;
 
-#[cfg(unix)]
 impl Filter for CursorPositionFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
         matches!(*event, InternalEvent::CursorPosition(_, _))
     }
 }
 
-#[cfg(unix)]
 #[derive(Debug, Clone)]
 pub(crate) struct KeyboardEnhancementFlagsFilter;
 
-#[cfg(unix)]
 impl Filter for KeyboardEnhancementFlagsFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
         // This filter checks for either a KeyboardEnhancementFlags response or
@@ -35,11 +31,9 @@ impl Filter for KeyboardEnhancementFlagsFilter {
     }
 }
 
-#[cfg(unix)]
 #[derive(Debug, Clone)]
 pub(crate) struct PrimaryDeviceAttributesFilter;
 
-#[cfg(unix)]
 impl Filter for PrimaryDeviceAttributesFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
         matches!(*event, InternalEvent::PrimaryDeviceAttributes)
@@ -50,19 +44,12 @@ impl Filter for PrimaryDeviceAttributesFilter {
 pub(crate) struct EventFilter;
 
 impl Filter for EventFilter {
-    #[cfg(unix)]
     fn eval(&self, event: &InternalEvent) -> bool {
         matches!(*event, InternalEvent::Event(_))
-    }
-
-    #[cfg(windows)]
-    fn eval(&self, _: &InternalEvent) -> bool {
-        true
     }
 }
 
 #[cfg(test)]
-#[cfg(unix)]
 mod tests {
     use super::{
         super::Event, CursorPositionFilter, EventFilter, Filter, InternalEvent,
