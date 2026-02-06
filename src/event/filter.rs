@@ -7,6 +7,7 @@ pub(crate) trait Filter: Send + Sync + 'static {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(windows, allow(dead_code))]
 pub(crate) struct CursorPositionFilter;
 
 impl Filter for CursorPositionFilter {
@@ -16,6 +17,7 @@ impl Filter for CursorPositionFilter {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(windows, allow(dead_code))]
 pub(crate) struct KeyboardEnhancementFlagsFilter;
 
 impl Filter for KeyboardEnhancementFlagsFilter {
@@ -32,6 +34,7 @@ impl Filter for KeyboardEnhancementFlagsFilter {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(windows, allow(dead_code))]
 pub(crate) struct PrimaryDeviceAttributesFilter;
 
 impl Filter for PrimaryDeviceAttributesFilter {
