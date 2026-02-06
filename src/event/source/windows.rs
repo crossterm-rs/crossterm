@@ -85,7 +85,9 @@ impl EventSource for WindowsEventSource {
                                     // VT path: feed unicode character to ANSI parser as UTF-8.
                                     // With ENABLE_VIRTUAL_TERMINAL_INPUT, special keys produce
                                     // ANSI escape sequences as individual character bytes in
-                                    // KEY_EVENT records.
+                                    // KEY_EVENT records. Non-key events (mouse, focus, resize)
+                                    // don't touch vt_surrogate, so interleaved events between
+                                    // surrogate pair halves are harmless.
                                     if let Some(ch) =
                                         decode_utf16_char(&mut self.vt_surrogate, record.u_char)
                                     {
