@@ -97,6 +97,8 @@ pub(crate) fn parse_event(
         // newlines as input is because the terminal converts \r into \n for us. When we
         // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
         // use Ctrl+J. Waiting to handle it here means it gets picked up later
+        // unwrap_or(false): if the console mode query fails (possible on Windows),
+        // assume raw mode is enabled so \n is treated as Ctrl+J rather than Enter.
         b'\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => Ok(Some(
             InternalEvent::Event(Event::Key(KeyCode::Enter.into())),
         )),
@@ -550,6 +552,7 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
                     // newlines as input is because the terminal converts \r into \n for us. When we
                     // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
+                    // unwrap_or(false): see comment in parse_event for rationale
                     '\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => {
                         KeyCode::Enter
                     }
@@ -1614,6 +1617,7 @@ impl Parser {
 
     /// Push a non-ANSI event directly into the event queue.
     /// Used by the Windows hybrid source for events that bypass ANSI parsing.
+    #[allow(dead_code)]
     pub(crate) fn push_event(&mut self, event: InternalEvent) {
         self.internal_events.push_back(event);
     }
@@ -1632,6 +1636,7 @@ impl Iterator for Parser {
 /// Returns `Some(char)` for BMP characters and completed surrogate pairs.
 /// Returns `None` when a high surrogate is buffered (waiting for its low half)
 /// or when an orphaned low surrogate is encountered.
+#[allow(dead_code)]
 pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) -> Option<char> {
     if (0xD800..=0xDBFF).contains(&utf16) {
         // High surrogate — store and wait for low surrogate

@@ -48,7 +48,11 @@ pub(crate) fn try_enable_vt_input() -> io::Result<bool> {
     init_original_console_mode(current);
 
     // Try to set the VT input flag. If the console doesn't support it
-    // (e.g. legacy conhost), set_mode will fail.
+    // (e.g. legacy conhost), set_mode will fail with ERROR_INVALID_PARAMETER.
+    // We treat all set_mode errors as "VT not supported" and fall back to
+    // non-VT mode. This is intentional: distinguishing error codes from the
+    // Windows API adds complexity for little benefit, and graceful fallback
+    // is the correct behavior regardless of the failure reason.
     match mode.set_mode(current | ENABLE_VIRTUAL_TERMINAL_INPUT) {
         Ok(()) => Ok(true),
         Err(_) => Ok(false),

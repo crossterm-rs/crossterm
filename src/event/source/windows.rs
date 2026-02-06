@@ -24,7 +24,12 @@ use crate::event::{
 pub(crate) struct WindowsEventSource {
     console: Console,
     poll: WinApiPoll,
-    surrogate_buffer: Option<u16>,
+    /// Surrogate buffer for the VT path (decode_utf16_char).
+    vt_surrogate: Option<u16>,
+    /// Surrogate buffer for the non-VT fallback path (handle_key_event).
+    /// Separate from vt_surrogate because both paths can execute within a
+    /// single batch: VT path for u_char != 0 events, non-VT for u_char == 0.
+    legacy_surrogate: Option<u16>,
     mouse_buttons_pressed: MouseButtonsPressed,
     parser: Parser,
     vt_input_enabled: bool,
@@ -42,7 +47,8 @@ impl WindowsEventSource {
             #[cfg(feature = "event-stream")]
             poll: WinApiPoll::new()?,
 
-            surrogate_buffer: None,
+            vt_surrogate: None,
+            legacy_surrogate: None,
             mouse_buttons_pressed: MouseButtonsPressed::default(),
             parser: Parser::default(),
             vt_input_enabled,
@@ -80,12 +86,8 @@ impl EventSource for WindowsEventSource {
                                     // With ENABLE_VIRTUAL_TERMINAL_INPUT, special keys produce
                                     // ANSI escape sequences as individual character bytes in
                                     // KEY_EVENT records.
-                                    // surrogate_buffer is only accessed via decode_utf16_char
-                                    // for KEY_EVENT records with u_char != 0. Non-key events
-                                    // (mouse, focus, resize) do not touch it, so an interleaved
-                                    // non-key event between surrogate pair halves is harmless.
                                     if let Some(ch) =
-                                        decode_utf16_char(&mut self.surrogate_buffer, record.u_char)
+                                        decode_utf16_char(&mut self.vt_surrogate, record.u_char)
                                     {
                                         let mut buf = [0u8; 4];
                                         let encoded = ch.encode_utf8(&mut buf);
@@ -96,7 +98,7 @@ impl EventSource for WindowsEventSource {
                                     // When VT is enabled, keys with u_char==0 (e.g. standalone
                                     // modifier presses) still need VK code handling.
                                     if let Some(event) =
-                                        handle_key_event(record, &mut self.surrogate_buffer)
+                                        handle_key_event(record, &mut self.legacy_surrogate)
                                     {
                                         self.parser.push_event(InternalEvent::Event(event));
                                     }
