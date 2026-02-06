@@ -15,7 +15,10 @@ use crate::event::{
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
-    internal::InternalEvent, source::EventSource, sys::parse::Parser, timeout::PollTimeout,
+    internal::InternalEvent,
+    source::EventSource,
+    sys::parse::{decode_utf16_char, Parser},
+    timeout::PollTimeout,
 };
 
 pub(crate) struct WindowsEventSource {
@@ -45,25 +48,6 @@ impl WindowsEventSource {
             vt_input_enabled,
         })
     }
-
-    /// Decode a UTF-16 code unit, handling surrogate pairs.
-    fn decode_utf16_char(&mut self, utf16: u16) -> Option<char> {
-        if (0xD800..=0xDBFF).contains(&utf16) {
-            // High surrogate — store and wait for low surrogate
-            self.surrogate_buffer = Some(utf16);
-            None
-        } else if (0xDC00..=0xDFFF).contains(&utf16) {
-            // Low surrogate — combine with stored high surrogate
-            if let Some(high) = self.surrogate_buffer.take() {
-                std::char::decode_utf16([high, utf16]).next()?.ok()
-            } else {
-                None
-            }
-        } else {
-            self.surrogate_buffer = None;
-            std::char::from_u32(utf16 as u32)
-        }
-    }
 }
 
 impl EventSource for WindowsEventSource {
@@ -82,6 +66,10 @@ impl EventSource for WindowsEventSource {
                     // Process all available input records as a batch.
                     // Batch reading is essential for VT mode because ANSI escape
                     // sequences are spread across multiple KEY_EVENT records.
+                    // Note: `number` is read once before the loop. If the count
+                    // becomes stale (events added/removed concurrently), the last
+                    // read_single_input_event call may block briefly, but this is
+                    // unlikely in practice since we hold the console handle.
                     let mut remaining = number;
                     for _ in 0..number {
                         remaining -= 1;
@@ -92,7 +80,13 @@ impl EventSource for WindowsEventSource {
                                     // With ENABLE_VIRTUAL_TERMINAL_INPUT, special keys produce
                                     // ANSI escape sequences as individual character bytes in
                                     // KEY_EVENT records.
-                                    if let Some(ch) = self.decode_utf16_char(record.u_char) {
+                                    // surrogate_buffer is only accessed via decode_utf16_char
+                                    // for KEY_EVENT records with u_char != 0. Non-key events
+                                    // (mouse, focus, resize) do not touch it, so an interleaved
+                                    // non-key event between surrogate pair halves is harmless.
+                                    if let Some(ch) =
+                                        decode_utf16_char(&mut self.surrogate_buffer, record.u_char)
+                                    {
                                         let mut buf = [0u8; 4];
                                         let encoded = ch.encode_utf8(&mut buf);
                                         self.parser.advance(encoded.as_bytes(), remaining > 0);
@@ -107,8 +101,10 @@ impl EventSource for WindowsEventSource {
                                         self.parser.push_event(InternalEvent::Event(event));
                                     }
                                 }
-                                // VT enabled, key_down=false, u_char!=0: skip (release events
-                                // don't carry new ANSI data)
+                                // VT enabled, key_down=false, u_char!=0: intentionally
+                                // skipped. Release events don't carry new ANSI data, and
+                                // crossterm only reports key-press events. In non-VT mode,
+                                // handle_key_event would also discard most key-up events.
                             }
                             InputRecord::MouseEvent(record) => {
                                 let mouse_event =

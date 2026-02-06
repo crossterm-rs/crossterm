@@ -1506,6 +1506,49 @@ mod tests {
             )))),
         );
     }
+
+    #[test]
+    fn test_decode_utf16_bmp_char() {
+        let mut buf = None;
+        // ASCII 'a'
+        assert_eq!(decode_utf16_char(&mut buf, 0x0061), Some('a'));
+        assert_eq!(buf, None);
+        // CJK character U+4E16 '世'
+        assert_eq!(decode_utf16_char(&mut buf, 0x4E16), Some('世'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_surrogate_pair() {
+        let mut buf = None;
+        // U+1F600 '😀' = D83D DE00 in UTF-16
+        assert_eq!(decode_utf16_char(&mut buf, 0xD83D), None);
+        assert_eq!(buf, Some(0xD83D));
+        assert_eq!(decode_utf16_char(&mut buf, 0xDE00), Some('😀'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_high_surrogate() {
+        let mut buf = None;
+        // High surrogate followed by another high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0xD800), None);
+        assert_eq!(buf, Some(0xD800));
+        // Another high replaces the buffered one
+        assert_eq!(decode_utf16_char(&mut buf, 0xD801), None);
+        assert_eq!(buf, Some(0xD801));
+        // BMP char clears the orphaned high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0x0041), Some('A'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_low_surrogate() {
+        let mut buf = None;
+        // Low surrogate without preceding high
+        assert_eq!(decode_utf16_char(&mut buf, 0xDC00), None);
+        assert_eq!(buf, None);
+    }
 }
 
 //
@@ -1581,5 +1624,28 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+/// Decode a UTF-16 code unit, handling surrogate pairs via `surrogate_buffer`.
+///
+/// Returns `Some(char)` for BMP characters and completed surrogate pairs.
+/// Returns `None` when a high surrogate is buffered (waiting for its low half)
+/// or when an orphaned low surrogate is encountered.
+pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) -> Option<char> {
+    if (0xD800..=0xDBFF).contains(&utf16) {
+        // High surrogate — store and wait for low surrogate
+        *surrogate_buffer = Some(utf16);
+        None
+    } else if (0xDC00..=0xDFFF).contains(&utf16) {
+        // Low surrogate — combine with stored high surrogate
+        if let Some(high) = surrogate_buffer.take() {
+            std::char::decode_utf16([high, utf16]).next()?.ok()
+        } else {
+            None
+        }
+    } else {
+        *surrogate_buffer = None;
+        std::char::from_u32(utf16 as u32)
     }
 }

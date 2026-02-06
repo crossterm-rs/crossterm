@@ -20,7 +20,11 @@ const ENABLE_VIRTUAL_TERMINAL_INPUT: u32 = 0x0200;
 /// console mode if it's initialized.
 static ORIGINAL_CONSOLE_MODE: AtomicU64 = AtomicU64::new(u64::MAX);
 
-/// Initializes the default console color. It will be skipped if it has already been initialized.
+/// Saves the original console mode on first call (uses compare_exchange, so only the
+/// first caller wins). Callers that modify the mode (try_enable_vt_input,
+/// enable_mouse_capture) must call this **before** modifying the mode to ensure the
+/// stored value is the true original. Currently, `try_enable_vt_input` is called
+/// first in `WindowsEventSource::new()`, which is correct.
 fn init_original_console_mode(original_mode: u32) {
     let _ = ORIGINAL_CONSOLE_MODE.compare_exchange(
         u64::MAX,
