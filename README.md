@@ -187,6 +187,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 - [Ratatui](https://github.com/ratatui/ratatui)
 - [Rust-sloth](https://github.com/ecumene/rust-sloth)
 - [Rusty-rain](https://github.com/cowboy8625/rusty-rain)
+- [Cubic VM](https://github.com/cubic-vm/cubic)
 
 ## Contributing
   
