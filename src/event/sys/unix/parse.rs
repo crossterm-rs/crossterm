@@ -734,8 +734,8 @@ pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> io::Result<Option<InternalEv
     // See http://www.xfree86.org/current/ctlseqs.html#Mouse%20Tracking
     // The upper left character position on the terminal is denoted as 1,1.
     // Subtract 1 to keep it synced with cursor
-    let cx = next_parsed::<u16>(&mut split)? - 1;
-    let cy = next_parsed::<u16>(&mut split)? - 1;
+    let cx = next_parsed::<u16>(&mut split)?.saturating_sub(1);
+    let cy = next_parsed::<u16>(&mut split)?.saturating_sub(1);
 
     // When button 3 in Cb is used to represent mouse release, you can't tell which button was
     // released. SGR mode solves this by having the sequence end with a lowercase m if it's a
@@ -1140,6 +1140,15 @@ mod tests {
                 kind: MouseEventKind::Up(MouseButton::Left),
                 column: 19,
                 row: 9,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<32;43;0M").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Drag(MouseButton::Left),
+                column: 42,
+                row: 0,
                 modifiers: KeyModifiers::empty(),
             })))
         );
