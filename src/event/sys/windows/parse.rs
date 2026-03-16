@@ -52,6 +52,11 @@ pub(crate) fn handle_key_event(
             Some(Event::Key(key_event))
         }
         WindowsKeyEvent::Surrogate(new_surrogate) => {
+            // FIXME: Temporary workaround for Windows Terminal unicode surrogate behavior
+            if key_event.key_down {
+                return None;
+            }
+
             let ch = handle_surrogate(surrogate_buffer, new_surrogate)?;
             let modifiers = KeyModifiers::from(&key_event.control_key_state);
             let key_event = KeyEvent::new(KeyCode::Char(ch), modifiers);
