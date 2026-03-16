@@ -33,6 +33,9 @@ fn read_position() -> io::Result<(u16, u16)> {
 }
 
 fn read_position_raw() -> io::Result<(u16, u16)> {
+    // Discard any buffered cursor-position replies from earlier `ESC[6n` requests so the
+    // position returned below corresponds to the fresh request we are about to send.
+    // Poll with a zero timeout to drain only already-available events without blocking.
     while let Ok(true) = internal::poll(Some(Duration::ZERO), &CursorPositionFilter) {
         let _ = internal::read(&CursorPositionFilter);
     }
