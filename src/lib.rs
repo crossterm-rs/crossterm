@@ -65,7 +65,9 @@
 //!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
 //!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
+//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html),
+//!     [`EnableAlternateScrollMode`](terminal/struct.EnableAlternateScrollMode.html),
+//!     [`DisableAlternateScrollMode`](terminal/struct.DisableAlternateScrollMode.html)
 //! - Module [`clipboard`](clipboard/index.html) (requires
 //!   [`feature = "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
