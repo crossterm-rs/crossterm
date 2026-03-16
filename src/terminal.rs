@@ -62,26 +62,49 @@
 //!
 //! ## Examples
 //!
+//! Below is a simple example that enables raw mode, prints typed characters directly to the screen, and exits when `Ctrl+C` is pressed:
+//!
 //! ```no_run
-//! use std::io::{self, Write};
-//! use crossterm::{execute, terminal::{ScrollUp, SetSize, size}};
+//! use std::io::{self, Write, stdout};
+//!
+//! use crossterm::{
+//!     event::{Event, KeyCode, KeyEvent, KeyModifiers, read},
+//!     terminal::{disable_raw_mode, enable_raw_mode},
+//! };
 //!
 //! fn main() -> io::Result<()> {
-//!     let (cols, rows) = size()?;
-//!     // Resize terminal and scroll up.
-//!     execute!(
-//!         io::stdout(),
-//!         SetSize(10, 10),
-//!         ScrollUp(5)
-//!     )?;
+//!     enable_raw_mode()?;
 //!
-//!     // Be a good citizen, cleanup
-//!     execute!(io::stdout(), SetSize(cols, rows))?;
+//!     // Run the main loop without propagating errors yet, so we can disable raw mode first.
+//!     let result = main_loop();
+//!
+//!     // Disable raw mode and return the potential error from main loop.
+//!     disable_raw_mode()?;
+//!     result
+//! }
+//!
+//! fn main_loop() -> io::Result<()> {
+//!     let mut stdout = stdout();
+//!     loop {
+//!         if let Event::Key(key_event) = read()? {
+//!             if is_control_c(key_event) {
+//!                 break;
+//!             }
+//!             if let KeyCode::Char(c) = key_event.code {
+//!                 write!(stdout, "{c}")?;
+//!                 stdout.flush()?;
+//!             }
+//!         }
+//!     }
 //!     Ok(())
 //! }
-//! ```
 //!
-//! For manual execution control check out [crossterm::queue](../macro.queue.html).
+//! fn is_control_c(key_event: KeyEvent) -> bool {
+//!     let ctrl = key_event.modifiers.contains(KeyModifiers::CONTROL);
+//!     let c = key_event.code.is_char('c');
+//!     ctrl && c
+//! }
+//! ```
 
 use std::{fmt, io};
 
