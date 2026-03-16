@@ -73,7 +73,7 @@ WARNING: Do not change following heading title as it's used in the URL by other 
 - Windows Terminal
     - Windows 10 x86_64 (Enterprise)
     - Windows 11 arm64 (Enterprise)
-- Ubuntu Desktop Terminal
+- GNOME Terminal
     - Ubuntu 23.04 64-bit
     - Ubuntu 17.10
     - Pop!_OS ( Ubuntu ) 20.04
