@@ -5,10 +5,12 @@ use winapi::um::{
         SHIFT_PRESSED,
     },
     winuser::{
-        GetForegroundWindow, GetKeyboardLayout, GetWindowThreadProcessId, ToUnicodeEx, VK_BACK,
-        VK_CONTROL, VK_DELETE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F24, VK_HOME, VK_INSERT,
-        VK_LEFT, VK_MENU, VK_NEXT, VK_NUMPAD0, VK_NUMPAD9, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SHIFT,
-        VK_TAB, VK_UP,
+        GetForegroundWindow, GetKeyboardLayout, GetWindowThreadProcessId, ToUnicodeEx, VK_ADD,
+        VK_BACK, VK_CONTROL, VK_DECIMAL, VK_DELETE, VK_DIVIDE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1,
+        VK_F24, VK_HOME, VK_INSERT, VK_LEFT, VK_MENU, VK_MULTIPLY, VK_NEXT, VK_NUMPAD0, VK_NUMPAD1,
+        VK_NUMPAD2, VK_NUMPAD3, VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7, VK_NUMPAD8,
+        VK_NUMPAD9, VK_PRIOR, VK_RETURN, VK_RIGHT, VK_SEPARATOR, VK_SHIFT, VK_SUBTRACT, VK_TAB,
+        VK_UP,
     },
 };
 
@@ -257,6 +259,22 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
         VK_INSERT => Some(KeyCode::Insert),
         VK_TAB if modifiers.contains(KeyModifiers::SHIFT) => Some(KeyCode::BackTab),
         VK_TAB => Some(KeyCode::Tab),
+        VK_NUMPAD0 => Some(KeyCode::Keypad0),
+        VK_NUMPAD1 => Some(KeyCode::Keypad1),
+        VK_NUMPAD2 => Some(KeyCode::Keypad2),
+        VK_NUMPAD3 => Some(KeyCode::Keypad3),
+        VK_NUMPAD4 => Some(KeyCode::Keypad4),
+        VK_NUMPAD5 => Some(KeyCode::Keypad5),
+        VK_NUMPAD6 => Some(KeyCode::Keypad6),
+        VK_NUMPAD7 => Some(KeyCode::Keypad7),
+        VK_NUMPAD8 => Some(KeyCode::Keypad8),
+        VK_NUMPAD9 => Some(KeyCode::Keypad9),
+        VK_MULTIPLY => Some(KeyCode::KeypadMultiply),
+        VK_ADD => Some(KeyCode::KeypadPlus),
+        VK_SUBTRACT => Some(KeyCode::KeypadMinus),
+        VK_DIVIDE => Some(KeyCode::KeypadDivide),
+        VK_DECIMAL => Some(KeyCode::KeypadPeriod),
+        VK_SEPARATOR => Some(KeyCode::KeypadComma),
         _ => {
             let utf16 = key_event.u_char;
             match utf16 {
