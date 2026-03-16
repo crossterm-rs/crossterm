@@ -117,7 +117,7 @@ use std::{
 };
 
 use crate::command::execute_fmt;
-use crate::{csi, impl_display, Command};
+use crate::{csi, impl_display, osc, Command};
 
 pub use self::{
     attributes::Attributes,
@@ -379,7 +379,7 @@ impl Command for SetAttributes {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SetStyle(pub ContentStyle);
 
 impl Command for SetStyle {
@@ -395,6 +395,9 @@ impl Command for SetStyle {
         }
         if !self.0.attributes.is_empty() {
             execute_fmt(f, SetAttributes(self.0.attributes)).map_err(|_| fmt::Error)?;
+        }
+        if let Some(ref url) = self.0.hyperlink {
+            execute_fmt(f, SetHyperlink(url.clone())).map_err(|_| fmt::Error)?;
         }
 
         Ok(())
@@ -418,7 +421,7 @@ impl Command for SetStyle {
 /// # Notes
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
 impl<D: Display> Command for PrintStyledContent<D> {
@@ -447,7 +450,15 @@ impl<D: Display> Command for PrintStyledContent<D> {
             reset = true;
         }
 
+        if let Some(ref url) = style.hyperlink {
+            execute_fmt(f, SetHyperlink(url.clone())).map_err(|_| fmt::Error)?;
+        }
+
         write!(f, "{}", self.0.content())?;
+
+        if style.hyperlink.is_some() {
+            execute_fmt(f, ResetHyperlink).map_err(|_| fmt::Error)?;
+        }
 
         if reset {
             // NOTE: This will reset colors even though self has no colors, hence produce unexpected
@@ -492,6 +503,50 @@ impl Command for ResetColor {
     }
 }
 
+/// A command that sets an OSC 8 hyperlink.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SetHyperlink(pub String);
+
+impl SetHyperlink {
+    pub fn new(url: impl Into<String>) -> Self {
+        Self(url.into())
+    }
+}
+
+impl Command for SetHyperlink {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        write!(f, osc!("8;;{}"), self.0)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+/// A command that resets the OSC 8 hyperlink.
+///
+/// # Notes
+///
+/// Commands must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ResetHyperlink;
+
+impl Command for ResetHyperlink {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(osc!("8;;"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
 /// A command that prints the given displayable type.
 ///
 /// Commands must be executed/queued for execution otherwise they do nothing.
@@ -527,6 +582,8 @@ impl_display!(for SetAttribute);
 impl_display!(for PrintStyledContent<String>);
 impl_display!(for PrintStyledContent<&'static str>);
 impl_display!(for ResetColor);
+impl_display!(for SetHyperlink);
+impl_display!(for ResetHyperlink);
 
 /// Utility function for ANSI parsing in Color and Colored.
 /// Gets the next element of `iter` and tries to parse it as a `u8`.
@@ -617,5 +674,44 @@ mod tests {
                 assert_eq!(8u16, available_color_count());
             },
         );
+    }
+
+    #[test]
+    fn set_hyperlink_ansi() {
+        let mut buf = String::new();
+        SetHyperlink::new("https://example.com")
+            .write_ansi(&mut buf)
+            .unwrap();
+        assert_eq!(buf, "\x1B]8;;https://example.com\x1B\\");
+    }
+
+    #[test]
+    fn reset_hyperlink_ansi() {
+        let mut buf = String::new();
+        ResetHyperlink.write_ansi(&mut buf).unwrap();
+        assert_eq!(buf, "\x1B]8;;\x1B\\");
+    }
+
+    #[test]
+    fn print_styled_content_with_hyperlink() {
+        let styled = StyledContent::new(
+            ContentStyle {
+                hyperlink: Some("https://example.com".into()),
+                ..Default::default()
+            },
+            "click",
+        );
+        let mut buf = String::new();
+        PrintStyledContent(styled).write_ansi(&mut buf).unwrap();
+        assert_eq!(
+            buf,
+            "\x1B]8;;https://example.com\x1B\\click\x1B]8;;\x1B\\"
+        );
+    }
+
+    #[test]
+    fn link_builder() {
+        let style = ContentStyle::new().link("https://example.com");
+        assert_eq!(style.hyperlink, Some("https://example.com".into()));
     }
 }

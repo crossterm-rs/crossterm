@@ -18,7 +18,7 @@ use super::{ContentStyle, PrintStyledContent};
 ///
 /// println!("{}", styled);
 /// ```
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StyledContent<D: Display> {
     /// The style (colors, content attributes).
     style: ContentStyle,
@@ -69,7 +69,7 @@ impl<D: Display> Display for StyledContent<D> {
         crate::command::execute_fmt(
             f,
             PrintStyledContent(StyledContent {
-                style: self.style,
+                style: self.style.clone(),
                 content: &self.content,
             }),
         )

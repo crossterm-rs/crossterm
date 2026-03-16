@@ -102,6 +102,16 @@ pub trait Stylize: Sized {
         styled
     }
 
+    /// Sets the hyperlink URI (OSC 8).
+    fn link<T>(self, url: T) -> Self::Styled
+    where
+        T: Into<String>,
+    {
+        let mut styled = self.stylize();
+        styled.as_mut().hyperlink = Some(url.into());
+        styled
+    }
+
     stylize_method!(reset Attribute::Reset);
     stylize_method!(bold Attribute::Bold);
     stylize_method!(underlined Attribute::Underlined);
