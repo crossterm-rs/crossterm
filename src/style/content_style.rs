@@ -18,16 +18,21 @@ pub struct ContentStyle {
 }
 
 impl ContentStyle {
-    /// Creates a `StyledContent` by applying the style to the given `val`.
+    /// Creates a [`StyledContent`] by applying the style to the given `val`.
     #[inline]
-    pub fn apply<D: Display>(self, val: D) -> StyledContent<D> {
+    pub const fn apply<D: Display>(self, val: D) -> StyledContent<D> {
         StyledContent::new(self, val)
     }
 
-    /// Creates a new `ContentStyle`.
+    /// Creates a new [`ContentStyle`].
     #[inline]
-    pub fn new() -> ContentStyle {
-        ContentStyle::default()
+    pub const fn new() -> ContentStyle {
+        Self {
+            foreground_color: None,
+            background_color: None,
+            underline_color: None,
+            attributes: Attributes::new(),
+        }
     }
 }
 

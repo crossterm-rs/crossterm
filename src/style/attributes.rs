@@ -6,6 +6,14 @@ use crate::style::Attribute;
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Attributes(u32);
 
+impl Attributes {
+    /// Creates a new [`Attributes`].
+    #[inline]
+    pub const fn new() -> Self {
+        Self(0)
+    }
+}
+
 impl From<Attribute> for Attributes {
     fn from(attribute: Attribute) -> Self {
         Self(attribute.bytes())
