@@ -216,6 +216,7 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         internal::{self, InternalEvent},
     };
+    use std::fs::OpenOptions;
     use std::io::Write;
     use std::time::Duration;
 
@@ -230,10 +231,13 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     // ESC [ c          Query primary device attributes.
     const QUERY: &[u8] = b"\x1B[?u\x1B[c";
 
-    let result = File::open("/dev/tty").and_then(|mut file| {
-        file.write_all(QUERY)?;
-        file.flush()
-    });
+    let result = OpenOptions::new()
+        .write(true)
+        .open("/dev/tty")
+        .and_then(|mut file| {
+            file.write_all(QUERY)?;
+            file.flush()
+        });
     if result.is_err() {
         let mut stdout = io::stdout();
         stdout.write_all(QUERY)?;
