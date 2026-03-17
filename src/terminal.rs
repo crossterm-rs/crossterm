@@ -132,7 +132,7 @@ pub fn disable_raw_mode() -> io::Result<()> {
 
 /// Returns the terminal size `(columns, rows)`.
 ///
-/// The top left cell is represented `(1, 1)`.
+/// The top left cell is represented `(0, 0)`.
 pub fn size() -> io::Result<(u16, u16)> {
     sys::size()
 }
