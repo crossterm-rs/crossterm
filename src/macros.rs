@@ -113,16 +113,36 @@ macro_rules! queue {
 ///   and can therefore not be written to the given `writer`.
 ///   Therefore, there is no difference between [execute](macro.execute.html)
 ///   and [queue](macro.queue.html) for those old Windows versions.
+///
+/// # Side Effects
+/// The `$writer` (first argument) is emitted twice, meaning if the first argument's
+/// expression emits side effects, they will occur twice. If this is undesirable,
+/// store the expression's result in a temporary before passing it to this macro:
+///
+/// ```ignore
+/// // Instead of...
+/// execute!(
+///     incurs_side_effect(),             // <- Happens twice.
+///     ...
+/// );
+///
+/// // ... prevent a double side effect:
+/// let writer = incurs_side_effect();    // <- Happens once.
+/// execute!(
+///    writer,
+///    ...
+/// );
+/// ```
 #[macro_export]
 macro_rules! execute {
     ($writer:expr $(, $command:expr)* $(,)? ) => {{
         use ::std::io::Write;
 
         // Queue each command, then flush
-        $crate::queue!($writer $(, $command)*)
-            .and_then(|()| {
-                ::std::io::Write::flush($writer.by_ref())
-            })
+        let r = $crate::queue!($writer $(, $command)*);
+        r.and_then(|()| {
+            ::std::io::Write::flush($writer.by_ref())
+        })
     }}
 }
 
@@ -238,6 +258,14 @@ mod tests {
             execute!(&mut result, FakeCommand, FakeCommand,).unwrap();
             assert_eq!(&result.buffer, "cmdcmd");
             assert!(result.flushed);
+        }
+
+        #[test]
+        fn test_execute_refcell() {
+            let result = std::cell::RefCell::new(FakeWrite::default());
+            execute!(result.borrow_mut(), FakeCommand, FakeCommand,).unwrap();
+            assert_eq!(&result.borrow().buffer, "cmdcmd");
+            assert!(result.borrow().flushed);
         }
     }
 
