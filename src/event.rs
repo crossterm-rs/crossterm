@@ -230,7 +230,6 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
-        #[cfg(unix)]
         _ => unreachable!(),
     }
 }
@@ -260,7 +259,6 @@ pub fn try_read() -> Option<Event> {
     match internal::try_read(&EventFilter) {
         Some(InternalEvent::Event(event)) => Some(event),
         None => None,
-        #[cfg(unix)]
         _ => unreachable!(),
     }
 }

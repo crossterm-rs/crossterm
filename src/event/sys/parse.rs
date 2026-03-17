@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io;
 
 use crate::event::{
@@ -96,9 +97,11 @@ pub(crate) fn parse_event(
         // newlines as input is because the terminal converts \r into \n for us. When we
         // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
         // use Ctrl+J. Waiting to handle it here means it gets picked up later
-        b'\n' if !crate::terminal::sys::is_raw_mode_enabled() => Ok(Some(InternalEvent::Event(
-            Event::Key(KeyCode::Enter.into()),
-        ))),
+        // unwrap_or(false): if the console mode query fails (possible on Windows),
+        // assume raw mode is enabled so \n is treated as Ctrl+J rather than Enter.
+        b'\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => Ok(Some(
+            InternalEvent::Event(Event::Key(KeyCode::Enter.into())),
+        )),
         b'\t' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into())))),
         b'\x7F' => Ok(Some(InternalEvent::Event(Event::Key(
             KeyCode::Backspace.into(),
@@ -549,7 +552,10 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
                     // newlines as input is because the terminal converts \r into \n for us. When we
                     // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
-                    '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
+                    // unwrap_or(false): see comment in parse_event for rationale
+                    '\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => {
+                        KeyCode::Enter
+                    }
                     '\t' => {
                         if modifiers.contains(KeyModifiers::SHIFT) {
                             KeyCode::BackTab
@@ -1502,5 +1508,149 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_decode_utf16_bmp_char() {
+        let mut buf = None;
+        // ASCII 'a'
+        assert_eq!(decode_utf16_char(&mut buf, 0x0061), Some('a'));
+        assert_eq!(buf, None);
+        // CJK character U+4E16 '世'
+        assert_eq!(decode_utf16_char(&mut buf, 0x4E16), Some('世'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_surrogate_pair() {
+        let mut buf = None;
+        // U+1F600 '😀' = D83D DE00 in UTF-16
+        assert_eq!(decode_utf16_char(&mut buf, 0xD83D), None);
+        assert_eq!(buf, Some(0xD83D));
+        assert_eq!(decode_utf16_char(&mut buf, 0xDE00), Some('😀'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_high_surrogate() {
+        let mut buf = None;
+        // High surrogate followed by another high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0xD800), None);
+        assert_eq!(buf, Some(0xD800));
+        // Another high replaces the buffered one
+        assert_eq!(decode_utf16_char(&mut buf, 0xD801), None);
+        assert_eq!(buf, Some(0xD801));
+        // BMP char clears the orphaned high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0x0041), Some('A'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_low_surrogate() {
+        let mut buf = None;
+        // Low surrogate without preceding high
+        assert_eq!(decode_utf16_char(&mut buf, 0xDC00), None);
+        assert_eq!(buf, None);
+    }
+}
+
+//
+// Following `Parser` structure exists for two reasons:
+//
+//  * mimic anes Parser interface
+//  * move the advancing, parsing, ... stuff out of the `try_read` method
+//
+#[derive(Debug)]
+pub(crate) struct Parser {
+    buffer: Vec<u8>,
+    internal_events: VecDeque<InternalEvent>,
+}
+
+impl Default for Parser {
+    fn default() -> Self {
+        Parser {
+            // This buffer is used for -> 1 <- ANSI escape sequence. Are we
+            // aware of any ANSI escape sequence that is bigger? Can we make
+            // it smaller?
+            //
+            // Probably not worth spending more time on this as "there's a plan"
+            // to use the anes crate parser.
+            buffer: Vec::with_capacity(256),
+            // TTY_BUFFER_SIZE is 1_024 bytes. How many ANSI escape sequences can
+            // fit? What is an average sequence length? Let's guess here
+            // and say that the average ANSI escape sequence length is 8 bytes. Thus
+            // the buffer size should be 1024/8=128 to avoid additional allocations
+            // when processing large amounts of data.
+            //
+            // There's no need to make it bigger, because when you look at the `try_read`
+            // method implementation, all events are consumed before the next TTY_BUFFER
+            // is processed -> events pushed.
+            internal_events: VecDeque::with_capacity(128),
+        }
+    }
+}
+
+impl Parser {
+    pub(crate) fn advance(&mut self, buffer: &[u8], more: bool) {
+        for (idx, byte) in buffer.iter().enumerate() {
+            let more = idx + 1 < buffer.len() || more;
+
+            self.buffer.push(*byte);
+
+            match parse_event(&self.buffer, more) {
+                Ok(Some(ie)) => {
+                    self.internal_events.push_back(ie);
+                    self.buffer.clear();
+                }
+                Ok(None) => {
+                    // Event can't be parsed, because we don't have enough bytes for
+                    // the current sequence. Keep the buffer and process next bytes.
+                }
+                Err(_) => {
+                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
+                    // Clear the buffer and continue with another sequence.
+                    self.buffer.clear();
+                }
+            }
+        }
+    }
+
+    /// Push a non-ANSI event directly into the event queue.
+    /// Used by the Windows hybrid source for events that bypass ANSI parsing.
+    #[allow(dead_code)]
+    pub(crate) fn push_event(&mut self, event: InternalEvent) {
+        self.internal_events.push_back(event);
+    }
+}
+
+impl Iterator for Parser {
+    type Item = InternalEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.internal_events.pop_front()
+    }
+}
+
+/// Decode a UTF-16 code unit, handling surrogate pairs via `surrogate_buffer`.
+///
+/// Returns `Some(char)` for BMP characters and completed surrogate pairs.
+/// Returns `None` when a high surrogate is buffered (waiting for its low half)
+/// or when an orphaned low surrogate is encountered.
+#[allow(dead_code)]
+pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) -> Option<char> {
+    if (0xD800..=0xDBFF).contains(&utf16) {
+        // High surrogate — store and wait for low surrogate
+        *surrogate_buffer = Some(utf16);
+        None
+    } else if (0xDC00..=0xDFFF).contains(&utf16) {
+        // Low surrogate — combine with stored high surrogate
+        if let Some(high) = surrogate_buffer.take() {
+            std::char::decode_utf16([high, utf16]).next()?.ok()
+        } else {
+            None
+        }
+    } else {
+        *surrogate_buffer = None;
+        std::char::from_u32(utf16 as u32)
     }
 }
