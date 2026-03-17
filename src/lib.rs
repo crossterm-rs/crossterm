@@ -255,10 +255,12 @@ pub mod tty;
 pub mod clipboard;
 
 #[cfg(windows)]
+#[cfg(not(feature = "no-tty"))]
 /// A module that exposes one function to check if the current terminal supports ANSI sequences.
 pub mod ansi_support;
 mod command;
 pub(crate) mod macros;
 
 #[cfg(all(windows, not(feature = "windows")))]
+#[cfg(not(feature = "no-tty"))]
 compile_error!("Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows.");
