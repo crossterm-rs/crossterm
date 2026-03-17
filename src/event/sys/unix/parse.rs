@@ -108,7 +108,7 @@ pub(crate) fn parse_event(
             KeyModifiers::CONTROL,
         ))))),
         c @ b'\x1C'..=b'\x1F' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-            KeyCode::Char((c - 0x1C + b'4') as char),
+            KeyCode::Char((c - 0x1C + b'\\') as char),
             KeyModifiers::CONTROL,
         ))))),
         b'\0' => Ok(Some(InternalEvent::Event(Event::Key(KeyEvent::new(
@@ -909,6 +909,39 @@ mod tests {
             Some(InternalEvent::Event(Event::Key(KeyEvent::new(
                 KeyCode::Char('t'),
                 KeyModifiers::ALT | KeyModifiers::CONTROL
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_ctrl_special_chars() {
+        // 0x1C -> Ctrl+\, 0x1D -> Ctrl+], 0x1E -> Ctrl+^, 0x1F -> Ctrl+_
+        assert_eq!(
+            parse_event(b"\x1C", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('\\'),
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1D", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char(']'),
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1E", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('^'),
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1F", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('_'),
+                KeyModifiers::CONTROL
             )))),
         );
     }
