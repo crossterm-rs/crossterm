@@ -68,7 +68,7 @@ macro_rules! queue {
         use ::std::io::Write;
 
         // This allows the macro to take both mut impl Write and &mut impl Write.
-        Ok($writer.by_ref())
+        ::std::result::Result::Ok($writer.by_ref())
             $(.and_then(|writer| $crate::QueueableCommand::queue(writer, $command)))*
             .map(|_| ())
     }}
