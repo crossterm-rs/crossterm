@@ -11,7 +11,7 @@ use crossterm::{
     cursor::position,
     event::{
         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-        EnableFocusChange, EnableMouseCapture, Event, KeyCode,
+        EnableFocusChange, EnableMouseCapture, Event, KeyCode, MouseCaptureLevel,
     },
     execute, queue,
     terminal::{disable_raw_mode, enable_raw_mode},
@@ -90,7 +90,7 @@ fn main() -> io::Result<()> {
         stdout,
         EnableBracketedPaste,
         EnableFocusChange,
-        EnableMouseCapture,
+        EnableMouseCapture(MouseCaptureLevel::Drag),
     )?;
 
     if let Err(e) = print_events() {

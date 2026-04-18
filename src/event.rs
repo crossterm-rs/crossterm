@@ -32,7 +32,7 @@
 //! use crossterm::{
 //!     event::{
 //!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event,
+//!         EnableFocusChange, EnableMouseCapture, Event, MouseCaptureLevel,
 //!     },
 //!     execute,
 //! };
@@ -42,7 +42,7 @@
 //!          std::io::stdout(),
 //!          EnableBracketedPaste,
 //!          EnableFocusChange,
-//!          EnableMouseCapture
+//!          EnableMouseCapture(MouseCaptureLevel::Drag)
 //!     )?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
@@ -75,7 +75,7 @@
 //! use crossterm::{
 //!     event::{
 //!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
-//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
+//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event, MouseCaptureLevel,
 //!     },
 //!     execute,
 //! };
@@ -85,7 +85,7 @@
 //!          std::io::stdout(),
 //!          EnableBracketedPaste,
 //!          EnableFocusChange,
-//!          EnableMouseCapture
+//!          EnableMouseCapture(MouseCaptureLevel::Drag)
 //!     )?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
@@ -138,6 +138,7 @@ use crate::{
     Command,
 };
 use std::fmt::{self, Display};
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::time::Duration;
 
 use bitflags::bitflags;
@@ -294,33 +295,69 @@ bitflags! {
     }
 }
 
-/// A command that enables mouse event capturing.
+/// DEC mouse tracking level to set the amount of mouse events reported by the terminal.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MouseCaptureLevel {
+    Click = 0b001,
+    Drag = 0b011,
+    Hover = 0b111,
+}
+
+// Tracks the currently enabled DEC tracking bits (0 = none).
+static ENABLED_MOUSE_CAPTURE_BITS: AtomicU8 = AtomicU8::new(0);
+
+/// A command that enables mouse event capturing at the given [`MouseCaptureLevel`].
+///
+/// It should be paired with [`DisableMouseCapture`] at the end of execution.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
-#[cfg(feature = "events")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct EnableMouseCapture;
+pub struct EnableMouseCapture(pub MouseCaptureLevel);
 
-#[cfg(feature = "events")]
 impl Command for EnableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(concat!(
-            // Normal tracking: Send mouse X & Y on button press and release
-            csi!("?1000h"),
-            // Button-event tracking: Report button motion events (dragging)
-            csi!("?1002h"),
-            // Any-event tracking: Report all motion events
-            csi!("?1003h"),
+        let new = self.0 as u8;
+        let prev = ENABLED_MOUSE_CAPTURE_BITS.swap(new, Ordering::Relaxed);
+        if prev == new {
+            return Ok(());
+        }
+        let to_disable = prev & !new;
+        if to_disable & 0b100 != 0 {
+            f.write_str(csi!("?1003l"))?;
+        }
+        if to_disable & 0b010 != 0 {
+            f.write_str(csi!("?1002l"))?;
+        }
+        if to_disable & 0b001 != 0 {
+            f.write_str(csi!("?1000l"))?;
+        }
+        if prev == 0 {
             // RXVT mouse mode: Allows mouse coordinates of >223
-            csi!("?1015h"),
+            f.write_str(csi!("?1015h"))?;
             // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
-            csi!("?1006h"),
-        ))
+            f.write_str(csi!("?1006h"))?;
+        }
+        let to_enable = new & !prev;
+        if to_enable & 0b001 != 0 {
+            f.write_str(csi!("?1000h"))?;
+        }
+        if to_enable & 0b010 != 0 {
+            f.write_str(csi!("?1002h"))?;
+        }
+        if to_enable & 0b100 != 0 {
+            f.write_str(csi!("?1003h"))?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
-        sys::windows::enable_mouse_capture()
+        let prev = ENABLED_MOUSE_CAPTURE_BITS.swap(self.0 as u8, Ordering::Relaxed);
+        if prev == 0 {
+            sys::windows::enable_mouse_capture()?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]
@@ -337,19 +374,30 @@ pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(concat!(
-            // The inverse commands of EnableMouseCapture, in reverse order.
-            csi!("?1006l"),
-            csi!("?1015l"),
-            csi!("?1003l"),
-            csi!("?1002l"),
-            csi!("?1000l"),
-        ))
+        let prev = ENABLED_MOUSE_CAPTURE_BITS.swap(0, Ordering::Relaxed);
+        if prev == 0 {
+            return Ok(());
+        }
+        if prev & 0b100 != 0 {
+            f.write_str(csi!("?1003l"))?;
+        }
+        if prev & 0b010 != 0 {
+            f.write_str(csi!("?1002l"))?;
+        }
+        if prev & 0b001 != 0 {
+            f.write_str(csi!("?1000l"))?;
+        }
+        f.write_str(csi!("?1015l"))?;
+        f.write_str(csi!("?1006l"))
     }
 
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
-        sys::windows::disable_mouse_capture()
+        let prev = ENABLED_MOUSE_CAPTURE_BITS.swap(0, Ordering::Relaxed);
+        if prev != 0 {
+            sys::windows::disable_mouse_capture()?;
+        }
+        Ok(())
     }
 
     #[cfg(windows)]

@@ -9,7 +9,7 @@ use futures_timer::Delay;
 
 use crossterm::{
     cursor::position,
-    event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode},
+    event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode, MouseCaptureLevel},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
 };
@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
     enable_raw_mode()?;
 
     let mut stdout = stdout();
-    execute!(stdout, EnableMouseCapture)?;
+    execute!(stdout, EnableMouseCapture(MouseCaptureLevel::Drag))?;
 
     print_events().await;
 
