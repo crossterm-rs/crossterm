@@ -2,7 +2,7 @@
 
 use crossterm::{
     cursor::position,
-    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, MouseCaptureLevel},
+    event::{read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
 };
 use std::io::{self, Write};
@@ -11,7 +11,7 @@ fn test_event<W>(w: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {
-    execute!(w, EnableMouseCapture(MouseCaptureLevel::Drag))?;
+    execute!(w, EnableMouseCapture)?;
 
     loop {
         // Blocking read

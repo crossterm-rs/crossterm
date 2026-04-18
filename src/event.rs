@@ -32,7 +32,7 @@
 //! use crossterm::{
 //!     event::{
 //!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event, MouseCaptureLevel,
+//!         EnableFocusChange, EnableMouseCapture, Event,
 //!     },
 //!     execute,
 //! };
@@ -42,7 +42,7 @@
 //!          std::io::stdout(),
 //!          EnableBracketedPaste,
 //!          EnableFocusChange,
-//!          EnableMouseCapture(MouseCaptureLevel::Drag)
+//!          EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
@@ -75,7 +75,7 @@
 //! use crossterm::{
 //!     event::{
 //!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
-//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event, MouseCaptureLevel,
+//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
 //!     },
 //!     execute,
 //! };
@@ -85,7 +85,7 @@
 //!          std::io::stdout(),
 //!          EnableBracketedPaste,
 //!          EnableFocusChange,
-//!          EnableMouseCapture(MouseCaptureLevel::Drag)
+//!          EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
@@ -313,9 +313,9 @@ static ENABLED_MOUSE_CAPTURE_BITS: AtomicU8 = AtomicU8::new(0);
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct EnableMouseCapture(pub MouseCaptureLevel);
+pub struct EnableMouseCaptureLevel(pub MouseCaptureLevel);
 
-impl Command for EnableMouseCapture {
+impl Command for EnableMouseCaptureLevel {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         let new = self.0 as u8;
         let prev = ENABLED_MOUSE_CAPTURE_BITS.swap(new, Ordering::Relaxed);
@@ -358,6 +358,33 @@ impl Command for EnableMouseCapture {
             sys::windows::enable_mouse_capture()?;
         }
         Ok(())
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
+/// A command that enables mouse event capturing.
+///
+/// Shorthand for [`EnableMouseCaptureLevel`]`(`[`MouseCaptureLevel::Hover`]`)`; use
+/// [`EnableMouseCaptureLevel`] directly to request a lower level of reporting.
+///
+/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
+#[cfg(feature = "events")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableMouseCapture;
+
+#[cfg(feature = "events")]
+impl Command for EnableMouseCapture {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        EnableMouseCaptureLevel(MouseCaptureLevel::Hover).write_ansi(f)
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        EnableMouseCaptureLevel(MouseCaptureLevel::Hover).execute_winapi()
     }
 
     #[cfg(windows)]

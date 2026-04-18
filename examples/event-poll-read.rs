@@ -6,7 +6,7 @@ use std::{io, time::Duration};
 
 use crossterm::{
     cursor::position,
-    event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, MouseCaptureLevel},
+    event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
 };
@@ -49,7 +49,7 @@ fn main() -> io::Result<()> {
     enable_raw_mode()?;
 
     let mut stdout = io::stdout();
-    execute!(stdout, EnableMouseCapture(MouseCaptureLevel::Drag))?;
+    execute!(stdout, EnableMouseCapture)?;
 
     if let Err(e) = print_events() {
         println!("Error: {e:?}\r");
