@@ -358,7 +358,7 @@ impl Command for DisableMouseCapture {
     }
 }
 
-/// Advanced mouse commands for granular control.
+/// Advanced commands for granular control.
 #[cfg(feature = "events")]
 pub mod advanced {
     use crate::{csi, Command};
