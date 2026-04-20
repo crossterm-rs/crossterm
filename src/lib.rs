@@ -239,6 +239,9 @@
 
 pub use crate::command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate};
 
+/// A module to query and work with terminal colors.
+#[cfg(feature = "events")]
+pub mod colors;
 /// A module to work with the terminal cursor
 pub mod cursor;
 /// A module to read events.

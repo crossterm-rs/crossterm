@@ -1,11 +1,11 @@
 use std::io;
 
+use crate::colors::{ColorEntry, ColorScheme, ColorType};
+use crate::event::internal::InternalEvent;
 use crate::event::{
     Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
     MediaKeyCode, ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
 };
-
-use crate::event::internal::{ColorEntry, ColorScheme, ColorType, InternalEvent};
 
 // Event parsing
 //
