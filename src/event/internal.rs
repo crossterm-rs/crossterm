@@ -80,4 +80,7 @@ pub(crate) enum InternalEvent {
     /// The vec contains the `;`-separated parameters from `ESC [ ? … c`.
     #[cfg(unix)]
     PrimaryDeviceAttributes(Vec<u16>),
+    /// Kitty-format APC reply (`ESC _ G ... ESC \`).
+    #[cfg(unix)]
+    KittyGraphicsSupportResponse,
 }

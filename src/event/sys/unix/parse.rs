@@ -74,6 +74,7 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
+                    b'_' => parse_apc(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
@@ -866,6 +867,34 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> io::Result<Option<char>> {
     }
 }
 
+fn parse_apc(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // APC is `ESC _ ... ESC \` (ST).
+    assert!(buffer.starts_with(b"\x1B_"));
+
+    let mut i = 2;
+    let end = loop {
+        if i >= buffer.len() {
+            return Ok(None);
+        }
+        if buffer[i] == b'\x1B' {
+            if i + 1 >= buffer.len() {
+                return Ok(None);
+            }
+            if buffer[i + 1] == b'\\' {
+                break i + 2;
+            }
+        }
+        i += 1;
+    };
+
+    // Any `ESC _ G ...` response means the terminal supports Kitty graphics.
+    if end >= 4 && buffer[2] == b'G' {
+        Ok(Some(InternalEvent::KittyGraphicsSupportResponse))
+    } else {
+        Err(could_not_parse_event_error())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::event::{KeyEventState, KeyModifiers, MouseButton, MouseEvent};
@@ -1537,5 +1566,29 @@ mod tests {
     fn test_parse_csi_primary_device_attributes_malformed() {
         assert!(parse_csi_primary_device_attributes(b"\x1B[?abc").is_err());
         assert!(parse_csi_primary_device_attributes(b"\x1B[?99999999c").is_err());
+    }
+
+    #[test]
+    fn test_parse_apc_graphics_support_response() {
+        assert_eq!(
+            parse_event(b"\x1B_Gi=31;OK\x1B\\", false).unwrap(),
+            Some(InternalEvent::KittyGraphicsSupportResponse),
+        );
+        assert_eq!(
+            parse_event(b"\x1B_Gi=31;ENOENT:no such image\x1B\\", false).unwrap(),
+            Some(InternalEvent::KittyGraphicsSupportResponse),
+        );
+    }
+
+    #[test]
+    fn test_parse_apc_incomplete() {
+        assert_eq!(parse_event(b"\x1B_G", true).unwrap(), None);
+        assert_eq!(parse_event(b"\x1B_Gi=31;OK", true).unwrap(), None);
+        assert_eq!(parse_event(b"\x1B_Gi=31;OK\x1B", true).unwrap(), None);
+    }
+
+    #[test]
+    fn test_parse_apc_non_graphics_rejected() {
+        assert!(parse_event(b"\x1B_Xfoo\x1B\\", false).is_err());
     }
 }
