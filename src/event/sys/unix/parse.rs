@@ -74,6 +74,7 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
+                    b'P' => parse_dcs(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
@@ -866,6 +867,38 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> io::Result<Option<char>> {
     }
 }
 
+fn parse_dcs(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // DCS is `ESC P ... ESC \` (ST).
+    assert!(buffer.starts_with(b"\x1BP"));
+
+    let mut i = 2;
+    let end = loop {
+        if i >= buffer.len() {
+            return Ok(None);
+        }
+        if buffer[i] == b'\x1B' {
+            if i + 1 >= buffer.len() {
+                return Ok(None);
+            }
+            if buffer[i + 1] == b'\\' {
+                break i;
+            }
+        }
+        i += 1;
+    };
+
+    // XTVERSION response: `ESC P > | <version string> ESC \`
+    let payload = &buffer[2..end];
+    if let Some(version_bytes) = payload.strip_prefix(b">|") {
+        let version = std::str::from_utf8(version_bytes)
+            .map_err(|_| could_not_parse_event_error())?
+            .to_owned();
+        return Ok(Some(InternalEvent::XtVersionResponse(version)));
+    }
+
+    Err(could_not_parse_event_error())
+}
+
 #[cfg(test)]
 mod tests {
     use crate::event::{KeyEventState, KeyModifiers, MouseButton, MouseEvent};
@@ -1537,5 +1570,28 @@ mod tests {
     fn test_parse_csi_primary_device_attributes_malformed() {
         assert!(parse_csi_primary_device_attributes(b"\x1B[?abc").is_err());
         assert!(parse_csi_primary_device_attributes(b"\x1B[?99999999c").is_err());
+    }
+
+    #[test]
+    fn test_parse_dcs_xtversion() {
+        assert_eq!(
+            parse_event(b"\x1BP>|tmux 3.3\x1B\\", false).unwrap(),
+            Some(InternalEvent::XtVersionResponse("tmux 3.3".to_owned())),
+        );
+        assert_eq!(
+            parse_event(b"\x1BP>|kitty 0.36.4\x1B\\", false).unwrap(),
+            Some(InternalEvent::XtVersionResponse("kitty 0.36.4".to_owned())),
+        );
+    }
+
+    #[test]
+    fn test_parse_dcs_incomplete() {
+        assert_eq!(parse_event(b"\x1BP>|tmux 3.3", true).unwrap(), None);
+        assert_eq!(parse_event(b"\x1BP>|tmux 3.3\x1B", true).unwrap(), None);
+    }
+
+    #[test]
+    fn test_parse_dcs_unknown_rejected() {
+        assert!(parse_event(b"\x1BPXfoo\x1B\\", false).is_err());
     }
 }
