@@ -80,4 +80,10 @@ pub(crate) enum InternalEvent {
     /// The vec contains the `;`-separated parameters from `ESC [ ? … c`.
     #[cfg(unix)]
     PrimaryDeviceAttributes(Vec<u16>),
+    /// Window size in pixels (`CSI [ 4 ; height ; width t`).
+    #[cfg(unix)]
+    WindowPixelSize { width: u16, height: u16 },
+    /// Cell size in pixels (`CSI [ 6 ; height ; width t`).
+    #[cfg(unix)]
+    CellPixelSize { width: u16, height: u16 },
 }
