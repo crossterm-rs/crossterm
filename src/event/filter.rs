@@ -52,7 +52,10 @@ pub(crate) struct EventFilter;
 impl Filter for EventFilter {
     #[cfg(unix)]
     fn eval(&self, event: &InternalEvent) -> bool {
-        matches!(*event, InternalEvent::Event(_))
+        matches!(
+            *event,
+            InternalEvent::Event(_) | InternalEvent::ColorSchemeResponse(_)
+        )
     }
 
     #[cfg(windows)]
@@ -104,6 +107,9 @@ mod tests {
     #[test]
     fn test_event_filter_filters_events() {
         assert!(EventFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
+        assert!(EventFilter.eval(&InternalEvent::ColorSchemeResponse(
+            crate::colors::ColorScheme::Dark
+        )));
         assert!(!EventFilter.eval(&InternalEvent::CursorPosition(0, 0)));
     }
 
