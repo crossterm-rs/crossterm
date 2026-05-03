@@ -68,7 +68,7 @@ macro_rules! queue {
         use ::std::io::Write;
 
         // This allows the macro to take both mut impl Write and &mut impl Write.
-        Ok($writer.by_ref())
+        ::std::result::Result::Ok($writer.by_ref())
             $(.and_then(|writer| $crate::QueueableCommand::queue(writer, $command)))*
             .map(|_| ())
     }}
@@ -129,13 +129,20 @@ macro_rules! execute {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! impl_display {
+    (for $t:ident<T> where T: $bound:path) => {
+        impl<T: $bound> ::std::fmt::Display for $t<T> {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                $crate::command::execute_fmt(f, self)
+            }
+        }
+    };
     (for $($t:ty),+) => {
         $(impl ::std::fmt::Display for $t {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 $crate::command::execute_fmt(f, self)
             }
         })*
-    }
+    };
 }
 
 #[doc(hidden)]
