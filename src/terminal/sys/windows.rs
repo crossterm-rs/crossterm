@@ -48,11 +48,18 @@ pub(crate) fn disable_raw_mode() -> std::io::Result<()> {
 
     let dw_mode = console_mode.mode()?;
 
-    // Also clear ENABLE_VIRTUAL_TERMINAL_INPUT, which try_enable_vt_input() sets but
-    // the standard crossterm disable_raw_mode doesn't restore. Leaving it set causes
-    // parent shells that don't handle VT input sequences (e.g. nushell) to misinterpret
-    // keystrokes after arf exits.
-    let new_mode = (dw_mode | NOT_RAW_MODE_MASK) & !ENABLE_VIRTUAL_TERMINAL_INPUT;
+    let mut new_mode = dw_mode | NOT_RAW_MODE_MASK;
+
+    // Clear ENABLE_VIRTUAL_TERMINAL_INPUT only if this process enabled it via
+    // try_enable_vt_input() — i.e., it was absent in the saved original mode.
+    // This avoids clobbering the flag in environments where VT input was already
+    // active before we entered raw mode.
+    #[cfg(feature = "events")]
+    if let Ok(original) = crate::event::sys::windows::original_console_mode() {
+        if original & ENABLE_VIRTUAL_TERMINAL_INPUT == 0 {
+            new_mode &= !ENABLE_VIRTUAL_TERMINAL_INPUT;
+        }
+    }
 
     console_mode.set_mode(new_mode)?;
 
