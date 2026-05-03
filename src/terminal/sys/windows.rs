@@ -17,6 +17,9 @@ use crate::{
 /// bits which can't be set in raw mode
 const NOT_RAW_MODE_MASK: DWORD = ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT;
 
+// https://learn.microsoft.com/en-us/windows/console/setconsolemode
+const ENABLE_VIRTUAL_TERMINAL_INPUT: DWORD = 0x0200;
+
 pub(crate) fn is_raw_mode_enabled() -> std::io::Result<bool> {
     let console_mode = ConsoleMode::from(Handle::current_in_handle()?);
 
@@ -45,7 +48,11 @@ pub(crate) fn disable_raw_mode() -> std::io::Result<()> {
 
     let dw_mode = console_mode.mode()?;
 
-    let new_mode = dw_mode | NOT_RAW_MODE_MASK;
+    // Also clear ENABLE_VIRTUAL_TERMINAL_INPUT, which try_enable_vt_input() sets but
+    // the standard crossterm disable_raw_mode doesn't restore. Leaving it set causes
+    // parent shells that don't handle VT input sequences (e.g. nushell) to misinterpret
+    // keystrokes after arf exits.
+    let new_mode = (dw_mode | NOT_RAW_MODE_MASK) & !ENABLE_VIRTUAL_TERMINAL_INPUT;
 
     console_mode.set_mode(new_mode)?;
 
