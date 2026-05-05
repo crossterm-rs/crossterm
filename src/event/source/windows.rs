@@ -72,10 +72,10 @@ impl EventSource for WindowsEventSource {
                     // Process all available input records as a batch.
                     // Batch reading is essential for VT mode because ANSI escape
                     // sequences are spread across multiple KEY_EVENT records.
-                    // Note: `number` is read once before the loop. If the count
-                    // becomes stale (events added/removed concurrently), the last
-                    // read_single_input_event call may block briefly, but this is
-                    // unlikely in practice since we hold the console handle.
+                    // Note: `number` is read once before the loop. The count can
+                    // become stale while we process the batch, so don't rely on
+                    // `remaining > 0` alone to decide whether more bytes are
+                    // immediately available for ANSI parsing.
                     let mut remaining = number;
                     for _ in 0..number {
                         remaining -= 1;
@@ -93,7 +93,18 @@ impl EventSource for WindowsEventSource {
                                     {
                                         let mut buf = [0u8; 4];
                                         let encoded = ch.encode_utf8(&mut buf);
-                                        self.parser.advance(encoded.as_bytes(), remaining > 0);
+                                        // Preserve incomplete ANSI sequences (for example a
+                                        // trailing ESC from bracketed paste) across batch
+                                        // boundaries. If this is the last record in the current
+                                        // snapshot, probe the console queue once more before
+                                        // deciding that no additional bytes are pending.
+                                        let more_input_available = if remaining > 0 {
+                                            true
+                                        } else {
+                                            self.console.number_of_console_input_events()? > 0
+                                        };
+                                        self.parser
+                                            .advance(encoded.as_bytes(), more_input_available);
                                     }
                                 } else if !self.vt_input_enabled || record.u_char == 0 {
                                     // Non-VT fallback: use existing VK code handling.
