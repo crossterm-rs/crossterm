@@ -40,6 +40,18 @@ pub(crate) fn enable_raw_mode() -> std::io::Result<()> {
 
     console_mode.set_mode(new_mode)?;
 
+    // Re-enable VT input if this process originally enabled it.
+    // disable_raw_mode() clears ENABLE_VIRTUAL_TERMINAL_INPUT to restore the
+    // pre-crossterm console state; we must set it again each time we re-enter
+    // raw mode so that subsequent read_line() calls still receive VT sequences
+    // (e.g. bracketed paste markers) rather than falling back to VK codes.
+    #[cfg(feature = "events")]
+    if let Ok(original) = crate::event::sys::windows::original_console_mode() {
+        if original & ENABLE_VIRTUAL_TERMINAL_INPUT == 0 {
+            let _ = crate::event::sys::windows::try_enable_vt_input();
+        }
+    }
+
     Ok(())
 }
 
