@@ -108,6 +108,8 @@ impl Stream for EventStream {
             Ok(true) => match internal::read(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
                 Err(e) => Poll::Ready(Some(Err(e))),
+                // EventFilter::eval only returns true for Event(_), so internal::read
+                // with this filter can never return any other variant.
                 _ => unreachable!(),
             },
             Ok(false) => {

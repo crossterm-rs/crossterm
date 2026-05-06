@@ -230,6 +230,8 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
+        // EventFilter::eval only returns true for Event(_), so internal::read
+        // with this filter can never return any other variant.
         _ => unreachable!(),
     }
 }
@@ -259,6 +261,8 @@ pub fn try_read() -> Option<Event> {
     match internal::try_read(&EventFilter) {
         Some(InternalEvent::Event(event)) => Some(event),
         None => None,
+        // EventFilter::eval only returns true for Event(_), so internal::try_read
+        // with this filter can never return any other variant.
         _ => unreachable!(),
     }
 }
