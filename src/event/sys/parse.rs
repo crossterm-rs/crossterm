@@ -1621,6 +1621,40 @@ impl Parser {
     pub(crate) fn push_event(&mut self, event: InternalEvent) {
         self.internal_events.push_back(event);
     }
+
+    /// Attempt to emit any buffered bytes as a complete event with `more=false`.
+    ///
+    /// Call this after processing a batch that contained no VT key bytes to prevent
+    /// a lone ESC from being held indefinitely when the only pending console records
+    /// are non-key events (mouse, focus, resize).  The emitted event is prepended to
+    /// the queue so that temporal ordering is preserved: the ESC key press happened
+    /// before the interleaved mouse/focus events that caused the delay.
+    ///
+    /// If `parse_event` still returns `Ok(None)` with `more=false` (genuinely
+    /// incomplete multi-byte sequence such as `ESC [`), the buffer is left intact so
+    /// the remaining bytes can be completed by subsequent input.
+    #[allow(dead_code)]
+    pub(crate) fn flush(&mut self) {
+        if self.buffer.is_empty() {
+            return;
+        }
+        match parse_event(&self.buffer, false) {
+            Ok(Some(ie)) => {
+                // Prepend so the ESC appears before any non-key events that were
+                // push_back'd during the same batch.
+                self.internal_events.push_front(ie);
+                self.buffer.clear();
+            }
+            Ok(None) => {
+                // The sequence is genuinely incomplete even without more input (e.g.
+                // ESC + [ mid-CSI).  Leave the buffer alone; the next VT advance
+                // will continue accumulating bytes.
+            }
+            Err(_) => {
+                self.buffer.clear();
+            }
+        }
+    }
 }
 
 impl Iterator for Parser {

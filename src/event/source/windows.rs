@@ -77,11 +77,13 @@ impl EventSource for WindowsEventSource {
                     // `remaining > 0` alone to decide whether more bytes are
                     // immediately available for ANSI parsing.
                     let mut remaining = number;
+                    let mut vt_bytes_consumed = false;
                     for _ in 0..number {
                         remaining -= 1;
                         match self.console.read_single_input_event()? {
                             InputRecord::KeyEvent(record) => {
                                 if self.vt_input_enabled && record.u_char != 0 && record.key_down {
+                                    vt_bytes_consumed = true;
                                     // VT path: feed unicode character to ANSI parser as UTF-8.
                                     // With ENABLE_VIRTUAL_TERMINAL_INPUT, special keys produce
                                     // ANSI escape sequences as individual character bytes in
@@ -150,6 +152,14 @@ impl EventSource for WindowsEventSource {
                             }
                             _ => {}
                         }
+                    }
+
+                    // If no VT bytes were consumed in this batch (only mouse/focus/resize
+                    // records), flush any lone ESC from the parser buffer.  Without this,
+                    // a trailing ESC that was held with more=true can remain stuck
+                    // indefinitely when interleaved non-key events keep the queue non-empty.
+                    if !vt_bytes_consumed {
+                        self.parser.flush();
                     }
 
                     // Return first available event from the batch
