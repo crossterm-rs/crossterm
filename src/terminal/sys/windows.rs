@@ -75,7 +75,13 @@ pub(crate) fn enable_raw_mode() -> std::io::Result<()> {
     let original: Option<DWORD> = None;
 
     let new_mode = compute_enable_raw_mode(dw_mode, original);
-    console_mode.set_mode(new_mode)
+    // ENABLE_VIRTUAL_TERMINAL_INPUT may be unsupported on legacy consoles.
+    // If the combined set_mode call fails, retry without the VT bit so raw
+    // mode is always entered; VT input is treated as best-effort.
+    if console_mode.set_mode(new_mode).is_err() {
+        console_mode.set_mode(new_mode & !ENABLE_VIRTUAL_TERMINAL_INPUT)?;
+    }
+    Ok(())
 }
 
 pub(crate) fn disable_raw_mode() -> std::io::Result<()> {

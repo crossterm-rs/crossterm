@@ -154,11 +154,14 @@ impl EventSource for WindowsEventSource {
                         }
                     }
 
-                    // If no VT bytes were consumed in this batch (only mouse/focus/resize
-                    // records), flush any lone ESC from the parser buffer.  Without this,
-                    // a trailing ESC that was held with more=true can remain stuck
-                    // indefinitely when interleaved non-key events keep the queue non-empty.
-                    if !vt_bytes_consumed {
+                    // Flush any lone ESC (or other stalled sequence) from the parser buffer:
+                    //   1. No VT bytes in this batch at all: the ESC was written in a
+                    //      previous batch and held because the queue appeared non-empty;
+                    //      now the remaining queue entries are all non-key events, so flush.
+                    //   2. VT bytes were consumed but the console queue is now empty: the
+                    //      buffered sequence won't be completed by a subsequent batch, so
+                    //      force-emit it rather than leaving it stuck indefinitely.
+                    if !vt_bytes_consumed || self.console.number_of_console_input_events()? == 0 {
                         self.parser.flush();
                     }
 

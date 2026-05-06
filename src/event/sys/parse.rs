@@ -1688,3 +1688,63 @@ pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) 
         std::char::from_u32(utf16 as u32)
     }
 }
+
+#[cfg(test)]
+mod parser_flush_tests {
+    use super::*;
+    use crate::event::{Event, KeyCode};
+
+    fn esc_event() -> InternalEvent {
+        InternalEvent::Event(Event::Key(KeyCode::Esc.into()))
+    }
+
+    fn focus_gained_event() -> InternalEvent {
+        InternalEvent::Event(Event::FocusGained)
+    }
+
+    // Case 1: lone ESC held with more=true is emitted by flush().
+    #[test]
+    fn test_flush_emits_lone_esc() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held: more=true
+        assert!(p.next().is_none(), "ESC must not be emitted before flush");
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+    }
+
+    // Case 2: ESC + non-VT event (same batch) — flush puts ESC before the non-VT event.
+    #[test]
+    fn test_flush_esc_before_non_vt_event() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held
+        p.push_event(focus_gained_event()); // simulates a non-VT record processed later
+        p.flush(); // should prepend ESC
+        assert_eq!(
+            p.next(),
+            Some(esc_event()),
+            "ESC must appear before FocusGained"
+        );
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert!(p.next().is_none());
+    }
+
+    // Case 3: ESC + '[' (partial CSI) must NOT be flushed — it's genuinely incomplete.
+    #[test]
+    fn test_flush_preserves_incomplete_csi() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B[", true); // CSI intro, incomplete
+        p.flush(); // must not emit anything
+        assert!(
+            p.next().is_none(),
+            "incomplete CSI must stay buffered after flush"
+        );
+    }
+
+    // flush() on empty buffer is a no-op (must not panic).
+    #[test]
+    fn test_flush_empty_buffer_is_noop() {
+        let mut p = Parser::default();
+        p.flush();
+        assert!(p.next().is_none());
+    }
+}
