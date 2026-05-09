@@ -56,6 +56,8 @@
 //!     [`ResetColor`](style/struct.ResetColor.html), [`SetColors`](style/struct.SetColors.html)
 //!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html), [`SetAttributes`](style/struct.SetAttributes.html),
 //!     [`PrintStyledContent`](style/struct.PrintStyledContent.html)
+//!   - Hyperlinks - [`StartHyperlink`](style/struct.StartHyperlink.html),
+//!     [`EndHyperlink`](style/struct.EndHyperlink.html)
 //! - Module [`terminal`](terminal/index.html)
 //!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)

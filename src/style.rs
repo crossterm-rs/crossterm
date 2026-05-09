@@ -122,6 +122,7 @@ use crate::{csi, impl_display, Command};
 pub use self::{
     attributes::Attributes,
     content_style::ContentStyle,
+    hyperlink::{EndHyperlink, StartHyperlink},
     styled_content::StyledContent,
     stylize::Stylize,
     types::{Attribute, Color, Colored, Colors},
@@ -129,6 +130,7 @@ pub use self::{
 
 mod attributes;
 mod content_style;
+mod hyperlink;
 mod styled_content;
 mod stylize;
 mod sys;
