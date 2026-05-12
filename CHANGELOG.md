@@ -1,5 +1,9 @@
 # Unreleased
 
+## Fixed 🐛
+
+- Drain tty fd to `WouldBlock` so large pastes don't stall under edge-triggered epoll (#1057)
+
 # Version 0.29
 
 ## Added ⭐

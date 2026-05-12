@@ -93,6 +93,9 @@ impl EventSource for UnixInternalEventSource {
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
+                        // mio uses edge-triggered epoll on Linux; drain to
+                        // WouldBlock before returning, or buffered bytes
+                        // stay unread until the next edge.
                         loop {
                             match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
@@ -101,6 +104,10 @@ impl EventSource for UnixInternalEventSource {
                                             &self.tty_buffer[..read_count],
                                             read_count == TTY_BUFFER_SIZE,
                                         );
+                                    }
+                                    if read_count < TTY_BUFFER_SIZE {
+                                        // Short read on a tty: nothing more buffered.
+                                        break;
                                     }
                                 }
                                 Err(e) => {
@@ -114,10 +121,10 @@ impl EventSource for UnixInternalEventSource {
                                     }
                                 }
                             };
+                        }
 
-                            if let Some(event) = self.parser.next() {
-                                return Ok(Some(event));
-                            }
+                        if let Some(event) = self.parser.next() {
+                            return Ok(Some(event));
                         }
                     }
                     SIGNAL_TOKEN => {
