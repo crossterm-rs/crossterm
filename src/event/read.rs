@@ -367,7 +367,7 @@ mod tests {
             reader
                 .poll(Some(Duration::from_secs(0)), &InternalEventFilter)
                 .err()
-                .map(|e| format!("{:?}", &e.kind())),
+                .map(|e| format!("{:?}", e.kind())),
             Some(format!("{:?}", io::ErrorKind::Other))
         );
     }
@@ -384,7 +384,7 @@ mod tests {
             reader
                 .read(&InternalEventFilter)
                 .err()
-                .map(|e| format!("{:?}", &e.kind())),
+                .map(|e| format!("{:?}", e.kind())),
             Some(format!("{:?}", io::ErrorKind::Other))
         );
     }
