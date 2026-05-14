@@ -20,7 +20,7 @@ use crate::event::internal::InternalEvent;
 //
 
 fn could_not_parse_event_error() -> io::Error {
-    io::Error::new(io::ErrorKind::Other, "Could not parse an event.")
+    io::Error::other("Could not parse an event.")
 }
 
 pub(crate) fn parse_event(
