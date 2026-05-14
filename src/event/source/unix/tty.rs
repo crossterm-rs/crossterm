@@ -123,7 +123,7 @@ impl EventSource for UnixInternalEventSource {
             make_pollfd(&self.wake_pipe.receiver),
         ];
 
-        while timeout.leftover().map_or(true, |t| !t.is_zero()) {
+        while timeout.leftover().is_none_or(|t| !t.is_zero()) {
             // check if there are buffered events from the last read
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
