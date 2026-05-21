@@ -1,3 +1,5 @@
+pub(crate) mod parser;
+
 #[cfg(feature = "use-dev-tty")]
 pub(crate) mod tty;
 
