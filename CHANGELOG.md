@@ -1,5 +1,9 @@
 # Unreleased
 
+## Added ⭐
+
+- Configurable bracketed-paste limits via `set_bracketed_paste_limits` and `bracketed_paste_limits`. Paste accumulation can now be bounded by wall-clock duration and/or byte count; on overflow, the inflight buffer is discarded and a new `Event::PasteAborted` is emitted. Both bounds default to `None`, so existing behaviour is unchanged unless the caller opts in. Fixes terminal hangs when the closing `\x1B[201~` marker never arrives (e.g. tmux pane swaps).
+
 # Version 0.29
 
 ## Added ⭐
