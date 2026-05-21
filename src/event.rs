@@ -53,6 +53,10 @@
 //!             Event::Mouse(event) => println!("{:?}", event),
 //!             #[cfg(feature = "bracketed-paste")]
 //!             Event::Paste(data) => println!("{:?}", data),
+//!             #[cfg(feature = "bracketed-paste")]
+//!             Event::PasteAborted { reason, buffered_bytes } => {
+//!                 println!("PasteAborted: {:?}, {} bytes lost", reason, buffered_bytes.len())
+//!             }
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!         }
 //!     }
@@ -99,6 +103,10 @@
 //!                 Event::Mouse(event) => println!("{:?}", event),
 //!                 #[cfg(feature = "bracketed-paste")]
 //!                 Event::Paste(data) => println!("Pasted {:?}", data),
+//!                 #[cfg(feature = "bracketed-paste")]
+//!                 Event::PasteAborted { reason, buffered_bytes } => {
+//!                     println!("PasteAborted: {:?}, {} bytes lost", reason, buffered_bytes.len())
+//!                 }
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!             }
 //!         } else {
@@ -436,6 +444,99 @@ impl Command for DisableBracketedPaste {
     }
 }
 
+/// Limits applied to inflight bracketed pastes.
+///
+/// When bracketed paste mode is enabled, crossterm accumulates every byte received between
+/// the opening `ESC [ 200 ~` and closing `ESC [ 201 ~` markers into a single [`Event::Paste`].
+/// If the closing marker never arrives (e.g. the terminal lied about supporting
+/// bracketed paste, a tmux pane swap dropped it, etc.), the parser will buffer
+/// keystrokes indefinitely and the application will appear hung.
+///
+/// `BracketedPasteLimits` installs upper bounds on how long an unfinished paste may last
+/// and how many bytes it may accumulate. When either bound is exceeded, the inflight
+/// buffer is discarded and an [`Event::PasteAborted`] is emitted, allowing the
+/// application to recover and continue receiving normal input.
+///
+/// Both fields default to `None`, meaning no limits are imposed by default.
+/// Applications may configure global limits via [`set_bracketed_paste_limits`].
+///
+/// The limits are evaluated lazily when the next byte is processed, so a paste that
+/// stalls completely will only abort once additional input arrives.
+#[cfg(feature = "bracketed-paste")]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct BracketedPasteLimits {
+    /// Maximum wall-clock duration between the opening `ESC [ 200 ~` marker and the
+    /// closing `ESC [ 201 ~` marker. `None` disables the timeout.
+    pub max_duration: Option<Duration>,
+    /// Maximum number of bytes that may accumulate inside a single bracketed paste,
+    /// counting the `ESC [ 200 ~` prefix. `None` disables the limit.
+    pub max_bytes: Option<usize>,
+}
+
+/// Reason an inflight bracketed paste was aborted by crossterm.
+#[cfg(feature = "bracketed-paste")]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum PasteAbortReason {
+    /// The paste exceeded [`BracketedPasteLimits::max_duration`].
+    Timeout,
+    /// The paste exceeded [`BracketedPasteLimits::max_bytes`].
+    SizeLimit,
+}
+
+#[cfg(feature = "bracketed-paste")]
+mod paste_limits {
+    use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+    use std::time::Duration;
+
+    use super::BracketedPasteLimits;
+
+    /// Sentinel meaning "no limit configured".
+    const NO_DURATION: u64 = u64::MAX;
+    const NO_BYTES: usize = usize::MAX;
+
+    static MAX_DURATION_MILLIS: AtomicU64 = AtomicU64::new(NO_DURATION);
+    static MAX_BYTES: AtomicUsize = AtomicUsize::new(NO_BYTES);
+
+    pub(crate) fn store(limits: BracketedPasteLimits) {
+        let millis = limits
+            .max_duration
+            .and_then(|d| u64::try_from(d.as_millis()).ok())
+            .unwrap_or(NO_DURATION);
+        MAX_DURATION_MILLIS.store(millis, Ordering::Relaxed);
+        MAX_BYTES.store(limits.max_bytes.unwrap_or(NO_BYTES), Ordering::Relaxed);
+    }
+
+    pub(crate) fn load() -> BracketedPasteLimits {
+        let millis = MAX_DURATION_MILLIS.load(Ordering::Relaxed);
+        let bytes = MAX_BYTES.load(Ordering::Relaxed);
+        BracketedPasteLimits {
+            max_duration: (millis != NO_DURATION).then(|| Duration::from_millis(millis)),
+            max_bytes: (bytes != NO_BYTES).then_some(bytes),
+        }
+    }
+}
+
+/// Installs a set of [`BracketedPasteLimits`] used by the bracketed-paste parser.
+///
+/// These limits are global and apply to every [`read`], [`poll`], and [`EventStream`] caller.
+/// Calling this function replaces any previously installed limits.
+/// Pass `BracketedPasteLimits::default()` to clear all limits.
+///
+/// Limit checks run on the parser's input path and are essentially free when no
+/// paste is in progress, so the function is safe to call from any thread at any time.
+#[cfg(feature = "bracketed-paste")]
+pub fn set_bracketed_paste_limits(limits: BracketedPasteLimits) {
+    paste_limits::store(limits);
+}
+
+/// Returns the currently installed [`BracketedPasteLimits`].
+#[cfg(feature = "bracketed-paste")]
+pub fn bracketed_paste_limits() -> BracketedPasteLimits {
+    paste_limits::load()
+}
+
 /// A command that enables the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/), which adds extra information to keyboard events and removes ambiguity for modifier keys.
 ///
 /// It should be paired with [`PopKeyboardEnhancementFlags`] at the end of execution.
@@ -544,6 +645,23 @@ pub enum Event {
     /// enabled.
     #[cfg(feature = "bracketed-paste")]
     Paste(String),
+    /// A bracketed paste that was aborted before its closing marker arrived because the
+    /// configured [`BracketedPasteLimits`] were exceeded.
+    ///
+    /// Carries the reason for the abort along with the bytes that had been buffered for
+    /// the inflight paste, including the opening `ESC [ 200 ~` prefix.
+    ///
+    /// Only emitted if bracketed paste has been enabled and configured with limits via
+    /// [`set_bracketed_paste_limits`].
+    #[cfg(feature = "bracketed-paste")]
+    PasteAborted {
+        /// Why the paste was aborted.
+        reason: PasteAbortReason,
+        /// The bytes that had been buffered for the now-discarded inflight paste,
+        /// including the leading `ESC [ 200 ~` prefix. The application may inspect or
+        /// salvage them; crossterm itself will not.
+        buffered_bytes: Vec<u8>,
+    },
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
