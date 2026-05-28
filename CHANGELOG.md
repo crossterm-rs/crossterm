@@ -1,5 +1,9 @@
 # Unreleased
 
+## Fixed 🐛
+
+- `cursor::position()` on Unix now writes the CSI 6n query to stderr or `/dev/tty` when stdout is redirected, so it no longer corrupts piped output and works when stdout is not a TTY (#652)
+
 # Version 0.29
 
 ## Added ⭐
