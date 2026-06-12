@@ -62,6 +62,7 @@
 //!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
+//!     [`SetProgress`](terminal/enum.SetProgress.html),
 //!     [`SetSize`](terminal/struct.SetSize.html),
 //!     [`SetTitle`](terminal/struct.SetTitle.html),
 //!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
