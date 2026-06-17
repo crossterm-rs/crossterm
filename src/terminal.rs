@@ -387,7 +387,7 @@ pub struct SetTitle<T>(pub T);
 
 impl<T: fmt::Display> Command for SetTitle<T> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, "\x1B]0;{}\x07", &self.0)
+        write!(f, "\x1B]0;{}\x07", self.0)
     }
 
     #[cfg(windows)]

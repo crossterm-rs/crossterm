@@ -1,5 +1,12 @@
 # Unreleased
 
+## Fixed 🐛
+
+- Fix integer underflow in mouse / cursor-position parsers when coord
+  bytes encoded the protocol origin (panic in debug, wrap to 65535
+  in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
+  `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+
 # Version 0.29
 
 ## Added ⭐
