@@ -1,5 +1,5 @@
 use std::{
-    io::{self, Error, ErrorKind, Write},
+    io::{self, Error, ErrorKind},
     time::Duration,
 };
 
@@ -40,10 +40,8 @@ fn read_position_raw() -> io::Result<(u16, u16)> {
         let _ = internal::read(&CursorPositionFilter);
     }
 
-    // Use `ESC [ 6 n` to and retrieve the cursor position.
-    let mut stdout = io::stdout();
-    stdout.write_all(b"\x1B[6n")?;
-    stdout.flush()?;
+    // Use `ESC [ 6 n` to retrieve the cursor position.
+    crate::event::write_query(b"\x1B[6n")?;
 
     loop {
         match internal::poll(Some(Duration::from_millis(2000)), &CursorPositionFilter) {

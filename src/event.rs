@@ -265,6 +265,19 @@ pub fn try_read() -> Option<Event> {
     }
 }
 
+/// Writes a terminal query. Avoids writing to stdout when `use-dev-tty` is enabled since it may be piped.
+#[cfg(unix)]
+pub(crate) fn write_query(bytes: &[u8]) -> std::io::Result<()> {
+    use std::io::Write;
+    #[cfg(feature = "use-dev-tty")]
+    let mut out = std::fs::OpenOptions::new().write(true).open("/dev/tty")?;
+    #[cfg(not(feature = "use-dev-tty"))]
+    let mut out = std::io::stdout();
+    out.write_all(bytes)?;
+    out.flush()?;
+    Ok(())
+}
+
 bitflags! {
     /// Represents special flags that tell compatible terminals to add extra information to keyboard events.
     ///
