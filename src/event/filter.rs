@@ -30,7 +30,7 @@ impl Filter for KeyboardEnhancementFlagsFilter {
         // progressive keyboard enhancement.
         matches!(
             *event,
-            InternalEvent::KeyboardEnhancementFlags(_) | InternalEvent::PrimaryDeviceAttributes
+            InternalEvent::KeyboardEnhancementFlags(_) | InternalEvent::PrimaryDeviceAttributes(_)
         )
     }
 }
@@ -42,7 +42,7 @@ pub(crate) struct PrimaryDeviceAttributesFilter;
 #[cfg(unix)]
 impl Filter for PrimaryDeviceAttributesFilter {
     fn eval(&self, event: &InternalEvent) -> bool {
-        matches!(*event, InternalEvent::PrimaryDeviceAttributes)
+        matches!(*event, InternalEvent::PrimaryDeviceAttributes(_))
     }
 }
 
@@ -92,13 +92,13 @@ mod tests {
                 crate::event::KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
             ))
         );
-        assert!(KeyboardEnhancementFlagsFilter.eval(&InternalEvent::PrimaryDeviceAttributes));
+        assert!(KeyboardEnhancementFlagsFilter.eval(&InternalEvent::PrimaryDeviceAttributes(vec![])));
     }
 
     #[test]
     fn test_primary_device_attributes_filter_filters_primary_device_attributes() {
         assert!(!PrimaryDeviceAttributesFilter.eval(&InternalEvent::Event(Event::Resize(10, 10))));
-        assert!(PrimaryDeviceAttributesFilter.eval(&InternalEvent::PrimaryDeviceAttributes));
+        assert!(PrimaryDeviceAttributesFilter.eval(&InternalEvent::PrimaryDeviceAttributes(vec![])));
     }
 
     #[test]

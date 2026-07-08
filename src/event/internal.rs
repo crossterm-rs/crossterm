@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 
+#[cfg(all(unix, feature = "events"))]
+use crate::colors::{ColorEntry, ColorScheme};
 #[cfg(unix)]
 use crate::event::KeyboardEnhancementFlags;
 use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeout, Event};
@@ -76,6 +78,14 @@ pub(crate) enum InternalEvent {
     #[cfg(unix)]
     KeyboardEnhancementFlags(KeyboardEnhancementFlags),
     /// Attributes and architectural class of the terminal.
+    ///
+    /// The vec contains the `;`-separated parameters from `ESC [ ? … c`.
     #[cfg(unix)]
-    PrimaryDeviceAttributes,
+    PrimaryDeviceAttributes(Vec<u16>),
+    /// A color (`OSC 4` palette or `OSC 10..=19` dynamic) reported by the terminal.
+    #[cfg(all(unix, feature = "events"))]
+    ColorResponse(ColorEntry),
+    /// The terminal's color scheme (`CSI ? 997 ; {1,2} n`).
+    #[cfg(all(unix, feature = "events"))]
+    ColorSchemeResponse(ColorScheme),
 }
