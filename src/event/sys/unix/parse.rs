@@ -202,6 +202,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
                         b'~' => return parse_csi_special_key_code(buffer),
                         b'u' => return parse_csi_u_encoded_key_code(buffer),
                         b'R' => return parse_csi_cursor_position(buffer),
+                        b't' => return parse_csi_window_size_response(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
                 }
@@ -256,6 +257,28 @@ pub(crate) fn parse_csi_cursor_position(buffer: &[u8]) -> io::Result<Option<Inte
     Ok(Some(InternalEvent::CursorPosition(x, y)))
 }
 
+fn parse_csi_window_size_response(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // ESC [ kind ; height ; width t
+    //   kind 4 = window size in pixels (response to CSI 14 t)
+    //   kind 6 = cell  size in pixels (response to CSI 16 t)
+    assert!(buffer.starts_with(b"\x1B["));
+    assert!(buffer.ends_with(b"t"));
+
+    let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let mut split = s.split(';');
+    let kind = next_parsed::<u16>(&mut split)?;
+    let height = next_parsed::<u16>(&mut split)?;
+    let width = next_parsed::<u16>(&mut split)?;
+
+    match kind {
+        4 => Ok(Some(InternalEvent::WindowPixelSize { width, height })),
+        6 => Ok(Some(InternalEvent::CellPixelSize { width, height })),
+        _ => Err(could_not_parse_event_error()),
+    }
+}
+
 fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     // ESC [ ? flags u
     assert!(buffer.starts_with(b"\x1B[?")); // ESC [ ?
@@ -289,15 +312,20 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
 }
 
 fn parse_csi_primary_device_attributes(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
+    // ESC [ ? attr1 ; attr2 ; ... ; attrn c
     assert!(buffer.starts_with(b"\x1B[?"));
     assert!(buffer.ends_with(b"c"));
 
-    // This is a stub for parsing the primary device attributes. This response is not
-    // exposed in the crossterm API so we don't need to parse the individual attributes yet.
-    // See <https://vt100.net/docs/vt510-rm/DA1.html>
+    let s = std::str::from_utf8(&buffer[3..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
 
-    Ok(Some(InternalEvent::PrimaryDeviceAttributes))
+    let params: Vec<u16> = s
+        .split(';')
+        .filter(|p| !p.is_empty())
+        .map(|p| p.parse::<u16>().map_err(|_| could_not_parse_event_error()))
+        .collect::<io::Result<Vec<u16>>>()?;
+
+    Ok(Some(InternalEvent::PrimaryDeviceAttributes(params)))
 }
 
 fn parse_modifiers(mask: u8) -> KeyModifiers {
@@ -1586,5 +1614,62 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_empty() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_multi() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?64;1;2;6;9;15;22c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![64, 1, 2, 6, 9, 15, 22])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_trailing_semicolon() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?1;2;c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![1, 2])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_malformed() {
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?abc").is_err());
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?99999999c").is_err());
+    }
+
+    #[test]
+    fn test_parse_csi_window_pixel_size_response() {
+        assert_eq!(
+            parse_event(b"\x1B[4;480;640t", false).unwrap(),
+            Some(InternalEvent::WindowPixelSize {
+                width: 640,
+                height: 480
+            }),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_cell_pixel_size_response() {
+        assert_eq!(
+            parse_event(b"\x1B[6;20;10t", false).unwrap(),
+            Some(InternalEvent::CellPixelSize {
+                width: 10,
+                height: 20
+            }),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_window_size_unknown_kind_rejected() {
+        assert!(parse_event(b"\x1B[8;24;80t", false).is_err());
     }
 }

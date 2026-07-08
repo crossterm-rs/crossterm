@@ -507,6 +507,120 @@ impl_display!(for ScrollDown);
 impl_display!(for SetSize);
 impl_display!(for Clear);
 
+/// A pixel-dimension response from the terminal.
+#[cfg(all(unix, feature = "events"))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PixelSize {
+    pub width: u16,
+    pub height: u16,
+}
+
+/// Query for the window size in pixels (`CSI 14 t`).
+///
+/// The terminal responds with `CSI 4 ; height ; width t`. Returns `None` if
+/// the terminal does not respond.
+///
+/// Use with [`QueryBatch`](crate::query::QueryBatch):
+///
+/// ```no_run
+/// # #[cfg(unix)] {
+/// use crossterm::terminal::QueryWindowPixelSize;
+/// use crossterm::query::QueryBatch;
+///
+/// let mut batch = QueryBatch::new();
+/// let win = batch.add(QueryWindowPixelSize);
+/// let results = batch.execute()?;
+/// println!("window pixels: {:?}", results.get(&win)?);
+/// # }
+/// # Ok::<(), std::io::Error>(())
+/// ```
+#[cfg(all(unix, feature = "events"))]
+#[derive(Clone)]
+pub struct QueryWindowPixelSize;
+
+#[cfg(all(unix, feature = "events"))]
+#[allow(private_interfaces)]
+impl crate::query::TerminalQuery for QueryWindowPixelSize {
+    type Response = Option<PixelSize>;
+
+    fn query_bytes(&self) -> Vec<u8> {
+        b"\x1B[14t".to_vec()
+    }
+
+    fn matches(&self, event: &crate::event::internal::InternalEvent) -> bool {
+        matches!(
+            event,
+            crate::event::internal::InternalEvent::WindowPixelSize { .. }
+        )
+    }
+
+    fn extract(
+        &self,
+        event: Option<crate::event::internal::InternalEvent>,
+    ) -> std::io::Result<Option<PixelSize>> {
+        match event {
+            Some(crate::event::internal::InternalEvent::WindowPixelSize { width, height }) => {
+                Ok(Some(PixelSize { width, height }))
+            }
+            None => Ok(None),
+            _ => unreachable!(),
+        }
+    }
+}
+
+/// Query for the cell size in pixels (`CSI 16 t`).
+///
+/// The terminal responds with `CSI 6 ; height ; width t`. Returns `None` if
+/// the terminal does not respond.
+///
+/// Use with [`QueryBatch`](crate::query::QueryBatch):
+///
+/// ```no_run
+/// # #[cfg(unix)] {
+/// use crossterm::terminal::QueryCellPixelSize;
+/// use crossterm::query::QueryBatch;
+///
+/// let mut batch = QueryBatch::new();
+/// let cell = batch.add(QueryCellPixelSize);
+/// let results = batch.execute()?;
+/// println!("cell pixels: {:?}", results.get(&cell)?);
+/// # }
+/// # Ok::<(), std::io::Error>(())
+/// ```
+#[cfg(all(unix, feature = "events"))]
+#[derive(Clone)]
+pub struct QueryCellPixelSize;
+
+#[cfg(all(unix, feature = "events"))]
+#[allow(private_interfaces)]
+impl crate::query::TerminalQuery for QueryCellPixelSize {
+    type Response = Option<PixelSize>;
+
+    fn query_bytes(&self) -> Vec<u8> {
+        b"\x1B[16t".to_vec()
+    }
+
+    fn matches(&self, event: &crate::event::internal::InternalEvent) -> bool {
+        matches!(
+            event,
+            crate::event::internal::InternalEvent::CellPixelSize { .. }
+        )
+    }
+
+    fn extract(
+        &self,
+        event: Option<crate::event::internal::InternalEvent>,
+    ) -> std::io::Result<Option<PixelSize>> {
+        match event {
+            Some(crate::event::internal::InternalEvent::CellPixelSize { width, height }) => {
+                Ok(Some(PixelSize { width, height }))
+            }
+            None => Ok(None),
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::{io::stdout, thread, time};
