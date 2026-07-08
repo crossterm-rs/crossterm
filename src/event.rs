@@ -54,6 +54,8 @@
 //!             #[cfg(feature = "bracketed-paste")]
 //!             Event::Paste(data) => println!("{:?}", data),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!             #[cfg(all(unix, feature = "events"))]
+//!             Event::ColorSchemeChanged(scheme) => println!("{:?}", scheme),
 //!         }
 //!     }
 //!     execute!(
@@ -100,6 +102,8 @@
 //!                 #[cfg(feature = "bracketed-paste")]
 //!                 Event::Paste(data) => println!("Pasted {:?}", data),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!                 #[cfg(all(unix, feature = "events"))]
+//!                 Event::ColorSchemeChanged(scheme) => println!("{:?}", scheme),
 //!             }
 //!         } else {
 //!             // Timeout expired and no `Event` is available
@@ -132,6 +136,8 @@ use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
+#[cfg(all(unix, feature = "events"))]
+use crate::colors::ColorScheme;
 use crate::{
     csi,
     event::{filter::EventFilter, internal::InternalEvent},
@@ -230,6 +236,8 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
+        #[cfg(all(unix, feature = "events"))]
+        InternalEvent::ColorSchemeResponse(scheme) => Ok(Event::ColorSchemeChanged(scheme)),
         #[cfg(unix)]
         _ => unreachable!(),
     }
@@ -259,10 +267,27 @@ pub fn read() -> std::io::Result<Event> {
 pub fn try_read() -> Option<Event> {
     match internal::try_read(&EventFilter) {
         Some(InternalEvent::Event(event)) => Some(event),
+        #[cfg(all(unix, feature = "events"))]
+        Some(InternalEvent::ColorSchemeResponse(scheme)) => {
+            Some(Event::ColorSchemeChanged(scheme))
+        }
         None => None,
         #[cfg(unix)]
         _ => unreachable!(),
     }
+}
+
+/// Writes a terminal query. Avoids writing to stdout when `use-dev-tty` is enabled since it may be piped.
+#[cfg(unix)]
+pub(crate) fn write_query(bytes: &[u8]) -> std::io::Result<()> {
+    use std::io::Write;
+    #[cfg(feature = "use-dev-tty")]
+    let mut out = std::fs::OpenOptions::new().write(true).open("/dev/tty")?;
+    #[cfg(not(feature = "use-dev-tty"))]
+    let mut out = std::io::stdout();
+    out.write_all(bytes)?;
+    out.flush()?;
+    Ok(())
 }
 
 bitflags! {
@@ -390,6 +415,45 @@ impl Command for DisableFocusChange {
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
         // Focus events can't be disabled on Windows
+        Ok(())
+    }
+}
+
+/// A command that enables color scheme change notifications via DEC mode `?2031`.
+///
+/// While enabled, the terminal sends a `CSI ? 997 ; {1,2} n` report whenever the
+/// color scheme changes. Crossterm surfaces these as
+/// [`Event::ColorSchemeChanged`].
+///
+/// It should be paired with [`DisableColorSchemeDetection`] at the end of execution.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableColorSchemeDetection;
+
+impl Command for EnableColorSchemeDetection {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2031h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            "Color scheme detection not implemented in the legacy Windows API.",
+        ))
+    }
+}
+
+/// A command that disables color scheme change notifications.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableColorSchemeDetection;
+
+impl Command for DisableColorSchemeDetection {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?2031l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
@@ -547,6 +611,10 @@ pub enum Event {
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+    /// The terminal's color scheme changed. Only emitted while
+    /// [`EnableColorSchemeDetection`] is active.
+    #[cfg(all(unix, feature = "events"))]
+    ColorSchemeChanged(ColorScheme),
 }
 
 impl Event {

@@ -74,6 +74,7 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
+                    b']' => parse_osc(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
@@ -180,6 +181,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
         b'?' => match buffer[buffer.len() - 1] {
             b'u' => return parse_csi_keyboard_enhancement_flags(buffer),
             b'c' => return parse_csi_primary_device_attributes(buffer),
+            b'n' => return parse_csi_color_scheme_response(buffer),
             _ => None,
         },
         b'0'..=b'9' => {
@@ -289,15 +291,126 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
 }
 
 fn parse_csi_primary_device_attributes(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
+    // ESC [ ? attr1 ; attr2 ; ... ; attrn c
     assert!(buffer.starts_with(b"\x1B[?"));
     assert!(buffer.ends_with(b"c"));
 
-    // This is a stub for parsing the primary device attributes. This response is not
-    // exposed in the crossterm API so we don't need to parse the individual attributes yet.
-    // See <https://vt100.net/docs/vt510-rm/DA1.html>
+    let s = std::str::from_utf8(&buffer[3..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
 
-    Ok(Some(InternalEvent::PrimaryDeviceAttributes))
+    let params: Vec<u16> = s
+        .split(';')
+        .filter(|p| !p.is_empty())
+        .map(|p| p.parse::<u16>().map_err(|_| could_not_parse_event_error()))
+        .collect::<io::Result<Vec<u16>>>()?;
+
+    Ok(Some(InternalEvent::PrimaryDeviceAttributes(params)))
+}
+
+fn parse_csi_color_scheme_response(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // CSI ? 997 ; 1 n  (dark)
+    // CSI ? 997 ; 2 n  (light)
+    assert!(buffer.starts_with(b"\x1B[?"));
+    assert!(buffer.ends_with(b"n"));
+
+    let s = std::str::from_utf8(&buffer[3..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let mut split = s.split(';');
+
+    let code = next_parsed::<u16>(&mut split)?;
+    if code != 997 {
+        return Err(could_not_parse_event_error());
+    }
+
+    let mode = next_parsed::<u8>(&mut split)?;
+    let scheme = match mode {
+        1 => crate::colors::ColorScheme::Dark,
+        2 => crate::colors::ColorScheme::Light,
+        _ => return Err(could_not_parse_event_error()),
+    };
+
+    Ok(Some(InternalEvent::ColorSchemeResponse(scheme)))
+}
+
+fn find_osc_terminator(buffer: &[u8]) -> Option<usize> {
+    let mut i = 2; // skip ESC ]
+    while i < buffer.len() {
+        if buffer[i] == b'\x07' {
+            return Some(i + 1);
+        }
+        if buffer[i] == b'\x1B' && i + 1 < buffer.len() && buffer[i + 1] == b'\\' {
+            return Some(i + 2);
+        }
+        i += 1;
+    }
+    None
+}
+
+fn parse_color_channel(s: &str) -> Option<u8> {
+    // Terminals respond with 2-digit ("ff") or 4-digit ("ffff") hex.
+    let val = u16::from_str_radix(s, 16).ok()?;
+    Some(if s.len() <= 2 { val as u8 } else { (val >> 8) as u8 })
+}
+
+fn parse_rgb_spec(s: &str) -> Option<(u8, u8, u8)> {
+    let s = s.strip_prefix("rgb:")?;
+    let mut parts = s.split('/');
+    let r = parse_color_channel(parts.next()?)?;
+    let g = parse_color_channel(parts.next()?)?;
+    let b = parse_color_channel(parts.next()?)?;
+    if parts.next().is_some() {
+        return None;
+    }
+    Some((r, g, b))
+}
+
+fn parse_osc(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    use crate::colors::{ColorEntry, ColorType};
+
+    let end = match find_osc_terminator(buffer) {
+        Some(end) => end,
+        None => return Ok(None),
+    };
+
+    let terminator_len = if buffer[end - 1] == b'\\' { 2 } else { 1 };
+    let payload = std::str::from_utf8(&buffer[2..end - terminator_len])
+        .map_err(|_| could_not_parse_event_error())?;
+
+    let (osc_num_str, rest) = payload
+        .split_once(';')
+        .ok_or_else(could_not_parse_event_error)?;
+    let osc_num: u8 = osc_num_str
+        .parse()
+        .map_err(|_| could_not_parse_event_error())?;
+
+    if osc_num == 4 {
+        // OSC 4;{index};rgb:...
+        let (index_str, rgb_str) = rest
+            .split_once(';')
+            .ok_or_else(could_not_parse_event_error)?;
+        let index: u8 = index_str
+            .parse()
+            .map_err(|_| could_not_parse_event_error())?;
+        let (r, g, b) = parse_rgb_spec(rgb_str).ok_or_else(could_not_parse_event_error)?;
+        Ok(Some(InternalEvent::ColorResponse(ColorEntry {
+            color_type: ColorType::Palette(index),
+            r,
+            g,
+            b,
+        })))
+    } else if let Some(color_type) = ColorType::from_osc_number(osc_num) {
+        // OSC 10..=19;rgb:...
+        let (r, g, b) = parse_rgb_spec(rest).ok_or_else(could_not_parse_event_error)?;
+        Ok(Some(InternalEvent::ColorResponse(ColorEntry {
+            color_type,
+            r,
+            g,
+            b,
+        })))
+    } else {
+        Err(could_not_parse_event_error())
+    }
 }
 
 fn parse_modifiers(mask: u8) -> KeyModifiers {
@@ -1586,5 +1699,88 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_empty() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_multi() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?64;1;2;6;9;15;22c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![64, 1, 2, 6, 9, 15, 22])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_trailing_semicolon() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?1;2;c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![1, 2])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_malformed() {
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?abc").is_err());
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?99999999c").is_err());
+    }
+
+    #[test]
+    fn test_parse_osc_color_response() {
+        use crate::colors::{ColorEntry, ColorType};
+
+        // OSC 4 palette, BEL terminator, 4-digit hex.
+        assert_eq!(
+            parse_event(b"\x1B]4;1;rgb:ffff/0000/0000\x07", false).unwrap(),
+            Some(InternalEvent::ColorResponse(ColorEntry {
+                color_type: ColorType::Palette(1),
+                r: 0xff,
+                g: 0x00,
+                b: 0x00,
+            })),
+        );
+        // OSC 11 dynamic, ST terminator, 2-digit hex.
+        assert_eq!(
+            parse_event(b"\x1B]11;rgb:ab/cd/ef\x1B\\", false).unwrap(),
+            Some(InternalEvent::ColorResponse(ColorEntry {
+                color_type: ColorType::Background,
+                r: 0xab,
+                g: 0xcd,
+                b: 0xef,
+            })),
+        );
+    }
+
+    #[test]
+    fn test_parse_osc_color_errors() {
+        // No terminator yet, caller should keep buffering.
+        assert_eq!(parse_event(b"\x1B]10;rgb:ffff/ffff", false).unwrap(), None);
+        // Malformed rgb spec.
+        assert!(parse_event(b"\x1B]10;notacolor\x07", false).is_err());
+        // OSC 52 (clipboard) is not a color response we handle.
+        assert!(parse_event(b"\x1B]52;c;foo\x07", false).is_err());
+    }
+
+    #[test]
+    fn test_parse_csi_color_scheme_response() {
+        use crate::colors::ColorScheme;
+
+        assert_eq!(
+            parse_event(b"\x1B[?997;1n", false).unwrap(),
+            Some(InternalEvent::ColorSchemeResponse(ColorScheme::Dark)),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[?997;2n", false).unwrap(),
+            Some(InternalEvent::ColorSchemeResponse(ColorScheme::Light)),
+        );
+        // Invalid mode and wrong code.
+        assert!(parse_event(b"\x1B[?997;3n", false).is_err());
+        assert!(parse_event(b"\x1B[?998;1n", false).is_err());
     }
 }
