@@ -74,6 +74,7 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
+                    b'P' => parse_dcs(buffer),
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
@@ -289,15 +290,20 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
 }
 
 fn parse_csi_primary_device_attributes(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
-    // ESC [ 64 ; attr1 ; attr2 ; ... ; attrn ; c
+    // ESC [ ? attr1 ; attr2 ; ... ; attrn c
     assert!(buffer.starts_with(b"\x1B[?"));
     assert!(buffer.ends_with(b"c"));
 
-    // This is a stub for parsing the primary device attributes. This response is not
-    // exposed in the crossterm API so we don't need to parse the individual attributes yet.
-    // See <https://vt100.net/docs/vt510-rm/DA1.html>
+    let s = std::str::from_utf8(&buffer[3..buffer.len() - 1])
+        .map_err(|_| could_not_parse_event_error())?;
 
-    Ok(Some(InternalEvent::PrimaryDeviceAttributes))
+    let params: Vec<u16> = s
+        .split(';')
+        .filter(|p| !p.is_empty())
+        .map(|p| p.parse::<u16>().map_err(|_| could_not_parse_event_error()))
+        .collect::<io::Result<Vec<u16>>>()?;
+
+    Ok(Some(InternalEvent::PrimaryDeviceAttributes(params)))
 }
 
 fn parse_modifiers(mask: u8) -> KeyModifiers {
@@ -861,6 +867,38 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> io::Result<Option<char>> {
             }
         }
     }
+}
+
+fn parse_dcs(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    // DCS is `ESC P ... ESC \` (ST).
+    assert!(buffer.starts_with(b"\x1BP"));
+
+    let mut i = 2;
+    let end = loop {
+        if i >= buffer.len() {
+            return Ok(None);
+        }
+        if buffer[i] == b'\x1B' {
+            if i + 1 >= buffer.len() {
+                return Ok(None);
+            }
+            if buffer[i + 1] == b'\\' {
+                break i;
+            }
+        }
+        i += 1;
+    };
+
+    // XTVERSION response: `ESC P > | <version string> ESC \`
+    let payload = &buffer[2..end];
+    if let Some(version_bytes) = payload.strip_prefix(b">|") {
+        let version = std::str::from_utf8(version_bytes)
+            .map_err(|_| could_not_parse_event_error())?
+            .to_owned();
+        return Ok(Some(InternalEvent::XtVersionResponse(version)));
+    }
+
+    Err(could_not_parse_event_error())
 }
 
 #[cfg(test)]
@@ -1586,5 +1624,58 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_empty() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_multi() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?64;1;2;6;9;15;22c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![64, 1, 2, 6, 9, 15, 22])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_trailing_semicolon() {
+        assert_eq!(
+            parse_csi_primary_device_attributes(b"\x1B[?1;2;c").unwrap(),
+            Some(InternalEvent::PrimaryDeviceAttributes(vec![1, 2])),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_primary_device_attributes_malformed() {
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?abc").is_err());
+        assert!(parse_csi_primary_device_attributes(b"\x1B[?99999999c").is_err());
+    }
+
+    #[test]
+    fn test_parse_dcs_xtversion() {
+        assert_eq!(
+            parse_event(b"\x1BP>|tmux 3.3\x1B\\", false).unwrap(),
+            Some(InternalEvent::XtVersionResponse("tmux 3.3".to_owned())),
+        );
+        assert_eq!(
+            parse_event(b"\x1BP>|kitty 0.36.4\x1B\\", false).unwrap(),
+            Some(InternalEvent::XtVersionResponse("kitty 0.36.4".to_owned())),
+        );
+    }
+
+    #[test]
+    fn test_parse_dcs_incomplete() {
+        assert_eq!(parse_event(b"\x1BP>|tmux 3.3", true).unwrap(), None);
+        assert_eq!(parse_event(b"\x1BP>|tmux 3.3\x1B", true).unwrap(), None);
+    }
+
+    #[test]
+    fn test_parse_dcs_unknown_rejected() {
+        assert!(parse_event(b"\x1BPXfoo\x1B\\", false).is_err());
     }
 }

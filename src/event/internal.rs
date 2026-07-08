@@ -76,6 +76,11 @@ pub(crate) enum InternalEvent {
     #[cfg(unix)]
     KeyboardEnhancementFlags(KeyboardEnhancementFlags),
     /// Attributes and architectural class of the terminal.
+    ///
+    /// The vec contains the `;`-separated parameters from `ESC [ ? … c`.
     #[cfg(unix)]
-    PrimaryDeviceAttributes,
+    PrimaryDeviceAttributes(Vec<u16>),
+    /// DCS `ESC P > | <name> ESC \` response to an XTVERSION query (`ESC [ > q`).
+    #[cfg(unix)]
+    XtVersionResponse(String),
 }

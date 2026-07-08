@@ -507,6 +507,58 @@ impl_display!(for ScrollDown);
 impl_display!(for SetSize);
 impl_display!(for Clear);
 
+/// Query for the terminal's name and version via XTVERSION (`ESC [ > q`).
+///
+/// The terminal responds with a DCS string: `ESC P > | <name> ESC \`.
+/// Returns the raw version string, e.g. `"tmux 3.3"` or `"kitty 0.36.4"`,
+/// or `None` if the terminal does not respond.
+///
+/// Use with [`QueryBatch`](crate::query::QueryBatch):
+///
+/// ```no_run
+/// # #[cfg(unix)] {
+/// use crossterm::terminal::QueryXtVersion;
+/// use crossterm::query::QueryBatch;
+///
+/// let mut batch = QueryBatch::new();
+/// let ver = batch.add(QueryXtVersion);
+/// let results = batch.execute()?;
+/// println!("terminal: {:?}", results.get(&ver)?);
+/// # }
+/// # Ok::<(), std::io::Error>(())
+/// ```
+#[cfg(all(unix, feature = "events"))]
+#[derive(Clone)]
+pub struct QueryXtVersion;
+
+#[cfg(all(unix, feature = "events"))]
+#[allow(private_interfaces)]
+impl crate::query::TerminalQuery for QueryXtVersion {
+    type Response = Option<String>;
+
+    fn query_bytes(&self) -> Vec<u8> {
+        b"\x1B[>q".to_vec()
+    }
+
+    fn matches(&self, event: &crate::event::internal::InternalEvent) -> bool {
+        matches!(
+            event,
+            crate::event::internal::InternalEvent::XtVersionResponse(_)
+        )
+    }
+
+    fn extract(
+        &self,
+        event: Option<crate::event::internal::InternalEvent>,
+    ) -> std::io::Result<Option<String>> {
+        match event {
+            Some(crate::event::internal::InternalEvent::XtVersionResponse(s)) => Ok(Some(s)),
+            None => Ok(None),
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::{io::stdout, thread, time};
