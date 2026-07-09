@@ -23,7 +23,12 @@ impl Default for InternalEventReader {
         let source = WindowsEventSource::new();
         #[cfg(unix)]
         let source = UnixInternalEventSource::new();
+        // There is no event source on other targets; `poll` reports the
+        // missing reader as an error.
+        #[cfg(not(any(unix, windows)))]
+        let source: Option<Box<dyn EventSource>> = None;
 
+        #[cfg(any(unix, windows))]
         let source = source.ok().map(|x| Box::new(x) as Box<dyn EventSource>);
 
         InternalEventReader {
