@@ -85,12 +85,15 @@ impl UnixInternalEventSource {
 ///
 /// Similar to `std::io::Read::read_to_end`, except this function
 /// only fills the given buffer and does not read beyond that.
-fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
+///
+/// Returns `None` when the read would block and `Some(0)` at end of file. The
+/// two are distinct because a descriptor at EOF stays readable forever.
+fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<Option<usize>> {
     loop {
         match fd.read(buf) {
-            Ok(x) => return Ok(x),
+            Ok(x) => return Ok(Some(x)),
             Err(e) => match e.kind() {
-                io::ErrorKind::WouldBlock => return Ok(0),
+                io::ErrorKind::WouldBlock => return Ok(None),
                 io::ErrorKind::Interrupted => continue,
                 _ => return Err(e),
             },
@@ -145,20 +148,25 @@ impl EventSource for UnixInternalEventSource {
             };
             if fds[0].revents & POLLIN != 0 {
                 loop {
-                    let read_count = read_complete(&self.tty, &mut self.tty_buffer)?;
-                    if read_count > 0 {
-                        self.parser.advance(
-                            &self.tty_buffer[..read_count],
-                            read_count == TTY_BUFFER_SIZE,
-                        );
-                    }
-
-                    if let Some(event) = self.parser.next() {
-                        return Ok(Some(event));
-                    }
-
-                    if read_count == 0 {
-                        break;
+                    match read_complete(&self.tty, &mut self.tty_buffer)? {
+                        // The tty is gone; it stays readable forever, so
+                        // re-polling would busy-loop.
+                        Some(0) => {
+                            return Err(io::Error::new(
+                                io::ErrorKind::UnexpectedEof,
+                                "The input reached end of file (the terminal is gone or its input was closed)",
+                            ));
+                        }
+                        Some(read_count) => {
+                            self.parser.advance(
+                                &self.tty_buffer[..read_count],
+                                read_count == TTY_BUFFER_SIZE,
+                            );
+                            if let Some(event) = self.parser.next() {
+                                return Ok(Some(event));
+                            }
+                        }
+                        None => break,
                     }
                 }
             }
@@ -168,7 +176,7 @@ impl EventSource for UnixInternalEventSource {
                 #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
-                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+                while read_complete(&fd, &mut [0; 1024])?.is_some_and(|n| n != 0) {}
                 // TODO Should we remove tput?
                 //
                 // This can take a really long time, because terminal::size can
@@ -188,7 +196,7 @@ impl EventSource for UnixInternalEventSource {
                 #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.wake_pipe.receiver.as_fd());
                 // drain the pipe
-                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+                while read_complete(&fd, &mut [0; 1024])?.is_some_and(|n| n != 0) {}
 
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::Interrupted,
@@ -272,5 +280,38 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn try_read_returns_error_when_tty_is_at_eof() {
+        let (sender, receiver) = UnixStream::pair().unwrap();
+        drop(sender); // the fd is now permanently readable, with `read` returning 0
+
+        #[cfg(feature = "libc")]
+        let fd = {
+            use std::os::unix::io::IntoRawFd;
+            FileDesc::new(receiver.into_raw_fd(), true)
+        };
+        #[cfg(not(feature = "libc"))]
+        let fd = FileDesc::Owned(receiver.into());
+
+        let mut source = UnixInternalEventSource::from_file_descriptor(fd).unwrap();
+
+        let timeout = Duration::from_millis(500);
+        let start = Instant::now();
+        let result = source.try_read(Some(timeout));
+
+        let error = result.expect_err("EOF must surface as an error, not as a poll timeout");
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
+        assert!(
+            start.elapsed() < timeout,
+            "EOF must be detected without spinning until the timeout"
+        );
     }
 }

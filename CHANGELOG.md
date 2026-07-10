@@ -13,6 +13,7 @@
 
 ## Fixed 🐛
 
+- Return an error instead of spinning or hanging when the tty is gone.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
