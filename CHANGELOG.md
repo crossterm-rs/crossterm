@@ -2,6 +2,7 @@
 
 ## Fixed 🐛
 
+- Propagate errors from `EventStream`'s blocking poll instead of retrying indefinitely.
 - Fix integer underflow in mouse / cursor-position parsers when coord
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
