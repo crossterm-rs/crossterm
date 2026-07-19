@@ -13,6 +13,10 @@
 
 ## Fixed 🐛
 
+- Fix color commands emitting a bare `CSI m` when colors are disabled via
+  `NO_COLOR`, which reset every attribute instead of doing nothing.
+  Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
+  and `SetColors`.
 - Fix integer underflow in mouse / cursor-position parsers when coord
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
