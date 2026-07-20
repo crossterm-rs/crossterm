@@ -4,7 +4,7 @@ use std::{
     sync::{
         atomic::{AtomicBool, Ordering},
         mpsc::{self, SyncSender},
-        Arc,
+        Arc, Mutex,
     },
     task::{Context, Poll},
     thread,
@@ -36,6 +36,7 @@ pub struct EventStream {
     poll_internal_waker: Waker,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
+    stream_wake_task_error: Arc<Mutex<Option<io::Error>>>,
     task_sender: SyncSender<Task>,
 }
 
@@ -45,18 +46,7 @@ impl Default for EventStream {
 
         thread::spawn(move || {
             while let Ok(task) = receiver.recv() {
-                loop {
-                    if let Ok(true) = internal::poll(None, &EventFilter) {
-                        break;
-                    }
-
-                    if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
-                        break;
-                    }
-                }
-                task.stream_wake_task_executed
-                    .store(false, Ordering::SeqCst);
-                task.stream_waker.wake();
+                run_stream_wake_task(task, || internal::poll(None, &EventFilter));
             }
         });
 
@@ -64,9 +54,38 @@ impl Default for EventStream {
             poll_internal_waker: internal::lock_event_reader().waker(),
             stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
             stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
+            stream_wake_task_error: Arc::new(Mutex::new(None)),
             task_sender,
         }
     }
+}
+
+fn wait_until_ready_or_error(
+    should_shutdown: &AtomicBool,
+    mut poll: impl FnMut() -> io::Result<bool>,
+) -> Option<io::Error> {
+    while !should_shutdown.load(Ordering::SeqCst) {
+        let result = poll();
+        if should_shutdown.load(Ordering::SeqCst) {
+            return None;
+        }
+
+        match result {
+            Ok(false) => {}
+            Ok(true) => return None,
+            Err(error) => return Some(error),
+        }
+    }
+    None
+}
+
+fn run_stream_wake_task(task: Task, poll: impl FnMut() -> io::Result<bool>) {
+    if let Some(error) = wait_until_ready_or_error(&task.stream_wake_task_should_shutdown, poll) {
+        *task.stream_wake_task_error.lock().unwrap() = Some(error);
+    }
+    task.stream_wake_task_executed
+        .store(false, Ordering::SeqCst);
+    task.stream_waker.wake();
 }
 
 impl EventStream {
@@ -80,6 +99,7 @@ struct Task {
     stream_waker: std::task::Waker,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
+    stream_wake_task_error: Arc<Mutex<Option<io::Error>>>,
 }
 
 // Note to future me
@@ -104,6 +124,10 @@ impl Stream for EventStream {
     type Item = io::Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        if let Some(error) = self.stream_wake_task_error.lock().unwrap().take() {
+            return Poll::Ready(Some(Err(error)));
+        }
+
         let result = match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
             Ok(true) => match internal::read(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
@@ -122,6 +146,7 @@ impl Stream for EventStream {
                     let stream_wake_task_executed = self.stream_wake_task_executed.clone();
                     let stream_wake_task_should_shutdown =
                         self.stream_wake_task_should_shutdown.clone();
+                    let stream_wake_task_error = self.stream_wake_task_error.clone();
 
                     stream_wake_task_should_shutdown.store(false, Ordering::SeqCst);
 
@@ -129,6 +154,7 @@ impl Stream for EventStream {
                         stream_waker,
                         stream_wake_task_executed,
                         stream_wake_task_should_shutdown,
+                        stream_wake_task_error,
                     });
                 }
                 Poll::Pending
@@ -144,5 +170,91 @@ impl Drop for EventStream {
         self.stream_wake_task_should_shutdown
             .store(true, Ordering::SeqCst);
         let _ = self.poll_internal_waker.wake();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{
+        cell::Cell,
+        sync::atomic::{AtomicUsize, Ordering},
+        task::Wake,
+    };
+
+    use super::*;
+
+    #[derive(Default)]
+    struct WakeCounter(AtomicUsize);
+
+    impl Wake for WakeCounter {
+        fn wake(self: Arc<Self>) {
+            self.0.fetch_add(1, Ordering::SeqCst);
+        }
+    }
+
+    #[test]
+    fn shutdown_does_not_start_another_poll() {
+        let should_shutdown = AtomicBool::new(true);
+        let polls = Cell::new(0);
+
+        let error = wait_until_ready_or_error(&should_shutdown, || {
+            polls.set(polls.get() + 1);
+            Ok(false)
+        });
+
+        assert!(error.is_none());
+        assert_eq!(polls.get(), 0);
+    }
+
+    #[test]
+    fn shutdown_during_poll_suppresses_the_poll_error() {
+        let should_shutdown = AtomicBool::new(false);
+
+        let error = wait_until_ready_or_error(&should_shutdown, || {
+            should_shutdown.store(true, Ordering::SeqCst);
+            Err(io::Error::new(
+                io::ErrorKind::Interrupted,
+                "poll was woken for shutdown",
+            ))
+        });
+
+        assert!(error.is_none());
+    }
+
+    #[test]
+    fn wake_task_delivers_poll_error_to_stream_consumer() {
+        let wake_counter = Arc::new(WakeCounter::default());
+        let polls = Cell::new(0);
+        let stream_wake_task_executed = Arc::new(AtomicBool::new(true));
+        let stream_wake_task_should_shutdown = Arc::new(AtomicBool::new(false));
+        let stream_wake_task_error = Arc::new(Mutex::new(None));
+
+        run_stream_wake_task(
+            Task {
+                stream_waker: wake_counter.clone().into(),
+                stream_wake_task_executed: stream_wake_task_executed.clone(),
+                stream_wake_task_should_shutdown,
+                stream_wake_task_error: stream_wake_task_error.clone(),
+            },
+            || {
+                polls.set(polls.get() + 1);
+                Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "terminal is gone",
+                ))
+            },
+        );
+
+        assert!(!stream_wake_task_executed.load(Ordering::SeqCst));
+        assert_eq!(polls.get(), 1);
+        assert_eq!(wake_counter.0.load(Ordering::SeqCst), 1);
+
+        let error = stream_wake_task_error
+            .lock()
+            .unwrap()
+            .take()
+            .expect("the poll error should be available to poll_next");
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
+        assert_eq!(error.to_string(), "terminal is gone");
     }
 }
