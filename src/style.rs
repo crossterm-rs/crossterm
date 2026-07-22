@@ -164,6 +164,7 @@ pub fn style<D: Display>(val: D) -> StyledContent<D> {
 /// This does not always provide a good result.
 pub fn available_color_count() -> u16 {
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     {
         // Check if we're running in a pseudo TTY, which supports true color.
         // Fall back to env vars otherwise for other terminals on Windows.
@@ -213,6 +214,7 @@ impl Command for SetForegroundColor {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::set_foreground_color(self.0)
     }
@@ -237,6 +239,7 @@ impl Command for SetBackgroundColor {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::set_background_color(self.0)
     }
@@ -261,6 +264,7 @@ impl Command for SetUnderlineColor {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Err(std::io::Error::new(
             std::io::ErrorKind::Other,
@@ -316,6 +320,7 @@ impl Command for SetColors {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         if let Some(color) = self.0.foreground {
             sys::windows::set_foreground_color(color)?;
@@ -343,6 +348,7 @@ impl Command for SetAttribute {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
@@ -370,6 +376,7 @@ impl Command for SetAttributes {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         // attributes are not supported by WinAPI.
         Ok(())
@@ -403,11 +410,13 @@ impl Command for SetStyle {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         panic!("tried to execute SetStyle command using WinAPI, use ANSI instead");
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         true
     }
@@ -470,6 +479,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
@@ -489,6 +499,7 @@ impl Command for ResetColor {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::reset()
     }
@@ -506,11 +517,13 @@ impl<T: Display> Command for Print<T> {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         panic!("tried to execute Print command using WinAPI, use ANSI instead");
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         true
     }
@@ -545,6 +558,7 @@ mod tests {
     macro_rules! skip_windows_ansi_supported {
         () => {
             #[cfg(windows)]
+            #[cfg(not(feature = "no-tty"))]
             {
                 if crate::ansi_support::supports_ansi() {
                     return;
@@ -555,6 +569,7 @@ mod tests {
 
     #[cfg_attr(windows, test)]
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn windows_always_truecolor() {
         // This should always be true on supported Windows 10+,
         // but downlevel Windows clients and other terminals may fail `cargo test` otherwise.

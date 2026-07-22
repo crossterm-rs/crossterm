@@ -56,6 +56,7 @@ impl Filter for EventFilter {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn eval(&self, _: &InternalEvent) -> bool {
         true
     }

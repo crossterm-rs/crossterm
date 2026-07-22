@@ -24,6 +24,7 @@ pub trait Command {
     ///
     /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> io::Result<()>;
 
     /// Returns whether the ANSI code representation of this command is supported by windows.
@@ -31,6 +32,7 @@ pub trait Command {
     /// A list of supported ANSI escape codes
     /// can be found [here](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn is_ansi_code_supported(&self) -> bool {
         super::ansi_support::supports_ansi()
     }
@@ -43,11 +45,13 @@ impl<T: Command + ?Sized> Command for &T {
 
     #[inline]
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> io::Result<()> {
         T::execute_winapi(self)
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     #[inline]
     fn is_ansi_code_supported(&self) -> bool {
         T::is_ansi_code_supported(self)
@@ -120,6 +124,7 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command) -> io::Result<&mut Self> {
         #[cfg(windows)]
+        #[cfg(not(feature = "no-tty"))]
         if !command.is_ansi_code_supported() {
             // There may be queued commands in this writer, but `execute_winapi` will execute the
             // command immediately. To prevent commands being executed out of order we flush the
@@ -287,6 +292,7 @@ fn write_command_ansi<C: Command>(
 /// Executes the ANSI representation of a command, using the given `fmt::Write`.
 pub(crate) fn execute_fmt(f: &mut impl fmt::Write, command: impl Command) -> fmt::Result {
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     if !command.is_ansi_code_supported() {
         return command.execute_winapi().map_err(|_| fmt::Error);
     }

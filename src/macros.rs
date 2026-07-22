@@ -126,6 +126,52 @@ macro_rules! execute {
     }}
 }
 
+/// Queues one or more command(s) onto an async [`SenderWriter`](crate::event::SenderWriter).
+///
+/// Unlike the synchronous [`queue!`], the channel-backed writer has no separate flush
+/// step: the serialized commands are sent as soon as the returned future is awaited.
+///
+/// Returns a future resolving to `std::io::Result<()>`.
+#[cfg(feature = "no-tty")]
+#[macro_export]
+macro_rules! async_queue {
+    ($writer:expr $(, $command:expr)* $(,)?) => {{
+        async {
+            let mut __buf = ::std::string::String::new();
+            let mut __ok = true;
+            $(
+                if __ok
+                    && $crate::Command::write_ansi(&$command, &mut __buf).is_err()
+                {
+                    __ok = false;
+                }
+            )*
+            if __ok {
+                $crate::event::SenderWriter::write_all($writer, __buf.as_bytes()).await
+            } else {
+                ::std::result::Result::Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::InvalidData,
+                    "failed to write ANSI command",
+                ))
+            }
+        }
+    }};
+}
+
+/// Executes one or more command(s) on an async [`SenderWriter`](crate::event::SenderWriter).
+///
+/// For the channel-backed writer this is identical to [`async_queue!`]: awaiting the
+/// returned future sends the serialized commands immediately.
+///
+/// Returns a future resolving to `std::io::Result<()>`.
+#[cfg(feature = "no-tty")]
+#[macro_export]
+macro_rules! async_execute {
+    ($writer:expr $(, $command:expr)* $(,)?) => {{
+        $crate::async_queue!($writer $(, $command)*)
+    }};
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! impl_display {
@@ -185,6 +231,7 @@ mod tests {
     }
 
     #[cfg(not(windows))]
+    #[cfg(not(feature = "no-tty"))]
     mod unix {
         use std::fmt;
 
@@ -249,6 +296,7 @@ mod tests {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     mod windows {
         use std::fmt;
 

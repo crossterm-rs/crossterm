@@ -160,6 +160,7 @@ impl<T: AsRef<[u8]>> Command for CopyToClipboard<T> {
     }
 
     #[cfg(windows)]
+    #[cfg(not(feature = "no-tty"))]
     fn execute_winapi(&self) -> std::io::Result<()> {
         use std::io;
 
