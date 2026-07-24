@@ -591,29 +591,48 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
         }
     }
 
-    // When the "report alternate keys" flag is enabled in the Kitty Keyboard Protocol
-    // and the terminal sends a keyboard event containing shift, the sequence will
-    // contain an additional codepoint separated by a ':' character which contains
-    // the shifted character according to the keyboard layout.
+    // When the "report alternate keys" flag is enabled in the Kitty Keyboard Protocol,
+    // the first field carries up to two more codepoints separated by ':' characters:
+    // the shifted key and the base layout key, in that order. Either may be absent or
+    // empty (`CSI 1076::108;5u` reports a base layout key but no shifted key), so both
+    // are read positionally, before either is used.
+    let shifted_key = next_alternate_key(&mut codepoints);
+    let base_layout_key = next_alternate_key(&mut codepoints);
+
+    // The shifted key is the character the active layout produces with shift held, so
+    // it replaces the key code and consumes the modifier.
     if modifiers.contains(KeyModifiers::SHIFT) {
-        if let Some(shifted_c) = codepoints
-            .next()
-            .and_then(|codepoint| codepoint.parse::<u32>().ok())
-            .and_then(char::from_u32)
-        {
+        if let Some(shifted_c) = shifted_key {
             keycode = KeyCode::Char(shifted_c);
             modifiers.set(KeyModifiers::SHIFT, false);
         }
     }
 
-    let input_event = Event::Key(KeyEvent::new_with_kind_and_state(
-        keycode,
-        modifiers,
-        kind,
-        state_from_keycode | state_from_modifiers,
-    ));
+    let input_event = Event::Key(
+        KeyEvent::new_with_kind_and_state(
+            keycode,
+            modifiers,
+            kind,
+            state_from_keycode | state_from_modifiers,
+        )
+        // The base layout key is the key at the same physical position on a standard
+        // PC-101 keyboard, which lets applications match shortcuts by physical key
+        // regardless of the layout the user types in.
+        .with_base_layout_code(base_layout_key.map(KeyCode::Char)),
+    );
 
     Ok(Some(InternalEvent::Event(input_event)))
+}
+
+/// Reads the next `:`-separated alternate key of a `CSI u` key field.
+///
+/// Returns `None` when the alternate is absent or empty, which the Kitty Keyboard
+/// Protocol allows for any of them.
+fn next_alternate_key<'a>(codepoints: &mut impl Iterator<Item = &'a str>) -> Option<char> {
+    codepoints
+        .next()
+        .and_then(|codepoint| codepoint.parse::<u32>().ok())
+        .and_then(char::from_u32)
 }
 
 pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
@@ -865,9 +884,23 @@ pub(crate) fn parse_utf8_char(buffer: &[u8]) -> io::Result<Option<char>> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
     use crate::event::{KeyEventState, KeyModifiers, MouseButton, MouseEvent};
 
     use super::*;
+
+    /// Parses a sequence that is expected to yield exactly one key event.
+    ///
+    /// Needed where a field is asserted directly instead of through
+    /// `assert_eq!` on the whole event, which compares by key identity only.
+    fn key_event(bytes: &[u8]) -> KeyEvent {
+        match parse_event(bytes, false).unwrap() {
+            Some(InternalEvent::Event(Event::Key(key))) => key,
+            other => panic!("expected a key event, got {:?}", other),
+        }
+    }
 
     #[test]
     fn test_esc_key() {
@@ -1546,6 +1579,44 @@ mod tests {
                 KeyModifiers::ALT,
             )))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_u_with_base_layout_key() {
+        // The physical `L` key pressed with ctrl on a Cyrillic layout: the layout
+        // reports `д` (U+0434), its shifted form is `Д` (U+0414), and the key at the
+        // same position on a PC-101 keyboard is `l` (U+006C).
+        let event = key_event(b"\x1B[1076:1044:108;5u");
+        assert_eq!(event.code, KeyCode::Char('\u{434}'));
+        assert_eq!(event.modifiers, KeyModifiers::CONTROL);
+        assert_eq!(event.base_layout_code, Some(KeyCode::Char('l')));
+
+        // The shifted key may be omitted while the base layout key is present.
+        let event = key_event(b"\x1B[1076::108;5u");
+        assert_eq!(event.code, KeyCode::Char('\u{434}'));
+        assert_eq!(event.base_layout_code, Some(KeyCode::Char('l')));
+
+        // Without the enhancement (or on a layout where the key is its own base),
+        // no alternates are reported.
+        assert_eq!(key_event(b"\x1B[97;5u").base_layout_code, None);
+        assert_eq!(key_event(b"\x1B[97:65;2u").base_layout_code, None);
+    }
+
+    #[test]
+    fn test_base_layout_key_does_not_affect_equality() {
+        // Applications compare against manually built events; reporting alternates
+        // must not break that, so the base layout key is not part of the identity.
+        let reported = key_event(b"\x1B[1076:1044:108;5u");
+        assert_eq!(
+            reported,
+            KeyEvent::new(KeyCode::Char('\u{434}'), KeyModifiers::CONTROL)
+        );
+
+        let mut with_base = DefaultHasher::new();
+        reported.hash(&mut with_base);
+        let mut without_base = DefaultHasher::new();
+        KeyEvent::new(KeyCode::Char('\u{434}'), KeyModifiers::CONTROL).hash(&mut without_base);
+        assert_eq!(with_base.finish(), without_base.finish());
     }
 
     #[test]
