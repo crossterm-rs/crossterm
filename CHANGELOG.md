@@ -1,11 +1,22 @@
 # Unreleased
 
+## Added ⭐
+
+- Report the Kitty keyboard protocol's *base layout key* as
+  `KeyEvent::base_layout_code`, so shortcuts can be matched by physical key
+  regardless of the active keyboard layout (#968). Set only when
+  `KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS` is enabled.
+
 ## Breaking ⚠️
 
 - Raise the minimum supported Rust version from 1.63 to 1.85.
 - Remove `IsTty` trait.
   Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
   which provides equivalent functionality.
+- `KeyEvent` gained a `base_layout_code` field: struct-literal construction and
+  exhaustive destructuring need updating. The `KeyEvent::new*` constructors,
+  `PartialEq` and `Hash` are unaffected — the new field takes no part in
+  equality, so comparisons against manually built events keep working.
 
 ## Changed ⚙️
 
