@@ -71,6 +71,14 @@ pub(crate) fn enable_mouse_capture() -> std::io::Result<()> {
 
 pub(crate) fn disable_mouse_capture() -> std::io::Result<()> {
     let mode = ConsoleMode::from(Handle::current_in_handle()?);
-    mode.set_mode(original_console_mode()?)?;
+    // Keep the existing error behavior when the snapshot is missing. Both
+    // initializers save it before modifying the mode, so a correctly paired
+    // Enable/Disable guarantees that it exists; falling back would mask an
+    // invalid lifecycle.
+    let original = original_console_mode()?;
+    let current = mode.mode()?;
+    mode.set_mode(
+        crate::terminal::sys::windows_mode::compute_disable_mouse_capture_mode(current, original),
+    )?;
     Ok(())
 }

@@ -21,6 +21,9 @@ pub(crate) use self::windows::{
 #[cfg(windows)]
 mod windows;
 
+#[cfg(any(windows, test))]
+pub(crate) mod windows_mode;
+
 #[cfg(unix)]
 pub mod file_descriptor;
 #[cfg(unix)]
