@@ -70,7 +70,7 @@ pub struct ClipboardSelection(
 );
 
 impl ClipboardSelection {
-    /// Returns a String corresponsing to the "Pc" parameter of the OSC52
+    /// Returns a String corresponding to the "Pc" parameter of the OSC52
     /// sequence.
     fn to_osc52_pc(&self) -> String {
         self.0.iter().map(Into::<char>::into).collect()
