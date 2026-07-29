@@ -67,6 +67,11 @@ Search for `#![deny(...)]` in the code:
 
 ## Local checks
 
+The [`justfile`](../justfile) provides memorable shortcuts for the local checks. Install
+[`just`](https://just.systems/man/en/packages.html), then run `just` to list the available recipes
+or `just ci` to run the required checks for the current operating system. The GitHub Actions
+workflows remain the source of truth for required CI policy.
+
 Run the required checks before opening a pull request:
 
 ```sh
