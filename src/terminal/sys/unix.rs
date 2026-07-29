@@ -6,24 +6,13 @@ use crate::terminal::{
     WindowSize,
     sys::file_descriptor::{FileDesc, tty_fd},
 };
-#[cfg(feature = "libc")]
-use libc::{
-    STDOUT_FILENO, TCSANOW, TIOCGWINSZ, cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios,
-    winsize,
-};
 use parking_lot::Mutex;
-#[cfg(not(feature = "libc"))]
 use rustix::{
     fd::AsFd,
     termios::{Termios, Winsize},
 };
 
 use std::{fs::File, io, process};
-#[cfg(feature = "libc")]
-use std::{
-    mem,
-    os::unix::io::{IntoRawFd, RawFd},
-};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
 // None -> we're not in the raw mode
@@ -33,18 +22,6 @@ pub(crate) fn is_raw_mode_enabled() -> bool {
     TERMINAL_MODE_PRIOR_RAW_MODE.lock().is_some()
 }
 
-#[cfg(feature = "libc")]
-impl From<winsize> for WindowSize {
-    fn from(size: winsize) -> WindowSize {
-        WindowSize {
-            columns: size.ws_col,
-            rows: size.ws_row,
-            width: size.ws_xpixel,
-            height: size.ws_ypixel,
-        }
-    }
-}
-#[cfg(not(feature = "libc"))]
 impl From<Winsize> for WindowSize {
     fn from(size: Winsize) -> WindowSize {
         WindowSize {
@@ -56,39 +33,12 @@ impl From<Winsize> for WindowSize {
     }
 }
 
-#[allow(clippy::useless_conversion)]
-#[cfg(feature = "libc")]
-pub(crate) fn window_size() -> io::Result<WindowSize> {
-    // http://rosettacode.org/wiki/Terminal_control/Dimensions#Library:_BSD_libc
-    let mut size = winsize {
-        ws_row: 0,
-        ws_col: 0,
-        ws_xpixel: 0,
-        ws_ypixel: 0,
-    };
-
-    let file = File::open("/dev/tty").map(|file| FileDesc::new(file.into_raw_fd(), true));
-    let fd = if let Ok(file) = &file {
-        file.raw_fd()
-    } else {
-        // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
-        STDOUT_FILENO
-    };
-
-    if wrap_with_result(unsafe { ioctl(fd, TIOCGWINSZ.into(), &mut size) }).is_ok() {
-        return Ok(size.into());
-    }
-
-    Err(std::io::Error::last_os_error().into())
-}
-
-#[cfg(not(feature = "libc"))]
 pub(crate) fn window_size() -> io::Result<WindowSize> {
     let file = File::open("/dev/tty").map(|file| FileDesc::Owned(file.into()));
     let fd = if let Ok(file) = &file {
         file.as_fd()
     } else {
-        // Fallback to libc::STDOUT_FILENO if /dev/tty is missing
+        // Fall back to standard output if /dev/tty is missing.
         rustix::stdio::stdout()
     };
     let size = rustix::termios::tcgetwinsize(fd)?;
@@ -104,25 +54,6 @@ pub(crate) fn size() -> io::Result<(u16, u16)> {
     tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
 }
 
-#[cfg(feature = "libc")]
-pub(crate) fn enable_raw_mode() -> io::Result<()> {
-    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
-    if original_mode.is_some() {
-        return Ok(());
-    }
-
-    let tty = tty_fd()?;
-    let fd = tty.raw_fd();
-    let mut ios = get_terminal_attr(fd)?;
-    let original_mode_ios = ios;
-    raw_terminal_attr(&mut ios);
-    set_terminal_attr(fd, &ios)?;
-    // Keep it last - set the original mode only if we were able to switch to the raw mode
-    *original_mode = Some(original_mode_ios);
-    Ok(())
-}
-
-#[cfg(not(feature = "libc"))]
 pub(crate) fn enable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
     if original_mode.is_some() {
@@ -144,19 +75,6 @@ pub(crate) fn enable_raw_mode() -> io::Result<()> {
 /// More precisely, reset the whole termios mode to what it was before the first call
 /// to [enable_raw_mode]. If you don't mess with termios outside of crossterm, it's
 /// effectively disabling the raw mode and doing nothing else.
-#[cfg(feature = "libc")]
-pub(crate) fn disable_raw_mode() -> io::Result<()> {
-    let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
-    if let Some(original_mode_ios) = original_mode.as_ref() {
-        let tty = tty_fd()?;
-        set_terminal_attr(tty.raw_fd(), original_mode_ios)?;
-        // Keep it last - remove the original mode only if we were able to switch back
-        *original_mode = None;
-    }
-    Ok(())
-}
-
-#[cfg(not(feature = "libc"))]
 pub(crate) fn disable_raw_mode() -> io::Result<()> {
     let mut original_mode = TERMINAL_MODE_PRIOR_RAW_MODE.lock();
     if let Some(original_mode_ios) = original_mode.as_ref() {
@@ -168,13 +86,11 @@ pub(crate) fn disable_raw_mode() -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(not(feature = "libc"))]
 fn get_terminal_attr(fd: impl AsFd) -> io::Result<Termios> {
     let result = rustix::termios::tcgetattr(fd)?;
     Ok(result)
 }
 
-#[cfg(not(feature = "libc"))]
 fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
     rustix::termios::tcsetattr(fd, rustix::termios::OptionalActions::Now, termios)?;
     Ok(())
@@ -291,34 +207,5 @@ fn tput_size() -> Option<(u16, u16)> {
     match (tput_value("cols"), tput_value("lines")) {
         (Some(w), Some(h)) => Some((w, h)),
         _ => None,
-    }
-}
-
-#[cfg(feature = "libc")]
-// Transform the given mode into an raw mode (non-canonical) mode.
-fn raw_terminal_attr(termios: &mut Termios) {
-    unsafe { cfmakeraw(termios) }
-}
-
-#[cfg(feature = "libc")]
-fn get_terminal_attr(fd: RawFd) -> io::Result<Termios> {
-    unsafe {
-        let mut termios = mem::zeroed();
-        wrap_with_result(tcgetattr(fd, &mut termios))?;
-        Ok(termios)
-    }
-}
-
-#[cfg(feature = "libc")]
-fn set_terminal_attr(fd: RawFd, termios: &Termios) -> io::Result<()> {
-    wrap_with_result(unsafe { tcsetattr(fd, TCSANOW, termios) })
-}
-
-#[cfg(feature = "libc")]
-fn wrap_with_result(result: i32) -> io::Result<()> {
-    if result == -1 {
-        Err(io::Error::last_os_error())
-    } else {
-        Ok(())
     }
 }

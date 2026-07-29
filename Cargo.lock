@@ -210,7 +210,6 @@ dependencies = [
  "futures",
  "futures-core",
  "futures-timer",
- "libc",
  "mio",
  "parking_lot",
  "rustix",
