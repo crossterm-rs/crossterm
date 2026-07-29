@@ -109,21 +109,13 @@ fn try_ensure_char_case(ch: char, desired_case: CharCase) -> char {
             let mut iter = ch.to_lowercase();
             // Unwrap is safe; iterator yields one or more chars.
             let ch_lower = iter.next().unwrap();
-            if iter.next().is_none() {
-                ch_lower
-            } else {
-                ch
-            }
+            if iter.next().is_none() { ch_lower } else { ch }
         }
         CharCase::UpperCase if ch.is_lowercase() => {
             let mut iter = ch.to_uppercase();
             // Unwrap is safe; iterator yields one or more chars.
             let ch_upper = iter.next().unwrap();
-            if iter.next().is_none() {
-                ch_upper
-            } else {
-                ch
-            }
+            if iter.next().is_none() { ch_upper } else { ch }
         }
         _ => ch,
     }
