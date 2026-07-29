@@ -79,11 +79,11 @@ signal-hook = { version = "0.3.17", optional = true }
 signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = true }
 
 [dev-dependencies]
-async-std = "1.13"
 futures = "0.3"
 futures-timer = "3.0"
 serde_json = "1.0"
 serial_test = "3.0.0"
+smol = "2.0"
 temp-env = "0.3.6"
 tokio = { version = "1.44", features = ["full"] }
 
@@ -101,7 +101,7 @@ name = "event-poll-read"
 required-features = ["bracketed-paste", "events"]
 
 [[example]]
-name = "event-stream-async-std"
+name = "event-stream-smol"
 required-features = ["event-stream", "events"]
 
 [[example]]

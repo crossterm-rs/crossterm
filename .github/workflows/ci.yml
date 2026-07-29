@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Keep validation read-only. Publishing will use a separate workflow with narrowly scoped permissions.
+# https://docs.github.com/en/actions/tutorials/authenticate-with-github_token
+permissions:
+  contents: read
+
+# A pull request keeps the same number as commits are added, so newer commits cancel stale runs.
+# Push and manual runs fall back to the ref. The workflow name prevents cross-workflow cancellation.
+# https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.rust }} on ${{ matrix.os }}
+    # Versioned labels keep OS changes deliberate instead of following the moving `-latest` labels.
+    # https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    # Nightly is an early warning, not a release gate. Its failures remain visible without failing
+    # the workflow, while fail-fast false lets every OS report its result after another job fails.
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstrategyfail-fast
+    continue-on-error: ${{ matrix.can-fail }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15]
+        rust: [stable, nightly]
+        include:
+          - rust: stable
+            can-fail: false
+          - rust: nightly
+            can-fail: true
+    steps:
+      # A full commit SHA is the only immutable way to select an action.
+      # https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # This workflow never pushes, so do not store its token in the checkout's Git config.
+          # https://github.com/actions/checkout/tree/v7.0.1#usage
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Toolchain information
+        run: |
+          rustc --version
+          rustfmt --version
+          rustup --version
+          cargo --version
+
+      - name: Check formatting
+        if: matrix.rust == 'stable'
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --all-features -- -D clippy::all
+
+      - name: Test build
+        run: cargo build
+
+      # Crossterm tests manipulate process-global terminal and environment state, so run serially.
+      - name: Test default features
+        run: cargo test --lib -- --nocapture --test-threads 1
+
+      - name: Test serde feature
+        run: cargo test --lib --features serde -- --nocapture --test-threads 1
+
+      - name: Test event-stream feature
+        run: cargo test --lib --features "event-stream,events" -- --nocapture --test-threads 1
+
+      - name: Test all features
+        run: cargo test --all-features -- --nocapture --test-threads 1
+
+      - name: Test no default features
+        if: matrix.os != 'windows-2022'
+        run: cargo test --no-default-features -- --nocapture --test-threads 1
+
+      - name: Test no default features with use-dev-tty feature enabled
+        if: matrix.os != 'windows-2022'
+        run: cargo test --no-default-features --features "use-dev-tty events event-stream bracketed-paste" -- --nocapture --test-threads 1
+
+      - name: Test no default features with windows feature enabled
+        if: matrix.os == 'windows-2022'
+        run: cargo test --no-default-features --features "windows" -- --nocapture --test-threads 1
+
+      - name: Test packaging
+        if: matrix.rust == 'stable'
+        run: cargo package

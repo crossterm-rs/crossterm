@@ -174,8 +174,7 @@ impl EventSource for UnixInternalEventSource {
                 // This can take a really long time, because terminal::size can
                 // launch new process (tput) and then it parses its output. It's
                 // not a really long time from the absolute time point of view, but
-                // it's a really long time from the mio, async-std/tokio executor, ...
-                // point of view.
+                // it's a really long time from an async executor's point of view.
                 let new_size = crate::terminal::size()?;
                 return Ok(Some(InternalEvent::Event(Event::Resize(
                     new_size.0, new_size.1,

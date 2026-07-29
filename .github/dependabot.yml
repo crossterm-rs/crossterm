@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # For this ecosystem, "/" covers actions used in .github/workflows.
+  # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#directories-or-directory
+  - package-ecosystem: github-actions
+    directory: /
+    # SHA pinning requires maintenance. Group updates into one monthly PR to limit review noise.
+    # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#groups
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 1
