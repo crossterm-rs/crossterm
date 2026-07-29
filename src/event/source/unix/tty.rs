@@ -1,8 +1,5 @@
-#[cfg(feature = "libc")]
-use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 
-#[cfg(not(feature = "libc"))]
 use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
@@ -68,9 +65,6 @@ impl UnixInternalEventSource {
             winch_signal_receiver: {
                 let (receiver, sender) = nonblocking_unix_pair()?;
                 // Unregistering is unnecessary because EventSource is a singleton
-                #[cfg(feature = "libc")]
-                pipe::register(libc::SIGWINCH, sender)?;
-                #[cfg(not(feature = "libc"))]
                 pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
                 receiver
             },
@@ -163,9 +157,6 @@ impl EventSource for UnixInternalEventSource {
                 }
             }
             if fds[1].revents & POLLIN != 0 {
-                #[cfg(feature = "libc")]
-                let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
-                #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
@@ -183,9 +174,6 @@ impl EventSource for UnixInternalEventSource {
 
             #[cfg(feature = "event-stream")]
             if fds[2].revents & POLLIN != 0 {
-                #[cfg(feature = "libc")]
-                let fd = FileDesc::new(self.wake_pipe.receiver.as_raw_fd(), false);
-                #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.wake_pipe.receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
