@@ -3,6 +3,9 @@ pub(crate) use unix::waker::Waker;
 #[cfg(all(windows, feature = "event-stream"))]
 pub(crate) use windows::waker::Waker;
 
+#[cfg(feature = "events")]
+pub(crate) mod parse;
+
 #[cfg(unix)]
 pub(crate) mod unix;
 #[cfg(windows)]

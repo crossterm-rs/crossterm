@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io;
 
 use crate::event::{
@@ -96,9 +97,11 @@ pub(crate) fn parse_event(
         // newlines as input is because the terminal converts \r into \n for us. When we
         // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
         // use Ctrl+J. Waiting to handle it here means it gets picked up later
-        b'\n' if !crate::terminal::sys::is_raw_mode_enabled() => Ok(Some(InternalEvent::Event(
-            Event::Key(KeyCode::Enter.into()),
-        ))),
+        // unwrap_or(false): if the console mode query fails (possible on Windows),
+        // assume raw mode is enabled so \n is treated as Ctrl+J rather than Enter.
+        b'\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => Ok(Some(
+            InternalEvent::Event(Event::Key(KeyCode::Enter.into())),
+        )),
         b'\t' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into())))),
         b'\x7F' => Ok(Some(InternalEvent::Event(Event::Key(
             KeyCode::Backspace.into(),
@@ -549,7 +552,10 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
                     // newlines as input is because the terminal converts \r into \n for us. When we
                     // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
-                    '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
+                    // unwrap_or(false): see comment in parse_event for rationale
+                    '\n' if !crate::terminal::is_raw_mode_enabled().unwrap_or(false) => {
+                        KeyCode::Enter
+                    }
                     '\t' => {
                         if modifiers.contains(KeyModifiers::SHIFT) {
                             KeyCode::BackTab
@@ -1586,5 +1592,243 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_decode_utf16_bmp_char() {
+        let mut buf = None;
+        // ASCII 'a'
+        assert_eq!(decode_utf16_char(&mut buf, 0x0061), Some('a'));
+        assert_eq!(buf, None);
+        // CJK character U+4E16 '世'
+        assert_eq!(decode_utf16_char(&mut buf, 0x4E16), Some('世'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_surrogate_pair() {
+        let mut buf = None;
+        // U+1F600 '😀' = D83D DE00 in UTF-16
+        assert_eq!(decode_utf16_char(&mut buf, 0xD83D), None);
+        assert_eq!(buf, Some(0xD83D));
+        assert_eq!(decode_utf16_char(&mut buf, 0xDE00), Some('😀'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_high_surrogate() {
+        let mut buf = None;
+        // High surrogate followed by another high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0xD800), None);
+        assert_eq!(buf, Some(0xD800));
+        // Another high replaces the buffered one
+        assert_eq!(decode_utf16_char(&mut buf, 0xD801), None);
+        assert_eq!(buf, Some(0xD801));
+        // BMP char clears the orphaned high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0x0041), Some('A'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_low_surrogate() {
+        let mut buf = None;
+        // Low surrogate without preceding high
+        assert_eq!(decode_utf16_char(&mut buf, 0xDC00), None);
+        assert_eq!(buf, None);
+    }
+}
+
+//
+// Following `Parser` structure exists for two reasons:
+//
+//  * mimic anes Parser interface
+//  * move the advancing, parsing, ... stuff out of the `try_read` method
+//
+#[derive(Debug)]
+pub(crate) struct Parser {
+    buffer: Vec<u8>,
+    internal_events: VecDeque<InternalEvent>,
+}
+
+impl Default for Parser {
+    fn default() -> Self {
+        Parser {
+            // This buffer is used for -> 1 <- ANSI escape sequence. Are we
+            // aware of any ANSI escape sequence that is bigger? Can we make
+            // it smaller?
+            //
+            // Probably not worth spending more time on this as "there's a plan"
+            // to use the anes crate parser.
+            buffer: Vec::with_capacity(256),
+            // TTY_BUFFER_SIZE is 1_024 bytes. How many ANSI escape sequences can
+            // fit? What is an average sequence length? Let's guess here
+            // and say that the average ANSI escape sequence length is 8 bytes. Thus
+            // the buffer size should be 1024/8=128 to avoid additional allocations
+            // when processing large amounts of data.
+            //
+            // There's no need to make it bigger, because when you look at the `try_read`
+            // method implementation, all events are consumed before the next TTY_BUFFER
+            // is processed -> events pushed.
+            internal_events: VecDeque::with_capacity(128),
+        }
+    }
+}
+
+impl Parser {
+    pub(crate) fn advance(&mut self, buffer: &[u8], more: bool) {
+        for (idx, byte) in buffer.iter().enumerate() {
+            let more = idx + 1 < buffer.len() || more;
+
+            self.buffer.push(*byte);
+
+            match parse_event(&self.buffer, more) {
+                Ok(Some(ie)) => {
+                    self.internal_events.push_back(ie);
+                    self.buffer.clear();
+                }
+                Ok(None) => {
+                    // Event can't be parsed, because we don't have enough bytes for
+                    // the current sequence. Keep the buffer and process next bytes.
+                }
+                Err(_) => {
+                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
+                    // Clear the buffer and continue with another sequence.
+                    self.buffer.clear();
+                }
+            }
+        }
+    }
+
+    /// Push a non-ANSI event directly into the event queue.
+    /// Used by the Windows hybrid source for events that bypass ANSI parsing.
+    #[allow(dead_code)]
+    pub(crate) fn push_event(&mut self, event: InternalEvent) {
+        self.internal_events.push_back(event);
+    }
+
+    /// Attempt to emit any buffered bytes as a complete event with `more=false`.
+    ///
+    /// Call this after processing a batch that contained no VT key bytes to prevent
+    /// a lone ESC from being held indefinitely when the only pending console records
+    /// are non-key events (mouse, focus, resize).  The emitted event is prepended to
+    /// the queue so that temporal ordering is preserved: the ESC key press happened
+    /// before the interleaved mouse/focus events that caused the delay.
+    ///
+    /// If `parse_event` still returns `Ok(None)` with `more=false` (genuinely
+    /// incomplete multi-byte sequence such as `ESC [`), the buffer is left intact so
+    /// the remaining bytes can be completed by subsequent input.
+    #[allow(dead_code)]
+    pub(crate) fn flush(&mut self) {
+        if self.buffer.is_empty() {
+            return;
+        }
+        match parse_event(&self.buffer, false) {
+            Ok(Some(ie)) => {
+                // Prepend so the ESC appears before any non-key events that were
+                // push_back'd during the same batch.
+                self.internal_events.push_front(ie);
+                self.buffer.clear();
+            }
+            Ok(None) => {
+                // The sequence is genuinely incomplete even without more input (e.g.
+                // ESC + [ mid-CSI).  Leave the buffer alone; the next VT advance
+                // will continue accumulating bytes.
+            }
+            Err(_) => {
+                self.buffer.clear();
+            }
+        }
+    }
+}
+
+impl Iterator for Parser {
+    type Item = InternalEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.internal_events.pop_front()
+    }
+}
+
+/// Decode a UTF-16 code unit, handling surrogate pairs via `surrogate_buffer`.
+///
+/// Returns `Some(char)` for BMP characters and completed surrogate pairs.
+/// Returns `None` when a high surrogate is buffered (waiting for its low half)
+/// or when an orphaned low surrogate is encountered.
+#[allow(dead_code)]
+pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) -> Option<char> {
+    if (0xD800..=0xDBFF).contains(&utf16) {
+        // High surrogate — store and wait for low surrogate
+        *surrogate_buffer = Some(utf16);
+        None
+    } else if (0xDC00..=0xDFFF).contains(&utf16) {
+        // Low surrogate — combine with stored high surrogate
+        if let Some(high) = surrogate_buffer.take() {
+            std::char::decode_utf16([high, utf16]).next()?.ok()
+        } else {
+            None
+        }
+    } else {
+        *surrogate_buffer = None;
+        std::char::from_u32(utf16 as u32)
+    }
+}
+
+#[cfg(test)]
+mod parser_flush_tests {
+    use super::*;
+    use crate::event::{Event, KeyCode};
+
+    fn esc_event() -> InternalEvent {
+        InternalEvent::Event(Event::Key(KeyCode::Esc.into()))
+    }
+
+    fn focus_gained_event() -> InternalEvent {
+        InternalEvent::Event(Event::FocusGained)
+    }
+
+    // Case 1: lone ESC held with more=true is emitted by flush().
+    #[test]
+    fn test_flush_emits_lone_esc() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held: more=true
+        assert!(p.next().is_none(), "ESC must not be emitted before flush");
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+    }
+
+    // Case 2: ESC + non-VT event (same batch) — flush puts ESC before the non-VT event.
+    #[test]
+    fn test_flush_esc_before_non_vt_event() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held
+        p.push_event(focus_gained_event()); // simulates a non-VT record processed later
+        p.flush(); // should prepend ESC
+        assert_eq!(
+            p.next(),
+            Some(esc_event()),
+            "ESC must appear before FocusGained"
+        );
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert!(p.next().is_none());
+    }
+
+    // Case 3: ESC + '[' (partial CSI) must NOT be flushed — it's genuinely incomplete.
+    #[test]
+    fn test_flush_preserves_incomplete_csi() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B[", true); // CSI intro, incomplete
+        p.flush(); // must not emit anything
+        assert!(
+            p.next().is_none(),
+            "incomplete CSI must stay buffered after flush"
+        );
+    }
+
+    // flush() on empty buffer is a no-op (must not panic).
+    #[test]
+    fn test_flush_empty_buffer_is_noop() {
+        let mut p = Parser::default();
+        p.flush();
+        assert!(p.next().is_none());
     }
 }
