@@ -6,7 +6,7 @@ macro_rules! run_tests {
         ),*
         $(,)?
     ) => {
-        use crossterm::{queue, style, terminal, cursor};
+        use crossterm::{cursor, queue, style, terminal};
         $(
             queue!(
                 $dst,
@@ -14,7 +14,7 @@ macro_rules! run_tests {
                 terminal::Clear(terminal::ClearType::All),
                 cursor::MoveTo(1, 1),
                 cursor::Show,
-                cursor::EnableBlinking
+                cursor::EnableBlinking,
             )?;
 
             $testfn($dst)?;
@@ -22,8 +22,8 @@ macro_rules! run_tests {
             match $crate::read_char() {
                 Ok('q') => return Ok(()),
                 Err(e) => return Err(e),
-                _ => { },
-            };
+                _ => {},
+            }
         )*
     }
 }
