@@ -9,24 +9,157 @@ on:
       - master
   workflow_dispatch:
 
-# Keep validation read-only. Publishing will use a separate workflow with narrowly scoped permissions.
+# Keep pull request validation read-only. Publishing belongs in a separate workflow.
 # https://docs.github.com/en/actions/tutorials/authenticate-with-github_token
 permissions:
   contents: read
 
+# Actions use full commit SHAs. The rust-toolchain pin comes from master history because the action
+# requires a durable master commit when the `toolchain` input is supplied explicitly.
+# https://github.com/dtolnay/rust-toolchain#choice-of-full-length-commit-sha
+
 # A pull request keeps the same number as commits are added, so newer commits cancel stale runs.
-# Push and manual runs fall back to the ref. The workflow name prevents cross-workflow cancellation.
+# Push and manual runs fall back to the ref.
 # https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  format:
+    name: format
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+          components: clippy
+
+      - name: Run Clippy
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
+
+  # Beta is close enough to the next stable release to give useful warning about incoming lints
+  # without the additional churn of nightly. This job is advisory: beta can change independently
+  # of the repository, so it is deliberately omitted from ci-success and allowed to fail.
+  # https://doc.rust-lang.org/clippy/continuous_integration/index.html
+  clippy-beta:
+    name: clippy (beta, advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install beta Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: beta
+          components: clippy
+
+      - name: Check upcoming Clippy lints
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
+
+      - name: Explain an advisory failure
+        if: ${{ failure() }}
+        run: |
+          echo "::warning::Beta Clippy found a possible future stable failure. \
+          This advisory job does not block pull requests."
+
+  docs:
+    name: docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --locked --all-features --no-deps
+
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+
+      # Crossterm tests manipulate process-global terminal and environment state.
+      - name: Run tests
+        run: cargo test --locked --all-targets --all-features -- --test-threads 1
+
+  doctest:
+    name: doctest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+
+      - name: Run documentation tests
+        run: cargo test --locked --doc --all-features
+
   # `package.rust-version` is a compatibility promise, so check the library at that exact version.
   # Development tools and examples may have newer requirements without changing the crate's MSRV.
   # https://doc.rust-lang.org/cargo/reference/rust-version.html
   msrv:
-    name: Rust 1.85 library
+    name: msrv
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -36,14 +169,9 @@ jobs:
           persist-credentials: false
 
       - name: Install Rust 1.85
-        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
         with:
           toolchain: 1.85.0
-
-      - name: Toolchain information
-        run: |
-          rustc --version
-          cargo --version
 
       - name: Check library without default features
         run: cargo check --locked --lib --no-default-features
@@ -51,85 +179,142 @@ jobs:
       - name: Check library with all public features
         run: cargo check --locked --lib --all-features
 
-  test:
-    name: ${{ matrix.rust }} on ${{ matrix.os }}
-    # Versioned labels keep OS changes deliberate instead of following the moving `-latest` labels.
-    # https://docs.github.com/en/actions/reference/runners/github-hosted-runners
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    # Nightly is an early warning, not a release gate. Its failures remain visible without failing
-    # the workflow, while fail-fast false lets every OS report its result after another job fails.
-    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error
-    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstrategyfail-fast
-    continue-on-error: ${{ matrix.can-fail }}
+  # These are deliberate compatibility points, not an exhaustive feature powerset. cargo-hack
+  # could automate broader coverage, but would add combinations, runtime, and another pinned tool
+  # before the project has decided that exhaustive feature testing is the policy.
+  # https://github.com/taiki-e/cargo-hack#usage
+  features-unix:
+    name: feature tests (Unix, ${{ matrix.name }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-15]
-        rust: [stable, nightly]
         include:
-          - rust: stable
-            can-fail: false
-          - rust: nightly
-            can-fail: true
+          - name: defaults
+            cargo-args: ""
+          - name: serde
+            cargo-args: --features serde
+          - name: event stream
+            cargo-args: --features event-stream,events
+          - name: no defaults
+            cargo-args: --no-default-features
+          - name: events
+            cargo-args: --no-default-features --features events
+          - name: event stream and dev tty
+            cargo-args: >-
+              --no-default-features
+              --features events,event-stream,use-dev-tty,bracketed-paste
     steps:
-      # A full commit SHA is the only immutable way to select an action.
-      # https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # This workflow never pushes, so do not store its token in the checkout's Git config.
-          # https://github.com/actions/checkout/tree/v7.0.1#usage
           persist-credentials: false
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
         with:
-          toolchain: ${{ matrix.rust }}
-          components: rustfmt, clippy
+          toolchain: stable
 
-      - name: Toolchain information
+      # Run rather than merely check so feature-gated test code and behavior stay covered.
+      - name: Test feature combination
+        run: cargo test --locked --lib ${{ matrix.cargo-args }} -- --test-threads 1
+
+  # Windows intentionally requires the `windows` feature. A bare no-default-features build is
+  # rejected by a compile_error in the crate root, so only supported Windows combinations pass CI.
+  features-windows:
+    name: feature tests (Windows, ${{ matrix.name }})
+    runs-on: windows-2022
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows
+            cargo-args: --no-default-features --features windows
+          - name: windows and events
+            cargo-args: --no-default-features --features windows,events
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+
+      # Run rather than merely check so feature-gated test code and behavior stay covered.
+      - name: Test feature combination
+        run: cargo test --locked --lib ${{ matrix.cargo-args }} -- --test-threads 1
+
+  package:
+    name: package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
+        with:
+          toolchain: stable
+
+      - name: Verify package
+        run: cargo package --locked
+
+  # Always run the aggregate so a failed dependency produces one failed, stable branch-protection
+  # check instead of skipping the aggregate job.
+  # https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks
+  ci-success:
+    name: ci-success
+    if: ${{ always() }}
+    needs:
+      - format
+      - clippy
+      - docs
+      - test
+      - doctest
+      - msrv
+      - features-unix
+      - features-windows
+      - package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every CI job to pass
+        env:
+          FORMAT_RESULT: ${{ needs.format.result }}
+          CLIPPY_RESULT: ${{ needs.clippy.result }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          DOCTEST_RESULT: ${{ needs.doctest.result }}
+          MSRV_RESULT: ${{ needs.msrv.result }}
+          FEATURES_UNIX_RESULT: ${{ needs.features-unix.result }}
+          FEATURES_WINDOWS_RESULT: ${{ needs.features-windows.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
         run: |
-          rustc --version
-          rustfmt --version
-          rustup --version
-          cargo --version
-
-      - name: Check formatting
-        if: matrix.rust == 'stable'
-        run: cargo fmt --all -- --check
-
-      - name: Clippy
-        run: cargo clippy --all-features -- -D clippy::all
-
-      - name: Test build
-        run: cargo build
-
-      # Crossterm tests manipulate process-global terminal and environment state, so run serially.
-      - name: Test default features
-        run: cargo test --lib -- --nocapture --test-threads 1
-
-      - name: Test serde feature
-        run: cargo test --lib --features serde -- --nocapture --test-threads 1
-
-      - name: Test event-stream feature
-        run: cargo test --lib --features "event-stream,events" -- --nocapture --test-threads 1
-
-      - name: Test all features
-        run: cargo test --all-features -- --nocapture --test-threads 1
-
-      - name: Test no default features
-        if: matrix.os != 'windows-2022'
-        run: cargo test --no-default-features -- --nocapture --test-threads 1
-
-      - name: Test no default features with use-dev-tty feature enabled
-        if: matrix.os != 'windows-2022'
-        run: cargo test --no-default-features --features "use-dev-tty events event-stream bracketed-paste" -- --nocapture --test-threads 1
-
-      - name: Test no default features with windows feature enabled
-        if: matrix.os == 'windows-2022'
-        run: cargo test --no-default-features --features "windows" -- --nocapture --test-threads 1
-
-      - name: Test packaging
-        if: matrix.rust == 'stable'
-        run: cargo package
+          for result in \
+            "$FORMAT_RESULT" \
+            "$CLIPPY_RESULT" \
+            "$DOCS_RESULT" \
+            "$TEST_RESULT" \
+            "$DOCTEST_RESULT" \
+            "$MSRV_RESULT" \
+            "$FEATURES_UNIX_RESULT" \
+            "$FEATURES_WINDOWS_RESULT" \
+            "$PACKAGE_RESULT"
+          do
+            if [ "$result" != "success" ]; then
+              echo "Required CI job finished with result: $result"
+              exit 1
+            fi
+          done
