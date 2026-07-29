@@ -8,8 +8,29 @@ updates:
     # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#groups
     schedule:
       interval: monthly
+    # Give new releases time to accumulate community review before adopting them automatically.
+    # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown
+    cooldown:
+      default-days: 7
     groups:
       github-actions:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 1
+
+  - package-ecosystem: cargo
+    directory: /
+    # Leave Cargo.toml unchanged when its requirements already permit the update. If they do not,
+    # widen the requirement so useful out-of-range releases are surfaced for normal review.
+    # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#versioning-strategy
+    versioning-strategy: increase-if-necessary
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    # One grouped PR keeps routine dependency maintenance reviewable without per-crate noise.
+    groups:
+      cargo-dependencies:
         patterns:
           - "*"
     open-pull-requests-limit: 1
