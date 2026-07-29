@@ -1,6 +1,6 @@
 use crossterm::{
     execute,
-    terminal::{size, SetSize},
+    terminal::{SetSize, size},
     tty::IsTty,
 };
 use std::io::{stdin, stdout};

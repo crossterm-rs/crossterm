@@ -7,14 +7,14 @@ use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
 
-use crate::event::timeout::PollTimeout;
 use crate::event::Event;
-use filedescriptor::{poll, pollfd, POLLIN};
+use crate::event::timeout::PollTimeout;
+use filedescriptor::{POLLIN, poll, pollfd};
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event};
-use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
 
 /// Holds a prototypical Waker and a receiver we can wait on when doing select().
 #[cfg(feature = "event-stream")]
@@ -139,7 +139,7 @@ impl EventSource for UnixInternalEventSource {
                 Err(e) => {
                     return Err(std::io::Error::other(format!(
                         "got unexpected error while polling: {e:?}"
-                    )))
+                    )));
                 }
                 Ok(_) => (),
             };

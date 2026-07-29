@@ -3,8 +3,8 @@ use std::time::Duration;
 use crossterm_winapi::{Console, Handle, InputRecord};
 
 use crate::event::{
-    sys::windows::{parse::MouseButtonsPressed, poll::WinApiPoll},
     Event,
+    sys::windows::{parse::MouseButtonsPressed, poll::WinApiPoll},
 };
 
 #[cfg(feature = "event-stream")]

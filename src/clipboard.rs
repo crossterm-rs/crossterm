@@ -5,12 +5,12 @@
 //! ## Implemented operations:
 //!
 //! - Copy: [`CopyToClipboard`](struct.CopyToClipboard.html)
-use base64::prelude::{Engine, BASE64_STANDARD};
+use base64::prelude::{BASE64_STANDARD, Engine};
 
 use std::fmt;
 use std::str::FromStr;
 
-use crate::{osc, Command};
+use crate::{Command, osc};
 
 /// Different clipboard types
 ///
