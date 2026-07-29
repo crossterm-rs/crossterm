@@ -347,7 +347,7 @@ fn parse_key_event_kind(kind: u8) -> KeyEventKind {
 
 pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(b"\x1B[")); // ESC [
-                                           //
+    //
     let s = std::str::from_utf8(&buffer[2..buffer.len() - 1])
         .map_err(|_| could_not_parse_event_error())?;
     let mut split = s.split(';');

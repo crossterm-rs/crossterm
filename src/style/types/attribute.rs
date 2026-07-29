@@ -12,7 +12,7 @@ macro_rules! Attribute {
     (
         $(
             $(#[$inner:ident $($args:tt)*])*
-            $name:ident = $sgr:expr,
+            $name:ident = $sgr:expr_2021,
         )*
     ) => {
         /// Represents an attribute.

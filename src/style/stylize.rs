@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::{style, Attribute, Color, ContentStyle, StyledContent};
+use super::{Attribute, Color, ContentStyle, StyledContent, style};
 
 macro_rules! stylize_method {
     ($method_name:ident Attribute::$attribute:ident) => {
@@ -161,7 +161,7 @@ impl<D: Display> Stylize for StyledContent<D> {
 
 // Workaround for https://github.com/rust-lang/rust/issues/78835
 macro_rules! calculated_docs {
-    ($(#[doc = $doc:expr] $item:item)*) => { $(#[doc = $doc] $item)* };
+    ($(#[doc = $doc:expr_2021] $item:item)*) => { $(#[doc = $doc] $item)* };
 }
 // Remove once https://github.com/rust-lang/rust-clippy/issues/7106 stabilizes.
 #[allow(clippy::single_component_path_imports)]

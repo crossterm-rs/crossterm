@@ -2,9 +2,9 @@ use std::{
     io,
     pin::Pin,
     sync::{
+        Arc,
         atomic::{AtomicBool, Ordering},
         mpsc::{self, SyncSender},
-        Arc,
     },
     task::{Context, Poll},
     thread,
@@ -14,10 +14,10 @@ use std::{
 use futures_core::stream::Stream;
 
 use crate::event::{
+    Event,
     filter::EventFilter,
     internal::{self, InternalEvent},
     sys::Waker,
-    Event,
 };
 
 /// A stream of `Result<Event>`.

@@ -4,11 +4,10 @@ use std::io;
 
 use crossterm::event::KeyEventKind;
 pub use crossterm::{
-    cursor,
+    Command, cursor,
     event::{self, Event, KeyCode, KeyEvent},
     execute, queue, style,
     terminal::{self, ClearType},
-    Command,
 };
 
 #[macro_use]

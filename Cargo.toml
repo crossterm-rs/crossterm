@@ -9,7 +9,7 @@ license = "MIT"
 keywords = ["event", "color", "cli", "input", "terminal"]
 exclude = ["target", "Cargo.lock"]
 readme = "README.md"
-edition = "2021"
+edition = "2024"
 # The MSRV covers the library with no default features and with all public features enabled.
 # Development tools and examples do not independently define the crate's MSRV.
 rust-version = "1.85.0"

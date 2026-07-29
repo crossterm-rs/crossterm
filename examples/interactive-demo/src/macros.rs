@@ -1,6 +1,6 @@
 macro_rules! run_tests {
     (
-        $dst:expr,
+        $dst:expr_2021,
         $(
             $testfn:ident
         ),*

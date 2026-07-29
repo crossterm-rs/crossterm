@@ -4,7 +4,7 @@
 
 use std::{io::stdout, time::Duration};
 
-use futures::{future::FutureExt, select, StreamExt};
+use futures::{StreamExt, future::FutureExt, select};
 use futures_timer::Delay;
 
 use crossterm::{

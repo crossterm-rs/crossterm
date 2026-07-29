@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::style::{parse_next_u8, Color};
+use crate::style::{Color, parse_next_u8};
 
 /// Represents a foreground or background color.
 ///
@@ -213,7 +213,7 @@ mod tests {
     fn test_parse_ansi(bg_or_fg: impl Fn(Color) -> Colored) {
         /// Formats a re-parses `color` to check the result.
         macro_rules! test {
-            ($color:expr) => {
+            ($color:expr_2021) => {
                 let colored = bg_or_fg($color);
                 assert_eq!(Colored::parse_ansi(&format!("{}", colored)), Some(colored));
             };
@@ -308,13 +308,17 @@ mod tests {
 
     #[test]
     fn test_no_color() {
-        std::env::set_var("NO_COLOR", "1");
+        // FIXME: Audit that the environment access only happens in single-threaded code.
+        unsafe { std::env::set_var("NO_COLOR", "1") };
         assert!(Colored::ansi_color_disabled());
-        std::env::set_var("NO_COLOR", "XXX");
+        // FIXME: Audit that the environment access only happens in single-threaded code.
+        unsafe { std::env::set_var("NO_COLOR", "XXX") };
         assert!(Colored::ansi_color_disabled());
-        std::env::set_var("NO_COLOR", "");
+        // FIXME: Audit that the environment access only happens in single-threaded code.
+        unsafe { std::env::set_var("NO_COLOR", "") };
         assert!(!Colored::ansi_color_disabled());
-        std::env::remove_var("NO_COLOR");
+        // FIXME: Audit that the environment access only happens in single-threaded code.
+        unsafe { std::env::remove_var("NO_COLOR") };
         assert!(!Colored::ansi_color_disabled());
     }
 }

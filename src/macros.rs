@@ -2,7 +2,7 @@
 #[macro_export]
 #[doc(hidden)]
 macro_rules! csi {
-    ($( $l:expr ),*) => { concat!("\x1B[", $( $l ),*) };
+    ($( $l:expr_2021 ),*) => { concat!("\x1B[", $( $l ),*) };
 }
 
 /// Concatenate string literals while prepending a xterm Operating System Commands (OSC)
@@ -10,7 +10,7 @@ macro_rules! csi {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! osc {
-    ($( $l:expr ),*) => { concat!("\x1B]", $( $l ),*, "\x1B\\") };
+    ($( $l:expr_2021 ),*) => { concat!("\x1B]", $( $l ),*, "\x1B\\") };
 }
 
 /// Queues one or more command(s) for further execution.
@@ -64,7 +64,7 @@ macro_rules! osc {
 ///
 #[macro_export]
 macro_rules! queue {
-    ($writer:expr $(, $command:expr)* $(,)?) => {{
+    ($writer:expr_2021 $(, $command:expr_2021)* $(,)?) => {{
         use ::std::io::Write;
 
         // This allows the macro to take both mut impl Write and &mut impl Write.
@@ -115,7 +115,7 @@ macro_rules! queue {
 ///   and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
-    ($writer:expr $(, $command:expr)* $(,)? ) => {{
+    ($writer:expr_2021 $(, $command:expr_2021)* $(,)? ) => {{
         use ::std::io::Write;
 
         // Queue each command, then flush
@@ -148,7 +148,7 @@ macro_rules! impl_display {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! impl_from {
-    ($from:path, $to:expr) => {
+    ($from:path, $to:expr_2021) => {
         impl From<$from> for ErrorKind {
             fn from(e: $from) -> Self {
                 $to(e)
