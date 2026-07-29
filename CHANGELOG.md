@@ -1,5 +1,9 @@
 # Unreleased
 
+## Breaking ⚠️
+
+- Raise the minimum supported Rust version from 1.63 to 1.85.
+
 ## Fixed 🐛
 
 - Fix integer underflow in mouse / cursor-position parsers when coord

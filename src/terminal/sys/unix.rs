@@ -259,8 +259,7 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
                 }
             }
             Ok(false) => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
+                return Err(io::Error::other(
                     "The keyboard enhancement status could not be read within a normal duration",
                 ));
             }

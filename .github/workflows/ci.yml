@@ -22,6 +22,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # `package.rust-version` is a compatibility promise, so check the library at that exact version.
+  # Development tools and examples may have newer requirements without changing the crate's MSRV.
+  # https://doc.rust-lang.org/cargo/reference/rust-version.html
+  msrv:
+    name: Rust 1.85 library
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust 1.85
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
+        with:
+          toolchain: 1.85.0
+
+      - name: Toolchain information
+        run: |
+          rustc --version
+          cargo --version
+
+      - name: Check library without default features
+        run: cargo check --locked --lib --no-default-features
+
+      - name: Check library with all public features
+        run: cargo check --locked --lib --all-features
+
   test:
     name: ${{ matrix.rust }} on ${{ matrix.os }}
     # Versioned labels keep OS changes deliberate instead of following the moving `-latest` labels.

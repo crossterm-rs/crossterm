@@ -37,7 +37,7 @@ pub fn supports_ansi() -> bool {
         // Because of that we should check first if the TERM-variable is set
         // and see if the current terminal is a terminal who does support ANSI.
         let supported = enable_vt_processing().is_ok()
-            || std::env::var("TERM").map_or(false, |term| term != "dumb");
+            || std::env::var("TERM").is_ok_and(|term| term != "dumb");
 
         SUPPORTS_ANSI_ESCAPE_CODES.store(supported, Ordering::SeqCst);
     });

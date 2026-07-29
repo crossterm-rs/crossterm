@@ -123,7 +123,7 @@ impl EventSource for UnixInternalEventSource {
             make_pollfd(&self.wake_pipe.receiver),
         ];
 
-        while timeout.leftover().map_or(true, |t| !t.is_zero()) {
+        while timeout.leftover().is_none_or(|t| !t.is_zero()) {
             // check if there are buffered events from the last read
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
@@ -137,10 +137,9 @@ impl EventSource for UnixInternalEventSource {
                     }
                 }
                 Err(e) => {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        format!("got unexpected error while polling: {e:?}"),
-                    ))
+                    return Err(std::io::Error::other(format!(
+                        "got unexpected error while polling: {e:?}"
+                    )))
                 }
                 Ok(_) => (),
             };

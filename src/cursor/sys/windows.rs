@@ -130,17 +130,15 @@ impl ScreenBufferCursor {
 
     fn move_to(&self, x: i16, y: i16) -> std::io::Result<()> {
         if x < 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Argument Out of Range Exception when setting cursor position to X: {x}"),
-            ));
+            return Err(io::Error::other(format!(
+                "Argument Out of Range Exception when setting cursor position to X: {x}"
+            )));
         }
 
         if y < 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Argument Out of Range Exception when setting cursor position to Y: {y}"),
-            ));
+            return Err(io::Error::other(format!(
+                "Argument Out of Range Exception when setting cursor position to Y: {y}"
+            )));
         }
 
         let position = COORD { X: x, Y: y };
