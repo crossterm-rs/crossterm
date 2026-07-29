@@ -104,7 +104,7 @@ impl Stream for EventStream {
     type Item = io::Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
+        match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
             Ok(true) => match internal::read(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
                 Err(e) => Poll::Ready(Some(Err(e))),
@@ -134,8 +134,7 @@ impl Stream for EventStream {
                 Poll::Pending
             }
             Err(e) => Poll::Ready(Some(Err(e))),
-        };
-        result
+        }
     }
 }
 
