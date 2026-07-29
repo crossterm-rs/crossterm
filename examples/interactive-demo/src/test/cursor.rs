@@ -2,7 +2,7 @@
 
 use std::io::Write;
 
-use crossterm::{cursor, execute, queue, style, style::Stylize, Command};
+use crossterm::{Command, cursor, execute, queue, style, style::Stylize};
 use std::thread;
 use std::time::Duration;
 
@@ -124,14 +124,17 @@ fn test_save_restore_cursor_position<W>(w: &mut W) -> std::io::Result<()>
 where
     W: Write,
 {
-    execute!(w,
+    execute!(
+        w,
         cursor::MoveTo(0, 0),
-        style::Print("Save position, print character elsewhere, after three seconds restore to old position."),
+        style::Print(
+            "Save position, print character elsewhere, after three seconds restore to old position."
+        ),
         cursor::MoveToNextLine(2),
         style::Print("Save ->[ ]<- Position"),
         cursor::MoveTo(8, 2),
         cursor::SavePosition,
-        cursor::MoveTo(10,10),
+        cursor::MoveTo(10, 10),
         style::Print("Move To ->[√]<- Position")
     )?;
 
