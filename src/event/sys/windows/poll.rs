@@ -72,8 +72,7 @@ impl WinApiPoll {
                 Ok(None)
             }
             WAIT_FAILED => Err(io::Error::last_os_error()),
-            _ => Err(io::Error::new(
-                io::ErrorKind::Other,
+            _ => Err(io::Error::other(
                 "WaitForMultipleObjects returned unexpected result.",
             )),
         }
