@@ -1,0 +1,31 @@
+# Check the complete public feature graph, including target-specific and development dependencies.
+# https://embarkstudios.github.io/cargo-deny/checks/cfg.html
+[graph]
+all-features = true
+
+# Vulnerable and unsound advisories fail by default. Yanked releases are denied explicitly because
+# they may remain usable from Cargo.lock even though they are no longer selectable.
+# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+[advisories]
+yanked = "deny"
+
+# Keep this list to licenses found in the reviewed dependency graph. Adding a dependency under a
+# different license therefore requires an explicit policy change.
+# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+[licenses]
+include-dev = true
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "MIT",
+    "Unicode-3.0",
+]
+
+# Dependencies should come from crates.io. Any alternative registry or Git source needs separate
+# review and an explicit entry here.
+# https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

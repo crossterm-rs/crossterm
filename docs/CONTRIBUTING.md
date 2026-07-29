@@ -76,10 +76,28 @@ RUSTDOCFLAGS="-D warnings" cargo doc --locked --all-features --no-deps
 cargo test --locked --doc --all-features
 cargo test --locked --all-targets --all-features -- --test-threads 1
 cargo package --locked
+cargo deny --locked check advisories licenses sources
+actionlint
+zizmor --offline --strict-collection .
 ```
 
 Crossterm tests run single-threaded because some tests interact with process-wide terminal and
 environment state.
+
+The dependency policy check uses `cargo-deny`. Its reviewed license and source policies live in
+[`deny.toml`](../deny.toml).
+
+Install the additional CI tools using their maintained instructions:
+[cargo-deny](https://embarkstudios.github.io/cargo-deny/getting-started/installation.html),
+[Actionlint](https://github.com/rhysd/actionlint/blob/main/docs/install.md), and
+[Zizmor](https://docs.zizmor.sh/installation/).
+
+[Actionlint](https://github.com/rhysd/actionlint) understands the GitHub Actions workflow schema and
+expression types, so it catches invalid workflow structure and expressions that a generic YAML
+parser cannot. [Zizmor](https://docs.zizmor.sh/audits/) looks for security problems such as
+excessive permissions, unpinned actions, persisted credentials, dangerous triggers, and template
+injection. The required Zizmor check disables online audits so it remains safe and deterministic
+for fork pull requests.
 
 The minimum supported Rust version covers the library without default features and with all public
 features:
@@ -126,6 +144,9 @@ Crossterm's CI follows these constraints:
   coverage justifies the extra runtime, policy, and tool maintenance.
 - Beta Clippy is advisory. It warns about lints likely to reach the next stable toolchain without
   making pull requests fail because an upstream beta toolchain changed.
+- Dependency policy covers the complete feature graph. Vulnerable or yanked packages, unapproved
+  licenses, and unreviewed registries or Git sources block a pull request.
+- Actionlint checks workflow structure and expressions, while Zizmor audits workflow security.
 - `ci-success` is the stable check intended for branch protection. Individual jobs remain visible
   for diagnosis, but repository rules do not need to track every matrix job name.
 - Pull-request CI is read-only and has no release or publishing authority.

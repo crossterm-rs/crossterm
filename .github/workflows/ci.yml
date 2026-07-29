@@ -271,6 +271,52 @@ jobs:
       - name: Verify package
         run: cargo package --locked
 
+  # Compare the resolved dependency graph with the security, license, and source rules in
+  # deny.toml. Vulnerable or yanked packages, unapproved licenses, and unreviewed sources fail CI.
+  # Duplicate versions are not checked because Cargo may legitimately resolve more than one
+  # semver-incompatible version and Crossterm has not adopted a duplicate-version policy.
+  dependency-policy:
+    name: dependency policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check dependency policy
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          arguments: --locked
+          command: check
+          command-arguments: advisories licenses sources
+
+  # Actionlint validates GitHub Actions structure and expressions; Zizmor detects workflow security
+  # problems such as excessive permissions, unpinned actions, and dangerous triggers. This required
+  # job uses only the checked-out definitions so fork pull requests receive the same blocking
+  # result without GitHub API access. SARIF can follow when Code Scanning can be configured.
+  # https://docs.zizmor.sh/usage/#operating-modes
+  workflow-integrity:
+    name: workflow integrity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check workflow syntax
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+
+      - name: Audit workflow security
+        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
+        with:
+          version: 1.28.0
+          online-audits: false
+          advanced-security: false
+
   # Always run the aggregate so a failed dependency produces one failed, stable branch-protection
   # check instead of skipping the aggregate job.
   # https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks
@@ -287,6 +333,8 @@ jobs:
       - features-unix
       - features-windows
       - package
+      - dependency-policy
+      - workflow-integrity
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -301,6 +349,8 @@ jobs:
           FEATURES_UNIX_RESULT: ${{ needs.features-unix.result }}
           FEATURES_WINDOWS_RESULT: ${{ needs.features-windows.result }}
           PACKAGE_RESULT: ${{ needs.package.result }}
+          DEPENDENCY_POLICY_RESULT: ${{ needs.dependency-policy.result }}
+          WORKFLOW_INTEGRITY_RESULT: ${{ needs.workflow-integrity.result }}
         run: |
           for result in \
             "$FORMAT_RESULT" \
@@ -311,7 +361,9 @@ jobs:
             "$MSRV_RESULT" \
             "$FEATURES_UNIX_RESULT" \
             "$FEATURES_WINDOWS_RESULT" \
-            "$PACKAGE_RESULT"
+            "$PACKAGE_RESULT" \
+            "$DEPENDENCY_POLICY_RESULT" \
+            "$WORKFLOW_INTEGRITY_RESULT"
           do
             if [ "$result" != "success" ]; then
               echo "Required CI job finished with result: $result"
