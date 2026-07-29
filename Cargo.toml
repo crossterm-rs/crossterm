@@ -56,7 +56,7 @@ use-dev-tty = ["filedescriptor", "rustix/process"]
 osc52 = ["dep:base64"]
 
 [dependencies]
-base64 = { version = "0.22", optional = true }
+base64 = { version = "0.23", optional = true }
 bitflags = { version = "2.9" }
 derive_more = { version = "2.0.0", features = ["is_variant"], optional = true }
 document-features = { version = "0.2.11", optional = true }
