@@ -14,6 +14,8 @@
 ## Fixed 🐛
 
 - Return an error instead of spinning or hanging when the tty is gone.
+- Surface dead-tty errors through the async `EventStream` instead of discarding them in
+  the background wake task, which left `event-stream` consumers stalled.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
