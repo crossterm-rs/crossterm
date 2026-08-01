@@ -206,7 +206,7 @@ jobs:
           toolchain: stable
 
       - name: Install minimal versions tools
-        uses: taiki-e/install-action@a6b2e2dcd845ddd7f509ce4f3ed3d922b80cc5d9 # v2.84.0
+        uses: taiki-e/install-action@065d6a08a14e61e89fb0a4c10eecdbdef39c7d8e # v2.85.4
         with:
           tool: cargo-minimal-versions,cargo-hack
           fallback: none
