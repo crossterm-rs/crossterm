@@ -194,12 +194,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install nightly Rust for dependency resolution
-        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
-        with:
-          toolchain: nightly
-
-      # Install stable last so cargo-minimal-versions checks the dependency floor with stable Rust.
       - name: Install stable Rust
         uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
         with:
