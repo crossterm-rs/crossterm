@@ -1195,6 +1195,15 @@ mod tests {
                 modifiers: KeyModifiers::empty(),
             })))
         );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<32;43;0M").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Drag(MouseButton::Left),
+                column: 42,
+                row: 0,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
     }
 
     // Regression: column or row of 0 in an SGR mouse sequence used
