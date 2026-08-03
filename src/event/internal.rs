@@ -4,7 +4,7 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 
 #[cfg(unix)]
 use crate::event::KeyboardEnhancementFlags;
-use crate::event::{Event, filter::Filter, read::InternalEventReader, timeout::PollTimeout};
+use crate::event::{filter::Filter, read::InternalEventReader, timeout::PollTimeout, Event};
 
 /// Static instance of `InternalEventReader`.
 /// This needs to be static because there can be one event reader.
@@ -32,11 +32,11 @@ where
 {
     let (mut reader, timeout) = if let Some(timeout) = timeout {
         let poll_timeout = PollTimeout::new(Some(timeout));
-        let reader = match try_lock_event_reader_for(timeout) {
-            Some(reader) => reader,
-            None => return Ok(false),
-        };
-        (reader, poll_timeout.leftover())
+        if let Some(reader) = try_lock_event_reader_for(timeout) {
+            (reader, poll_timeout.leftover())
+        } else {
+            return Ok(false);
+        }
     } else {
         (lock_event_reader(), None)
     };

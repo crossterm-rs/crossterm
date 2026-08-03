@@ -117,7 +117,7 @@ use std::{
 };
 
 use crate::command::execute_fmt;
-use crate::{Command, csi, impl_display};
+use crate::{csi, impl_display, Command};
 
 pub use self::{
     attributes::Attributes,

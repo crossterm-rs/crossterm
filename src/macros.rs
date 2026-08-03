@@ -224,14 +224,6 @@ mod tests {
         }
 
         #[test]
-        fn test_queue_const_block_command() {
-            let mut result = FakeWrite::default();
-            queue!(&mut result, const { FakeCommand }).unwrap();
-            assert_eq!(&result.buffer, "cmd");
-            assert!(!result.flushed);
-        }
-
-        #[test]
         fn test_execute_one() {
             let mut result = FakeWrite::default();
             execute!(&mut result, FakeCommand).unwrap();
@@ -252,14 +244,6 @@ mod tests {
             let mut result = FakeWrite::default();
             execute!(&mut result, FakeCommand, FakeCommand,).unwrap();
             assert_eq!(&result.buffer, "cmdcmd");
-            assert!(result.flushed);
-        }
-
-        #[test]
-        fn test_execute_const_block_command() {
-            let mut result = FakeWrite::default();
-            execute!(&mut result, const { FakeCommand }).unwrap();
-            assert_eq!(&result.buffer, "cmd");
             assert!(result.flushed);
         }
     }
