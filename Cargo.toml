@@ -63,6 +63,7 @@ document-features = { version = "0.2.11", optional = true }
 futures-core = { version = "0.3.31", optional = true, default-features = false }
 parking_lot = "0.12.1"
 serde = { version = "1.0.103", features = ["derive"], optional = true }
+unicode-segmentation = { version = "1.9.0", default-features = false, optional = true }
 
 # Windows dependencies
 [target.'cfg(windows)'.dependencies]
