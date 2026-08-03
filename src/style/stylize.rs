@@ -105,6 +105,10 @@ pub trait Stylize: Sized {
     stylize_method!(reset Attribute::Reset);
     stylize_method!(bold Attribute::Bold);
     stylize_method!(underlined Attribute::Underlined);
+    stylize_method!(double_underlined Attribute::DoubleUnderlined);
+    stylize_method!(undercurled Attribute::Undercurled);
+    stylize_method!(underdotted Attribute::Underdotted);
+    stylize_method!(underdashed Attribute::Underdashed);
     stylize_method!(reverse Attribute::Reverse);
     stylize_method!(dim Attribute::Dim);
     stylize_method!(italic Attribute::Italic);
