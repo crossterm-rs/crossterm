@@ -160,44 +160,17 @@ jobs:
   # https://doc.rust-lang.org/cargo/reference/rust-version.html
   msrv:
     name: msrv
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15]
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      - name: Install Rust 1.75
-        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
-        with:
-          toolchain: 1.75.0
-
-      - name: Check library without default features
-        run: cargo check --locked --lib --no-default-features
-
-      - name: Check library with all public features
-        run: cargo check --locked --lib --all-features
-
-  # Check that each direct dependency's declared lower bound can build the published library.
-  # cargo-minimal-versions uses nightly Cargo for dependency resolution, then stable Cargo for the
-  # check itself. Exclude examples and development dependencies, matching the library-only MSRV
-  # policy above.
-  # https://github.com/taiki-e/cargo-minimal-versions
-  minimal-versions:
-    name: minimal versions
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install stable Rust
-        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
-        with:
-          toolchain: stable
 
       - name: Install minimal versions tools
         uses: taiki-e/install-action@a6b2e2dcd845ddd7f509ce4f3ed3d922b80cc5d9 # v2.84.0
@@ -206,7 +179,7 @@ jobs:
           fallback: none
 
       - name: Check direct dependency lower bounds
-        run: cargo minimal-versions check --direct --lib --all-features
+        run: cargo minimal-versions check --direct --no-dev-deps --rust-version --workspace --feature-powerset
 
   # These are deliberate compatibility points, not an exhaustive feature powerset. cargo-hack
   # could automate broader coverage, but would add combinations, runtime, and another pinned tool
@@ -357,7 +330,6 @@ jobs:
       - test
       - doctest
       - msrv
-      - minimal-versions
       - features-unix
       - features-windows
       - package
@@ -374,7 +346,6 @@ jobs:
           TEST_RESULT: ${{ needs.test.result }}
           DOCTEST_RESULT: ${{ needs.doctest.result }}
           MSRV_RESULT: ${{ needs.msrv.result }}
-          MINIMAL_VERSIONS_RESULT: ${{ needs.minimal-versions.result }}
           FEATURES_UNIX_RESULT: ${{ needs.features-unix.result }}
           FEATURES_WINDOWS_RESULT: ${{ needs.features-windows.result }}
           PACKAGE_RESULT: ${{ needs.package.result }}
@@ -388,7 +359,6 @@ jobs:
             "$TEST_RESULT" \
             "$DOCTEST_RESULT" \
             "$MSRV_RESULT" \
-            "$MINIMAL_VERSIONS_RESULT" \
             "$FEATURES_UNIX_RESULT" \
             "$FEATURES_WINDOWS_RESULT" \
             "$PACKAGE_RESULT" \
