@@ -168,10 +168,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Rust 1.85
+      - name: Install Rust 1.75
         uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c
         with:
-          toolchain: 1.85.0
+          toolchain: 1.75.0
 
       - name: Check library without default features
         run: cargo check --locked --lib --no-default-features

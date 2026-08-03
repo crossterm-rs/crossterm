@@ -12,7 +12,7 @@ readme = "README.md"
 edition = "2021"
 # The MSRV covers the library with no default features and with all public features enabled.
 # Development tools and examples do not independently define the crate's MSRV.
-rust-version = "1.85.0"
+rust-version = "1.75.0"
 categories = ["command-line-interface", "command-line-utilities"]
 
 [lib]

@@ -108,8 +108,8 @@ The minimum supported Rust version covers the library without default features a
 features:
 
 ```sh
-rustup run 1.85.0 cargo check --locked --lib --no-default-features
-rustup run 1.85.0 cargo check --locked --lib --all-features
+rustup run 1.75.0 cargo check --locked --lib --no-default-features
+rustup run 1.75.0 cargo check --locked --lib --all-features
 ```
 
 On Unix, test the selected feature configurations:

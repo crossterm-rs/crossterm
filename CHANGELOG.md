@@ -2,7 +2,7 @@
 
 ## Breaking ⚠️
 
-- Raise the minimum supported Rust version from 1.63 to 1.85.
+- Raise the minimum supported Rust version from 1.63 to 1.75.
 - Remove `IsTty` trait.
   Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
   which provides equivalent functionality.
