@@ -358,6 +358,41 @@ impl Command for Clear {
     }
 }
 
+/// A command that sets the progress
+///
+/// # Notes
+///
+/// Command must be executed/queued for execution otherwise they do nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SetProgress {
+    Clear,
+    Indeterminate,
+    Default(u8),
+    Warning(u8),
+    Error(u8),
+}
+
+impl Command for SetProgress {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        match self {
+            SetProgress::Clear => f.write_str("\x1b]9;4;0\x07"),
+            SetProgress::Indeterminate => f.write_str("\x1b]9;4;3\x07"),
+            SetProgress::Default(progress) => {
+                f.write_fmt(format_args!("\x1b]9;4;1;{progress}\x07"))
+            }
+            SetProgress::Warning(progress) => {
+                f.write_fmt(format_args!("\x1b]9;4;4;{progress}\x07"))
+            }
+            SetProgress::Error(progress) => f.write_fmt(format_args!("\x1b]9;4;2;{progress}\x07")),
+        }
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
 /// A command that sets the terminal buffer size `(columns, rows)`.
 ///
 /// # Notes
