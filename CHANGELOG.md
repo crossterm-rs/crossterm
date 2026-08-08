@@ -21,6 +21,9 @@
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
   `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+- Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
+  color. `Colors` has no underline field, so the color is now dropped
+  instead of being applied to the background.
 
 # Version 0.29
 
