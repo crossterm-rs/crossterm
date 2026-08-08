@@ -27,28 +27,28 @@ pub struct StyledContent<D: Display> {
 }
 
 impl<D: Display> StyledContent<D> {
-    /// Creates a new `StyledContent`.
+    /// Creates a new [`StyledContent`].
     #[inline]
-    pub fn new(style: ContentStyle, content: D) -> StyledContent<D> {
+    pub const fn new(style: ContentStyle, content: D) -> StyledContent<D> {
         StyledContent { style, content }
     }
 
     /// Returns the content.
     #[inline]
-    pub fn content(&self) -> &D {
+    pub const fn content(&self) -> &D {
         &self.content
     }
 
     /// Returns the style.
     #[inline]
-    pub fn style(&self) -> &ContentStyle {
+    pub const fn style(&self) -> &ContentStyle {
         &self.style
     }
 
     /// Returns a mutable reference to the style, so that it can be further
     /// manipulated
     #[inline]
-    pub fn style_mut(&mut self) -> &mut ContentStyle {
+    pub const fn style_mut(&mut self) -> &mut ContentStyle {
         &mut self.style
     }
 }
