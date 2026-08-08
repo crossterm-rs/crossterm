@@ -48,7 +48,8 @@ impl<D: Display> StyledContent<D> {
     /// Returns a mutable reference to the style, so that it can be further
     /// manipulated
     #[inline]
-    pub const fn style_mut(&mut self) -> &mut ContentStyle {
+    // TODO(MSRV>=1.83): make const fn
+    pub fn style_mut(&mut self) -> &mut ContentStyle {
         &mut self.style
     }
 }
