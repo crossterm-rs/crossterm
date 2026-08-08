@@ -27,9 +27,10 @@ use crate::style::parse_next_u8;
 ///
 /// Most UNIX terminals and Windows 10 consoles support additional colors.
 /// See [`Color::Rgb`] or [`Color::AnsiValue`] for more info.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum Color {
     /// Resets the terminal color.
+    #[default]
     Reset,
 
     /// Black color.
