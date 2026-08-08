@@ -261,6 +261,17 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                     get_char_for_key(key_event).map(KeyCode::Char)
                 }
                 surrogate @ 0xD800..=0xDFFF => {
+                    if !key_event.key_down {
+                        // The Windows emoji panel (and other KEYEVENTF_UNICODE
+                        // injectors) deliver each UTF-16 code unit as a key-down
+                        // *and* a key-up record. Feeding the key-up half into the
+                        // surrogate pairing produces broken (high, high) /
+                        // (low, low) pairs that decode to nothing, so the whole
+                        // character is silently lost. Only the key-down half
+                        // carries the surrogate forward; the key-up half is
+                        // dropped here *without* disturbing a buffered value.
+                        return None;
+                    }
                     return Some(WindowsKeyEvent::Surrogate(surrogate));
                 }
                 unicode_scalar_value => {
