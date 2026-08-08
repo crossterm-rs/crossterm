@@ -44,7 +44,7 @@
 
 use std::fmt;
 
-use crate::{Command, csi, impl_display};
+use crate::{csi, impl_display, Command};
 
 pub(crate) mod sys;
 
@@ -432,7 +432,7 @@ mod tests {
     use crate::execute;
 
     use super::{
-        MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition, sys::position,
+        sys::position, MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition,
     };
 
     // Test is disabled, because it's failing on Travis

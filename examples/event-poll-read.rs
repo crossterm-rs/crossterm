@@ -6,7 +6,7 @@ use std::{io, time::Duration};
 
 use crossterm::{
     cursor::position,
-    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, poll, read},
+    event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode},
 };

@@ -4,10 +4,10 @@ use std::convert::TryFrom;
 use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crossterm_winapi::{Coord, Handle, HandleType, ScreenBuffer, result};
+use crossterm_winapi::{result, Coord, Handle, HandleType, ScreenBuffer};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{CONSOLE_CURSOR_INFO, COORD, SetConsoleCursorInfo, SetConsoleCursorPosition},
+    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
 };
 
 /// The position of the cursor, written when you save the cursor's position.
