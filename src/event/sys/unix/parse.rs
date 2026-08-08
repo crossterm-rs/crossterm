@@ -180,6 +180,9 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
         b'?' => match buffer[buffer.len() - 1] {
             b'u' => return parse_csi_keyboard_enhancement_flags(buffer),
             b'c' => return parse_csi_primary_device_attributes(buffer),
+            // A final byte we have no parser for still ends the sequence.
+            // Returning Ok(None) here wedges the reader and swallows later input (#1104).
+            0x40..=0x7E => return Err(could_not_parse_event_error()),
             _ => None,
         },
         b'0'..=b'9' => {
@@ -1584,6 +1587,23 @@ mod tests {
                 KeyModifiers::CONTROL,
                 KeyEventKind::Release,
             )))),
+        );
+    }
+
+    #[test]
+    fn test_unrecognised_csi_private_mode_is_error_not_incomplete() {
+        // DECRPM reply CSI ? 2026 ; 2 $ y — final byte ends the sequence.
+        // Returning Ok(None) wedges the reader and swallows later input (#1104).
+        let r = parse_event(b"\x1B[?2026;2$y", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI ? sequence must be Err, got {r:?}"
+        );
+        // Color-scheme report CSI ? 997 ; 1 n
+        let r = parse_event(b"\x1B[?997;1n", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI ? sequence must be Err, got {r:?}"
         );
     }
 }
