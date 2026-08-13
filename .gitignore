@@ -2,4 +2,7 @@
 **/.idea/
 **/.vscode/
 **/*.rs.bk
+# Track the root lockfile for reproducible `--locked` CI; keep example lockfiles ignored.
+# https://doc.rust-lang.org/cargo/commands/cargo.html#manifest-options
 **/Cargo.lock
+!/Cargo.lock

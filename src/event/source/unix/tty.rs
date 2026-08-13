@@ -7,14 +7,14 @@ use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
 
-use crate::event::timeout::PollTimeout;
 use crate::event::Event;
-use filedescriptor::{poll, pollfd, POLLIN};
+use crate::event::timeout::PollTimeout;
+use filedescriptor::{POLLIN, poll, pollfd};
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{internal::InternalEvent, source::EventSource, sys::parse::Parser};
-use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
 
 /// Holds a prototypical Waker and a receiver we can wait on when doing select().
 #[cfg(feature = "event-stream")]
@@ -123,7 +123,7 @@ impl EventSource for UnixInternalEventSource {
             make_pollfd(&self.wake_pipe.receiver),
         ];
 
-        while timeout.leftover().map_or(true, |t| !t.is_zero()) {
+        while timeout.leftover().is_none_or(|t| !t.is_zero()) {
             // check if there are buffered events from the last read
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
@@ -137,10 +137,9 @@ impl EventSource for UnixInternalEventSource {
                     }
                 }
                 Err(e) => {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        format!("got unexpected error while polling: {e:?}"),
-                    ))
+                    return Err(std::io::Error::other(format!(
+                        "got unexpected error while polling: {e:?}"
+                    )));
                 }
                 Ok(_) => (),
             };
@@ -175,8 +174,7 @@ impl EventSource for UnixInternalEventSource {
                 // This can take a really long time, because terminal::size can
                 // launch new process (tput) and then it parses its output. It's
                 // not a really long time from the absolute time point of view, but
-                // it's a really long time from the mio, async-std/tokio executor, ...
-                // point of view.
+                // it's a really long time from an async executor's point of view.
                 let new_size = crate::terminal::size()?;
                 return Ok(Some(InternalEvent::Event(Event::Resize(
                     new_size.0, new_size.1,

@@ -63,9 +63,12 @@ impl From<Colored> for Colors {
                 foreground: None,
                 background: Some(color),
             },
-            Colored::UnderlineColor(color) => Colors {
+            // `Colors` carries no underline color, so this one cannot be kept.
+            // Dropping it loses information, but putting it in `background`
+            // would apply a color the caller never asked for.
+            Colored::UnderlineColor(_) => Colors {
                 foreground: None,
-                background: Some(color),
+                background: None,
             },
         }
     }
@@ -73,7 +76,66 @@ impl From<Colored> for Colors {
 
 #[cfg(test)]
 mod tests {
-    use crate::style::{Color, Colors};
+    use crate::style::{Color, Colored, Colors};
+
+    #[test]
+    fn test_colors_from_colored() {
+        assert_eq!(
+            Colors::from(Colored::ForegroundColor(Color::Blue)),
+            Colors {
+                foreground: Some(Color::Blue),
+                background: None,
+            }
+        );
+
+        assert_eq!(
+            Colors::from(Colored::BackgroundColor(Color::Blue)),
+            Colors {
+                foreground: None,
+                background: Some(Color::Blue),
+            }
+        );
+
+        // there is no field to keep an underline color in, but it must not
+        // turn into a background color
+        assert_eq!(
+            Colors::from(Colored::UnderlineColor(Color::Blue)),
+            Colors {
+                foreground: None,
+                background: None,
+            }
+        );
+    }
+
+    #[test]
+    fn test_colors_from_parsed_underline_color() {
+        // SGR 58 sets an underline color, 59 resets it
+        let underline = Colored::parse_ansi("58;5;1").unwrap();
+        assert_eq!(underline, Colored::UnderlineColor(Color::DarkRed));
+        assert_eq!(
+            Colors::from(underline),
+            Colors {
+                foreground: None,
+                background: None,
+            }
+        );
+
+        let reset = Colored::parse_ansi("59").unwrap();
+        assert_eq!(reset, Colored::UnderlineColor(Color::Reset));
+        assert_eq!(
+            Colors::from(reset),
+            Colors {
+                foreground: None,
+                background: None,
+            }
+        );
+
+        // the pattern from the `Colors` doc example: reading a color out of a
+        // config must not repaint the background when that color is an
+        // underline color
+        let defaults = Colors::new(Color::Green, Color::Black);
+        assert_eq!(defaults.then(&underline.into()), defaults);
+    }
 
     #[test]
     fn test_colors_then() {

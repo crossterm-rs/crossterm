@@ -4,10 +4,10 @@ use std::convert::TryFrom;
 use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crossterm_winapi::{result, Coord, Handle, HandleType, ScreenBuffer};
+use crossterm_winapi::{Coord, Handle, HandleType, ScreenBuffer, result};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::wincon::{SetConsoleCursorInfo, SetConsoleCursorPosition, CONSOLE_CURSOR_INFO, COORD},
+    um::wincon::{CONSOLE_CURSOR_INFO, COORD, SetConsoleCursorInfo, SetConsoleCursorPosition},
 };
 
 /// The position of the cursor, written when you save the cursor's position.
@@ -130,17 +130,15 @@ impl ScreenBufferCursor {
 
     fn move_to(&self, x: i16, y: i16) -> std::io::Result<()> {
         if x < 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Argument Out of Range Exception when setting cursor position to X: {x}"),
-            ));
+            return Err(io::Error::other(format!(
+                "Argument Out of Range Exception when setting cursor position to X: {x}"
+            )));
         }
 
         if y < 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Argument Out of Range Exception when setting cursor position to Y: {y}"),
-            ));
+            return Err(io::Error::other(format!(
+                "Argument Out of Range Exception when setting cursor position to Y: {y}"
+            )));
         }
 
         let position = COORD { X: x, Y: y };

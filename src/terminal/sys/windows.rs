@@ -6,7 +6,7 @@ use std::io::{self};
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
 use winapi::{
     shared::minwindef::DWORD,
-    um::wincon::{SetConsoleTitleW, ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT},
+    um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT, SetConsoleTitleW},
 };
 
 use crate::{
@@ -416,9 +416,9 @@ mod tests {
     use winapi::um::wincon::GetConsoleTitleW;
 
     use super::{
-        compute_disable_raw_mode, compute_enable_raw_mode, scroll_down, scroll_up, set_size,
-        set_window_title, size, temp_screen_buffer, ENABLE_VIRTUAL_TERMINAL_INPUT,
-        NOT_RAW_MODE_MASK,
+        ENABLE_VIRTUAL_TERMINAL_INPUT, NOT_RAW_MODE_MASK, compute_disable_raw_mode,
+        compute_enable_raw_mode, scroll_down, scroll_up, set_size, set_window_title, size,
+        temp_screen_buffer,
     };
 
     #[test]

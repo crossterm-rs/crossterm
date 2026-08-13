@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crossterm::{cursor, execute, style::Print, SynchronizedUpdate};
+use crossterm::{SynchronizedUpdate, cursor, execute, style::Print};
 
 fn render_slowly<W>(w: &mut W) -> std::io::Result<()>
 where

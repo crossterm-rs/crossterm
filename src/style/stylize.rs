@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::{style, Attribute, Color, ContentStyle, StyledContent};
+use super::{Attribute, Color, ContentStyle, StyledContent, style};
 
 macro_rules! stylize_method {
     ($method_name:ident Attribute::$attribute:ident) => {

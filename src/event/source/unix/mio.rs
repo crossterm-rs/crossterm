@@ -1,14 +1,14 @@
 use std::{io, time::Duration};
 
-use mio::{unix::SourceFd, Events, Interest, Poll, Token};
+use mio::{Events, Interest, Poll, Token, unix::SourceFd};
 use signal_hook_mio::v1_0::Signals;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
-    internal::InternalEvent, source::EventSource, sys::parse::Parser, timeout::PollTimeout, Event,
+    Event, internal::InternalEvent, source::EventSource, sys::parse::Parser, timeout::PollTimeout,
 };
-use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
+use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
@@ -126,8 +126,7 @@ impl EventSource for UnixInternalEventSource {
                             // This can take a really long time, because terminal::size can
                             // launch new process (tput) and then it parses its output. It's
                             // not a really long time from the absolute time point of view, but
-                            // it's a really long time from the mio, async-std/tokio executor, ...
-                            // point of view.
+                            // it's a really long time from an async executor's point of view.
                             let new_size = crate::terminal::size()?;
                             return Ok(Some(InternalEvent::Event(Event::Resize(
                                 new_size.0, new_size.1,

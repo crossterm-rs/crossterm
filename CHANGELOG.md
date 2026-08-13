@@ -1,11 +1,29 @@
 # Unreleased
 
+## Breaking ⚠️
+
+- Raise the minimum supported Rust version from 1.63 to 1.85.
+- Remove `IsTty` trait.
+  Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
+  which provides equivalent functionality.
+
+## Changed ⚙️
+
+- Migrate the crate to the Rust 2024 edition. This does not raise the MSRV beyond Rust 1.85.
+
 ## Fixed 🐛
 
+- Fix color commands emitting a bare `CSI m` when colors are disabled via
+  `NO_COLOR`, which reset every attribute instead of doing nothing.
+  Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
+  and `SetColors`.
 - Fix integer underflow in mouse / cursor-position parsers when coord
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
   `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+- Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
+  color. `Colors` has no underline field, so the color is now dropped
+  instead of being applied to the background.
 
 # Version 0.29
 

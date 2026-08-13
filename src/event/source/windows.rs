@@ -3,13 +3,13 @@ use std::time::Duration;
 use crossterm_winapi::{Console, Handle, InputRecord};
 
 use crate::event::{
+    Event,
     sys::windows::{
         parse::MouseButtonsPressed,
         parse::{handle_key_event, handle_mouse_event},
         poll::WinApiPoll,
         try_enable_vt_input,
     },
-    Event,
 };
 
 #[cfg(feature = "event-stream")]
@@ -17,7 +17,7 @@ use crate::event::sys::Waker;
 use crate::event::{
     internal::InternalEvent,
     source::EventSource,
-    sys::parse::{decode_utf16_char, Parser},
+    sys::parse::{Parser, decode_utf16_char},
     timeout::PollTimeout,
 };
 

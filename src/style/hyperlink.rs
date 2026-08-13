@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{impl_display, osc, Command};
+use crate::{Command, impl_display, osc};
 
 /// A command that starts an [OSC 8 hyperlink].
 ///

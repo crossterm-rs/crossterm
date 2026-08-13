@@ -249,9 +249,6 @@ pub mod style;
 /// A module to work with the terminal.
 pub mod terminal;
 
-/// A module to query if the current instance is a tty.
-pub mod tty;
-
 /// A module for clipboard interaction
 #[cfg(feature = "osc52")]
 pub mod clipboard;
@@ -263,4 +260,6 @@ mod command;
 pub(crate) mod macros;
 
 #[cfg(all(windows, not(feature = "windows")))]
-compile_error!("Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows.");
+compile_error!(
+    "Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows."
+);

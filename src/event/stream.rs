@@ -2,9 +2,9 @@ use std::{
     io,
     pin::Pin,
     sync::{
+        Arc,
         atomic::{AtomicBool, Ordering},
         mpsc::{self, SyncSender},
-        Arc,
     },
     task::{Context, Poll},
     thread,
@@ -14,10 +14,10 @@ use std::{
 use futures_core::stream::Stream;
 
 use crate::event::{
+    Event,
     filter::EventFilter,
     internal::{self, InternalEvent},
     sys::Waker,
-    Event,
 };
 
 /// A stream of `Result<Event>`.
@@ -26,7 +26,7 @@ use crate::event::{
 /// to make it available.**
 ///
 /// It implements the [Stream](futures_core::stream::Stream)
-/// trait and allows you to receive [`Event`]s with [`async-std`](https://crates.io/crates/async-std)
+/// trait and allows you to receive [`Event`]s with [`smol`](https://crates.io/crates/smol)
 /// or [`tokio`](https://crates.io/crates/tokio) crates.
 ///
 /// Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder to see how to use
@@ -104,7 +104,7 @@ impl Stream for EventStream {
     type Item = io::Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let result = match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
+        match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
             Ok(true) => match internal::read(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
                 Err(e) => Poll::Ready(Some(Err(e))),
@@ -135,8 +135,7 @@ impl Stream for EventStream {
                 Poll::Pending
             }
             Err(e) => Poll::Ready(Some(Err(e))),
-        };
-        result
+        }
     }
 }
 
