@@ -800,6 +800,10 @@ pub enum MouseEventKind {
 }
 
 impl MouseEventKind {
+    /// Returns the mouse button connected with the event.
+    ///
+    /// This will return `Some(MouseButton)` for `Down`, `Up`, and `Drag` events.
+    /// For other events, like `Moved` or `Scroll...`, it returns `None`.
     pub fn get_button(&self) -> Option<MouseButton> {
         match self {
             MouseEventKind::Down(button)
