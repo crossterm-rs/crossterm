@@ -805,7 +805,6 @@ impl MouseEventKind {
             MouseEventKind::Down(button)
             | MouseEventKind::Up(button)
             | MouseEventKind::Drag(button) => Some(*button),
-
             _ => None,
         }
     }
