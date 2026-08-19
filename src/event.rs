@@ -799,6 +799,18 @@ pub enum MouseEventKind {
     ScrollRight,
 }
 
+impl MouseEventKind {
+    pub fn get_button(&self) -> Option<MouseButton> {
+        match self {
+            MouseEventKind::Down(button)
+            | MouseEventKind::Up(button)
+            | MouseEventKind::Drag(button) => Some(*button),
+
+            _ => None,
+        }
+    }
+}
+
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "derive-more", derive(IsVariant))]
@@ -1707,5 +1719,20 @@ mod tests {
             assert_eq!(event.as_paste_event(), Some(""));
             assert_eq!(event.as_key_event(), None);
         }
+    }
+
+    #[test]
+    fn event_get_button() {
+        let event = MouseEventKind::Down(MouseButton::Left);
+        assert_eq!(event.get_button(), Some(MouseButton::Left));
+
+        let event = MouseEventKind::Up(MouseButton::Right);
+        assert_eq!(event.get_button(), Some(MouseButton::Right));
+
+        let event = MouseEventKind::Drag(MouseButton::Middle);
+        assert_eq!(event.get_button(), Some(MouseButton::Middle));
+
+        let event = MouseEventKind::Moved;
+        assert_eq!(event.get_button(), None);
     }
 }
