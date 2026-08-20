@@ -804,7 +804,7 @@ impl MouseEventKind {
     ///
     /// This will return `Some(MouseButton)` for `Down`, `Up`, and `Drag` events.
     /// For other events, like `Moved` or `Scroll...`, it returns `None`.
-    pub fn get_button(&self) -> Option<MouseButton> {
+    pub fn button(&self) -> Option<MouseButton> {
         match self {
             MouseEventKind::Down(button)
             | MouseEventKind::Up(button)
@@ -1725,17 +1725,17 @@ mod tests {
     }
 
     #[test]
-    fn event_get_button() {
+    fn event_button() {
         let event = MouseEventKind::Down(MouseButton::Left);
-        assert_eq!(event.get_button(), Some(MouseButton::Left));
+        assert_eq!(event.button(), Some(MouseButton::Left));
 
         let event = MouseEventKind::Up(MouseButton::Right);
-        assert_eq!(event.get_button(), Some(MouseButton::Right));
+        assert_eq!(event.button(), Some(MouseButton::Right));
 
         let event = MouseEventKind::Drag(MouseButton::Middle);
-        assert_eq!(event.get_button(), Some(MouseButton::Middle));
+        assert_eq!(event.button(), Some(MouseButton::Middle));
 
         let event = MouseEventKind::Moved;
-        assert_eq!(event.get_button(), None);
+        assert_eq!(event.button(), None);
     }
 }
