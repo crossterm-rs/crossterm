@@ -21,6 +21,10 @@
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
   `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+- Fix integer underflow on the Windows legacy-console cursor path when the
+  requested count exceeded the current row or column (panic in debug, wrap
+  to 65535 in release). `MoveUp`, `MoveLeft`, and `MoveToPreviousLine` now
+  clamp at the first row / column, matching the ANSI path.
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.

@@ -56,7 +56,7 @@ pub(crate) fn move_to(column: u16, row: u16) -> std::io::Result<()> {
 
 pub(crate) fn move_up(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
-    move_to(column, row - count)?;
+    move_to(column, row.saturating_sub(count))?;
     Ok(())
 }
 
@@ -74,7 +74,7 @@ pub(crate) fn move_down(count: u16) -> std::io::Result<()> {
 
 pub(crate) fn move_left(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
-    move_to(column - count, row)?;
+    move_to(column.saturating_sub(count), row)?;
     Ok(())
 }
 
@@ -98,7 +98,7 @@ pub(crate) fn move_to_next_line(count: u16) -> std::io::Result<()> {
 
 pub(crate) fn move_to_previous_line(count: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
-    move_to(0, row - count)?;
+    move_to(0, row.saturating_sub(count))?;
     Ok(())
 }
 
@@ -248,6 +248,12 @@ mod tests {
         move_left(2).unwrap();
 
         assert_eq!(position().unwrap(), (0, 0));
+
+        move_to(2, 0).unwrap();
+
+        move_left(5).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
     }
 
     #[test]
@@ -258,6 +264,12 @@ mod tests {
         move_to(0, 2).unwrap();
 
         move_up(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+
+        move_to(0, 2).unwrap();
+
+        move_up(5).unwrap();
 
         assert_eq!(position().unwrap(), (0, 0));
     }
@@ -282,6 +294,12 @@ mod tests {
         move_to(0, 2).unwrap();
 
         move_to_previous_line(2).unwrap();
+
+        assert_eq!(position().unwrap(), (0, 0));
+
+        move_to(0, 2).unwrap();
+
+        move_to_previous_line(5).unwrap();
 
         assert_eq!(position().unwrap(), (0, 0));
     }
