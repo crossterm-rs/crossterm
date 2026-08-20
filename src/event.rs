@@ -127,8 +127,6 @@ pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
-#[cfg(feature = "derive-more")]
-use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
@@ -527,7 +525,6 @@ impl Command for PopKeyboardEnhancementFlags {
 
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Hash)]
 pub enum Event {
@@ -546,6 +543,61 @@ pub enum Event {
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+}
+
+/// Implements `is_*` predicates for unit and tuple enum variants.
+///
+/// Entries use the same left-to-right shape as `match` arms:
+/// `Variant` or `Variant(..)`, followed by `=>` and the method name. The
+/// method name is explicit because `macro_rules!` cannot construct an
+/// identifier such as `is_focus_gained` from `FocusGained`.
+///
+/// Attributes on an entry are applied to the generated method. This keeps
+/// feature-gated helpers, such as `Event::is_paste`, aligned with their
+/// variants.
+///
+/// Variants whose payload needs to be compared belong in a handwritten
+/// method instead; see the `KeyCode` helpers below. Generated methods are
+/// `const`, inline, and `must_use`.
+macro_rules! impl_is_variant {
+    (
+        $type:ident {
+            $(
+                $(#[$meta:meta])*
+                $variant:ident $(($field:tt))? => $method:ident
+            ),* $(,)?
+        }
+    ) => {
+        impl $type {
+            $(
+                $(#[$meta])*
+                #[doc = concat!(
+                    "Returns `true` if this value is the `",
+                    stringify!($type),
+                    "::",
+                    stringify!($variant),
+                    "` variant. Returns `false` otherwise."
+                )]
+                #[inline]
+                #[must_use]
+                pub const fn $method(&self) -> bool {
+                    matches!(self, Self::$variant $(($field))?)
+                }
+            )*
+        }
+    };
+}
+
+impl_is_variant! {
+    Event {
+        FocusGained => is_focus_gained,
+        FocusLost => is_focus_lost,
+        Key(..) => is_key,
+        Mouse(..) => is_mouse,
+        #[cfg(feature = "bracketed-paste")]
+        Paste(..) => is_paste,
+        Resize(..) => is_resize,
+    }
 }
 
 impl Event {
@@ -778,7 +830,6 @@ pub struct MouseEvent {
 /// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
@@ -799,9 +850,21 @@ pub enum MouseEventKind {
     ScrollRight,
 }
 
+impl_is_variant! {
+    MouseEventKind {
+        Down(..) => is_down,
+        Up(..) => is_up,
+        Drag(..) => is_drag,
+        Moved => is_moved,
+        ScrollDown => is_scroll_down,
+        ScrollUp => is_scroll_up,
+        ScrollLeft => is_scroll_left,
+        ScrollRight => is_scroll_right,
+    }
+}
+
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseButton {
     /// Left mouse button.
@@ -810,6 +873,14 @@ pub enum MouseButton {
     Right,
     /// Middle mouse button.
     Middle,
+}
+
+impl_is_variant! {
+    MouseButton {
+        Left => is_left,
+        Right => is_right,
+        Middle => is_middle,
+    }
 }
 
 bitflags! {
@@ -883,12 +954,19 @@ impl Display for KeyModifiers {
 
 /// Represents a keyboard event kind.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum KeyEventKind {
     Press,
     Repeat,
     Release,
+}
+
+impl_is_variant! {
+    KeyEventKind {
+        Press => is_press,
+        Repeat => is_repeat,
+        Release => is_release,
+    }
 }
 
 bitflags! {
@@ -1204,7 +1282,6 @@ impl Display for ModifierKeyCode {
 
 /// Represents a key.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyCode {
     /// Backspace key (Delete on macOS, Backspace on other platforms).
@@ -1238,12 +1315,10 @@ pub enum KeyCode {
     /// F key.
     ///
     /// `KeyCode::F(1)` represents F1 key, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     F(u8),
     /// A character.
     ///
     /// `KeyCode::Char('c')` represents `c` character, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Char(char),
     /// Null.
     Null,
@@ -1296,7 +1371,6 @@ pub enum KeyCode {
     /// **Note:** these keys can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Media(MediaKeyCode),
     /// A modifier key.
     ///
@@ -1304,8 +1378,36 @@ pub enum KeyCode {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
     /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] have been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Modifier(ModifierKeyCode),
+}
+
+// `F`, `Char`, `Media`, and `Modifier` have payload-aware methods below.
+impl_is_variant! {
+    KeyCode {
+        Backspace => is_backspace,
+        Enter => is_enter,
+        Left => is_left,
+        Right => is_right,
+        Up => is_up,
+        Down => is_down,
+        Home => is_home,
+        End => is_end,
+        PageUp => is_page_up,
+        PageDown => is_page_down,
+        Tab => is_tab,
+        BackTab => is_back_tab,
+        Delete => is_delete,
+        Insert => is_insert,
+        Null => is_null,
+        Esc => is_esc,
+        CapsLock => is_caps_lock,
+        ScrollLock => is_scroll_lock,
+        NumLock => is_num_lock,
+        PrintScreen => is_print_screen,
+        Pause => is_pause,
+        Menu => is_menu,
+        KeypadBegin => is_keypad_begin,
+    }
 }
 
 impl KeyCode {
@@ -1617,7 +1719,6 @@ mod tests {
         modifiers: KeyModifiers::empty(),
     };
 
-    #[cfg(feature = "derive-more")]
     #[test]
     fn event_is() {
         let event = Event::FocusGained;
@@ -1665,6 +1766,22 @@ mod tests {
             assert!(event.is_paste());
             assert!(!event.is_key());
         }
+    }
+
+    #[test]
+    fn enum_variant_is() {
+        let mouse_kind = MouseEventKind::Down(MouseButton::Left);
+        assert!(mouse_kind.is_down());
+        assert!(!mouse_kind.is_up());
+
+        assert!(MouseButton::Left.is_left());
+        assert!(!MouseButton::Left.is_right());
+
+        assert!(KeyEventKind::Press.is_press());
+        assert!(!KeyEventKind::Press.is_release());
+
+        assert!(KeyCode::Backspace.is_backspace());
+        assert!(!KeyCode::Backspace.is_enter());
     }
 
     #[test]
