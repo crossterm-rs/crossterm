@@ -153,7 +153,6 @@ features = ["event-stream"]
 | `serde`        | (De)serializing of events.                   |
 | `events`        | Reading input/system events (enabled by default) |
 | `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
-| `derive-more`  | Adds `is_*` helper functions for event types |
 | `osc52`        | Enables crossterm::clipboard                 |
 
 
@@ -172,7 +171,6 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
-| `derive_more`  | Adds `is_*` helper functions for event types                                     | optional (`derive-more` feature), included by default |
 | `base64`       | Encoding clipboard data for OSC52 sequences in crossterm::clipboard              | only with `osc52` feature flag        |
 
 ### Other Resources

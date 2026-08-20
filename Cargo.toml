@@ -23,7 +23,7 @@ path = "src/lib.rs"
 all-features = true
 
 [features]
-default = ["bracketed-paste", "derive-more", "events", "windows"]
+default = ["bracketed-paste", "events", "windows"]
 
 #! ### Default features
 ## Enables triggering [`Event::Paste`](event::Event::Paste) when pasting text into the terminal.
@@ -34,9 +34,6 @@ events = ["dep:mio", "dep:signal-hook", "dep:signal-hook-mio"]
 
 ## Enables windows specific crates.
 windows = ["dep:winapi", "dep:crossterm_winapi"]
-
-## Enables `is_*` helper functions for event enums.
-derive-more = ["dep:derive_more"]
 
 #! ### Optional Features
 
@@ -58,7 +55,6 @@ osc52 = ["dep:base64"]
 [dependencies]
 base64 = { version = "0.23", optional = true }
 bitflags = { version = "2.9" }
-derive_more = { version = "2.0.0", features = ["is_variant"], optional = true }
 document-features = { version = "0.2.11", optional = true }
 futures-core = { version = "0.3.31", optional = true, default-features = false }
 parking_lot = "0.12.1"
