@@ -145,7 +145,6 @@ mod tests {
     use std::io;
     use std::{collections::VecDeque, time::Duration};
 
-    #[cfg(unix)]
     use super::super::filter::CursorPositionFilter;
     use super::{super::Event, EventSource, Filter, InternalEvent, InternalEventReader};
 
@@ -191,7 +190,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(unix)]
     fn test_poll_returns_true_for_matching_event_in_queue_at_back() {
         let mut reader = InternalEventReader {
             events: vec![
@@ -220,7 +218,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(unix)]
     fn test_read_returns_matching_event_in_queue_at_back() {
         const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
 
@@ -234,7 +231,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(unix)]
     fn test_read_does_not_consume_skipped_event() {
         const SKIPPED_EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 10));
         const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
@@ -250,7 +246,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(unix)]
     fn test_try_read_does_not_consume_skipped_event() {
         const SKIPPED_EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 10));
         const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
