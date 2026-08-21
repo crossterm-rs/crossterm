@@ -357,6 +357,121 @@ impl Command for DisableMouseCapture {
     }
 }
 
+/// Advanced commands for granular control.
+#[cfg(feature = "events")]
+pub mod advanced {
+    use crate::{csi, Command};
+    use std::fmt;
+
+    /// Enables press/release mouse tracking (DEC 1000).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct EnableMouseClickEvents;
+
+    impl Command for EnableMouseClickEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1000h"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+
+    /// Disables press/release mouse tracking (DEC 1000).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct DisableMouseClickEvents;
+
+    impl Command for DisableMouseClickEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1000l"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+
+    /// Enables drag mouse tracking (DEC 1002).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct EnableMouseDragEvents;
+
+    impl Command for EnableMouseDragEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1002h"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+
+    /// Disables drag mouse tracking (DEC 1002).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct DisableMouseDragEvents;
+
+    impl Command for DisableMouseDragEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1002l"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+
+    /// Enables hover mouse tracking (DEC 1003).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct EnableMouseHoverEvents;
+
+    impl Command for EnableMouseHoverEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1003h"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+
+    /// Disables hover mouse tracking (DEC 1003).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct DisableMouseHoverEvents;
+
+    impl Command for DisableMouseHoverEvents {
+        fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+            f.write_str(csi!("?1003l"))
+        }
+
+        #[cfg(windows)]
+        fn execute_winapi(&self) -> std::io::Result<()> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Unsupported,
+                "Per-mode mouse tracking not implemented in the legacy Windows API.",
+            ))
+        }
+    }
+}
+
 /// A command that enables focus event emission.
 ///
 /// It should be paired with [`DisableFocusChange`] at the end of execution.
