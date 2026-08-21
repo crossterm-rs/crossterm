@@ -21,6 +21,10 @@
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
   `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+- Fix arithmetic overflow and out-of-range errors on the Windows legacy-console
+  cursor path when the requested count went past the edge (panic in debug, wrap
+  in release). `MoveUp`, `MoveLeft`, `MoveToPreviousLine`, `MoveRight`,
+  `MoveDown`, and `MoveToNextLine` now clamp at the screen buffer edge.
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
