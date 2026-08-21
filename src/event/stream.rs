@@ -12,6 +12,7 @@ use std::{
 };
 
 use futures_core::stream::Stream;
+use parking_lot::Mutex;
 
 use crate::event::{
     Event,
@@ -34,9 +35,17 @@ use crate::event::{
 #[derive(Debug)]
 pub struct EventStream {
     poll_internal_waker: Waker,
+    stream_state: Arc<Mutex<StreamState>>,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
     task_sender: SyncSender<Task>,
+}
+
+#[derive(Debug)]
+enum StreamState {
+    Active,
+    Error(io::Error),
+    Terminated,
 }
 
 impl Default for EventStream {
@@ -46,8 +55,13 @@ impl Default for EventStream {
         thread::spawn(move || {
             while let Ok(task) = receiver.recv() {
                 loop {
-                    if let Ok(true) = internal::poll(None, &EventFilter) {
-                        break;
+                    match internal::poll(None, &EventFilter) {
+                        Ok(true) => break,
+                        Ok(false) => {}
+                        Err(error) => {
+                            *task.stream_state.lock() = StreamState::Error(error);
+                            break;
+                        }
                     }
 
                     if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
@@ -62,6 +76,7 @@ impl Default for EventStream {
 
         EventStream {
             poll_internal_waker: internal::lock_event_reader().waker(),
+            stream_state: Arc::new(Mutex::new(StreamState::Active)),
             stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
             stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
             task_sender,
@@ -78,6 +93,7 @@ impl EventStream {
 
 struct Task {
     stream_waker: std::task::Waker,
+    stream_state: Arc<Mutex<StreamState>>,
     stream_wake_task_executed: Arc<AtomicBool>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
 }
@@ -104,10 +120,24 @@ impl Stream for EventStream {
     type Item = io::Result<Event>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        {
+            let mut stream_state = self.stream_state.lock();
+            if !matches!(*stream_state, StreamState::Active) {
+                return match std::mem::replace(&mut *stream_state, StreamState::Terminated) {
+                    StreamState::Error(error) => Poll::Ready(Some(Err(error))),
+                    StreamState::Terminated => Poll::Ready(None),
+                    StreamState::Active => unreachable!(),
+                };
+            }
+        }
+
         match internal::poll(Some(Duration::from_secs(0)), &EventFilter) {
             Ok(true) => match internal::read(&EventFilter) {
                 Ok(InternalEvent::Event(event)) => Poll::Ready(Some(Ok(event))),
-                Err(e) => Poll::Ready(Some(Err(e))),
+                Err(error) => {
+                    *self.stream_state.lock() = StreamState::Terminated;
+                    Poll::Ready(Some(Err(error)))
+                }
                 #[cfg(unix)]
                 _ => unreachable!(),
             },
@@ -119,6 +149,7 @@ impl Stream for EventStream {
                     .unwrap_or_else(|x| x)
                 {
                     let stream_waker = cx.waker().clone();
+                    let stream_state = self.stream_state.clone();
                     let stream_wake_task_executed = self.stream_wake_task_executed.clone();
                     let stream_wake_task_should_shutdown =
                         self.stream_wake_task_should_shutdown.clone();
@@ -127,13 +158,17 @@ impl Stream for EventStream {
 
                     let _ = self.task_sender.send(Task {
                         stream_waker,
+                        stream_state,
                         stream_wake_task_executed,
                         stream_wake_task_should_shutdown,
                     });
                 }
                 Poll::Pending
             }
-            Err(e) => Poll::Ready(Some(Err(e))),
+            Err(error) => {
+                *self.stream_state.lock() = StreamState::Terminated;
+                Poll::Ready(Some(Err(error)))
+            }
         }
     }
 }

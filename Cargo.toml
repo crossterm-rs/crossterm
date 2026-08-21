@@ -83,6 +83,7 @@ signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = t
 [dev-dependencies]
 futures = "0.3"
 futures-timer = "3.0"
+rustix-openpty = "0.2"
 serde_json = "1.0"
 serial_test = "3.0.0"
 smol = "2.0"

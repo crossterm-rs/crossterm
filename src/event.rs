@@ -149,6 +149,10 @@ use std::hash::{Hash, Hasher};
 /// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
 /// won't block.
 ///
+/// Returns an error with `io::ErrorKind::UnexpectedEof` if the input reaches
+/// end of file (the terminal went away, or piped/redirected input was
+/// exhausted).
+///
 /// # Arguments
 ///
 /// * `timeout` - maximum waiting time for event availability
@@ -189,6 +193,10 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 ///
 /// This function blocks until an [`Event`](enum.Event.html) is available. Combine it with the
 /// [`poll`](fn.poll.html) function to get non-blocking reads.
+///
+/// Returns an error with `io::ErrorKind::UnexpectedEof` if the input reaches
+/// end of file (the terminal went away, or piped/redirected input was
+/// exhausted).
 ///
 /// # Examples
 ///
