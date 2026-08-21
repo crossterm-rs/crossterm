@@ -62,13 +62,15 @@ pub(crate) fn move_up(count: u16) -> std::io::Result<()> {
 
 pub(crate) fn move_right(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
-    move_to(column + count, row)?;
+    let (last_column, _) = last_cell()?;
+    move_to(column.saturating_add(count).min(last_column), row)?;
     Ok(())
 }
 
 pub(crate) fn move_down(count: u16) -> std::io::Result<()> {
     let (column, row) = position()?;
-    move_to(column, row + count)?;
+    let (_, last_row) = last_cell()?;
+    move_to(column, row.saturating_add(count).min(last_row))?;
     Ok(())
 }
 
@@ -92,7 +94,8 @@ pub(crate) fn move_to_row(new_row: u16) -> std::io::Result<()> {
 
 pub(crate) fn move_to_next_line(count: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
-    move_to(0, row + count)?;
+    let (_, last_row) = last_cell()?;
+    move_to(0, row.saturating_add(count).min(last_row))?;
     Ok(())
 }
 
@@ -100,6 +103,15 @@ pub(crate) fn move_to_previous_line(count: u16) -> std::io::Result<()> {
     let (_, row) = position()?;
     move_to(0, row.saturating_sub(count))?;
     Ok(())
+}
+
+/// Returns the last addressable cell of the screen buffer (column, row).
+///
+/// Relative moves clamp here rather than at the window edge: `SetConsoleCursorPosition` takes
+/// screen buffer coordinates, and the buffer can be larger than the window.
+fn last_cell() -> std::io::Result<(u16, u16)> {
+    let (width, height): (u16, u16) = ScreenBuffer::current()?.info()?.buffer_size().into();
+    Ok((width.saturating_sub(1), height.saturating_sub(1)))
 }
 
 pub(crate) fn save_position() -> std::io::Result<()> {
@@ -236,6 +248,11 @@ mod tests {
         let (saved_x, saved_y) = position().unwrap();
         move_right(1).unwrap();
         assert_eq!(position().unwrap(), (saved_x + 1, saved_y));
+
+        // Overshooting lands on the last column of the buffer. Its exact index depends on the
+        // machine, so this asserts the move happened rather than a fixed position.
+        move_right(u16::MAX).unwrap();
+        assert!(position().unwrap().0 > saved_x + 1);
     }
 
     #[test]
@@ -284,6 +301,11 @@ mod tests {
         move_to_next_line(2).unwrap();
 
         assert_eq!(position().unwrap(), (0, 4));
+
+        // Overshooting lands on the last row of the buffer. Its exact index depends on the
+        // machine, so this asserts the move happened rather than a fixed position.
+        move_to_next_line(u16::MAX).unwrap();
+        assert!(position().unwrap().1 > 4);
     }
 
     #[test]
@@ -338,6 +360,11 @@ mod tests {
         move_down(2).unwrap();
 
         assert_eq!(position().unwrap(), (0, 2));
+
+        // Overshooting lands on the last row of the buffer. Its exact index depends on the
+        // machine, so this asserts the move happened rather than a fixed position.
+        move_down(u16::MAX).unwrap();
+        assert!(position().unwrap().1 > 2);
     }
 
     #[test]
