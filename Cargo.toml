@@ -50,7 +50,7 @@ event-stream = ["dep:futures-core", "events"]
 serde = ["dep:serde", "bitflags/serde"]
 
 ## Enables raw file descriptor polling / selecting instead of mio.
-use-dev-tty = ["filedescriptor", "rustix/process"]
+use-dev-tty = ["dep:filedescriptor", "rustix/process"]
 
 ## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
 osc52 = ["dep:base64"]
