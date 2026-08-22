@@ -111,7 +111,7 @@
 //! ```
 //!
 //! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another
-//! command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
+//! command. Like `stdout.queue(Goto(5,5))?.queue(Clear(ClearType::All))`.
 //!
 //! Macros:
 //!
