@@ -9,7 +9,7 @@ use signal_hook::low_level::pipe;
 
 use crate::event::Event;
 use crate::event::timeout::PollTimeout;
-use filedescriptor::{POLLIN, poll, pollfd};
+use filedescriptor::{POLLERR, POLLHUP, POLLIN, poll, pollfd};
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
@@ -85,12 +85,19 @@ impl UnixInternalEventSource {
 ///
 /// Similar to `std::io::Read::read_to_end`, except this function
 /// only fills the given buffer and does not read beyond that.
-fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
+/// It returns `None` for `WouldBlock` and an error when the input closes.
+fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<Option<usize>> {
     loop {
         match fd.read(buf) {
-            Ok(x) => return Ok(x),
+            Ok(0) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "input source closed",
+                ));
+            }
+            Ok(read_count) => return Ok(Some(read_count)),
             Err(e) => match e.kind() {
-                io::ErrorKind::WouldBlock => return Ok(0),
+                io::ErrorKind::WouldBlock => return Ok(None),
                 io::ErrorKind::Interrupted => continue,
                 _ => return Err(e),
             },
@@ -144,23 +151,22 @@ impl EventSource for UnixInternalEventSource {
                 Ok(_) => (),
             };
             if fds[0].revents & POLLIN != 0 {
-                loop {
-                    let read_count = read_complete(&self.tty, &mut self.tty_buffer)?;
-                    if read_count > 0 {
-                        self.parser.advance(
-                            &self.tty_buffer[..read_count],
-                            read_count == TTY_BUFFER_SIZE,
-                        );
-                    }
+                while let Some(read_count) = read_complete(&self.tty, &mut self.tty_buffer)? {
+                    self.parser.advance(
+                        &self.tty_buffer[..read_count],
+                        read_count == TTY_BUFFER_SIZE,
+                    );
 
                     if let Some(event) = self.parser.next() {
                         return Ok(Some(event));
                     }
-
-                    if read_count == 0 {
-                        break;
-                    }
                 }
+            }
+            if fds[0].revents & (POLLERR | POLLHUP) != 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "input source closed",
+                ));
             }
             if fds[1].revents & POLLIN != 0 {
                 #[cfg(feature = "libc")]
@@ -168,7 +174,7 @@ impl EventSource for UnixInternalEventSource {
                 #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
-                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+                while read_complete(&fd, &mut [0; 1024])?.is_some() {}
                 // TODO Should we remove tput?
                 //
                 // This can take a really long time, because terminal::size can
@@ -188,7 +194,7 @@ impl EventSource for UnixInternalEventSource {
                 #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.wake_pipe.receiver.as_fd());
                 // drain the pipe
-                while read_complete(&fd, &mut [0; 1024])? != 0 {}
+                while read_complete(&fd, &mut [0; 1024])?.is_some() {}
 
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::Interrupted,
@@ -272,5 +278,44 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io;
+    use std::os::unix::net::UnixStream;
+    #[cfg(feature = "libc")]
+    use std::os::unix::prelude::IntoRawFd;
+    use std::sync::mpsc;
+    use std::thread;
+    use std::time::Duration;
+
+    use crate::event::source::EventSource;
+    use crate::terminal::sys::file_descriptor::FileDesc;
+
+    use super::UnixInternalEventSource;
+
+    #[test]
+    fn eof_is_reported_without_spinning() {
+        let (reader, writer) = UnixStream::pair().unwrap();
+        reader.set_nonblocking(true).unwrap();
+        drop(writer);
+        #[cfg(feature = "libc")]
+        let input = FileDesc::new(reader.into_raw_fd(), true);
+        #[cfg(not(feature = "libc"))]
+        let input = FileDesc::Owned(reader.into());
+        let mut source = UnixInternalEventSource::from_file_descriptor(input).unwrap();
+        let (sender, receiver) = mpsc::channel();
+        let worker = thread::spawn(move || {
+            sender.send(source.try_read(None)).unwrap();
+        });
+
+        let error = receiver
+            .recv_timeout(Duration::from_secs(2))
+            .expect("event source spun after terminal EOF")
+            .unwrap_err();
+        worker.join().unwrap();
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
     }
 }
