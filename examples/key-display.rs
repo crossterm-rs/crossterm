@@ -9,7 +9,7 @@ use std::io;
 
 use crossterm::event::KeyModifiers;
 use crossterm::{
-    event::{KeyCode, read},
+    event::{read, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 

@@ -1,9 +1,9 @@
 //! `NO_COLOR` is read once per process, so this lives in its own test binary.
 
-use crossterm::Command;
 use crossterm::style::{
     Attribute, Color, Colors, SetAttribute, SetBackgroundColor, SetColors, SetForegroundColor,
 };
+use crossterm::Command;
 
 fn ansi_of(command: &impl Command) -> String {
     let mut ansi = String::new();

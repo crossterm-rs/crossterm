@@ -3,13 +3,13 @@
 #[cfg(feature = "events")]
 use crate::event::KeyboardEnhancementFlags;
 use crate::terminal::{
+    sys::file_descriptor::{tty_fd, FileDesc},
     WindowSize,
-    sys::file_descriptor::{FileDesc, tty_fd},
 };
 #[cfg(feature = "libc")]
 use libc::{
-    STDOUT_FILENO, TCSANOW, TIOCGWINSZ, cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios,
-    winsize,
+    cfmakeraw, ioctl, tcgetattr, tcsetattr, termios as Termios, winsize, STDOUT_FILENO, TCSANOW,
+    TIOCGWINSZ,
 };
 use parking_lot::Mutex;
 #[cfg(not(feature = "libc"))]
@@ -280,7 +280,11 @@ fn tput_value(arg: &str) -> Option<u16> {
         .filter_map(|b| char::from(b).to_digit(10))
         .fold(0, |v, n| v * 10 + n as u16);
 
-    if value > 0 { Some(value) } else { None }
+    if value > 0 {
+        Some(value)
+    } else {
+        None
+    }
 }
 
 /// Returns the size of the screen as determined by tput.

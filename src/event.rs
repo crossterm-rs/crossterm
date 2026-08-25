@@ -133,8 +133,9 @@ use derive_more::derive::IsVariant;
 pub use stream::EventStream;
 
 use crate::{
-    Command, csi,
+    csi,
     event::{filter::EventFilter, internal::InternalEvent},
+    Command,
 };
 use std::fmt::{self, Display};
 use std::time::Duration;

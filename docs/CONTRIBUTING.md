@@ -108,8 +108,8 @@ The minimum supported Rust version covers the library without default features a
 features:
 
 ```sh
-rustup run 1.85.0 cargo check --locked --lib --no-default-features
-rustup run 1.85.0 cargo check --locked --lib --all-features
+rustup run 1.75.0 cargo check --locked --lib --no-default-features
+rustup run 1.75.0 cargo check --locked --lib --all-features
 ```
 
 On Unix, test the selected feature configurations:
@@ -124,12 +124,11 @@ cargo test --locked --lib --no-default-features \
   --features events,event-stream,use-dev-tty,bracketed-paste -- --test-threads 1
 ```
 
-Windows builds require the `windows` feature. The crate intentionally rejects a bare
-`--no-default-features` Windows build:
+On Windows, test the selected feature configurations:
 
 ```sh
-cargo test --locked --lib --no-default-features --features windows -- --test-threads 1
-cargo test --locked --lib --no-default-features --features windows,events -- --test-threads 1
+cargo test --locked --lib --no-default-features -- --test-threads 1
+cargo test --locked --lib --no-default-features --features events -- --test-threads 1
 ```
 
 Pull requests run these checks on GitHub Actions. Beta and nightly test compatibility checks run

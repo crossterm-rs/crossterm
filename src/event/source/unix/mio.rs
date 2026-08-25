@@ -1,15 +1,15 @@
 use std::{collections::VecDeque, io, time::Duration};
 
-use mio::{Events, Interest, Poll, Token, unix::SourceFd};
+use mio::{unix::SourceFd, Events, Interest, Poll, Token};
 use signal_hook_mio::v1_0::Signals;
 
 #[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
-    Event, internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event,
-    timeout::PollTimeout,
+    internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event,
+    timeout::PollTimeout, Event,
 };
-use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
+use crate::terminal::sys::file_descriptor::{tty_fd, FileDesc};
 
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
