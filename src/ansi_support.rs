@@ -1,6 +1,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use crossterm_winapi::{ConsoleMode, Handle};
+
 use parking_lot::Once;
 use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 

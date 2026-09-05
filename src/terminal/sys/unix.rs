@@ -17,7 +17,6 @@ use rustix::{
     fd::AsFd,
     termios::{Termios, Winsize},
 };
-
 use std::{fs::File, io, process};
 #[cfg(feature = "libc")]
 use std::{
@@ -216,6 +215,7 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         internal::{self, InternalEvent},
     };
+
     use std::io::Write;
     use std::time::Duration;
 

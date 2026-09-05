@@ -5,6 +5,7 @@ use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crossterm_winapi::{Coord, Handle, HandleType, ScreenBuffer, result};
+
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
     um::wincon::{CONSOLE_CURSOR_INFO, COORD, SetConsoleCursorInfo, SetConsoleCursorPosition},
@@ -211,6 +212,7 @@ mod tests {
         move_down, move_left, move_right, move_to, move_to_column, move_to_next_line,
         move_to_previous_line, move_to_row, move_up, position, restore_position, save_position,
     };
+
     use crate::terminal::sys::temp_screen_buffer;
     use serial_test::serial;
 
