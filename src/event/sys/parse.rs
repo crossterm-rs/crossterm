@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io;
 
 use crate::event::{
@@ -26,6 +27,28 @@ fn could_not_parse_event_error() -> io::Error {
 pub(crate) fn parse_event(
     buffer: &[u8],
     input_available: bool,
+) -> io::Result<Option<InternalEvent>> {
+    parse_event_impl(buffer, input_available, None)
+}
+
+/// Parse an event using a caller-provided raw-mode state.
+///
+/// Windows obtains the mode once per input batch and uses this entry point to avoid
+/// reopening CONIN$ for every newline byte. The public internal parser entry point above
+/// retains its existing behavior for Unix and direct callers.
+#[cfg_attr(not(any(windows, test)), allow(dead_code))]
+pub(crate) fn parse_event_with_raw_mode(
+    buffer: &[u8],
+    input_available: bool,
+    raw_mode: bool,
+) -> io::Result<Option<InternalEvent>> {
+    parse_event_impl(buffer, input_available, Some(raw_mode))
+}
+
+fn parse_event_impl(
+    buffer: &[u8],
+    input_available: bool,
+    raw_mode: Option<bool>,
 ) -> io::Result<Option<InternalEvent>> {
     if buffer.is_empty() {
         return Ok(None);
@@ -73,19 +96,24 @@ pub(crate) fn parse_event(
                             }
                         }
                     }
-                    b'[' => parse_csi(buffer),
+                    b'[' => match raw_mode {
+                        Some(raw_mode) => parse_csi_impl(buffer, Some(raw_mode)),
+                        None => parse_csi(buffer),
+                    },
                     b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
-                    _ => parse_event(&buffer[1..], input_available).map(|event_option| {
-                        event_option.map(|event| {
-                            if let InternalEvent::Event(Event::Key(key_event)) = event {
-                                let mut alt_key_event = key_event;
-                                alt_key_event.modifiers |= KeyModifiers::ALT;
-                                InternalEvent::Event(Event::Key(alt_key_event))
-                            } else {
-                                event
-                            }
-                        })
-                    }),
+                    _ => parse_event_impl(&buffer[1..], input_available, raw_mode).map(
+                        |event_option| {
+                            event_option.map(|event| {
+                                if let InternalEvent::Event(Event::Key(key_event)) = event {
+                                    let mut alt_key_event = key_event;
+                                    alt_key_event.modifiers |= KeyModifiers::ALT;
+                                    InternalEvent::Event(Event::Key(alt_key_event))
+                                } else {
+                                    event
+                                }
+                            })
+                        },
+                    ),
                 }
             }
         }
@@ -96,9 +124,14 @@ pub(crate) fn parse_event(
         // newlines as input is because the terminal converts \r into \n for us. When we
         // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
         // use Ctrl+J. Waiting to handle it here means it gets picked up later
-        b'\n' if !crate::terminal::sys::is_raw_mode_enabled() => Ok(Some(InternalEvent::Event(
-            Event::Key(KeyCode::Enter.into()),
-        ))),
+        b'\n'
+            if !raw_mode
+                .unwrap_or_else(|| crate::terminal::is_raw_mode_enabled().unwrap_or(true)) =>
+        {
+            Ok(Some(InternalEvent::Event(Event::Key(
+                KeyCode::Enter.into(),
+            ))))
+        }
         b'\t' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into())))),
         b'\x7F' => Ok(Some(InternalEvent::Event(Event::Key(
             KeyCode::Backspace.into(),
@@ -135,6 +168,10 @@ fn char_code_to_event(code: KeyCode) -> KeyEvent {
 }
 
 pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    parse_csi_impl(buffer, None)
+}
+
+fn parse_csi_impl(buffer: &[u8], raw_mode: Option<bool>) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(b"\x1B[")); // ESC [
 
     if buffer.len() == 2 {
@@ -200,7 +237,14 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
                     match last_byte {
                         b'M' => return parse_csi_rxvt_mouse(buffer),
                         b'~' => return parse_csi_special_key_code(buffer),
-                        b'u' => return parse_csi_u_encoded_key_code(buffer),
+                        b'u' => {
+                            return match raw_mode {
+                                Some(raw_mode) => {
+                                    parse_csi_u_encoded_key_code_impl(buffer, Some(raw_mode))
+                                }
+                                None => parse_csi_u_encoded_key_code(buffer),
+                            };
+                        }
                         b'R' => return parse_csi_cursor_position(buffer),
                         _ => return parse_csi_modifier_key_code(buffer),
                     }
@@ -494,6 +538,13 @@ fn translate_functional_key_code(codepoint: u32) -> Option<(KeyCode, KeyEventSta
 }
 
 pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
+    parse_csi_u_encoded_key_code_impl(buffer, None)
+}
+
+fn parse_csi_u_encoded_key_code_impl(
+    buffer: &[u8],
+    raw_mode: Option<bool>,
+) -> io::Result<Option<InternalEvent>> {
     assert!(buffer.starts_with(b"\x1B[")); // ESC [
     assert!(buffer.ends_with(b"u"));
 
@@ -548,7 +599,12 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
                     // newlines as input is because the terminal converts \r into \n for us. When we
                     // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
-                    '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
+                    '\n' if !raw_mode.unwrap_or_else(|| {
+                        crate::terminal::is_raw_mode_enabled().unwrap_or(true)
+                    }) =>
+                    {
+                        KeyCode::Enter
+                    }
                     '\t' => {
                         if modifiers.contains(KeyModifiers::SHIFT) {
                             KeyCode::BackTab
@@ -1003,6 +1059,45 @@ mod tests {
         assert_eq!(
             parse_event(b"\t", false).unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into()))),
+        );
+    }
+
+    #[test]
+    fn test_parse_event_with_explicit_raw_mode_newline() {
+        assert_eq!(
+            parse_event_with_raw_mode(b"\n", false, false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+        assert_eq!(
+            parse_event_with_raw_mode(b"\n", false, true).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('j'),
+                KeyModifiers::CONTROL,
+            ))))
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_u_newline_with_explicit_raw_mode() {
+        assert_eq!(
+            parse_event_with_raw_mode(b"\x1B[10;1u", false, false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+        assert_eq!(
+            parse_event_with_raw_mode(b"\x1B[10;1u", false, true).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('\n'),
+                KeyModifiers::empty(),
+            ))))
+        );
+    }
+
+    #[cfg(feature = "bracketed-paste")]
+    #[test]
+    fn test_bracketed_paste_newline_payload_ignores_raw_mode() {
+        assert_eq!(
+            parse_event_with_raw_mode(b"\x1B[200~line\ntext\x1B[201~", false, true).unwrap(),
+            Some(InternalEvent::Event(Event::Paste("line\ntext".to_string())))
         );
     }
 
@@ -1585,5 +1680,415 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_decode_utf16_bmp_char() {
+        let mut buf = None;
+        // ASCII 'a'
+        assert_eq!(decode_utf16_char(&mut buf, 0x0061), Some('a'));
+        assert_eq!(buf, None);
+        // CJK character U+4E16 '世'
+        assert_eq!(decode_utf16_char(&mut buf, 0x4E16), Some('世'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_surrogate_pair() {
+        let mut buf = None;
+        // U+1F600 '😀' = D83D DE00 in UTF-16
+        assert_eq!(decode_utf16_char(&mut buf, 0xD83D), None);
+        assert_eq!(buf, Some(0xD83D));
+        assert_eq!(decode_utf16_char(&mut buf, 0xDE00), Some('😀'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_high_surrogate() {
+        let mut buf = None;
+        // High surrogate followed by another high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0xD800), None);
+        assert_eq!(buf, Some(0xD800));
+        // Another high replaces the buffered one
+        assert_eq!(decode_utf16_char(&mut buf, 0xD801), None);
+        assert_eq!(buf, Some(0xD801));
+        // BMP char clears the orphaned high surrogate
+        assert_eq!(decode_utf16_char(&mut buf, 0x0041), Some('A'));
+        assert_eq!(buf, None);
+    }
+
+    #[test]
+    fn test_decode_utf16_orphaned_low_surrogate() {
+        let mut buf = None;
+        // Low surrogate without preceding high
+        assert_eq!(decode_utf16_char(&mut buf, 0xDC00), None);
+        assert_eq!(buf, None);
+    }
+}
+
+//
+// Following `Parser` structure exists for two reasons:
+//
+//  * mimic anes Parser interface
+//  * move the advancing, parsing, ... stuff out of the `try_read` method
+//
+#[derive(Debug)]
+pub(crate) struct Parser {
+    buffer: Vec<u8>,
+    internal_events: VecDeque<InternalEvent>,
+    /// Queue index where the current ANSI sequence started.
+    ///
+    /// Events parsed after an incomplete sequence is buffered are appended to the queue, but
+    /// must remain after the sequence when it eventually becomes an event. The index is adjusted
+    /// when callers consume events before the buffered sequence.
+    buffer_event_position: usize,
+}
+
+impl Default for Parser {
+    fn default() -> Self {
+        Parser {
+            // This buffer is used for -> 1 <- ANSI escape sequence. Are we
+            // aware of any ANSI escape sequence that is bigger? Can we make
+            // it smaller?
+            //
+            // Probably not worth spending more time on this as "there's a plan"
+            // to use the anes crate parser.
+            buffer: Vec::with_capacity(256),
+            // TTY_BUFFER_SIZE is 1_024 bytes. How many ANSI escape sequences can
+            // fit? What is an average sequence length? Let's guess here
+            // and say that the average ANSI escape sequence length is 8 bytes. Thus
+            // the buffer size should be 1024/8=128 to avoid additional allocations
+            // when processing large amounts of data.
+            //
+            // There's no need to make it bigger, because when you look at the `try_read`
+            // method implementation, all events are consumed before the next TTY_BUFFER
+            // is processed -> events pushed.
+            internal_events: VecDeque::with_capacity(128),
+            buffer_event_position: 0,
+        }
+    }
+}
+
+impl Parser {
+    #[cfg_attr(windows, allow(dead_code))]
+    pub(crate) fn advance(&mut self, buffer: &[u8], more: bool) {
+        self.advance_impl(buffer, more, None);
+    }
+
+    /// Advance the parser using the raw-mode state captured for a Windows input batch.
+    #[cfg_attr(not(windows), allow(dead_code))]
+    pub(crate) fn advance_with_raw_mode(&mut self, buffer: &[u8], more: bool, raw_mode: bool) {
+        self.advance_impl(buffer, more, Some(raw_mode));
+    }
+
+    fn advance_impl(&mut self, buffer: &[u8], more: bool, raw_mode: Option<bool>) {
+        for (idx, byte) in buffer.iter().enumerate() {
+            let more = idx + 1 < buffer.len() || more;
+
+            if self.buffer.is_empty() {
+                self.buffer_event_position = self.internal_events.len();
+            }
+            self.buffer.push(*byte);
+
+            let parsed = match raw_mode {
+                Some(raw_mode) => parse_event_impl(&self.buffer, more, Some(raw_mode)),
+                None => parse_event(&self.buffer, more),
+            };
+            match parsed {
+                Ok(Some(ie)) => {
+                    self.insert_buffered_event(ie);
+                    self.buffer.clear();
+                }
+                Ok(None) => {
+                    // Event can't be parsed, because we don't have enough bytes for
+                    // the current sequence. Keep the buffer and process next bytes.
+                }
+                Err(_) => {
+                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
+                    // Clear the buffer and continue with another sequence.
+                    self.buffer.clear();
+                }
+            }
+        }
+    }
+
+    fn insert_buffered_event(&mut self, event: InternalEvent) {
+        let position = self.buffer_event_position.min(self.internal_events.len());
+        self.internal_events.insert(position, event);
+    }
+
+    /// Push a non-ANSI event directly into the event queue.
+    /// Used by the Windows hybrid source for events that bypass ANSI parsing.
+    #[cfg_attr(unix, allow(dead_code))]
+    pub(crate) fn push_event(&mut self, event: InternalEvent) {
+        self.internal_events.push_back(event);
+    }
+
+    /// Return the next public event, discarding parser output that has no Windows consumer.
+    ///
+    /// The ANSI parser also recognizes terminal responses such as cursor position reports and
+    /// keyboard enhancement flags. Those are useful to Unix-side consumers, but Windows' event
+    /// source cannot deliver them and must not leave them in the shared reader queue.
+    #[cfg_attr(not(windows), allow(dead_code))]
+    pub(crate) fn next_event(&mut self) -> Option<InternalEvent> {
+        self.find(|event| matches!(event, InternalEvent::Event(_)))
+    }
+
+    /// Attempt to emit any buffered bytes as a complete event with `more=false`.
+    ///
+    /// Call this after processing a batch that contained no VT key bytes to prevent
+    /// a lone ESC from being held indefinitely when the only pending console records
+    /// are non-key events (mouse, focus, resize). The emitted event is inserted where
+    /// the ANSI sequence began so temporal ordering is preserved even when an earlier
+    /// event has already been queued.
+    ///
+    /// If `parse_event` still returns `Ok(None)` with `more=false` (genuinely
+    /// incomplete multi-byte sequence such as `ESC [`), the buffer is left intact so
+    /// the remaining bytes can be completed by subsequent input.
+    #[allow(dead_code)]
+    pub(crate) fn flush(&mut self) {
+        self.flush_impl(None);
+    }
+
+    /// Flush using the raw-mode state captured for a Windows input batch.
+    #[cfg_attr(not(windows), allow(dead_code))]
+    pub(crate) fn flush_with_raw_mode(&mut self, raw_mode: bool) {
+        self.flush_impl(Some(raw_mode));
+    }
+
+    fn flush_impl(&mut self, raw_mode: Option<bool>) {
+        if self.buffer.is_empty() {
+            return;
+        }
+        let parsed = match raw_mode {
+            Some(raw_mode) => parse_event_impl(&self.buffer, false, Some(raw_mode)),
+            None => parse_event(&self.buffer, false),
+        };
+        match parsed {
+            Ok(Some(ie)) => {
+                self.insert_buffered_event(ie);
+                self.buffer.clear();
+            }
+            Ok(None) => {
+                // The sequence is genuinely incomplete even without more input (e.g.
+                // ESC + [ mid-CSI).  Leave the buffer alone; the next VT advance
+                // will continue accumulating bytes.
+            }
+            Err(_) => {
+                self.buffer.clear();
+            }
+        }
+    }
+}
+
+impl Iterator for Parser {
+    type Item = InternalEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        // A pending ANSI sequence at position zero precedes every queued event. Do not
+        // expose events that arrived after it until the sequence is completed or flushed.
+        if !self.buffer.is_empty() && self.buffer_event_position == 0 {
+            return None;
+        }
+
+        let event = self.internal_events.pop_front();
+        if event.is_some() && !self.buffer.is_empty() && self.buffer_event_position > 0 {
+            self.buffer_event_position -= 1;
+        }
+        event
+    }
+}
+
+/// Decode a UTF-16 code unit, handling surrogate pairs via `surrogate_buffer`.
+///
+/// Returns `Some(char)` for BMP characters and completed surrogate pairs.
+/// Returns `None` when a high surrogate is buffered (waiting for its low half)
+/// or when an orphaned low surrogate is encountered.
+#[cfg_attr(unix, allow(dead_code))]
+pub(crate) fn decode_utf16_char(surrogate_buffer: &mut Option<u16>, utf16: u16) -> Option<char> {
+    if (0xD800..=0xDBFF).contains(&utf16) {
+        // High surrogate — store and wait for low surrogate
+        *surrogate_buffer = Some(utf16);
+        None
+    } else if (0xDC00..=0xDFFF).contains(&utf16) {
+        // Low surrogate — combine with stored high surrogate
+        if let Some(high) = surrogate_buffer.take() {
+            std::char::decode_utf16([high, utf16]).next()?.ok()
+        } else {
+            None
+        }
+    } else {
+        *surrogate_buffer = None;
+        std::char::from_u32(utf16 as u32)
+    }
+}
+
+#[cfg(test)]
+mod parser_flush_tests {
+    use super::*;
+    use crate::event::{Event, KeyCode};
+
+    fn esc_event() -> InternalEvent {
+        InternalEvent::Event(Event::Key(KeyCode::Esc.into()))
+    }
+
+    fn focus_gained_event() -> InternalEvent {
+        InternalEvent::Event(Event::FocusGained)
+    }
+
+    // Case 1: lone ESC held with more=true is emitted by flush().
+    #[test]
+    fn test_flush_emits_lone_esc() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held: more=true
+        assert!(p.next().is_none(), "ESC must not be emitted before flush");
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+    }
+
+    // Case 2: ESC + non-VT event (same batch) — flush puts ESC before the non-VT event.
+    #[test]
+    fn test_flush_esc_before_non_vt_event() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true); // held
+        p.push_event(focus_gained_event()); // simulates a non-VT record processed later
+        p.flush(); // should prepend ESC
+        assert_eq!(
+            p.next(),
+            Some(esc_event()),
+            "ESC must appear before FocusGained"
+        );
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert!(p.next().is_none());
+    }
+
+    #[test]
+    fn test_flush_preserves_position_after_prior_event() {
+        let mut p = Parser::default();
+        p.push_event(focus_gained_event());
+        p.advance(b"\x1B", true); // held after FocusGained
+        p.push_event(InternalEvent::Event(Event::Key(KeyCode::Enter.into())));
+        p.flush();
+
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert_eq!(p.next(), Some(esc_event()));
+        assert_eq!(
+            p.next(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+        assert!(p.next().is_none());
+    }
+
+    #[test]
+    fn test_pending_sequence_at_queue_front_blocks_later_event() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B", true);
+        p.push_event(focus_gained_event());
+
+        assert!(p.next().is_none());
+        assert!(p.next_event().is_none());
+
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+        assert_eq!(p.next(), Some(focus_gained_event()));
+    }
+
+    #[test]
+    fn test_pending_sequence_after_prior_event_blocks_only_later_events() {
+        let mut p = Parser::default();
+        p.push_event(focus_gained_event());
+        p.advance(b"\x1B", true);
+        p.push_event(InternalEvent::Event(Event::Key(KeyCode::Enter.into())));
+
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert!(p.next().is_none());
+        assert!(p.next_event().is_none());
+
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+        assert_eq!(
+            p.next(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+    }
+
+    #[test]
+    fn test_buffered_ansi_event_is_inserted_at_sequence_position() {
+        let mut p = Parser::default();
+        p.push_event(focus_gained_event());
+        p.advance(b"\x1B[", true); // incomplete CSI
+        p.push_event(InternalEvent::Event(Event::Key(KeyCode::Enter.into())));
+        p.advance(b"A", false); // complete Up sequence
+
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        assert_eq!(
+            p.next(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Up.into())))
+        );
+        assert_eq!(
+            p.next(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+        assert!(p.next().is_none());
+    }
+
+    #[test]
+    fn test_flush_position_tracks_consumed_prefix() {
+        let mut p = Parser::default();
+        p.push_event(focus_gained_event());
+        p.advance(b"\x1B", true);
+        p.push_event(InternalEvent::Event(Event::Key(KeyCode::Enter.into())));
+
+        // Consuming the event before the buffered sequence moves its insertion point to zero.
+        assert_eq!(p.next(), Some(focus_gained_event()));
+        p.flush();
+        assert_eq!(p.next(), Some(esc_event()));
+        assert_eq!(
+            p.next(),
+            Some(InternalEvent::Event(Event::Key(KeyCode::Enter.into())))
+        );
+        assert!(p.next().is_none());
+    }
+
+    // Case 3: ESC + '[' (partial CSI) must NOT be flushed — it's genuinely incomplete.
+    #[test]
+    fn test_flush_preserves_incomplete_csi() {
+        let mut p = Parser::default();
+        p.advance(b"\x1B[", true); // CSI intro, incomplete
+        p.flush(); // must not emit anything
+        assert!(
+            p.next().is_none(),
+            "incomplete CSI must stay buffered after flush"
+        );
+    }
+
+    // flush() on empty buffer is a no-op (must not panic).
+    #[test]
+    fn test_flush_empty_buffer_is_noop() {
+        let mut p = Parser::default();
+        p.flush();
+        assert!(p.next().is_none());
+    }
+
+    #[test]
+    fn test_next_event_discards_non_events_before_event() {
+        let mut p = Parser::default();
+        p.push_event(InternalEvent::CursorPosition(4, 2));
+        p.push_event(focus_gained_event());
+
+        assert_eq!(p.next_event(), Some(focus_gained_event()));
+        assert!(p.next_event().is_none());
+    }
+
+    #[test]
+    fn test_next_event_discards_non_events_when_no_event_follows() {
+        let mut p = Parser::default();
+        p.push_event(InternalEvent::PrimaryDeviceAttributes);
+        p.push_event(InternalEvent::KeyboardEnhancementFlags(
+            crate::event::KeyboardEnhancementFlags::empty(),
+        ));
+
+        assert!(p.next_event().is_none());
+        assert!(p.next().is_none());
     }
 }

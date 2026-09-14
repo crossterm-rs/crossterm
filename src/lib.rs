@@ -237,6 +237,9 @@
 //! [stderr]: https://doc.rust-lang.org/std/io/fn.stderr.html
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 
+#[cfg(windows)]
+#[doc(hidden)]
+pub use crate::command::WinApiAnsiTiming;
 pub use crate::command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate};
 
 /// A module to work with the terminal cursor

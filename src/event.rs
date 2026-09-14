@@ -132,6 +132,8 @@ use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
+#[cfg(windows)]
+use crate::command::WinApiAnsiTiming;
 use crate::{
     Command, csi,
     event::{filter::EventFilter, internal::InternalEvent},
@@ -229,7 +231,8 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 pub fn read() -> std::io::Result<Event> {
     match internal::read(&EventFilter)? {
         InternalEvent::Event(event) => Ok(event),
-        #[cfg(unix)]
+        // EventFilter::eval only returns true for Event(_), so internal::read
+        // with this filter can never return any other variant.
         _ => unreachable!(),
     }
 }
@@ -259,7 +262,8 @@ pub fn try_read() -> Option<Event> {
     match internal::try_read(&EventFilter) {
         Some(InternalEvent::Event(event)) => Some(event),
         None => None,
-        #[cfg(unix)]
+        // EventFilter::eval only returns true for Event(_), so internal::try_read
+        // with this filter can never return any other variant.
         _ => unreachable!(),
     }
 }
@@ -302,6 +306,7 @@ pub struct EnableMouseCapture;
 
 #[cfg(feature = "events")]
 impl Command for EnableMouseCapture {
+    #[cfg(not(windows))]
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(concat!(
             // Normal tracking: Send mouse X & Y on button press and release
@@ -318,13 +323,28 @@ impl Command for EnableMouseCapture {
     }
 
     #[cfg(windows)]
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        // ConPTY translates ENABLE_MOUSE_INPUT into these two requests (Microsoft Terminal
+        // PR #9970). Keep the Win32 capture enabled for conhost and queue the VT representation
+        // for ConPTY passthrough; this is a hybrid bridge, not a Windows Terminal workaround.
+        // Microsoft Terminal issue #15296 documents why the application must provide the VT side
+        // while ENABLE_VIRTUAL_TERMINAL_INPUT is active.
+        f.write_str(concat!(csi!("?1003;1006h")))
+    }
+
+    #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::enable_mouse_capture()
     }
 
     #[cfg(windows)]
-    fn is_ansi_code_supported(&self) -> bool {
-        false
+    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
+        sys::windows::enable_mouse_capture()
+    }
+
+    #[cfg(windows)]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        WinApiAnsiTiming::BeforeAnsi
     }
 }
 
@@ -335,6 +355,7 @@ impl Command for EnableMouseCapture {
 pub struct DisableMouseCapture;
 
 impl Command for DisableMouseCapture {
+    #[cfg(not(windows))]
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(concat!(
             // The inverse commands of EnableMouseCapture, in reverse order.
@@ -347,13 +368,24 @@ impl Command for DisableMouseCapture {
     }
 
     #[cfg(windows)]
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        // Reverse the same ConPTY-compatible requests used by EnableMouseCapture.
+        f.write_str(concat!(csi!("?1003;1006l")))
+    }
+
+    #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
         sys::windows::disable_mouse_capture()
     }
 
     #[cfg(windows)]
-    fn is_ansi_code_supported(&self) -> bool {
-        false
+    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
+        sys::windows::disable_mouse_capture()
+    }
+
+    #[cfg(windows)]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        WinApiAnsiTiming::BeforeAnsi
     }
 }
 
@@ -399,6 +431,15 @@ impl Command for DisableFocusChange {
 ///
 /// This is not supported in older Windows terminals without
 /// [virtual terminal sequences](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
+///
+/// On Windows, enabling bracketed paste temporarily enables VT input for the
+/// lifetime of this paired command. Windows Terminal and ConPTY may not
+/// preserve key-release information while VT input is active. These paired
+/// commands are queue boundaries on Windows and are not reference-counted;
+/// callers must pair each enable with a disable without relying on nesting.
+/// In ANSI-capable environments without a `CONIN$` console (for example,
+/// Git Bash or mintty), the ANSI command still runs and the Win32 mode side
+/// effect is skipped safely.
 #[cfg(feature = "bracketed-paste")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBracketedPaste;
@@ -416,9 +457,26 @@ impl Command for EnableBracketedPaste {
             "Bracketed paste not implemented in the legacy Windows API.",
         ))
     }
+
+    #[cfg(windows)]
+    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
+        sys::windows::enable_bracketed_paste()
+    }
+
+    #[cfg(windows)]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        WinApiAnsiTiming::BeforeAnsiAndFlush
+    }
 }
 
 /// A command that disables bracketed paste mode.
+///
+/// On Windows, the ANSI disable sequence is flushed before VT input is
+/// restored. The command is paired with [`EnableBracketedPaste`] and is not
+/// reference-counted.
+///
+/// If the paired enable found no `CONIN$` console, this command only disables
+/// the ANSI protocol and safely performs no Win32 mode restore.
 #[cfg(feature = "bracketed-paste")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBracketedPaste;
@@ -432,6 +490,16 @@ impl Command for DisableBracketedPaste {
     #[cfg(windows)]
     fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
+        sys::windows::disable_bracketed_paste()
+    }
+
+    #[cfg(windows)]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        WinApiAnsiTiming::AfterAnsiAndFlush
     }
 }
 

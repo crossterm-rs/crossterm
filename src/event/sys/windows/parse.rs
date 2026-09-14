@@ -12,6 +12,8 @@ use winapi::um::{
     },
 };
 
+use crate::event::internal::InternalEvent;
+use crate::event::sys::parse::parse_event_with_raw_mode;
 use crate::event::{
     Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };
@@ -58,6 +60,77 @@ pub(crate) fn handle_key_event(
             Some(Event::Key(key_event))
         }
     }
+}
+
+/// Parse a character-bearing key release from the Win32 side of VT input.
+///
+/// Character presses are decoded by the shared VT parser, whose control-character and uppercase
+/// rules differ from the keyboard-layout-based Win32 fallback. Reuse those rules for releases so
+/// a Ctrl+Shift character has matching Press and Release events. Alt-code records intentionally
+/// remain on the legacy path.
+pub(crate) fn handle_vt_key_release(
+    key_event: KeyEventRecord,
+    surrogate_buffer: &mut Option<u16>,
+    raw_mode: bool,
+) -> Option<Event> {
+    if key_event.key_down
+        || key_event.u_char == 0
+        || KeyModifiers::from(&key_event.control_key_state).contains(KeyModifiers::ALT)
+    {
+        return handle_key_event(key_event, surrogate_buffer);
+    }
+
+    let ch = match key_event.u_char {
+        surrogate @ 0xD800..=0xDFFF => handle_surrogate(surrogate_buffer, surrogate)?,
+        scalar => std::char::from_u32(scalar as u32)?,
+    };
+    *surrogate_buffer = None;
+
+    let mut encoded = [0u8; 4];
+    let bytes = ch.encode_utf8(&mut encoded).as_bytes();
+    let parsed = parse_event_with_raw_mode(bytes, false, raw_mode).ok()??;
+    match parsed {
+        InternalEvent::Event(Event::Key(mut event)) => {
+            event.kind = KeyEventKind::Release;
+            Some(Event::Key(event))
+        }
+        _ => None,
+    }
+}
+
+/// Tracks the exact record sequence emitted by conhost for an Alt+numpad character. With VT input
+/// enabled, conhost can emit the character once as a VT press and once more as a VK_PACKET-free
+/// character record after the packet release. Suppress only that finite, ordered duplicate; any
+/// mismatch or unrelated record clears the state immediately.
+pub(crate) fn suppress_alt_numpad_duplicate(
+    pending_character: &mut Option<u16>,
+    virtual_key_code: u16,
+    key_down: bool,
+    unicode_character: u16,
+    alt_pressed: bool,
+) -> bool {
+    const VK_PACKET: u16 = 0xE7;
+
+    if !key_down && alt_pressed && unicode_character != 0 && virtual_key_code == VK_PACKET {
+        *pending_character = Some(unicode_character);
+        return false;
+    }
+
+    if key_down
+        && unicode_character != 0
+        && virtual_key_code == 0
+        && pending_character.is_some_and(|pending| pending == unicode_character)
+    {
+        *pending_character = None;
+        return true;
+    }
+
+    // A matching duplicate must be adjacent to the packet release. Any other record, including
+    // Alt release, invalidates the candidate and must be delivered normally.
+    if pending_character.is_some() {
+        *pending_character = None;
+    }
+    false
 }
 
 fn handle_surrogate(surrogate_buffer: &mut Option<u16>, new_surrogate: u16) -> Option<char> {
@@ -367,4 +440,168 @@ fn parse_mouse_event_record(
         row: ypos,
         modifiers,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::event::internal::InternalEvent;
+    use crate::event::sys::parse::parse_event_with_raw_mode;
+    use crate::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+
+    use super::suppress_alt_numpad_duplicate;
+
+    #[test]
+    fn alt_numpad_duplicate_requires_adjacent_matching_records() {
+        let mut pending = None;
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0xE7,
+            false,
+            0x00E9,
+            true
+        ));
+        assert!(suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            0x00E9,
+            false
+        ));
+        assert_eq!(pending, None);
+    }
+
+    #[test]
+    fn alt_numpad_duplicate_clears_on_mismatch() {
+        let mut pending = None;
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0xE7,
+            false,
+            0x00E9,
+            true
+        ));
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            b'x' as u16,
+            true
+        ));
+        assert_eq!(pending, None);
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            0x00E9,
+            true
+        ));
+    }
+
+    #[test]
+    fn standalone_vt_character_is_never_suppressed() {
+        let mut pending = None;
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            b'a' as u16,
+            true
+        ));
+    }
+
+    #[test]
+    fn alt_numpad_trace_matches_conhost_records() {
+        let mut pending = None;
+        // ESC down and the first VT character have no ALT state in conhost's trace.
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0x1B,
+            true,
+            0x1B,
+            false
+        ));
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            0x00E9,
+            false
+        ));
+        // The VK_PACKET release carries ALT and arms the exact-character candidate.
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0xE7,
+            false,
+            0x00E9,
+            true
+        ));
+        // The duplicate character has no ALT state and is the only suppressed record.
+        assert!(suppress_alt_numpad_duplicate(
+            &mut pending,
+            0,
+            true,
+            0x00E9,
+            false
+        ));
+        // Alt release is a normal record after the candidate has been consumed.
+        assert!(!suppress_alt_numpad_duplicate(
+            &mut pending,
+            0x12,
+            false,
+            0,
+            false
+        ));
+    }
+
+    #[test]
+    fn vt_release_inputs_follow_shared_parser_semantics() {
+        let cases = [
+            (
+                b"\x01".as_slice(),
+                true,
+                KeyCode::Char('a'),
+                KeyModifiers::CONTROL,
+            ),
+            (
+                b"A".as_slice(),
+                true,
+                KeyCode::Char('A'),
+                KeyModifiers::SHIFT,
+            ),
+            (
+                b"\r".as_slice(),
+                true,
+                KeyCode::Enter,
+                KeyModifiers::empty(),
+            ),
+            (b"\t".as_slice(), true, KeyCode::Tab, KeyModifiers::empty()),
+            (
+                b"\n".as_slice(),
+                false,
+                KeyCode::Enter,
+                KeyModifiers::empty(),
+            ),
+            (
+                b"\n".as_slice(),
+                true,
+                KeyCode::Char('j'),
+                KeyModifiers::CONTROL,
+            ),
+            (
+                b"\x1B".as_slice(),
+                true,
+                KeyCode::Esc,
+                KeyModifiers::empty(),
+            ),
+        ];
+
+        for (bytes, raw_mode, code, modifiers) in cases {
+            assert_eq!(
+                parse_event_with_raw_mode(bytes, false, raw_mode).unwrap(),
+                Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                    code, modifiers
+                ))))
+            );
+        }
+    }
 }

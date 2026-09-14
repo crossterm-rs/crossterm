@@ -125,3 +125,7 @@ required-features = ["events"]
 [[example]]
 name = "copy-to-clipboard"
 required-features = ["osc52"]
+
+[[example]]
+name = "windows-vt-input"
+required-features = ["bracketed-paste", "events", "windows"]

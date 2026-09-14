@@ -26,6 +26,18 @@ pub trait Command {
     #[cfg(windows)]
     fn execute_winapi(&self) -> io::Result<()>;
 
+    /// Execute the Win32 side effect for a command which also has an ANSI
+    /// representation on a modern Windows console.
+    ///
+    /// This is deliberately separate from [`Command::execute_winapi`]: the
+    /// latter is the historical fallback used when ANSI is unsupported,
+    /// whereas this hook is used to bridge a command which needs both paths.
+    #[cfg(windows)]
+    #[doc(hidden)]
+    fn execute_winapi_with_ansi(&self) -> io::Result<()> {
+        Ok(())
+    }
+
     /// Returns whether the ANSI code representation of this command is supported by windows.
     ///
     /// A list of supported ANSI escape codes
@@ -34,6 +46,33 @@ pub trait Command {
     fn is_ansi_code_supported(&self) -> bool {
         super::ansi_support::supports_ansi()
     }
+
+    /// Describes when a Win32 side effect is needed relative to an ANSI command.
+    ///
+    /// This is hidden from generated documentation and used only by the internal execution
+    /// path. A small number of Windows commands represent one operation in both the console mode
+    /// and terminal protocol, so they need to preserve the Win32 fallback while also queueing
+    /// their ANSI representation.
+    #[cfg(windows)]
+    #[doc(hidden)]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        WinApiAnsiTiming::None
+    }
+}
+
+/// Timing for a command that combines a Win32 side effect with ANSI output.
+#[cfg(windows)]
+#[doc(hidden)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WinApiAnsiTiming {
+    /// The command has no hybrid Win32 side effect.
+    None,
+    /// Flush, run Win32, then write ANSI.
+    BeforeAnsi,
+    /// Flush, run Win32, write ANSI, then flush again.
+    BeforeAnsiAndFlush,
+    /// Write ANSI, flush, then run Win32.
+    AfterAnsiAndFlush,
 }
 
 impl<T: Command + ?Sized> Command for &T {
@@ -49,8 +88,20 @@ impl<T: Command + ?Sized> Command for &T {
 
     #[cfg(windows)]
     #[inline]
+    fn execute_winapi_with_ansi(&self) -> io::Result<()> {
+        T::execute_winapi_with_ansi(self)
+    }
+
+    #[cfg(windows)]
+    #[inline]
     fn is_ansi_code_supported(&self) -> bool {
         T::is_ansi_code_supported(self)
+    }
+
+    #[cfg(windows)]
+    #[inline]
+    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
+        T::winapi_ansi_timing(self)
     }
 }
 
@@ -120,16 +171,45 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
     fn queue(&mut self, command: impl Command) -> io::Result<&mut Self> {
         #[cfg(windows)]
-        if !command.is_ansi_code_supported() {
-            // There may be queued commands in this writer, but `execute_winapi` will execute the
-            // command immediately. To prevent commands being executed out of order we flush the
-            // writer now.
-            self.flush()?;
-            command.execute_winapi()?;
-            return Ok(self);
+        let ansi_supported = command.is_ansi_code_supported();
+        #[cfg(windows)]
+        let timing = command.winapi_ansi_timing();
+
+        #[cfg(windows)]
+        {
+            if !ansi_supported {
+                // There may be queued commands in this writer, but `execute_winapi` will execute
+                // the command immediately. To prevent commands being executed out of order we
+                // flush the writer now.
+                self.flush()?;
+                command.execute_winapi()?;
+                return Ok(self);
+            }
+
+            match timing {
+                WinApiAnsiTiming::None => {}
+                WinApiAnsiTiming::BeforeAnsi => {
+                    self.flush()?;
+                    command.execute_winapi_with_ansi()?;
+                }
+                WinApiAnsiTiming::BeforeAnsiAndFlush => {
+                    self.flush()?;
+                    command.execute_winapi_with_ansi()?;
+                }
+                WinApiAnsiTiming::AfterAnsiAndFlush => {
+                    write_command_ansi(self, &command)?;
+                    self.flush()?;
+                    command.execute_winapi_with_ansi()?;
+                    return Ok(self);
+                }
+            }
         }
 
-        write_command_ansi(self, command)?;
+        write_command_ansi(self, &command)?;
+        #[cfg(windows)]
+        if ansi_supported && timing == WinApiAnsiTiming::BeforeAnsiAndFlush {
+            self.flush()?;
+        }
         Ok(self)
     }
 }
@@ -289,6 +369,11 @@ pub(crate) fn execute_fmt(f: &mut impl fmt::Write, command: impl Command) -> fmt
     #[cfg(windows)]
     if !command.is_ansi_code_supported() {
         return command.execute_winapi().map_err(|_| fmt::Error);
+    }
+
+    #[cfg(windows)]
+    if command.winapi_ansi_timing() != WinApiAnsiTiming::None {
+        return Err(fmt::Error);
     }
 
     command.write_ansi(f)
