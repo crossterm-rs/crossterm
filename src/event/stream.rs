@@ -61,7 +61,9 @@ impl Default for EventStream {
         });
 
         EventStream {
-            poll_internal_waker: internal::lock_event_reader().waker(),
+            poll_internal_waker: internal::lock_event_reader()
+                .waker()
+                .expect("failed to initialize event reader waker"),
             stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
             stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
             task_sender,

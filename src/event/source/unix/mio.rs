@@ -3,7 +3,6 @@ use std::{collections::VecDeque, io, time::Duration};
 use mio::{Events, Interest, Poll, Token, unix::SourceFd};
 use signal_hook_mio::v1_0::Signals;
 
-#[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
     Event, internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event,
@@ -14,7 +13,6 @@ use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
 // Tokens to identify file descriptor
 const TTY_TOKEN: Token = Token(0);
 const SIGNAL_TOKEN: Token = Token(1);
-#[cfg(feature = "event-stream")]
 const WAKE_TOKEN: Token = Token(2);
 
 // I (@zrzka) wasn't able to read more than 1_022 bytes when testing
@@ -29,7 +27,6 @@ pub(crate) struct UnixInternalEventSource {
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty_fd: FileDesc<'static>,
     signals: Signals,
-    #[cfg(feature = "event-stream")]
     waker: Waker,
 }
 
@@ -49,7 +46,6 @@ impl UnixInternalEventSource {
         let mut signals = Signals::new([signal_hook::consts::SIGWINCH])?;
         registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
-        #[cfg(feature = "event-stream")]
         let waker = Waker::new(registry, WAKE_TOKEN)?;
 
         Ok(UnixInternalEventSource {
@@ -59,7 +55,6 @@ impl UnixInternalEventSource {
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
             tty_fd: input_fd,
             signals,
-            #[cfg(feature = "event-stream")]
             waker,
         })
     }
@@ -134,7 +129,6 @@ impl EventSource for UnixInternalEventSource {
                             ))));
                         }
                     }
-                    #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
                         return Err(std::io::Error::new(
                             std::io::ErrorKind::Interrupted,
@@ -152,7 +146,6 @@ impl EventSource for UnixInternalEventSource {
         }
     }
 
-    #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker {
         self.waker.clone()
     }

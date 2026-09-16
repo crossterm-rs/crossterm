@@ -7,7 +7,6 @@ use crate::event::{
     sys::windows::{parse::MouseButtonsPressed, poll::WinApiPoll},
 };
 
-#[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{
     internal::InternalEvent,
@@ -28,12 +27,7 @@ impl WindowsEventSource {
         let console = Console::from(Handle::current_in_handle()?);
         Ok(WindowsEventSource {
             console,
-
-            #[cfg(not(feature = "event-stream"))]
-            poll: WinApiPoll::new(),
-            #[cfg(feature = "event-stream")]
             poll: WinApiPoll::new()?,
-
             surrogate_buffer: None,
             mouse_buttons_pressed: MouseButtonsPressed::default(),
         })
@@ -93,7 +87,6 @@ impl EventSource for WindowsEventSource {
         }
     }
 
-    #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker {
         self.poll.waker()
     }

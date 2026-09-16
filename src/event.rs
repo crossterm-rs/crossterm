@@ -141,6 +141,34 @@ use std::time::Duration;
 
 use bitflags::bitflags;
 use std::hash::{Hash, Hasher};
+/// A waker that can interrupt a blocked [`poll`](fn.poll.html) or [`read`](fn.read.html) call from another thread.
+///
+/// When [`wake`](struct.Waker.html#method.wake) is called:
+/// - A thread blocked in [`poll`](fn.poll.html) will immediately unblock and return `Ok(false)` (indicating no event is available).
+/// - A thread blocked in [`read`](fn.read.html) will immediately unblock and return [`std::io::ErrorKind::Interrupted`].
+#[derive(Clone, Debug)]
+pub struct Waker {
+    inner: sys::Waker,
+}
+
+impl Waker {
+    /// Wakes up a thread currently blocked in [`poll`](fn.poll.html) or [`read`](fn.read.html).
+    pub fn wake(&self) -> std::io::Result<()> {
+        self.inner.wake()
+    }
+}
+
+/// Returns a [`Waker`](struct.Waker.html) that can interrupt a blocked [`poll`](fn.poll.html) or [`read`](fn.read.html) call
+/// from another thread.
+///
+/// # Errors
+///
+/// Returns an [`std::io::Error`] if the waker could not be initialized.
+pub fn waker() -> std::io::Result<Waker> {
+    Ok(Waker {
+        inner: internal::waker()?,
+    })
+}
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
 ///
