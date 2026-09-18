@@ -91,7 +91,6 @@ use crossterm_winapi::{ConsoleMode, Handle, ScreenBuffer};
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use winapi::um::wincon::ENABLE_WRAP_AT_EOL_OUTPUT;
-
 #[doc(no_inline)]
 use crate::Command;
 use crate::{csi, impl_display};
@@ -512,7 +511,6 @@ mod tests {
     use std::{io::stdout, thread, time};
 
     use crate::execute;
-
     use super::*;
 
     // Test is disabled, because it's failing on Travis CI

@@ -173,9 +173,7 @@ impl From<Colored> for u16 {
 #[cfg(test)]
 mod tests {
     use std::sync::atomic::Ordering;
-
     use crate::style::sys::windows::set_foreground_color;
-
     use super::{
         BG_INTENSITY, BG_RED, Color, Colored, FG_INTENSITY, FG_RED, ORIGINAL_CONSOLE_COLOR,
     };

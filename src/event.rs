@@ -136,7 +136,9 @@ use crate::{
     Command, csi,
     event::{filter::EventFilter, internal::InternalEvent},
 };
+
 use std::fmt::{self, Display};
+
 use std::time::Duration;
 
 use bitflags::bitflags;

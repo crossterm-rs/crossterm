@@ -4,6 +4,7 @@ use std::fmt::{self, Write};
 use std::io::{self};
 
 use crossterm_winapi::{Console, ConsoleMode, Coord, Handle, ScreenBuffer, Size};
+
 use winapi::{
     shared::minwindef::DWORD,
     um::wincon::{ENABLE_ECHO_INPUT, ENABLE_LINE_INPUT, ENABLE_PROCESSED_INPUT, SetConsoleTitleW},
