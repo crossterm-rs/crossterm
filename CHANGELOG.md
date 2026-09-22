@@ -13,6 +13,8 @@
 
 ## Fixed 🐛
 
+- Fix Escape-prefixed CSI/SS3 key sequences being split into separate key
+  events instead of an Alt-modified key on Unix.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,

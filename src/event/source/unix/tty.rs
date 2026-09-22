@@ -248,6 +248,14 @@ impl Parser {
 
             self.buffer.push(*byte);
 
+            // Only defer a double Escape when this read already contains the
+            // CSI/SS3 introducer; otherwise preserve standalone Escape handling.
+            if self.buffer.as_slice() == b"\x1B\x1B"
+                && matches!(buffer.get(idx + 1), Some(b'[' | b'O'))
+            {
+                continue;
+            }
+
             match parse_event(&self.buffer, more) {
                 Ok(Some(ie)) => {
                     self.internal_events.push_back(ie);
@@ -274,3 +282,7 @@ impl Iterator for Parser {
         self.internal_events.pop_front()
     }
 }
+
+#[cfg(test)]
+#[path = "parser_tests.rs"]
+mod tests;

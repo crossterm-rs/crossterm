@@ -74,7 +74,11 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
-                    b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
+                    // Only treat an extra Escape as Alt for a CSI or SS3 sequence.
+                    // The input reader retains this prefix when its introducer is available.
+                    b'\x1B' if !matches!(buffer.get(2), Some(b'[' | b'O')) => {
+                        Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into()))))
+                    }
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
                             if let InternalEvent::Event(Event::Key(key_event)) = event {
@@ -890,6 +894,30 @@ mod tests {
                 KeyModifiers::ALT
             )))),
         );
+    }
+
+    #[test]
+    fn test_alt_arrow_with_escape_prefix() {
+        for input_available in [false, true] {
+            assert_eq!(
+                parse_event(b"\x1B\x1B", input_available).unwrap(),
+                Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into()))),
+            );
+        }
+
+        for prefix in [b"\x1B\x1B[", b"\x1B\x1BO"] {
+            assert_eq!(parse_event(prefix, false).unwrap(), None);
+        }
+
+        for sequence in [b"\x1B\x1B[A", b"\x1B\x1BOA"] {
+            assert_eq!(
+                parse_event(sequence, false).unwrap(),
+                Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                    KeyCode::Up,
+                    KeyModifiers::ALT,
+                )))),
+            );
+        }
     }
 
     #[test]
