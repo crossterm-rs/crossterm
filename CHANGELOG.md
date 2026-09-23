@@ -13,6 +13,8 @@
 
 ## Fixed 🐛
 
+- Accept alternate key codes in functional-key reports such as iTerm2's
+  `CSI 11:0:0;2~` (Shift-F1), preserving modifiers and press/repeat/release events.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
