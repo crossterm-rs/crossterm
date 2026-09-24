@@ -24,6 +24,13 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix the Unix Mio event source dropping the rest of a readiness batch
+  after returning `Resize`. When a key press and a `SIGWINCH` became ready
+  in the same edge-triggered `poll()` batch, `try_read` returned the resize
+  and abandoned the still-pending TTY readiness, so the key was not
+  delivered until later input produced a fresh edge. Batch events are now
+  queued and drained across the whole batch instead of returning on the
+  first one. Affects `event::read` / `event::poll` on Unix (#1126).
 
 # Version 0.29
 

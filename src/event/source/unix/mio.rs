@@ -93,6 +93,10 @@ impl EventSource for UnixInternalEventSource {
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
+                        // Track the parser backlog so a freshly decoded event is
+                        // detected by a length change instead of returning out of
+                        // the whole readiness batch on the first one (#1126).
+                        let queued_before = self.parser.internal_events.len();
                         loop {
                             match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
@@ -115,8 +119,12 @@ impl EventSource for UnixInternalEventSource {
                                 }
                             };
 
-                            if let Some(event) = self.parser.next() {
-                                return Ok(Some(event));
+                            // A full event decoded off this readiness: stop
+                            // reading (no further drain, so the blocking VMIN=1
+                            // tty cannot hang) and move on to the rest of the
+                            // batch (#1126).
+                            if self.parser.internal_events.len() > queued_before {
+                                break;
                             }
                         }
                     }
@@ -129,9 +137,12 @@ impl EventSource for UnixInternalEventSource {
                             // not a really long time from the absolute time point of view, but
                             // it's a really long time from an async executor's point of view.
                             let new_size = crate::terminal::size()?;
-                            return Ok(Some(InternalEvent::Event(Event::Resize(
-                                new_size.0, new_size.1,
-                            ))));
+                            // Queue instead of returning, so a coincident TTY
+                            // token in this same readiness batch is still
+                            // processed rather than stranded (#1126).
+                            self.parser.internal_events.push_back(InternalEvent::Event(
+                                Event::Resize(new_size.0, new_size.1),
+                            ));
                         }
                     }
                     #[cfg(feature = "event-stream")]
@@ -143,6 +154,14 @@ impl EventSource for UnixInternalEventSource {
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
+            }
+
+            // The whole readiness batch has been processed; hand back the
+            // oldest queued event, if any. Any remainder is returned by the
+            // `parser.next()` check at the top of the next call, with no extra
+            // poll() (#1126).
+            if let Some(event) = self.parser.next() {
+                return Ok(Some(event));
             }
 
             // Processing above can take some time, check if timeout expired
