@@ -653,8 +653,8 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<Int
         v @ 11..=15 => KeyCode::F(v - 10),
         v @ 17..=21 => KeyCode::F(v - 11),
         v @ 23..=26 => KeyCode::F(v - 12),
-        v @ 28..=29 => KeyCode::F(v - 15),
-        v @ 31..=34 => KeyCode::F(v - 17),
+        v @ 28..=29 => KeyCode::F(v - 13),
+        v @ 31..=34 => KeyCode::F(v - 14),
         _ => return Err(could_not_parse_event_error()),
     };
 
@@ -1084,6 +1084,60 @@ mod tests {
             parse_csi_special_key_code(b"\x1B[3~").unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyCode::Delete.into()))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_function_keys_f13_to_f20() {
+        let events: Vec<_> = [25, 26, 28, 29, 31, 32, 33, 34]
+            .iter()
+            .map(|code| parse_event(format!("\x1B[{code}~").as_bytes(), false).unwrap())
+            .collect();
+        let expected: Vec<_> = (13..=20)
+            .map(|key| Some(InternalEvent::Event(Event::Key(KeyCode::F(key).into()))))
+            .collect();
+        assert_eq!(events, expected);
+    }
+
+    #[test]
+    fn test_parse_csi_function_keys_f13_to_f20_with_modifiers_and_kinds() {
+        for (mask, modifiers) in [
+            (1, KeyModifiers::NONE),
+            (2, KeyModifiers::SHIFT),
+            (3, KeyModifiers::ALT),
+            (4, KeyModifiers::SHIFT | KeyModifiers::ALT),
+            (5, KeyModifiers::CONTROL),
+            (6, KeyModifiers::SHIFT | KeyModifiers::CONTROL),
+            (7, KeyModifiers::ALT | KeyModifiers::CONTROL),
+            (
+                8,
+                KeyModifiers::SHIFT | KeyModifiers::ALT | KeyModifiers::CONTROL,
+            ),
+        ] {
+            for (suffix, kind) in [
+                ("", KeyEventKind::Press),
+                (":1", KeyEventKind::Press),
+                (":2", KeyEventKind::Repeat),
+                (":3", KeyEventKind::Release),
+            ] {
+                let events: Vec<_> = [25, 26, 28, 29, 31, 32, 33, 34]
+                    .iter()
+                    .map(|code| {
+                        let sequence = format!("\x1B[{code};{mask}{suffix}~");
+                        parse_event(sequence.as_bytes(), false).unwrap()
+                    })
+                    .collect();
+                let expected: Vec<_> = (13..=20)
+                    .map(|key| {
+                        Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                            KeyCode::F(key),
+                            modifiers,
+                            kind,
+                        ))))
+                    })
+                    .collect();
+                assert_eq!(events, expected, "modifier mask {mask}, kind {suffix:?}");
+            }
+        }
     }
 
     #[test]
