@@ -300,6 +300,53 @@ jobs:
       - name: Verify package
         run: cargo package --locked
 
+  # Compare the public API with the newest crates.io release. Breaking changes are routine between
+  # releases, so this job is advisory. It is omitted from ci-success and allowed to fail.
+  # TODO Run this as a blocking check in the release preparation workflow once it exists.
+  semver:
+    name: semver (advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772
+        with:
+          toolchain: stable
+
+      - name: Install cargo-semver-checks
+        uses: taiki-e/install-action@742a3317eac7bd62f91cd888b4eead5e784ba833 # v2.87.1
+        with:
+          tool: cargo-semver-checks@0.50.0
+          fallback: none
+
+      # An explicit bash shell adds pipefail, so tee does not hide a failed check.
+      - name: Check semver compatibility
+        id: check
+        shell: bash
+        run: cargo semver-checks check-release --color never 2>&1 | tee "$RUNNER_TEMP/semver.txt"
+
+      - name: Summarize semver check
+        if: ${{ always() && steps.check.outcome != 'skipped' }}
+        env:
+          OUTCOME: ${{ steps.check.outcome }}
+        run: |
+          {
+            echo "## cargo-semver-checks"
+            if [ "$OUTCOME" = "failure" ]; then
+              echo "Found changes that need a larger version bump." \
+                "This advisory job does not block pull requests."
+            fi
+            echo '```'
+            cat "$RUNNER_TEMP/semver.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   # Compare the resolved dependency graph with the security, license, and source rules in
   # deny.toml. Vulnerable or yanked packages, unapproved licenses, and unreviewed sources fail CI.
   # Duplicate versions are not checked because Cargo may legitimately resolve more than one
