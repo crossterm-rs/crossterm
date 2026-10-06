@@ -16,20 +16,15 @@ use winapi::{
 /// times or-ed with the cursor's y position, where both are `i16`s.
 static SAVED_CURSOR_POS: AtomicU64 = AtomicU64::new(u64::MAX);
 
-// The 'y' position of the cursor is not relative to the window but absolute to screen buffer.
-// We can calculate the relative cursor position by subtracting the top position of the terminal window from the y position.
-// This results in an 1-based coord zo subtract 1 to make cursor position 0-based.
+// The y position of the cursor is absolute to the screen buffer rather than relative to the
+// window. Convert it to the window-relative coordinate documented by position.
+fn relative_y(y: i16, window_top: i16) -> i16 {
+    y - window_top
+}
+
 pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window = ScreenBuffer::current()?.info()?;
-
-    let window_size = window.terminal_window();
-    let screen_size = window.terminal_size();
-
-    if y <= screen_size.height {
-        Ok(y)
-    } else {
-        Ok(y - window_size.top)
-    }
+    Ok(relative_y(y, window.terminal_window().top))
 }
 
 /// Returns the cursor position (column, row).
@@ -209,10 +204,17 @@ impl From<Handle> for ScreenBufferCursor {
 mod tests {
     use super::{
         move_down, move_left, move_right, move_to, move_to_column, move_to_next_line,
-        move_to_previous_line, move_to_row, move_up, position, restore_position, save_position,
+        move_to_previous_line, move_to_row, move_up, position, relative_y, restore_position,
+        save_position,
     };
     use crate::terminal::sys::temp_screen_buffer;
     use serial_test::serial;
+
+    #[test]
+    fn test_relative_y_subtracts_window_top() {
+        assert_eq!(relative_y(13, 10), 3);
+        assert_eq!(relative_y(10, 10), 0);
+    }
 
     #[test]
     #[serial]
