@@ -95,13 +95,19 @@ impl EventSource for UnixInternalEventSource {
                     TTY_TOKEN => {
                         loop {
                             match self.tty_fd.read(&mut self.tty_buffer) {
+                                // The tty is gone; it stays readable forever, so
+                                // reading again would busy-loop.
+                                Ok(0) => {
+                                    return Err(io::Error::new(
+                                        io::ErrorKind::UnexpectedEof,
+                                        "The input reached end of file (the terminal is gone or its input was closed)",
+                                    ));
+                                }
                                 Ok(read_count) => {
-                                    if read_count > 0 {
-                                        self.parser.advance(
-                                            &self.tty_buffer[..read_count],
-                                            read_count == TTY_BUFFER_SIZE,
-                                        );
-                                    }
+                                    self.parser.advance(
+                                        &self.tty_buffer[..read_count],
+                                        read_count == TTY_BUFFER_SIZE,
+                                    );
                                 }
                                 Err(e) => {
                                     // No more data to read at the moment. We will receive another event
@@ -112,6 +118,7 @@ impl EventSource for UnixInternalEventSource {
                                     else if e.kind() == io::ErrorKind::Interrupted {
                                         continue;
                                     }
+                                    return Err(e);
                                 }
                             };
 
@@ -225,5 +232,39 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Instant;
+
+    #[test]
+    fn try_read_returns_error_when_tty_is_at_eof() {
+        let (sender, receiver) = std::os::unix::net::UnixStream::pair().unwrap();
+        receiver.set_nonblocking(true).unwrap();
+        drop(sender); // the fd is now permanently readable, with `read` returning 0
+
+        #[cfg(feature = "libc")]
+        let fd = {
+            use std::os::unix::io::IntoRawFd;
+            FileDesc::new(receiver.into_raw_fd(), true)
+        };
+        #[cfg(not(feature = "libc"))]
+        let fd = FileDesc::Owned(receiver.into());
+
+        let mut source = UnixInternalEventSource::from_file_descriptor(fd).unwrap();
+
+        let timeout = Duration::from_millis(500);
+        let start = Instant::now();
+        let result = source.try_read(Some(timeout));
+
+        let error = result.expect_err("EOF must surface as an error, not as a poll timeout");
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
+        assert!(
+            start.elapsed() < timeout,
+            "EOF must be detected without spinning until the timeout"
+        );
     }
 }
