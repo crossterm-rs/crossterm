@@ -166,7 +166,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
 | `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | optional (`events` feature), UNIX only |
+| `rustix`       | UNIX terminal size/raw modes and other low-level functionality.                   | UNIX only                              |
 | `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
 | `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                   |  optional (`events` feature),UNIX only |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
