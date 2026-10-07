@@ -782,9 +782,13 @@ fn parse_cb(cb: u8) -> io::Result<(MouseEventKind, KeyModifiers)> {
         (0, false) => MouseEventKind::Down(MouseButton::Left),
         (1, false) => MouseEventKind::Down(MouseButton::Middle),
         (2, false) => MouseEventKind::Down(MouseButton::Right),
+        (8, false) => MouseEventKind::Down(MouseButton::X1),
+        (9, false) => MouseEventKind::Down(MouseButton::X2),
         (0, true) => MouseEventKind::Drag(MouseButton::Left),
         (1, true) => MouseEventKind::Drag(MouseButton::Middle),
         (2, true) => MouseEventKind::Drag(MouseButton::Right),
+        (8, true) => MouseEventKind::Drag(MouseButton::X1),
+        (9, true) => MouseEventKind::Drag(MouseButton::X2),
         (3, false) => MouseEventKind::Up(MouseButton::Left),
         (3, true) | (4, true) | (5, true) => MouseEventKind::Moved,
         (4, false) => MouseEventKind::ScrollUp,
@@ -1223,6 +1227,57 @@ mod tests {
                 kind: MouseEventKind::Down(MouseButton::Left),
                 column: 0,
                 row: 1,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+    }
+
+    // X1/X2 (back/forward) buttons are encoded with bit 7 of Cb set,
+    // giving button numbers 8 and 9 instead of a parse error.
+    #[test]
+    fn test_parse_csi_sgr_mouse_x1_x2_buttons() {
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<128;20;10M").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Down(MouseButton::X1),
+                column: 19,
+                row: 9,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<128;20;10m").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Up(MouseButton::X1),
+                column: 19,
+                row: 9,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<129;20;10M").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Down(MouseButton::X2),
+                column: 19,
+                row: 9,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<129;20;10m").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Up(MouseButton::X2),
+                column: 19,
+                row: 9,
+                modifiers: KeyModifiers::empty(),
+            })))
+        );
+        assert_eq!(
+            parse_csi_sgr_mouse(b"\x1B[<160;20;10M").unwrap(),
+            Some(InternalEvent::Event(Event::Mouse(MouseEvent {
+                kind: MouseEventKind::Drag(MouseButton::X1),
+                column: 19,
+                row: 9,
                 modifiers: KeyModifiers::empty(),
             })))
         );

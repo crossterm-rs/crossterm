@@ -888,6 +888,10 @@ pub enum MouseButton {
     Right,
     /// Middle mouse button.
     Middle,
+    /// The first extra ("back") mouse button.
+    X1,
+    /// The second extra ("forward") mouse button.
+    X2,
 }
 
 impl_is_variant! {
