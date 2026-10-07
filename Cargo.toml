@@ -49,6 +49,9 @@ use-dev-tty = ["filedescriptor", "rustix/process"]
 ## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
 osc52 = ["dep:base64"]
 
+## Enables OSC 7501 reports via [`program_status`](program_status/index.html).
+osc7501 = ["dep:base64"]
+
 [dependencies]
 base64 = { version = "0.23", optional = true }
 bitflags = { version = "2.9" }
