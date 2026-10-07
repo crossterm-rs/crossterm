@@ -124,12 +124,12 @@ cargo test --locked --lib --no-default-features \
   --features events,event-stream,use-dev-tty,bracketed-paste -- --test-threads 1
 ```
 
-Windows builds require the `windows` feature. The crate intentionally rejects a bare
-`--no-default-features` Windows build:
+Windows dependencies are selected automatically for Windows targets. Test both
+`--no-default-features` and the events feature on Windows:
 
 ```sh
-cargo test --locked --lib --no-default-features --features windows -- --test-threads 1
-cargo test --locked --lib --no-default-features --features windows,events -- --test-threads 1
+cargo test --locked --lib --no-default-features -- --test-threads 1
+cargo test --locked --lib --no-default-features --features events -- --test-threads 1
 ```
 
 Pull requests run these checks on GitHub Actions. Beta and nightly test compatibility checks run

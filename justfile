@@ -55,8 +55,8 @@ features:
 # Test the supported Windows feature compatibility points.
 [windows]
 features:
-    cargo test --locked --lib --no-default-features --features windows -- --test-threads 1
-    cargo test --locked --lib --no-default-features --features windows,events -- --test-threads 1
+    cargo test --locked --lib --no-default-features -- --test-threads 1
+    cargo test --locked --lib --no-default-features --features events -- --test-threads 1
 
 # Verify package contents while allowing the local changes under review. CI checks VCS cleanliness.
 package:
