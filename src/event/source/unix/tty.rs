@@ -160,12 +160,6 @@ impl EventSource for UnixInternalEventSource {
                 let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
-                // TODO Should we remove tput?
-                //
-                // This can take a really long time, because terminal::size can
-                // launch new process (tput) and then it parses its output. It's
-                // not a really long time from the absolute time point of view, but
-                // it's a really long time from an async executor's point of view.
                 let new_size = crate::terminal::size()?;
                 return Ok(Some(InternalEvent::Event(Event::Resize(
                     new_size.0, new_size.1,

@@ -70,6 +70,9 @@ rustix = { version = "1", default-features = false, features = ["std", "stdio", 
 signal-hook = { version = "0.3.17", optional = true }
 signal-hook-mio = { version = "0.2.4", features = ["support-v1_0"], optional = true }
 
+[target.'cfg(unix)'.dev-dependencies]
+rustix = { version = "1", default-features = false, features = ["pty", "process"] }
+
 [dev-dependencies]
 futures = "0.3"
 futures-timer = "3.0"
