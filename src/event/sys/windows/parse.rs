@@ -287,8 +287,10 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     None
 }
 
-// The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.
-// This means that when the mouse cursor is at the top left it will be x: 0, y: 2295 (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0 to the window.
+// The 'y' position of a mouse event or resize event is not relative to the window but absolute to
+// screen buffer. This means that when the mouse cursor is at the top left it will be x: 0, y: 2295
+// (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0
+// to the window.
 pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window_size = ScreenBuffer::current()?.info()?.terminal_window();
     Ok(y - window_size.top)

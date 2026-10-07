@@ -94,7 +94,8 @@ fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
 /// On unix systems, this function will block and possibly time out while
-/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll)
+/// are being called.
 #[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> io::Result<bool> {
     query_keyboard_enhancement_flags().map(|flags| flags.is_some())
@@ -103,7 +104,8 @@ pub fn supports_keyboard_enhancement() -> io::Result<bool> {
 /// Queries the terminal's currently active keyboard enhancement flags.
 ///
 /// On unix systems, this function will block and possibly time out while
-/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll) are being called.
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll)
+/// are being called.
 #[cfg(feature = "events")]
 pub fn query_keyboard_enhancement_flags() -> io::Result<Option<KeyboardEnhancementFlags>> {
     if is_raw_mode_enabled() {
@@ -131,9 +133,9 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     use std::time::Duration;
 
     // This is the recommended method for testing support for the keyboard enhancement protocol.
-    // We send a query for the flags supported by the terminal and then the primary device attributes
-    // query. If we receive the primary device attributes response but not the keyboard enhancement
-    // flags, none of the flags are supported.
+    // We send a query for the flags supported by the terminal and then the primary device
+    // attributes query. If we receive the primary device attributes response but not the
+    // keyboard enhancement flags, none of the flags are supported.
     //
     // See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#detection-of-support-for-this-protocol>
 

@@ -1,13 +1,15 @@
 //! # Event
 //!
-//! The `event` module provides the functionality to read keyboard, mouse and terminal resize events.
+//! The `event` module provides the functionality to read keyboard, mouse and terminal resize
+//! events.
 //!
 //! * The [`read`](fn.read.html) function returns an [`Event`](enum.Event.html) immediately
 //! (if available) or blocks until an [`Event`](enum.Event.html) is available.
 //!
-//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an [`Event`](enum.Event.html) available
-//! within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
-//! function will block or not.
+//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an
+//!   [`Event`](enum.Event.html) available
+//! within the given period of time. In other words - if subsequent call to the
+//! [`read`](fn.read.html) function will block or not.
 //!
 //! It's **not allowed** to call these functions from different threads or combine them with the
 //! [`EventStream`](struct.EventStream.html). You're allowed to either:
@@ -15,13 +17,15 @@
 //! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
 //! * or the [`EventStream`](struct.EventStream.html).
 //!
-//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events to work properly**
+//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events
+//! to work properly**
 //!
 //! ## Mouse and Focus Events
 //!
 //! Mouse and focus events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) / [`EnableFocusChange`](struct.EnableFocusChange.html) command.
-//! See [Command API](../index.html#command-api) for more information.
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) /
+//! [`EnableFocusChange`](struct.EnableFocusChange.html) command. See [Command
+//! API](../index.html#command-api) for more information.
 //!
 //! ## Examples
 //!
@@ -31,18 +35,18 @@
 //! #![cfg(feature = "bracketed-paste")]
 //! use crossterm::{
 //!     event::{
-//!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
+//!         EnableFocusChange, EnableMouseCapture, Event, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> std::io::Result<()> {
 //!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
+//!         std::io::stdout(),
+//!         EnableBracketedPaste,
+//!         EnableFocusChange,
+//!         EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
@@ -70,22 +74,22 @@
 //!
 //! ```no_run
 //! #![cfg(feature = "bracketed-paste")]
-//! use std::{time::Duration, io};
+//! use std::{io, time::Duration};
 //!
 //! use crossterm::{
 //!     event::{
-//!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
-//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
+//!         EnableFocusChange, EnableMouseCapture, Event, poll, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> io::Result<()> {
 //!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
+//!         std::io::stdout(),
+//!         EnableBracketedPaste,
+//!         EnableFocusChange,
+//!         EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
@@ -142,7 +146,8 @@ use std::hash::{Hash, Hasher};
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
 ///
-/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
+/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns
+/// `Ok(false)`.
 ///
 /// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
 /// won't block.
@@ -156,8 +161,8 @@ use std::hash::{Hash, Hasher};
 /// Return immediately:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
-/// use crossterm::{event::poll};
+/// use crossterm::event::poll;
+/// use std::{io, time::Duration};
 ///
 /// fn is_event_available() -> io::Result<bool> {
 ///     // Zero duration says that the `poll` function must return immediately
@@ -169,7 +174,7 @@ use std::hash::{Hash, Hasher};
 /// Wait up to 100ms:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
+/// use std::{io, time::Duration};
 ///
 /// use crossterm::event::poll;
 ///
@@ -207,10 +212,10 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// Non-blocking read:
 ///
 /// ```no_run
-/// use std::time::Duration;
 /// use std::io;
+/// use std::time::Duration;
 ///
-/// use crossterm::event::{read, poll};
+/// use crossterm::event::{poll, read};
 ///
 /// fn print_events() -> io::Result<bool> {
 ///     loop {
@@ -239,7 +244,7 @@ pub fn read() -> std::io::Result<Event> {
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::event::{try_read, poll};
+/// use crossterm::event::{poll, try_read};
 /// use std::{io, time::Duration};
 ///
 /// fn print_all_events() -> io::Result<bool> {
@@ -439,21 +444,17 @@ impl Command for DisableBracketedPaste {
 ///
 /// Example usage:
 /// ```no_run
-/// use std::io::{Write, stdout};
-/// use crossterm::execute;
 /// use crossterm::event::{
-///     KeyboardEnhancementFlags,
-///     PushKeyboardEnhancementFlags,
-///     PopKeyboardEnhancementFlags
+///     KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
 /// };
+/// use crossterm::execute;
+/// use std::io::{Write, stdout};
 ///
 /// let mut stdout = stdout();
 ///
 /// execute!(
 ///     stdout,
-///     PushKeyboardEnhancementFlags(
-///         KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-///     )
+///     PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES)
 /// );
 ///
 /// // ...
@@ -656,7 +657,8 @@ impl Event {
 
     /// Returns the key event if the event is a key event, otherwise `None`.
     ///
-    /// This is a convenience method that makes apps that only care about key events easier to write.
+    /// This is a convenience method that makes apps that only care about key events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -748,7 +750,8 @@ impl Event {
 
     /// Returns the pasted string if the event is a paste event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about paste events easier to write.
+    /// This is a convenience method that makes code which only cares about paste events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -771,7 +774,8 @@ impl Event {
 
     /// Returns the size as a tuple if the event is a resize event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about resize events easier to write.
+    /// This is a convenience method that makes code which only cares about resize events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -1018,7 +1022,8 @@ pub struct KeyEvent {
     /// Kind of event.
     ///
     /// Only set if:
-    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
+    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with
+    ///   [`PushKeyboardEnhancementFlags`].
     /// - Windows: always
     pub kind: KeyEventKind,
     /// Keyboard state.
@@ -1500,7 +1505,9 @@ impl KeyCode {
     /// ```
     /// # use crossterm::event::{KeyCode, ModifierKeyCode};
     /// assert!(KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::LeftShift));
-    /// assert!(!KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift));
+    /// assert!(
+    ///     !KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift)
+    /// );
     /// ```
     pub fn is_modifier(&self, modifier: ModifierKeyCode) -> bool {
         matches!(self, KeyCode::Modifier(m) if *m == modifier)
@@ -1520,7 +1527,8 @@ impl Display for KeyCode {
     /// displayed as "Del", and the Enter key is displayed as "Enter".
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            // On macOS, the Backspace key is called "Delete" and the Delete key is called "Fwd Del".
+            // On macOS, the Backspace key is called "Delete" and the Delete key is called "Fwd
+            // Del".
             #[cfg(target_os = "macos")]
             KeyCode::Backspace => write!(f, "Delete"),
             #[cfg(target_os = "macos")]

@@ -12,7 +12,8 @@ use crate::style::parse_next_u8;
 ///
 /// # Platform-specific Notes
 ///
-/// The following list of 16 base colors are available for almost all terminals (Windows 7 and 8 included).
+/// The following list of 16 base colors are available for almost all terminals (Windows 7 and 8
+/// included).
 ///
 /// | Light      | Dark          |
 /// | :--------- | :------------ |
@@ -104,7 +105,14 @@ impl Color {
     ///
     /// assert_eq!(Color::parse_ansi("5;0"), Some(Color::Black));
     /// assert_eq!(Color::parse_ansi("5;26"), Some(Color::AnsiValue(26)));
-    /// assert_eq!(Color::parse_ansi("2;50;60;70"), Some(Color::Rgb { r: 50, g: 60, b: 70 }));
+    /// assert_eq!(
+    ///     Color::parse_ansi("2;50;60;70"),
+    ///     Some(Color::Rgb {
+    ///         r: 50,
+    ///         g: 60,
+    ///         b: 70
+    ///     })
+    /// );
     /// assert_eq!(Color::parse_ansi("invalid color"), None);
     /// ```
     ///
@@ -169,7 +177,8 @@ impl Color {
 impl TryFrom<&str> for Color {
     type Error = ();
 
-    /// Try to create a `Color` from the string representation. This returns an error if the string does not match.
+    /// Try to create a `Color` from the string representation. This returns an error if the string
+    /// does not match.
     fn try_from(src: &str) -> Result<Self, Self::Error> {
         let src = src.to_lowercase();
 
