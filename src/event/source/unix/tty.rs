@@ -240,8 +240,9 @@ impl Parser {
                     // the current sequence. Keep the buffer and process next bytes.
                 }
                 Err(_) => {
-                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
-                    // Clear the buffer and continue with another sequence.
+                    // Event can't be parsed (not enough parameters, parameter is not a number,
+                    // ...). Clear the buffer and continue with another
+                    // sequence.
                     self.buffer.clear();
                 }
             }

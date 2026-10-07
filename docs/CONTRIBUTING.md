@@ -4,6 +4,20 @@ I would appreciate any contributions to this crate. However, some things are han
 
 ## Code Style
 
+### Formatting
+
+Run `cargo fmt --all` for standard formatting. For optional comment wrapping, Rustdoc code block
+formatting, doc attribute normalization, and macro matcher formatting, use nightly rustfmt:
+
+```sh
+rustup component add rustfmt --toolchain nightly
+cargo +nightly fmt --all
+```
+
+The same formatting command is available as `just format-nightly`. Import grouping and granularity
+keep rustfmt's defaults. Stable rustfmt ignores the nightly options with warnings and still formats
+code normally; required CI continues to check formatting with stable Rust.
+
 ### Import Order
 
 All imports are semantically grouped and ordered. The order is:
@@ -31,8 +45,8 @@ The CLion IDE does this for you (_Menu_ -> _Code_ -> _Optimize Imports_). Be awa
 imports in a group in a different way when compared to the `rustfmt`. It's effectively two steps operation
 to get proper grouping & sorting:
 
-* _Menu_ -> _Code_ -> _Optimize Imports_ - group & semantically order imports
-* `cargo fmt` - fix ordering within the group
+- _Menu_ -> _Code_ -> _Optimize Imports_ - group & semantically order imports
+- `cargo fmt` - fix ordering within the group
 
 Second step can be automated via _CLion_ -> _Preferences_ ->
 _Languages & Frameworks_ -> _Rust_ -> _Rustfmt_ -> _Run rustfmt on save_.  
@@ -42,17 +56,18 @@ _Languages & Frameworks_ -> _Rust_ -> _Rustfmt_ -> _Run rustfmt on save_.
 | Type                 | Max line length |
 |:---------------------|----------------:|
 | Code                 |             100 |
-| Comments in the code |             120 |
-| Documentation        |             120 |
+| Comments in the code |             100 |
+| Documentation        |             100 |
 
 100 is the [`max_width`](https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#max_width)
 default value.
 
-120 is because of the GitHub. The editor & viewer width there is +- 123 characters. 
+Nightly rustfmt wraps comments at 100 columns using the settings in [`rustfmt.toml`](../rustfmt.toml).
 
 ### Warnings
 
-The code must be warning free. It's quite hard to find an error if the build logs are polluted with warnings.
+The code must be warning free. It's quite hard to find an error if the build logs are polluted with
+warnings.
 If you decide to silent a warning with (`#[allow(...)]`), please add a comment why it's required.
 
 Always consult the
@@ -62,8 +77,8 @@ Always consult the
 
 Search for `#![deny(...)]` in the code:
 
-* `unused_must_use`
-* `unused_imports`
+- `unused_must_use`
+- `unused_imports`
 
 ## Local checks
 

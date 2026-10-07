@@ -27,7 +27,8 @@ fn init_original_console_mode(original_mode: u32) {
     );
 }
 
-/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
+/// Returns the original console color, make sure to call `init_console_color` before calling this
+/// function. Otherwise this function will panic.
 fn original_console_mode() -> std::io::Result<u32> {
     u32::try_from(ORIGINAL_CONSOLE_MODE.load(Ordering::Relaxed))
         .map_err(|_| io::Error::other("Initial console modes not set"))

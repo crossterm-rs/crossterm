@@ -2,16 +2,18 @@
 
 //! # Cross-platform Terminal Manipulation Library
 //!
-//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces.
+//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write
+//! cross-platform text-based interfaces.
 //!
-//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
-//! see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
+//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are
+//! tested see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
 //! for more info).
 //!
 //! ## Command API
 //!
-//! The command API makes the use of `crossterm` much easier and offers more control over when and how a
-//! command is executed. A command is just an action you can perform on the terminal e.g. cursor movement.
+//! The command API makes the use of `crossterm` much easier and offers more control over when and
+//! how a command is executed. A command is just an action you can perform on the terminal e.g.
+//! cursor movement.
 //!
 //! The command API offers:
 //!
@@ -22,14 +24,15 @@
 //!
 //! There are two ways to use the API command:
 //!
-//! * Functions can execute commands on types that implement Write. Functions are easier to use and debug.
-//!   There is a disadvantage, and that is that there is a boilerplate code involved.
-//! * Macros are generally seen as more difficult and aren't always well supported by editors but offer an API with less boilerplate code. If you are
-//!   not afraid of macros, this is a recommendation.
+//! * Functions can execute commands on types that implement Write. Functions are easier to use and
+//!   debug. There is a disadvantage, and that is that there is a boilerplate code involved.
+//! * Macros are generally seen as more difficult and aren't always well supported by editors but
+//!   offer an API with less boilerplate code. If you are not afraid of macros, this is a
+//!   recommendation.
 //!
-//! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or rather a
-//! byte sequence. When we `write` and `flush` those to the terminal we can perform some action.
-//! For older windows systems a WinAPI call is made.
+//! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or
+//! rather a byte sequence. When we `write` and `flush` those to the terminal we can perform some
+//! action. For older windows systems a WinAPI call is made.
 //!
 //! ### Supported Commands
 //!
@@ -38,12 +41,14 @@
 //!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
 //!     [`DisableBlinking`](cursor/struct.DisableBlinking.html),
 //!     [`SetCursorStyle`](cursor/enum.SetCursorStyle.html)
-//!   - Position -
-//!     [`SavePosition`](cursor/struct.SavePosition.html), [`RestorePosition`](cursor/struct.RestorePosition.html),
+//!   - Position - [`SavePosition`](cursor/struct.SavePosition.html),
+//!     [`RestorePosition`](cursor/struct.RestorePosition.html),
 //!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
 //!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
-//!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),[`MoveToRow`](cursor/struct.MoveToRow.html),
-//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
+//!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),
+//!     [`MoveToRow`](cursor/struct.MoveToRow.html),
+//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html),
+//!     [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
 //! - Module [`event`](event/index.html)
 //!   - Keyboard events -
 //!     [`PushKeyboardEnhancementFlags`](event/struct.PushKeyboardEnhancementFlags.html),
@@ -54,7 +59,8 @@
 //!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
 //!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
 //!     [`ResetColor`](style/struct.ResetColor.html), [`SetColors`](style/struct.SetColors.html)
-//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html), [`SetAttributes`](style/struct.SetAttributes.html),
+//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html),
+//!     [`SetAttributes`](style/struct.SetAttributes.html),
 //!     [`PrintStyledContent`](style/struct.PrintStyledContent.html)
 //!   - Hyperlinks - [`StartHyperlink`](style/struct.StartHyperlink.html),
 //!     [`EndHyperlink`](style/struct.EndHyperlink.html)
@@ -62,16 +68,15 @@
 //!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
-//!     [`SetSize`](terminal/struct.SetSize.html),
-//!     [`SetTitle`](terminal/struct.SetTitle.html),
+//!     [`SetSize`](terminal/struct.SetSize.html), [`SetTitle`](terminal/struct.SetTitle.html),
 //!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
 //!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
 //!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html),
 //!     [`EnableAlternateScrollMode`](terminal/struct.EnableAlternateScrollMode.html),
 //!     [`DisableAlternateScrollMode`](terminal/struct.DisableAlternateScrollMode.html)
-//! - Module [`clipboard`](clipboard/index.html) (requires
-//!   [`feature = "osc52"`](#optional-features))
+//! - Module [`clipboard`](clipboard/index.html) (requires [`feature =
+//!   "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
 //!
 //! ### Command Execution
@@ -95,12 +100,12 @@
 //! Queue a cursor movement, then flush the output:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
 //! use crossterm::{
+//!     QueueableCommand,
 //!     cursor::MoveTo,
 //!     terminal::{Clear, ClearType},
-//!     QueueableCommand,
 //! };
+//! use std::io::{Write, stdout};
 //!
 //! # fn main() -> std::io::Result<()> {
 //! let mut stdout = stdout();
@@ -125,9 +130,7 @@
 //! # };
 //! # fn main() -> std::io::Result<()> {
 //! # let mut stdout = stdout();
-//! stdout
-//!     .queue(MoveTo(5, 5))?
-//!     .queue(Clear(ClearType::All))?;
+//! stdout.queue(MoveTo(5, 5))?.queue(Clear(ClearType::All))?;
 //! # Ok(())
 //! # }
 //! ```
@@ -168,12 +171,12 @@
 //! Execute a cursor movement and flush the output immediately:
 //!
 //! ```no_run
-//! use std::io::stdout;
 //! use crossterm::{
+//!     ExecutableCommand,
 //!     cursor::MoveTo,
 //!     terminal::{Clear, ClearType},
-//!     ExecutableCommand,
 //! };
+//! use std::io::stdout;
 //!
 //! # fn main() -> std::io::Result<()> {
 //! let mut stdout = stdout();
@@ -182,8 +185,8 @@
 //! # }
 //! ```
 //!
-//! The [`execute`](ExecutableCommand::execute) method returns `io::Result<&mut Self>`, so you can use
-//! `?` to propagate errors and chain another command on the same writer:
+//! The [`execute`](ExecutableCommand::execute) method returns `io::Result<&mut Self>`, so you can
+//! use `?` to propagate errors and chain another command on the same writer:
 //!
 //! ```no_run
 //! # use std::io::stdout;
@@ -225,59 +228,64 @@
 //! Functions:
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::{
-//!     ExecutableCommand, QueueableCommand,
-//!     terminal, cursor, style::{self, Stylize}
+//!     ExecutableCommand, QueueableCommand, cursor,
+//!     style::{self, Stylize},
+//!     terminal,
 //! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
-//!   let mut stdout = io::stdout();
+//!     let mut stdout = io::stdout();
 //!
-//!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+//!     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
-//!   for y in 0..40 {
-//!     for x in 0..150 {
-//!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         // in this loop we are more efficient by not flushing the buffer.
-//!         stdout
-//!           .queue(cursor::MoveTo(x,y))?
-//!           .queue(style::PrintStyledContent( "█".magenta()))?;
-//!       }
+//!     for y in 0..40 {
+//!         for x in 0..150 {
+//!             if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+//!                 // in this loop we are more efficient by not flushing the buffer.
+//!                 stdout
+//!                     .queue(cursor::MoveTo(x, y))?
+//!                     .queue(style::PrintStyledContent("█".magenta()))?;
+//!             }
+//!         }
 //!     }
-//!   }
-//!   stdout.flush()?;
-//!   Ok(())
+//!     stdout.flush()?;
+//!     Ok(())
 //! }
 //! ```
 //!
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::{
-//!     execute, queue,
-//!     style::{self, Stylize}, cursor, terminal
+//!     cursor, execute, queue,
+//!     style::{self, Stylize},
+//!     terminal,
 //! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
-//!   let mut stdout = io::stdout();
+//!     let mut stdout = io::stdout();
 //!
-//!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
+//!     execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
-//!   for y in 0..40 {
-//!     for x in 0..150 {
-//!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         // in this loop we are more efficient by not flushing the buffer.
-//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledContent( "█".magenta()))?;
-//!       }
+//!     for y in 0..40 {
+//!         for x in 0..150 {
+//!             if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+//!                 // in this loop we are more efficient by not flushing the buffer.
+//!                 queue!(
+//!                     stdout,
+//!                     cursor::MoveTo(x, y),
+//!                     style::PrintStyledContent("█".magenta())
+//!                 )?;
+//!             }
+//!         }
 //!     }
-//!   }
-//!   stdout.flush()?;
-//!   Ok(())
+//!     stdout.flush()?;
+//!     Ok(())
 //! }
-//!```
-//!
+//! ```
 #![cfg_attr(feature = "document-features", doc = "## Feature Flags")]
 #![cfg_attr(feature = "document-features", doc = document_features::document_features!())]
 //!

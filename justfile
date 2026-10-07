@@ -18,6 +18,10 @@ ci: format clippy docs doctest test msrv features package dependency-policy work
 format:
     cargo fmt --all -- --check
 
+# Apply formatting, including optional nightly comment and Rustdoc code formatting.
+format-nightly:
+    cargo +nightly fmt --all
+
 # Check stable Rust warnings.
 clippy:
     cargo clippy --locked --all-targets --all-features -- -D warnings
