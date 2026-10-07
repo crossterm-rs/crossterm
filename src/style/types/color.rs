@@ -213,7 +213,7 @@ impl FromStr for Color {
     /// # Notes
     ///
     /// * Returns `Color::White` in case of an unknown color.
-    /// * Does not return `Err` and you can safely unwrap.
+    /// * Always returns `Ok`. Use [`Color::try_from`] to reject unrecognized names.
     fn from_str(src: &str) -> Result<Self, Self::Err> {
         Ok(Color::try_from(src).unwrap_or(Color::White))
     }

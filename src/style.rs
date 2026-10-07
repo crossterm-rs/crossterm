@@ -298,8 +298,8 @@ impl Command for SetUnderlineColor {
 ///     stdout(),
 ///     SetColors(Colors::new(Green, Black)),
 ///     Print("Hello, world!".to_string()),
-/// )
-/// .unwrap();
+/// )?;
+/// # Ok::<(), std::io::Error>(())
 /// ```
 ///
 /// See [`Colors`](struct.Colors.html) for more info.
