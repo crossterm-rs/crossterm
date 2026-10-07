@@ -152,7 +152,7 @@ features = ["event-stream"]
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
 | `events`        | Reading input/system events (enabled by default) |
-| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
+| `filedescriptor` | Use raw filedescriptor for all events rather than mio dependency |
 | `osc52`        | Enables crossterm::clipboard                 |
 
 
@@ -163,7 +163,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 | Dependency     | Used for                                                                         | Included                              |
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
-| `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
+| `bitflags`     | `KeyModifiers`, those differ based on input.                                     | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
 | `rustix`       | UNIX terminal size/raw modes and other low-level functionality.                   | UNIX only                              |
 | `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
