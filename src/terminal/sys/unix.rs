@@ -2,17 +2,14 @@
 
 #[cfg(feature = "events")]
 use crate::event::KeyboardEnhancementFlags;
-use crate::terminal::{
-    WindowSize,
-    sys::file_descriptor::{FileDesc, tty_fd},
-};
+use crate::terminal::{WindowSize, sys::file_descriptor::tty_fd};
 use parking_lot::Mutex;
 use rustix::{
-    fd::AsFd,
+    fd::{AsFd, BorrowedFd},
     termios::{Termios, Winsize},
 };
 
-use std::{fs::File, io, process};
+use std::{fs::File, io};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
 // None -> we're not in the raw mode
@@ -34,24 +31,41 @@ impl From<Winsize> for WindowSize {
 }
 
 pub(crate) fn window_size() -> io::Result<WindowSize> {
-    let file = File::open("/dev/tty").map(|file| FileDesc::Owned(file.into()));
-    let fd = if let Ok(file) = &file {
-        file.as_fd()
-    } else {
-        // Fall back to standard output if /dev/tty is missing.
-        rustix::stdio::stdout()
-    };
-    let size = rustix::termios::tcgetwinsize(fd)?;
-    Ok(size.into())
-}
-
-#[allow(clippy::useless_conversion)]
-pub(crate) fn size() -> io::Result<(u16, u16)> {
-    if let Ok(window_size) = window_size() {
-        return Ok((window_size.columns, window_size.rows));
+    if let Ok(file) = File::open("/dev/tty") {
+        if let Ok(size) = rustix::termios::tcgetwinsize(file.as_fd()) {
+            return Ok(size.into());
+        }
     }
 
-    tput_size().ok_or_else(|| std::io::Error::last_os_error().into())
+    first_window_size([
+        rustix::stdio::stdout(),
+        rustix::stdio::stderr(),
+        rustix::stdio::stdin(),
+    ])
+}
+
+fn first_window_size<'fd>(
+    descriptors: impl IntoIterator<Item = BorrowedFd<'fd>>,
+) -> io::Result<WindowSize> {
+    let mut last_error = None;
+    for descriptor in descriptors {
+        match rustix::termios::tcgetwinsize(descriptor) {
+            Ok(size) => return Ok(size.into()),
+            Err(error) => last_error = Some(io::Error::from(error)),
+        }
+    }
+
+    Err(last_error.unwrap_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::NotFound,
+            "no terminal file descriptors to query",
+        )
+    }))
+}
+
+pub(crate) fn size() -> io::Result<(u16, u16)> {
+    let window_size = window_size()?;
+    Ok((window_size.columns, window_size.rows))
 }
 
 pub(crate) fn enable_raw_mode() -> io::Result<()> {
@@ -184,28 +198,39 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     }
 }
 
-/// execute tput with the given argument and parse
-/// the output as a u16.
-///
-/// The arg should be "cols" or "lines"
-fn tput_value(arg: &str) -> Option<u16> {
-    let output = process::Command::new("tput").arg(arg).output().ok()?;
-    let value = output
-        .stdout
-        .into_iter()
-        .filter_map(|b| char::from(b).to_digit(10))
-        .fold(0, |v, n| v * 10 + n as u16);
+#[cfg(test)]
+mod tests {
+    use std::{ffi::OsStr, fs::File, os::unix::ffi::OsStrExt, path::Path};
 
-    if value > 0 { Some(value) } else { None }
-}
+    use rustix::{
+        fd::AsFd,
+        pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt},
+        termios::{Winsize, tcsetwinsize},
+    };
 
-/// Returns the size of the screen as determined by tput.
-///
-/// This alternate way of computing the size is useful
-/// when in a subshell.
-fn tput_size() -> Option<(u16, u16)> {
-    match (tput_value("cols"), tput_value("lines")) {
-        (Some(w), Some(h)) => Some((w, h)),
-        _ => None,
+    use super::first_window_size;
+
+    #[test]
+    fn window_size_uses_later_terminal_descriptor_when_earlier_one_is_not_a_terminal() {
+        let master = openpt(OpenptFlags::RDWR).unwrap();
+        grantpt(&master).unwrap();
+        unlockpt(&master).unwrap();
+        let slave_name = ptsname(&master, Vec::new()).unwrap();
+        let slave = File::open(Path::new(OsStr::from_bytes(slave_name.to_bytes()))).unwrap();
+        tcsetwinsize(
+            &slave,
+            Winsize {
+                ws_col: 81,
+                ws_row: 23,
+                ws_xpixel: 0,
+                ws_ypixel: 0,
+            },
+        )
+        .unwrap();
+        let non_terminal = File::open("/dev/null").unwrap();
+
+        let size = first_window_size([non_terminal.as_fd(), slave.as_fd()]).unwrap();
+
+        assert_eq!((size.columns, size.rows), (81, 23));
     }
 }
