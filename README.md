@@ -154,7 +154,7 @@ features = ["event-stream"]
 | `events`        | Reading input/system events (enabled by default) |
 | `filedescriptor` | Use raw filedescriptor for all events rather than mio dependency |
 | `osc52`        | Enables crossterm::clipboard                 |
-
+| `osc7501`      | Enables OSC 7501 program-status reports via crossterm::program_status |
 
 To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
 This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
@@ -171,7 +171,7 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
-| `base64`       | Encoding clipboard data for OSC52 sequences in crossterm::clipboard              | only with `osc52` feature flag        |
+| `base64`       | Encoding clipboard data and program-status text for OSC sequences               | only with `osc52` or `osc7501` feature flags |
 
 ### Other Resources
 
