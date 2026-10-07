@@ -67,7 +67,9 @@
 //!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
 //!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
+//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html),
+//!     [`EnableAlternateScrollMode`](terminal/struct.EnableAlternateScrollMode.html),
+//!     [`DisableAlternateScrollMode`](terminal/struct.DisableAlternateScrollMode.html)
 //! - Module [`clipboard`](clipboard/index.html) (requires
 //!   [`feature = "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
@@ -258,8 +260,3 @@ pub mod clipboard;
 pub mod ansi_support;
 mod command;
 pub(crate) mod macros;
-
-#[cfg(all(windows, not(feature = "windows")))]
-compile_error!(
-    "Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows."
-);

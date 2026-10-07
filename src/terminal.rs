@@ -268,6 +268,84 @@ impl Command for LeaveAlternateScreen {
     }
 }
 
+/// A command that enables the alternate scroll mode.
+///
+/// When enabled, scrolling while on the alternate screen sends cursor-up/down
+/// key events instead of moving the normal scrollback buffer.
+/// See <https://invisible-island.net/xterm/manpage/xterm.html#VT100-Widget-Resources:alternateScroll>.
+///
+/// Not supported on Windows.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io;
+/// use crossterm::{execute, terminal::{EnableAlternateScrollMode, EnterAlternateScreen}};
+///
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), EnterAlternateScreen, EnableAlternateScrollMode)
+/// }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableAlternateScrollMode;
+
+impl Command for EnableAlternateScrollMode {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1007h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Alternate scroll mode is not supported on the legacy Windows API.",
+        ))
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
+/// A command that disables the alternate scroll mode.
+///
+/// See <https://invisible-island.net/xterm/manpage/xterm.html#VT100-Widget-Resources:alternateScroll>.
+///
+/// Not supported on Windows.
+///
+/// # Examples
+///
+/// ```no_run
+/// use std::io;
+/// use crossterm::{execute, terminal::{DisableAlternateScrollMode, LeaveAlternateScreen}};
+///
+/// fn main() -> io::Result<()> {
+///     execute!(io::stdout(), DisableAlternateScrollMode, LeaveAlternateScreen)
+/// }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableAlternateScrollMode;
+
+impl Command for DisableAlternateScrollMode {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1007l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Alternate scroll mode is not supported on the legacy Windows API.",
+        ))
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
 /// Different ways to clear the terminal buffer.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
