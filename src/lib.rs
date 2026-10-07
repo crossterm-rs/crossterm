@@ -83,93 +83,140 @@
 //!
 //! #### Lazy Execution
 //!
-//! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
-//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer
-//! at the same time.
+//! Flushing output after every command can be costly when an application updates the terminal
+//! frequently, such as a TUI editor. Use `queue` to batch commands, then call
+//! [`Write::flush`][flush] when you are ready to send the output.
 //!
-//! Crossterm offers the possibility to do this with `queue`.
-//! With `queue` you can queue commands, and when you call [Write::flush][flush] these commands will be executed.
+//! You can use any writer implementing [`std::io::Write`][write], including
+//! [`std::io::stdout`][stdout], [`std::io::stderr`][stderr], or a custom buffer.
 //!
-//! You can pass a custom buffer implementing [std::io::Write][write] to this `queue` operation.
-//! The commands will be executed on that buffer.
-//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
+//! ##### Methods
 //!
-//! ##### Examples
-//!
-//! A simple demonstration that shows the command API in action with cursor commands.
-//!
-//! Functions:
-//!
-//! ```no_run
-//! use std::io::{Write, stdout};
-//! use crossterm::{QueueableCommand, cursor};
-//!
-//! let mut stdout = stdout();
-//! stdout.queue(cursor::MoveTo(5,5));
-//!
-//! // some other code ...
-//!
-//! stdout.flush();
-//! ```
-//!
-//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another
-//! command. Like `stdout.queue(Goto(5,5))?.queue(Clear(ClearType::All))`.
-//!
-//! Macros:
-//!
-//! ```no_run
-//! use std::io::{Write, stdout};
-//! use crossterm::{queue, QueueableCommand, cursor};
-//!
-//! let mut stdout = stdout();
-//! queue!(stdout,  cursor::MoveTo(5, 5));
-//!
-//! // some other code ...
-//!
-//! // move operation is performed only if we flush the buffer.
-//! stdout.flush();
-//! ```
-//!
-//! You can pass more than one command into the [queue](./macro.queue.html) macro like
-//! `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
-//! they will be executed in the given order from left to right.
-//!
-//! #### Direct Execution
-//!
-//! For many applications it is not at all important to be efficient with 'flush' operations.
-//! For this use case there is the `execute` operation.
-//! This operation executes the command immediately, and calls the `flush` under water.
-//!
-//! You can pass a custom buffer implementing [std::io::Write][write] to this `execute` operation.
-//! The commands will be executed on that buffer.
-//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
-//!
-//! ##### Examples
-//!
-//! Functions:
-//!
-//! ```no_run
-//! use std::io::{Write, stdout};
-//! use crossterm::{ExecutableCommand, cursor};
-//!
-//! let mut stdout = stdout();
-//! stdout.execute(cursor::MoveTo(5,5));
-//! ```
-//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue
-//! another command. Like `stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))`.
-//!
-//! Macros:
+//! Queue a cursor movement, then flush the output:
 //!
 //! ```no_run
 //! use std::io::{stdout, Write};
-//! use crossterm::{execute, ExecutableCommand, cursor};
+//! use crossterm::{
+//!     cursor::MoveTo,
+//!     terminal::{Clear, ClearType},
+//!     QueueableCommand,
+//! };
 //!
+//! # fn main() -> std::io::Result<()> {
 //! let mut stdout = stdout();
-//! execute!(stdout, cursor::MoveTo(5, 5));
+//! stdout.queue(MoveTo(5, 5))?;
+//!
+//! // Queue more commands here before flushing.
+//!
+//! stdout.flush()?;
+//! # Ok(())
+//! # }
 //! ```
-//! You can pass more than one command into the [execute](./macro.execute.html) macro like
-//! `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and they will be executed in the given order from
-//! left to right.
+//!
+//! The [`queue`](QueueableCommand::queue) method returns `io::Result<&mut Self>`, so you can use
+//! `?` to propagate errors and chain another command on the same writer:
+//!
+//! ```no_run
+//! # use std::io::stdout;
+//! # use crossterm::{
+//! #     cursor::MoveTo,
+//! #     terminal::{Clear, ClearType},
+//! #     QueueableCommand,
+//! # };
+//! # fn main() -> std::io::Result<()> {
+//! # let mut stdout = stdout();
+//! stdout
+//!     .queue(MoveTo(5, 5))?
+//!     .queue(Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ##### Macros
+//!
+//! The [`queue!`] macro accepts multiple commands and queues them in the order provided:
+//!
+//! ```no_run
+//! # use std::io::{stdout, Write};
+//! # use crossterm::{cursor::MoveTo, terminal::{Clear, ClearType}};
+//! use crossterm::queue;
+//!
+//! # fn main() -> std::io::Result<()> {
+//! let mut stdout = stdout();
+//! queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))?;
+//!
+//! // Queue more commands here before flushing.
+//!
+//! // Flush the queued output.
+//! stdout.flush()?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! #### Direct Execution
+//!
+//! For applications that send only a few commands at a time, the cost of flushing after each
+//! command is often negligible, so batching commands may offer little performance benefit.
+//! Use `execute` when you want to send a command immediately rather than batch commands.
+//! It writes the command to the output and calls [`Write::flush`][flush].
+//!
+//! You can use any writer implementing [`std::io::Write`][write], including
+//! [`std::io::stdout`][stdout], [`std::io::stderr`][stderr], or a custom buffer.
+//!
+//! ##### Methods
+//!
+//! Execute a cursor movement and flush the output immediately:
+//!
+//! ```no_run
+//! use std::io::stdout;
+//! use crossterm::{
+//!     cursor::MoveTo,
+//!     terminal::{Clear, ClearType},
+//!     ExecutableCommand,
+//! };
+//!
+//! # fn main() -> std::io::Result<()> {
+//! let mut stdout = stdout();
+//! stdout.execute(MoveTo(5, 5))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! The [`execute`](ExecutableCommand::execute) method returns `io::Result<&mut Self>`, so you can use
+//! `?` to propagate errors and chain another command on the same writer:
+//!
+//! ```no_run
+//! # use std::io::stdout;
+//! # use crossterm::{
+//! #     cursor::MoveTo,
+//! #     terminal::{Clear, ClearType},
+//! #     ExecutableCommand,
+//! # };
+//! # fn main() -> std::io::Result<()> {
+//! # let mut stdout = stdout();
+//! stdout
+//!     .execute(MoveTo(5, 5))?
+//!     .execute(Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ##### Macros
+//!
+//! The [`execute!`] macro accepts multiple commands, writes them in the order provided,
+//! and flushes the output:
+//!
+//! ```no_run
+//! # use std::io::stdout;
+//! # use crossterm::{cursor::MoveTo, terminal::{Clear, ClearType}};
+//! use crossterm::execute;
+//!
+//! # fn main() -> std::io::Result<()> {
+//! let mut stdout = stdout();
+//! execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
+//! ```
 //!
 //! ## Examples
 //!
