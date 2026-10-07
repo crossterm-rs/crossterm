@@ -92,34 +92,27 @@ impl EventSource for UnixInternalEventSource {
 
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
-                    TTY_TOKEN => {
-                        loop {
-                            match self.tty_fd.read(&mut self.tty_buffer) {
-                                Ok(read_count) => {
-                                    if read_count > 0 {
-                                        self.parser.advance(
-                                            &self.tty_buffer[..read_count],
-                                            read_count == TTY_BUFFER_SIZE,
-                                        );
-                                    }
-                                }
-                                Err(e) => {
-                                    // No more data to read at the moment. We will receive another event
-                                    if e.kind() == io::ErrorKind::WouldBlock {
-                                        break;
-                                    }
-                                    // once more data is available to read.
-                                    else if e.kind() == io::ErrorKind::Interrupted {
-                                        continue;
-                                    }
-                                }
-                            };
-
-                            if let Some(event) = self.parser.next() {
-                                return Ok(Some(event));
+                    TTY_TOKEN => loop {
+                        match self.tty_fd.read(&mut self.tty_buffer) {
+                            Ok(0) => {
+                                return Err(io::Error::new(
+                                    io::ErrorKind::UnexpectedEof,
+                                    "input source closed",
+                                ));
                             }
+                            Ok(read_count) => self.parser.advance(
+                                &self.tty_buffer[..read_count],
+                                read_count == TTY_BUFFER_SIZE,
+                            ),
+                            Err(e) if e.kind() == io::ErrorKind::WouldBlock => break,
+                            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                            Err(e) => return Err(e),
+                        };
+
+                        if let Some(event) = self.parser.next() {
+                            return Ok(Some(event));
                         }
-                    }
+                    },
                     SIGNAL_TOKEN => {
                         if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
                             // TODO Should we remove tput?
@@ -225,5 +218,44 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io;
+    use std::os::unix::net::UnixStream;
+    #[cfg(feature = "libc")]
+    use std::os::unix::prelude::IntoRawFd;
+    use std::sync::mpsc;
+    use std::thread;
+    use std::time::Duration;
+
+    use crate::event::source::EventSource;
+    use crate::terminal::sys::file_descriptor::FileDesc;
+
+    use super::UnixInternalEventSource;
+
+    #[test]
+    fn eof_is_reported_without_spinning() {
+        let (reader, writer) = UnixStream::pair().unwrap();
+        reader.set_nonblocking(true).unwrap();
+        drop(writer);
+        #[cfg(feature = "libc")]
+        let input = FileDesc::new(reader.into_raw_fd(), true);
+        #[cfg(not(feature = "libc"))]
+        let input = FileDesc::Owned(reader.into());
+        let mut source = UnixInternalEventSource::from_file_descriptor(input).unwrap();
+        let (sender, receiver) = mpsc::channel();
+        let worker = thread::spawn(move || {
+            sender.send(source.try_read(None)).unwrap();
+        });
+
+        let error = receiver
+            .recv_timeout(Duration::from_secs(2))
+            .expect("event source spun after terminal EOF")
+            .unwrap_err();
+        worker.join().unwrap();
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
     }
 }
