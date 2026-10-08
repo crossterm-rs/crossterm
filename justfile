@@ -18,6 +18,10 @@ ci: format clippy docs doctest test msrv features package dependency-policy work
 format:
     cargo fmt --all -- --check
 
+# Apply formatting, including optional nightly comment and Rustdoc code formatting.
+format-nightly:
+    cargo +nightly fmt --all
+
 # Check stable Rust warnings.
 clippy:
     cargo clippy --locked --all-targets --all-features -- -D warnings
@@ -55,8 +59,8 @@ features:
 # Test the supported Windows feature compatibility points.
 [windows]
 features:
-    cargo test --locked --lib --no-default-features --features windows -- --test-threads 1
-    cargo test --locked --lib --no-default-features --features windows,events -- --test-threads 1
+    cargo test --locked --lib --no-default-features -- --test-threads 1
+    cargo test --locked --lib --no-default-features --features events -- --test-threads 1
 
 # Verify package contents while allowing the local changes under review. CI checks VCS cleanliness.
 package:

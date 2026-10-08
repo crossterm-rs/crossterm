@@ -2,16 +2,18 @@
 
 //! # Cross-platform Terminal Manipulation Library
 //!
-//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write cross-platform text-based interfaces.
+//! Crossterm is a pure-rust, terminal manipulation library that makes it possible to write
+//! cross-platform text-based interfaces.
 //!
-//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are tested
-//! see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
+//! This crate supports all UNIX and Windows terminals down to Windows 7 (not all terminals are
+//! tested see [Tested Terminals](https://github.com/crossterm-rs/crossterm#tested-terminals)
 //! for more info).
 //!
 //! ## Command API
 //!
-//! The command API makes the use of `crossterm` much easier and offers more control over when and how a
-//! command is executed. A command is just an action you can perform on the terminal e.g. cursor movement.
+//! The command API makes the use of `crossterm` much easier and offers more control over when and
+//! how a command is executed. A command is just an action you can perform on the terminal e.g.
+//! cursor movement.
 //!
 //! The command API offers:
 //!
@@ -22,14 +24,15 @@
 //!
 //! There are two ways to use the API command:
 //!
-//! * Functions can execute commands on types that implement Write. Functions are easier to use and debug.
-//!   There is a disadvantage, and that is that there is a boilerplate code involved.
-//! * Macros are generally seen as more difficult and aren't always well supported by editors but offer an API with less boilerplate code. If you are
-//!   not afraid of macros, this is a recommendation.
+//! * Functions can execute commands on types that implement Write. Functions are easier to use and
+//!   debug. There is a disadvantage, and that is that there is a boilerplate code involved.
+//! * Macros are generally seen as more difficult and aren't always well supported by editors but
+//!   offer an API with less boilerplate code. If you are not afraid of macros, this is a
+//!   recommendation.
 //!
-//! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or rather a
-//! byte sequence. When we `write` and `flush` those to the terminal we can perform some action.
-//! For older windows systems a WinAPI call is made.
+//! Linux and Windows 10 systems support ANSI escape codes. Those ANSI escape codes are strings or
+//! rather a byte sequence. When we `write` and `flush` those to the terminal we can perform some
+//! action. For older windows systems a WinAPI call is made.
 //!
 //! ### Supported Commands
 //!
@@ -38,12 +41,14 @@
 //!   - Appearance - [`EnableBlinking`](cursor/struct.EnableBlinking.html),
 //!     [`DisableBlinking`](cursor/struct.DisableBlinking.html),
 //!     [`SetCursorStyle`](cursor/enum.SetCursorStyle.html)
-//!   - Position -
-//!     [`SavePosition`](cursor/struct.SavePosition.html), [`RestorePosition`](cursor/struct.RestorePosition.html),
+//!   - Position - [`SavePosition`](cursor/struct.SavePosition.html),
+//!     [`RestorePosition`](cursor/struct.RestorePosition.html),
 //!     [`MoveUp`](cursor/struct.MoveUp.html), [`MoveDown`](cursor/struct.MoveDown.html),
 //!     [`MoveLeft`](cursor/struct.MoveLeft.html), [`MoveRight`](cursor/struct.MoveRight.html),
-//!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),[`MoveToRow`](cursor/struct.MoveToRow.html),
-//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html), [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
+//!     [`MoveTo`](cursor/struct.MoveTo.html), [`MoveToColumn`](cursor/struct.MoveToColumn.html),
+//!     [`MoveToRow`](cursor/struct.MoveToRow.html),
+//!     [`MoveToNextLine`](cursor/struct.MoveToNextLine.html),
+//!     [`MoveToPreviousLine`](cursor/struct.MoveToPreviousLine.html)
 //! - Module [`event`](event/index.html)
 //!   - Keyboard events -
 //!     [`PushKeyboardEnhancementFlags`](event/struct.PushKeyboardEnhancementFlags.html),
@@ -54,7 +59,8 @@
 //!   - Colors - [`SetForegroundColor`](style/struct.SetForegroundColor.html),
 //!     [`SetBackgroundColor`](style/struct.SetBackgroundColor.html),
 //!     [`ResetColor`](style/struct.ResetColor.html), [`SetColors`](style/struct.SetColors.html)
-//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html), [`SetAttributes`](style/struct.SetAttributes.html),
+//!   - Attributes - [`SetAttribute`](style/struct.SetAttribute.html),
+//!     [`SetAttributes`](style/struct.SetAttributes.html),
 //!     [`PrintStyledContent`](style/struct.PrintStyledContent.html)
 //!   - Hyperlinks - [`StartHyperlink`](style/struct.StartHyperlink.html),
 //!     [`EndHyperlink`](style/struct.EndHyperlink.html)
@@ -62,14 +68,15 @@
 //!   - Scrolling - [`ScrollUp`](terminal/struct.ScrollUp.html),
 //!     [`ScrollDown`](terminal/struct.ScrollDown.html)
 //!   - Miscellaneous - [`Clear`](terminal/struct.Clear.html),
-//!     [`SetSize`](terminal/struct.SetSize.html),
-//!     [`SetTitle`](terminal/struct.SetTitle.html),
+//!     [`SetSize`](terminal/struct.SetSize.html), [`SetTitle`](terminal/struct.SetTitle.html),
 //!     [`DisableLineWrap`](terminal/struct.DisableLineWrap.html),
 //!     [`EnableLineWrap`](terminal/struct.EnableLineWrap.html)
 //!   - Alternate screen - [`EnterAlternateScreen`](terminal/struct.EnterAlternateScreen.html),
-//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html)
-//! - Module [`clipboard`](clipboard/index.html) (requires
-//!   [`feature = "osc52"`](#optional-features))
+//!     [`LeaveAlternateScreen`](terminal/struct.LeaveAlternateScreen.html),
+//!     [`EnableAlternateScrollMode`](terminal/struct.EnableAlternateScrollMode.html),
+//!     [`DisableAlternateScrollMode`](terminal/struct.DisableAlternateScrollMode.html)
+//! - Module [`clipboard`](clipboard/index.html) (requires [`feature =
+//!   "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
 //!
 //! ### Command Execution
@@ -81,93 +88,138 @@
 //!
 //! #### Lazy Execution
 //!
-//! Flushing bytes to the terminal buffer is a heavy system call. If we perform a lot of actions with the terminal,
-//! we want to do this periodically - like with a TUI editor - so that we can flush more data to the terminal buffer
-//! at the same time.
+//! Flushing output after every command can be costly when an application updates the terminal
+//! frequently, such as a TUI editor. Use `queue` to batch commands, then call
+//! [`Write::flush`][flush] when you are ready to send the output.
 //!
-//! Crossterm offers the possibility to do this with `queue`.
-//! With `queue` you can queue commands, and when you call [Write::flush][flush] these commands will be executed.
+//! You can use any writer implementing [`std::io::Write`][write], including
+//! [`std::io::stdout`][stdout], [`std::io::stderr`][stderr], or a custom buffer.
 //!
-//! You can pass a custom buffer implementing [std::io::Write][write] to this `queue` operation.
-//! The commands will be executed on that buffer.
-//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
+//! ##### Methods
 //!
-//! ##### Examples
-//!
-//! A simple demonstration that shows the command API in action with cursor commands.
-//!
-//! Functions:
+//! Queue a cursor movement, then flush the output:
 //!
 //! ```no_run
+//! use crossterm::{
+//!     QueueableCommand,
+//!     cursor::MoveTo,
+//!     terminal::{Clear, ClearType},
+//! };
 //! use std::io::{Write, stdout};
-//! use crossterm::{QueueableCommand, cursor};
 //!
+//! # fn main() -> std::io::Result<()> {
 //! let mut stdout = stdout();
-//! stdout.queue(cursor::MoveTo(5,5));
+//! stdout.queue(MoveTo(5, 5))?;
 //!
-//! // some other code ...
+//! // Queue more commands here before flushing.
 //!
-//! stdout.flush();
+//! stdout.flush()?;
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! The [queue](./trait.QueueableCommand.html) function returns itself, therefore you can use this to queue another
-//! command. Like `stdout.queue(Goto(5,5)).queue(Clear(ClearType::All))`.
-//!
-//! Macros:
+//! The [`queue`](QueueableCommand::queue) method returns `io::Result<&mut Self>`, so you can use
+//! `?` to propagate errors and chain another command on the same writer:
 //!
 //! ```no_run
-//! use std::io::{Write, stdout};
-//! use crossterm::{queue, QueueableCommand, cursor};
-//!
-//! let mut stdout = stdout();
-//! queue!(stdout,  cursor::MoveTo(5, 5));
-//!
-//! // some other code ...
-//!
-//! // move operation is performed only if we flush the buffer.
-//! stdout.flush();
+//! # use std::io::stdout;
+//! # use crossterm::{
+//! #     cursor::MoveTo,
+//! #     terminal::{Clear, ClearType},
+//! #     QueueableCommand,
+//! # };
+//! # fn main() -> std::io::Result<()> {
+//! # let mut stdout = stdout();
+//! stdout.queue(MoveTo(5, 5))?.queue(Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
 //! ```
 //!
-//! You can pass more than one command into the [queue](./macro.queue.html) macro like
-//! `queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and
-//! they will be executed in the given order from left to right.
+//! ##### Macros
+//!
+//! The [`queue!`] macro accepts multiple commands and queues them in the order provided:
+//!
+//! ```no_run
+//! # use std::io::{stdout, Write};
+//! # use crossterm::{cursor::MoveTo, terminal::{Clear, ClearType}};
+//! use crossterm::queue;
+//!
+//! # fn main() -> std::io::Result<()> {
+//! let mut stdout = stdout();
+//! queue!(stdout, MoveTo(5, 5), Clear(ClearType::All))?;
+//!
+//! // Queue more commands here before flushing.
+//!
+//! // Flush the queued output.
+//! stdout.flush()?;
+//! # Ok(())
+//! # }
+//! ```
 //!
 //! #### Direct Execution
 //!
-//! For many applications it is not at all important to be efficient with 'flush' operations.
-//! For this use case there is the `execute` operation.
-//! This operation executes the command immediately, and calls the `flush` under water.
+//! For applications that send only a few commands at a time, the cost of flushing after each
+//! command is often negligible, so batching commands may offer little performance benefit.
+//! Use `execute` when you want to send a command immediately rather than batch commands.
+//! It writes the command to the output and calls [`Write::flush`][flush].
 //!
-//! You can pass a custom buffer implementing [std::io::Write][write] to this `execute` operation.
-//! The commands will be executed on that buffer.
-//! The most common buffer is [std::io::stdout][stdout] however, [std::io::stderr][stderr] is used sometimes as well.
+//! You can use any writer implementing [`std::io::Write`][write], including
+//! [`std::io::stdout`][stdout], [`std::io::stderr`][stderr], or a custom buffer.
 //!
-//! ##### Examples
+//! ##### Methods
 //!
-//! Functions:
-//!
-//! ```no_run
-//! use std::io::{Write, stdout};
-//! use crossterm::{ExecutableCommand, cursor};
-//!
-//! let mut stdout = stdout();
-//! stdout.execute(cursor::MoveTo(5,5));
-//! ```
-//! The [execute](./trait.ExecutableCommand.html) function returns itself, therefore you can use this to queue
-//! another command. Like `stdout.execute(Goto(5,5))?.execute(Clear(ClearType::All))`.
-//!
-//! Macros:
+//! Execute a cursor movement and flush the output immediately:
 //!
 //! ```no_run
-//! use std::io::{stdout, Write};
-//! use crossterm::{execute, ExecutableCommand, cursor};
+//! use crossterm::{
+//!     ExecutableCommand,
+//!     cursor::MoveTo,
+//!     terminal::{Clear, ClearType},
+//! };
+//! use std::io::stdout;
 //!
+//! # fn main() -> std::io::Result<()> {
 //! let mut stdout = stdout();
-//! execute!(stdout, cursor::MoveTo(5, 5));
+//! stdout.execute(MoveTo(5, 5))?;
+//! # Ok(())
+//! # }
 //! ```
-//! You can pass more than one command into the [execute](./macro.execute.html) macro like
-//! `execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))` and they will be executed in the given order from
-//! left to right.
+//!
+//! The [`execute`](ExecutableCommand::execute) method returns `io::Result<&mut Self>`, so you can
+//! use `?` to propagate errors and chain another command on the same writer:
+//!
+//! ```no_run
+//! # use std::io::stdout;
+//! # use crossterm::{
+//! #     cursor::MoveTo,
+//! #     terminal::{Clear, ClearType},
+//! #     ExecutableCommand,
+//! # };
+//! # fn main() -> std::io::Result<()> {
+//! # let mut stdout = stdout();
+//! stdout
+//!     .execute(MoveTo(5, 5))?
+//!     .execute(Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ##### Macros
+//!
+//! The [`execute!`] macro accepts multiple commands, writes them in the order provided,
+//! and flushes the output:
+//!
+//! ```no_run
+//! # use std::io::stdout;
+//! # use crossterm::{cursor::MoveTo, terminal::{Clear, ClearType}};
+//! use crossterm::execute;
+//!
+//! # fn main() -> std::io::Result<()> {
+//! let mut stdout = stdout();
+//! execute!(stdout, MoveTo(5, 5), Clear(ClearType::All))?;
+//! # Ok(())
+//! # }
+//! ```
 //!
 //! ## Examples
 //!
@@ -176,59 +228,64 @@
 //! Functions:
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::{
-//!     ExecutableCommand, QueueableCommand,
-//!     terminal, cursor, style::{self, Stylize}
+//!     ExecutableCommand, QueueableCommand, cursor,
+//!     style::{self, Stylize},
+//!     terminal,
 //! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
-//!   let mut stdout = io::stdout();
+//!     let mut stdout = io::stdout();
 //!
-//!   stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+//!     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
 //!
-//!   for y in 0..40 {
-//!     for x in 0..150 {
-//!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         // in this loop we are more efficient by not flushing the buffer.
-//!         stdout
-//!           .queue(cursor::MoveTo(x,y))?
-//!           .queue(style::PrintStyledContent( "█".magenta()))?;
-//!       }
+//!     for y in 0..40 {
+//!         for x in 0..150 {
+//!             if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+//!                 // in this loop we are more efficient by not flushing the buffer.
+//!                 stdout
+//!                     .queue(cursor::MoveTo(x, y))?
+//!                     .queue(style::PrintStyledContent("█".magenta()))?;
+//!             }
+//!         }
 //!     }
-//!   }
-//!   stdout.flush()?;
-//!   Ok(())
+//!     stdout.flush()?;
+//!     Ok(())
 //! }
 //! ```
 //!
 //! Macros:
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::{
-//!     execute, queue,
-//!     style::{self, Stylize}, cursor, terminal
+//!     cursor, execute, queue,
+//!     style::{self, Stylize},
+//!     terminal,
 //! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
-//!   let mut stdout = io::stdout();
+//!     let mut stdout = io::stdout();
 //!
-//!   execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
+//!     execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
 //!
-//!   for y in 0..40 {
-//!     for x in 0..150 {
-//!       if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
-//!         // in this loop we are more efficient by not flushing the buffer.
-//!         queue!(stdout, cursor::MoveTo(x,y), style::PrintStyledContent( "█".magenta()))?;
-//!       }
+//!     for y in 0..40 {
+//!         for x in 0..150 {
+//!             if (y == 0 || y == 40 - 1) || (x == 0 || x == 150 - 1) {
+//!                 // in this loop we are more efficient by not flushing the buffer.
+//!                 queue!(
+//!                     stdout,
+//!                     cursor::MoveTo(x, y),
+//!                     style::PrintStyledContent("█".magenta())
+//!                 )?;
+//!             }
+//!         }
 //!     }
-//!   }
-//!   stdout.flush()?;
-//!   Ok(())
+//!     stdout.flush()?;
+//!     Ok(())
 //! }
-//!```
-//!
+//! ```
 #![cfg_attr(feature = "document-features", doc = "## Feature Flags")]
 #![cfg_attr(feature = "document-features", doc = document_features::document_features!())]
 //!
@@ -258,8 +315,3 @@ pub mod clipboard;
 pub mod ansi_support;
 mod command;
 pub(crate) mod macros;
-
-#[cfg(all(windows, not(feature = "windows")))]
-compile_error!(
-    "Compiling on Windows with \"windows\" feature disabled. Feature \"windows\" should only be disabled when project will never be compiled on Windows."
-);

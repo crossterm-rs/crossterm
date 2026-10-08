@@ -249,8 +249,7 @@ jobs:
       - name: Test feature combination
         run: cargo test --locked --lib ${{ matrix.cargo-args }} -- --test-threads 1
 
-  # Windows intentionally requires the `windows` feature. A bare no-default-features build is
-  # rejected by a compile_error in the crate root, so only supported Windows combinations pass CI.
+  # Windows dependencies are selected by target even with no default features.
   features-windows:
     name: feature tests (Windows, ${{ matrix.name }})
     runs-on: windows-2022
@@ -259,10 +258,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: windows
-            cargo-args: --no-default-features --features windows
-          - name: windows and events
-            cargo-args: --no-default-features --features windows,events
+          - name: no default features
+            cargo-args: --no-default-features
+          - name: events
+            cargo-args: --no-default-features --features events
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

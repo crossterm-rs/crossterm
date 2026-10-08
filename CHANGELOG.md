@@ -6,6 +6,9 @@
 - Remove `IsTty` trait.
   Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
   which provides equivalent functionality.
+- Remove the `libc` feature and always use rustix for Unix terminal operations.
+- Remove the `derive-more` feature and `derive_more` dependency. Event variant helper
+  methods are always available.
 
 ## Changed ⚙️
 

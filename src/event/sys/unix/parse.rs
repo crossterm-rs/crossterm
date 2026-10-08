@@ -544,9 +544,10 @@ pub(crate) fn parse_csi_u_encoded_key_code(buffer: &[u8]) -> io::Result<Option<I
                 match c {
                     '\x1B' => KeyCode::Esc,
                     '\r' => KeyCode::Enter,
-                    // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
-                    // newlines as input is because the terminal converts \r into \n for us. When we
-                    // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
+                    // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason
+                    // we get newlines as input is because the terminal converts
+                    // \r into \n for us. When we enter raw mode, we disable
+                    // that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
                     '\n' if !crate::terminal::sys::is_raw_mode_enabled() => KeyCode::Enter,
                     '\t' => {

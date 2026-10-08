@@ -152,8 +152,7 @@ features = ["event-stream"]
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
 | `events`        | Reading input/system events (enabled by default) |
-| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
-| `derive-more`  | Adds `is_*` helper functions for event types |
+| `filedescriptor` | Use raw filedescriptor for all events rather than mio dependency |
 | `osc52`        | Enables crossterm::clipboard                 |
 
 
@@ -164,15 +163,14 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 | Dependency     | Used for                                                                         | Included                              |
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
-| `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
+| `bitflags`     | `KeyModifiers`, those differ based on input.                                     | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | optional (`events` feature), UNIX only |
+| `rustix`       | UNIX terminal size/raw modes and other low-level functionality.                   | UNIX only                              |
 | `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
 | `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                   |  optional (`events` feature),UNIX only |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
-| `derive_more`  | Adds `is_*` helper functions for event types                                     | optional (`derive-more` feature), included by default |
 | `base64`       | Encoding clipboard data for OSC52 sequences in crossterm::clipboard              | only with `osc52` feature flag        |
 
 ### Other Resources
