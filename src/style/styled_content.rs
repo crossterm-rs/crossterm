@@ -9,7 +9,7 @@ use super::{ContentStyle, PrintStyledContent};
 /// # Examples
 ///
 /// ```rust
-/// use crossterm::style::{style, Color, Attribute, Stylize};
+/// use crossterm::style::{Attribute, Color, Stylize, style};
 ///
 /// let styled = "Hello there"
 ///     .with(Color::Yellow)
