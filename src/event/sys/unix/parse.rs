@@ -624,8 +624,14 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<Int
         .map_err(|_| could_not_parse_event_error())?;
     let mut split = s.split(';');
 
-    // This CSI sequence can be a list of semicolon-separated numbers.
-    let first = next_parsed::<u8>(&mut split)?;
+    // iTerm2 reports alternate key codes on functional `~` sequences too:
+    // Shift-F1 can be CSI 11:0:0;2~. The primary code identifies the
+    // functional key; alternate text/layout codes must not replace it.
+    let mut key_codes = split
+        .next()
+        .ok_or_else(could_not_parse_event_error)?
+        .split(':');
+    let first = next_parsed::<u8>(&mut key_codes)?;
 
     let (modifiers, kind, state) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
@@ -868,6 +874,45 @@ mod tests {
     use crate::event::{KeyEventState, KeyModifiers, MouseButton, MouseEvent};
 
     use super::*;
+
+    #[test]
+    fn iterm_alternate_functional_codes_keep_the_primary_key() {
+        for (number, code) in [
+            (11, KeyCode::F(1)),
+            (12, KeyCode::F(2)),
+            (13, KeyCode::F(3)),
+            (24, KeyCode::F(12)),
+            (2, KeyCode::Insert),
+            (3, KeyCode::Delete),
+        ] {
+            for (kind_suffix, kind) in [
+                ("", KeyEventKind::Press),
+                (":2", KeyEventKind::Repeat),
+                (":3", KeyEventKind::Release),
+            ] {
+                let sequence = format!("\x1b[{number}:0:0;2{kind_suffix}~");
+                let Some(InternalEvent::Event(Event::Key(event))) =
+                    parse_event(sequence.as_bytes(), false).unwrap()
+                else {
+                    panic!("expected a key event");
+                };
+                assert_eq!(event.code, code);
+                assert_eq!(event.modifiers, KeyModifiers::SHIFT);
+                assert_eq!(event.kind, kind);
+            }
+        }
+    }
+
+    #[test]
+    fn alternate_functional_codes_still_require_a_valid_primary_code() {
+        for sequence in [
+            b"\x1b[:0:0;2~".as_slice(),
+            b"\x1b[999:0:0;2~",
+            b"\x1b[0:11;2~",
+        ] {
+            assert!(parse_event(sequence, false).is_err());
+        }
+    }
 
     #[test]
     fn test_esc_key() {
