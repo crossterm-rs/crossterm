@@ -16,6 +16,7 @@
 
 ## Fixed 🐛
 
+- Fix Unix CSI `~` sequences for F15–F20 decoding as lower-numbered function keys.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
