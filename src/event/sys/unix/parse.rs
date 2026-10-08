@@ -261,11 +261,16 @@ fn parse_csi_keyboard_enhancement_flags(buffer: &[u8]) -> io::Result<Option<Inte
     assert!(buffer.starts_with(b"\x1B[?")); // ESC [ ?
     assert!(buffer.ends_with(b"u"));
 
-    if buffer.len() < 5 {
-        return Ok(None);
+    // The `u` ends the sequence, so a missing or malformed number is an error, not a reason to
+    // wait for more bytes. `str::parse` alone would also accept a leading `+`.
+    let digits = &buffer[3..buffer.len() - 1];
+    if !digits.iter().all(u8::is_ascii_digit) {
+        return Err(could_not_parse_event_error());
     }
-
-    let bits = buffer[3];
+    let bits = std::str::from_utf8(digits)
+        .map_err(|_| could_not_parse_event_error())?
+        .parse::<u32>()
+        .map_err(|_| could_not_parse_event_error())?;
     let mut flags = KeyboardEnhancementFlags::empty();
 
     if bits & 1 != 0 {
@@ -1586,5 +1591,30 @@ mod tests {
                 KeyEventKind::Release,
             )))),
         );
+    }
+
+    #[test]
+    fn test_parse_csi_keyboard_enhancement_flags() {
+        // The flags are a decimal number. Bits crossterm doesn't support (16) are ignored.
+        for (reply, expected) in [(0, 0), (5, 5), (11, 11), (15, 15), (24, 8), (31, 15)] {
+            assert_eq!(
+                parse_event(format!("\x1B[?{reply}u").as_bytes(), false).unwrap(),
+                Some(InternalEvent::KeyboardEnhancementFlags(
+                    KeyboardEnhancementFlags::from_bits_truncate(expected)
+                )),
+                "CSI ? {reply} u",
+            );
+        }
+    }
+
+    #[test]
+    fn test_parse_csi_keyboard_enhancement_flags_rejects_malformed_reply() {
+        // The `u` ends the sequence, so waiting for more bytes would swallow the following input.
+        for reply in ["", "x", "5;1", "+5", "-1", "4294967296"] {
+            assert!(
+                parse_event(format!("\x1B[?{reply}u").as_bytes(), false).is_err(),
+                "CSI ? {reply:?} u",
+            );
+        }
     }
 }

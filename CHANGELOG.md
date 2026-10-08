@@ -27,6 +27,12 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix the Unix event parser decoding only the first digit of the
+  terminal's `CSI ? flags u` reply to the keyboard enhancement flags
+  query. Any reply of 10 or more, such as `CSI ? 15 u` for all four
+  flags, was misread. An empty or malformed reply is now discarded instead
+  of making the parser wait for more bytes and swallow the input that
+  follows.
 
 # Version 0.29
 
