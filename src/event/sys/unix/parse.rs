@@ -65,6 +65,15 @@ pub(crate) fn parse_event(
                                 b'F' => {
                                     Ok(Some(InternalEvent::Event(Event::Key(KeyCode::End.into()))))
                                 }
+                                // Keypad Enter (VT100 application keypad).
+                                b'M' => Ok(Some(InternalEvent::Event(Event::Key(
+                                    KeyEvent::new_with_kind_and_state(
+                                        KeyCode::Enter,
+                                        KeyModifiers::empty(),
+                                        KeyEventKind::Press,
+                                        KeyEventState::KEYPAD,
+                                    ),
+                                )))),
                                 // F1-F4
                                 val @ b'P'..=b'S' => Ok(Some(InternalEvent::Event(Event::Key(
                                     KeyCode::F(1 + val - b'P').into(),
@@ -1004,6 +1013,19 @@ mod tests {
         assert_eq!(
             parse_event(b"\t", false).unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into()))),
+        );
+    }
+
+    #[test]
+    fn test_parse_ss3_keypad_enter() {
+        assert_eq!(
+            parse_event(b"\x1BOM", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind_and_state(
+                KeyCode::Enter,
+                KeyModifiers::empty(),
+                KeyEventKind::Press,
+                KeyEventState::KEYPAD,
+            )))),
         );
     }
 
