@@ -28,9 +28,11 @@
 //! Using the Command API to color text.
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::execute;
-//! use crossterm::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
+//! use crossterm::style::{
+//!     Attribute, Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor,
+//! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
 //!     execute!(
@@ -55,7 +57,10 @@
 //! ```no_run
 //! use crossterm::style::Stylize;
 //!
-//! println!("{}", "Red foreground color & blue background.".red().on_blue());
+//! println!(
+//!     "{}",
+//!     "Red foreground color & blue background.".red().on_blue()
+//! );
 //! ```
 //!
 //! ### Attributes
@@ -145,7 +150,7 @@ mod types;
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::style::{style, Stylize, Color};
+/// use crossterm::style::{Color, Stylize, style};
 ///
 /// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
@@ -281,16 +286,20 @@ impl Command for SetUnderlineColor {
 ///
 /// For example:
 /// ```no_run
-/// use std::io::{stdout, Write};
+/// use std::io::{Write, stdout};
 ///
 /// use crossterm::execute;
-/// use crossterm::style::{Color::{Green, Black}, Colors, Print, SetColors};
+/// use crossterm::style::{
+///     Color::{Black, Green},
+///     Colors, Print, SetColors,
+/// };
 ///
 /// execute!(
 ///     stdout(),
 ///     SetColors(Colors::new(Green, Black)),
 ///     Print("Hello, world!".to_string()),
-/// ).unwrap();
+/// )?;
+/// # Ok::<(), std::io::Error>(())
 /// ```
 ///
 /// See [`Colors`](struct.Colors.html) for more info.

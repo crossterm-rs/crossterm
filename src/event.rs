@@ -1,13 +1,15 @@
 //! # Event
 //!
-//! The `event` module provides the functionality to read keyboard, mouse and terminal resize events.
+//! The `event` module provides the functionality to read keyboard, mouse and terminal resize
+//! events.
 //!
 //! * The [`read`](fn.read.html) function returns an [`Event`](enum.Event.html) immediately
 //! (if available) or blocks until an [`Event`](enum.Event.html) is available.
 //!
-//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an [`Event`](enum.Event.html) available
-//! within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
-//! function will block or not.
+//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an
+//!   [`Event`](enum.Event.html) available
+//! within the given period of time. In other words - if subsequent call to the
+//! [`read`](fn.read.html) function will block or not.
 //!
 //! It's **not allowed** to call these functions from different threads or combine them with the
 //! [`EventStream`](struct.EventStream.html). You're allowed to either:
@@ -15,13 +17,15 @@
 //! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
 //! * or the [`EventStream`](struct.EventStream.html).
 //!
-//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events to work properly**
+//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events
+//! to work properly**
 //!
 //! ## Mouse and Focus Events
 //!
 //! Mouse and focus events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) / [`EnableFocusChange`](struct.EnableFocusChange.html) command.
-//! See [Command API](../index.html#command-api) for more information.
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) /
+//! [`EnableFocusChange`](struct.EnableFocusChange.html) command. See [Command
+//! API](../index.html#command-api) for more information.
 //!
 //! ## Examples
 //!
@@ -31,18 +35,18 @@
 //! #![cfg(feature = "bracketed-paste")]
 //! use crossterm::{
 //!     event::{
-//!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
+//!         EnableFocusChange, EnableMouseCapture, Event, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> std::io::Result<()> {
 //!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
+//!         std::io::stdout(),
+//!         EnableBracketedPaste,
+//!         EnableFocusChange,
+//!         EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
@@ -70,22 +74,22 @@
 //!
 //! ```no_run
 //! #![cfg(feature = "bracketed-paste")]
-//! use std::{time::Duration, io};
+//! use std::{io, time::Duration};
 //!
 //! use crossterm::{
 //!     event::{
-//!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
-//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
+//!         EnableFocusChange, EnableMouseCapture, Event, poll, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> io::Result<()> {
 //!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
+//!         std::io::stdout(),
+//!         EnableBracketedPaste,
+//!         EnableFocusChange,
+//!         EnableMouseCapture
 //!     )?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
@@ -127,8 +131,6 @@ pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
-#[cfg(feature = "derive-more")]
-use derive_more::derive::IsVariant;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
@@ -144,7 +146,8 @@ use std::hash::{Hash, Hasher};
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
 ///
-/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
+/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns
+/// `Ok(false)`.
 ///
 /// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
 /// won't block.
@@ -158,8 +161,8 @@ use std::hash::{Hash, Hasher};
 /// Return immediately:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
-/// use crossterm::{event::poll};
+/// use crossterm::event::poll;
+/// use std::{io, time::Duration};
 ///
 /// fn is_event_available() -> io::Result<bool> {
 ///     // Zero duration says that the `poll` function must return immediately
@@ -171,7 +174,7 @@ use std::hash::{Hash, Hasher};
 /// Wait up to 100ms:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
+/// use std::{io, time::Duration};
 ///
 /// use crossterm::event::poll;
 ///
@@ -209,10 +212,10 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// Non-blocking read:
 ///
 /// ```no_run
-/// use std::time::Duration;
 /// use std::io;
+/// use std::time::Duration;
 ///
-/// use crossterm::event::{read, poll};
+/// use crossterm::event::{poll, read};
 ///
 /// fn print_events() -> io::Result<bool> {
 ///     loop {
@@ -241,7 +244,7 @@ pub fn read() -> std::io::Result<Event> {
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::event::{try_read, poll};
+/// use crossterm::event::{poll, try_read};
 /// use std::{io, time::Duration};
 ///
 /// fn print_all_events() -> io::Result<bool> {
@@ -441,21 +444,17 @@ impl Command for DisableBracketedPaste {
 ///
 /// Example usage:
 /// ```no_run
-/// use std::io::{Write, stdout};
-/// use crossterm::execute;
 /// use crossterm::event::{
-///     KeyboardEnhancementFlags,
-///     PushKeyboardEnhancementFlags,
-///     PopKeyboardEnhancementFlags
+///     KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
 /// };
+/// use crossterm::execute;
+/// use std::io::{Write, stdout};
 ///
 /// let mut stdout = stdout();
 ///
 /// execute!(
 ///     stdout,
-///     PushKeyboardEnhancementFlags(
-///         KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-///     )
+///     PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES)
 /// );
 ///
 /// // ...
@@ -527,7 +526,6 @@ impl Command for PopKeyboardEnhancementFlags {
 
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Hash)]
 pub enum Event {
@@ -546,6 +544,61 @@ pub enum Event {
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+}
+
+/// Implements `is_*` predicates for unit and tuple enum variants.
+///
+/// Entries use the same left-to-right shape as `match` arms:
+/// `Variant` or `Variant(..)`, followed by `=>` and the method name. The
+/// method name is explicit because `macro_rules!` cannot construct an
+/// identifier such as `is_focus_gained` from `FocusGained`.
+///
+/// Attributes on an entry are applied to the generated method. This keeps
+/// feature-gated helpers, such as `Event::is_paste`, aligned with their
+/// variants.
+///
+/// Variants whose payload needs to be compared belong in a handwritten
+/// method instead; see the `KeyCode` helpers below. Generated methods are
+/// `const`, inline, and `must_use`.
+macro_rules! impl_is_variant {
+    (
+        $type:ident {
+            $(
+                $(#[$meta:meta])*
+                $variant:ident $(($field:tt))? => $method:ident
+            ),* $(,)?
+        }
+    ) => {
+        impl $type {
+            $(
+                $(#[$meta])*
+                #[doc = concat!(
+                    "Returns `true` if this value is the `",
+                    stringify!($type),
+                    "::",
+                    stringify!($variant),
+                    "` variant. Returns `false` otherwise."
+                )]
+                #[inline]
+                #[must_use]
+                pub const fn $method(&self) -> bool {
+                    matches!(self, Self::$variant $(($field))?)
+                }
+            )*
+        }
+    };
+}
+
+impl_is_variant! {
+    Event {
+        FocusGained => is_focus_gained,
+        FocusLost => is_focus_lost,
+        Key(..) => is_key,
+        Mouse(..) => is_mouse,
+        #[cfg(feature = "bracketed-paste")]
+        Paste(..) => is_paste,
+        Resize(..) => is_resize,
+    }
 }
 
 impl Event {
@@ -604,7 +657,8 @@ impl Event {
 
     /// Returns the key event if the event is a key event, otherwise `None`.
     ///
-    /// This is a convenience method that makes apps that only care about key events easier to write.
+    /// This is a convenience method that makes apps that only care about key events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -696,7 +750,8 @@ impl Event {
 
     /// Returns the pasted string if the event is a paste event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about paste events easier to write.
+    /// This is a convenience method that makes code which only cares about paste events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -719,7 +774,8 @@ impl Event {
 
     /// Returns the size as a tuple if the event is a resize event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about resize events easier to write.
+    /// This is a convenience method that makes code which only cares about resize events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -778,7 +834,6 @@ pub struct MouseEvent {
 /// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
 /// is returned if we don't know which button was used.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
@@ -814,9 +869,21 @@ impl MouseEventKind {
     }
 }
 
+impl_is_variant! {
+    MouseEventKind {
+        Down(..) => is_down,
+        Up(..) => is_up,
+        Drag(..) => is_drag,
+        Moved => is_moved,
+        ScrollDown => is_scroll_down,
+        ScrollUp => is_scroll_up,
+        ScrollLeft => is_scroll_left,
+        ScrollRight => is_scroll_right,
+    }
+}
+
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum MouseButton {
     /// Left mouse button.
@@ -825,6 +892,14 @@ pub enum MouseButton {
     Right,
     /// Middle mouse button.
     Middle,
+}
+
+impl_is_variant! {
+    MouseButton {
+        Left => is_left,
+        Right => is_right,
+        Middle => is_middle,
+    }
 }
 
 bitflags! {
@@ -898,12 +973,19 @@ impl Display for KeyModifiers {
 
 /// Represents a keyboard event kind.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum KeyEventKind {
     Press,
     Repeat,
     Release,
+}
+
+impl_is_variant! {
+    KeyEventKind {
+        Press => is_press,
+        Repeat => is_repeat,
+        Release => is_release,
+    }
 }
 
 bitflags! {
@@ -940,7 +1022,8 @@ pub struct KeyEvent {
     /// Kind of event.
     ///
     /// Only set if:
-    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
+    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with
+    ///   [`PushKeyboardEnhancementFlags`].
     /// - Windows: always
     pub kind: KeyEventKind,
     /// Keyboard state.
@@ -1219,7 +1302,6 @@ impl Display for ModifierKeyCode {
 
 /// Represents a key.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyCode {
     /// Backspace key (Delete on macOS, Backspace on other platforms).
@@ -1253,12 +1335,10 @@ pub enum KeyCode {
     /// F key.
     ///
     /// `KeyCode::F(1)` represents F1 key, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     F(u8),
     /// A character.
     ///
     /// `KeyCode::Char('c')` represents `c` character, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Char(char),
     /// Null.
     Null,
@@ -1311,7 +1391,6 @@ pub enum KeyCode {
     /// **Note:** these keys can only be read if
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Media(MediaKeyCode),
     /// A modifier key.
     ///
@@ -1319,8 +1398,36 @@ pub enum KeyCode {
     /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
     /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] have been enabled with
     /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
     Modifier(ModifierKeyCode),
+}
+
+// `F`, `Char`, `Media`, and `Modifier` have payload-aware methods below.
+impl_is_variant! {
+    KeyCode {
+        Backspace => is_backspace,
+        Enter => is_enter,
+        Left => is_left,
+        Right => is_right,
+        Up => is_up,
+        Down => is_down,
+        Home => is_home,
+        End => is_end,
+        PageUp => is_page_up,
+        PageDown => is_page_down,
+        Tab => is_tab,
+        BackTab => is_back_tab,
+        Delete => is_delete,
+        Insert => is_insert,
+        Null => is_null,
+        Esc => is_esc,
+        CapsLock => is_caps_lock,
+        ScrollLock => is_scroll_lock,
+        NumLock => is_num_lock,
+        PrintScreen => is_print_screen,
+        Pause => is_pause,
+        Menu => is_menu,
+        KeypadBegin => is_keypad_begin,
+    }
 }
 
 impl KeyCode {
@@ -1398,7 +1505,9 @@ impl KeyCode {
     /// ```
     /// # use crossterm::event::{KeyCode, ModifierKeyCode};
     /// assert!(KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::LeftShift));
-    /// assert!(!KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift));
+    /// assert!(
+    ///     !KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift)
+    /// );
     /// ```
     pub fn is_modifier(&self, modifier: ModifierKeyCode) -> bool {
         matches!(self, KeyCode::Modifier(m) if *m == modifier)
@@ -1418,7 +1527,8 @@ impl Display for KeyCode {
     /// displayed as "Del", and the Enter key is displayed as "Enter".
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            // On macOS, the Backspace key is called "Delete" and the Delete key is called "Fwd Del".
+            // On macOS, the Backspace key is called "Delete" and the Delete key is called "Fwd
+            // Del".
             #[cfg(target_os = "macos")]
             KeyCode::Backspace => write!(f, "Delete"),
             #[cfg(target_os = "macos")]
@@ -1632,7 +1742,6 @@ mod tests {
         modifiers: KeyModifiers::empty(),
     };
 
-    #[cfg(feature = "derive-more")]
     #[test]
     fn event_is() {
         let event = Event::FocusGained;
@@ -1680,6 +1789,22 @@ mod tests {
             assert!(event.is_paste());
             assert!(!event.is_key());
         }
+    }
+
+    #[test]
+    fn enum_variant_is() {
+        let mouse_kind = MouseEventKind::Down(MouseButton::Left);
+        assert!(mouse_kind.is_down());
+        assert!(!mouse_kind.is_up());
+
+        assert!(MouseButton::Left.is_left());
+        assert!(!MouseButton::Left.is_right());
+
+        assert!(KeyEventKind::Press.is_press());
+        assert!(!KeyEventKind::Press.is_release());
+
+        assert!(KeyCode::Backspace.is_backspace());
+        assert!(!KeyCode::Backspace.is_enter());
     }
 
     #[test]

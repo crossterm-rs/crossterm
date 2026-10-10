@@ -1,8 +1,5 @@
-#[cfg(feature = "libc")]
-use std::os::unix::prelude::AsRawFd;
 use std::{collections::VecDeque, io, os::unix::net::UnixStream, time::Duration};
 
-#[cfg(not(feature = "libc"))]
 use rustix::fd::{AsFd, AsRawFd};
 
 use signal_hook::low_level::pipe;
@@ -68,9 +65,6 @@ impl UnixInternalEventSource {
             winch_signal_receiver: {
                 let (receiver, sender) = nonblocking_unix_pair()?;
                 // Unregistering is unnecessary because EventSource is a singleton
-                #[cfg(feature = "libc")]
-                pipe::register(libc::SIGWINCH, sender)?;
-                #[cfg(not(feature = "libc"))]
                 pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
                 receiver
             },
@@ -163,18 +157,9 @@ impl EventSource for UnixInternalEventSource {
                 }
             }
             if fds[1].revents & POLLIN != 0 {
-                #[cfg(feature = "libc")]
-                let fd = FileDesc::new(self.winch_signal_receiver.as_raw_fd(), false);
-                #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.winch_signal_receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
-                // TODO Should we remove tput?
-                //
-                // This can take a really long time, because terminal::size can
-                // launch new process (tput) and then it parses its output. It's
-                // not a really long time from the absolute time point of view, but
-                // it's a really long time from an async executor's point of view.
                 let new_size = crate::terminal::size()?;
                 return Ok(Some(InternalEvent::Event(Event::Resize(
                     new_size.0, new_size.1,
@@ -183,9 +168,6 @@ impl EventSource for UnixInternalEventSource {
 
             #[cfg(feature = "event-stream")]
             if fds[2].revents & POLLIN != 0 {
-                #[cfg(feature = "libc")]
-                let fd = FileDesc::new(self.wake_pipe.receiver.as_raw_fd(), false);
-                #[cfg(not(feature = "libc"))]
                 let fd = FileDesc::Borrowed(self.wake_pipe.receiver.as_fd());
                 // drain the pipe
                 while read_complete(&fd, &mut [0; 1024])? != 0 {}
@@ -258,8 +240,9 @@ impl Parser {
                     // the current sequence. Keep the buffer and process next bytes.
                 }
                 Err(_) => {
-                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
-                    // Clear the buffer and continue with another sequence.
+                    // Event can't be parsed (not enough parameters, parameter is not a number,
+                    // ...). Clear the buffer and continue with another
+                    // sequence.
                     self.buffer.clear();
                 }
             }
