@@ -126,7 +126,7 @@ fn query_keyboard_enhancement_flags_nonraw() -> io::Result<Option<KeyboardEnhanc
 #[cfg(feature = "events")]
 fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhancementFlags>> {
     use crate::event::{
-        filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
+        filter::KeyboardEnhancementFlagsFilter,
         internal::{self, InternalEvent},
     };
     use std::io::Write;
@@ -164,8 +164,8 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
             Ok(true) => {
                 match internal::read(&KeyboardEnhancementFlagsFilter) {
                     Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
-                        // Flush the PrimaryDeviceAttributes out of the event queue.
-                        internal::read(&PrimaryDeviceAttributesFilter).ok();
+                        // Flush DA1 if the terminal sent it. Do not block forever when it did not.
+                        flush_primary_device_attributes(Duration::from_millis(2000));
                         return Ok(Some(current_flags));
                     }
                     _ => return Ok(None),
@@ -181,8 +181,23 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     }
 }
 
+/// Drain a Primary Device Attributes reply if it is already queued or arrives soon.
+///
+/// `internal::read` waits indefinitely, so a terminal that answers `CSI ? u` but never
+/// answers `CSI c` would hang here. Bound the wait to the same timeout as the flags probe.
+#[cfg(feature = "events")]
+fn flush_primary_device_attributes(timeout: std::time::Duration) {
+    use crate::event::{filter::PrimaryDeviceAttributesFilter, internal};
+
+    if let Ok(true) = internal::poll(Some(timeout), &PrimaryDeviceAttributesFilter) {
+        let _ = internal::read(&PrimaryDeviceAttributesFilter);
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "events")]
+    use std::time::{Duration, Instant};
     use std::{
         ffi::OsStr,
         fs::File,
@@ -196,6 +211,17 @@ mod tests {
         pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt},
         termios::{Winsize, tcsetwinsize},
     };
+
+    #[cfg(feature = "events")]
+    #[test]
+    fn flush_primary_device_attributes_times_out_when_da1_is_absent() {
+        let start = Instant::now();
+        super::flush_primary_device_attributes(Duration::from_millis(30));
+        assert!(
+            start.elapsed() < Duration::from_millis(500),
+            "DA1 flush must not block when the terminal never answers CSI c"
+        );
+    }
 
     // Test size lookup through /dev/tty, stdout, stderr, and stdin using private PTYs, without
     // requiring an interactive terminal. Each parent configures a subprocess that runs an ignored
