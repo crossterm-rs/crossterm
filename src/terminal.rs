@@ -116,6 +116,11 @@ pub fn is_raw_mode_enabled() -> io::Result<bool> {
     {
         sys::is_raw_mode_enabled()
     }
+
+    #[cfg(not(any(unix, windows)))]
+    {
+        sys::is_raw_mode_enabled()
+    }
 }
 
 /// Enables raw mode.

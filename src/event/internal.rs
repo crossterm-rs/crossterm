@@ -68,6 +68,8 @@ where
 #[derive(Debug, PartialOrd, PartialEq, Hash, Clone, Eq)]
 pub(crate) enum InternalEvent {
     /// An event.
+    // Never constructed on targets without an event source.
+    #[cfg_attr(not(any(unix, windows)), allow(dead_code))]
     Event(Event),
     /// A cursor position (`col`, `row`).
     #[cfg(unix)]

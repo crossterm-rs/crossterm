@@ -59,6 +59,11 @@ impl Filter for EventFilter {
     fn eval(&self, _: &InternalEvent) -> bool {
         true
     }
+
+    #[cfg(not(any(unix, windows)))]
+    fn eval(&self, _: &InternalEvent) -> bool {
+        true
+    }
 }
 
 #[cfg(test)]
