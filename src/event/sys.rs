@@ -1,6 +1,6 @@
-#[cfg(all(unix, feature = "event-stream"))]
+#[cfg(unix)]
 pub(crate) use unix::waker::Waker;
-#[cfg(all(windows, feature = "event-stream"))]
+#[cfg(windows)]
 pub(crate) use windows::waker::Waker;
 
 #[cfg(unix)]
