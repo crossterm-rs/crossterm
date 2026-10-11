@@ -74,7 +74,8 @@ pub(crate) fn parse_event(
                         }
                     }
                     b'[' => parse_csi(buffer),
-                    b'\x1B' => Ok(Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into())))),
+                    // Anything else, a second ESC included, is that key with Alt held:
+                    // ESC ESC is Alt+Esc, and ESC ESC [ A is Alt+Up.
                     _ => parse_event(&buffer[1..], input_available).map(|event_option| {
                         event_option.map(|event| {
                             if let InternalEvent::Event(Event::Key(key_event)) = event {
@@ -1005,6 +1006,20 @@ mod tests {
             parse_event(b"\t", false).unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyCode::Tab.into()))),
         );
+    }
+
+    #[test]
+    fn test_parse_event_alt_esc() {
+        let alt = |code: KeyCode| {
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                code,
+                KeyModifiers::ALT,
+            ))))
+        };
+        assert_eq!(parse_event(b"\x1B\x1B", false).unwrap(), alt(KeyCode::Esc));
+        // More input may complete a longer sequence, as after a lone ESC.
+        assert_eq!(parse_event(b"\x1B\x1B", true).unwrap(), None);
+        assert_eq!(parse_event(b"\x1B\x1B[A", false).unwrap(), alt(KeyCode::Up));
     }
 
     #[test]

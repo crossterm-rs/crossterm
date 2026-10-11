@@ -16,6 +16,8 @@
 
 ## Fixed 🐛
 
+- Parse `ESC ESC` as Alt+Esc on Unix, rather than a plain Esc with the Alt dropped, and
+  `ESC ESC [ A` as Alt+Up.
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
