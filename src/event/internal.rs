@@ -4,7 +4,9 @@ use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 
 #[cfg(unix)]
 use crate::event::KeyboardEnhancementFlags;
-use crate::event::{Event, filter::Filter, read::InternalEventReader, timeout::PollTimeout};
+use crate::event::{
+    Event, filter::Filter, read::InternalEventReader, sys::Waker, timeout::PollTimeout,
+};
 
 /// Static instance of `InternalEventReader`.
 /// This needs to be static because there can be one event reader.
@@ -59,6 +61,12 @@ where
 {
     let mut reader = lock_event_reader();
     reader.try_read(filter)
+}
+
+/// Returns a `Waker` that can interrupt a blocked `poll` or `read` call from another thread.
+pub(crate) fn waker() -> std::io::Result<Waker> {
+    let reader = lock_event_reader();
+    reader.waker()
 }
 
 /// An internal event.

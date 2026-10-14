@@ -1,7 +1,6 @@
 use std::{io, time::Duration};
 
 use super::internal::InternalEvent;
-#[cfg(feature = "event-stream")]
 use super::sys::Waker;
 
 #[cfg(unix)]
@@ -22,6 +21,5 @@ pub(crate) trait EventSource: Sync + Send {
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>>;
 
     /// Returns a `Waker` allowing to wake/force the `try_read` method to return `Ok(None)`.
-    #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker;
 }

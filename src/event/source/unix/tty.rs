@@ -8,19 +8,16 @@ use crate::event::Event;
 use crate::event::timeout::PollTimeout;
 use filedescriptor::{POLLIN, poll, pollfd};
 
-#[cfg(feature = "event-stream")]
 use crate::event::sys::Waker;
 use crate::event::{internal::InternalEvent, source::EventSource, sys::unix::parse::parse_event};
 use crate::terminal::sys::file_descriptor::{FileDesc, tty_fd};
 
 /// Holds a prototypical Waker and a receiver we can wait on when doing select().
-#[cfg(feature = "event-stream")]
 struct WakePipe {
     receiver: UnixStream,
     waker: Waker,
 }
 
-#[cfg(feature = "event-stream")]
 impl WakePipe {
     fn new() -> io::Result<Self> {
         let (receiver, sender) = nonblocking_unix_pair()?;
@@ -41,7 +38,6 @@ pub(crate) struct UnixInternalEventSource {
     tty_buffer: [u8; TTY_BUFFER_SIZE],
     tty: FileDesc<'static>,
     winch_signal_receiver: UnixStream,
-    #[cfg(feature = "event-stream")]
     wake_pipe: WakePipe,
 }
 
@@ -68,7 +64,6 @@ impl UnixInternalEventSource {
                 pipe::register(rustix::process::Signal::WINCH.as_raw(), sender)?;
                 receiver
             },
-            #[cfg(feature = "event-stream")]
             wake_pipe: WakePipe::new()?,
         })
     }
@@ -104,13 +99,6 @@ impl EventSource for UnixInternalEventSource {
             }
         }
 
-        #[cfg(not(feature = "event-stream"))]
-        let mut fds = [
-            make_pollfd(&self.tty),
-            make_pollfd(&self.winch_signal_receiver),
-        ];
-
-        #[cfg(feature = "event-stream")]
         let mut fds = [
             make_pollfd(&self.tty),
             make_pollfd(&self.winch_signal_receiver),
@@ -166,7 +154,6 @@ impl EventSource for UnixInternalEventSource {
                 ))));
             }
 
-            #[cfg(feature = "event-stream")]
             if fds[2].revents & POLLIN != 0 {
                 let fd = FileDesc::Borrowed(self.wake_pipe.receiver.as_fd());
                 // drain the pipe
@@ -181,7 +168,6 @@ impl EventSource for UnixInternalEventSource {
         Ok(None)
     }
 
-    #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker {
         self.wake_pipe.waker.clone()
     }
