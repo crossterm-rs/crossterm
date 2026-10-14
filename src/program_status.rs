@@ -1,8 +1,8 @@
-//! [OSC 7501] program-status reports (protocol revision 0.2).
+//! [OSC 7501] program-status reports (protocol revision 0.4).
 //!
 //! Reports replace records completely: repeat metadata such as `app` on every update.
 //! Status is independent of the screen buffer and survives alternate-screen transitions.
-//! Applications own status lifetimes and capability detection. Nothing is emitted automatically.
+//! Applications own status lifetimes and decide when to query support. Nothing is emitted automatically.
 //! This module requires the `osc7501` feature and does not require the `events` feature.
 //!
 //! # Terminal support
@@ -19,9 +19,16 @@
 //! reply within an application-chosen timeout as unsupported. Missing or stale terminfo entries
 //! do not establish lack of support.
 //!
-//! **Crossterm's event parser does not expose OSC replies.** This module does not send queries or
-//! read input. Do not send a query and expect `crossterm::event` to handle its reply; detection needs
-//! an input layer that can parse OSC responses without mistaking them for keystrokes.
+//! With `events` enabled, `supports_program_status` performs this query on Unix. OSC 7501
+//! acknowledgements are consumed internally during that query. Without `events`, this module
+//! remains output-only.
+//! Reply recognition is limited to an active query; enabling the feature does not change
+//! normal Alt+`]` handling. During detection, a possible reply has a 4096-byte candidate limit
+//! so fragmented replies are not mistaken for keystrokes. Non-replies, oversized candidates,
+//! and unfinished candidates at query completion go through the normal input parser instead
+//! of being discarded. Late replies also go through normal input handling. Input identical to
+//! a complete acknowledgement is inherently indistinguishable from a terminal reply while
+//! the query is active.
 //!
 //! Report [`ProgramState::Idle`](crate::program_status::ProgramState::Idle) on cancellation, and
 //! [`ProgramState::Done`](crate::program_status::ProgramState::Done) or
@@ -37,6 +44,94 @@ use std::fmt;
 use base64::prelude::{BASE64_STANDARD, Engine};
 
 use crate::{Command, impl_display};
+
+/// Explicitly queries whether the terminal supports OSC 7501.
+///
+/// Requires the `events` feature. On Unix, enable raw mode first and call this before starting
+/// an input-reading thread or `EventStream`. This function holds Crossterm's
+/// input-reader lock while querying; unrelated input remains available in its original order.
+/// It does not change raw mode or cache results. Failure to acquire the input lock or receive
+/// an acknowledgement within `timeout` returns `Ok(false)`; I/O failures return `Err`.
+/// The timeout bounds waiting for input and the reader lock, not blocking output writes.
+/// No DA1 query is sent, so missing or reordered DA1 responses cannot stall detection.
+/// Optional state/kind lists are ignored: `true` confirms protocol support, not support for
+/// every state or kind. Query once during startup; the protocol has no request identifiers
+/// with which to distinguish a delayed reply to an earlier request.
+///
+/// On Windows this returns `Ok(false)` without querying: Crossterm's Windows input backend
+/// cannot parse OSC replies. This does not prove the terminal itself lacks support.
+///
+/// ```no_run
+/// use std::time::Duration;
+/// use crossterm::{program_status::supports_program_status, terminal};
+///
+/// terminal::enable_raw_mode()?;
+/// let result = supports_program_status(Duration::from_millis(500));
+/// terminal::disable_raw_mode()?;
+/// let supported = result?;
+/// # Ok::<(), std::io::Error>(())
+/// ```
+#[cfg(feature = "events")]
+pub fn supports_program_status(timeout: std::time::Duration) -> std::io::Result<bool> {
+    #[cfg(windows)]
+    {
+        let _ = timeout;
+        Ok(false)
+    }
+    #[cfg(unix)]
+    {
+        use crate::event::{internal, timeout::PollTimeout};
+        use std::io::{self, Write};
+
+        if !crate::terminal::is_raw_mode_enabled()? {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "enable raw mode before querying OSC 7501 support",
+            ));
+        }
+        let deadline = PollTimeout::new(Some(timeout));
+        let Some(mut reader) = internal::try_lock_event_reader_for(timeout) else {
+            return Ok(false);
+        };
+        // Drop acknowledgements already queued by earlier queries, without moving ordinary input.
+        while reader.try_read(&ProgramStatusFilter).is_some() {}
+        if deadline.elapsed() {
+            return Ok(false);
+        }
+        reader.set_program_status_query(true)?;
+        let result = (|| {
+            let mut tty = std::fs::OpenOptions::new().write(true).open("/dev/tty");
+            let mut stdout = io::stdout();
+            let output: &mut dyn Write = match &mut tty {
+                Ok(file) => file,
+                Err(_) => &mut stdout,
+            };
+            output.write_all(b"\x1b]7501;?\x1b\\")?;
+            output.flush()?;
+            if reader.poll(deadline.leftover(), &ProgramStatusFilter)? {
+                Ok(reader.try_read(&ProgramStatusFilter).is_some())
+            } else {
+                Ok(false)
+            }
+        })();
+        // Restore Escape-key handling on every I/O result, including write failures.
+        reader.set_program_status_query(false)?;
+        result
+    }
+}
+
+#[cfg(all(unix, feature = "events"))]
+struct ProgramStatusFilter;
+
+#[cfg(all(unix, feature = "events"))]
+impl crate::event::filter::Filter for ProgramStatusFilter {
+    fn eval(&self, event: &crate::event::internal::InternalEvent) -> bool {
+        matches!(
+            event,
+            crate::event::internal::InternalEvent::ProgramStatusSupport
+        )
+    }
+}
 
 /// The state reported by a program.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
