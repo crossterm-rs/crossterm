@@ -21,6 +21,10 @@ pub(crate) trait EventSource: Sync + Send {
     /// Returns `Ok(None)` if there's no event available and timeout expires.
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>>;
 
+    /// Preserve an isolated ESC while an OSC capability reply is expected.
+    #[cfg(all(unix, feature = "osc7501"))]
+    fn set_program_status_query(&mut self, _active: bool) {}
+
     /// Returns a `Waker` allowing to wake/force the `try_read` method to return `Ok(None)`.
     #[cfg(feature = "event-stream")]
     fn waker(&self) -> Waker;

@@ -156,6 +156,10 @@ features = ["event-stream"]
 | `osc52`        | Enables crossterm::clipboard                 |
 | `osc7501`      | Enables OSC 7501 program-status reports via crossterm::program_status |
 
+With `events` enabled, `program_status::supports_program_status(timeout)` explicitly queries
+support on Unix in raw mode. Report-only builds do not require `events`; detection does not
+manage status lifetimes.
+
 To use crossterm as a very thin layer you can disable the `events` feature or use `filedescriptor` feature. 
 This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
