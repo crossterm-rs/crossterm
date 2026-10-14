@@ -66,6 +66,15 @@ impl UnixInternalEventSource {
 }
 
 impl EventSource for UnixInternalEventSource {
+    #[cfg(feature = "osc7501")]
+    fn set_program_status_query(&mut self, active: bool) {
+        self.parser.osc.set_query(
+            active,
+            &mut self.parser.buffer,
+            &mut self.parser.internal_events,
+        );
+    }
+
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         if let Some(event) = self.parser.next() {
             return Ok(Some(event));
@@ -96,12 +105,13 @@ impl EventSource for UnixInternalEventSource {
                         loop {
                             match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
-                                    if read_count > 0 {
-                                        self.parser.advance(
-                                            &self.tty_buffer[..read_count],
-                                            read_count == TTY_BUFFER_SIZE,
-                                        );
+                                    if read_count == 0 {
+                                        break;
                                     }
+                                    self.parser.advance(
+                                        &self.tty_buffer[..read_count],
+                                        read_count == TTY_BUFFER_SIZE,
+                                    );
                                 }
                                 Err(e) => {
                                     // No more data to read at the moment. We will receive another event
@@ -111,12 +121,17 @@ impl EventSource for UnixInternalEventSource {
                                     // once more data is available to read.
                                     else if e.kind() == io::ErrorKind::Interrupted {
                                         continue;
+                                    } else {
+                                        return Err(e);
                                     }
                                 }
                             };
 
                             if let Some(event) = self.parser.next() {
                                 return Ok(Some(event));
+                            }
+                            if timeout.elapsed() {
+                                return Ok(None);
                             }
                         }
                     }
@@ -168,11 +183,15 @@ impl EventSource for UnixInternalEventSource {
 struct Parser {
     buffer: Vec<u8>,
     internal_events: VecDeque<InternalEvent>,
+    #[cfg(feature = "osc7501")]
+    osc: super::OscParser,
 }
 
 impl Default for Parser {
     fn default() -> Self {
         Parser {
+            #[cfg(feature = "osc7501")]
+            osc: super::OscParser::default(),
             // This buffer is used for -> 1 <- ANSI escape sequence. Are we
             // aware of any ANSI escape sequence that is bigger? Can we make
             // it smaller?
@@ -201,6 +220,16 @@ impl Parser {
 
             self.buffer.push(*byte);
 
+            #[cfg(feature = "osc7501")]
+            if self
+                .osc
+                .advance(&mut self.buffer, &mut self.internal_events)
+            {
+                continue;
+            }
+
+            #[cfg(feature = "osc7501")]
+            let more = more || (self.osc.querying && self.buffer == b"\x1b");
             match parse_event(&self.buffer, more) {
                 Ok(Some(ie)) => {
                     self.internal_events.push_back(ie);

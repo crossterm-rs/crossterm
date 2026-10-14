@@ -93,6 +93,15 @@ fn read_complete(fd: &FileDesc, buf: &mut [u8]) -> io::Result<usize> {
 }
 
 impl EventSource for UnixInternalEventSource {
+    #[cfg(feature = "osc7501")]
+    fn set_program_status_query(&mut self, active: bool) {
+        self.parser.osc.set_query(
+            active,
+            &mut self.parser.buffer,
+            &mut self.parser.internal_events,
+        );
+    }
+
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
         let timeout = PollTimeout::new(timeout);
 
@@ -151,6 +160,9 @@ impl EventSource for UnixInternalEventSource {
                         return Ok(Some(event));
                     }
 
+                    if timeout.elapsed() {
+                        return Ok(None);
+                    }
                     if read_count == 0 {
                         break;
                     }
@@ -203,11 +215,15 @@ impl EventSource for UnixInternalEventSource {
 struct Parser {
     buffer: Vec<u8>,
     internal_events: VecDeque<InternalEvent>,
+    #[cfg(feature = "osc7501")]
+    osc: super::OscParser,
 }
 
 impl Default for Parser {
     fn default() -> Self {
         Parser {
+            #[cfg(feature = "osc7501")]
+            osc: super::OscParser::default(),
             // This buffer is used for -> 1 <- ANSI escape sequence. Are we
             // aware of any ANSI escape sequence that is bigger? Can we make
             // it smaller?
@@ -236,6 +252,16 @@ impl Parser {
 
             self.buffer.push(*byte);
 
+            #[cfg(feature = "osc7501")]
+            if self
+                .osc
+                .advance(&mut self.buffer, &mut self.internal_events)
+            {
+                continue;
+            }
+
+            #[cfg(feature = "osc7501")]
+            let more = more || (self.osc.querying && self.buffer == b"\x1b");
             match parse_event(&self.buffer, more) {
                 Ok(Some(ie)) => {
                     self.internal_events.push_back(ie);
