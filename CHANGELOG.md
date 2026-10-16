@@ -28,6 +28,8 @@
 
 - Add `KeyEvent::with_kind`, `KeyEvent::with_state` and `MouseEvent::new` so key and mouse
   events can be built without struct literals.
+- Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
+  built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
 
 ## Changed ⚙️
 

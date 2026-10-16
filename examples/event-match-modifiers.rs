@@ -4,8 +4,8 @@
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-fn match_event(event: Event) {
-    if let Some(key) = event.as_key_press_event() {
+fn match_event(event: impl Into<Event>) {
+    if let Some(key) = event.into().as_key_press_event() {
         match key {
             KeyEvent {
                 modifiers: KeyModifiers::CONTROL,
@@ -44,24 +44,15 @@ fn match_event(event: Event) {
 }
 
 fn main() {
-    match_event(Event::Key(KeyEvent::new(
-        KeyCode::Char('z'),
-        KeyModifiers::CONTROL,
-    )));
-    match_event(Event::Key(KeyEvent::new(
-        KeyCode::Left,
-        KeyModifiers::SHIFT,
-    )));
-    match_event(Event::Key(KeyEvent::new(
-        KeyCode::Delete,
-        KeyModifiers::ALT,
-    )));
-    match_event(Event::Key(KeyEvent::new(
+    match_event(KeyEvent::new(KeyCode::Char('z'), KeyModifiers::CONTROL));
+    match_event(KeyEvent::new(KeyCode::Left, KeyModifiers::SHIFT));
+    match_event(KeyEvent::new(KeyCode::Delete, KeyModifiers::ALT));
+    match_event(KeyEvent::new(
         KeyCode::Right,
         KeyModifiers::ALT | KeyModifiers::SHIFT,
-    )));
-    match_event(Event::Key(KeyEvent::new(
+    ));
+    match_event(KeyEvent::new(
         KeyCode::Home,
         KeyModifiers::ALT | KeyModifiers::CONTROL,
-    )));
+    ));
 }
