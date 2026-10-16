@@ -28,6 +28,32 @@ pub struct MouseEvent {
     pub modifiers: KeyModifiers,
 }
 
+impl MouseEvent {
+    /// Creates a mouse event.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    ///
+    /// let event = MouseEvent::new(MouseEventKind::Down(MouseButton::Left), 3, 7, KeyModifiers::NONE);
+    /// assert_eq!((event.column, event.row), (3, 7));
+    /// ```
+    pub const fn new(
+        kind: MouseEventKind,
+        column: u16,
+        row: u16,
+        modifiers: KeyModifiers,
+    ) -> MouseEvent {
+        MouseEvent {
+            kind,
+            column,
+            row,
+            modifiers,
+        }
+    }
+}
+
 /// A mouse event kind.
 ///
 /// # Platform-specific Notes

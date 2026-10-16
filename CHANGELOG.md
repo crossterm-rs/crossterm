@@ -10,6 +10,11 @@
 - Remove the `derive-more` feature and `derive_more` dependency. Event variant helper
   methods are always available.
 
+## Added ⭐
+
+- Add `KeyEvent::with_kind`, `KeyEvent::with_state` and `MouseEvent::new` so key and mouse
+  events can be built without struct literals.
+
 ## Changed ⚙️
 
 - Migrate the crate to the Rust 2024 edition. This does not raise the MSRV beyond Rust 1.85.
