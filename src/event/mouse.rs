@@ -2,6 +2,9 @@ use super::KeyModifiers;
 
 /// Represents a mouse event.
 ///
+/// Build one with [`MouseEvent::new`]. More fields may be added in minor releases, so struct
+/// literals and exhaustive patterns are not available outside crossterm.
+///
 /// # Platform-specific Notes
 ///
 /// ## Mouse Buttons
@@ -17,6 +20,7 @@ use super::KeyModifiers;
 /// `Ctrl` + left mouse button click as a right mouse button click.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub struct MouseEvent {
     /// The kind of mouse event that was caused.
     pub kind: MouseEventKind,

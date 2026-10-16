@@ -19,6 +19,10 @@
 - Mark `KeyCode`, `MediaKeyCode`, `ModifierKeyCode`, `MouseEventKind` and `MouseButton`
   `#[non_exhaustive]`. Matches on them outside crossterm need a wildcard arm. This lets later
   releases add keypad keys (#1013), extra mouse buttons (#1117) and similar.
+- Mark `KeyEvent` and `MouseEvent` `#[non_exhaustive]`. Their fields stay public, but code
+  outside crossterm can no longer build them with struct literals or destructure them without
+  `..`. Use `KeyEvent::new` with `with_kind`/`with_state`, or `MouseEvent::new`. This lets later
+  releases add fields such as the base layout key (#1074) and pixel coordinates (#873).
 
 ## Added ⭐
 

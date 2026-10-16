@@ -47,8 +47,12 @@ bitflags! {
 }
 
 /// Represents a key event.
+///
+/// Build one with [`KeyEvent::new`] and the `with_*` methods. More fields may be added in minor
+/// releases, so struct literals and exhaustive patterns are not available outside crossterm.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, Clone, Copy)]
+#[non_exhaustive]
 pub struct KeyEvent {
     /// The key itself.
     pub code: KeyCode,
