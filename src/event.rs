@@ -546,6 +546,40 @@ impl Event {
     }
 }
 
+impl From<KeyEvent> for Event {
+    /// Wraps a key event in [`Event::Key`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    ///
+    /// let key = KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL);
+    /// let event: Event = key.into();
+    /// assert_eq!(event, Event::Key(key));
+    /// ```
+    fn from(event: KeyEvent) -> Self {
+        Event::Key(event)
+    }
+}
+
+impl From<MouseEvent> for Event {
+    /// Wraps a mouse event in [`Event::Mouse`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    ///
+    /// let mouse = MouseEvent::new(MouseEventKind::Down(MouseButton::Left), 3, 7, KeyModifiers::NONE);
+    /// let event: Event = mouse.into();
+    /// assert_eq!(event, Event::Mouse(mouse));
+    /// ```
+    fn from(event: MouseEvent) -> Self {
+        Event::Mouse(event)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
