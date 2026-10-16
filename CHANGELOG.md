@@ -20,6 +20,8 @@
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
   and `SetColors`.
+- Report Ctrl+Space on Windows when ConPTY delivers it as a NUL key record
+  (virtual key `0x40`).
 - Fix integer underflow in mouse / cursor-position parsers when coord
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
