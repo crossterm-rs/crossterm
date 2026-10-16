@@ -244,10 +244,21 @@ jobs:
         uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de
         with:
           toolchain: stable
+          components: clippy
+
+      # The clippy job uses `--all-features`, which hides warnings in code that only compiles with
+      # narrower feature sets, such as items used only by a disabled feature.
+      - name: Check Clippy for feature combination
+        run: cargo clippy --locked --all-targets ${{ matrix.cargo-args }} -- -D warnings
 
       # Run rather than merely check so feature-gated test code and behavior stay covered.
       - name: Test feature combination
         run: cargo test --locked --lib ${{ matrix.cargo-args }} -- --test-threads 1
+
+      # `--doc` cannot be combined with `--lib`, so documentation examples need their own run to
+      # catch examples that only compile with other features enabled.
+      - name: Test documentation for feature combination
+        run: cargo test --locked --doc ${{ matrix.cargo-args }}
 
   # Windows dependencies are selected by target even with no default features.
   features-windows:
@@ -272,10 +283,21 @@ jobs:
         uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de
         with:
           toolchain: stable
+          components: clippy
+
+      # The clippy job uses `--all-features`, which hides warnings in code that only compiles with
+      # narrower feature sets, such as items used only by a disabled feature.
+      - name: Check Clippy for feature combination
+        run: cargo clippy --locked --all-targets ${{ matrix.cargo-args }} -- -D warnings
 
       # Run rather than merely check so feature-gated test code and behavior stay covered.
       - name: Test feature combination
         run: cargo test --locked --lib ${{ matrix.cargo-args }} -- --test-threads 1
+
+      # `--doc` cannot be combined with `--lib`, so documentation examples need their own run to
+      # catch examples that only compile with other features enabled.
+      - name: Test documentation for feature combination
+        run: cargo test --locked --doc ${{ matrix.cargo-args }}
 
   package:
     name: package (${{ matrix.os }})
