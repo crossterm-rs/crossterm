@@ -47,8 +47,12 @@ bitflags! {
 }
 
 /// Represents a key event.
+///
+/// Build one with [`KeyEvent::new`] and the `with_*` methods. More fields may be added in minor
+/// releases, so struct literals and exhaustive patterns are not available outside crossterm.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, Clone, Copy)]
+#[non_exhaustive]
 pub struct KeyEvent {
     /// The key itself.
     pub code: KeyCode,
@@ -69,6 +73,22 @@ pub struct KeyEvent {
 }
 
 impl KeyEvent {
+    /// Creates a key press event with the given code and modifiers.
+    ///
+    /// The kind is [`KeyEventKind::Press`] and the state is empty. Use [`with_kind`] and
+    /// [`with_state`] to change them.
+    ///
+    /// [`with_kind`]: Self::with_kind
+    /// [`with_state`]: Self::with_state
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+    ///
+    /// let event = KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL);
+    /// assert_eq!(event.kind, KeyEventKind::Press);
+    /// ```
     pub const fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
         KeyEvent {
             code,
@@ -78,6 +98,7 @@ impl KeyEvent {
         }
     }
 
+    /// Creates a key event with the given code, modifiers and kind, and an empty state.
     pub const fn new_with_kind(
         code: KeyCode,
         modifiers: KeyModifiers,
@@ -91,6 +112,7 @@ impl KeyEvent {
         }
     }
 
+    /// Creates a key event with every field given.
     pub const fn new_with_kind_and_state(
         code: KeyCode,
         modifiers: KeyModifiers,
@@ -103,6 +125,39 @@ impl KeyEvent {
             kind,
             state,
         }
+    }
+
+    /// Returns this key event with its kind replaced.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+    ///
+    /// let event = KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE).with_kind(KeyEventKind::Release);
+    /// assert!(event.is_release());
+    /// ```
+    #[must_use]
+    pub const fn with_kind(mut self, kind: KeyEventKind) -> KeyEvent {
+        self.kind = kind;
+        self
+    }
+
+    /// Returns this key event with its state replaced.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyCode, KeyEvent, KeyEventState, KeyModifiers};
+    ///
+    /// let event = KeyEvent::new(KeyCode::Char('1'), KeyModifiers::NONE)
+    ///     .with_state(KeyEventState::KEYPAD);
+    /// assert!(event.state.contains(KeyEventState::KEYPAD));
+    /// ```
+    #[must_use]
+    pub const fn with_state(mut self, state: KeyEventState) -> KeyEvent {
+        self.state = state;
+        self
     }
 
     // modifies the KeyEvent,

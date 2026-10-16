@@ -2,6 +2,9 @@ use super::KeyModifiers;
 
 /// Represents a mouse event.
 ///
+/// Build one with [`MouseEvent::new`]. More fields may be added in minor releases, so struct
+/// literals and exhaustive patterns are not available outside crossterm.
+///
 /// # Platform-specific Notes
 ///
 /// ## Mouse Buttons
@@ -17,6 +20,7 @@ use super::KeyModifiers;
 /// `Ctrl` + left mouse button click as a right mouse button click.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub struct MouseEvent {
     /// The kind of mouse event that was caused.
     pub kind: MouseEventKind,
@@ -26,6 +30,32 @@ pub struct MouseEvent {
     pub row: u16,
     /// The key modifiers active when the event occurred.
     pub modifiers: KeyModifiers,
+}
+
+impl MouseEvent {
+    /// Creates a mouse event.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    ///
+    /// let event = MouseEvent::new(MouseEventKind::Down(MouseButton::Left), 3, 7, KeyModifiers::NONE);
+    /// assert_eq!((event.column, event.row), (3, 7));
+    /// ```
+    pub const fn new(
+        kind: MouseEventKind,
+        column: u16,
+        row: u16,
+        modifiers: KeyModifiers,
+    ) -> MouseEvent {
+        MouseEvent {
+            kind,
+            column,
+            row,
+            modifiers,
+        }
+    }
 }
 
 /// A mouse event kind.
@@ -39,6 +69,7 @@ pub struct MouseEvent {
 /// is returned if we don't know which button was used.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
     Down(MouseButton),
@@ -89,6 +120,7 @@ impl_is_variant! {
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub enum MouseButton {
     /// Left mouse button.
     Left,
