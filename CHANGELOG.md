@@ -16,6 +16,9 @@
 - Mark `Event` `#[non_exhaustive]`. Matches on `Event` outside crossterm need a wildcard arm.
   This lets later releases add variants, such as `Event::Unknown` (#834) and query replies,
   without another breaking change.
+- Mark `KeyCode`, `MediaKeyCode`, `ModifierKeyCode`, `MouseEventKind` and `MouseButton`
+  `#[non_exhaustive]`. Matches on them outside crossterm need a wildcard arm. This lets later
+  releases add keypad keys (#1013), extra mouse buttons (#1117) and similar.
 
 ## Added ⭐
 

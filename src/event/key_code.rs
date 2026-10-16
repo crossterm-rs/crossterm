@@ -6,6 +6,7 @@ use super::{KeyboardEnhancementFlags, PushKeyboardEnhancementFlags};
 /// Represents a media key (as part of [`KeyCode::Media`]).
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
 pub enum MediaKeyCode {
     /// Play media key.
     Play,
@@ -58,6 +59,7 @@ impl Display for MediaKeyCode {
 /// Represents a modifier key (as part of [`KeyCode::Modifier`]).
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
 pub enum ModifierKeyCode {
     /// Left Shift key.
     LeftShift,
@@ -154,6 +156,7 @@ impl Display for ModifierKeyCode {
 /// Represents a key.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
 pub enum KeyCode {
     /// Backspace key (Delete on macOS, Backspace on other platforms).
     Backspace,

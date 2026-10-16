@@ -65,6 +65,7 @@ impl MouseEvent {
 /// is returned if we don't know which button was used.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub enum MouseEventKind {
     /// Pressed mouse button. Contains the button that was pressed.
     Down(MouseButton),
@@ -115,6 +116,7 @@ impl_is_variant! {
 /// Represents a mouse button.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
+#[non_exhaustive]
 pub enum MouseButton {
     /// Left mouse button.
     Left,
