@@ -16,7 +16,7 @@ pub(crate) fn lock_event_reader() -> MappedMutexGuard<'static, InternalEventRead
     })
 }
 
-fn try_lock_event_reader_for(
+pub(crate) fn try_lock_event_reader_for(
     duration: Duration,
 ) -> Option<MappedMutexGuard<'static, InternalEventReader>> {
     Some(MutexGuard::map(
@@ -78,4 +78,7 @@ pub(crate) enum InternalEvent {
     /// Attributes and architectural class of the terminal.
     #[cfg(unix)]
     PrimaryDeviceAttributes,
+    /// A terminal acknowledged OSC 7501 support.
+    #[cfg(all(unix, feature = "osc7501"))]
+    ProgramStatusSupport,
 }
