@@ -122,6 +122,49 @@
 //! Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder for more of
 //! them (`event-*`).
 
+/// Implements `is_*` predicates for unit and tuple enum variants.
+///
+/// Entries use the same left-to-right shape as `match` arms:
+/// `Variant` or `Variant(..)`, followed by `=>` and the method name. The
+/// method name is explicit because `macro_rules!` cannot construct an
+/// identifier such as `is_focus_gained` from `FocusGained`.
+///
+/// Attributes on an entry are applied to the generated method. This keeps
+/// feature-gated helpers, such as `Event::is_paste`, aligned with their
+/// variants.
+///
+/// Variants whose payload needs to be compared belong in a handwritten
+/// method instead; see the `KeyCode` helpers below. Generated methods are
+/// `const`, inline, and `must_use`.
+macro_rules! impl_is_variant {
+    (
+        $type:ident {
+            $(
+                $(#[$meta:meta])*
+                $variant:ident $(($field:tt))? => $method:ident
+            ),* $(,)?
+        }
+    ) => {
+        impl $type {
+            $(
+                $(#[$meta])*
+                #[doc = concat!(
+                    "Returns `true` if this value is the `",
+                    stringify!($type),
+                    "::",
+                    stringify!($variant),
+                    "` variant. Returns `false` otherwise."
+                )]
+                #[inline]
+                #[must_use]
+                pub const fn $method(&self) -> bool {
+                    matches!(self, Self::$variant $(($field))?)
+                }
+            )*
+        }
+    };
+}
+
 pub(crate) mod filter;
 pub(crate) mod internal;
 pub(crate) mod read;
@@ -544,49 +587,6 @@ pub enum Event {
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
-}
-
-/// Implements `is_*` predicates for unit and tuple enum variants.
-///
-/// Entries use the same left-to-right shape as `match` arms:
-/// `Variant` or `Variant(..)`, followed by `=>` and the method name. The
-/// method name is explicit because `macro_rules!` cannot construct an
-/// identifier such as `is_focus_gained` from `FocusGained`.
-///
-/// Attributes on an entry are applied to the generated method. This keeps
-/// feature-gated helpers, such as `Event::is_paste`, aligned with their
-/// variants.
-///
-/// Variants whose payload needs to be compared belong in a handwritten
-/// method instead; see the `KeyCode` helpers below. Generated methods are
-/// `const`, inline, and `must_use`.
-macro_rules! impl_is_variant {
-    (
-        $type:ident {
-            $(
-                $(#[$meta:meta])*
-                $variant:ident $(($field:tt))? => $method:ident
-            ),* $(,)?
-        }
-    ) => {
-        impl $type {
-            $(
-                $(#[$meta])*
-                #[doc = concat!(
-                    "Returns `true` if this value is the `",
-                    stringify!($type),
-                    "::",
-                    stringify!($variant),
-                    "` variant. Returns `false` otherwise."
-                )]
-                #[inline]
-                #[must_use]
-                pub const fn $method(&self) -> bool {
-                    matches!(self, Self::$variant $(($field))?)
-                }
-            )*
-        }
-    };
 }
 
 impl_is_variant! {
