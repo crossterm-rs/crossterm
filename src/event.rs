@@ -56,6 +56,7 @@
 //!             #[cfg(feature = "bracketed-paste")]
 //!             Event::Paste(data) => println!("{:?}", data),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!             _ => {}
 //!         }
 //!     }
 //!     #[cfg(feature = "bracketed-paste")]
@@ -97,6 +98,7 @@
 //!                 #[cfg(feature = "bracketed-paste")]
 //!                 Event::Paste(data) => println!("Pasted {:?}", data),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!                 _ => {}
 //!             }
 //!         } else {
 //!             // Timeout expired and no `Event` is available
@@ -313,8 +315,12 @@ pub fn try_read() -> Option<Event> {
 }
 
 /// Represents an event.
+///
+/// New variants may be added in minor releases as crossterm learns to report more of what
+/// terminals send, so a `match` on `Event` needs a wildcard arm.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Hash)]
+#[non_exhaustive]
 pub enum Event {
     /// The terminal gained focus
     FocusGained,

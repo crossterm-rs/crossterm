@@ -13,6 +13,9 @@
   only without `bracketed-paste`, so turning that feature on anywhere in a build removed `Copy`
   from every crate that used `Event`. Future variants such as `Event::Unknown` carry owned data.
   Use `.clone()`, or borrow the event; `KeyEvent` and `MouseEvent` are still `Copy`.
+- Mark `Event` `#[non_exhaustive]`. Matches on `Event` outside crossterm need a wildcard arm.
+  This lets later releases add variants, such as `Event::Unknown` (#834) and query replies,
+  without another breaking change.
 
 ## Added ⭐
 
