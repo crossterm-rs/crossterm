@@ -40,11 +40,9 @@ bitflags! {
 /// A command that enables mouse event capturing.
 ///
 /// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
-#[cfg(feature = "events")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableMouseCapture;
 
-#[cfg(feature = "events")]
 impl Command for EnableMouseCapture {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
         f.write_str(concat!(

@@ -183,13 +183,11 @@ mod mouse;
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
-#[cfg(feature = "events")]
-pub use commands::EnableMouseCapture;
 #[cfg(feature = "bracketed-paste")]
 pub use commands::{DisableBracketedPaste, EnableBracketedPaste};
 pub use commands::{
-    DisableFocusChange, DisableMouseCapture, EnableFocusChange, KeyboardEnhancementFlags,
-    PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
+    DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture,
+    KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
 };
 pub use key_code::{KeyCode, MediaKeyCode, ModifierKeyCode};
 pub use key_event::{KeyEvent, KeyEventKind, KeyEventState};
