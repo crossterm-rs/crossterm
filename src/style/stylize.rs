@@ -10,7 +10,19 @@ macro_rules! stylize_method {
                 stringify!($attribute),
                 "`](Attribute::",
                 stringify!($attribute),
-                ") attribute to the text.",
+                ") attribute to the text.\n\n",
+                "# Example\n\n",
+                "```\n",
+                "# use crossterm::style::{Attribute, ContentStyle, Stylize};\n",
+                "let styled = \"",
+                stringify!($method_name),
+                "\".",
+                stringify!($method_name),
+                "();\n",
+                "# assert!(styled.style().attributes.has(Attribute::",
+                stringify!($attribute),
+                "));\n",
+                "```",
             )]
             fn $method_name(self) -> Self::Styled {
                 self.attribute(Attribute::$attribute)
@@ -24,7 +36,19 @@ macro_rules! stylize_method {
                 stringify!($color),
                 "`](Color::",
                 stringify!($color),
-                ")."
+                ").\n\n",
+                "# Example\n\n",
+                "```\n",
+                "# use crossterm::style::{ContentStyle, Stylize, Color};\n",
+                "let styled = \"",
+                stringify!($method_name_fg),
+                "\".",
+                stringify!($method_name_fg),
+                "();\n",
+                "# assert_eq!(styled.style().foreground_color, Some(Color::",
+                stringify!($color),
+                "));\n",
+                "```",
             )]
             fn $method_name_fg(self) -> Self::Styled {
                 self.with(Color::$color)
@@ -35,7 +59,19 @@ macro_rules! stylize_method {
                 stringify!($color),
                 "`](Color::",
                 stringify!($color),
-                ")."
+                ").\n\n",
+                "# Example\n\n",
+                "```\n",
+                "# use crossterm::style::{ContentStyle, Stylize, Color};\n",
+                "let styled = \"",
+                stringify!($method_name_bg),
+                "\".",
+                stringify!($method_name_bg),
+                "();\n",
+                "# assert_eq!(styled.style().background_color, Some(Color::",
+                stringify!($color),
+                "));\n",
+                "```",
             )]
             fn $method_name_bg(self) -> Self::Styled {
                 self.on(Color::$color)
@@ -46,7 +82,19 @@ macro_rules! stylize_method {
                 stringify!($color),
                 "`](Color::",
                 stringify!($color),
-                ")."
+                ").\n\n",
+                "# Example\n\n",
+                "```\n",
+                "# use crossterm::style::{ContentStyle, Stylize, Color};\n",
+                "let styled = \"",
+                stringify!($method_name_ul),
+                "\".",
+                stringify!($method_name_ul),
+                "();\n",
+                "# assert_eq!(styled.style().underline_color, Some(Color::",
+                stringify!($color),
+                "));\n",
+                "```",
             )]
             fn $method_name_ul(self) -> Self::Styled {
                 self.underline(Color::$color)
