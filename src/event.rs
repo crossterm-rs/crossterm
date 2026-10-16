@@ -314,7 +314,6 @@ pub fn try_read() -> Option<Event> {
 
 /// Represents an event.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Hash)]
 pub enum Event {
     /// The terminal gained focus
