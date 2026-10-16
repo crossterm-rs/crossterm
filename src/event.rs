@@ -32,22 +32,20 @@
 //! Blocking read:
 //!
 //! ```no_run
-//! #![cfg(feature = "bracketed-paste")]
+//! #[cfg(feature = "bracketed-paste")]
+//! use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 //! use crossterm::{
 //!     event::{
-//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event, read,
+//!         DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
+//!         read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> std::io::Result<()> {
-//!     execute!(
-//!         std::io::stdout(),
-//!         EnableBracketedPaste,
-//!         EnableFocusChange,
-//!         EnableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), EnableBracketedPaste)?;
+//!     execute!(std::io::stdout(), EnableFocusChange, EnableMouseCapture)?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
@@ -60,12 +58,9 @@
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
 //!         }
 //!     }
-//!     execute!(
-//!         std::io::stdout(),
-//!         DisableBracketedPaste,
-//!         DisableFocusChange,
-//!         DisableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), DisableBracketedPaste)?;
+//!     execute!(std::io::stdout(), DisableFocusChange, DisableMouseCapture)?;
 //!     Ok(())
 //! }
 //! ```
@@ -73,24 +68,22 @@
 //! Non-blocking read:
 //!
 //! ```no_run
-//! #![cfg(feature = "bracketed-paste")]
 //! use std::{io, time::Duration};
 //!
+//! #[cfg(feature = "bracketed-paste")]
+//! use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 //! use crossterm::{
 //!     event::{
-//!         DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event, poll, read,
+//!         DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
+//!         poll, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> io::Result<()> {
-//!     execute!(
-//!         std::io::stdout(),
-//!         EnableBracketedPaste,
-//!         EnableFocusChange,
-//!         EnableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), EnableBracketedPaste)?;
+//!     execute!(std::io::stdout(), EnableFocusChange, EnableMouseCapture)?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
 //!         if poll(Duration::from_millis(500))? {
@@ -109,12 +102,9 @@
 //!             // Timeout expired and no `Event` is available
 //!         }
 //!     }
-//!     execute!(
-//!         std::io::stdout(),
-//!         DisableBracketedPaste,
-//!         DisableFocusChange,
-//!         DisableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), DisableBracketedPaste)?;
+//!     execute!(std::io::stdout(), DisableFocusChange, DisableMouseCapture)?;
 //!     Ok(())
 //! }
 //! ```
