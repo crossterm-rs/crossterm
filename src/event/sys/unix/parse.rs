@@ -1,4 +1,4 @@
-use std::io;
+use std::{collections::VecDeque, io};
 
 use crate::event::{
     Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers, KeyboardEnhancementFlags,
@@ -21,6 +21,48 @@ use crate::event::internal::InternalEvent;
 
 fn could_not_parse_event_error() -> io::Error {
     io::Error::other("Could not parse an event.")
+}
+
+/// Feeds the bytes of one read to `buffer` and pushes each event that they complete to `events`.
+///
+/// `more` is `true` when the read filled its whole buffer, so more bytes can follow.
+///
+/// A lone `ESC` that another `ESC` follows is an Esc key press of its own. A terminal sends one
+/// `ESC` for each press, and two quick presses, or a reader that falls behind, put both bytes in
+/// one read. The second `ESC` then starts a sequence of its own.
+pub(crate) fn advance(
+    buffer: &mut Vec<u8>,
+    bytes: &[u8],
+    more: bool,
+    events: &mut VecDeque<InternalEvent>,
+) {
+    for (idx, byte) in bytes.iter().enumerate() {
+        let more = idx + 1 < bytes.len() || more;
+
+        if buffer.as_slice() == b"\x1B" && *byte == b'\x1B' {
+            events.push_back(InternalEvent::Event(Event::Key(KeyCode::Esc.into())));
+            buffer.clear();
+        }
+
+        buffer.push(*byte);
+
+        match parse_event(buffer, more) {
+            Ok(Some(ie)) => {
+                events.push_back(ie);
+                buffer.clear();
+            }
+            Ok(None) => {
+                // Event can't be parsed, because we don't have enough bytes for
+                // the current sequence. Keep the buffer and process next bytes.
+            }
+            Err(_) => {
+                // Event can't be parsed (not enough parameters, parameter is not a number,
+                // ...). Clear the buffer and continue with another
+                // sequence.
+                buffer.clear();
+            }
+        }
+    }
 }
 
 pub(crate) fn parse_event(
@@ -877,6 +919,40 @@ mod tests {
         assert_eq!(
             parse_event(b"\x1B", false).unwrap(),
             Some(InternalEvent::Event(Event::Key(KeyCode::Esc.into()))),
+        );
+    }
+
+    fn advance_all(bytes: &[u8]) -> Vec<InternalEvent> {
+        let mut buffer = Vec::new();
+        let mut events = VecDeque::new();
+        advance(&mut buffer, bytes, false, &mut events);
+        events.into()
+    }
+
+    #[test]
+    fn test_esc_esc_in_one_read_is_two_esc_keys() {
+        let esc = InternalEvent::Event(Event::Key(KeyCode::Esc.into()));
+        assert_eq!(advance_all(b"\x1B\x1B"), vec![esc.clone(), esc.clone()]);
+        assert_eq!(
+            advance_all(b"\x1B\x1B\x1B"),
+            vec![esc.clone(), esc.clone(), esc.clone()]
+        );
+        assert_eq!(
+            advance_all(b"\x1B\x1B[D"),
+            vec![
+                esc.clone(),
+                InternalEvent::Event(Event::Key(KeyCode::Left.into()))
+            ]
+        );
+        assert_eq!(
+            advance_all(b"\x1B\x1Bj"),
+            vec![
+                esc,
+                InternalEvent::Event(Event::Key(KeyEvent::new(
+                    KeyCode::Char('j'),
+                    KeyModifiers::ALT
+                )))
+            ]
         );
     }
 
