@@ -1,6 +1,6 @@
 <h1 align="center"><img width="440" src="docs/crossterm_full.png" /></h1>
 
-[![Donate][s1]][l1] [![GitHub Actions][s2]][l2] [![Latest Version][s3]][l3] [![MIT][s4]][l4] [![Docs][s5]][l5] [![Join Us on Discord][s6]][l6]
+[![Donate][s1]][l1] [![GitHub Actions][s2]][l2] [![Latest Version][s3]][l3] [![MIT][s4]][l4] [![Docs][s5]][l5]
 
 # Cross-platform Terminal Manipulation Library 
 
@@ -217,6 +217,3 @@ License - see the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/maste
 
 [s5]: https://docs.rs/crossterm/badge.svg
 [l5]: https://docs.rs/crossterm
-
-[s6]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
-[l6]: https://discord.gg/K4nyTDB
