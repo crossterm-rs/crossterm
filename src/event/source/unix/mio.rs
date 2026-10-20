@@ -95,6 +95,7 @@ impl EventSource for UnixInternalEventSource {
                 match token {
                     TTY_TOKEN => {
                         loop {
+                            let mut full = false;
                             match self.tty_fd.read(&mut self.tty_buffer) {
                                 Ok(read_count) => {
                                     if read_count > 0 {
@@ -103,6 +104,7 @@ impl EventSource for UnixInternalEventSource {
                                             read_count == TTY_BUFFER_SIZE,
                                         );
                                     }
+                                    full = read_count == TTY_BUFFER_SIZE;
                                 }
                                 Err(e) => {
                                     // No more data to read at the moment. We will receive another
@@ -117,6 +119,11 @@ impl EventSource for UnixInternalEventSource {
                                 }
                             };
 
+                            // A full buffer may have left input in the tty, which no
+                            // new readiness event announces (mio is edge-triggered).
+                            if full && self.tty_fd.bytes_to_read()? > 0 {
+                                continue;
+                            }
                             if let Some(event) = self.parser.next() {
                                 return Ok(Some(event));
                             }
