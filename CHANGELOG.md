@@ -48,6 +48,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix Ctrl+letter key events on Windows with non-Latin keyboard layouts
+  such as Russian or Armenian, which reported the layout's character
+  (Ctrl+`с`) instead of the letter (Ctrl+`c`). Ctrl+letter events now
+  also ignore Caps Lock, as they do on Unix.
 
 # Version 0.29
 
