@@ -193,6 +193,20 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
     Some(ch)
 }
 
+/// ConPTY synthesizes `vk = ch + 0x40` for C0 control characters, so NUL (Ctrl+Space) becomes
+/// 0x40, an unassigned virtual key that `ToUnicodeEx` cannot translate.
+const VK_NUL_CONPTY: u16 = 0x40;
+
+/// Ctrl+Space arrives without a character: map it to `' '` like other platforms do.
+fn ctrl_space_fallback(
+    virtual_key_code: u16,
+    u_char: u16,
+    modifiers: KeyModifiers,
+) -> Option<char> {
+    (virtual_key_code == VK_NUL_CONPTY && u_char == 0 && modifiers.contains(KeyModifiers::CONTROL))
+        .then_some(' ')
+}
+
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
     let virtual_key_code = key_event.virtual_key_code as i32;
@@ -258,7 +272,11 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                     // character the key normally maps to on the user's keyboard layout.
                     // The keys that intentionally generate control codes (ESC, ENTER, TAB, etc.)
                     // are handled by their virtual key codes above.
-                    get_char_for_key(key_event).map(KeyCode::Char)
+                    get_char_for_key(key_event)
+                        .or_else(|| {
+                            ctrl_space_fallback(key_event.virtual_key_code, utf16, modifiers)
+                        })
+                        .map(KeyCode::Char)
                 }
                 surrogate @ 0xD800..=0xDFFF => {
                     return Some(WindowsKeyEvent::Surrogate(surrogate));
@@ -369,4 +387,51 @@ fn parse_mouse_event_record(
         row: ypos,
         modifiers,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm_winapi::InputRecord;
+    use winapi::um::wincon::{INPUT_RECORD, KEY_EVENT};
+
+    use super::*;
+
+    #[test]
+    fn ctrl_space_without_char_maps_to_space() {
+        let ctrl = KeyModifiers::CONTROL;
+        assert_eq!(ctrl_space_fallback(0x40, 0, ctrl), Some(' '));
+        assert_eq!(ctrl_space_fallback(0x40, 0, KeyModifiers::NONE), None);
+        assert_eq!(ctrl_space_fallback(0x20, 0, ctrl), None);
+        assert_eq!(ctrl_space_fallback(0x41, 0, ctrl), None);
+        assert_eq!(ctrl_space_fallback(0x40, 1, ctrl), None);
+    }
+
+    #[test]
+    fn conpty_nul_key_record_parses_as_ctrl_space() {
+        // SAFETY: INPUT_RECORD is plain old data, all-zero is a valid value.
+        let mut record: INPUT_RECORD = unsafe { std::mem::zeroed() };
+        record.EventType = KEY_EVENT;
+        // SAFETY: EventType is KEY_EVENT, so the KeyEvent union variant is the active one.
+        let key = unsafe { record.Event.KeyEvent_mut() };
+        key.bKeyDown = 1;
+        key.wRepeatCount = 1;
+        key.wVirtualKeyCode = 0x40;
+        key.wVirtualScanCode = 0;
+        key.dwControlKeyState = LEFT_CTRL_PRESSED;
+        let InputRecord::KeyEvent(record) = InputRecord::from(record) else {
+            panic!("expected a key event record");
+        };
+
+        match parse_key_event_record(&record) {
+            Some(WindowsKeyEvent::KeyEvent(event)) => assert_eq!(
+                event,
+                KeyEvent::new_with_kind(
+                    KeyCode::Char(' '),
+                    KeyModifiers::CONTROL,
+                    KeyEventKind::Press
+                )
+            ),
+            _ => panic!("expected Ctrl+Space key event"),
+        }
+    }
 }
