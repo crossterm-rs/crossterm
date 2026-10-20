@@ -48,6 +48,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix styled content with an underline color but no text attributes not
+  resetting it. `PrintStyledContent` (and therefore `Display` for
+  `StyledContent`) reset the foreground instead of the underline color,
+  so the underline color leaked into the following text.
 
 # Version 0.29
 

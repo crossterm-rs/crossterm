@@ -449,6 +449,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
 
         let mut reset_background = false;
         let mut reset_foreground = false;
+        let mut reset_underline = false;
         let mut reset = false;
 
         if let Some(bg) = style.background_color {
@@ -461,7 +462,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
         }
         if let Some(ul) = style.underline_color {
             execute_fmt(f, SetUnderlineColor(ul)).map_err(|_| fmt::Error)?;
-            reset_foreground = true;
+            reset_underline = true;
         }
 
         if !style.attributes.is_empty() {
@@ -483,6 +484,9 @@ impl<D: Display> Command for PrintStyledContent<D> {
             }
             if reset_foreground {
                 execute_fmt(f, SetForegroundColor(Color::Reset)).map_err(|_| fmt::Error)?;
+            }
+            if reset_underline {
+                execute_fmt(f, SetUnderlineColor(Color::Reset)).map_err(|_| fmt::Error)?;
             }
         }
 
