@@ -101,16 +101,6 @@ Attribute! {
     /// Underlines the text.
     Underlined = 4,
 
-    // Other types of underlining
-    /// Double underlines the text.
-    DoubleUnderlined = 2,
-    /// Undercurls the text.
-    Undercurled = 3,
-    /// Underdots the text.
-    Underdotted = 4,
-    /// Underdashes the text.
-    Underdashed = 5,
-
     /// Makes the text blinking (< 150 per minute).
     SlowBlink = 5,
     /// Makes the text blinking (>= 150 per minute).
@@ -151,6 +141,16 @@ Attribute! {
     NotFramedOrEncircled = 54,
     /// Turns off the `OverLined` attribute.
     NotOverLined = 55,
+    // Other types of underlining
+
+    /// Double underlines the text.
+    DoubleUnderlined = 2,
+    /// Undercurls the text.
+    Undercurled = 3,
+    /// Underdots the text.
+    Underdotted = 4,
+    /// Underdashes the text.
+    Underdashed = 5,
 }
 
 impl Display for Attribute {
@@ -175,7 +175,7 @@ impl Attribute {
     ///
     /// See <https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters>
     pub fn sgr(self) -> String {
-        if (self as usize) > 4 && (self as usize) < 9 {
+        if (self as usize) > 23 {
             return "4:".to_string() + SGR[self as usize].to_string().as_str();
         }
         SGR[self as usize].to_string()
