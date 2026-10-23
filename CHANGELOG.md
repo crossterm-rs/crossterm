@@ -9,6 +9,27 @@
 - Remove the `libc` feature and always use rustix for Unix terminal operations.
 - Remove the `derive-more` feature and `derive_more` dependency. Event variant helper
   methods are always available.
+- `Event` no longer implements `Copy`, whatever features are enabled. It used to be `Copy`
+  only without `bracketed-paste`, so turning that feature on anywhere in a build removed `Copy`
+  from every crate that used `Event`. Future variants such as `Event::Unknown` carry owned data.
+  Use `.clone()`, or borrow the event; `KeyEvent` and `MouseEvent` are still `Copy`.
+- Mark `Event` `#[non_exhaustive]`. Matches on `Event` outside crossterm need a wildcard arm.
+  This lets later releases add variants, such as `Event::Unknown` (#834) and query replies,
+  without another breaking change.
+- Mark `KeyCode`, `MediaKeyCode`, `ModifierKeyCode`, `MouseEventKind` and `MouseButton`
+  `#[non_exhaustive]`. Matches on them outside crossterm need a wildcard arm. This lets later
+  releases add keypad keys (#1013), extra mouse buttons (#1117) and similar.
+- Mark `KeyEvent` and `MouseEvent` `#[non_exhaustive]`. Their fields stay public, but code
+  outside crossterm can no longer build them with struct literals or destructure them without
+  `..`. Use `KeyEvent::new` with `with_kind`/`with_state`, or `MouseEvent::new`. This lets later
+  releases add fields such as the base layout key (#1074) and pixel coordinates (#873).
+
+## Added ⭐
+
+- Add `KeyEvent::with_kind`, `KeyEvent::with_state` and `MouseEvent::new` so key and mouse
+  events can be built without struct literals.
+- Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
+  built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
 
 ## Changed ⚙️
 

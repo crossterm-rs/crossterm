@@ -84,8 +84,7 @@ pub fn read_char() -> std::io::Result<char> {
         if let Ok(Event::Key(KeyEvent {
             code: KeyCode::Char(c),
             kind: KeyEventKind::Press,
-            modifiers: _,
-            state: _,
+            ..
         })) = event::read()
         {
             return Ok(c);

@@ -12,6 +12,7 @@ pub enum FileDesc<'a> {
 }
 
 impl FileDesc<'_> {
+    #[cfg(feature = "events")]
     pub fn read(&self, buffer: &mut [u8]) -> io::Result<usize> {
         let fd = match self {
             FileDesc::Owned(fd) => fd.as_fd(),
