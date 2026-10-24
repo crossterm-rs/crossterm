@@ -445,6 +445,21 @@ pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
 impl<D: Display> Command for PrintStyledContent<D> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        self.write_styled(f, |f| write!(f, "{}", self.0.content()))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl<D: Display> PrintStyledContent<D> {
+    pub(crate) fn write_styled<W: fmt::Write>(
+        &self,
+        f: &mut W,
+        write_content: impl FnOnce(&mut W) -> fmt::Result,
+    ) -> fmt::Result {
         let style = self.0.style();
 
         let mut reset_background = false;
@@ -469,7 +484,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
             reset = true;
         }
 
-        write!(f, "{}", self.0.content())?;
+        write_content(f)?;
 
         if reset {
             // NOTE: This will reset colors even though self has no colors, hence produce unexpected
@@ -486,11 +501,6 @@ impl<D: Display> Command for PrintStyledContent<D> {
             }
         }
 
-        Ok(())
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
         Ok(())
     }
 }
