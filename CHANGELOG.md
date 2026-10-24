@@ -48,6 +48,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix `KeyEvent` ordering disagreeing with its equality. `Char('D')`, `Char('D')` with
+  `SHIFT` and `Char('d')` with `SHIFT` compare equal but were ordered apart, so a
+  `BTreeMap` or `BTreeSet` keyed by `KeyEvent` or `Event` missed Shift+letter bindings
+  that a `HashMap` found.
 
 # Version 0.29
 
