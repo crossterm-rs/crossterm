@@ -66,12 +66,11 @@ impl<D: Display> AsMut<ContentStyle> for StyledContent<D> {
 
 impl<D: Display> Display for StyledContent<D> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        crate::command::execute_fmt(
-            f,
-            PrintStyledContent(StyledContent {
-                style: self.style,
-                content: &self.content,
-            }),
-        )
+        let command = PrintStyledContent(self.style.apply(&self.content));
+        #[cfg(windows)]
+        if !crate::Command::is_ansi_code_supported(&command) {
+            return crate::command::execute_fmt(f, command);
+        }
+        command.write_styled(f, |f| self.content.fmt(f))
     }
 }
