@@ -1,53 +1,86 @@
-# Unreleased
+# Version 0.30
 
 ## Breaking ⚠️
 
-- Raise the minimum supported Rust version from 1.63 to 1.85.
-- Remove `IsTty` trait.
+- Raise the minimum supported Rust version from 1.63 to 1.85. (#1059)
+- Remove `IsTty` trait. (#1086)
   Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
   which provides equivalent functionality.
-- Remove the `libc` feature and always use rustix for Unix terminal operations.
+- Remove the `libc` feature and always use rustix for Unix terminal operations. (#1087)
 - Remove the `derive-more` feature and `derive_more` dependency. Event variant helper
-  methods are always available.
+  methods are always available. (#1113)
+- Remove the `windows` feature. Windows dependencies are now selected by target, so
+  `--no-default-features` builds behave the same on every platform. Drop `windows` from
+  your feature list. (#948)
 - `Event` no longer implements `Copy`, whatever features are enabled. It used to be `Copy`
   only without `bracketed-paste`, so turning that feature on anywhere in a build removed `Copy`
   from every crate that used `Event`. Future variants such as `Event::Unknown` carry owned data.
-  Use `.clone()`, or borrow the event; `KeyEvent` and `MouseEvent` are still `Copy`.
+  Use `.clone()`, or borrow the event; `KeyEvent` and `MouseEvent` are still `Copy`. (#1149)
 - Mark `Event` `#[non_exhaustive]`. Matches on `Event` outside crossterm need a wildcard arm.
   This lets later releases add variants, such as `Event::Unknown` (#834) and query replies,
-  without another breaking change.
+  without another breaking change. (#1149)
 - Mark `KeyCode`, `MediaKeyCode`, `ModifierKeyCode`, `MouseEventKind` and `MouseButton`
   `#[non_exhaustive]`. Matches on them outside crossterm need a wildcard arm. This lets later
-  releases add keypad keys (#1013), extra mouse buttons (#1117) and similar.
+  releases add keypad keys (#1013), extra mouse buttons (#1117) and similar. (#1149)
 - Mark `KeyEvent` and `MouseEvent` `#[non_exhaustive]`. Their fields stay public, but code
   outside crossterm can no longer build them with struct literals or destructure them without
   `..`. Use `KeyEvent::new` with `with_kind`/`with_state`, or `MouseEvent::new`. This lets later
-  releases add fields such as the base layout key (#1074) and pixel coordinates (#873).
+  releases add fields such as the base layout key (#1074) and pixel coordinates (#873). (#1149)
 
 ## Added ⭐
 
 - Add `KeyEvent::with_kind`, `KeyEvent::with_state` and `MouseEvent::new` so key and mouse
-  events can be built without struct literals.
+  events can be built without struct literals. (#1149)
 - Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
-  built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
+  built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`. (#1150)
+- Add `event::try_read`, which returns the next queued event without blocking, or `None` if
+  there is none. (#1003)
+- Add `style::StartHyperlink` and `style::EndHyperlink` commands for OSC 8 hyperlinks. (#1038)
+- Add `terminal::EnableAlternateScrollMode` and `terminal::DisableAlternateScrollMode`. With it
+  enabled, scrolling on the alternate screen sends cursor up / down keys instead of moving the
+  scrollback. (#1016)
+- Add `MouseEventKind::button`, which returns the button of a down, up or drag event. (#1111)
+- Implement `Default` for `Color`; the default is `Color::Reset`. (#1105)
+- Derive `Hash` for `Attributes`, `ContentStyle` and `Colors`. (#1002)
+- Implement `PartialOrd` and `Ord` for `Event` and its sub-types. (#951)
+- Make `ContentStyle::new`, `ContentStyle::apply`, `StyledContent::new`, `StyledContent::content`,
+  `StyledContent::style` and `StyledContent::style_mut` `const fn`. (#1027)
 
 ## Changed ⚙️
 
-- Migrate the crate to the Rust 2024 edition. This does not raise the MSRV beyond Rust 1.85.
+- Migrate the crate to the Rust 2024 edition. This does not raise the MSRV beyond Rust 1.85. (#1081)
+- Make the `document-features` dependency optional behind a new `document-features` feature.
+  It is only needed to render the feature list in the docs. (#991)
+- On Unix, `terminal::size` and `terminal::window_size` no longer fall back to running `tput`.
+  They query `/dev/tty`, then stdout, stderr and stdin. (#1136)
+- Upgrade `signal-hook` to 0.4 and `signal-hook-mio` to 0.3. (#1089)
+- Upgrade `base64` to 0.23. (#1088)
 
 ## Fixed 🐛
 
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
-  and `SetColors`.
+  and `SetColors`. (#1069)
 - Fix integer underflow in mouse / cursor-position parsers when coord
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
-  `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+  `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`. (#1049)
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
-  instead of being applied to the background.
+  instead of being applied to the background. (#1100)
+- Fix `StyledContent`'s `Display` impl ignoring width, fill, alignment, precision and sign
+  flags, so `format!("{:>20}", "hi".red())` now pads the output. (#1157)
+- Fix all input being silently lost on Unix after an unrecognized `CSI ? ...` reply, such as
+  DECRPM replies or the light/dark color-scheme notifications that Ghostty, kitty, foot, VTE
+  and tmux 3.6+ send. (#1106)
+- Fix `cursor::position` on Unix returning a stale position when older cursor-position events were
+  still queued. (#1024)
+- Fix `supports_keyboard_enhancement` and `query_keyboard_enhancement_flags` on Unix writing
+  their query to stdout instead of `/dev/tty`, because `/dev/tty` was opened read-only. The query
+  failed whenever stdout was redirected. (#1026)
+- Fix the `queue!` and `execute!` macros breaking when the caller has a different `Ok` in
+  scope. (#1040)
 
 # Version 0.29
 
