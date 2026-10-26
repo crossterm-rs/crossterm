@@ -325,4 +325,45 @@ mod tests {
         assert_eq!(events, TTY_BUFFER_SIZE);
         assert!(!source.tty_pending);
     }
+
+    /// A timeout still expires while input keeps arriving that completes
+    /// no event: here a bracketed paste that has not ended.
+    #[cfg(feature = "bracketed-paste")]
+    #[test]
+    fn the_timeout_expires_under_sustained_input() {
+        use std::{thread, time::Instant};
+
+        const TIMEOUT: Duration = Duration::from_millis(50);
+        // Long enough past the timeout that a read keeping on with the
+        // input, rather than checking the time, is told apart.
+        const INPUT_FOR: Duration = Duration::from_secs(2);
+
+        let (mut source, mut input) = source();
+        input.write_all(b"\x1b[200~").unwrap();
+        let writer = thread::spawn(move || {
+            let start = Instant::now();
+            let mut read_on = true;
+            while read_on && start.elapsed() < INPUT_FOR {
+                read_on = input.write_all(&[b'a'; TTY_BUFFER_SIZE * 4]).is_ok();
+            }
+            // A source still reading is given the paste's end, so that one
+            // ignoring the timeout returns late rather than blocking on a
+            // read for the rest of it.
+            if read_on {
+                input.write_all(b"\x1b[201~").unwrap();
+            }
+            // Handed back open: at end of file a read returns nothing
+            // forever, and the source would spin on it.
+            input
+        });
+
+        let start = Instant::now();
+        let event = source.try_read(Some(TIMEOUT)).unwrap();
+        let took = start.elapsed();
+        drop(source);
+        drop(writer.join().unwrap());
+
+        assert!(event.is_none());
+        assert!(took < INPUT_FOR / 2, "try_read took {took:?}");
+    }
 }
