@@ -22,6 +22,17 @@ impl FileDesc<'_> {
         Ok(result)
     }
 
+    /// The number of bytes waiting to be read (`FIONREAD`), for the mio
+    /// event source, whose readiness is edge-triggered.
+    #[cfg(all(feature = "events", not(feature = "use-dev-tty")))]
+    pub fn bytes_to_read(&self) -> io::Result<u64> {
+        let fd = match self {
+            FileDesc::Owned(fd) => fd.as_fd(),
+            FileDesc::Borrowed(fd) => fd.as_fd(),
+        };
+        Ok(rustix::io::ioctl_fionread(fd)?)
+    }
+
     pub fn raw_fd(&self) -> RawFd {
         match self {
             FileDesc::Owned(fd) => fd.as_raw_fd(),
