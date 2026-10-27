@@ -91,6 +91,13 @@ macro_rules! Attribute {
 
 Attribute! {
     /// Resets all the attributes.
+    ///
+    /// This is SGR 0, which clears all styling, not only the other [`Attribute`]s:
+    /// the foreground, background and underline colors are reset to the terminal
+    /// defaults as well. To reset only the colors, use [`ResetColor`](crate::style::ResetColor).
+    /// To turn off a single attribute and keep the rest, use the matching attribute such as
+    /// [`NoBold`](Attribute::NoBold), [`NormalIntensity`](Attribute::NormalIntensity),
+    /// [`NoItalic`](Attribute::NoItalic) or [`NoUnderline`](Attribute::NoUnderline).
     Reset = 0,
     /// Increases the text intensity.
     Bold = 1,
