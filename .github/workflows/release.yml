@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+# Never cancel a publish that is already running; a second tag waits for the first to finish.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  # crates.io trusted publishing exchanges the job's GitHub OIDC token for a short-lived crates.io
+  # token, so no long-lived registry secret is stored in the repository. The crates.io trusted
+  # publisher is bound to this workflow filename and the `release` environment; required reviewers
+  # and the allowed tag pattern are configured on that environment in the repository settings.
+  # https://crates.io/docs/trusted-publishing
+  publish:
+    name: publish to crates.io
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de
+        with:
+          toolchain: stable
+
+      # A tag that disagrees with Cargo.toml would publish a version nobody intended to release.
+      - name: Check tag matches crate version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(cargo metadata --locked --no-deps --format-version 1 \
+            | jq -r '.packages[] | select(.name == "crossterm") | .version')"
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Tag $TAG does not match crate version $version (expected v$version)."
+            exit 1
+          fi
+
+      # The action's post step revokes the token when the job finishes.
+      - name: Authenticate with crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+
+      - name: Publish crate
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: cargo publish --locked
