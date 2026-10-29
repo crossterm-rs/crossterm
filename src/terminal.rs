@@ -8,7 +8,8 @@
 //! to demonstrate the capabilities.
 //!
 //! Most terminal actions can be performed with commands.
-//! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
+//! Please have a look at [command documentation](../index.html#command-api) for a more detailed
+//! documentation.
 //!
 //! ## Screen Buffer
 //!
@@ -43,8 +44,8 @@
 //! ### Raw Mode
 //!
 //! By default, the terminal functions in a certain way.
-//! For example, it will move the cursor to the beginning of the next line when the input hits the end of a line.
-//! Or that the backspace is interpreted for character removal.
+//! For example, it will move the cursor to the beginning of the next line when the input hits the
+//! end of a line. Or that the backspace is interpreted for character removal.
 //!
 //! Sometimes these default modes are irrelevant,
 //! and in this case, we can turn them off.
@@ -56,24 +57,25 @@
 //! - Input will not be processed on enter press
 //! - Input will not be line buffered (input sent byte-by-byte to input buffer)
 //! - Special keys like backspace and CTRL+C will not be processed by terminal driver
-//! - New line character will not be processed therefore `println!` can't be used, use `write!` instead
+//! - New line character will not be processed therefore `println!` can't be used, use `write!`
+//!   instead
 //!
-//! Raw mode can be enabled/disabled with the [enable_raw_mode](terminal::enable_raw_mode) and [disable_raw_mode](terminal::disable_raw_mode) functions.
+//! Raw mode can be enabled/disabled with the [enable_raw_mode](terminal::enable_raw_mode) and
+//! [disable_raw_mode](terminal::disable_raw_mode) functions.
 //!
 //! ## Examples
 //!
 //! ```no_run
+//! use crossterm::{
+//!     execute,
+//!     terminal::{ScrollUp, SetSize, size},
+//! };
 //! use std::io::{self, Write};
-//! use crossterm::{execute, terminal::{ScrollUp, SetSize, size}};
 //!
 //! fn main() -> io::Result<()> {
 //!     let (cols, rows) = size()?;
 //!     // Resize terminal and scroll up.
-//!     execute!(
-//!         io::stdout(),
-//!         SetSize(10, 10),
-//!         ScrollUp(5)
-//!     )?;
+//!     execute!(io::stdout(), SetSize(10, 10), ScrollUp(5))?;
 //!
 //!     // Be a good citizen, cleanup
 //!     execute!(io::stdout(), SetSize(cols, rows))?;
@@ -197,13 +199,17 @@ impl Command for EnableLineWrap {
 /// # Notes
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-/// * Use [LeaveAlternateScreen](./struct.LeaveAlternateScreen.html) command to leave the entered alternate screen.
+/// * Use [LeaveAlternateScreen](./struct.LeaveAlternateScreen.html) command to leave the entered
+///   alternate screen.
 ///
 /// # Examples
 ///
 /// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+/// };
 /// use std::io::{self, Write};
-/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> io::Result<()> {
 ///     execute!(io::stdout(), EnterAlternateScreen)?;
@@ -213,7 +219,6 @@ impl Command for EnableLineWrap {
 ///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
-///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnterAlternateScreen;
 
@@ -240,8 +245,11 @@ impl Command for EnterAlternateScreen {
 /// # Examples
 ///
 /// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+/// };
 /// use std::io::{self, Write};
-/// use crossterm::{execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}};
 ///
 /// fn main() -> io::Result<()> {
 ///     execute!(io::stdout(), EnterAlternateScreen)?;
@@ -251,7 +259,6 @@ impl Command for EnterAlternateScreen {
 ///     execute!(io::stdout(), LeaveAlternateScreen)
 /// }
 /// ```
-///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LeaveAlternateScreen;
 
@@ -265,6 +272,98 @@ impl Command for LeaveAlternateScreen {
         let screen_buffer = ScreenBuffer::from(Handle::current_out_handle()?);
         screen_buffer.show()?;
         Ok(())
+    }
+}
+
+/// A command that enables the alternate scroll mode.
+///
+/// When enabled, scrolling while on the alternate screen sends cursor-up/down
+/// key events instead of moving the normal scrollback buffer.
+/// See <https://invisible-island.net/xterm/manpage/xterm.html#VT100-Widget-Resources:alternateScroll>.
+///
+/// Not supported on Windows.
+///
+/// # Examples
+///
+/// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{EnableAlternateScrollMode, EnterAlternateScreen},
+/// };
+/// use std::io;
+///
+/// fn main() -> io::Result<()> {
+///     execute!(
+///         io::stdout(),
+///         EnterAlternateScreen,
+///         EnableAlternateScrollMode
+///     )
+/// }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnableAlternateScrollMode;
+
+impl Command for EnableAlternateScrollMode {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1007h"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Alternate scroll mode is not supported on the legacy Windows API.",
+        ))
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
+    }
+}
+
+/// A command that disables the alternate scroll mode.
+///
+/// See <https://invisible-island.net/xterm/manpage/xterm.html#VT100-Widget-Resources:alternateScroll>.
+///
+/// Not supported on Windows.
+///
+/// # Examples
+///
+/// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{DisableAlternateScrollMode, LeaveAlternateScreen},
+/// };
+/// use std::io;
+///
+/// fn main() -> io::Result<()> {
+///     execute!(
+///         io::stdout(),
+///         DisableAlternateScrollMode,
+///         LeaveAlternateScreen
+///     )
+/// }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DisableAlternateScrollMode;
+
+impl Command for DisableAlternateScrollMode {
+    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        f.write_str(csi!("?1007l"))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> io::Result<()> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Alternate scroll mode is not supported on the legacy Windows API.",
+        ))
+    }
+
+    #[cfg(windows)]
+    fn is_ansi_code_supported(&self) -> bool {
+        false
     }
 }
 
@@ -401,23 +500,29 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 /// # Notes
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-/// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered alternate screen.
+/// * Use [EndSynchronizedUpdate](./struct.EndSynchronizedUpdate.html) command to leave the entered
+///   alternate screen.
 ///
-/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
-/// renders its current state. With applications updating the screen at a higher frequency this can cause tearing.
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible
+/// grid cell and renders its current state. With applications updating the screen at a higher
+/// frequency this can cause tearing.
 ///
 /// This mode attempts to mitigate that.
 ///
-/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
-/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
-/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
-/// by unintentionally rendering in the middle a of an application screen update.
+/// When the synchronization mode is enabled following render calls will keep rendering the last
+/// rendered state. The terminal Emulator keeps processing incoming text and sequences. When the
+/// synchronized update mode is disabled again the renderer may fetch the latest screen buffer state
+/// again, effectively avoiding the tearing effect by unintentionally rendering in the middle a of
+/// an application screen update.
 ///
 /// # Examples
 ///
 /// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate},
+/// };
 /// use std::io::{self, Write};
-/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
 /// fn main() -> io::Result<()> {
 ///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
@@ -428,7 +533,6 @@ impl<T: fmt::Display> Command for SetTitle<T> {
 ///     Ok(())
 /// }
 /// ```
-///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BeginSynchronizedUpdate;
 
@@ -454,23 +558,29 @@ impl Command for BeginSynchronizedUpdate {
 /// # Notes
 ///
 /// * Commands must be executed/queued for execution otherwise they do nothing.
-/// * Use [BeginSynchronizedUpdate](./struct.BeginSynchronizedUpdate.html) to enter the alternate screen.
+/// * Use [BeginSynchronizedUpdate](./struct.BeginSynchronizedUpdate.html) to enter the alternate
+///   screen.
 ///
-/// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
-/// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+/// When rendering the screen of the terminal, the Emulator usually iterates through each visible
+/// grid cell and renders its current state. With applications updating the screen a at higher
+/// frequency this can cause tearing.
 ///
 /// This mode attempts to mitigate that.
 ///
-/// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
-/// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
-/// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
-/// by unintentionally rendering in the middle a of an application screen update.
+/// When the synchronization mode is enabled following render calls will keep rendering the last
+/// rendered state. The terminal Emulator keeps processing incoming text and sequences. When the
+/// synchronized update mode is disabled again the renderer may fetch the latest screen buffer state
+/// again, effectively avoiding the tearing effect by unintentionally rendering in the middle a of
+/// an application screen update.
 ///
 /// # Examples
 ///
 /// ```no_run
+/// use crossterm::{
+///     execute,
+///     terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate},
+/// };
 /// use std::io::{self, Write};
-/// use crossterm::{execute, terminal::{BeginSynchronizedUpdate, EndSynchronizedUpdate}};
 ///
 /// fn main() -> io::Result<()> {
 ///     execute!(io::stdout(), BeginSynchronizedUpdate)?;
@@ -481,7 +591,6 @@ impl Command for BeginSynchronizedUpdate {
 ///     Ok(())
 /// }
 /// ```
-///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EndSynchronizedUpdate;
 

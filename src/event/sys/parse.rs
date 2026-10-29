@@ -217,6 +217,9 @@ fn parse_csi_impl(buffer: &[u8], raw_mode: Option<bool>) -> io::Result<Option<In
         b'?' => match buffer[buffer.len() - 1] {
             b'u' => return parse_csi_keyboard_enhancement_flags(buffer),
             b'c' => return parse_csi_primary_device_attributes(buffer),
+            // A final byte we have no parser for still ends the sequence.
+            // Returning Ok(None) here wedges the reader and swallows later input (#1104).
+            0x40..=0x7E => return Err(could_not_parse_event_error()),
             _ => None,
         },
         b'0'..=b'9' => {
@@ -595,9 +598,10 @@ fn parse_csi_u_encoded_key_code_impl(
                 match c {
                     '\x1B' => KeyCode::Esc,
                     '\r' => KeyCode::Enter,
-                    // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason we get
-                    // newlines as input is because the terminal converts \r into \n for us. When we
-                    // enter raw mode, we disable that, so \n no longer has any meaning - it's better to
+                    // Issue #371: \n = 0xA, which is also the keycode for Ctrl+J. The only reason
+                    // we get newlines as input is because the terminal converts
+                    // \r into \n for us. When we enter raw mode, we disable
+                    // that, so \n no longer has any meaning - it's better to
                     // use Ctrl+J. Waiting to handle it here means it gets picked up later
                     '\n' if !raw_mode.unwrap_or_else(|| {
                         crate::terminal::is_raw_mode_enabled().unwrap_or(true)
@@ -1679,6 +1683,23 @@ mod tests {
                 KeyModifiers::CONTROL,
                 KeyEventKind::Release,
             )))),
+        );
+    }
+
+    #[test]
+    fn test_unrecognised_csi_private_mode_is_error_not_incomplete() {
+        // DECRPM reply CSI ? 2026 ; 2 $ y — final byte ends the sequence.
+        // Returning Ok(None) wedges the reader and swallows later input (#1104).
+        let r = parse_event(b"\x1B[?2026;2$y", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI ? sequence must be Err, got {r:?}"
+        );
+        // Color-scheme report CSI ? 997 ; 1 n
+        let r = parse_event(b"\x1B[?997;1n", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI ? sequence must be Err, got {r:?}"
         );
     }
 

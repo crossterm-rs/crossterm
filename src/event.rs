@@ -1,13 +1,15 @@
 //! # Event
 //!
-//! The `event` module provides the functionality to read keyboard, mouse and terminal resize events.
+//! The `event` module provides the functionality to read keyboard, mouse and terminal resize
+//! events.
 //!
 //! * The [`read`](fn.read.html) function returns an [`Event`](enum.Event.html) immediately
 //! (if available) or blocks until an [`Event`](enum.Event.html) is available.
 //!
-//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an [`Event`](enum.Event.html) available
-//! within the given period of time. In other words - if subsequent call to the [`read`](fn.read.html)
-//! function will block or not.
+//! * The [`poll`](fn.poll.html) function allows you to check if there is or isn't an
+//!   [`Event`](enum.Event.html) available
+//! within the given period of time. In other words - if subsequent call to the
+//! [`read`](fn.read.html) function will block or not.
 //!
 //! It's **not allowed** to call these functions from different threads or combine them with the
 //! [`EventStream`](struct.EventStream.html). You're allowed to either:
@@ -15,35 +17,35 @@
 //! * use the [`read`](fn.read.html) & [`poll`](fn.poll.html) functions on any, but same, thread
 //! * or the [`EventStream`](struct.EventStream.html).
 //!
-//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events to work properly**
+//! **Make sure to enable [raw mode](../terminal/index.html#raw-mode) in order for keyboard events
+//! to work properly**
 //!
 //! ## Mouse and Focus Events
 //!
 //! Mouse and focus events are not enabled by default. You have to enable them with the
-//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) / [`EnableFocusChange`](struct.EnableFocusChange.html) command.
-//! See [Command API](../index.html#command-api) for more information.
+//! [`EnableMouseCapture`](struct.EnableMouseCapture.html) /
+//! [`EnableFocusChange`](struct.EnableFocusChange.html) command. See [Command
+//! API](../index.html#command-api) for more information.
 //!
 //! ## Examples
 //!
 //! Blocking read:
 //!
 //! ```no_run
-//! #![cfg(feature = "bracketed-paste")]
+//! #[cfg(feature = "bracketed-paste")]
+//! use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 //! use crossterm::{
 //!     event::{
-//!         read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture, EnableBracketedPaste,
-//!         EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
+//!         read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> std::io::Result<()> {
-//!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), EnableBracketedPaste)?;
+//!     execute!(std::io::stdout(), EnableFocusChange, EnableMouseCapture)?;
 //!     loop {
 //!         // `read()` blocks until an `Event` is available
 //!         match read()? {
@@ -54,14 +56,12 @@
 //!             #[cfg(feature = "bracketed-paste")]
 //!             Event::Paste(data) => println!("{:?}", data),
 //!             Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!             _ => {}
 //!         }
 //!     }
-//!     execute!(
-//!         std::io::stdout(),
-//!         DisableBracketedPaste,
-//!         DisableFocusChange,
-//!         DisableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), DisableBracketedPaste)?;
+//!     execute!(std::io::stdout(), DisableFocusChange, DisableMouseCapture)?;
 //!     Ok(())
 //! }
 //! ```
@@ -69,24 +69,22 @@
 //! Non-blocking read:
 //!
 //! ```no_run
-//! #![cfg(feature = "bracketed-paste")]
-//! use std::{time::Duration, io};
+//! use std::{io, time::Duration};
 //!
+//! #[cfg(feature = "bracketed-paste")]
+//! use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 //! use crossterm::{
 //!     event::{
-//!         poll, read, DisableBracketedPaste, DisableFocusChange, DisableMouseCapture,
-//!         EnableBracketedPaste, EnableFocusChange, EnableMouseCapture, Event,
+//!         DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture, Event,
+//!         poll, read,
 //!     },
 //!     execute,
 //! };
 //!
 //! fn print_events() -> io::Result<()> {
-//!     execute!(
-//!          std::io::stdout(),
-//!          EnableBracketedPaste,
-//!          EnableFocusChange,
-//!          EnableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), EnableBracketedPaste)?;
+//!     execute!(std::io::stdout(), EnableFocusChange, EnableMouseCapture)?;
 //!     loop {
 //!         // `poll()` waits for an `Event` for a given time period
 //!         if poll(Duration::from_millis(500))? {
@@ -100,23 +98,64 @@
 //!                 #[cfg(feature = "bracketed-paste")]
 //!                 Event::Paste(data) => println!("Pasted {:?}", data),
 //!                 Event::Resize(width, height) => println!("New size {}x{}", width, height),
+//!                 _ => {}
 //!             }
 //!         } else {
 //!             // Timeout expired and no `Event` is available
 //!         }
 //!     }
-//!     execute!(
-//!         std::io::stdout(),
-//!         DisableBracketedPaste,
-//!         DisableFocusChange,
-//!         DisableMouseCapture
-//!     )?;
+//!     #[cfg(feature = "bracketed-paste")]
+//!     execute!(std::io::stdout(), DisableBracketedPaste)?;
+//!     execute!(std::io::stdout(), DisableFocusChange, DisableMouseCapture)?;
 //!     Ok(())
 //! }
 //! ```
 //!
 //! Check the [examples](https://github.com/crossterm-rs/crossterm/tree/master/examples) folder for more of
 //! them (`event-*`).
+
+/// Implements `is_*` predicates for unit and tuple enum variants.
+///
+/// Entries use the same left-to-right shape as `match` arms:
+/// `Variant` or `Variant(..)`, followed by `=>` and the method name. The
+/// method name is explicit because `macro_rules!` cannot construct an
+/// identifier such as `is_focus_gained` from `FocusGained`.
+///
+/// Attributes on an entry are applied to the generated method. This keeps
+/// feature-gated helpers, such as `Event::is_paste`, aligned with their
+/// variants.
+///
+/// Variants whose payload needs to be compared belong in a handwritten
+/// method instead; see the `KeyCode` helpers in `key_code.rs`. Generated methods are
+/// `const`, inline, and `must_use`.
+macro_rules! impl_is_variant {
+    (
+        $type:ident {
+            $(
+                $(#[$meta:meta])*
+                $variant:ident $(($field:tt))? => $method:ident
+            ),* $(,)?
+        }
+    ) => {
+        impl $type {
+            $(
+                $(#[$meta])*
+                #[doc = concat!(
+                    "Returns `true` if this value is the `",
+                    stringify!($type),
+                    "::",
+                    stringify!($variant),
+                    "` variant. Returns `false` otherwise."
+                )]
+                #[inline]
+                #[must_use]
+                pub const fn $method(&self) -> bool {
+                    matches!(self, Self::$variant $(($field))?)
+                }
+            )*
+        }
+    };
+}
 
 pub(crate) mod filter;
 pub(crate) mod internal;
@@ -127,26 +166,35 @@ pub(crate) mod stream;
 pub(crate) mod sys;
 pub(crate) mod timeout;
 
-#[cfg(feature = "derive-more")]
-use derive_more::derive::IsVariant;
+mod commands;
+mod key_code;
+mod key_event;
+mod modifiers;
+mod mouse;
+
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
 
-#[cfg(windows)]
-use crate::command::WinApiAnsiTiming;
-use crate::{
-    Command, csi,
-    event::{filter::EventFilter, internal::InternalEvent},
+#[cfg(feature = "bracketed-paste")]
+pub use commands::{DisableBracketedPaste, EnableBracketedPaste};
+pub use commands::{
+    DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture,
+    KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
 };
-use std::fmt::{self, Display};
+pub use key_code::{KeyCode, MediaKeyCode, ModifierKeyCode};
+pub use key_event::{KeyEvent, KeyEventKind, KeyEventState};
+pub use modifiers::KeyModifiers;
+pub use mouse::{MouseButton, MouseEvent, MouseEventKind};
+
+use crate::event::{filter::EventFilter, internal::InternalEvent};
 use std::time::Duration;
 
-use bitflags::bitflags;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
 /// Checks if there is an [`Event`](enum.Event.html) available.
 ///
-/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns `Ok(false)`.
+/// Returns `Ok(true)` if an [`Event`](enum.Event.html) is available otherwise it returns
+/// `Ok(false)`.
 ///
 /// `Ok(true)` guarantees that subsequent call to the [`read`](fn.read.html) function
 /// won't block.
@@ -160,8 +208,8 @@ use std::hash::{Hash, Hasher};
 /// Return immediately:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
-/// use crossterm::{event::poll};
+/// use crossterm::event::poll;
+/// use std::{io, time::Duration};
 ///
 /// fn is_event_available() -> io::Result<bool> {
 ///     // Zero duration says that the `poll` function must return immediately
@@ -173,7 +221,7 @@ use std::hash::{Hash, Hasher};
 /// Wait up to 100ms:
 ///
 /// ```no_run
-/// use std::{time::Duration, io};
+/// use std::{io, time::Duration};
 ///
 /// use crossterm::event::poll;
 ///
@@ -211,10 +259,10 @@ pub fn poll(timeout: Duration) -> std::io::Result<bool> {
 /// Non-blocking read:
 ///
 /// ```no_run
-/// use std::time::Duration;
 /// use std::io;
+/// use std::time::Duration;
 ///
-/// use crossterm::event::{read, poll};
+/// use crossterm::event::{poll, read};
 ///
 /// fn print_events() -> io::Result<bool> {
 ///     loop {
@@ -244,7 +292,7 @@ pub fn read() -> std::io::Result<Event> {
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::event::{try_read, poll};
+/// use crossterm::event::{poll, try_read};
 /// use std::{io, time::Duration};
 ///
 /// fn print_all_events() -> io::Result<bool> {
@@ -268,336 +316,13 @@ pub fn try_read() -> Option<Event> {
     }
 }
 
-bitflags! {
-    /// Represents special flags that tell compatible terminals to add extra information to keyboard events.
-    ///
-    /// See <https://sw.kovidgoyal.net/kitty/keyboard-protocol/#progressive-enhancement> for more information.
-    ///
-    /// Alternate keys and Unicode codepoints are not yet supported by crossterm.
-    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
-    #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-    pub struct KeyboardEnhancementFlags: u8 {
-        /// Represent Escape and modified keys using CSI-u sequences, so they can be unambiguously
-        /// read.
-        const DISAMBIGUATE_ESCAPE_CODES = 0b0000_0001;
-        /// Add extra events with [`KeyEvent.kind`] set to [`KeyEventKind::Repeat`] or
-        /// [`KeyEventKind::Release`] when keys are autorepeated or released.
-        const REPORT_EVENT_TYPES = 0b0000_0010;
-        /// Send [alternate keycodes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#key-codes)
-        /// in addition to the base keycode. The alternate keycode overrides the base keycode in
-        /// resulting `KeyEvent`s.
-        const REPORT_ALTERNATE_KEYS = 0b0000_0100;
-        /// Represent all keyboard events as CSI-u sequences. This is required to get repeat/release
-        /// events for plain-text keys.
-        const REPORT_ALL_KEYS_AS_ESCAPE_CODES = 0b0000_1000;
-        // Send the Unicode codepoint as well as the keycode.
-        //
-        // *Note*: this is not yet supported by crossterm.
-        // const REPORT_ASSOCIATED_TEXT = 0b0001_0000;
-    }
-}
-
-/// A command that enables mouse event capturing.
-///
-/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
-#[cfg(feature = "events")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct EnableMouseCapture;
-
-#[cfg(feature = "events")]
-impl Command for EnableMouseCapture {
-    #[cfg(not(windows))]
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(concat!(
-            // Normal tracking: Send mouse X & Y on button press and release
-            csi!("?1000h"),
-            // Button-event tracking: Report button motion events (dragging)
-            csi!("?1002h"),
-            // Any-event tracking: Report all motion events
-            csi!("?1003h"),
-            // RXVT mouse mode: Allows mouse coordinates of >223
-            csi!("?1015h"),
-            // SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode
-            csi!("?1006h"),
-        ))
-    }
-
-    #[cfg(windows)]
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        // ConPTY translates ENABLE_MOUSE_INPUT into these two requests (Microsoft Terminal
-        // PR #9970). Keep the Win32 capture enabled for conhost and queue the VT representation
-        // for ConPTY passthrough; this is a hybrid bridge, not a Windows Terminal workaround.
-        // Microsoft Terminal issue #15296 documents why the application must provide the VT side
-        // while ENABLE_VIRTUAL_TERMINAL_INPUT is active.
-        f.write_str(concat!(csi!("?1003;1006h")))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        sys::windows::enable_mouse_capture()
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
-        sys::windows::enable_mouse_capture()
-    }
-
-    #[cfg(windows)]
-    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
-        WinApiAnsiTiming::BeforeAnsi
-    }
-}
-
-/// A command that disables mouse event capturing.
-///
-/// Mouse events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DisableMouseCapture;
-
-impl Command for DisableMouseCapture {
-    #[cfg(not(windows))]
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(concat!(
-            // The inverse commands of EnableMouseCapture, in reverse order.
-            csi!("?1006l"),
-            csi!("?1015l"),
-            csi!("?1003l"),
-            csi!("?1002l"),
-            csi!("?1000l"),
-        ))
-    }
-
-    #[cfg(windows)]
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        // Reverse the same ConPTY-compatible requests used by EnableMouseCapture.
-        f.write_str(concat!(csi!("?1003;1006l")))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        sys::windows::disable_mouse_capture()
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
-        sys::windows::disable_mouse_capture()
-    }
-
-    #[cfg(windows)]
-    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
-        WinApiAnsiTiming::BeforeAnsi
-    }
-}
-
-/// A command that enables focus event emission.
-///
-/// It should be paired with [`DisableFocusChange`] at the end of execution.
-///
-/// Focus events can be captured with [read](./fn.read.html)/[poll](./fn.poll.html).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct EnableFocusChange;
-
-impl Command for EnableFocusChange {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(csi!("?1004h"))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        // Focus events are always enabled on Windows
-        Ok(())
-    }
-}
-
-/// A command that disables focus event emission.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DisableFocusChange;
-
-impl Command for DisableFocusChange {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(csi!("?1004l"))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        // Focus events can't be disabled on Windows
-        Ok(())
-    }
-}
-
-/// A command that enables [bracketed paste mode](https://en.wikipedia.org/wiki/Bracketed-paste).
-///
-/// It should be paired with [`DisableBracketedPaste`] at the end of execution.
-///
-/// This is not supported in older Windows terminals without
-/// [virtual terminal sequences](https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences).
-///
-/// On Windows, enabling bracketed paste temporarily enables VT input for the
-/// lifetime of this paired command. Windows Terminal and ConPTY may not
-/// preserve key-release information while VT input is active. These paired
-/// commands are queue boundaries on Windows and are not reference-counted;
-/// callers must pair each enable with a disable without relying on nesting.
-/// In ANSI-capable environments without a `CONIN$` console (for example,
-/// Git Bash or mintty), the ANSI command still runs and the Win32 mode side
-/// effect is skipped safely.
-#[cfg(feature = "bracketed-paste")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct EnableBracketedPaste;
-
-#[cfg(feature = "bracketed-paste")]
-impl Command for EnableBracketedPaste {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(csi!("?2004h"))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
-            "Bracketed paste not implemented in the legacy Windows API.",
-        ))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
-        sys::windows::enable_bracketed_paste()
-    }
-
-    #[cfg(windows)]
-    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
-        WinApiAnsiTiming::BeforeAnsiAndFlush
-    }
-}
-
-/// A command that disables bracketed paste mode.
-///
-/// On Windows, the ANSI disable sequence is flushed before VT input is
-/// restored. The command is paired with [`EnableBracketedPaste`] and is not
-/// reference-counted.
-///
-/// If the paired enable found no `CONIN$` console, this command only disables
-/// the ANSI protocol and safely performs no Win32 mode restore.
-#[cfg(feature = "bracketed-paste")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DisableBracketedPaste;
-
-#[cfg(feature = "bracketed-paste")]
-impl Command for DisableBracketedPaste {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(csi!("?2004l"))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        Ok(())
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi_with_ansi(&self) -> std::io::Result<()> {
-        sys::windows::disable_bracketed_paste()
-    }
-
-    #[cfg(windows)]
-    fn winapi_ansi_timing(&self) -> WinApiAnsiTiming {
-        WinApiAnsiTiming::AfterAnsiAndFlush
-    }
-}
-
-/// A command that enables the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/), which adds extra information to keyboard events and removes ambiguity for modifier keys.
-///
-/// It should be paired with [`PopKeyboardEnhancementFlags`] at the end of execution.
-///
-/// Example usage:
-/// ```no_run
-/// use std::io::{Write, stdout};
-/// use crossterm::execute;
-/// use crossterm::event::{
-///     KeyboardEnhancementFlags,
-///     PushKeyboardEnhancementFlags,
-///     PopKeyboardEnhancementFlags
-/// };
-///
-/// let mut stdout = stdout();
-///
-/// execute!(
-///     stdout,
-///     PushKeyboardEnhancementFlags(
-///         KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-///     )
-/// );
-///
-/// // ...
-///
-/// execute!(stdout, PopKeyboardEnhancementFlags);
-/// ```
-///
-/// Note that, currently, only the following support this protocol:
-/// * [kitty terminal](https://sw.kovidgoyal.net/kitty/)
-/// * [foot terminal](https://codeberg.org/dnkl/foot/issues/319)
-/// * [WezTerm terminal](https://wezfurlong.org/wezterm/config/lua/config/enable_kitty_keyboard.html)
-/// * [alacritty terminal](https://github.com/alacritty/alacritty/issues/6378)
-/// * [notcurses library](https://github.com/dankamongmen/notcurses/issues/2131)
-/// * [neovim text editor](https://github.com/neovim/neovim/pull/18181)
-/// * [kakoune text editor](https://github.com/mawww/kakoune/issues/4103)
-/// * [dte text editor](https://gitlab.com/craigbarnes/dte/-/issues/138)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PushKeyboardEnhancementFlags(pub KeyboardEnhancementFlags);
-
-impl Command for PushKeyboardEnhancementFlags {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        write!(f, "{}{}u", csi!(">"), self.0.bits())
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        use std::io;
-
-        Err(io::Error::new(
-            io::ErrorKind::Unsupported,
-            "Keyboard progressive enhancement not implemented for the legacy Windows API.",
-        ))
-    }
-
-    #[cfg(windows)]
-    fn is_ansi_code_supported(&self) -> bool {
-        false
-    }
-}
-
-/// A command that disables extra kinds of keyboard events.
-///
-/// Specifically, it pops one level of keyboard enhancement flags.
-///
-/// See [`PushKeyboardEnhancementFlags`] and <https://sw.kovidgoyal.net/kitty/keyboard-protocol/> for more information.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PopKeyboardEnhancementFlags;
-
-impl Command for PopKeyboardEnhancementFlags {
-    fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
-        f.write_str(csi!("<1u"))
-    }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        use std::io;
-
-        Err(io::Error::new(
-            io::ErrorKind::Unsupported,
-            "Keyboard progressive enhancement not implemented for the legacy Windows API.",
-        ))
-    }
-
-    #[cfg(windows)]
-    fn is_ansi_code_supported(&self) -> bool {
-        false
-    }
-}
-
 /// Represents an event.
+///
+/// New variants may be added in minor releases as crossterm learns to report more of what
+/// terminals send, so a `match` on `Event` needs a wildcard arm.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
-#[cfg_attr(not(feature = "bracketed-paste"), derive(Copy))]
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Hash)]
+#[non_exhaustive]
 pub enum Event {
     /// The terminal gained focus
     FocusGained,
@@ -614,6 +339,18 @@ pub enum Event {
     /// A resize event with new dimensions after resize (columns, rows).
     /// **Note** that resize events can occur in batches.
     Resize(u16, u16),
+}
+
+impl_is_variant! {
+    Event {
+        FocusGained => is_focus_gained,
+        FocusLost => is_focus_lost,
+        Key(..) => is_key,
+        Mouse(..) => is_mouse,
+        #[cfg(feature = "bracketed-paste")]
+        Paste(..) => is_paste,
+        Resize(..) => is_resize,
+    }
 }
 
 impl Event {
@@ -672,7 +409,8 @@ impl Event {
 
     /// Returns the key event if the event is a key event, otherwise `None`.
     ///
-    /// This is a convenience method that makes apps that only care about key events easier to write.
+    /// This is a convenience method that makes apps that only care about key events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -764,7 +502,8 @@ impl Event {
 
     /// Returns the pasted string if the event is a paste event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about paste events easier to write.
+    /// This is a convenience method that makes code which only cares about paste events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -787,7 +526,8 @@ impl Event {
 
     /// Returns the size as a tuple if the event is a resize event, otherwise `None`.
     ///
-    /// This is a convenience method that makes code which only cares about resize events easier to write.
+    /// This is a convenience method that makes code which only cares about resize events easier to
+    /// write.
     ///
     /// # Examples
     ///
@@ -808,884 +548,43 @@ impl Event {
     }
 }
 
-/// Represents a mouse event.
-///
-/// # Platform-specific Notes
-///
-/// ## Mouse Buttons
-///
-/// Some platforms/terminals do not report mouse button for the
-/// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
-/// is returned if we don't know which button was used.
-///
-/// ## Key Modifiers
-///
-/// Some platforms/terminals does not report all key modifiers
-/// combinations for all mouse event types. For example - macOS reports
-/// `Ctrl` + left mouse button click as a right mouse button click.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-pub struct MouseEvent {
-    /// The kind of mouse event that was caused.
-    pub kind: MouseEventKind,
-    /// The column that the event occurred on.
-    pub column: u16,
-    /// The row that the event occurred on.
-    pub row: u16,
-    /// The key modifiers active when the event occurred.
-    pub modifiers: KeyModifiers,
-}
-
-/// A mouse event kind.
-///
-/// # Platform-specific Notes
-///
-/// ## Mouse Buttons
-///
-/// Some platforms/terminals do not report mouse button for the
-/// `MouseEventKind::Up` and `MouseEventKind::Drag` events. `MouseButton::Left`
-/// is returned if we don't know which button was used.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-pub enum MouseEventKind {
-    /// Pressed mouse button. Contains the button that was pressed.
-    Down(MouseButton),
-    /// Released mouse button. Contains the button that was released.
-    Up(MouseButton),
-    /// Moved the mouse cursor while pressing the contained mouse button.
-    Drag(MouseButton),
-    /// Moved the mouse cursor while not pressing a mouse button.
-    Moved,
-    /// Scrolled mouse wheel downwards (towards the user).
-    ScrollDown,
-    /// Scrolled mouse wheel upwards (away from the user).
-    ScrollUp,
-    /// Scrolled mouse wheel left (mostly on a laptop touchpad).
-    ScrollLeft,
-    /// Scrolled mouse wheel right (mostly on a laptop touchpad).
-    ScrollRight,
-}
-
-impl MouseEventKind {
-    /// Returns the mouse button connected with the event.
-    ///
-    /// This will return `Some(MouseButton)` for `Down`, `Up`, and `Drag` events.
-    /// For other events, like `Moved` or `Scroll...`, it returns `None`.
-    pub fn button(&self) -> Option<MouseButton> {
-        match self {
-            MouseEventKind::Down(button)
-            | MouseEventKind::Up(button)
-            | MouseEventKind::Drag(button) => Some(*button),
-            _ => None,
-        }
-    }
-}
-
-/// Represents a mouse button.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-pub enum MouseButton {
-    /// Left mouse button.
-    Left,
-    /// Right mouse button.
-    Right,
-    /// Middle mouse button.
-    Middle,
-}
-
-bitflags! {
-    /// Represents key modifiers (shift, control, alt, etc.).
-    ///
-    /// **Note:** `SUPER`, `HYPER`, and `META` can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
-    #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-    pub struct KeyModifiers: u8 {
-        const SHIFT = 0b0000_0001;
-        const CONTROL = 0b0000_0010;
-        const ALT = 0b0000_0100;
-        const SUPER = 0b0000_1000;
-        const HYPER = 0b0001_0000;
-        const META = 0b0010_0000;
-        const NONE = 0b0000_0000;
-    }
-}
-
-impl Display for KeyModifiers {
-    /// Formats the key modifiers using the given formatter.
-    ///
-    /// The key modifiers are joined by a `+` character.
-    ///
-    /// # Platform-specific Notes
-    ///
-    /// On macOS, the control, alt, and super keys is displayed as "Control", "Option", and
-    /// "Command" respectively. See
-    /// <https://support.apple.com/guide/applestyleguide/welcome/1.0/web>.
-    ///
-    /// On Windows, the super key is displayed as "Windows" and the control key is displayed as
-    /// "Ctrl". See
-    /// <https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/keys-keyboard-shortcuts>.
-    ///
-    /// On other platforms, the super key is referred to as "Super" and the control key is
-    /// displayed as "Ctrl".
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut first = true;
-        for modifier in self.iter() {
-            if !first {
-                f.write_str("+")?;
-            }
-
-            first = false;
-            match modifier {
-                KeyModifiers::SHIFT => f.write_str("Shift")?,
-                #[cfg(unix)]
-                KeyModifiers::CONTROL => f.write_str("Control")?,
-                #[cfg(windows)]
-                KeyModifiers::CONTROL => f.write_str("Ctrl")?,
-                #[cfg(target_os = "macos")]
-                KeyModifiers::ALT => f.write_str("Option")?,
-                #[cfg(not(target_os = "macos"))]
-                KeyModifiers::ALT => f.write_str("Alt")?,
-                #[cfg(target_os = "macos")]
-                KeyModifiers::SUPER => f.write_str("Command")?,
-                #[cfg(target_os = "windows")]
-                KeyModifiers::SUPER => f.write_str("Windows")?,
-                #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-                KeyModifiers::SUPER => f.write_str("Super")?,
-                KeyModifiers::HYPER => f.write_str("Hyper")?,
-                KeyModifiers::META => f.write_str("Meta")?,
-                _ => unreachable!(),
-            }
-        }
-        Ok(())
-    }
-}
-
-/// Represents a keyboard event kind.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-pub enum KeyEventKind {
-    Press,
-    Repeat,
-    Release,
-}
-
-bitflags! {
-    /// Represents extra state about the key event.
-    ///
-    /// **Note:** This state can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize), serde(transparent))]
-    pub struct KeyEventState: u8 {
-        /// The key event origins from the keypad.
-        const KEYPAD = 0b0000_0001;
-        /// Caps Lock was enabled for this key event.
-        ///
-        /// **Note:** this is set for the initial press of Caps Lock itself.
-        const CAPS_LOCK = 0b0000_0010;
-        /// Num Lock was enabled for this key event.
-        ///
-        /// **Note:** this is set for the initial press of Num Lock itself.
-        const NUM_LOCK = 0b0000_0100;
-        const NONE = 0b0000_0000;
-    }
-}
-
-/// Represents a key event.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, Ord, Clone, Copy)]
-pub struct KeyEvent {
-    /// The key itself.
-    pub code: KeyCode,
-    /// Additional key modifiers.
-    pub modifiers: KeyModifiers,
-    /// Kind of event.
-    ///
-    /// Only set if:
-    /// - Unix: [`KeyboardEnhancementFlags::REPORT_EVENT_TYPES`] has been enabled with [`PushKeyboardEnhancementFlags`].
-    /// - Windows: always
-    pub kind: KeyEventKind,
-    /// Keyboard state.
-    ///
-    /// Only set if [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    pub state: KeyEventState,
-}
-
-impl KeyEvent {
-    pub const fn new(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers,
-            kind: KeyEventKind::Press,
-            state: KeyEventState::empty(),
-        }
-    }
-
-    pub const fn new_with_kind(
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        kind: KeyEventKind,
-    ) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers,
-            kind,
-            state: KeyEventState::empty(),
-        }
-    }
-
-    pub const fn new_with_kind_and_state(
-        code: KeyCode,
-        modifiers: KeyModifiers,
-        kind: KeyEventKind,
-        state: KeyEventState,
-    ) -> KeyEvent {
-        KeyEvent {
-            code,
-            modifiers,
-            kind,
-            state,
-        }
-    }
-
-    // modifies the KeyEvent,
-    // so that KeyModifiers::SHIFT is present iff
-    // an uppercase char is present.
-    fn normalize_case(mut self) -> KeyEvent {
-        let c = match self.code {
-            KeyCode::Char(c) => c,
-            _ => return self,
-        };
-
-        if c.is_ascii_uppercase() {
-            self.modifiers.insert(KeyModifiers::SHIFT);
-        } else if self.modifiers.contains(KeyModifiers::SHIFT) {
-            self.code = KeyCode::Char(c.to_ascii_uppercase())
-        }
-        self
-    }
-
-    /// Returns whether the key event is a press event.
-    pub fn is_press(&self) -> bool {
-        matches!(self.kind, KeyEventKind::Press)
-    }
-
-    /// Returns whether the key event is a release event.
-    pub fn is_release(&self) -> bool {
-        matches!(self.kind, KeyEventKind::Release)
-    }
-
-    /// Returns whether the key event is a repeat event.
-    pub fn is_repeat(&self) -> bool {
-        matches!(self.kind, KeyEventKind::Repeat)
-    }
-}
-
-impl From<KeyCode> for KeyEvent {
-    fn from(code: KeyCode) -> Self {
-        KeyEvent {
-            code,
-            modifiers: KeyModifiers::empty(),
-            kind: KeyEventKind::Press,
-            state: KeyEventState::empty(),
-        }
-    }
-}
-
-impl PartialEq for KeyEvent {
-    fn eq(&self, other: &KeyEvent) -> bool {
-        let KeyEvent {
-            code: lhs_code,
-            modifiers: lhs_modifiers,
-            kind: lhs_kind,
-            state: lhs_state,
-        } = self.normalize_case();
-        let KeyEvent {
-            code: rhs_code,
-            modifiers: rhs_modifiers,
-            kind: rhs_kind,
-            state: rhs_state,
-        } = other.normalize_case();
-        (lhs_code == rhs_code)
-            && (lhs_modifiers == rhs_modifiers)
-            && (lhs_kind == rhs_kind)
-            && (lhs_state == rhs_state)
-    }
-}
-
-impl Eq for KeyEvent {}
-
-impl Hash for KeyEvent {
-    fn hash<H: Hasher>(&self, hash_state: &mut H) {
-        let KeyEvent {
-            code,
-            modifiers,
-            kind,
-            state,
-        } = self.normalize_case();
-        code.hash(hash_state);
-        modifiers.hash(hash_state);
-        kind.hash(hash_state);
-        state.hash(hash_state);
-    }
-}
-
-/// Represents a media key (as part of [`KeyCode::Media`]).
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum MediaKeyCode {
-    /// Play media key.
-    Play,
-    /// Pause media key.
-    Pause,
-    /// Play/Pause media key.
-    PlayPause,
-    /// Reverse media key.
-    Reverse,
-    /// Stop media key.
-    Stop,
-    /// Fast-forward media key.
-    FastForward,
-    /// Rewind media key.
-    Rewind,
-    /// Next-track media key.
-    TrackNext,
-    /// Previous-track media key.
-    TrackPrevious,
-    /// Record media key.
-    Record,
-    /// Lower-volume media key.
-    LowerVolume,
-    /// Raise-volume media key.
-    RaiseVolume,
-    /// Mute media key.
-    MuteVolume,
-}
-
-impl Display for MediaKeyCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            MediaKeyCode::Play => write!(f, "Play"),
-            MediaKeyCode::Pause => write!(f, "Pause"),
-            MediaKeyCode::PlayPause => write!(f, "Play/Pause"),
-            MediaKeyCode::Reverse => write!(f, "Reverse"),
-            MediaKeyCode::Stop => write!(f, "Stop"),
-            MediaKeyCode::FastForward => write!(f, "Fast Forward"),
-            MediaKeyCode::Rewind => write!(f, "Rewind"),
-            MediaKeyCode::TrackNext => write!(f, "Next Track"),
-            MediaKeyCode::TrackPrevious => write!(f, "Previous Track"),
-            MediaKeyCode::Record => write!(f, "Record"),
-            MediaKeyCode::LowerVolume => write!(f, "Lower Volume"),
-            MediaKeyCode::RaiseVolume => write!(f, "Raise Volume"),
-            MediaKeyCode::MuteVolume => write!(f, "Mute Volume"),
-        }
-    }
-}
-
-/// Represents a modifier key (as part of [`KeyCode::Modifier`]).
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ModifierKeyCode {
-    /// Left Shift key.
-    LeftShift,
-    /// Left Control key. (Control on macOS, Ctrl on other platforms)
-    LeftControl,
-    /// Left Alt key. (Option on macOS, Alt on other platforms)
-    LeftAlt,
-    /// Left Super key. (Command on macOS, Windows on Windows, Super on other platforms)
-    LeftSuper,
-    /// Left Hyper key.
-    LeftHyper,
-    /// Left Meta key.
-    LeftMeta,
-    /// Right Shift key.
-    RightShift,
-    /// Right Control key. (Control on macOS, Ctrl on other platforms)
-    RightControl,
-    /// Right Alt key. (Option on macOS, Alt on other platforms)
-    RightAlt,
-    /// Right Super key. (Command on macOS, Windows on Windows, Super on other platforms)
-    RightSuper,
-    /// Right Hyper key.
-    RightHyper,
-    /// Right Meta key.
-    RightMeta,
-    /// Iso Level3 Shift key.
-    IsoLevel3Shift,
-    /// Iso Level5 Shift key.
-    IsoLevel5Shift,
-}
-
-impl Display for ModifierKeyCode {
-    /// Formats the modifier key using the given formatter.
-    ///
-    /// # Platform-specific Notes
-    ///
-    /// On macOS, the control, alt, and super keys are displayed as "Control", "Option", and
-    /// "Command" respectively. See
-    /// <https://support.apple.com/guide/applestyleguide/welcome/1.0/web>.
-    ///
-    /// On Windows, the super key is displayed as "Windows" and the control key is displayed as
-    /// "Ctrl". See
-    /// <https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/keys-keyboard-shortcuts>.
-    ///
-    /// On other platforms, the super key is referred to as "Super".
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ModifierKeyCode::LeftShift => write!(f, "Left Shift"),
-            ModifierKeyCode::LeftHyper => write!(f, "Left Hyper"),
-            ModifierKeyCode::LeftMeta => write!(f, "Left Meta"),
-            ModifierKeyCode::RightShift => write!(f, "Right Shift"),
-            ModifierKeyCode::RightHyper => write!(f, "Right Hyper"),
-            ModifierKeyCode::RightMeta => write!(f, "Right Meta"),
-            ModifierKeyCode::IsoLevel3Shift => write!(f, "Iso Level 3 Shift"),
-            ModifierKeyCode::IsoLevel5Shift => write!(f, "Iso Level 5 Shift"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::LeftControl => write!(f, "Left Control"),
-            #[cfg(not(target_os = "macos"))]
-            ModifierKeyCode::LeftControl => write!(f, "Left Ctrl"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::LeftAlt => write!(f, "Left Option"),
-            #[cfg(not(target_os = "macos"))]
-            ModifierKeyCode::LeftAlt => write!(f, "Left Alt"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::LeftSuper => write!(f, "Left Command"),
-            #[cfg(target_os = "windows")]
-            ModifierKeyCode::LeftSuper => write!(f, "Left Windows"),
-            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-            ModifierKeyCode::LeftSuper => write!(f, "Left Super"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::RightControl => write!(f, "Right Control"),
-            #[cfg(not(target_os = "macos"))]
-            ModifierKeyCode::RightControl => write!(f, "Right Ctrl"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::RightAlt => write!(f, "Right Option"),
-            #[cfg(not(target_os = "macos"))]
-            ModifierKeyCode::RightAlt => write!(f, "Right Alt"),
-
-            #[cfg(target_os = "macos")]
-            ModifierKeyCode::RightSuper => write!(f, "Right Command"),
-            #[cfg(target_os = "windows")]
-            ModifierKeyCode::RightSuper => write!(f, "Right Windows"),
-            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-            ModifierKeyCode::RightSuper => write!(f, "Right Super"),
-        }
-    }
-}
-
-/// Represents a key.
-#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "derive-more", derive(IsVariant))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum KeyCode {
-    /// Backspace key (Delete on macOS, Backspace on other platforms).
-    Backspace,
-    /// Enter key.
-    Enter,
-    /// Left arrow key.
-    Left,
-    /// Right arrow key.
-    Right,
-    /// Up arrow key.
-    Up,
-    /// Down arrow key.
-    Down,
-    /// Home key.
-    Home,
-    /// End key.
-    End,
-    /// Page up key.
-    PageUp,
-    /// Page down key.
-    PageDown,
-    /// Tab key.
-    Tab,
-    /// Shift + Tab key.
-    BackTab,
-    /// Delete key. (Fn+Delete on macOS, Delete on other platforms)
-    Delete,
-    /// Insert key.
-    Insert,
-    /// F key.
-    ///
-    /// `KeyCode::F(1)` represents F1 key, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
-    F(u8),
-    /// A character.
-    ///
-    /// `KeyCode::Char('c')` represents `c` character, etc.
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
-    Char(char),
-    /// Null.
-    Null,
-    /// Escape key.
-    Esc,
-    /// Caps Lock key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    CapsLock,
-    /// Scroll Lock key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    ScrollLock,
-    /// Num Lock key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    NumLock,
-    /// Print Screen key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    PrintScreen,
-    /// Pause key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    Pause,
-    /// Menu key.
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    Menu,
-    /// The "Begin" key (often mapped to the 5 key when Num Lock is turned on).
-    ///
-    /// **Note:** this key can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    KeypadBegin,
-    /// A media key.
-    ///
-    /// **Note:** these keys can only be read if
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
-    Media(MediaKeyCode),
-    /// A modifier key.
-    ///
-    /// **Note:** these keys can only be read if **both**
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
-    /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] have been enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    #[cfg_attr(feature = "derive-more", is_variant(ignore))]
-    Modifier(ModifierKeyCode),
-}
-
-impl KeyCode {
-    /// Returns `true` if the key code is the given function key.
+impl From<KeyEvent> for Event {
+    /// Wraps a key event in [`Event::Key`].
     ///
     /// # Examples
     ///
     /// ```
-    /// # use crossterm::event::KeyCode;
-    /// assert!(KeyCode::F(1).is_function_key(1));
-    /// assert!(!KeyCode::F(1).is_function_key(2));
+    /// use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    ///
+    /// let key = KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL);
+    /// let event: Event = key.into();
+    /// assert_eq!(event, Event::Key(key));
     /// ```
-    pub fn is_function_key(&self, n: u8) -> bool {
-        matches!(self, KeyCode::F(m) if *m == n)
-    }
-
-    /// Returns `true` if the key code is the given character.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use crossterm::event::KeyCode;
-    /// assert!(KeyCode::Char('a').is_char('a'));
-    /// assert!(!KeyCode::Char('a').is_char('b'));
-    /// assert!(!KeyCode::F(1).is_char('a'));
-    /// ```
-    pub fn is_char(&self, c: char) -> bool {
-        matches!(self, KeyCode::Char(m) if *m == c)
-    }
-
-    /// Returns the character if the key code is a character key.
-    ///
-    /// Returns `None` if the key code is not a character key.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use crossterm::event::KeyCode;
-    /// assert_eq!(KeyCode::Char('a').as_char(), Some('a'));
-    /// assert_eq!(KeyCode::F(1).as_char(), None);
-    /// ```
-    pub fn as_char(&self) -> Option<char> {
-        match self {
-            KeyCode::Char(c) => Some(*c),
-            _ => None,
-        }
-    }
-
-    /// Returns `true` if the key code is the given media key.
-    ///
-    /// **Note:** this method requires
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] to be enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use crossterm::event::{KeyCode, MediaKeyCode};
-    /// assert!(KeyCode::Media(MediaKeyCode::Play).is_media_key(MediaKeyCode::Play));
-    /// assert!(!KeyCode::Media(MediaKeyCode::Play).is_media_key(MediaKeyCode::Pause));
-    /// ```
-    pub fn is_media_key(&self, media: MediaKeyCode) -> bool {
-        matches!(self, KeyCode::Media(m) if *m == media)
-    }
-
-    /// Returns `true` if the key code is the given modifier key.
-    ///
-    /// **Note:** this method requires both
-    /// [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] and
-    /// [`KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES`] to be enabled with
-    /// [`PushKeyboardEnhancementFlags`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use crossterm::event::{KeyCode, ModifierKeyCode};
-    /// assert!(KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::LeftShift));
-    /// assert!(!KeyCode::Modifier(ModifierKeyCode::LeftShift).is_modifier(ModifierKeyCode::RightShift));
-    /// ```
-    pub fn is_modifier(&self, modifier: ModifierKeyCode) -> bool {
-        matches!(self, KeyCode::Modifier(m) if *m == modifier)
+    fn from(event: KeyEvent) -> Self {
+        Event::Key(event)
     }
 }
 
-impl Display for KeyCode {
-    /// Formats the `KeyCode` using the given formatter.
+impl From<MouseEvent> for Event {
+    /// Wraps a mouse event in [`Event::Mouse`].
     ///
-    /// # Platform-specific Notes
+    /// # Examples
     ///
-    /// On macOS, the Backspace key is displayed as "Delete", the Delete key is displayed as "Fwd
-    /// Del", and the Enter key is displayed as "Return". See
-    /// <https://support.apple.com/guide/applestyleguide/welcome/1.0/web>.
+    /// ```
+    /// use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
     ///
-    /// On other platforms, the Backspace key is displayed as "Backspace", the Delete key is
-    /// displayed as "Del", and the Enter key is displayed as "Enter".
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            // On macOS, the Backspace key is called "Delete" and the Delete key is called "Fwd Del".
-            #[cfg(target_os = "macos")]
-            KeyCode::Backspace => write!(f, "Delete"),
-            #[cfg(target_os = "macos")]
-            KeyCode::Delete => write!(f, "Fwd Del"),
-
-            #[cfg(not(target_os = "macos"))]
-            KeyCode::Backspace => write!(f, "Backspace"),
-            #[cfg(not(target_os = "macos"))]
-            KeyCode::Delete => write!(f, "Del"),
-
-            #[cfg(target_os = "macos")]
-            KeyCode::Enter => write!(f, "Return"),
-            #[cfg(not(target_os = "macos"))]
-            KeyCode::Enter => write!(f, "Enter"),
-            KeyCode::Left => write!(f, "Left"),
-            KeyCode::Right => write!(f, "Right"),
-            KeyCode::Up => write!(f, "Up"),
-            KeyCode::Down => write!(f, "Down"),
-            KeyCode::Home => write!(f, "Home"),
-            KeyCode::End => write!(f, "End"),
-            KeyCode::PageUp => write!(f, "Page Up"),
-            KeyCode::PageDown => write!(f, "Page Down"),
-            KeyCode::Tab => write!(f, "Tab"),
-            KeyCode::BackTab => write!(f, "Back Tab"),
-            KeyCode::Insert => write!(f, "Insert"),
-            KeyCode::F(n) => write!(f, "F{n}"),
-            KeyCode::Char(c) => match c {
-                // special case for non-visible characters
-                ' ' => write!(f, "Space"),
-                c => write!(f, "{c}"),
-            },
-            KeyCode::Null => write!(f, "Null"),
-            KeyCode::Esc => write!(f, "Esc"),
-            KeyCode::CapsLock => write!(f, "Caps Lock"),
-            KeyCode::ScrollLock => write!(f, "Scroll Lock"),
-            KeyCode::NumLock => write!(f, "Num Lock"),
-            KeyCode::PrintScreen => write!(f, "Print Screen"),
-            KeyCode::Pause => write!(f, "Pause"),
-            KeyCode::Menu => write!(f, "Menu"),
-            KeyCode::KeypadBegin => write!(f, "Begin"),
-            KeyCode::Media(media) => write!(f, "{media}"),
-            KeyCode::Modifier(modifier) => write!(f, "{modifier}"),
-        }
+    /// let mouse = MouseEvent::new(MouseEventKind::Down(MouseButton::Left), 3, 7, KeyModifiers::NONE);
+    /// let event: Event = mouse.into();
+    /// assert_eq!(event, Event::Mouse(mouse));
+    /// ```
+    fn from(event: MouseEvent) -> Self {
+        Event::Mouse(event)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
     use super::*;
-    use KeyCode::*;
-    use MediaKeyCode::*;
-    use ModifierKeyCode::*;
-
-    #[test]
-    fn test_equality() {
-        let lowercase_d_with_shift = KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT);
-        let uppercase_d_with_shift = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT);
-        let uppercase_d = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE);
-        assert_eq!(lowercase_d_with_shift, uppercase_d_with_shift);
-        assert_eq!(uppercase_d, uppercase_d_with_shift);
-    }
-
-    #[test]
-    fn test_hash() {
-        let lowercase_d_with_shift_hash = {
-            let mut hasher = DefaultHasher::new();
-            KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT).hash(&mut hasher);
-            hasher.finish()
-        };
-        let uppercase_d_with_shift_hash = {
-            let mut hasher = DefaultHasher::new();
-            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT).hash(&mut hasher);
-            hasher.finish()
-        };
-        let uppercase_d_hash = {
-            let mut hasher = DefaultHasher::new();
-            KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE).hash(&mut hasher);
-            hasher.finish()
-        };
-        assert_eq!(lowercase_d_with_shift_hash, uppercase_d_with_shift_hash);
-        assert_eq!(uppercase_d_hash, uppercase_d_with_shift_hash);
-    }
-
-    #[test]
-    fn keycode_display() {
-        #[cfg(target_os = "macos")]
-        {
-            assert_eq!(format!("{Backspace}"), "Delete");
-            assert_eq!(format!("{Delete}"), "Fwd Del");
-            assert_eq!(format!("{Enter}"), "Return");
-        }
-        #[cfg(not(target_os = "macos"))]
-        {
-            assert_eq!(format!("{}", Backspace), "Backspace");
-            assert_eq!(format!("{}", Delete), "Del");
-            assert_eq!(format!("{}", Enter), "Enter");
-        }
-        assert_eq!(format!("{Left}"), "Left");
-        assert_eq!(format!("{Right}"), "Right");
-        assert_eq!(format!("{Up}"), "Up");
-        assert_eq!(format!("{Down}"), "Down");
-        assert_eq!(format!("{Home}"), "Home");
-        assert_eq!(format!("{End}"), "End");
-        assert_eq!(format!("{PageUp}"), "Page Up");
-        assert_eq!(format!("{PageDown}"), "Page Down");
-        assert_eq!(format!("{Tab}"), "Tab");
-        assert_eq!(format!("{BackTab}"), "Back Tab");
-        assert_eq!(format!("{Insert}"), "Insert");
-        assert_eq!(format!("{}", F(1)), "F1");
-        assert_eq!(format!("{}", Char('a')), "a");
-        assert_eq!(format!("{Null}"), "Null");
-        assert_eq!(format!("{Esc}"), "Esc");
-        assert_eq!(format!("{CapsLock}"), "Caps Lock");
-        assert_eq!(format!("{ScrollLock}"), "Scroll Lock");
-        assert_eq!(format!("{NumLock}"), "Num Lock");
-        assert_eq!(format!("{PrintScreen}"), "Print Screen");
-        assert_eq!(format!("{}", KeyCode::Pause), "Pause");
-        assert_eq!(format!("{Menu}"), "Menu");
-        assert_eq!(format!("{KeypadBegin}"), "Begin");
-    }
-
-    #[test]
-    fn media_keycode_display() {
-        assert_eq!(format!("{}", Media(Play)), "Play");
-        assert_eq!(format!("{}", Media(MediaKeyCode::Pause)), "Pause");
-        assert_eq!(format!("{}", Media(PlayPause)), "Play/Pause");
-        assert_eq!(format!("{}", Media(Reverse)), "Reverse");
-        assert_eq!(format!("{}", Media(Stop)), "Stop");
-        assert_eq!(format!("{}", Media(FastForward)), "Fast Forward");
-        assert_eq!(format!("{}", Media(Rewind)), "Rewind");
-        assert_eq!(format!("{}", Media(TrackNext)), "Next Track");
-        assert_eq!(format!("{}", Media(TrackPrevious)), "Previous Track");
-        assert_eq!(format!("{}", Media(Record)), "Record");
-        assert_eq!(format!("{}", Media(LowerVolume)), "Lower Volume");
-        assert_eq!(format!("{}", Media(RaiseVolume)), "Raise Volume");
-        assert_eq!(format!("{}", Media(MuteVolume)), "Mute Volume");
-    }
-
-    #[test]
-    fn modifier_keycode_display() {
-        assert_eq!(format!("{}", Modifier(LeftShift)), "Left Shift");
-        assert_eq!(format!("{}", Modifier(LeftHyper)), "Left Hyper");
-        assert_eq!(format!("{}", Modifier(LeftMeta)), "Left Meta");
-        assert_eq!(format!("{}", Modifier(RightShift)), "Right Shift");
-        assert_eq!(format!("{}", Modifier(RightHyper)), "Right Hyper");
-        assert_eq!(format!("{}", Modifier(RightMeta)), "Right Meta");
-        assert_eq!(format!("{}", Modifier(IsoLevel3Shift)), "Iso Level 3 Shift");
-        assert_eq!(format!("{}", Modifier(IsoLevel5Shift)), "Iso Level 5 Shift");
-    }
-
-    #[cfg(target_os = "macos")]
-    #[test]
-    fn modifier_keycode_display_macos() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Control");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Option");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Command");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Control");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Option");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Command");
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn modifier_keycode_display_windows() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Windows");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Windows");
-    }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    #[test]
-    fn modifier_keycode_display_other() {
-        assert_eq!(format!("{}", Modifier(LeftControl)), "Left Ctrl");
-        assert_eq!(format!("{}", Modifier(LeftAlt)), "Left Alt");
-        assert_eq!(format!("{}", Modifier(LeftSuper)), "Left Super");
-        assert_eq!(format!("{}", Modifier(RightControl)), "Right Ctrl");
-        assert_eq!(format!("{}", Modifier(RightAlt)), "Right Alt");
-        assert_eq!(format!("{}", Modifier(RightSuper)), "Right Super");
-    }
-
-    #[test]
-    fn key_modifiers_display() {
-        let modifiers = KeyModifiers::SHIFT | KeyModifiers::CONTROL | KeyModifiers::ALT;
-
-        #[cfg(target_os = "macos")]
-        assert_eq!(modifiers.to_string(), "Shift+Control+Option");
-
-        #[cfg(target_os = "windows")]
-        assert_eq!(modifiers.to_string(), "Shift+Ctrl+Alt");
-
-        #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-        assert_eq!(modifiers.to_string(), "Shift+Control+Alt");
-    }
 
     const ESC_PRESSED: KeyEvent =
         KeyEvent::new_with_kind(KeyCode::Esc, KeyModifiers::empty(), KeyEventKind::Press);
@@ -1700,7 +599,6 @@ mod tests {
         modifiers: KeyModifiers::empty(),
     };
 
-    #[cfg(feature = "derive-more")]
     #[test]
     fn event_is() {
         let event = Event::FocusGained;
@@ -1790,20 +688,5 @@ mod tests {
             assert_eq!(event.as_paste_event(), Some(""));
             assert_eq!(event.as_key_event(), None);
         }
-    }
-
-    #[test]
-    fn event_button() {
-        let event = MouseEventKind::Down(MouseButton::Left);
-        assert_eq!(event.button(), Some(MouseButton::Left));
-
-        let event = MouseEventKind::Up(MouseButton::Right);
-        assert_eq!(event.button(), Some(MouseButton::Right));
-
-        let event = MouseEventKind::Drag(MouseButton::Middle);
-        assert_eq!(event.button(), Some(MouseButton::Middle));
-
-        let event = MouseEventKind::Moved;
-        assert_eq!(event.button(), None);
     }
 }

@@ -1,6 +1,6 @@
 <h1 align="center"><img width="440" src="docs/crossterm_full.png" /></h1>
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2) ![Travis][s7] [![Latest Version][s1]][l1] [![MIT][s2]][l2] [![docs][s3]][l3] ![Lines of Code][s6] [![Join us on Discord][s5]][l5]
+[![Donate][s1]][l1] [![GitHub Actions][s2]][l2] [![Latest Version][s3]][l3] [![MIT][s4]][l4] [![Docs][s5]][l5]
 
 # Cross-platform Terminal Manipulation Library 
 
@@ -152,8 +152,7 @@ features = ["event-stream"]
 | `event-stream` | `futures::Stream` producing `Result<Event>`. |
 | `serde`        | (De)serializing of events.                   |
 | `events`        | Reading input/system events (enabled by default) |
-| `filedescriptor` | Use raw filedescriptor for all events rather then mio dependency |
-| `derive-more`  | Adds `is_*` helper functions for event types |
+| `filedescriptor` | Use raw filedescriptor for all events rather than mio dependency |
 | `osc52`        | Enables crossterm::clipboard                 |
 
 
@@ -164,15 +163,14 @@ This can disable `mio` / `signal-hook` / `signal-hook-mio` dependencies.
 
 | Dependency     | Used for                                                                         | Included                              |
 |:---------------|:---------------------------------------------------------------------------------|:--------------------------------------|
-| `bitflags`     | `KeyModifiers`, those are differ based on input.                                 | always                                |
+| `bitflags`     | `KeyModifiers`, those differ based on input.                                     | always                                |
 | `parking_lot`  | locking `RwLock`s with a timeout, const mutexes.                                 | always                                |
-| `libc`         | UNIX terminal_size/raw modes/set_title and several other low level functionality. | optional (`events` feature), UNIX only |
+| `rustix`       | UNIX terminal size/raw modes and other low-level functionality.                   | UNIX only                              |
 | `Mio`          | event readiness polling, waking up poller                                        | optional (`events` feature), UNIX only |
 | `signal-hook`  | signal-hook is used to handle terminal resize SIGNAL with Mio.                   |  optional (`events` feature),UNIX only |
 | `winapi`       | Used for low-level windows system calls which ANSI codes can't replace           | windows only                          |
 | `futures-core` | For async stream of events                                                       | only with `event-stream` feature flag |
 | `serde`        | ***ser***ializing and ***de***serializing of events                              | only with `serde` feature flag        |
-| `derive_more`  | Adds `is_*` helper functions for event types                                     | optional (`derive-more` feature), included by default |
 | `base64`       | Encoding clipboard data for OSC52 sequences in crossterm::clipboard              | only with `osc52` feature flag        |
 
 ### Other Resources
@@ -203,20 +201,17 @@ This project, `crossterm` and all its sub-crates: `crossterm_screen`, `crossterm
 `crossterm_input`, `crossterm_terminal`, `crossterm_winapi`, `crossterm_utils` are licensed under the MIT
 License - see the [LICENSE](https://github.com/crossterm-rs/crossterm/blob/master/LICENSE) file for details.
 
-[s1]: https://img.shields.io/crates/v/crossterm.svg
-[l1]: https://crates.io/crates/crossterm
+[s1]: https://img.shields.io/badge/Donate-PayPal-green.svg
+[l1]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z8QK6XU749JB2
 
-[s2]: https://img.shields.io/badge/license-MIT-blue.svg
-[l2]: ./LICENSE
+[s2]: https://github.com/crossterm-rs/crossterm/actions/workflows/ci.yml/badge.svg
+[l2]: https://github.com/crossterm-rs/crossterm/actions
 
-[s3]: https://docs.rs/crossterm/badge.svg
-[l3]: https://docs.rs/crossterm/
+[s3]: https://img.shields.io/crates/v/crossterm.svg
+[l3]: https://crates.io/crates/crossterm
 
-[s3]: https://docs.rs/crossterm/badge.svg
-[l3]: https://docs.rs/crossterm/
+[s4]: https://img.shields.io/badge/license-MIT-blue.svg
+[l4]: ./LICENSE
 
-[s5]: https://img.shields.io/discord/560857607196377088.svg?logo=discord
-[l5]: https://discord.gg/K4nyTDB
-
-[s6]: https://tokei.rs/b1/github/crossterm-rs/crossterm?category=code
-[s7]: https://travis-ci.org/crossterm-rs/crossterm.svg?branch=master
+[s5]: https://docs.rs/crossterm/badge.svg
+[l5]: https://docs.rs/crossterm

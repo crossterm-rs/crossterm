@@ -11,7 +11,7 @@ use crate::style::{Color, Colored};
 ///
 /// For example:
 /// ```no_run
-/// use crossterm::style::{Color, Colors, Colored};
+/// use crossterm::style::{Color, Colored, Colors};
 ///
 /// // An example color, loaded from a config, file in ANSI format.
 /// let config_color = "38;2;23;147;209";

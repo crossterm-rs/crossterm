@@ -82,6 +82,7 @@ mod stats {
                         | MouseEventKind::ScrollLeft
                         | MouseEventKind::ScrollRight => self.mouse_wheels += 1,
                         MouseEventKind::Moved => unreachable!(),
+                        _ => {}
                     }
                 }
                 Event::Key(key) if key.code == KeyCode::Esc => self.clear_duplicate_state(),

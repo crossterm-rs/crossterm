@@ -17,8 +17,9 @@ use winapi::{
 static SAVED_CURSOR_POS: AtomicU64 = AtomicU64::new(u64::MAX);
 
 // The 'y' position of the cursor is not relative to the window but absolute to screen buffer.
-// We can calculate the relative cursor position by subtracting the top position of the terminal window from the y position.
-// This results in an 1-based coord zo subtract 1 to make cursor position 0-based.
+// We can calculate the relative cursor position by subtracting the top position of the terminal
+// window from the y position. This results in an 1-based coord zo subtract 1 to make cursor
+// position 0-based.
 pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window = ScreenBuffer::current()?.info()?;
 

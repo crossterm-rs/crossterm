@@ -3,7 +3,7 @@ use std::fmt::Display;
 use super::{Attribute, Color, ContentStyle, StyledContent, style};
 
 macro_rules! stylize_method {
-    ($method_name:ident Attribute::$attribute:ident) => {
+    ($method_name:ident Attribute:: $attribute:ident) => {
         calculated_docs! {
             #[doc = concat!(
                 "Applies the [`",
@@ -17,7 +17,7 @@ macro_rules! stylize_method {
             }
         }
     };
-    ($method_name_fg:ident, $method_name_bg:ident, $method_name_ul:ident Color::$color:ident) => {
+    ($method_name_fg:ident, $method_name_bg:ident, $method_name_ul:ident Color:: $color:ident) => {
         calculated_docs! {
             #[doc = concat!(
                 "Sets the foreground color to [`",

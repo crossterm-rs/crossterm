@@ -83,11 +83,12 @@ pub fn read_char() -> io::Result<char> {
 }
 
 // cargo run --example stderr
-fn main() {
-    match run_app(&mut io::stderr()).unwrap() {
+fn main() -> io::Result<()> {
+    match run_app(&mut io::stderr())? {
         '1' => print!(".."),
         '2' => print!("/"),
         '3' => print!("~"),
         _ => println!("{TEXT}"),
     }
+    Ok(())
 }

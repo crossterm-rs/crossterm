@@ -106,8 +106,8 @@ impl FromStr for ClipboardSelection {
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::execute;
 /// use crossterm::clipboard::CopyToClipboard;
+/// use crossterm::execute;
 /// // Copy foo to clipboard
 /// execute!(std::io::stdout(), CopyToClipboard::to_clipboard_from("foo"));
 /// // Copy bar to primary
@@ -135,8 +135,7 @@ impl FromStr for ClipboardSelection {
 /// 1. 20240203-110809-5046fc22
 /// 2. set-clipboard set to [external](https://github.com/tmux/tmux/wiki/Clipboard#how-it-works),
 ///    i.e. this is OSC52 pass-through.
-/// 3. This was tested on wayland with the
-///    [primary selection protocol](https://wayland.app/protocols/primary-selection-unstable-v1)
+/// 3. This was tested on wayland with the [primary selection protocol](https://wayland.app/protocols/primary-selection-unstable-v1)
 ///    enabled.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CopyToClipboard<T> {
@@ -177,8 +176,8 @@ impl<T: AsRef<[u8]>> CopyToClipboard<T> {
     /// # Example
     ///
     /// ```no_run
-    /// use crossterm::{execute, Command};
     /// use crossterm::clipboard::CopyToClipboard;
+    /// use crossterm::{Command, execute};
     /// execute!(std::io::stdout(), CopyToClipboard::to_clipboard_from("foo"));
     /// ```
     pub fn to_clipboard_from(content: T) -> CopyToClipboard<T> {
@@ -194,8 +193,8 @@ impl<T: AsRef<[u8]>> CopyToClipboard<T> {
     /// # Example
     ///
     /// ```no_run
-    /// use crossterm::execute;
     /// use crossterm::clipboard::CopyToClipboard;
+    /// use crossterm::execute;
     /// execute!(std::io::stdout(), CopyToClipboard::to_primary_from("foo"));
     /// ```
     pub fn to_primary_from(content: T) -> CopyToClipboard<T> {
