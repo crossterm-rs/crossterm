@@ -457,9 +457,7 @@ mod windows {
         if let Err(error) = disable_raw_result {
             cleanup_error.get_or_insert(error);
         }
-        if let Err(error) = session_result {
-            return Err(error);
-        }
+        session_result?;
         if let Some(error) = cleanup_error {
             return Err(error);
         }

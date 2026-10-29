@@ -1,12 +1,16 @@
 //! Platform-independent console mode bit manipulation.
 
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 use std::io;
 
+#[cfg(any(test, feature = "events"))]
 const ENABLE_MOUSE_MODE: u32 = 0x0010 | 0x0080 | 0x0008;
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 const ENABLE_VIRTUAL_TERMINAL_INPUT: u32 = 0x0200;
 pub(crate) const NOT_RAW_MODE_MASK: u32 = 0x0001 | 0x0002 | 0x0004;
 
 /// Lifecycle state for bracketed paste's optional console-side VT transport.
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum BracketedPasteState {
@@ -16,6 +20,7 @@ pub(crate) enum BracketedPasteState {
     NoConsole = 3,
 }
 
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 impl BracketedPasteState {
     pub(crate) fn from_raw(raw: u8) -> Self {
         match raw {
@@ -39,6 +44,7 @@ impl BracketedPasteState {
 /// Return whether a Win32 console operation failed because no console input
 /// handle exists. Keep this deliberately narrow: access denied and all other
 /// failures must remain visible to callers.
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 pub(crate) fn is_console_unavailable_error(error: &io::Error) -> bool {
     matches!(error.raw_os_error(), Some(2 | 6)) // ERROR_FILE_NOT_FOUND / ERROR_INVALID_HANDLE
 }
@@ -61,11 +67,13 @@ pub(crate) fn compute_disable_raw_mode(current: u32) -> u32 {
 /// Restore the three mouse bits from the saved snapshot, as the previous
 /// `set_mode(original)` did, while taking every unrelated bit from the current
 /// mode. This preserves VT input and raw-mode bits that crossterm may have set.
+#[cfg(any(test, feature = "events"))]
 pub(crate) fn compute_disable_mouse_capture_mode(current: u32, original: u32) -> u32 {
     (current & !ENABLE_MOUSE_MODE) | (original & ENABLE_MOUSE_MODE)
 }
 
 /// Restore only the VT-input bit from a saved mode or feature state.
+#[cfg(any(test, all(feature = "events", feature = "bracketed-paste")))]
 pub(crate) fn compute_restore_vt_input_mode(current: u32, original: u32) -> u32 {
     (current & !ENABLE_VIRTUAL_TERMINAL_INPUT) | (original & ENABLE_VIRTUAL_TERMINAL_INPUT)
 }

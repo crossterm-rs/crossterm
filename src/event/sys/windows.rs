@@ -6,6 +6,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use crossterm_winapi::{ConsoleMode, Handle};
 
+#[cfg(feature = "bracketed-paste")]
 use crate::terminal::sys::windows_mode::BracketedPasteState;
 
 pub(crate) mod parse;
@@ -22,12 +23,14 @@ pub(crate) const ENABLE_VIRTUAL_TERMINAL_INPUT: u32 = 0x0200;
 /// console mode if it's initialized.
 static ORIGINAL_CONSOLE_MODE: AtomicU64 = AtomicU64::new(u64::MAX);
 
+#[cfg(feature = "bracketed-paste")]
 impl BracketedPasteState {
     fn load() -> Self {
         Self::from_raw(BRACKETED_PASTE_STATE.load(Ordering::Relaxed))
     }
 }
 
+#[cfg(feature = "bracketed-paste")]
 static BRACKETED_PASTE_STATE: std::sync::atomic::AtomicU8 =
     std::sync::atomic::AtomicU8::new(BracketedPasteState::Inactive.as_raw());
 
@@ -54,6 +57,7 @@ pub(crate) fn original_console_mode() -> std::io::Result<u32> {
 /// before this enable in the paste-specific lifecycle state. Raw mode and
 /// mouse capture use a separate first-touch snapshot and do not call this
 /// function. A repeated enable keeps the first saved state.
+#[cfg(feature = "bracketed-paste")]
 pub(crate) fn enable_bracketed_paste() -> std::io::Result<()> {
     if !matches!(BracketedPasteState::load(), BracketedPasteState::Inactive) {
         return Ok(());
@@ -92,6 +96,7 @@ pub(crate) fn enable_bracketed_paste() -> std::io::Result<()> {
 /// lifecycle state is consumed only after restoration succeeds, so a failed
 /// restore can be retried. A disable without an active paste state is safe and
 /// leaves the console mode untouched.
+#[cfg(feature = "bracketed-paste")]
 pub(crate) fn disable_bracketed_paste() -> std::io::Result<()> {
     let state = BracketedPasteState::load();
     if matches!(

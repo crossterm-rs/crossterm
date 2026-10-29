@@ -565,7 +565,7 @@ mod tests {
             let log = Rc::new(RefCell::new(Vec::new()));
             let command = ordered_command(&log, true, WinApiAnsiTiming::BeforeAnsiAndFlush, false);
             assert_eq!(
-                (&command).winapi_ansi_timing(),
+                <&_ as Command>::winapi_ansi_timing(&&command),
                 WinApiAnsiTiming::BeforeAnsiAndFlush
             );
         }

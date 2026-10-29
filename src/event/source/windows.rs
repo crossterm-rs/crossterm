@@ -112,7 +112,7 @@ impl EventSource for WindowsEventSource {
                                 let suppress_alt_numpad = vt_input_enabled
                                     && parse::suppress_alt_numpad_duplicate(
                                         &mut self.alt_numpad_pending,
-                                        record.virtual_key_code as u16,
+                                        record.virtual_key_code,
                                         record.key_down,
                                         record.u_char,
                                         KeyModifiers::from(&record.control_key_state)
