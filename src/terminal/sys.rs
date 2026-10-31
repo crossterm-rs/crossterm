@@ -7,6 +7,8 @@ pub use self::unix::supports_keyboard_enhancement;
 pub(crate) use self::unix::{
     disable_raw_mode, enable_raw_mode, is_raw_mode_enabled, size, window_size,
 };
+#[cfg(all(windows, feature = "events"))]
+pub(crate) use self::windows::is_raw_mode_from_console_mode;
 #[cfg(windows)]
 #[cfg(feature = "events")]
 pub use self::windows::supports_keyboard_enhancement;
@@ -20,6 +22,9 @@ pub(crate) use self::windows::{
 
 #[cfg(windows)]
 mod windows;
+
+#[cfg(any(windows, test))]
+pub(crate) mod windows_mode;
 
 #[cfg(unix)]
 pub mod file_descriptor;
