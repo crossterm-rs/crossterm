@@ -46,8 +46,13 @@ impl Default for EventStream {
         thread::spawn(move || {
             while let Ok(task) = receiver.recv() {
                 loop {
-                    if let Ok(true) = internal::poll(None, &EventFilter) {
-                        break;
+                    match internal::poll(None, &EventFilter) {
+                        // An event is ready for the stream to pick up.
+                        Ok(true) => break,
+                        // The source failed, which for a terminal means it is gone. Wake the
+                        // stream so `poll_next` reports the error instead of retrying forever.
+                        Err(_) => break,
+                        Ok(false) => {}
                     }
 
                     if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
