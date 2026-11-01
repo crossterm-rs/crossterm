@@ -96,13 +96,22 @@ impl EventSource for UnixInternalEventSource {
                     TTY_TOKEN => {
                         loop {
                             match self.tty_fd.read(&mut self.tty_buffer) {
+                                // EOF on a terminal means the terminal is gone (the master side
+                                // of the pty was closed by an exiting emulator, a dropped ssh
+                                // connection, a container teardown, ...). `poll` keeps reporting
+                                // the descriptor as ready and `read` keeps returning zero, so
+                                // retrying here spins a core forever.
+                                Ok(0) => {
+                                    return Err(io::Error::new(
+                                        io::ErrorKind::UnexpectedEof,
+                                        "the terminal has no more input",
+                                    ));
+                                }
                                 Ok(read_count) => {
-                                    if read_count > 0 {
-                                        self.parser.advance(
-                                            &self.tty_buffer[..read_count],
-                                            read_count == TTY_BUFFER_SIZE,
-                                        );
-                                    }
+                                    self.parser.advance(
+                                        &self.tty_buffer[..read_count],
+                                        read_count == TTY_BUFFER_SIZE,
+                                    );
                                 }
                                 Err(e) => {
                                     // No more data to read at the moment. We will receive another
@@ -114,6 +123,9 @@ impl EventSource for UnixInternalEventSource {
                                     else if e.kind() == io::ErrorKind::Interrupted {
                                         continue;
                                     }
+                                    // Reading a terminal fails once it is gone (EIO on a closed
+                                    // pty), and no amount of retrying brings it back.
+                                    return Err(e);
                                 }
                             };
 
@@ -222,5 +234,35 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::mpsc;
+    use std::thread;
+
+    /// A terminal that hangs up reports end of file forever, and `poll` keeps
+    /// reporting it as ready. The source has to surface that as an error; retrying
+    /// turns into a busy loop that never yields.
+    #[test]
+    fn closed_input_is_reported_as_an_error() {
+        let (input, peer) = std::os::unix::net::UnixStream::pair().expect("socket pair");
+        drop(peer);
+
+        let fd = FileDesc::Owned(input.into());
+        let mut source = UnixInternalEventSource::from_file_descriptor(fd).expect("event source");
+
+        let (done_tx, done_rx) = mpsc::channel();
+        thread::spawn(move || {
+            let _ = done_tx.send(source.try_read(Some(Duration::ZERO)).map(|_| ()));
+        });
+
+        let error = done_rx
+            .recv_timeout(Duration::from_secs(5))
+            .expect("reading a closed input retried instead of returning")
+            .expect_err("a closed input must not look like a timeout");
+        assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
     }
 }

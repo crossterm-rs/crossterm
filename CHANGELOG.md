@@ -49,6 +49,11 @@
   cursor path when the requested count went past the edge (panic in debug, wrap
   in release). `MoveUp`, `MoveLeft`, `MoveToPreviousLine`, `MoveRight`,
   `MoveDown`, and `MoveToNextLine` now clamp at the screen buffer edge.
+- Fix a busy loop when the input terminal hangs up. Reading a terminal that
+  reported end of file (or `EIO`, e.g. after the pty master went away) was
+  retried forever, so a single `poll`/`read` call never returned and
+  `EventStream` pinned a core instead of yielding. The failure now surfaces as
+  `io::ErrorKind::UnexpectedEof` (or the underlying error).
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
