@@ -193,6 +193,19 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
     Some(ch)
 }
 
+/// Returns the Ctrl+letter key code for a letter index, from 0 for A to 25 for Z.
+///
+/// Only Shift selects the uppercase letter. Caps Lock changes neither the control code nor the
+/// virtual key, and on Unix Ctrl+letter with Caps Lock arrives as the same control byte.
+fn ctrl_letter(index: u8, modifiers: KeyModifiers) -> KeyCode {
+    let letter = char::from(b'a' + index);
+    if modifiers.contains(KeyModifiers::SHIFT) {
+        KeyCode::Char(letter.to_ascii_uppercase())
+    } else {
+        KeyCode::Char(letter)
+    }
+}
+
 fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent> {
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
     let virtual_key_code = key_event.virtual_key_code as i32;
@@ -251,7 +264,22 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
         VK_TAB => Some(KeyCode::Tab),
         _ => {
             let utf16 = key_event.u_char;
+            // Windows reports AltGr as Ctrl+Alt, and AltGr types layout characters, so only Ctrl
+            // without Alt makes a Ctrl+letter shortcut.
+            let ctrl_without_alt =
+                modifiers.contains(KeyModifiers::CONTROL) && !modifiers.contains(KeyModifiers::ALT);
             match utf16 {
+                // Windows reports Ctrl+A to Ctrl+Z as the control codes 0x01..=0x1a. Looking the
+                // key up in the active layout instead would report that layout's character, such
+                // as Cyrillic 'з' for Ctrl+Z.
+                control_code @ 0x01..=0x1a if ctrl_without_alt => {
+                    Some(ctrl_letter((control_code - 0x01) as u8, modifiers))
+                }
+                // Some layouts, such as Armenian, report Ctrl+Shift+letter with no character. The
+                // virtual key still names the letter: 0x41..=0x5a are VK_A to VK_Z.
+                0x00 if ctrl_without_alt && (0x41..=0x5a).contains(&virtual_key_code) => {
+                    Some(ctrl_letter((virtual_key_code - 0x41) as u8, modifiers))
+                }
                 0x00..=0x1f => {
                     // Some key combinations generate either no u_char value or generate control
                     // codes. To deliver back a KeyCode::Char(...) event we want to know which
@@ -369,4 +397,168 @@ fn parse_mouse_event_record(
         row: ypos,
         modifiers,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm_winapi::InputRecord;
+    use winapi::um::wincon::{INPUT_RECORD, KEY_EVENT};
+
+    use super::*;
+
+    const VK_A: u16 = 0x41;
+    const VK_C: u16 = 0x43;
+    const VK_Z: u16 = 0x5a;
+
+    fn key_record(
+        virtual_key_code: u16,
+        u_char: u16,
+        control_key_state: u32,
+        key_down: bool,
+    ) -> KeyEventRecord {
+        // SAFETY: INPUT_RECORD is plain old data, so all zeros is a valid value.
+        let mut record: INPUT_RECORD = unsafe { std::mem::zeroed() };
+        record.EventType = KEY_EVENT;
+        // SAFETY: EventType selects the KeyEvent member of the union.
+        unsafe {
+            let key = record.Event.KeyEvent_mut();
+            key.bKeyDown = i32::from(key_down);
+            key.wRepeatCount = 1;
+            key.wVirtualKeyCode = virtual_key_code;
+            *key.uChar.UnicodeChar_mut() = u_char;
+            key.dwControlKeyState = control_key_state;
+        }
+        let InputRecord::KeyEvent(key) = InputRecord::from(record) else {
+            panic!("expected a key input record");
+        };
+        key
+    }
+
+    fn char_event(code: char, modifiers: KeyModifiers, key_down: bool) -> Option<Event> {
+        let kind = if key_down {
+            KeyEventKind::Press
+        } else {
+            KeyEventKind::Release
+        };
+        Some(Event::Key(KeyEvent::new_with_kind(
+            KeyCode::Char(code),
+            modifiers,
+            kind,
+        )))
+    }
+
+    #[test]
+    fn ctrl_letter_control_codes_report_the_letter_on_any_layout() {
+        // Windows reports Ctrl+A to Ctrl+Z as 0x01..=0x1a on every keyboard layout. Virtual key 0
+        // has no layout character, so those records fail if the layout lookup is used instead,
+        // whatever layout the test machine has. ConPTY reports these codes with virtual key
+        // `code + 0x40`, which is the letter's own virtual key.
+        let ctrl_shift = KeyModifiers::CONTROL | KeyModifiers::SHIFT;
+        for control_code in 0x01..=0x1a_u16 {
+            let letter = char::from(b'a' + (control_code - 1) as u8);
+            let upper = letter.to_ascii_uppercase();
+            let cases = [
+                (0, letter, KeyModifiers::CONTROL),
+                (CAPSLOCK_ON, letter, KeyModifiers::CONTROL),
+                (SHIFT_PRESSED, upper, ctrl_shift),
+                (SHIFT_PRESSED | CAPSLOCK_ON, upper, ctrl_shift),
+            ];
+            for (extra_state, code, modifiers) in cases {
+                for ctrl in [LEFT_CTRL_PRESSED, RIGHT_CTRL_PRESSED] {
+                    let state = ctrl | extra_state;
+                    for virtual_key in [0, VK_A + control_code - 1] {
+                        for key_down in [true, false] {
+                            let record = key_record(virtual_key, control_code, state, key_down);
+                            assert_eq!(
+                                handle_key_event(record, &mut None),
+                                char_event(code, modifiers, key_down),
+                                "code {control_code:#x}, vk {virtual_key:#x}, state {state:#x}",
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn ctrl_letter_keys_without_a_character_report_the_virtual_key_letter() {
+        // Some layouts, such as Armenian, report Ctrl+Shift+letter with no character. The virtual
+        // key still names the letter. On a Latin layout the lookup returns the same letter, so
+        // only the Caps Lock records fail if the layout lookup is used instead.
+        let ctrl_shift = KeyModifiers::CONTROL | KeyModifiers::SHIFT;
+        for virtual_key in VK_A..=VK_Z {
+            let letter = char::from(b'a' + (virtual_key - VK_A) as u8);
+            let upper = letter.to_ascii_uppercase();
+            let cases = [
+                (LEFT_CTRL_PRESSED, letter, KeyModifiers::CONTROL),
+                (
+                    RIGHT_CTRL_PRESSED | CAPSLOCK_ON,
+                    letter,
+                    KeyModifiers::CONTROL,
+                ),
+                (LEFT_CTRL_PRESSED | SHIFT_PRESSED, upper, ctrl_shift),
+                (
+                    RIGHT_CTRL_PRESSED | SHIFT_PRESSED | CAPSLOCK_ON,
+                    upper,
+                    ctrl_shift,
+                ),
+            ];
+            for (state, code, modifiers) in cases {
+                for key_down in [true, false] {
+                    let record = key_record(virtual_key, 0, state, key_down);
+                    assert_eq!(
+                        handle_key_event(record, &mut None),
+                        char_event(code, modifiers, key_down),
+                        "vk {virtual_key:#x}, state {state:#x}",
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn ctrl_alt_control_codes_keep_the_layout_lookup() {
+        // Windows reports AltGr as Ctrl+Alt, and AltGr types layout characters, so Ctrl+Alt must
+        // not take the Ctrl+letter paths. Virtual key 0 has no layout character, so the layout
+        // lookup reports no event. This checks which path is taken, not a desired result.
+        for state in [
+            LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED,
+            RIGHT_CTRL_PRESSED | LEFT_ALT_PRESSED,
+        ] {
+            for u_char in [0x00, 0x03] {
+                assert_eq!(
+                    handle_key_event(key_record(0, u_char, state, true), &mut None),
+                    None,
+                    "u_char {u_char:#x}, state {state:#x}",
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn layout_characters_with_ctrl_are_reported_unchanged() {
+        // Only control codes identify a Ctrl+letter. A record that carries the layout character
+        // reports that character, including AltGr characters such as Polish 'ą'.
+        let ctrl_alt = KeyModifiers::CONTROL | KeyModifiers::ALT;
+        for (virtual_key, character) in [
+            (VK_C, 'c'),
+            (VK_C, '\u{441}'),
+            (VK_C, '\u{581}'),
+            (VK_A, '\u{105}'),
+        ] {
+            for (state, modifiers) in [
+                (0, KeyModifiers::NONE),
+                (LEFT_CTRL_PRESSED, KeyModifiers::CONTROL),
+                (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED, ctrl_alt),
+            ] {
+                let record = key_record(virtual_key, character as u16, state, true);
+                assert_eq!(
+                    handle_key_event(record, &mut None),
+                    char_event(character, modifiers, true),
+                    "character {character:?}, state {state:#x}",
+                );
+            }
+        }
+    }
 }
