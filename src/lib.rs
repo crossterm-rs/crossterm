@@ -78,6 +78,9 @@
 //! - Module [`clipboard`](clipboard/index.html) (requires [`feature =
 //!   "osc52"`](#optional-features))
 //!   - Clipboard - [`CopyToClipboard`](clipboard/struct.CopyToClipboard.html)
+//! - Module [`program_status`](program_status/index.html) (requires
+//!   [`feature = "osc7501"`](#optional-features))
+//!   - Program status - [`SetProgramStatus`](program_status/struct.SetProgramStatus.html)
 //!
 //! ### Command Execution
 //!
@@ -309,6 +312,10 @@ pub mod terminal;
 /// A module for clipboard interaction
 #[cfg(feature = "osc52")]
 pub mod clipboard;
+
+/// A module for OSC 7501 program-status reports.
+#[cfg(feature = "osc7501")]
+pub mod program_status;
 
 #[cfg(windows)]
 /// A module that exposes one function to check if the current terminal supports ANSI sequences.
