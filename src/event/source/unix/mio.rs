@@ -91,6 +91,9 @@ impl EventSource for UnixInternalEventSource {
                 return Ok(None);
             }
 
+            // mio is edge-triggered: a ready token not handled now is not
+            // reported again until more input arrives on it, so every token
+            // in this batch is handled before an event is returned.
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
@@ -117,17 +120,17 @@ impl EventSource for UnixInternalEventSource {
                                 }
                             };
 
-                            if let Some(event) = self.parser.next() {
-                                return Ok(Some(event));
+                            if !self.parser.internal_events.is_empty() {
+                                break;
                             }
                         }
                     }
                     SIGNAL_TOKEN => {
                         if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
                             let new_size = crate::terminal::size()?;
-                            return Ok(Some(InternalEvent::Event(Event::Resize(
-                                new_size.0, new_size.1,
-                            ))));
+                            self.parser.internal_events.push_back(InternalEvent::Event(
+                                Event::Resize(new_size.0, new_size.1),
+                            ));
                         }
                     }
                     #[cfg(feature = "event-stream")]
@@ -139,6 +142,10 @@ impl EventSource for UnixInternalEventSource {
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
+            }
+
+            if let Some(event) = self.parser.next() {
+                return Ok(Some(event));
             }
 
             // Processing above can take some time, check if timeout expired
