@@ -136,7 +136,7 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
     let virtual_key_code = key_event.virtual_key_code as u32;
     let virtual_scan_code = key_event.virtual_scan_code as u32;
     let key_state = [0u8; 256];
-    let mut utf16_buf = [0u16, 16];
+    let mut utf16_buf = [0u16; 16];
     let dont_change_kernel_keyboard_state = 0x4;
 
     // Best-effort attempt at determining the currently active keyboard layout.
