@@ -77,7 +77,7 @@ rustix = { version = "1", default-features = false, features = ["pty", "process"
 futures = "0.3"
 futures-timer = "3.0"
 serde_json = "1.0"
-serial_test = "3.0.0"
+serial_test = "4.0.1"
 smol = "2.0"
 temp-env = "0.3.6"
 tokio = { version = "1.44", features = ["full"] }
