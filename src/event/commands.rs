@@ -180,6 +180,8 @@ impl Command for DisableBracketedPaste {
 /// A command that enables the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/), which adds extra information to keyboard events and removes ambiguity for modifier keys.
 ///
 /// It should be paired with [`PopKeyboardEnhancementFlags`] at the end of execution.
+/// For optional enhancement with capability detection and paired cleanup, use
+/// [`super::try_enable_keyboard_enhancement`].
 ///
 /// Example usage:
 /// ```no_run
