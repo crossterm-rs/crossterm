@@ -173,9 +173,16 @@ impl fmt::Display for Colored {
 
 #[cfg(test)]
 mod tests {
+    use parking_lot::Mutex;
+
     use crate::style::{Color, Colored};
 
+    /// Serializes tests that set or depend on the process-wide `ANSI_COLOR_DISABLED` flag, so
+    /// they don't race when the test harness runs them in parallel.
+    static ANSI_COLOR_LOCK: Mutex<()> = parking_lot::const_mutex(());
+
     fn check_format_color(colored: Colored, expected: &str) {
+        let _guard = ANSI_COLOR_LOCK.lock();
         Colored::set_ansi_color_disabled(true);
         assert_eq!(colored.to_string(), "");
         Colored::set_ansi_color_disabled(false);
@@ -225,11 +232,14 @@ mod tests {
 
     #[test]
     fn test_parse_ansi_bg() {
-        test_parse_ansi(Colored::ForegroundColor)
+        test_parse_ansi(Colored::BackgroundColor)
     }
 
     /// Used for test_parse_ansi_fg and test_parse_ansi_bg
     fn test_parse_ansi(bg_or_fg: impl Fn(Color) -> Colored) {
+        let _guard = ANSI_COLOR_LOCK.lock();
+        Colored::set_ansi_color_disabled(false);
+
         /// Formats a re-parses `color` to check the result.
         macro_rules! test {
             ($color:expr) => {
