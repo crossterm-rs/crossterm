@@ -294,6 +294,9 @@
 //! [flush]: https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.flush
 #![cfg_attr(not(feature = "osc52"), doc = "[`clipboard`]: clipboard/index.html")]
 
+#[cfg(windows)]
+#[doc(hidden)]
+pub use crate::command::WinApiAnsiTiming;
 pub use crate::command::{Command, ExecutableCommand, QueueableCommand, SynchronizedUpdate};
 
 /// A module to work with the terminal cursor
