@@ -203,7 +203,7 @@ pub fn force_color_output(enabled: bool) {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color in one command.
 ///
 /// # Notes
@@ -230,7 +230,7 @@ impl Command for SetForegroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
@@ -257,7 +257,7 @@ impl Command for SetBackgroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
