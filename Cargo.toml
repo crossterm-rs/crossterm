@@ -46,7 +46,7 @@ serde = ["dep:serde", "bitflags/serde"]
 ## Enables raw file descriptor polling / selecting instead of mio.
 use-dev-tty = ["filedescriptor", "rustix/process"]
 
-## Enables interacting with a host clipboard via [`clipboard`](clipboard/index.html)
+## Enables interacting with a host clipboard via [`clipboard`]
 osc52 = ["dep:base64"]
 
 [dependencies]
