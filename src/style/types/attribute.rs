@@ -26,7 +26,7 @@ macro_rules! Attribute {
         ///
         /// | Attribute | Windows | UNIX | Notes |
         /// | :-- | :--: | :--: | :-- |
-        /// | `Reset` | ✓ | ✓ | |
+        /// | `Reset` | ✓ | ✓ | Also resets colors (SGR 0). |
         /// | `Bold` | ✓ | ✓ | |
         /// | `Dim` | ✓ | ✓ | |
         /// | `Italic` | ? | ? | Not widely supported, sometimes treated as inverse. |
@@ -90,14 +90,16 @@ macro_rules! Attribute {
 }
 
 Attribute! {
-    /// Resets all the attributes.
+    /// Resets all styling, including colors.
     ///
-    /// This is SGR 0, which clears all styling, not only the other [`Attribute`]s:
-    /// the foreground, background and underline colors are reset to the terminal
-    /// defaults as well. To reset only the colors, use [`ResetColor`](crate::style::ResetColor).
-    /// To turn off a single attribute and keep the rest, use the matching attribute such as
-    /// [`NoBold`](Attribute::NoBold), [`NormalIntensity`](Attribute::NormalIntensity),
-    /// [`NoItalic`](Attribute::NoItalic) or [`NoUnderline`](Attribute::NoUnderline).
+    /// This is SGR 0: it turns off every attribute and also resets the foreground, background and
+    /// underline colors to the terminal defaults. To reset only a color, set it to
+    /// [`Color::Reset`](crate::style::Color::Reset) with
+    /// [`SetForegroundColor`](crate::style::SetForegroundColor),
+    /// [`SetBackgroundColor`](crate::style::SetBackgroundColor) or
+    /// [`SetUnderlineColor`](crate::style::SetUnderlineColor) (SGR 39, 49 and 59). To turn off a
+    /// single attribute, use its counterpart, e.g. [`NormalIntensity`](Attribute::NormalIntensity)
+    /// for `Bold` and `Dim`, or [`NoUnderline`](Attribute::NoUnderline) for `Underlined`.
     Reset = 0,
     /// Increases the text intensity.
     Bold = 1,
