@@ -203,7 +203,7 @@ pub fn force_color_output(enabled: bool) {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color in one command.
 ///
 /// # Notes
@@ -230,7 +230,7 @@ impl Command for SetForegroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
@@ -257,7 +257,7 @@ impl Command for SetBackgroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
@@ -505,7 +505,11 @@ impl<D: Display> PrintStyledContent<D> {
     }
 }
 
-/// A command that resets the colors back to default.
+/// A command that resets all styling (colors and attributes) back to default.
+///
+/// This writes SGR 0, the same as [`Attribute::Reset`], so it also turns off attributes such as
+/// bold and underline. To reset a single color, use [`SetForegroundColor`],
+/// [`SetBackgroundColor`] or [`SetUnderlineColor`] with [`Color::Reset`] (SGR 39, 49 and 59).
 ///
 /// # Notes
 ///
