@@ -52,6 +52,9 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix the keypad Begin key failing to parse on Unix. `CSI E`, `SS3 E`,
+  `CSI 1 ; modifier E` and kitty's `CSI 57427 ~` now produce
+  `KeyCode::KeypadBegin` instead of an error.
 
 # Version 0.29
 

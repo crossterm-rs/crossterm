@@ -65,6 +65,9 @@ pub(crate) fn parse_event(
                                 b'F' => {
                                     Ok(Some(InternalEvent::Event(Event::Key(KeyCode::End.into()))))
                                 }
+                                b'E' => Ok(Some(InternalEvent::Event(Event::Key(
+                                    KeyCode::KeypadBegin.into(),
+                                )))),
                                 // F1-F4
                                 val @ b'P'..=b'S' => Ok(Some(InternalEvent::Event(Event::Key(
                                     KeyCode::F(1 + val - b'P').into(),
@@ -160,6 +163,7 @@ pub(crate) fn parse_csi(buffer: &[u8]) -> io::Result<Option<InternalEvent>> {
         b'B' => Some(Event::Key(KeyCode::Down.into())),
         b'H' => Some(Event::Key(KeyCode::Home.into())),
         b'F' => Some(Event::Key(KeyCode::End.into())),
+        b'E' => Some(Event::Key(KeyCode::KeypadBegin.into())),
         b'Z' => Some(Event::Key(KeyEvent::new_with_kind(
             KeyCode::BackTab,
             KeyModifiers::SHIFT,
@@ -381,6 +385,7 @@ pub(crate) fn parse_csi_modifier_key_code(buffer: &[u8]) -> io::Result<Option<In
         b'B' => KeyCode::Down,
         b'C' => KeyCode::Right,
         b'D' => KeyCode::Left,
+        b'E' => KeyCode::KeypadBegin,
         b'F' => KeyCode::End,
         b'H' => KeyCode::Home,
         b'P' => KeyCode::F(1),
@@ -628,7 +633,7 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<Int
     let mut split = s.split(';');
 
     // This CSI sequence can be a list of semicolon-separated numbers.
-    let first = next_parsed::<u8>(&mut split)?;
+    let first = next_parsed::<u16>(&mut split)?;
 
     let (modifiers, kind, state) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
@@ -641,6 +646,19 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<Int
             (KeyModifiers::NONE, KeyEventKind::Press, KeyEventState::NONE)
         };
 
+    // Kitty reports KP_BEGIN as `CSI 57427 ~`.
+    if first == 57427 {
+        return Ok(Some(InternalEvent::Event(Event::Key(
+            KeyEvent::new_with_kind_and_state(
+                KeyCode::KeypadBegin,
+                modifiers,
+                kind,
+                state | KeyEventState::KEYPAD,
+            ),
+        ))));
+    }
+
+    let first = u8::try_from(first).map_err(|_| could_not_parse_event_error())?;
     let keycode = match first {
         1 | 7 => KeyCode::Home,
         2 => KeyCode::Insert,
@@ -1053,6 +1071,51 @@ mod tests {
                 KeyCode::Delete,
                 KeyModifiers::SHIFT
             )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_keypad_begin() {
+        // Kitty lists KP_BEGIN as `CSI 1 E` or `CSI 57427 ~`, and legacy
+        // functional keys also use the `CSI 1 ; modifier E` and `SS3 E` forms.
+        // https://sw.kovidgoyal.net/kitty/keyboard-protocol/#functional-key-definitions
+        assert_eq!(
+            parse_event(b"\x1B[E", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyCode::KeypadBegin.into()
+            ))),
+        );
+        assert_eq!(
+            parse_event(b"\x1BOE", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyCode::KeypadBegin.into()
+            ))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[1;5E", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::KeypadBegin,
+                KeyModifiers::CONTROL
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[1;1:3E", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new_with_kind(
+                KeyCode::KeypadBegin,
+                KeyModifiers::NONE,
+                KeyEventKind::Release,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[57427;2~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(
+                KeyEvent::new_with_kind_and_state(
+                    KeyCode::KeypadBegin,
+                    KeyModifiers::SHIFT,
+                    KeyEventKind::Press,
+                    KeyEventState::KEYPAD,
+                )
+            ))),
         );
     }
 
