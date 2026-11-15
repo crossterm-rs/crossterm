@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 
 use bitflags::bitflags;
@@ -51,7 +52,7 @@ bitflags! {
 /// Build one with [`KeyEvent::new`] and the `with_*` methods. More fields may be added in minor
 /// releases, so struct literals and exhaustive patterns are not available outside crossterm.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialOrd, Ord, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 #[non_exhaustive]
 pub struct KeyEvent {
     /// The key itself.
@@ -227,6 +228,33 @@ impl PartialEq for KeyEvent {
 
 impl Eq for KeyEvent {}
 
+impl PartialOrd for KeyEvent {
+    fn partial_cmp(&self, other: &KeyEvent) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+// Compares the case-normalized events, so that ordering agrees with `PartialEq`.
+impl Ord for KeyEvent {
+    fn cmp(&self, other: &KeyEvent) -> Ordering {
+        let KeyEvent {
+            code: lhs_code,
+            modifiers: lhs_modifiers,
+            kind: lhs_kind,
+            state: lhs_state,
+        } = self.normalize_case();
+        let KeyEvent {
+            code: rhs_code,
+            modifiers: rhs_modifiers,
+            kind: rhs_kind,
+            state: rhs_state,
+        } = other.normalize_case();
+        let lhs = (lhs_code, lhs_modifiers, lhs_kind, lhs_state);
+        let rhs = (rhs_code, rhs_modifiers, rhs_kind, rhs_state);
+        lhs.cmp(&rhs)
+    }
+}
+
 impl Hash for KeyEvent {
     fn hash<H: Hasher>(&self, hash_state: &mut H) {
         let KeyEvent {
@@ -244,8 +272,12 @@ impl Hash for KeyEvent {
 
 #[cfg(test)]
 mod tests {
+    use std::cmp::Ordering;
+    use std::collections::BTreeSet;
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
+
+    use crate::event::Event;
 
     use super::*;
 
@@ -277,6 +309,24 @@ mod tests {
         };
         assert_eq!(lowercase_d_with_shift_hash, uppercase_d_with_shift_hash);
         assert_eq!(uppercase_d_hash, uppercase_d_with_shift_hash);
+    }
+
+    #[test]
+    fn test_ordering_matches_equality() {
+        let lowercase_d_with_shift = KeyEvent::new(KeyCode::Char('d'), KeyModifiers::SHIFT);
+        let uppercase_d_with_shift = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::SHIFT);
+        let uppercase_d = KeyEvent::new(KeyCode::Char('D'), KeyModifiers::NONE);
+        let events = [lowercase_d_with_shift, uppercase_d_with_shift, uppercase_d];
+        for lhs in events {
+            for rhs in events {
+                assert_eq!(lhs.cmp(&rhs), Ordering::Equal, "{lhs:?} vs {rhs:?}");
+                assert_eq!(lhs.partial_cmp(&rhs), Some(Ordering::Equal));
+                assert_eq!(Event::Key(lhs).cmp(&Event::Key(rhs)), Ordering::Equal);
+            }
+        }
+
+        let bindings = BTreeSet::from([uppercase_d]);
+        assert!(bindings.contains(&uppercase_d_with_shift));
     }
 
     #[test]
