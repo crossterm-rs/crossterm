@@ -27,6 +27,13 @@
 //! [`EnableFocusChange`](struct.EnableFocusChange.html) command. See [Command
 //! API](../index.html#command-api) for more information.
 //!
+//! ## Optional Keyboard Enhancement
+//!
+//! Use [`try_enable_keyboard_enhancement`](crate::event::try_enable_keyboard_enhancement) to request
+//! enhanced keyboard input while allowing unsupported terminals to fall back to ordinary input.
+//! Its [`KeyboardEnhancement`](crate::event::KeyboardEnhancement) guard pairs successful activation
+//! with cleanup. Raw mode must still be managed separately.
+//!
 //! ## Examples
 //!
 //! Blocking read:
@@ -169,11 +176,14 @@ pub(crate) mod timeout;
 mod commands;
 mod key_code;
 mod key_event;
+mod keyboard_enhancement;
 mod modifiers;
 mod mouse;
 
 #[cfg(feature = "event-stream")]
 pub use stream::EventStream;
+
+pub use keyboard_enhancement::{KeyboardEnhancement, try_enable_keyboard_enhancement};
 
 #[cfg(feature = "bracketed-paste")]
 pub use commands::{DisableBracketedPaste, EnableBracketedPaste};
