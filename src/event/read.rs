@@ -35,6 +35,16 @@ impl Default for InternalEventReader {
 }
 
 impl InternalEventReader {
+    #[cfg(all(unix, feature = "osc7501"))]
+    pub(crate) fn set_program_status_query(&mut self, active: bool) -> io::Result<()> {
+        let source = self
+            .source
+            .as_mut()
+            .ok_or_else(|| io::Error::other("Failed to initialize input reader"))?;
+        source.set_program_status_query(active);
+        Ok(())
+    }
+
     /// Returns a `Waker` allowing to wake/force the `poll` method to return `Ok(false)`.
     #[cfg(feature = "event-stream")]
     pub(crate) fn waker(&self) -> Waker {
@@ -70,6 +80,7 @@ impl InternalEventReader {
                     }
                 }
                 Err(e) => {
+                    self.events.extend(self.skipped_events.drain(..));
                     if e.kind() == io::ErrorKind::Interrupted {
                         return Ok(false);
                     }
@@ -111,32 +122,13 @@ impl InternalEventReader {
 
     /// Attempts to read the first valid `InternalEvent`.
     ///
-    /// This function checks all events in the queue, and stores events that do not match the
-    /// filter in a buffer to be added back to the queue after all items have been evaluated. We
-    /// must buffer non-fulfilling events because, if added directly back to the queue, they would
-    /// result in an infinite loop, rechecking events that have already been evaluated against the
-    /// filter.
+    /// Removes only the first matching event, preserving the order of all other events.
     pub(crate) fn try_read<F>(&mut self, filter: &F) -> Option<InternalEvent>
     where
         F: Filter,
     {
-        // check all events, storing events that do not match the filter in the `skipped_events`
-        // buffer to be added back later
-        let mut skipped_events = Vec::new();
-        let mut result = None;
-        while let Some(event) = self.events.pop_front() {
-            if filter.eval(&event) {
-                result = Some(event);
-                break;
-            }
-
-            skipped_events.push(event);
-        }
-
-        // push all skipped events back to the event queue
-        self.events.extend(skipped_events);
-
-        result
+        let index = self.events.iter().position(|event| filter.eval(event))?;
+        self.events.remove(index)
     }
 }
 
@@ -253,10 +245,11 @@ mod tests {
     #[cfg(unix)]
     fn test_try_read_does_not_consume_skipped_event() {
         const SKIPPED_EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 10));
+        const LATER_EVENT: InternalEvent = InternalEvent::Event(Event::Resize(20, 30));
         const CURSOR_EVENT: InternalEvent = InternalEvent::CursorPosition(10, 20);
 
         let mut reader = InternalEventReader {
-            events: vec![SKIPPED_EVENT, CURSOR_EVENT].into(),
+            events: vec![SKIPPED_EVENT, CURSOR_EVENT, LATER_EVENT].into(),
             source: None,
             skipped_events: Vec::with_capacity(32),
         };
@@ -269,6 +262,7 @@ mod tests {
             reader.try_read(&InternalEventFilter).unwrap(),
             SKIPPED_EVENT
         );
+        assert_eq!(reader.try_read(&InternalEventFilter).unwrap(), LATER_EVENT);
     }
 
     #[test]
@@ -375,6 +369,32 @@ mod tests {
                 .map(|e| format!("{:?}", e.kind())),
             Some(format!("{:?}", io::ErrorKind::Other))
         );
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn test_filtered_poll_preserves_input_after_error_or_interruption() {
+        const EVENT: InternalEvent = InternalEvent::Event(Event::Resize(10, 20));
+        const LATER: InternalEvent = InternalEvent::Event(Event::Resize(30, 40));
+        for kind in [io::ErrorKind::Other, io::ErrorKind::Interrupted] {
+            // FakeSource errors when one event remains, after the first is skipped.
+            let mut reader = InternalEventReader {
+                events: VecDeque::new(),
+                source: Some(Box::new(FakeSource {
+                    events: vec![EVENT, LATER].into(),
+                    error: Some(io::Error::new(kind, "test")),
+                })),
+                skipped_events: Vec::new(),
+            };
+            let result = reader.poll(Some(Duration::from_secs(1)), &CursorPositionFilter);
+            if kind == io::ErrorKind::Interrupted {
+                assert!(!result.unwrap());
+            } else {
+                assert_eq!(result.unwrap_err().kind(), kind);
+            }
+            assert_eq!(reader.read(&InternalEventFilter).unwrap(), EVENT);
+            assert_eq!(reader.read(&InternalEventFilter).unwrap(), LATER);
+        }
     }
 
     #[test]

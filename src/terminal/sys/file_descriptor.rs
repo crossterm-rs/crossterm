@@ -18,6 +18,16 @@ impl FileDesc<'_> {
             FileDesc::Owned(fd) => fd.as_fd(),
             FileDesc::Borrowed(fd) => fd.as_fd(),
         };
+        #[cfg(feature = "osc7501")]
+        {
+            // stdin can be a blocking TTY. A fragmented OSC may produce no event,
+            // so the source's drain loop must not block on its next read. Avoid
+            // changing O_NONBLOCK on stdin (which is shared with the application).
+            let available = rustix::io::ioctl_fionread(fd)?;
+            if available == 0 {
+                return Err(io::ErrorKind::WouldBlock.into());
+            }
+        }
         let result = rustix::io::read(fd, buffer)?;
         Ok(result)
     }

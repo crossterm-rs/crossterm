@@ -1,5 +1,13 @@
 # Unreleased
 
+## Added ⭐
+
+- Add validated OSC 7501 program-status reports through `program_status::SetProgramStatus`,
+  behind the optional `osc7501` feature.
+  Status lifetimes remain application-owned.
+- Add explicit, time-bounded OSC 7501 support detection on Unix with `events` enabled,
+  through `program_status::supports_program_status`. Requires raw mode; Windows returns false.
+
 ## Breaking ⚠️
 
 - Raise the minimum supported Rust version from 1.63 to 1.85.
