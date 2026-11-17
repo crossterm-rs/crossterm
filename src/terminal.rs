@@ -60,8 +60,11 @@
 //! - New line character will not be processed therefore `println!` can't be used, use `write!`
 //!   instead
 //!
-//! Raw mode can be enabled/disabled with the [enable_raw_mode](terminal::enable_raw_mode) and
-//! [disable_raw_mode](terminal::disable_raw_mode) functions.
+//! Raw mode can be enabled/disabled with the [`enable_raw_mode`] and [`disable_raw_mode`]
+//! functions.
+//!
+//! [`enable_raw_mode`]: crate::terminal::enable_raw_mode
+//! [`disable_raw_mode`]: crate::terminal::disable_raw_mode
 //!
 //! ## Examples
 //!
@@ -431,7 +434,7 @@ impl Command for ScrollDown {
 
 /// A command that clears the terminal screen buffer.
 ///
-/// See the [`ClearType`](enum.ClearType.html) enum.
+/// See the [`ClearType`] enum.
 ///
 /// # Notes
 ///
