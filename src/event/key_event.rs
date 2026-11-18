@@ -70,6 +70,26 @@ pub struct KeyEvent {
     /// Only set if [`KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES`] has been enabled with
     /// [`PushKeyboardEnhancementFlags`].
     pub state: KeyEventState,
+    /// The key at the same physical position on a standard PC-101 keyboard, independent of the
+    /// active keyboard layout.
+    ///
+    /// This is what makes layout-independent shortcuts possible: with a Cyrillic layout active,
+    /// the physical `C` key reports `KeyCode::Char('с')` in [`code`](Self::code) and
+    /// `Some(KeyCode::Char('c'))` here, so an application can match `Ctrl+C` regardless of the
+    /// layout the user types in.
+    ///
+    /// Only set if:
+    /// - Unix: [`KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS`] has been enabled with
+    ///   [`PushKeyboardEnhancementFlags`].
+    /// - Windows: never, since crossterm reads input there through the legacy console API, where
+    ///   [`PushKeyboardEnhancementFlags`] is not supported.
+    ///
+    /// This field deliberately takes no part in [`PartialEq`]/[`Hash`], so that comparing against
+    /// a manually constructed event — the common
+    /// `event == KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)` pattern — keeps
+    /// working once the enhancement is enabled.
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub base_layout_code: Option<KeyCode>,
 }
 
 impl KeyEvent {
@@ -95,6 +115,7 @@ impl KeyEvent {
             modifiers,
             kind: KeyEventKind::Press,
             state: KeyEventState::empty(),
+            base_layout_code: None,
         }
     }
 
@@ -109,6 +130,7 @@ impl KeyEvent {
             modifiers,
             kind,
             state: KeyEventState::empty(),
+            base_layout_code: None,
         }
     }
 
@@ -124,6 +146,7 @@ impl KeyEvent {
             modifiers,
             kind,
             state,
+            base_layout_code: None,
         }
     }
 
@@ -157,6 +180,27 @@ impl KeyEvent {
     #[must_use]
     pub const fn with_state(mut self, state: KeyEventState) -> KeyEvent {
         self.state = state;
+        self
+    }
+
+    /// Returns this key event with its base layout key replaced.
+    ///
+    /// See [`base_layout_code`](Self::base_layout_code). It takes no part in equality, so the
+    /// result still compares equal to the event it was built from.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+    ///
+    /// let event = KeyEvent::new(KeyCode::Char('с'), KeyModifiers::CONTROL)
+    ///     .with_base_layout_code(Some(KeyCode::Char('c')));
+    /// assert_eq!(event.base_layout_code, Some(KeyCode::Char('c')));
+    /// assert_eq!(event, KeyEvent::new(KeyCode::Char('с'), KeyModifiers::CONTROL));
+    /// ```
+    #[must_use]
+    pub const fn with_base_layout_code(mut self, base_layout_code: Option<KeyCode>) -> KeyEvent {
+        self.base_layout_code = base_layout_code;
         self
     }
 
@@ -200,23 +244,29 @@ impl From<KeyCode> for KeyEvent {
             modifiers: KeyModifiers::empty(),
             kind: KeyEventKind::Press,
             state: KeyEventState::empty(),
+            base_layout_code: None,
         }
     }
 }
 
 impl PartialEq for KeyEvent {
     fn eq(&self, other: &KeyEvent) -> bool {
+        // `base_layout_code` is metadata about the same key press, not part of its identity:
+        // including it would break `event == KeyEvent::new(...)` comparisons as soon as
+        // `REPORT_ALTERNATE_KEYS` is enabled.
         let KeyEvent {
             code: lhs_code,
             modifiers: lhs_modifiers,
             kind: lhs_kind,
             state: lhs_state,
+            base_layout_code: _,
         } = self.normalize_case();
         let KeyEvent {
             code: rhs_code,
             modifiers: rhs_modifiers,
             kind: rhs_kind,
             state: rhs_state,
+            base_layout_code: _,
         } = other.normalize_case();
         (lhs_code == rhs_code)
             && (lhs_modifiers == rhs_modifiers)
@@ -229,11 +279,13 @@ impl Eq for KeyEvent {}
 
 impl Hash for KeyEvent {
     fn hash<H: Hasher>(&self, hash_state: &mut H) {
+        // Excluded for the same reason as in `PartialEq`, and to keep `Hash` consistent with it.
         let KeyEvent {
             code,
             modifiers,
             kind,
             state,
+            base_layout_code: _,
         } = self.normalize_case();
         code.hash(hash_state);
         modifiers.hash(hash_state);

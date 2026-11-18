@@ -30,6 +30,11 @@
   events can be built without struct literals.
 - Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
   built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
+- Report the Kitty keyboard protocol's *base layout key* as `KeyEvent::base_layout_code`, with a
+  `KeyEvent::with_base_layout_code` builder, so shortcuts can be matched by physical key
+  regardless of the active keyboard layout (#968). Set only when
+  `KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS` is enabled. The field takes no part in
+  `PartialEq`/`Hash`, so comparisons against manually built events keep working.
 
 ## Changed ⚙️
 
