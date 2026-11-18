@@ -1,5 +1,12 @@
 //! This module provides platform related functions.
 
+#[cfg(not(any(unix, windows)))]
+#[cfg(feature = "events")]
+pub use self::other::supports_keyboard_enhancement;
+#[cfg(not(any(unix, windows)))]
+pub(crate) use self::other::{
+    disable_raw_mode, enable_raw_mode, is_raw_mode_enabled, size, window_size,
+};
 #[cfg(unix)]
 #[cfg(feature = "events")]
 pub use self::unix::supports_keyboard_enhancement;
@@ -20,6 +27,9 @@ pub(crate) use self::windows::{
 
 #[cfg(windows)]
 mod windows;
+
+#[cfg(not(any(unix, windows)))]
+mod other;
 
 #[cfg(unix)]
 pub mod file_descriptor;
