@@ -176,7 +176,7 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
                     "The keyboard enhancement status could not be read within a normal duration",
                 ));
             }
-            Err(_) => {}
+            Err(e) => return Err(e),
         }
     }
 }
@@ -381,6 +381,56 @@ mod tests {
         assert_eq!(output.status.code(), Some(0), "{diagnostics}");
         let child_ran = diagnostics.contains("terminal size checked");
         assert!(child_ran, "missing completion marker:\n{diagnostics}");
+    }
+
+    /// The keyboard enhancement query must surface a persistent input-reader
+    /// error instead of retrying forever (issue #1175).
+    #[test]
+    #[cfg(feature = "events")]
+    fn keyboard_enhancement_query_returns_error_without_a_terminal() {
+        let test_name =
+            "terminal::sys::unix::tests::check_keyboard_enhancement_query_without_terminal";
+        let mut child = child_test(test_name);
+        child
+            .arg("--show-output")
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null());
+        // Detach /dev/tty so the input reader has no terminal to poll.
+        detach_controlling_terminal(&mut child);
+
+        let output = child.output().unwrap();
+
+        let diagnostics = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(output.status.code(), Some(0), "{diagnostics}");
+        let child_ran = diagnostics.contains("keyboard enhancement query checked");
+        assert!(child_ran, "missing completion marker:\n{diagnostics}");
+    }
+
+    /// Check that the keyboard enhancement query returns an error instead of
+    /// looping forever when the input reader cannot be initialized. Runs only
+    /// in the child with no usable terminal.
+    #[test]
+    #[ignore = "launched by keyboard_enhancement_query_returns_error_without_a_terminal with isolated descriptors"]
+    #[cfg(feature = "events")]
+    fn check_keyboard_enhancement_query_without_terminal() {
+        assert_no_controlling_terminal();
+
+        // Run the query on a thread so a regression (retrying forever) fails
+        // by timeout instead of hanging the child.
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let _ = tx.send(super::query_keyboard_enhancement_flags_raw());
+        });
+        let result = rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .expect("query did not return within 5s, it is retrying forever");
+        assert!(
+            result.is_err(),
+            "query must fail without a terminal, got {result:?}"
+        );
+
+        println!("keyboard enhancement query checked");
     }
 
     /// Check that both public APIs fail and size returns the final descriptor error. Runs only in
