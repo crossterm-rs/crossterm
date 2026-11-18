@@ -78,9 +78,11 @@ pub struct KeyEvent {
     /// `Some(KeyCode::Char('c'))` here, so an application can match `Ctrl+C` regardless of the
     /// layout the user types in.
     ///
-    /// Only set if [`KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS`] has been enabled with
-    /// [`PushKeyboardEnhancementFlags`], and only on Unix — the Windows console API does not
-    /// report it.
+    /// Only set if:
+    /// - Unix: [`KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS`] has been enabled with
+    ///   [`PushKeyboardEnhancementFlags`].
+    /// - Windows: never, since crossterm reads input there through the legacy console API, where
+    ///   [`PushKeyboardEnhancementFlags`] is not supported.
     ///
     /// This field deliberately takes no part in [`PartialEq`]/[`Hash`], so that comparing against
     /// a manually constructed event — the common
