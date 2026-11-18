@@ -34,12 +34,31 @@ impl Colored {
     /// # Examples
     ///
     /// ```
-    /// use crossterm::style::{Colored::{self, ForegroundColor, BackgroundColor}, Color};
+    /// use crossterm::style::{
+    ///     Color,
+    ///     Colored::{self, BackgroundColor, ForegroundColor},
+    /// };
     ///
-    /// assert_eq!(Colored::parse_ansi("38;5;0"), Some(ForegroundColor(Color::Black)));
-    /// assert_eq!(Colored::parse_ansi("38;5;26"), Some(ForegroundColor(Color::AnsiValue(26))));
-    /// assert_eq!(Colored::parse_ansi("48;2;50;60;70"), Some(BackgroundColor(Color::Rgb { r: 50, g: 60, b: 70 })));
-    /// assert_eq!(Colored::parse_ansi("49"), Some(BackgroundColor(Color::Reset)));
+    /// assert_eq!(
+    ///     Colored::parse_ansi("38;5;0"),
+    ///     Some(ForegroundColor(Color::Black))
+    /// );
+    /// assert_eq!(
+    ///     Colored::parse_ansi("38;5;26"),
+    ///     Some(ForegroundColor(Color::AnsiValue(26)))
+    /// );
+    /// assert_eq!(
+    ///     Colored::parse_ansi("48;2;50;60;70"),
+    ///     Some(BackgroundColor(Color::Rgb {
+    ///         r: 50,
+    ///         g: 60,
+    ///         b: 70
+    ///     }))
+    /// );
+    /// assert_eq!(
+    ///     Colored::parse_ansi("49"),
+    ///     Some(BackgroundColor(Color::Reset))
+    /// );
     /// assert_eq!(Colored::parse_ansi("invalid color"), None);
     /// ```
     ///

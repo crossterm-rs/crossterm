@@ -61,7 +61,6 @@ macro_rules! osc {
 /// and can therefore not be written to the given `writer`.
 /// Therefore, there is no difference between [execute](macro.execute.html)
 /// and [queue](macro.queue.html) for those old Windows versions.
-///
 #[macro_export]
 macro_rules! queue {
     ($writer:expr $(, $command:expr)* $(,)?) => {{
@@ -89,14 +88,18 @@ macro_rules! queue {
 /// # Examples
 ///
 /// ```rust
-/// use std::io::{Write, stdout};
 /// use crossterm::{execute, style::Print};
+/// use std::io::{Write, stdout};
 ///
 /// // will be executed directly
 /// execute!(stdout(), Print("sum:\n".to_string()));
 ///
 /// // will be executed directly
-/// execute!(stdout(), Print("1 + 1 = ".to_string()), Print((1+1).to_string()));
+/// execute!(
+///     stdout(),
+///     Print("1 + 1 = ".to_string()),
+///     Print((1 + 1).to_string())
+/// );
 ///
 /// // ==== Output ====
 /// // sum:
@@ -108,11 +111,10 @@ macro_rules! queue {
 /// # Notes
 ///
 /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-/// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
-///   The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-///   and can therefore not be written to the given `writer`.
-///   Therefore, there is no difference between [execute](macro.execute.html)
-///   and [queue](macro.queue.html) for those old Windows versions.
+/// * In case of Windows versions lower than 10, a direct WinAPI call will be made. The reason for
+///   this is that Windows versions lower than 10 do not support ANSI codes, and can therefore not
+///   be written to the given `writer`. Therefore, there is no difference between
+///   [execute](macro.execute.html) and [queue](macro.queue.html) for those old Windows versions.
 #[macro_export]
 macro_rules! execute {
     ($writer:expr $(, $command:expr)* $(,)? ) => {{

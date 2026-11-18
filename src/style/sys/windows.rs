@@ -25,7 +25,8 @@ pub(crate) fn set_foreground_color(fg_color: Color) -> std::io::Result<()> {
     let csbi = screen_buffer.info()?;
 
     // Notice that the color values are stored in wAttribute.
-    // So we need to use bitwise operators to check if the values exists or to get current console colors.
+    // So we need to use bitwise operators to check if the values exists or to get current console
+    // colors.
     let attrs = csbi.attributes();
     let bg_color = attrs & 0x0070;
     let mut color = color_value | bg_color;
@@ -49,7 +50,8 @@ pub(crate) fn set_background_color(bg_color: Color) -> std::io::Result<()> {
     let csbi = screen_buffer.info()?;
 
     // Notice that the color values are stored in wAttribute.
-    // So we need to use bitwise operators to check if the values exists or to get current console colors.
+    // So we need to use bitwise operators to check if the values exists or to get current console
+    // colors.
     let attrs = csbi.attributes();
     let fg_color = attrs & 0x0007;
     let mut color = fg_color | color_value;
@@ -84,10 +86,12 @@ pub(crate) fn init_console_color() -> std::io::Result<()> {
     Ok(())
 }
 
-/// Returns the original console color, make sure to call `init_console_color` before calling this function. Otherwise this function will panic.
+/// Returns the original console color, make sure to call `init_console_color` before calling this
+/// function. Otherwise this function will panic.
 pub(crate) fn original_console_color() -> u16 {
     u16::try_from(ORIGINAL_CONSOLE_COLOR.load(Ordering::Relaxed))
-        // safe unwrap, initial console color was set with `init_console_color` in `WinApiColor::new()`
+        // safe unwrap, initial console color was set with `init_console_color` in
+        // `WinApiColor::new()`
         .expect("Initial console color not set")
 }
 
@@ -123,12 +127,15 @@ impl From<Colored> for u16 {
                         let original_color = original_console_color();
 
                         const REMOVE_BG_MASK: u16 = BG_INTENSITY | BG_RED | BG_GREEN | BG_BLUE;
-                        // remove all background values from the original color, we don't want to reset those.
+                        // remove all background values from the original color, we don't want to
+                        // reset those.
 
                         original_color & !REMOVE_BG_MASK
                     }
 
-                    /* WinAPI will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
+                    /* WinAPI will be used for systems that do not support ANSI, those are
+                     * windows version less then 10. RGB and 255 (AnsiBValue) colors are not
+                     * supported in that case. */
                     Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }
@@ -156,11 +163,14 @@ impl From<Colored> for u16 {
                         let original_color = original_console_color();
 
                         const REMOVE_FG_MASK: u16 = FG_INTENSITY | FG_RED | FG_GREEN | FG_BLUE;
-                        // remove all foreground values from the original color, we don't want to reset those.
+                        // remove all foreground values from the original color, we don't want to
+                        // reset those.
 
                         original_color & !REMOVE_FG_MASK
                     }
-                    /* WinAPI will be used for systems that do not support ANSI, those are windows version less then 10. RGB and 255 (AnsiBValue) colors are not supported in that case.*/
+                    /* WinAPI will be used for systems that do not support ANSI, those are
+                     * windows version less then 10. RGB and 255 (AnsiBValue) colors are not
+                     * supported in that case. */
                     Color::Rgb { .. } => 0,
                     Color::AnsiValue(_val) => 0,
                 }

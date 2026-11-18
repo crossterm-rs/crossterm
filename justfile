@@ -18,6 +18,10 @@ ci: format clippy docs doctest test msrv features package dependency-policy work
 format:
     cargo fmt --all -- --check
 
+# Apply formatting, including optional nightly comment and Rustdoc code formatting.
+format-nightly:
+    cargo +nightly fmt --all
+
 # Check stable Rust warnings.
 clippy:
     cargo clippy --locked --all-targets --all-features -- -D warnings
@@ -40,7 +44,7 @@ msrv:
     rustup run {{ msrv_version }} cargo check --locked --lib --no-default-features
     rustup run {{ msrv_version }} cargo check --locked --lib --all-features
 
-# Test the deliberate Unix feature compatibility points.
+# Test and lint the deliberate Unix feature compatibility points, including doctests.
 [unix]
 features:
     cargo test --locked --lib -- --test-threads 1
@@ -51,12 +55,31 @@ features:
     cargo test --locked --lib --no-default-features \
         --features events,event-stream,use-dev-tty,bracketed-paste \
         -- --test-threads 1
+    cargo test --locked --doc
+    cargo test --locked --doc --features serde
+    cargo test --locked --doc --features event-stream,events
+    cargo test --locked --doc --no-default-features
+    cargo test --locked --doc --no-default-features --features events
+    cargo test --locked --doc --no-default-features \
+        --features events,event-stream,use-dev-tty,bracketed-paste
+    cargo clippy --locked --all-targets -- -D warnings
+    cargo clippy --locked --all-targets --features serde -- -D warnings
+    cargo clippy --locked --all-targets --features event-stream,events -- -D warnings
+    cargo clippy --locked --all-targets --no-default-features -- -D warnings
+    cargo clippy --locked --all-targets --no-default-features --features events -- -D warnings
+    cargo clippy --locked --all-targets --no-default-features \
+        --features events,event-stream,use-dev-tty,bracketed-paste \
+        -- -D warnings
 
-# Test the supported Windows feature compatibility points.
+# Test and lint the supported Windows feature compatibility points, including doctests.
 [windows]
 features:
-    cargo test --locked --lib --no-default-features --features windows -- --test-threads 1
-    cargo test --locked --lib --no-default-features --features windows,events -- --test-threads 1
+    cargo test --locked --lib --no-default-features -- --test-threads 1
+    cargo test --locked --lib --no-default-features --features events -- --test-threads 1
+    cargo test --locked --doc --no-default-features
+    cargo test --locked --doc --no-default-features --features events
+    cargo clippy --locked --all-targets --no-default-features -- -D warnings
+    cargo clippy --locked --all-targets --no-default-features --features events -- -D warnings
 
 # Verify package contents while allowing the local changes under review. CI checks VCS cleanliness.
 package:

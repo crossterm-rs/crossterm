@@ -1,0 +1,12 @@
+# Configuration for https://rust-lang.github.io/rustfmt/
+# Keep the default import style and alphabetical module ordering.
+reorder_modules = true
+use_field_init_shorthand = true
+
+# Optional enhancements used by `cargo +nightly fmt --all`.
+# Stable rustfmt ignores these settings with warnings and still formats Rust code normally.
+wrap_comments = true
+comment_width = 100
+format_code_in_doc_comments = true
+normalize_doc_attributes = true
+format_macro_matchers = true

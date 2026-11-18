@@ -28,9 +28,11 @@
 //! Using the Command API to color text.
 //!
 //! ```no_run
-//! use std::io::{self, Write};
 //! use crossterm::execute;
-//! use crossterm::style::{Print, SetForegroundColor, SetBackgroundColor, ResetColor, Color, Attribute};
+//! use crossterm::style::{
+//!     Attribute, Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor,
+//! };
+//! use std::io::{self, Write};
 //!
 //! fn main() -> io::Result<()> {
 //!     execute!(
@@ -55,7 +57,10 @@
 //! ```no_run
 //! use crossterm::style::Stylize;
 //!
-//! println!("{}", "Red foreground color & blue background.".red().on_blue());
+//! println!(
+//!     "{}",
+//!     "Red foreground color & blue background.".red().on_blue()
+//! );
 //! ```
 //!
 //! ### Attributes
@@ -145,7 +150,7 @@ mod types;
 /// # Examples
 ///
 /// ```no_run
-/// use crossterm::style::{style, Stylize, Color};
+/// use crossterm::style::{Color, Stylize, style};
 ///
 /// let styled_content = style("Blue colored text on yellow background")
 ///     .with(Color::Blue)
@@ -198,7 +203,7 @@ pub fn force_color_output(enabled: bool) {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color in one command.
 ///
 /// # Notes
@@ -225,7 +230,7 @@ impl Command for SetForegroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
@@ -252,7 +257,7 @@ impl Command for SetBackgroundColor {
 ///
 /// See [`Color`](enum.Color.html) for more info.
 ///
-/// [`SetColors`](struct.SetColors.html) can also be used to set both the foreground and background
+/// [`SetColors`] can also be used to set both the foreground and background
 /// color with one command.
 ///
 /// # Notes
@@ -281,16 +286,20 @@ impl Command for SetUnderlineColor {
 ///
 /// For example:
 /// ```no_run
-/// use std::io::{stdout, Write};
+/// use std::io::{Write, stdout};
 ///
 /// use crossterm::execute;
-/// use crossterm::style::{Color::{Green, Black}, Colors, Print, SetColors};
+/// use crossterm::style::{
+///     Color::{Black, Green},
+///     Colors, Print, SetColors,
+/// };
 ///
 /// execute!(
 ///     stdout(),
 ///     SetColors(Colors::new(Green, Black)),
 ///     Print("Hello, world!".to_string()),
-/// ).unwrap();
+/// )?;
+/// # Ok::<(), std::io::Error>(())
 /// ```
 ///
 /// See [`Colors`](struct.Colors.html) for more info.
@@ -436,6 +445,21 @@ pub struct PrintStyledContent<D: Display>(pub StyledContent<D>);
 
 impl<D: Display> Command for PrintStyledContent<D> {
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result {
+        self.write_styled(f, |f| write!(f, "{}", self.0.content()))
+    }
+
+    #[cfg(windows)]
+    fn execute_winapi(&self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl<D: Display> PrintStyledContent<D> {
+    pub(crate) fn write_styled<W: fmt::Write>(
+        &self,
+        f: &mut W,
+        write_content: impl FnOnce(&mut W) -> fmt::Result,
+    ) -> fmt::Result {
         let style = self.0.style();
 
         let mut reset_background = false;
@@ -460,7 +484,7 @@ impl<D: Display> Command for PrintStyledContent<D> {
             reset = true;
         }
 
-        write!(f, "{}", self.0.content())?;
+        write_content(f)?;
 
         if reset {
             // NOTE: This will reset colors even though self has no colors, hence produce unexpected
@@ -479,14 +503,13 @@ impl<D: Display> Command for PrintStyledContent<D> {
 
         Ok(())
     }
-
-    #[cfg(windows)]
-    fn execute_winapi(&self) -> std::io::Result<()> {
-        Ok(())
-    }
 }
 
-/// A command that resets the colors back to default.
+/// A command that resets all styling (colors and attributes) back to default.
+///
+/// This writes SGR 0, the same as [`Attribute::Reset`], so it also turns off attributes such as
+/// bold and underline. To reset a single color, use [`SetForegroundColor`],
+/// [`SetBackgroundColor`] or [`SetUnderlineColor`] with [`Color::Reset`] (SGR 39, 49 and 59).
 ///
 /// # Notes
 ///

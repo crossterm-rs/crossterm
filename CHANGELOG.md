@@ -1,22 +1,40 @@
 # Unreleased
 
-## Added ⭐
-
-- Report the Kitty keyboard protocol's *base layout key* as
-  `KeyEvent::base_layout_code`, so shortcuts can be matched by physical key
-  regardless of the active keyboard layout (#968). Set only when
-  `KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS` is enabled.
-
 ## Breaking ⚠️
 
 - Raise the minimum supported Rust version from 1.63 to 1.85.
 - Remove `IsTty` trait.
   Use the standard library's [`std::io::IsTerminal`](https://doc.rust-lang.org/std/io/trait.IsTerminal.html) trait instead,
   which provides equivalent functionality.
-- `KeyEvent` gained a `base_layout_code` field: struct-literal construction and
-  exhaustive destructuring need updating. The `KeyEvent::new*` constructors,
-  `PartialEq` and `Hash` are unaffected — the new field takes no part in
-  equality, so comparisons against manually built events keep working.
+- Remove the `libc` feature and always use rustix for Unix terminal operations.
+- Remove the `derive-more` feature and `derive_more` dependency. Event variant helper
+  methods are always available.
+- `Event` no longer implements `Copy`, whatever features are enabled. It used to be `Copy`
+  only without `bracketed-paste`, so turning that feature on anywhere in a build removed `Copy`
+  from every crate that used `Event`. Future variants such as `Event::Unknown` carry owned data.
+  Use `.clone()`, or borrow the event; `KeyEvent` and `MouseEvent` are still `Copy`.
+- Mark `Event` `#[non_exhaustive]`. Matches on `Event` outside crossterm need a wildcard arm.
+  This lets later releases add variants, such as `Event::Unknown` (#834) and query replies,
+  without another breaking change.
+- Mark `KeyCode`, `MediaKeyCode`, `ModifierKeyCode`, `MouseEventKind` and `MouseButton`
+  `#[non_exhaustive]`. Matches on them outside crossterm need a wildcard arm. This lets later
+  releases add keypad keys (#1013), extra mouse buttons (#1117) and similar.
+- Mark `KeyEvent` and `MouseEvent` `#[non_exhaustive]`. Their fields stay public, but code
+  outside crossterm can no longer build them with struct literals or destructure them without
+  `..`. Use `KeyEvent::new` with `with_kind`/`with_state`, or `MouseEvent::new`. This lets later
+  releases add fields such as the base layout key (#1074) and pixel coordinates (#873).
+
+## Added ⭐
+
+- Add `KeyEvent::with_kind`, `KeyEvent::with_state` and `MouseEvent::new` so key and mouse
+  events can be built without struct literals.
+- Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
+  built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
+- Report the Kitty keyboard protocol's *base layout key* as `KeyEvent::base_layout_code`, with a
+  `KeyEvent::with_base_layout_code` builder, so shortcuts can be matched by physical key
+  regardless of the active keyboard layout (#968). Set only when
+  `KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS` is enabled. The field takes no part in
+  `PartialEq`/`Hash`, so comparisons against manually built events keep working.
 
 ## Changed ⚙️
 
@@ -32,6 +50,10 @@
   bytes encoded the protocol origin (panic in debug, wrap to 65535
   in release). Affects `parse_csi_normal_mouse`, `parse_csi_rxvt_mouse`,
   `parse_csi_sgr_mouse`, and `parse_csi_cursor_position`.
+- Fix arithmetic overflow and out-of-range errors on the Windows legacy-console
+  cursor path when the requested count went past the edge (panic in debug, wrap
+  in release). `MoveUp`, `MoveLeft`, `MoveToPreviousLine`, `MoveRight`,
+  `MoveDown`, and `MoveToNextLine` now clamp at the screen buffer edge.
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.

@@ -64,7 +64,8 @@ impl EventSource for WindowsEventSource {
                             mouse_event
                         }
                         InputRecord::WindowBufferSizeEvent(record) => {
-                            // windows starts counting at 0, unix at 1, add one to replicate unix behaviour.
+                            // windows starts counting at 0, unix at 1, add one to replicate unix
+                            // behaviour.
                             Some(Event::Resize(
                                 (record.size.x as i32 + 1) as u16,
                                 (record.size.y as i32 + 1) as u16,

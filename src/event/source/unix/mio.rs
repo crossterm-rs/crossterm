@@ -75,9 +75,10 @@ impl EventSource for UnixInternalEventSource {
 
         loop {
             if let Err(e) = self.poll.poll(&mut self.events, timeout.leftover()) {
-                // Mio will throw an interrupted error in case of cursor position retrieval. We need to retry until it succeeds.
-                // Previous versions of Mio (< 0.7) would automatically retry the poll call if it was interrupted (if EINTR was returned).
-                // https://docs.rs/mio/0.7.0/mio/struct.Poll.html#notes
+                // Mio will throw an interrupted error in case of cursor position retrieval. We need
+                // to retry until it succeeds. Previous versions of Mio (< 0.7)
+                // would automatically retry the poll call if it was interrupted (if EINTR was
+                // returned). https://docs.rs/mio/0.7.0/mio/struct.Poll.html#notes
                 if e.kind() == io::ErrorKind::Interrupted {
                     continue;
                 } else {
@@ -104,7 +105,8 @@ impl EventSource for UnixInternalEventSource {
                                     }
                                 }
                                 Err(e) => {
-                                    // No more data to read at the moment. We will receive another event
+                                    // No more data to read at the moment. We will receive another
+                                    // event
                                     if e.kind() == io::ErrorKind::WouldBlock {
                                         break;
                                     }
@@ -122,12 +124,6 @@ impl EventSource for UnixInternalEventSource {
                     }
                     SIGNAL_TOKEN => {
                         if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
-                            // TODO Should we remove tput?
-                            //
-                            // This can take a really long time, because terminal::size can
-                            // launch new process (tput) and then it parses its output. It's
-                            // not a really long time from the absolute time point of view, but
-                            // it's a really long time from an async executor's point of view.
                             let new_size = crate::terminal::size()?;
                             return Ok(Some(InternalEvent::Event(Event::Resize(
                                 new_size.0, new_size.1,
@@ -211,8 +207,9 @@ impl Parser {
                     // the current sequence. Keep the buffer and process next bytes.
                 }
                 Err(_) => {
-                    // Event can't be parsed (not enough parameters, parameter is not a number, ...).
-                    // Clear the buffer and continue with another sequence.
+                    // Event can't be parsed (not enough parameters, parameter is not a number,
+                    // ...). Clear the buffer and continue with another
+                    // sequence.
                     self.buffer.clear();
                 }
             }

@@ -136,7 +136,7 @@ fn get_char_for_key(key_event: &KeyEventRecord) -> Option<char> {
     let virtual_key_code = key_event.virtual_key_code as u32;
     let virtual_scan_code = key_event.virtual_scan_code as u32;
     let key_state = [0u8; 256];
-    let mut utf16_buf = [0u16, 16];
+    let mut utf16_buf = [0u16; 16];
     let dont_change_kernel_keyboard_state = 0x4;
 
     // Best-effort attempt at determining the currently active keyboard layout.
@@ -287,8 +287,10 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     None
 }
 
-// The 'y' position of a mouse event or resize event is not relative to the window but absolute to screen buffer.
-// This means that when the mouse cursor is at the top left it will be x: 0, y: 2295 (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0 to the window.
+// The 'y' position of a mouse event or resize event is not relative to the window but absolute to
+// screen buffer. This means that when the mouse cursor is at the top left it will be x: 0, y: 2295
+// (e.g. y = number of cells conting from the absolute buffer height) instead of relative x: 0, y: 0
+// to the window.
 pub fn parse_relative_y(y: i16) -> std::io::Result<i16> {
     let window_size = ScreenBuffer::current()?.info()?.terminal_window();
     Ok(y - window_size.top)

@@ -14,7 +14,8 @@ pub trait Command {
     /// An ANSI code can manipulate the terminal by writing it to the terminal buffer.
     /// However, only Windows 10 and UNIX systems support this.
     ///
-    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command
+    /// API](./index.html#command-api)
     fn write_ansi(&self, f: &mut impl fmt::Write) -> fmt::Result;
 
     /// Execute this command.
@@ -22,7 +23,8 @@ pub trait Command {
     /// Windows versions lower than windows 10 do not support ANSI escape codes,
     /// therefore a direct WinAPI call is made.
     ///
-    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command API](./index.html#command-api)
+    /// This method does not need to be accessed manually, as it is used by the crossterm's [Command
+    /// API](./index.html#command-api)
     #[cfg(windows)]
     fn execute_winapi(&self) -> io::Result<()>;
 
@@ -113,11 +115,11 @@ impl<T: Write + ?Sized> QueueableCommand for T {
     /// # Notes
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
-    ///   The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    ///   and can therefore not be written to the given `writer`.
-    ///   Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made. The reason
+    ///   for this is that Windows versions lower than 10 do not support ANSI codes, and can
+    ///   therefore not be written to the given `writer`. Therefore, there is no difference between
+    ///   [execute](./trait.ExecutableCommand.html) and [queue](./trait.QueueableCommand.html) for
+    ///   those old Windows versions.
     fn queue(&mut self, command: impl Command) -> io::Result<&mut Self> {
         #[cfg(windows)]
         if !command.is_ansi_code_supported() {
@@ -148,20 +150,20 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     /// # Example
     ///
     /// ```rust
-    /// use std::io;
     /// use crossterm::{ExecutableCommand, style::Print};
+    /// use std::io;
     ///
     /// fn main() -> io::Result<()> {
-    ///      // will be executed directly
-    ///       io::stdout()
+    ///     // will be executed directly
+    ///     io::stdout()
     ///         .execute(Print("sum:\n".to_string()))?
     ///         .execute(Print(format!("1 + 1= {} ", 1 + 1)))?;
     ///
-    ///       Ok(())
+    ///     Ok(())
     ///
-    ///      // ==== Output ====
-    ///      // sum:
-    ///      // 1 + 1 = 2
+    ///     // ==== Output ====
+    ///     // sum:
+    ///     // 1 + 1 = 2
     /// }
     /// ```
     ///
@@ -170,11 +172,11 @@ impl<T: Write + ?Sized> ExecutableCommand for T {
     /// # Notes
     ///
     /// * In the case of UNIX and Windows 10, ANSI codes are written to the given 'writer'.
-    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made.
-    ///   The reason for this is that Windows versions lower than 10 do not support ANSI codes,
-    ///   and can therefore not be written to the given `writer`.
-    ///   Therefore, there is no difference between [execute](./trait.ExecutableCommand.html)
-    ///   and [queue](./trait.QueueableCommand.html) for those old Windows versions.
+    /// * In case of Windows versions lower than 10, a direct WinAPI call will be made. The reason
+    ///   for this is that Windows versions lower than 10 do not support ANSI codes, and can
+    ///   therefore not be written to the given `writer`. Therefore, there is no difference between
+    ///   [execute](./trait.ExecutableCommand.html) and [queue](./trait.QueueableCommand.html) for
+    ///   those old Windows versions.
     fn execute(&mut self, command: impl Command) -> io::Result<&mut Self> {
         self.queue(command)?;
         self.flush()?;
@@ -203,8 +205,8 @@ impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
     /// # Examples
     ///
     /// ```rust
-    /// use std::io;
     /// use crossterm::{ExecutableCommand, SynchronizedUpdate, style::Print};
+    /// use std::io;
     ///
     /// fn main() -> io::Result<()> {
     ///     let mut stdout = io::stdout();
@@ -229,19 +231,20 @@ impl<W: std::io::Write + ?Sized> SynchronizedUpdate for W {
     ///
     /// # Notes
     ///
-    /// This command is performed only using ANSI codes, and will do nothing on terminals that do not support ANSI
-    /// codes, or this specific extension.
+    /// This command is performed only using ANSI codes, and will do nothing on terminals that do
+    /// not support ANSI codes, or this specific extension.
     ///
-    /// When rendering the screen of the terminal, the Emulator usually iterates through each visible grid cell and
-    /// renders its current state. With applications updating the screen a at higher frequency this can cause tearing.
+    /// When rendering the screen of the terminal, the Emulator usually iterates through each
+    /// visible grid cell and renders its current state. With applications updating the screen a
+    /// at higher frequency this can cause tearing.
     ///
     /// This mode attempts to mitigate that.
     ///
-    /// When the synchronization mode is enabled following render calls will keep rendering the last rendered state.
-    /// The terminal Emulator keeps processing incoming text and sequences. When the synchronized update mode is disabled
-    /// again the renderer may fetch the latest screen buffer state again, effectively avoiding the tearing effect
-    /// by unintentionally rendering in the middle a of an application screen update.
-    ///
+    /// When the synchronization mode is enabled following render calls will keep rendering the last
+    /// rendered state. The terminal Emulator keeps processing incoming text and sequences. When
+    /// the synchronized update mode is disabled again the renderer may fetch the latest screen
+    /// buffer state again, effectively avoiding the tearing effect by unintentionally rendering
+    /// in the middle a of an application screen update.
     fn sync_update<T>(&mut self, operations: impl FnOnce(&mut Self) -> T) -> io::Result<T> {
         self.queue(BeginSynchronizedUpdate)?;
         let result = operations(self);

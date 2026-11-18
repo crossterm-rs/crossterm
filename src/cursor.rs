@@ -10,14 +10,16 @@
 //! ## Examples
 //!
 //! Cursor actions can be performed with commands.
-//! Please have a look at [command documentation](../index.html#command-api) for a more detailed documentation.
+//! Please have a look at [command documentation](../index.html#command-api) for a more detailed
+//! documentation.
 //!
 //! ```no_run
 //! use std::io::{self, Write};
 //!
 //! use crossterm::{
-//!     ExecutableCommand, execute,
-//!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition}
+//!     ExecutableCommand,
+//!     cursor::{DisableBlinking, EnableBlinking, MoveTo, RestorePosition, SavePosition},
+//!     execute,
 //! };
 //!
 //! fn main() -> io::Result<()> {
@@ -31,12 +33,12 @@
 //!         RestorePosition
 //!     );
 //!
-//!   // with function
-//!   io::stdout()
-//!     .execute(MoveTo(11,11))?
-//!     .execute(RestorePosition);
+//!     // with function
+//!     io::stdout()
+//!         .execute(MoveTo(11, 11))?
+//!         .execute(RestorePosition);
 //!
-//!  Ok(())
+//!     Ok(())
 //! }
 //! ```
 //!
@@ -330,8 +332,8 @@ impl Command for Show {
 ///
 /// # Notes
 ///
-/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
-///   Use `SetCursorStyle` for better cross-compatibility.
+/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10
+///   do not support this functionality. Use `SetCursorStyle` for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EnableBlinking;
@@ -349,8 +351,8 @@ impl Command for EnableBlinking {
 ///
 /// # Notes
 ///
-/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10 do not support this functionality.
-///   Use `SetCursorStyle` for better cross-compatibility.
+/// - Some Unix terminals (ex: GNOME and Konsole) as well as Windows versions lower than Windows 10
+///   do not support this functionality. Use `SetCursorStyle` for better cross-compatibility.
 /// - Commands must be executed/queued for execution otherwise they do nothing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DisableBlinking;
