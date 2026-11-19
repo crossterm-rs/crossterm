@@ -37,6 +37,8 @@
 
 ## Fixed 🐛
 
+- Fix `EventStream` waking the first task that polled it instead of the latest one when two
+  tasks poll the same stream while it waits for input (#1174).
 - Fix color commands emitting a bare `CSI m` when colors are disabled via
   `NO_COLOR`, which reset every attribute instead of doing nothing.
   Affects `SetForegroundColor`, `SetBackgroundColor`, `SetUnderlineColor`,
