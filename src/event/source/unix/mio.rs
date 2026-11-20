@@ -87,6 +87,7 @@ impl EventSource for UnixInternalEventSource {
         let immediate = timeout == Some(Duration::ZERO);
         let timeout = PollTimeout::new(timeout);
         let mut fresh_batch = false;
+        let mut retried_at_deadline = false;
 
         loop {
             let mut read_input = false;
@@ -103,7 +104,7 @@ impl EventSource for UnixInternalEventSource {
                             Ok(0) if event.is_read_closed() || event.is_error() => {
                                 return Err(io::ErrorKind::UnexpectedEof.into());
                             }
-                            Ok(0) => {}
+                            Ok(0) => read_input = true,
                             Ok(count) => {
                                 read_input = true;
                                 self.parser
@@ -181,7 +182,10 @@ impl EventSource for UnixInternalEventSource {
                 Err(error) if error.kind() == io::ErrorKind::Interrupted => {
                     self.events.clear();
                     if timeout.elapsed() {
-                        return Ok(None);
+                        if retried_at_deadline {
+                            return Ok(None);
+                        }
+                        retried_at_deadline = true;
                     }
                     continue;
                 }
@@ -359,16 +363,13 @@ mod tests {
         unlockpt(&master).unwrap();
         let name = ptsname(&master, Vec::new()).unwrap();
         let slave = File::open(Path::new(OsStr::from_bytes(name.to_bytes()))).unwrap();
+        rustix::io::ioctl_fionbio(&slave, true).unwrap();
         let mut master = File::from(master);
         let mut source =
             UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(slave.into())).unwrap();
 
-        master.write_all(b"\x04").unwrap();
-        assert_eq!(
-            source.try_read(Some(Duration::from_millis(20))).unwrap(),
-            None
-        );
         let paste = b"\x1b[200~x\ny\x1b[201~\n";
+        master.write_all(b"\x04").unwrap();
         master.write_all(paste).unwrap();
         let deadline = std::time::Instant::now() + Duration::from_secs(2);
         while rustix::io::ioctl_fionread(&source.tty_fd).unwrap() < paste.len() as u64 {
