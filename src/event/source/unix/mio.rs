@@ -451,6 +451,34 @@ mod tests {
     #[cfg(feature = "event-stream")]
     #[test]
     fn wake_survives_refresh_of_drained_input() {
+        const CHILD: &str = "CROSSTERM_TEST_WAKE_REFRESH_CHILD";
+        if std::env::var_os(CHILD).is_none() {
+            let mut child = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    concat!(module_path!(), "::wake_survives_refresh_of_drained_input")
+                        .split_once("::")
+                        .unwrap()
+                        .1,
+                ])
+                .env(CHILD, "1")
+                .spawn()
+                .unwrap();
+            let deadline = std::time::Instant::now() + Duration::from_secs(3);
+            loop {
+                if let Some(status) = child.try_wait().unwrap() {
+                    assert!(status.success(), "wake test child failed: {status}");
+                    return;
+                }
+                if std::time::Instant::now() >= deadline {
+                    let _ = child.kill();
+                    child.wait().unwrap();
+                    panic!("wake did not interrupt the blocking read");
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        }
+
         let (mut sender, receiver) = UnixStream::pair().unwrap();
         let mut source =
             UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
