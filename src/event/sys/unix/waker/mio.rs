@@ -1,34 +1,32 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    io::{self, Write},
+    os::{fd::AsRawFd, unix::net::UnixStream},
+    sync::Arc,
+};
 
-use ::mio::{Registry, Token};
+use ::mio::{Interest, Registry, Token, unix::SourceFd};
 
-/// Allows to wake up the `mio::Poll::poll()` method.
-/// This type wraps `mio::Waker`, for more information see its documentation.
+/// Uses a separate descriptor so registry operations cannot consume an application wake.
 #[derive(Clone, Debug)]
-pub(crate) struct Waker {
-    inner: Arc<Mutex<::mio::Waker>>,
-}
+pub(crate) struct Waker(Arc<UnixStream>);
 
 impl Waker {
-    /// Create a new `Waker`.
-    pub(crate) fn new(registry: &Registry, waker_token: Token) -> std::io::Result<Self> {
-        Ok(Self {
-            inner: Arc::new(Mutex::new(mio::Waker::new(registry, waker_token)?)),
-        })
+    pub(crate) fn new(registry: &Registry, token: Token) -> io::Result<(Self, UnixStream)> {
+        let (sender, receiver) = UnixStream::pair()?;
+        sender.set_nonblocking(true)?;
+        receiver.set_nonblocking(true)?;
+        registry.register(
+            &mut SourceFd(&receiver.as_raw_fd()),
+            token,
+            Interest::READABLE,
+        )?;
+        Ok((Self(Arc::new(sender)), receiver))
     }
 
-    /// Wake up the [`Poll`] associated with this `Waker`.
-    ///
-    /// Readiness is set to `Ready::readable()`.
-    pub(crate) fn wake(&self) -> std::io::Result<()> {
-        self.inner.lock().unwrap().wake()
-    }
-
-    /// Resets the state so the same waker can be reused.
-    ///
-    /// This function is not impl
-    #[allow(dead_code, clippy::unnecessary_wraps)]
-    pub(crate) fn reset(&self) -> std::io::Result<()> {
-        Ok(())
+    pub(crate) fn wake(&self) -> io::Result<()> {
+        match (&*self.0).write_all(&[0]) {
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => Ok(()),
+            result => result,
+        }
     }
 }

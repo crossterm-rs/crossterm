@@ -1,4 +1,9 @@
 use std::{collections::VecDeque, io, time::Duration};
+#[cfg(feature = "event-stream")]
+use std::{
+    io::Read,
+    os::{fd::AsRawFd, unix::net::UnixStream},
+};
 
 use mio::{Events, Interest, Poll, Token, unix::SourceFd};
 use signal_hook_mio::v1_0::Signals;
@@ -33,6 +38,8 @@ pub(crate) struct UnixInternalEventSource {
     signals: Signals,
     #[cfg(feature = "event-stream")]
     waker: Waker,
+    #[cfg(feature = "event-stream")]
+    wake_receiver: UnixStream,
 }
 
 impl UnixInternalEventSource {
@@ -52,7 +59,7 @@ impl UnixInternalEventSource {
         registry.register(&mut signals, SIGNAL_TOKEN, Interest::READABLE)?;
 
         #[cfg(feature = "event-stream")]
-        let waker = Waker::new(registry, WAKE_TOKEN)?;
+        let (waker, wake_receiver) = Waker::new(registry, WAKE_TOKEN)?;
 
         Ok(UnixInternalEventSource {
             poll,
@@ -65,16 +72,20 @@ impl UnixInternalEventSource {
             signals,
             #[cfg(feature = "event-stream")]
             waker,
+            #[cfg(feature = "event-stream")]
+            wake_receiver,
         })
     }
 }
 
 impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
+        let immediate = timeout == Some(Duration::ZERO);
         let timeout = PollTimeout::new(timeout);
         let mut fresh_batch = false;
 
         loop {
+            let mut full_read = false;
             while let Some(token) = self.events.iter().nth(self.next_event).map(|e| e.token()) {
                 self.next_event += 1;
                 match token {
@@ -85,13 +96,15 @@ impl EventSource for UnixInternalEventSource {
                         }
                         match self.tty_fd.read(&mut self.tty_buffer) {
                             Ok(0) => return Err(io::ErrorKind::UnexpectedEof.into()),
-                            Ok(count) => self
-                                .parser
-                                .advance(&self.tty_buffer[..count], count == TTY_BUFFER_SIZE),
-                            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
-                                self.tty_needs_refresh = false;
+                            Ok(count) => {
+                                full_read = count == TTY_BUFFER_SIZE;
+                                self.parser.advance(&self.tty_buffer[..count], full_read);
                             }
-                            Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
+                            Err(error)
+                                if matches!(
+                                    error.kind(),
+                                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                                ) => {}
                             Err(error) => return Err(error),
                         }
                         if let Some(event) = self.parser.next() {
@@ -108,6 +121,20 @@ impl EventSource for UnixInternalEventSource {
                     }
                     #[cfg(feature = "event-stream")]
                     WAKE_TOKEN => {
+                        match self.wake_receiver.read(&mut [0; 1024]) {
+                            Ok(_) => {}
+                            Err(error)
+                                if matches!(
+                                    error.kind(),
+                                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
+                                ) => {}
+                            Err(error) => return Err(error),
+                        }
+                        self.poll.registry().reregister(
+                            &mut SourceFd(&self.wake_receiver.as_raw_fd()),
+                            WAKE_TOKEN,
+                            Interest::READABLE,
+                        )?;
                         return Err(std::io::Error::new(
                             std::io::ErrorKind::Interrupted,
                             "Poll operation was woken up by `Waker::wake`",
@@ -120,7 +147,7 @@ impl EventSource for UnixInternalEventSource {
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
             }
-            if fresh_batch && timeout.elapsed() {
+            if fresh_batch && timeout.elapsed() && !(immediate && full_read) {
                 return Ok(None);
             }
 
@@ -330,5 +357,34 @@ mod tests {
         }
         let eof = source.try_read(Some(Duration::ZERO)).unwrap_err();
         assert_eq!(eof.kind(), io::ErrorKind::UnexpectedEof);
+    }
+
+    #[cfg(feature = "event-stream")]
+    #[test]
+    fn wake_survives_refresh_of_drained_input() {
+        let (mut sender, receiver) = UnixStream::pair().unwrap();
+        let mut source =
+            UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
+                .unwrap();
+        sender.write_all(b"x").unwrap();
+        assert!(source.try_read(Some(Duration::ZERO)).unwrap().is_some());
+        source.waker().wake().unwrap();
+        let error = source.try_read(Some(Duration::ZERO)).unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::Interrupted);
+    }
+
+    #[cfg(feature = "bracketed-paste")]
+    #[test]
+    fn zero_timeout_reads_a_complete_queued_paste() {
+        let (mut sender, receiver) = UnixStream::pair().unwrap();
+        let mut source =
+            UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
+                .unwrap();
+        let text = "x".repeat(TTY_BUFFER_SIZE);
+        write!(sender, "\x1b[200~{text}\x1b[201~").unwrap();
+        assert_eq!(
+            source.try_read(Some(Duration::ZERO)).unwrap(),
+            Some(InternalEvent::Event(Event::Paste(text))),
+        );
     }
 }
