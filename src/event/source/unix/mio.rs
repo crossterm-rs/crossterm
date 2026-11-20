@@ -80,13 +80,18 @@ impl UnixInternalEventSource {
 
 impl EventSource for UnixInternalEventSource {
     fn try_read(&mut self, timeout: Option<Duration>) -> io::Result<Option<InternalEvent>> {
+        if let Some(event) = self.parser.next() {
+            return Ok(Some(event));
+        }
+
         let immediate = timeout == Some(Duration::ZERO);
         let timeout = PollTimeout::new(timeout);
         let mut fresh_batch = false;
 
         loop {
-            let mut full_read = false;
-            while let Some(token) = self.events.iter().nth(self.next_event).map(|e| e.token()) {
+            let mut read_input = false;
+            while let Some(event) = self.events.iter().nth(self.next_event) {
+                let token = event.token();
                 self.next_event += 1;
                 match token {
                     TTY_TOKEN => {
@@ -95,10 +100,14 @@ impl EventSource for UnixInternalEventSource {
                             continue;
                         }
                         match self.tty_fd.read(&mut self.tty_buffer) {
-                            Ok(0) => return Err(io::ErrorKind::UnexpectedEof.into()),
+                            Ok(0) if event.is_read_closed() || event.is_error() => {
+                                return Err(io::ErrorKind::UnexpectedEof.into());
+                            }
+                            Ok(0) => {}
                             Ok(count) => {
-                                full_read = count == TTY_BUFFER_SIZE;
-                                self.parser.advance(&self.tty_buffer[..count], full_read);
+                                read_input = true;
+                                self.parser
+                                    .advance(&self.tty_buffer[..count], count == TTY_BUFFER_SIZE);
                             }
                             Err(error)
                                 if matches!(
@@ -147,7 +156,7 @@ impl EventSource for UnixInternalEventSource {
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
             }
-            if fresh_batch && timeout.elapsed() && !(immediate && full_read) {
+            if fresh_batch && timeout.elapsed() && !(immediate && read_input) {
                 return Ok(None);
             }
 
@@ -275,7 +284,7 @@ mod tests {
 
     #[cfg(feature = "event-stream")]
     #[test]
-    fn wake_before_input_does_not_strand_the_original_byte() {
+    fn co_ready_wake_and_input_are_both_delivered() {
         let (mut sender, receiver) = UnixStream::pair().unwrap();
         let mut source =
             UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
@@ -283,25 +292,93 @@ mod tests {
         source.waker().wake().unwrap();
         sender.write_all(b"x").unwrap();
 
-        let wake = source.try_read(Some(Duration::ZERO)).unwrap_err();
-        assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
-        assert_eq!(
+        let key = InternalEvent::Event(Event::Key(KeyEvent::new(
+            KeyCode::Char('x'),
+            KeyModifiers::NONE,
+        )));
+        let first = source.try_read(Some(Duration::ZERO));
+        assert!(
             source
                 .events
                 .iter()
-                .map(|event| event.token())
-                .collect::<Vec<_>>(),
-            [WAKE_TOKEN, TTY_TOKEN],
-            "the Linux test must exercise one wake-first readiness batch",
+                .any(|event| event.token() == WAKE_TOKEN)
         );
+        assert!(source.events.iter().any(|event| event.token() == TTY_TOKEN));
+        match first {
+            Err(wake) => {
+                assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
+                assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), Some(key));
+            }
+            Ok(event) => {
+                assert_eq!(event, Some(key));
+                let wake = source.try_read(Some(Duration::ZERO)).unwrap_err();
+                assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
+            }
+        }
+        assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), None);
+    }
+
+    #[cfg(feature = "event-stream")]
+    #[test]
+    fn decoded_cursor_reply_precedes_saved_control_readiness() {
+        let (_sender, receiver) = UnixStream::pair().unwrap();
+        let mut source =
+            UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
+                .unwrap();
+        source.waker().wake().unwrap();
+        source
+            .poll
+            .poll(&mut source.events, Some(Duration::ZERO))
+            .unwrap();
+        assert!(
+            source
+                .events
+                .iter()
+                .any(|event| event.token() == WAKE_TOKEN)
+        );
+        source.parser.advance(b"\x1b[3;4R", false);
         assert_eq!(
             source.try_read(Some(Duration::ZERO)).unwrap(),
-            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
-                KeyCode::Char('x'),
-                KeyModifiers::NONE,
-            )))),
+            Some(InternalEvent::CursorPosition(3, 2)),
         );
-        assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), None);
+        assert_eq!(
+            source.try_read(Some(Duration::ZERO)).unwrap_err().kind(),
+            io::ErrorKind::Interrupted,
+        );
+    }
+
+    #[cfg(feature = "bracketed-paste")]
+    #[test]
+    fn canonical_pty_distinguishes_eof_and_reads_short_paste_chunks() {
+        use std::{ffi::OsStr, fs::File, os::unix::ffi::OsStrExt, path::Path};
+
+        use rustix::pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt};
+
+        let master = openpt(OpenptFlags::RDWR).unwrap();
+        grantpt(&master).unwrap();
+        unlockpt(&master).unwrap();
+        let name = ptsname(&master, Vec::new()).unwrap();
+        let slave = File::open(Path::new(OsStr::from_bytes(name.to_bytes()))).unwrap();
+        let mut master = File::from(master);
+        let mut source =
+            UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(slave.into())).unwrap();
+
+        master.write_all(b"\x04").unwrap();
+        assert_eq!(
+            source.try_read(Some(Duration::from_millis(20))).unwrap(),
+            None
+        );
+        let paste = b"\x1b[200~x\ny\x1b[201~\n";
+        master.write_all(paste).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(2);
+        while rustix::io::ioctl_fionread(&source.tty_fd).unwrap() < paste.len() as u64 {
+            assert!(std::time::Instant::now() < deadline, "paste was not queued");
+            std::thread::yield_now();
+        }
+        assert_eq!(
+            source.try_read(Some(Duration::ZERO)).unwrap(),
+            Some(InternalEvent::Event(Event::Paste("x\ny".into()))),
+        );
     }
 
     #[test]
