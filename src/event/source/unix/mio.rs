@@ -85,12 +85,15 @@ impl EventSource for UnixInternalEventSource {
         }
 
         let immediate = timeout == Some(Duration::ZERO);
+        #[cfg(feature = "event-stream")]
+        let wakeable = timeout.is_none();
         let timeout = PollTimeout::new(timeout);
         let mut fresh_batch = false;
         let mut retried_at_deadline = false;
 
         loop {
             let mut read_input = false;
+            let mut retry_read = false;
             while let Some(event) = self.events.iter().nth(self.next_event) {
                 let token = event.token();
                 self.next_event += 1;
@@ -110,11 +113,12 @@ impl EventSource for UnixInternalEventSource {
                                 self.parser
                                     .advance(&self.tty_buffer[..count], count == TTY_BUFFER_SIZE);
                             }
-                            Err(error)
-                                if matches!(
-                                    error.kind(),
-                                    io::ErrorKind::WouldBlock | io::ErrorKind::Interrupted
-                                ) => {}
+                            Err(error) if error.kind() == io::ErrorKind::Interrupted => {
+                                let elapsed = timeout.elapsed();
+                                retry_read = !elapsed || !retried_at_deadline;
+                                retried_at_deadline |= elapsed;
+                            }
+                            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {}
                             Err(error) => return Err(error),
                         }
                         if let Some(event) = self.parser.next() {
@@ -145,10 +149,12 @@ impl EventSource for UnixInternalEventSource {
                             WAKE_TOKEN,
                             Interest::READABLE,
                         )?;
-                        return Err(std::io::Error::new(
-                            std::io::ErrorKind::Interrupted,
-                            "Poll operation was woken up by `Waker::wake`",
-                        ));
+                        if wakeable {
+                            return Err(io::Error::new(
+                                io::ErrorKind::Interrupted,
+                                "Poll operation was woken up by `Waker::wake`",
+                            ));
+                        }
                     }
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
@@ -157,7 +163,7 @@ impl EventSource for UnixInternalEventSource {
             if let Some(event) = self.parser.next() {
                 return Ok(Some(event));
             }
-            if fresh_batch && timeout.elapsed() && !(immediate && read_input) {
+            if fresh_batch && timeout.elapsed() && !(retry_read || immediate && read_input) {
                 return Ok(None);
             }
 
@@ -177,6 +183,7 @@ impl EventSource for UnixInternalEventSource {
             }
             self.events.clear();
             self.next_event = 0;
+            fresh_batch = false;
             match self.poll.poll(&mut self.events, timeout.leftover()) {
                 Ok(()) => {}
                 Err(error) if error.kind() == io::ErrorKind::Interrupted => {
@@ -300,7 +307,7 @@ mod tests {
             KeyCode::Char('x'),
             KeyModifiers::NONE,
         )));
-        let first = source.try_read(Some(Duration::ZERO));
+        let first = source.try_read(None);
         assert!(
             source
                 .events
@@ -315,7 +322,7 @@ mod tests {
             }
             Ok(event) => {
                 assert_eq!(event, Some(key));
-                let wake = source.try_read(Some(Duration::ZERO)).unwrap_err();
+                let wake = source.try_read(None).unwrap_err();
                 assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
             }
         }
@@ -325,7 +332,7 @@ mod tests {
     #[cfg(feature = "event-stream")]
     #[test]
     fn decoded_cursor_reply_precedes_saved_control_readiness() {
-        let (_sender, receiver) = UnixStream::pair().unwrap();
+        let (mut sender, receiver) = UnixStream::pair().unwrap();
         let mut source =
             UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
                 .unwrap();
@@ -345,9 +352,13 @@ mod tests {
             source.try_read(Some(Duration::ZERO)).unwrap(),
             Some(InternalEvent::CursorPosition(3, 2)),
         );
+        sender.write_all(b"x").unwrap();
         assert_eq!(
-            source.try_read(Some(Duration::ZERO)).unwrap_err().kind(),
-            io::ErrorKind::Interrupted,
+            source.try_read(Some(Duration::ZERO)).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('x'),
+                KeyModifiers::NONE,
+            )))),
         );
     }
 
@@ -447,7 +458,7 @@ mod tests {
         sender.write_all(b"x").unwrap();
         assert!(source.try_read(Some(Duration::ZERO)).unwrap().is_some());
         source.waker().wake().unwrap();
-        let error = source.try_read(Some(Duration::ZERO)).unwrap_err();
+        let error = source.try_read(None).unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::Interrupted);
     }
 
