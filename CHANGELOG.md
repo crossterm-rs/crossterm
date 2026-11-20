@@ -52,6 +52,9 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Keep unread Unix Mio input available after a wake or resize shares its
+  readiness batch. Incomplete input returns to polling instead of blocking
+  on a second read (#1173).
 
 # Version 0.29
 
