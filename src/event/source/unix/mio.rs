@@ -31,6 +31,8 @@ pub(crate) struct UnixInternalEventSource {
     poll: Poll,
     events: Events,
     next_event: usize,
+    #[cfg(all(test, target_os = "linux", feature = "event-stream"))]
+    first_test_token: Option<Token>,
     tty_needs_refresh: bool,
     parser: Parser,
     tty_buffer: [u8; TTY_BUFFER_SIZE],
@@ -65,6 +67,8 @@ impl UnixInternalEventSource {
             poll,
             events: Events::with_capacity(3),
             next_event: 0,
+            #[cfg(all(test, target_os = "linux", feature = "event-stream"))]
+            first_test_token: None,
             tty_needs_refresh: false,
             parser: Parser::default(),
             tty_buffer: [0u8; TTY_BUFFER_SIZE],
@@ -94,7 +98,23 @@ impl EventSource for UnixInternalEventSource {
         loop {
             let mut read_input = false;
             let mut retry_read = false;
-            while let Some(event) = self.events.iter().nth(self.next_event) {
+            loop {
+                let mut events = self.events.iter();
+                let index = self.next_event;
+                #[cfg(all(test, target_os = "linux", feature = "event-stream"))]
+                let index = match self.first_test_token {
+                    Some(token)
+                        if index < 2
+                            && self.events.iter().count() == 2
+                            && self.events.iter().nth(1).unwrap().token() == token =>
+                    {
+                        index ^ 1
+                    }
+                    _ => index,
+                };
+                let Some(event) = events.nth(index) else {
+                    break;
+                };
                 let token = event.token();
                 self.next_event += 1;
                 match token {
@@ -296,10 +316,25 @@ mod tests {
     #[cfg(feature = "event-stream")]
     #[test]
     fn co_ready_wake_and_input_are_both_delivered() {
+        if !run_with_watchdog(concat!(
+            module_path!(),
+            "::co_ready_wake_and_input_are_both_delivered"
+        )) {
+            return;
+        }
+
+        for first in [WAKE_TOKEN, TTY_TOKEN] {
+            check_co_ready_order(first);
+        }
+    }
+
+    #[cfg(feature = "event-stream")]
+    fn check_co_ready_order(first_token: Token) {
         let (mut sender, receiver) = UnixStream::pair().unwrap();
         let mut source =
             UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(receiver.into()))
                 .unwrap();
+        source.first_test_token = Some(first_token);
         source.waker().wake().unwrap();
         sender.write_all(b"x").unwrap();
 
@@ -315,16 +350,13 @@ mod tests {
                 .any(|event| event.token() == WAKE_TOKEN)
         );
         assert!(source.events.iter().any(|event| event.token() == TTY_TOKEN));
-        match first {
-            Err(wake) => {
-                assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
-                assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), Some(key));
-            }
-            Ok(event) => {
-                assert_eq!(event, Some(key));
-                let wake = source.try_read(None).unwrap_err();
-                assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
-            }
+        if first_token == WAKE_TOKEN {
+            assert_eq!(first.unwrap_err().kind(), io::ErrorKind::Interrupted);
+            assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), Some(key));
+        } else {
+            assert_eq!(first.unwrap(), Some(key));
+            let wake = source.try_read(None).unwrap_err();
+            assert_eq!(wake.kind(), io::ErrorKind::Interrupted);
         }
         assert_eq!(source.try_read(Some(Duration::ZERO)).unwrap(), None);
     }
@@ -451,32 +483,11 @@ mod tests {
     #[cfg(feature = "event-stream")]
     #[test]
     fn wake_survives_refresh_of_drained_input() {
-        const CHILD: &str = "CROSSTERM_TEST_WAKE_REFRESH_CHILD";
-        if std::env::var_os(CHILD).is_none() {
-            let mut child = std::process::Command::new(std::env::current_exe().unwrap())
-                .args([
-                    "--exact",
-                    concat!(module_path!(), "::wake_survives_refresh_of_drained_input")
-                        .split_once("::")
-                        .unwrap()
-                        .1,
-                ])
-                .env(CHILD, "1")
-                .spawn()
-                .unwrap();
-            let deadline = std::time::Instant::now() + Duration::from_secs(3);
-            loop {
-                if let Some(status) = child.try_wait().unwrap() {
-                    assert!(status.success(), "wake test child failed: {status}");
-                    return;
-                }
-                if std::time::Instant::now() >= deadline {
-                    let _ = child.kill();
-                    child.wait().unwrap();
-                    panic!("wake did not interrupt the blocking read");
-                }
-                std::thread::sleep(Duration::from_millis(10));
-            }
+        if !run_with_watchdog(concat!(
+            module_path!(),
+            "::wake_survives_refresh_of_drained_input"
+        )) {
+            return;
         }
 
         let (mut sender, receiver) = UnixStream::pair().unwrap();
@@ -488,6 +499,32 @@ mod tests {
         source.waker().wake().unwrap();
         let error = source.try_read(None).unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::Interrupted);
+    }
+
+    #[cfg(feature = "event-stream")]
+    fn run_with_watchdog(test: &str) -> bool {
+        const CHILD: &str = "CROSSTERM_TEST_MIO_WAKE_CHILD";
+        if std::env::var_os(CHILD).is_none() {
+            let mut child = std::process::Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", test.split_once("::").unwrap().1])
+                .env(CHILD, "1")
+                .spawn()
+                .unwrap();
+            let deadline = std::time::Instant::now() + Duration::from_secs(3);
+            loop {
+                if let Some(status) = child.try_wait().unwrap() {
+                    assert!(status.success(), "wake test child failed: {status}");
+                    return false;
+                }
+                if std::time::Instant::now() >= deadline {
+                    let _ = child.kill();
+                    child.wait().unwrap();
+                    panic!("wake did not interrupt the blocking read");
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        }
+        true
     }
 
     #[cfg(feature = "bracketed-paste")]
