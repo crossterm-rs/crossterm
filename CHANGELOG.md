@@ -30,6 +30,8 @@
   events can be built without struct literals.
 - Implement `From<KeyEvent>` and `From<MouseEvent>` for `Event`, so synthetic events can be
   built with `KeyEvent::new(..).into()` instead of wrapping them in `Event::Key`/`Event::Mouse`.
+- Add `terminal::supports_keyboard_enhancement_timeout`, which waits up to the given duration
+  for the terminal's reply instead of the fixed 2 seconds of `supports_keyboard_enhancement`.
 
 ## Changed ⚙️
 

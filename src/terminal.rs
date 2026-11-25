@@ -104,7 +104,7 @@ use crate::{csi, impl_display};
 pub(crate) mod sys;
 
 #[cfg(feature = "events")]
-pub use sys::supports_keyboard_enhancement;
+pub use sys::{supports_keyboard_enhancement, supports_keyboard_enhancement_timeout};
 
 /// Tells whether the raw mode is enabled.
 ///
