@@ -52,6 +52,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix characters entered as Windows Alt codes being reported as key releases. The console
+  delivers the character on the Alt key release, and it also uses Alt codes for pasted characters
+  that the keyboard layout cannot type, so code that handles only key presses dropped them. They
+  are now key presses.
 
 # Version 0.29
 

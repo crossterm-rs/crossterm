@@ -197,8 +197,9 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
     let modifiers = KeyModifiers::from(&key_event.control_key_state);
     let virtual_key_code = key_event.virtual_key_code as i32;
 
-    // We normally ignore all key release events, but we will make an exception for an Alt key
-    // release if it carries a u_char value, as this indicates an Alt code.
+    // An Alt key release that carries a u_char value completes an Alt code. The console also
+    // delivers pasted characters that the keyboard layout cannot type this way. The character is
+    // reported as a key press, because this record is the only one that carries it.
     let is_alt_code = virtual_key_code == VK_MENU && !key_event.key_down && key_event.u_char != 0;
     if is_alt_code {
         let utf16 = key_event.u_char;
@@ -211,13 +212,7 @@ fn parse_key_event_record(key_event: &KeyEventRecord) -> Option<WindowsKeyEvent>
                 // u16 values that are invalid when directly interpreted as unicode scalar
                 // values.
                 let ch = std::char::from_u32(unicode_scalar_value as u32).unwrap();
-                let key_code = KeyCode::Char(ch);
-                let kind = if key_event.key_down {
-                    KeyEventKind::Press
-                } else {
-                    KeyEventKind::Release
-                };
-                let key_event = KeyEvent::new_with_kind(key_code, modifiers, kind);
+                let key_event = KeyEvent::new(KeyCode::Char(ch), modifiers);
                 return Some(WindowsKeyEvent::KeyEvent(key_event));
             }
         }
@@ -369,4 +364,40 @@ fn parse_mouse_event_record(
         row: ypos,
         modifiers,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm_winapi::InputRecord;
+    use winapi::um::{
+        wincon::{INPUT_RECORD, KEY_EVENT},
+        winuser::VK_MENU,
+    };
+
+    use super::handle_key_event;
+    use crate::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+
+    #[test]
+    fn alt_code_character_is_a_key_press() {
+        // SAFETY: INPUT_RECORD is plain data, so all zero bytes is a valid value.
+        let mut record: INPUT_RECORD = unsafe { std::mem::zeroed() };
+        record.EventType = KEY_EVENT;
+        // SAFETY: EventType marks the union as holding a KEY_EVENT_RECORD.
+        let alt_release = unsafe { record.Event.KeyEvent_mut() };
+        alt_release.wRepeatCount = 1;
+        alt_release.wVirtualKeyCode = VK_MENU as u16;
+        // SAFETY: The wide character variant is the one crossterm reads.
+        unsafe { *alt_release.uChar.UnicodeChar_mut() = '€' as u16 };
+        let InputRecord::KeyEvent(alt_release) = InputRecord::from(record) else {
+            unreachable!("EventType is KEY_EVENT");
+        };
+
+        assert_eq!(
+            handle_key_event(alt_release, &mut None),
+            Some(Event::Key(KeyEvent::new(
+                KeyCode::Char('€'),
+                KeyModifiers::NONE
+            )))
+        );
+    }
 }
