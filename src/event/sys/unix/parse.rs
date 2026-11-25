@@ -630,6 +630,19 @@ pub(crate) fn parse_csi_special_key_code(buffer: &[u8]) -> io::Result<Option<Int
     // This CSI sequence can be a list of semicolon-separated numbers.
     let first = next_parsed::<u8>(&mut split)?;
 
+    // xterm's modifyOtherKeys reports a key as `CSI 27 ; modifiers ; codepoint ~`. It carries the
+    // same key as the `CSI codepoint ; modifiers u` form, so it is parsed as that form.
+    if first == 27 {
+        let modifier_mask = next_parsed::<u8>(&mut split)?;
+        let codepoint = next_parsed::<u32>(&mut split)?;
+        if split.next().is_some() {
+            return Err(could_not_parse_event_error());
+        }
+        return parse_csi_u_encoded_key_code(
+            format!("\x1B[{codepoint};{modifier_mask}u").as_bytes(),
+        );
+    }
+
     let (modifiers, kind, state) =
         if let Ok((modifier_mask, kind_code)) = modifier_and_kind_parsed(&mut split) {
             (
@@ -1587,6 +1600,39 @@ mod tests {
                 KeyCode::PageDown,
                 KeyModifiers::CONTROL,
                 KeyEventKind::Release,
+            )))),
+        );
+    }
+
+    #[test]
+    fn test_parse_csi_modify_other_keys() {
+        // xterm modifyOtherKeys: CSI 27 ; modifiers ; codepoint ~
+        assert_eq!(
+            parse_event(b"\x1B[27;5;13~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Enter,
+                KeyModifiers::CONTROL,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[27;5;127~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Backspace,
+                KeyModifiers::CONTROL,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[27;2;9~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::BackTab,
+                KeyModifiers::SHIFT,
+            )))),
+        );
+        assert_eq!(
+            parse_event(b"\x1B[27;6;65~", false).unwrap(),
+            Some(InternalEvent::Event(Event::Key(KeyEvent::new(
+                KeyCode::Char('A'),
+                KeyModifiers::CONTROL | KeyModifiers::SHIFT,
             )))),
         );
     }
