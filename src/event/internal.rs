@@ -43,6 +43,20 @@ where
     reader.poll(timeout, filter)
 }
 
+/// Checks whether a matching `InternalEvent` has already arrived.
+///
+/// Waits up to `timeout` for the event reader, but does not wait for new input.
+#[cfg(unix)]
+pub(crate) fn poll_arrived<F>(timeout: Duration, filter: &F) -> std::io::Result<bool>
+where
+    F: Filter,
+{
+    match try_lock_event_reader_for(timeout) {
+        Some(mut reader) => reader.poll_arrived(filter),
+        None => Ok(false),
+    }
+}
+
 /// Reads a single `InternalEvent`.
 pub(crate) fn read<F>(filter: &F) -> std::io::Result<InternalEvent>
 where

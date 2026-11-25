@@ -91,6 +91,32 @@ impl InternalEventReader {
         }
     }
 
+    /// Returns whether a valid `InternalEvent` is available without waiting for new input.
+    ///
+    /// All input that has already arrived is parsed into the event queue, so that a matching event
+    /// that follows other events is found as well.
+    #[cfg(unix)]
+    pub(crate) fn poll_arrived<F>(&mut self, filter: &F) -> io::Result<bool>
+    where
+        F: Filter,
+    {
+        let event_source = match self.source.as_mut() {
+            Some(source) => source,
+            None => return Err(std::io::Error::other("Failed to initialize input reader")),
+        };
+
+        loop {
+            match event_source.try_read(Some(Duration::ZERO)) {
+                Ok(Some(event)) => self.events.push_back(event),
+                Ok(None) => break,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => break,
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(self.events.iter().any(|event| filter.eval(event)))
+    }
+
     /// Blocks the thread until a valid `InternalEvent` can be read.
     ///
     /// Internally, we use `try_read`, which buffers the events that do not fulfill the filter

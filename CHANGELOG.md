@@ -52,6 +52,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix `supports_keyboard_enhancement` blocking `event::poll` and `event::read` on other
+  threads until the terminal answered or the query timed out after 2 seconds. The query now
+  waits without holding the event reader, and also finds a reply that another thread's
+  event read has already parsed.
 
 # Version 0.29
 

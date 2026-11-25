@@ -129,8 +129,9 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         internal::{self, InternalEvent},
     };
+    use mio::{Events, Interest, Poll, Token, unix::SourceFd};
     use std::io::Write;
-    use std::time::Duration;
+    use std::time::{Duration, Instant};
 
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device
@@ -156,27 +157,48 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
         stdout.flush()?;
     }
 
+    // Wait for the reply without holding the shared event reader. Holding it would block
+    // concurrent `event::poll` and `event::read` calls until the terminal answers or the query
+    // times out. The reader is taken only to check the input that has arrived, whichever thread
+    // read it.
+    let mut input = Poll::new()?;
+    // Some platforms cannot poll the terminal device, such as macOS with `/dev/tty`. There, only
+    // the periodic check below notices the reply.
+    let tty = tty_fd();
+    if let Ok(tty) = &tty {
+        let source = &mut SourceFd(&tty.raw_fd());
+        input
+            .registry()
+            .register(source, Token(0), Interest::READABLE)
+            .ok();
+    }
+    let mut events = Events::with_capacity(1);
+    let deadline = Instant::now() + Duration::from_millis(2000);
     loop {
-        match internal::poll(
-            Some(Duration::from_millis(2000)),
-            &KeyboardEnhancementFlagsFilter,
-        ) {
-            Ok(true) => {
-                match internal::read(&KeyboardEnhancementFlagsFilter) {
-                    Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
-                        // Flush the PrimaryDeviceAttributes out of the event queue.
-                        internal::read(&PrimaryDeviceAttributesFilter).ok();
-                        return Ok(Some(current_flags));
-                    }
-                    _ => return Ok(None),
+        let leftover = deadline.saturating_duration_since(Instant::now());
+        if let Ok(true) = internal::poll_arrived(leftover, &KeyboardEnhancementFlagsFilter) {
+            match internal::read(&KeyboardEnhancementFlagsFilter) {
+                Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
+                    // Flush the PrimaryDeviceAttributes out of the event queue.
+                    internal::read(&PrimaryDeviceAttributesFilter).ok();
+                    return Ok(Some(current_flags));
                 }
+                _ => return Ok(None),
             }
-            Ok(false) => {
-                return Err(io::Error::other(
-                    "The keyboard enhancement status could not be read within a normal duration",
-                ));
-            }
-            Err(_) => {}
+        }
+
+        let leftover = deadline.saturating_duration_since(Instant::now());
+        if leftover.is_zero() {
+            return Err(io::Error::other(
+                "The keyboard enhancement status could not be read within a normal duration",
+            ));
+        }
+        // Input that another thread reads first may not wake this poll, so check again after a
+        // short interval.
+        match input.poll(&mut events, Some(leftover.min(Duration::from_millis(10)))) {
+            Ok(()) => {}
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
+            Err(e) => return Err(e),
         }
     }
 }
@@ -243,17 +265,7 @@ mod tests {
     fn check_controlling_terminal_size() {
         assert_no_controlling_terminal();
 
-        // Explicitly acquire this endpoint as the child's controlling terminal rather than relying
-        // on platform-specific open behavior. Close the setup handle so the API must reopen the
-        // terminal through /dev/tty.
-        let terminal_path = std::env::var_os("CROSSTERM_TEST_TERMINAL_PATH").unwrap();
-        let terminal = File::options()
-            .read(true)
-            .write(true)
-            .open(terminal_path)
-            .unwrap();
-        rustix::process::ioctl_tiocsctty(&terminal).unwrap();
-        drop(terminal);
+        acquire_controlling_terminal();
 
         assert!(
             File::open("/dev/tty").is_ok(),
@@ -397,6 +409,119 @@ mod tests {
         assert!(crate::terminal::window_size().is_err());
 
         println!("terminal size checked");
+    }
+
+    /// Verify that event reads are not blocked while the keyboard enhancement query waits for a
+    /// reply, and that the query still finds a reply read by a concurrent event read. The parent
+    /// sends a key press before the reply and tells the child when the key press is queued.
+    #[test]
+    #[cfg(feature = "events")]
+    fn keyboard_enhancement_query_does_not_block_event_reads() {
+        use std::io::{Read, Write};
+
+        let (pty, _terminal) = terminal_with_size();
+        let test_name =
+            "terminal::sys::unix::tests::check_event_reads_during_keyboard_enhancement_query";
+        let mut child = child_test(test_name);
+        let name = ptsname(&pty, Vec::new()).unwrap();
+        let terminal_path = OsStr::from_bytes(name.to_bytes());
+        child
+            .arg("--show-output")
+            .env("CROSSTERM_TEST_TERMINAL_PATH", terminal_path)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null());
+        detach_controlling_terminal(&mut child);
+        let mut child = child.spawn().unwrap();
+
+        // The thread stays blocked if the child exits early.
+        let pty = File::from(pty);
+        let mut key_queued = child.stdin.take().unwrap();
+        std::thread::spawn(move || {
+            let mut received = Vec::new();
+            let mut buffer = [0; 64];
+            let mut read_until = |marker: &[u8]| {
+                while !received.ends_with(marker) {
+                    let count = (&pty).read(&mut buffer).unwrap();
+                    received.extend_from_slice(&buffer[..count]);
+                }
+            };
+            read_until(b"\x1B[?u\x1B[c");
+            (&pty).write_all(b"x").unwrap();
+            key_queued.write_all(b"\n").unwrap();
+            read_until(b"key read");
+            // Keyboard enhancement flags, then primary device attributes.
+            (&pty).write_all(b"\x1B[?1u\x1B[?62c").unwrap();
+        });
+
+        let output = child.wait_with_output().unwrap();
+        let diagnostics = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(output.status.code(), Some(0), "{diagnostics}");
+        let child_ran = diagnostics.contains("keyboard enhancement query checked");
+        assert!(child_ran, "missing completion marker:\n{diagnostics}");
+    }
+
+    /// Read the parent's key press while another thread waits for the keyboard enhancement reply,
+    /// then keep reading events until the query has found the reply. Runs only in the isolated
+    /// child.
+    #[test]
+    #[cfg(feature = "events")]
+    #[ignore = "launched by keyboard_enhancement_query_does_not_block_event_reads"]
+    fn check_event_reads_during_keyboard_enhancement_query() {
+        use std::{
+            io::{Read, Write},
+            time::Duration,
+        };
+
+        use crate::event::{self, Event, KeyCode};
+
+        assert_no_controlling_terminal();
+        acquire_controlling_terminal();
+        crate::terminal::enable_raw_mode().unwrap();
+
+        let query = std::thread::spawn(crate::terminal::supports_keyboard_enhancement);
+        // Wait until the key press is in the terminal's input queue, so the query is already
+        // waiting for its reply when the event reads start.
+        std::io::stdin().read_exact(&mut [0]).unwrap();
+        loop {
+            if !event::poll(Duration::from_millis(10)).unwrap() {
+                continue;
+            }
+            if let Event::Key(key) = event::read().unwrap() {
+                assert_eq!(key.code, KeyCode::Char('x'));
+                break;
+            }
+        }
+        assert!(
+            !query.is_finished(),
+            "the key press was read only after the query ended"
+        );
+
+        let mut terminal = File::options().write(true).open("/dev/tty").unwrap();
+        terminal.write_all(b"key read").unwrap();
+        while !query.is_finished() {
+            if event::poll(Duration::from_millis(10)).unwrap() {
+                event::read().unwrap();
+            }
+        }
+        assert!(query.join().unwrap().unwrap(), "the reply must be found");
+
+        crate::terminal::disable_raw_mode().unwrap();
+        println!("keyboard enhancement query checked");
+    }
+
+    // Explicitly acquire the parent-provided endpoint as the child's controlling terminal rather
+    // than relying on platform-specific open behavior. Close the setup handle so the API must
+    // reopen the terminal through /dev/tty.
+    fn acquire_controlling_terminal() {
+        let terminal_path = std::env::var_os("CROSSTERM_TEST_TERMINAL_PATH").unwrap();
+        let terminal = File::options()
+            .read(true)
+            .write(true)
+            .open(terminal_path)
+            .unwrap();
+        rustix::process::ioctl_tiocsctty(&terminal).unwrap();
+        drop(terminal);
     }
 
     // Launch only the named assertion test in this same binary. It is ignored during normal runs
