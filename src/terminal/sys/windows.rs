@@ -76,6 +76,17 @@ pub fn supports_keyboard_enhancement() -> std::io::Result<bool> {
     Ok(false)
 }
 
+/// Queries the terminal's support for progressive keyboard enhancement, waiting up to `timeout`
+/// for the terminal's reply.
+///
+/// This always returns `Ok(false)` on Windows.
+#[cfg(feature = "events")]
+pub fn supports_keyboard_enhancement_timeout(
+    _timeout: std::time::Duration,
+) -> std::io::Result<bool> {
+    Ok(false)
+}
+
 pub(crate) fn clear(clear_type: ClearType) -> std::io::Result<()> {
     let screen_buffer = ScreenBuffer::current()?;
     let csbi = screen_buffer.info()?;

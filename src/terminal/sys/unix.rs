@@ -10,6 +10,8 @@ use rustix::{
     termios::{Termios, Winsize, tcgetwinsize},
 };
 
+#[cfg(feature = "events")]
+use std::time::Duration;
 use std::{fs::File, io};
 
 // Some(Termios) -> we're in the raw mode and this is the previous mode
@@ -93,12 +95,31 @@ fn set_terminal_attr(fd: impl AsFd, termios: &Termios) -> io::Result<()> {
 
 /// Queries the terminal's support for progressive keyboard enhancement.
 ///
+/// The query waits up to 2 seconds for the terminal's reply. Use
+/// [`supports_keyboard_enhancement_timeout`] to choose another limit.
+///
 /// On unix systems, this function will block and possibly time out while
 /// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll)
 /// are being called.
 #[cfg(feature = "events")]
 pub fn supports_keyboard_enhancement() -> io::Result<bool> {
     query_keyboard_enhancement_flags().map(|flags| flags.is_some())
+}
+
+/// Queries the terminal's support for progressive keyboard enhancement, waiting up to `timeout`
+/// for the terminal's reply.
+///
+/// Returns an error if the terminal does not reply within `timeout`. Most terminals reply at once,
+/// including those without support for the protocol, so a short timeout mainly bounds the wait
+/// for a terminal that does not reply at all. A remote terminal replies only after a network round
+/// trip.
+///
+/// On unix systems, this function will block and possibly time out while
+/// [`crossterm::event::read`](crate::event::read) or [`crossterm::event::poll`](crate::event::poll)
+/// are being called.
+#[cfg(feature = "events")]
+pub fn supports_keyboard_enhancement_timeout(timeout: Duration) -> io::Result<bool> {
+    query_keyboard_enhancement_flags_timeout(timeout).map(|flags| flags.is_some())
 }
 
 /// Queries the terminal's currently active keyboard enhancement flags.
@@ -108,29 +129,39 @@ pub fn supports_keyboard_enhancement() -> io::Result<bool> {
 /// are being called.
 #[cfg(feature = "events")]
 pub fn query_keyboard_enhancement_flags() -> io::Result<Option<KeyboardEnhancementFlags>> {
+    query_keyboard_enhancement_flags_timeout(Duration::from_millis(2000))
+}
+
+#[cfg(feature = "events")]
+fn query_keyboard_enhancement_flags_timeout(
+    timeout: Duration,
+) -> io::Result<Option<KeyboardEnhancementFlags>> {
     if is_raw_mode_enabled() {
-        query_keyboard_enhancement_flags_raw()
+        query_keyboard_enhancement_flags_raw(timeout)
     } else {
-        query_keyboard_enhancement_flags_nonraw()
+        query_keyboard_enhancement_flags_nonraw(timeout)
     }
 }
 
 #[cfg(feature = "events")]
-fn query_keyboard_enhancement_flags_nonraw() -> io::Result<Option<KeyboardEnhancementFlags>> {
+fn query_keyboard_enhancement_flags_nonraw(
+    timeout: Duration,
+) -> io::Result<Option<KeyboardEnhancementFlags>> {
     enable_raw_mode()?;
-    let flags = query_keyboard_enhancement_flags_raw();
+    let flags = query_keyboard_enhancement_flags_raw(timeout);
     disable_raw_mode()?;
     flags
 }
 
 #[cfg(feature = "events")]
-fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhancementFlags>> {
+fn query_keyboard_enhancement_flags_raw(
+    timeout: Duration,
+) -> io::Result<Option<KeyboardEnhancementFlags>> {
     use crate::event::{
         filter::{KeyboardEnhancementFlagsFilter, PrimaryDeviceAttributesFilter},
         internal::{self, InternalEvent},
     };
     use std::io::Write;
-    use std::time::Duration;
 
     // This is the recommended method for testing support for the keyboard enhancement protocol.
     // We send a query for the flags supported by the terminal and then the primary device
@@ -157,10 +188,7 @@ fn query_keyboard_enhancement_flags_raw() -> io::Result<Option<KeyboardEnhanceme
     }
 
     loop {
-        match internal::poll(
-            Some(Duration::from_millis(2000)),
-            &KeyboardEnhancementFlagsFilter,
-        ) {
+        match internal::poll(Some(timeout), &KeyboardEnhancementFlagsFilter) {
             Ok(true) => {
                 match internal::read(&KeyboardEnhancementFlagsFilter) {
                     Ok(InternalEvent::KeyboardEnhancementFlags(current_flags)) => {
@@ -243,17 +271,7 @@ mod tests {
     fn check_controlling_terminal_size() {
         assert_no_controlling_terminal();
 
-        // Explicitly acquire this endpoint as the child's controlling terminal rather than relying
-        // on platform-specific open behavior. Close the setup handle so the API must reopen the
-        // terminal through /dev/tty.
-        let terminal_path = std::env::var_os("CROSSTERM_TEST_TERMINAL_PATH").unwrap();
-        let terminal = File::options()
-            .read(true)
-            .write(true)
-            .open(terminal_path)
-            .unwrap();
-        rustix::process::ioctl_tiocsctty(&terminal).unwrap();
-        drop(terminal);
+        acquire_controlling_terminal();
 
         assert!(
             File::open("/dev/tty").is_ok(),
@@ -397,6 +415,67 @@ mod tests {
         assert!(crate::terminal::window_size().is_err());
 
         println!("terminal size checked");
+    }
+
+    /// Verify that the keyboard enhancement query gives up after the requested timeout when the
+    /// terminal does not reply.
+    #[test]
+    #[cfg(feature = "events")]
+    fn keyboard_enhancement_query_honors_timeout() {
+        let (pty, _terminal) = terminal_with_size();
+        let test_name = "terminal::sys::unix::tests::check_keyboard_enhancement_query_timeout";
+        let mut child = child_test(test_name);
+        let name = ptsname(&pty, Vec::new()).unwrap();
+        let terminal_path = OsStr::from_bytes(name.to_bytes());
+        child
+            .arg("--show-output")
+            .env("CROSSTERM_TEST_TERMINAL_PATH", terminal_path)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null());
+        detach_controlling_terminal(&mut child);
+
+        let output = child.output().unwrap();
+        drop(pty);
+
+        let diagnostics = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(output.status.code(), Some(0), "{diagnostics}");
+        let child_ran = diagnostics.contains("keyboard enhancement query checked");
+        assert!(child_ran, "missing completion marker:\n{diagnostics}");
+    }
+
+    /// Query a terminal that never replies with a short timeout. Runs only in the isolated child.
+    #[test]
+    #[cfg(feature = "events")]
+    #[ignore = "launched by keyboard_enhancement_query_honors_timeout"]
+    fn check_keyboard_enhancement_query_timeout() {
+        use std::time::{Duration, Instant};
+
+        assert_no_controlling_terminal();
+        acquire_controlling_terminal();
+
+        let start = Instant::now();
+        let result =
+            crate::terminal::supports_keyboard_enhancement_timeout(Duration::from_millis(50));
+        let elapsed = start.elapsed();
+        assert!(result.is_err(), "the query must time out");
+        assert!(elapsed < Duration::from_millis(1000), "took {elapsed:?}");
+
+        println!("keyboard enhancement query checked");
+    }
+
+    // Explicitly acquire the parent-provided endpoint as the child's controlling terminal rather
+    // than relying on platform-specific open behavior. Close the setup handle so the API must
+    // reopen the terminal through /dev/tty.
+    fn acquire_controlling_terminal() {
+        let terminal_path = std::env::var_os("CROSSTERM_TEST_TERMINAL_PATH").unwrap();
+        let terminal = File::options()
+            .read(true)
+            .write(true)
+            .open(terminal_path)
+            .unwrap();
+        rustix::process::ioctl_tiocsctty(&terminal).unwrap();
+        drop(terminal);
     }
 
     // Launch only the named assertion test in this same binary. It is ignored during normal runs
