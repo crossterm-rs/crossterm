@@ -726,6 +726,13 @@ pub(crate) fn parse_csi_sgr_mouse(buffer: &[u8]) -> io::Result<Option<InternalEv
     assert!(buffer.starts_with(b"\x1B[<")); // ESC [ <
 
     if !buffer.ends_with(b"m") && !buffer.ends_with(b"M") {
+        // A final byte (0x40..=0x7E) other than M/m still ends the
+        // sequence. Returning Ok(None) here wedges the reader and
+        // swallows later input, as with unrecognised CSI ? sequences
+        // (#1104). Anything else means the sequence is still arriving.
+        if matches!(buffer[buffer.len() - 1], 0x40..=0x7E) {
+            return Err(could_not_parse_event_error());
+        }
         return Ok(None);
     }
 
@@ -1605,6 +1612,35 @@ mod tests {
         assert!(
             r.is_err(),
             "finished unrecognised CSI ? sequence must be Err, got {r:?}"
+        );
+    }
+
+    #[test]
+    fn test_unrecognised_csi_sgr_mouse_final_byte_is_error_not_incomplete() {
+        // SGR mouse sequences end in M or m. Any other final byte
+        // (0x40..=0x7E) still ends the sequence, so returning Ok(None)
+        // wedges the reader and swallows later input, as in #1104.
+        let r = parse_event(b"\x1B[<0;10;20X", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI < sequence must be Err, got {r:?}"
+        );
+        let r = parse_event(b"\x1B[<0;10;20~", false);
+        assert!(
+            r.is_err(),
+            "finished unrecognised CSI < sequence must be Err, got {r:?}"
+        );
+        // A prefix without a final byte is genuinely incomplete and
+        // must keep waiting for more bytes.
+        let r = parse_event(b"\x1B[<0;10;20", false);
+        assert!(
+            matches!(r, Ok(None)),
+            "incomplete CSI < sequence must be Ok(None), got {r:?}"
+        );
+        let r = parse_event(b"\x1B[<", false);
+        assert!(
+            matches!(r, Ok(None)),
+            "incomplete CSI < sequence must be Ok(None), got {r:?}"
         );
     }
 }
