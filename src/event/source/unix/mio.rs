@@ -91,6 +91,11 @@ impl EventSource for UnixInternalEventSource {
                 return Ok(None);
             }
 
+            // The sources are registered edge-triggered: a token that is not handled here is not
+            // reported again until new readiness arrives, so handle every token of this poll and
+            // queue its events before returning.
+            #[cfg(feature = "event-stream")]
+            let mut woken = false;
             for token in self.events.iter().map(|x| x.token()) {
                 match token {
                     TTY_TOKEN => {
@@ -117,28 +122,36 @@ impl EventSource for UnixInternalEventSource {
                                 }
                             };
 
-                            if let Some(event) = self.parser.next() {
-                                return Ok(Some(event));
+                            if !self.parser.internal_events.is_empty() {
+                                break;
                             }
                         }
                     }
                     SIGNAL_TOKEN => {
                         if self.signals.pending().next() == Some(signal_hook::consts::SIGWINCH) {
                             let new_size = crate::terminal::size()?;
-                            return Ok(Some(InternalEvent::Event(Event::Resize(
-                                new_size.0, new_size.1,
-                            ))));
+                            self.parser.internal_events.push_back(InternalEvent::Event(
+                                Event::Resize(new_size.0, new_size.1),
+                            ));
                         }
                     }
                     #[cfg(feature = "event-stream")]
-                    WAKE_TOKEN => {
-                        return Err(std::io::Error::new(
-                            std::io::ErrorKind::Interrupted,
-                            "Poll operation was woken up by `Waker::wake`",
-                        ));
-                    }
+                    WAKE_TOKEN => woken = true,
                     _ => unreachable!("Synchronize Evented handle registration & token handling"),
                 }
+            }
+
+            // The queued events are returned by the next call.
+            #[cfg(feature = "event-stream")]
+            if woken {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "Poll operation was woken up by `Waker::wake`",
+                ));
+            }
+
+            if let Some(event) = self.parser.next() {
+                return Ok(Some(event));
             }
 
             // Processing above can take some time, check if timeout expired
@@ -222,5 +235,42 @@ impl Iterator for Parser {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.internal_events.pop_front()
+    }
+}
+
+#[cfg(all(test, feature = "event-stream"))]
+mod tests {
+    use std::{io, io::Write, os::unix::net::UnixStream, time::Duration};
+
+    use crate::event::{Event, KeyCode, internal::InternalEvent, source::EventSource};
+    use crate::terminal::sys::file_descriptor::FileDesc;
+
+    use super::UnixInternalEventSource;
+
+    /// A wake and tty input that are ready in the same poll must both be reported. The tokens are
+    /// edge-triggered, so a token dropped from the batch is not reported again until new readiness
+    /// arrives on its source.
+    #[test]
+    fn wake_and_input_from_one_poll_are_both_delivered() {
+        let (input, mut terminal) = UnixStream::pair().unwrap();
+        let mut source =
+            UnixInternalEventSource::from_file_descriptor(FileDesc::Owned(input.into())).unwrap();
+        source.waker().wake().unwrap();
+        terminal.write_all(b"a").unwrap();
+
+        let mut woken = false;
+        let mut keys = Vec::new();
+        loop {
+            match source.try_read(Some(Duration::from_millis(100))) {
+                Ok(Some(InternalEvent::Event(Event::Key(key)))) => keys.push(key.code),
+                Ok(Some(event)) => panic!("unexpected event: {event:?}"),
+                Ok(None) => break,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => woken = true,
+                Err(e) => panic!("unexpected error: {e}"),
+            }
+        }
+
+        assert!(woken, "the wake was not reported");
+        assert_eq!(keys, [KeyCode::Char('a')]);
     }
 }
