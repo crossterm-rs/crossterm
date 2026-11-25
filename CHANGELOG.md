@@ -52,6 +52,9 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix `poll(Duration::ZERO)` on Windows returning `false` while console input is still
+  queued. A console record that maps to no event, such as the Shift key record before a pasted
+  capital letter, ended the poll instead of the reader moving on to the next record.
 
 # Version 0.29
 
