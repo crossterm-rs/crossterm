@@ -52,6 +52,10 @@
 - Fix `Colors::from(Colored::UnderlineColor(_))` setting the background
   color. `Colors` has no underline field, so the color is now dropped
   instead of being applied to the background.
+- Fix the default Unix event source holding back input, a resize or a wake that became ready in
+  the same poll as another event. The poll is edge-triggered, so an event left in the batch was
+  not reported until more readiness arrived on its source; a key typed during a resize could stall
+  until the next key press. Every ready source is now handled before an event is returned.
 
 # Version 0.29
 
