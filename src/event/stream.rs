@@ -6,12 +6,13 @@ use std::{
         atomic::{AtomicBool, Ordering},
         mpsc::{self, SyncSender},
     },
-    task::{Context, Poll},
+    task::{Context, Poll, Waker as TaskWaker},
     thread,
     time::Duration,
 };
 
 use futures_core::stream::Stream;
+use parking_lot::Mutex;
 
 use crate::event::{
     Event,
@@ -34,36 +35,38 @@ use crate::event::{
 #[derive(Debug)]
 pub struct EventStream {
     poll_internal_waker: Waker,
-    stream_wake_task_executed: Arc<AtomicBool>,
+    pending_wake: Arc<PendingWake>,
     stream_wake_task_should_shutdown: Arc<AtomicBool>,
-    task_sender: SyncSender<Task>,
+    task_sender: SyncSender<()>,
 }
 
 impl Default for EventStream {
     fn default() -> Self {
-        let (task_sender, receiver) = mpsc::sync_channel::<Task>(1);
+        let (task_sender, receiver) = mpsc::sync_channel(1);
+        let pending_wake = Arc::new(PendingWake::default());
+        let stream_wake_task_should_shutdown = Arc::new(AtomicBool::new(false));
+        let worker_wake = pending_wake.clone();
+        let worker_should_shutdown = stream_wake_task_should_shutdown.clone();
 
         thread::spawn(move || {
-            while let Ok(task) = receiver.recv() {
+            while let Ok(()) = receiver.recv() {
                 loop {
                     if let Ok(true) = internal::poll(None, &EventFilter) {
                         break;
                     }
 
-                    if task.stream_wake_task_should_shutdown.load(Ordering::SeqCst) {
+                    if worker_should_shutdown.load(Ordering::SeqCst) {
                         break;
                     }
                 }
-                task.stream_wake_task_executed
-                    .store(false, Ordering::SeqCst);
-                task.stream_waker.wake();
+                worker_wake.wake();
             }
         });
 
         EventStream {
             poll_internal_waker: internal::lock_event_reader().waker(),
-            stream_wake_task_executed: Arc::new(AtomicBool::new(false)),
-            stream_wake_task_should_shutdown: Arc::new(AtomicBool::new(false)),
+            pending_wake,
+            stream_wake_task_should_shutdown,
             task_sender,
         }
     }
@@ -76,10 +79,22 @@ impl EventStream {
     }
 }
 
-struct Task {
-    stream_waker: std::task::Waker,
-    stream_wake_task_executed: Arc<AtomicBool>,
-    stream_wake_task_should_shutdown: Arc<AtomicBool>,
+#[derive(Debug, Default)]
+struct PendingWake(Mutex<Option<TaskWaker>>);
+
+impl PendingWake {
+    fn register(&self, waker: &TaskWaker) -> bool {
+        let waker = waker.clone();
+        let previous = self.0.lock().replace(waker);
+        previous.is_none()
+    }
+
+    fn wake(&self) {
+        let waker = self.0.lock().take();
+        if let Some(waker) = waker {
+            waker.wake();
+        }
+    }
 }
 
 // Note to future me
@@ -112,24 +127,8 @@ impl Stream for EventStream {
                 _ => unreachable!(),
             },
             Ok(false) => {
-                if !self
-                    .stream_wake_task_executed
-                    .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-                    // https://github.com/rust-lang/rust/issues/80486#issuecomment-752244166
-                    .unwrap_or_else(|x| x)
-                {
-                    let stream_waker = cx.waker().clone();
-                    let stream_wake_task_executed = self.stream_wake_task_executed.clone();
-                    let stream_wake_task_should_shutdown =
-                        self.stream_wake_task_should_shutdown.clone();
-
-                    stream_wake_task_should_shutdown.store(false, Ordering::SeqCst);
-
-                    let _ = self.task_sender.send(Task {
-                        stream_waker,
-                        stream_wake_task_executed,
-                        stream_wake_task_should_shutdown,
-                    });
+                if self.pending_wake.register(cx.waker()) {
+                    let _ = self.task_sender.send(());
                 }
                 Poll::Pending
             }
@@ -143,5 +142,36 @@ impl Drop for EventStream {
         self.stream_wake_task_should_shutdown
             .store(true, Ordering::SeqCst);
         let _ = self.poll_internal_waker.wake();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::task::Wake;
+
+    use super::*;
+
+    struct Notify(mpsc::Sender<&'static str>, &'static str);
+
+    impl Wake for Notify {
+        fn wake(self: Arc<Self>) {
+            self.0.send(self.1).unwrap();
+        }
+    }
+
+    #[test]
+    fn pending_wake_uses_latest_waker() {
+        let (tx, rx) = mpsc::channel();
+        let first = TaskWaker::from(Arc::new(Notify(tx.clone(), "first")));
+        let latest = TaskWaker::from(Arc::new(Notify(tx, "latest")));
+
+        let pending_wake = PendingWake::default();
+        assert!(pending_wake.register(&first));
+        assert!(!pending_wake.register(&latest));
+        pending_wake.wake();
+
+        assert_eq!(rx.try_recv(), Ok("latest"));
+        assert_eq!(rx.try_recv(), Err(mpsc::TryRecvError::Empty));
+        assert!(pending_wake.register(&first));
     }
 }
